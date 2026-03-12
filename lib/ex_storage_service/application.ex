@@ -22,7 +22,8 @@ defmodule ExStorageService.Application do
       {ExStorageService.Storage.Engine, data_root: data_root},
       {Bandit, plug: ExStorageService.S3.Router, port: s3_port, scheme: :http},
       {Phoenix.PubSub, name: ExStorageService.PubSub},
-      ExStorageServiceWeb.Endpoint
+      ExStorageServiceWeb.Endpoint,
+      ExStorageService.Storage.MultipartGC
     ]
 
     opts = [strategy: :one_for_one, name: ExStorageService.Supervisor]

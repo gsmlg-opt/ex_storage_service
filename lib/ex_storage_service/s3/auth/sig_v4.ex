@@ -2,11 +2,19 @@ defmodule ExStorageService.S3.Auth.SigV4 do
   @moduledoc """
   AWS Signature Version 4 authentication for S3-compatible API.
 
-  Phase 1 MVP: supports bypass mode where auth is skipped if no auth is configured.
-  Full signature verification can be enabled by configuring access keys.
+  When auth is enabled (config :s3_auth_enabled), the plug:
+  1. Parses the Authorization header
+  2. Looks up the access key in IAM
+  3. Verifies the signature using the decrypted secret
+  4. Sets conn.assigns[:user_id] for downstream authorization
+
+  When auth is disabled (default), all requests pass through (bypass mode).
   """
 
   import Plug.Conn
+
+  alias ExStorageService.IAM.AccessKey
+  alias ExStorageService.IAM.User
 
   @doc """
   Plug-compatible init/1 callback.
@@ -17,16 +25,17 @@ defmodule ExStorageService.S3.Auth.SigV4 do
   Plug-compatible call/2 callback.
 
   Checks if authentication is configured. If not, passes the request through (bypass mode).
-  If configured, verifies the AWS Signature V4 on the request.
+  If configured, verifies the AWS Signature V4 on the request using IAM access keys.
 
   Options:
-    - `:get_secret_fn` - a function `(access_key_id) -> secret_access_key | nil`
+    - `:get_secret_fn` - optional override function `(access_key_id) -> secret_access_key | nil`.
+      If not provided, defaults to looking up keys via IAM.AccessKey.
   """
   def call(conn, opts) do
-    get_secret_fn = Keyword.get(opts, :get_secret_fn)
+    if auth_configured?() do
+      get_secret_fn = Keyword.get(opts, :get_secret_fn) || (&iam_get_secret/1)
 
-    if auth_configured?() and get_secret_fn do
-      case verify_request(conn, get_secret_fn) do
+      case verify_request_with_iam(conn, get_secret_fn) do
         {:ok, conn} ->
           conn
 
@@ -209,6 +218,64 @@ defmodule ExStorageService.S3.Auth.SigV4 do
     signing_key
     |> hmac_sha256(string_to_sign)
     |> Base.encode16(case: :lower)
+  end
+
+  # IAM integration
+
+  defp verify_request_with_iam(conn, get_secret_fn) do
+    case verify_request(conn, get_secret_fn) do
+      {:ok, conn} ->
+        # Extract the access key ID from the Authorization header and set user_id
+        case get_authorization_header(conn) do
+          {:ok, auth_header} ->
+            case parse_authorization(auth_header) do
+              {:ok, parsed} ->
+                access_key_id = parsed.credential.access_key_id
+
+                case resolve_user_id(access_key_id) do
+                  {:ok, user_id} ->
+                    # Check if user is active
+                    case User.get_user(user_id) do
+                      {:ok, %{status: :active}} ->
+                        {:ok, Plug.Conn.assign(conn, :user_id, user_id)}
+
+                      {:ok, %{status: :suspended}} ->
+                        {:error, "User account is suspended"}
+
+                      _ ->
+                        {:error, "User not found"}
+                    end
+
+                  {:error, reason} ->
+                    {:error, reason}
+                end
+
+              _ ->
+                {:ok, conn}
+            end
+
+          _ ->
+            {:ok, conn}
+        end
+
+      error ->
+        error
+    end
+  end
+
+  defp iam_get_secret(access_key_id) do
+    case AccessKey.lookup_by_access_key_id(access_key_id) do
+      {:ok, %{secret_access_key: secret, status: :active}} -> secret
+      {:ok, %{status: :inactive}} -> nil
+      _ -> nil
+    end
+  end
+
+  defp resolve_user_id(access_key_id) do
+    case AccessKey.lookup_by_access_key_id(access_key_id) do
+      {:ok, %{user_id: user_id}} -> {:ok, user_id}
+      _ -> {:error, "InvalidAccessKeyId"}
+    end
   end
 
   # Private helpers

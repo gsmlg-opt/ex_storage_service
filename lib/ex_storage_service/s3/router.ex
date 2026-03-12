@@ -15,6 +15,7 @@ defmodule ExStorageService.S3.Router do
   use Plug.ErrorHandler
 
   alias ExStorageService.S3.Handlers
+  alias ExStorageService.S3.MultipartHandlers
 
   plug :assign_request_id
   plug :fetch_query
@@ -48,7 +49,7 @@ defmodule ExStorageService.S3.Router do
     Handlers.head_bucket(conn, bucket)
   end
 
-  # GET /:bucket - ListObjectsV2, or GET /:bucket/*key - GetObject
+  # GET /:bucket - ListObjectsV2, or GET /:bucket/*key - GetObject / ListParts
   # We use a forward match for the bucket, then check for key segments.
   get "/:bucket/*key" do
     case key do
@@ -57,7 +58,13 @@ defmodule ExStorageService.S3.Router do
 
       key_parts ->
         object_key = Enum.join(key_parts, "/")
-        Handlers.get_object(conn, bucket, object_key)
+        params = conn.query_params
+
+        if Map.has_key?(params, "uploadId") do
+          MultipartHandlers.list_parts(conn, bucket, object_key)
+        else
+          Handlers.get_object(conn, bucket, object_key)
+        end
     end
   end
 
@@ -73,48 +80,92 @@ defmodule ExStorageService.S3.Router do
     end
   end
 
-  # PUT /:bucket/*key - PutObject or CopyObject
+  # PUT /:bucket/*key - PutObject, CopyObject, or UploadPart
   put "/:bucket/*key" do
     object_key = Enum.join(key, "/")
+    params = conn.query_params
 
-    case Plug.Conn.get_req_header(conn, "x-amz-copy-source") do
-      [_ | _] ->
+    cond do
+      Map.has_key?(params, "partNumber") and Map.has_key?(params, "uploadId") ->
+        MultipartHandlers.upload_part(conn, bucket, object_key)
+
+      Plug.Conn.get_req_header(conn, "x-amz-copy-source") != [] ->
         Handlers.copy_object(conn, bucket, object_key)
 
-      [] ->
+      true ->
         Handlers.put_object(conn, bucket, object_key)
     end
   end
 
-  # DELETE /:bucket/*key - DeleteObject
+  # DELETE /:bucket/*key - DeleteObject or AbortMultipartUpload
   delete "/:bucket/*key" do
     object_key = Enum.join(key, "/")
-    Handlers.delete_object(conn, bucket, object_key)
+    params = conn.query_params
+
+    if Map.has_key?(params, "uploadId") do
+      MultipartHandlers.abort_multipart_upload(conn, bucket, object_key)
+    else
+      Handlers.delete_object(conn, bucket, object_key)
+    end
   end
 
+  # POST /:bucket/*key - CreateMultipartUpload (?uploads) or CompleteMultipartUpload (?uploadId=X)
   # POST /:bucket?delete - DeleteObjects (multi-delete)
-  post "/:bucket" do
-    params = Plug.Conn.fetch_query_params(conn).query_params
+  post "/:bucket/*key" do
+    params = conn.query_params
 
-    if Map.has_key?(params, "delete") do
-      Handlers.delete_objects(conn, bucket)
-    else
-      request_id = conn.assigns[:request_id] || generate_request_id()
+    case key do
+      [] ->
+        # No key segments — bucket-level POST
+        if Map.has_key?(params, "delete") do
+          Handlers.delete_objects(conn, bucket)
+        else
+          request_id = conn.assigns[:request_id] || generate_request_id()
 
-      body =
-        ExStorageService.S3.XML.error_response(
-          "InvalidArgument",
-          "Unsupported POST operation.",
-          "/#{bucket}",
-          request_id
-        )
+          body =
+            ExStorageService.S3.XML.error_response(
+              "InvalidArgument",
+              "Unsupported POST operation.",
+              "/#{bucket}",
+              request_id
+            )
 
-      conn
-      |> put_resp_header("content-type", "application/xml")
-      |> put_resp_header("x-amz-request-id", request_id)
-      |> put_resp_header("x-amz-id-2", request_id)
-      |> put_resp_header("server", "ExStorageService")
-      |> send_resp(400, body)
+          conn
+          |> put_resp_header("content-type", "application/xml")
+          |> put_resp_header("x-amz-request-id", request_id)
+          |> put_resp_header("x-amz-id-2", request_id)
+          |> put_resp_header("server", "ExStorageService")
+          |> send_resp(400, body)
+        end
+
+      key_parts ->
+        object_key = Enum.join(key_parts, "/")
+
+        cond do
+          Map.has_key?(params, "uploads") ->
+            MultipartHandlers.create_multipart_upload(conn, bucket, object_key)
+
+          Map.has_key?(params, "uploadId") ->
+            MultipartHandlers.complete_multipart_upload(conn, bucket, object_key)
+
+          true ->
+            request_id = conn.assigns[:request_id] || generate_request_id()
+
+            body =
+              ExStorageService.S3.XML.error_response(
+                "InvalidArgument",
+                "Unsupported POST operation.",
+                "/#{bucket}/#{object_key}",
+                request_id
+              )
+
+            conn
+            |> put_resp_header("content-type", "application/xml")
+            |> put_resp_header("x-amz-request-id", request_id)
+            |> put_resp_header("x-amz-id-2", request_id)
+            |> put_resp_header("server", "ExStorageService")
+            |> send_resp(400, body)
+        end
     end
   end
 

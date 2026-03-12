@@ -202,10 +202,75 @@ defmodule ExStorageService.S3.XML do
       "InvalidArgument" -> 400
       "InvalidBucketName" -> 400
       "MalformedXML" -> 400
+      "NoSuchUpload" -> 404
       "MethodNotAllowed" -> 405
       "InternalError" -> 500
       _ -> 500
     end
+  end
+
+  @doc """
+  Builds InitiateMultipartUploadResult XML.
+  """
+  def initiate_multipart_upload_response(bucket, key, upload_id) do
+    [
+      ~s(<?xml version="1.0" encoding="UTF-8"?>),
+      ~s(<InitiateMultipartUploadResult xmlns="#{@s3_xmlns}">),
+      "<Bucket>", escape(bucket), "</Bucket>",
+      "<Key>", escape(key), "</Key>",
+      "<UploadId>", escape(upload_id), "</UploadId>",
+      "</InitiateMultipartUploadResult>"
+    ]
+    |> IO.iodata_to_binary()
+  end
+
+  @doc """
+  Builds CompleteMultipartUploadResult XML.
+  """
+  def complete_multipart_upload_response(bucket, key, etag, location) do
+    [
+      ~s(<?xml version="1.0" encoding="UTF-8"?>),
+      ~s(<CompleteMultipartUploadResult xmlns="#{@s3_xmlns}">),
+      "<Location>", escape(location), "</Location>",
+      "<Bucket>", escape(bucket), "</Bucket>",
+      "<Key>", escape(key), "</Key>",
+      "<ETag>\"", escape(etag), "\"</ETag>",
+      "</CompleteMultipartUploadResult>"
+    ]
+    |> IO.iodata_to_binary()
+  end
+
+  @doc """
+  Builds ListPartsResult XML.
+
+  `parts` is a list of maps with `:part_number`, `:etag`, `:size`, and optionally `:uploaded_at`.
+  """
+  def list_parts_response(bucket, key, upload_id, parts) do
+    part_elements =
+      Enum.map(parts, fn p ->
+        [
+          "<Part>",
+          "<PartNumber>", to_string(p.part_number), "</PartNumber>",
+          "<ETag>\"", escape(p.etag), "\"</ETag>",
+          "<Size>", to_string(p.size), "</Size>",
+          if(Map.has_key?(p, :uploaded_at),
+            do: ["<LastModified>", escape(p.uploaded_at), "</LastModified>"],
+            else: []
+          ),
+          "</Part>"
+        ]
+      end)
+
+    [
+      ~s(<?xml version="1.0" encoding="UTF-8"?>),
+      ~s(<ListPartsResult xmlns="#{@s3_xmlns}">),
+      "<Bucket>", escape(bucket), "</Bucket>",
+      "<Key>", escape(key), "</Key>",
+      "<UploadId>", escape(upload_id), "</UploadId>",
+      part_elements,
+      "</ListPartsResult>"
+    ]
+    |> IO.iodata_to_binary()
   end
 
   @doc """
