@@ -6,6 +6,8 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
   alias ExStorageService.Storage.Lifecycle
   alias ExStorageService.Notifications
   alias ExStorageService.Replication.Config, as: ReplicationConfig
+  alias ExStorageService.IAM.AccessKey
+  alias ExStorageService.S3.Presigned
 
   @impl true
   def mount(%{"name" => name}, _session, socket) do
@@ -15,6 +17,7 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
          socket
          |> assign(bucket: bucket, bucket_name: name, objects: [])
          |> assign(versioning: :disabled, lifecycle_rules: [], notifications: [], replicas: [])
+         |> assign(access_keys: [], presigned_url: nil)
          |> load_config()}
 
       {:error, :not_found} ->
@@ -139,6 +142,45 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
     {:noreply, socket |> put_flash(:info, "Replicas removed") |> load_config()}
   end
 
+  def handle_event("generate_presigned", params, socket) do
+    bucket = socket.assigns.bucket_name
+    object_key = String.trim(params["object_key"] || "")
+    access_key_id = String.trim(params["access_key_id"] || "")
+    method = params["method"] || "GET"
+    expires = String.to_integer(params["expires"] || "3600")
+
+    cond do
+      object_key == "" ->
+        {:noreply, put_flash(socket, :error, "Object key is required")}
+
+      access_key_id == "" ->
+        {:noreply, put_flash(socket, :error, "Access key is required")}
+
+      true ->
+        case AccessKey.get_access_key(access_key_id) do
+          {:ok, key} ->
+            s3_port = Application.get_env(:ex_storage_service, :s3_port, 9000)
+            host = "localhost:#{s3_port}"
+            scheme = "http"
+
+            url =
+              Presigned.generate_url(bucket, object_key,
+                access_key_id: key.access_key_id,
+                secret_access_key: key.secret_access_key,
+                method: method,
+                expires: expires,
+                host: host,
+                scheme: scheme
+              )
+
+            {:noreply, assign(socket, :presigned_url, url)}
+
+          {:error, _} ->
+            {:noreply, put_flash(socket, :error, "Access key not found")}
+        end
+    end
+  end
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -232,6 +274,46 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
         </div>
       </div>
 
+      <%!-- Presigned URL Generator --%>
+      <div class="bg-white shadow rounded-lg p-5 mb-8">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3">Presigned URL Generator</h3>
+        <form phx-submit="generate_presigned" class="space-y-3">
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <input type="text" name="object_key" placeholder="Object key (e.g. photos/image.jpg)"
+              class="w-full text-xs rounded border-gray-300" />
+            <select name="access_key_id" class="w-full text-xs rounded border-gray-300">
+              <option value="">Select access key...</option>
+              <%= for key <- @access_keys do %>
+                <option value={key.access_key_id}>{key.access_key_id} ({key.user_id})</option>
+              <% end %>
+            </select>
+          </div>
+          <div class="flex gap-3 items-end">
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">Method</label>
+              <select name="method" class="text-xs rounded border-gray-300">
+                <option value="GET">GET</option>
+                <option value="PUT">PUT</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">Expires (seconds)</label>
+              <input type="number" name="expires" value="3600" min="1" max="604800"
+                class="w-28 text-xs rounded border-gray-300" />
+            </div>
+            <button type="submit" class="px-4 py-1.5 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700">
+              Generate URL
+            </button>
+          </div>
+        </form>
+        <%= if @presigned_url do %>
+          <div class="mt-3 p-3 bg-gray-50 rounded border">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Generated URL</label>
+            <div class="font-mono text-xs break-all text-gray-800 select-all">{@presigned_url}</div>
+          </div>
+        <% end %>
+      </div>
+
       <%!-- Objects Table --%>
       <h2 class="text-lg font-semibold text-gray-900 mb-4">Objects</h2>
       <div class="bg-white shadow rounded-lg">
@@ -284,11 +366,30 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
         _ -> []
       end
 
+    access_keys = load_all_active_keys()
+
     socket
     |> assign(:versioning, versioning)
     |> assign(:lifecycle_rules, lifecycle_rules)
     |> assign(:notifications, notifications)
     |> assign(:replicas, replicas)
+    |> assign(:access_keys, access_keys)
+  end
+
+  defp load_all_active_keys do
+    case Concord.get_all() do
+      {:ok, all} ->
+        all
+        |> Enum.filter(fn {k, _v} -> String.starts_with?(k, "access_key:") end)
+        |> Enum.map(fn {_k, v} -> v end)
+        |> Enum.filter(fn key -> key.status == :active end)
+        |> Enum.map(fn key ->
+          %{access_key_id: key.access_key_id, user_id: key.user_id}
+        end)
+
+      _ ->
+        []
+    end
   end
 
   defp format_size(bytes) when bytes < 1024, do: "#{bytes} B"
