@@ -7,6 +7,7 @@ defmodule ExStorageService.S3.MultipartHandlers do
 
   alias ExStorageService.S3.XML
   alias ExStorageService.Metadata
+  alias ExStorageService.Replication.Hooks
   alias ExStorageService.Storage.Multipart
 
   @doc """
@@ -103,6 +104,7 @@ defmodule ExStorageService.S3.MultipartHandlers do
                     }
 
                     Metadata.put_object_meta(bucket, key, meta)
+                    Hooks.after_put(bucket, key)
 
                     location = "/#{bucket}/#{key}"
                     response_body = XML.complete_multipart_upload_response(bucket, key, etag, location)

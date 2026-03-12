@@ -18,14 +18,20 @@ defmodule ExStorageService.Application do
     # Wait for Concord/Ra to be ready before starting services
     wait_for_concord()
 
+    # Initialize metrics collection
+    ExStorageService.Metrics.setup()
+
     children = [
       {ExStorageService.Storage.Engine, data_root: data_root},
       {Bandit, plug: ExStorageService.S3.Router, port: s3_port, scheme: :http},
       {Phoenix.PubSub, name: ExStorageService.PubSub},
       ExStorageServiceWeb.Endpoint,
       ExStorageService.Storage.MultipartGC,
+      ExStorageService.Storage.ContentGC,
       ExStorageService.Replication.JobQueue,
-      ExStorageService.Replication.Sync
+      ExStorageService.Replication.Sync,
+      {Task.Supervisor, name: ExStorageService.NotificationTaskSupervisor},
+      ExStorageService.Storage.Lifecycle
     ]
 
     opts = [strategy: :one_for_one, name: ExStorageService.Supervisor]

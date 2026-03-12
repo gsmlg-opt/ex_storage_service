@@ -16,9 +16,11 @@ defmodule ExStorageService.S3.Router do
 
   alias ExStorageService.S3.Handlers
   alias ExStorageService.S3.MultipartHandlers
+  alias ExStorageService.S3.Presigned
 
   plug :assign_request_id
   plug :fetch_query
+  plug :check_presigned_auth
   plug :match
   plug :dispatch
 
@@ -34,14 +36,39 @@ defmodule ExStorageService.S3.Router do
     Handlers.list_buckets(conn)
   end
 
-  # PUT /:bucket - CreateBucket (no key segments)
+  # PUT /:bucket - CreateBucket, or bucket config operations
   put "/:bucket" do
-    Handlers.create_bucket(conn, bucket)
+    params = conn.query_params
+
+    cond do
+      Map.has_key?(params, "versioning") ->
+        Handlers.put_bucket_versioning(conn, bucket)
+
+      Map.has_key?(params, "lifecycle") ->
+        Handlers.put_bucket_lifecycle(conn, bucket)
+
+      Map.has_key?(params, "notification") ->
+        Handlers.put_bucket_notification(conn, bucket)
+
+      true ->
+        Handlers.create_bucket(conn, bucket)
+    end
   end
 
-  # DELETE /:bucket - DeleteBucket or DeleteObjects (multi-delete)
+  # DELETE /:bucket - DeleteBucket, DeleteObjects, or config deletions
   delete "/:bucket" do
-    Handlers.delete_bucket(conn, bucket)
+    params = conn.query_params
+
+    cond do
+      Map.has_key?(params, "lifecycle") ->
+        Handlers.delete_bucket_lifecycle(conn, bucket)
+
+      Map.has_key?(params, "notification") ->
+        Handlers.delete_bucket_notification(conn, bucket)
+
+      true ->
+        Handlers.delete_bucket(conn, bucket)
+    end
   end
 
   # HEAD /:bucket - HeadBucket
@@ -52,18 +79,36 @@ defmodule ExStorageService.S3.Router do
   # GET /:bucket - ListObjectsV2, or GET /:bucket/*key - GetObject / ListParts
   # We use a forward match for the bucket, then check for key segments.
   get "/:bucket/*key" do
+    params = conn.query_params
+
     case key do
       [] ->
-        Handlers.list_objects(conn, bucket)
+        cond do
+          Map.has_key?(params, "versioning") ->
+            Handlers.get_bucket_versioning(conn, bucket)
+
+          Map.has_key?(params, "lifecycle") ->
+            Handlers.get_bucket_lifecycle(conn, bucket)
+
+          Map.has_key?(params, "notification") ->
+            Handlers.get_bucket_notification(conn, bucket)
+
+          true ->
+            Handlers.list_objects(conn, bucket)
+        end
 
       key_parts ->
         object_key = Enum.join(key_parts, "/")
-        params = conn.query_params
 
-        if Map.has_key?(params, "uploadId") do
-          MultipartHandlers.list_parts(conn, bucket, object_key)
-        else
-          Handlers.get_object(conn, bucket, object_key)
+        cond do
+          Map.has_key?(params, "uploadId") ->
+            MultipartHandlers.list_parts(conn, bucket, object_key)
+
+          Map.has_key?(params, "versionId") ->
+            Handlers.get_object_version(conn, bucket, object_key, params["versionId"])
+
+          true ->
+            Handlers.get_object(conn, bucket, object_key)
         end
     end
   end
@@ -197,6 +242,44 @@ defmodule ExStorageService.S3.Router do
 
   defp fetch_query(conn, _opts) do
     Plug.Conn.fetch_query_params(conn)
+  end
+
+  # Check for pre-signed URL authentication via query parameters
+  defp check_presigned_auth(conn, _opts) do
+    if Map.has_key?(conn.query_params, "X-Amz-Signature") do
+      # Pre-signed URL request — validate signature
+      get_secret_fn = fn access_key_id ->
+        case ExStorageService.IAM.AccessKey.lookup_by_access_key_id(access_key_id) do
+          {:ok, %{secret_access_key: secret, status: :active}} -> secret
+          _ -> nil
+        end
+      end
+
+      case Presigned.validate_presigned(conn, get_secret_fn) do
+        {:ok, conn} ->
+          # Mark as presigned-authenticated, skip further auth
+          Plug.Conn.assign(conn, :presigned_auth, true)
+
+        {:error, reason} ->
+          request_id = conn.assigns[:request_id] || generate_request_id()
+
+          body =
+            ExStorageService.S3.XML.error_response(
+              "AccessDenied",
+              reason,
+              conn.request_path,
+              request_id
+            )
+
+          conn
+          |> Plug.Conn.put_resp_header("content-type", "application/xml")
+          |> Plug.Conn.put_resp_header("x-amz-request-id", request_id)
+          |> Plug.Conn.send_resp(403, body)
+          |> Plug.Conn.halt()
+      end
+    else
+      conn
+    end
   end
 
   defp generate_request_id do

@@ -203,7 +203,10 @@ defmodule ExStorageService.S3.XML do
       "InvalidBucketName" -> 400
       "MalformedXML" -> 400
       "NoSuchUpload" -> 404
+      "NoSuchLifecycleConfiguration" -> 404
       "MethodNotAllowed" -> 405
+      "SlowDown" -> 429
+      "InvalidRange" -> 416
       "InternalError" -> 500
       _ -> 500
     end

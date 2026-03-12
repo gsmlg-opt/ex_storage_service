@@ -28,6 +28,11 @@ defmodule ExStorageServiceWeb.Router do
     live "/audit", AuditLive.Index
   end
 
+  # Prometheus metrics endpoint (no auth pipeline, plain text)
+  scope "/metrics" do
+    get "/", ExStorageServiceWeb.MetricsController, :index
+  end
+
   # Enable LiveDashboard in dev
   if Application.compile_env(:ex_storage_service, :dev_routes) do
     scope "/dev" do
