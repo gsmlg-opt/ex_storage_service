@@ -20,6 +20,12 @@ defmodule ExStorageServiceWeb.Router do
     live "/dashboard", DashboardLive
     live "/buckets", BucketLive.Index
     live "/buckets/:name", BucketLive.Show
+
+    live "/users", UserLive.Index
+    live "/users/:id", UserLive.Show
+    live "/policies", PolicyLive.Index
+    live "/policies/:id", PolicyLive.Show
+    live "/audit", AuditLive.Index
   end
 
   # Enable LiveDashboard in dev
