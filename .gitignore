@@ -1,0 +1,7 @@
+.loki/
+_build/
+deps/
+/priv/static/assets/
+*.beam
+/tmp/
+erl_crash.dump

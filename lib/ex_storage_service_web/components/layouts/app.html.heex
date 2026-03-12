@@ -1,0 +1,23 @@
+<header class="bg-gray-800 text-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center space-x-8">
+        <a href={~p"/dashboard"} class="text-xl font-bold">
+          ExStorageService
+        </a>
+        <nav class="flex space-x-4">
+          <a href={~p"/dashboard"} class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+            Dashboard
+          </a>
+          <a href={~p"/buckets"} class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+            Buckets
+          </a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <.flash_group flash={@flash} />
+  {@inner_content}
+</main>

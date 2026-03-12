@@ -1,0 +1,28 @@
+import Config
+
+config :ex_storage_service, ExStorageServiceWeb.Endpoint,
+  http: [ip: {127, 0, 0, 1}, port: 4000],
+  check_origin: false,
+  code_reloader: true,
+  debug_errors: true,
+  secret_key_base: "dev_secret_key_base_that_is_at_least_64_bytes_long_for_development_only_000000000",
+  watchers: [
+    esbuild: {Esbuild, :install_and_run, [:ex_storage_service, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:ex_storage_service, ~w(--watch)]}
+  ]
+
+config :ex_storage_service, ExStorageServiceWeb.Endpoint,
+  live_reload: [
+    patterns: [
+      ~r"priv/static/(?!uploads/).*(js|css|png|jpeg|jpg|gif|svg)$",
+      ~r"lib/ex_storage_service_web/(controllers|live|components)/.*(ex|heex)$"
+    ]
+  ]
+
+config :logger, :console, level: :debug
+
+config :phoenix, :plug_init_mode, :runtime
+
+config :phoenix_live_view,
+  debug_heex_annotations: true,
+  enable_expensive_runtime_checks: true
