@@ -8,6 +8,7 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
   alias ExStorageService.Replication.Config, as: ReplicationConfig
   alias ExStorageService.IAM.AccessKey
   alias ExStorageService.S3.Presigned
+  alias ExStorageService.Storage.Engine
 
   @impl true
   def mount(%{"name" => name}, _session, socket) do
@@ -140,6 +141,24 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
   def handle_event("remove_replicas", _params, socket) do
     ReplicationConfig.remove_bucket_replicas(socket.assigns.bucket_name)
     {:noreply, socket |> put_flash(:info, "Replicas removed") |> load_config()}
+  end
+
+  def handle_event("delete_object", %{"key" => key}, socket) do
+    bucket = socket.assigns.bucket_name
+
+    case Metadata.get_object_meta(bucket, key) do
+      {:ok, meta} ->
+        Metadata.delete_object_meta(bucket, key)
+        Engine.delete_content(bucket, meta.content_hash)
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "Deleted #{key}")
+         |> push_patch(to: ~p"/buckets/#{bucket}")}
+
+      {:error, :not_found} ->
+        {:noreply, put_flash(socket, :error, "Object not found")}
+    end
   end
 
   def handle_event("generate_presigned", params, socket) do
@@ -323,6 +342,7 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Key</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Size</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Modified</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
@@ -331,6 +351,11 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
                 <td class="px-6 py-4 font-mono text-sm">{obj.key}</td>
                 <td class="px-6 py-4 text-gray-500">{format_size(obj[:size] || 0)}</td>
                 <td class="px-6 py-4 text-gray-500">{obj[:updated_at] || obj[:created_at]}</td>
+                <td class="px-6 py-4 text-right">
+                  <button phx-click="delete_object" phx-value-key={obj.key}
+                    data-confirm={"Delete #{obj.key}?"}
+                    class="text-xs text-red-600 hover:text-red-800">Delete</button>
+                </td>
               </tr>
             <% end %>
           </tbody>

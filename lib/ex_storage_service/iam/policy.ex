@@ -79,6 +79,25 @@ defmodule ExStorageService.IAM.Policy do
   end
 
   @doc """
+  Updates a policy's fields (e.g., statements).
+  """
+  @spec update_policy(String.t(), map()) :: {:ok, t()} | {:error, :not_found | term()}
+  def update_policy(policy_id, attrs) do
+    case get_policy(policy_id) do
+      {:ok, policy} ->
+        updated = Map.merge(policy, attrs)
+
+        case Concord.put("policy:#{policy_id}", updated) do
+          :ok -> {:ok, updated}
+          error -> error
+        end
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
   Deletes a policy by its ID.
   """
   @spec delete_policy(String.t()) :: :ok | {:error, :not_found | term()}

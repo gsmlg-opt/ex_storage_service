@@ -6,7 +6,8 @@ config :ex_storage_service, ExStorageServiceWeb.Endpoint,
   server: true
 
 config :ex_storage_service,
-  s3_port: 9001
+  s3_port: 9001,
+  rate_limit: [enabled: false]
 
 config :logger, level: :warning
 

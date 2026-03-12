@@ -21,6 +21,7 @@ defmodule ExStorageService.S3.Router do
   plug :assign_request_id
   plug :fetch_query
   plug :check_presigned_auth
+  plug ExStorageService.S3.Plugs.RateLimiter
   plug :match
   plug :dispatch
 
