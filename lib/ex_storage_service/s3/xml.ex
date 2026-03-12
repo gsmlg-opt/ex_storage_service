@@ -204,6 +204,8 @@ defmodule ExStorageService.S3.XML do
       "MalformedXML" -> 400
       "NoSuchUpload" -> 404
       "NoSuchLifecycleConfiguration" -> 404
+      "InvalidPart" -> 400
+      "InvalidPartOrder" -> 400
       "MethodNotAllowed" -> 405
       "SlowDown" -> 429
       "EntityTooLarge" -> 413

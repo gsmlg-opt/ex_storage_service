@@ -12,20 +12,35 @@ defmodule ExStorageServiceWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :require_admin do
+    plug ExStorageServiceWeb.Plugs.RequireAdmin
+  end
+
+  # Public routes (login/logout)
   scope "/", ExStorageServiceWeb do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/login", SessionController, :new
+    post "/login", SessionController, :create
+    delete "/logout", SessionController, :delete
+  end
 
-    live "/dashboard", DashboardLive
-    live "/buckets", BucketLive.Index
-    live "/buckets/:name", BucketLive.Show
+  # Protected admin routes
+  scope "/", ExStorageServiceWeb do
+    pipe_through [:browser, :require_admin]
 
-    live "/users", UserLive.Index
-    live "/users/:id", UserLive.Show
-    live "/policies", PolicyLive.Index
-    live "/policies/:id", PolicyLive.Show
-    live "/audit", AuditLive.Index
+    live_session :admin, on_mount: {ExStorageServiceWeb.Live.AdminAuth, :default} do
+      live "/dashboard", DashboardLive
+      live "/buckets", BucketLive.Index
+      live "/buckets/:name", BucketLive.Show
+
+      live "/users", UserLive.Index
+      live "/users/:id", UserLive.Show
+      live "/policies", PolicyLive.Index
+      live "/policies/:id", PolicyLive.Show
+      live "/audit", AuditLive.Index
+    end
   end
 
   # Prometheus metrics endpoint (no auth pipeline, plain text)

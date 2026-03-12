@@ -3,6 +3,7 @@ defmodule ExStorageServiceWeb.UserLive.Index do
 
   alias ExStorageService.IAM.User
   alias ExStorageService.IAM.AccessKey
+  alias ExStorageService.IAM.Audit
 
   @impl true
   def mount(_params, _session, socket) do
@@ -29,6 +30,8 @@ defmodule ExStorageServiceWeb.UserLive.Index do
     else
       case User.create_user(name) do
         {:ok, user} ->
+          Audit.log_event("root", :create_user, user.id, %{name: user.name})
+
           socket =
             socket
             |> put_flash(:info, "User #{user.name} created (ID: #{user.id})")
@@ -46,6 +49,7 @@ defmodule ExStorageServiceWeb.UserLive.Index do
   def handle_event("suspend_user", %{"id" => user_id}, socket) do
     case User.suspend_user(user_id) do
       {:ok, _} ->
+        Audit.log_event("root", :suspend_user, user_id)
         {:noreply, socket |> put_flash(:info, "User suspended") |> load_users()}
 
       {:error, reason} ->
@@ -56,6 +60,7 @@ defmodule ExStorageServiceWeb.UserLive.Index do
   def handle_event("activate_user", %{"id" => user_id}, socket) do
     case User.activate_user(user_id) do
       {:ok, _} ->
+        Audit.log_event("root", :activate_user, user_id)
         {:noreply, socket |> put_flash(:info, "User activated") |> load_users()}
 
       {:error, reason} ->

@@ -2,6 +2,7 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
   use ExStorageServiceWeb, :live_view
 
   alias ExStorageService.IAM.Policy
+  alias ExStorageService.IAM.Audit
 
   @templates %{
     "ReadOnly" => :read_only_statements,
@@ -57,6 +58,8 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
       else
         case Policy.create_policy(name, statements) do
           {:ok, policy} ->
+            Audit.log_event("root", :create_policy, policy.id, %{name: policy.name})
+
             socket =
               socket
               |> put_flash(:info, "Policy '#{policy.name}' created")
@@ -75,6 +78,7 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
   def handle_event("delete_policy", %{"id" => policy_id}, socket) do
     case Policy.delete_policy(policy_id) do
       :ok ->
+        Audit.log_event("root", :delete_policy, policy_id)
         {:noreply, socket |> put_flash(:info, "Policy deleted") |> load_policies()}
 
       {:error, reason} ->

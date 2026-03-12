@@ -4,6 +4,7 @@ defmodule ExStorageServiceWeb.UserLive.Show do
   alias ExStorageService.IAM.User
   alias ExStorageService.IAM.AccessKey
   alias ExStorageService.IAM.Policy
+  alias ExStorageService.IAM.Audit
 
   @impl true
   def mount(%{"id" => user_id}, _session, socket) do
@@ -37,6 +38,8 @@ defmodule ExStorageServiceWeb.UserLive.Show do
 
     case AccessKey.create_access_key(user.id) do
       {:ok, key} ->
+        Audit.log_event("root", :create_key, user.id, %{access_key_id: key.access_key_id})
+
         socket =
           socket
           |> assign(:new_secret, key.secret_access_key)
@@ -58,6 +61,7 @@ defmodule ExStorageServiceWeb.UserLive.Show do
   def handle_event("activate_key", %{"key-id" => key_id}, socket) do
     case AccessKey.activate_key(key_id) do
       {:ok, _} ->
+        Audit.log_event("root", :activate_key, key_id)
         {:noreply, socket |> put_flash(:info, "Key activated") |> load_keys()}
 
       {:error, reason} ->
@@ -68,6 +72,7 @@ defmodule ExStorageServiceWeb.UserLive.Show do
   def handle_event("deactivate_key", %{"key-id" => key_id}, socket) do
     case AccessKey.deactivate_key(key_id) do
       {:ok, _} ->
+        Audit.log_event("root", :deactivate_key, key_id)
         {:noreply, socket |> put_flash(:info, "Key deactivated") |> load_keys()}
 
       {:error, reason} ->
@@ -78,6 +83,7 @@ defmodule ExStorageServiceWeb.UserLive.Show do
   def handle_event("delete_key", %{"key-id" => key_id}, socket) do
     case AccessKey.delete_key(key_id) do
       :ok ->
+        Audit.log_event("root", :delete_key, key_id)
         {:noreply, socket |> put_flash(:info, "Key deleted") |> load_keys()}
 
       {:error, reason} ->
@@ -90,6 +96,7 @@ defmodule ExStorageServiceWeb.UserLive.Show do
 
     case Policy.attach_policy(user.id, policy_id) do
       :ok ->
+        Audit.log_event("root", :attach_policy, user.id, %{policy_id: policy_id})
         {:noreply, socket |> put_flash(:info, "Policy attached") |> load_policies()}
 
       {:error, reason} ->
@@ -102,6 +109,7 @@ defmodule ExStorageServiceWeb.UserLive.Show do
 
     case Policy.detach_policy(user.id, policy_id) do
       :ok ->
+        Audit.log_event("root", :detach_policy, user.id, %{policy_id: policy_id})
         {:noreply, socket |> put_flash(:info, "Policy detached") |> load_policies()}
 
       {:error, reason} ->

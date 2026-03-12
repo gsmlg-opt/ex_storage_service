@@ -22,6 +22,7 @@ defmodule ExStorageServiceWeb.DashboardLive do
       |> assign(:otp_version, :erlang.system_info(:otp_release) |> List.to_string())
       |> assign(:node_name, node() |> Atom.to_string())
       |> assign(:uptime, format_uptime())
+      |> assign(:replication_stats, %{pending: 0, running: 0, completed: 0, dead_letter: 0})
 
     {:ok, socket}
   end
@@ -47,12 +48,15 @@ defmodule ExStorageServiceWeb.DashboardLive do
     data_root = Application.get_env(:ex_storage_service, :data_root, "/tmp/ex_storage_service/data")
     disk_usage = calculate_disk_usage(data_root)
 
+    replication_stats = load_replication_stats()
+
     socket =
       socket
       |> assign(:bucket_count, bucket_count)
       |> assign(:object_count, object_count)
       |> assign(:disk_usage, disk_usage)
       |> assign(:uptime, format_uptime())
+      |> assign(:replication_stats, replication_stats)
 
     {:noreply, socket}
   end
@@ -61,10 +65,19 @@ defmodule ExStorageServiceWeb.DashboardLive do
   def render(assigns) do
     ~H"""
     <div>
-      <.header>
-        Storage Dashboard
-        <:subtitle>Overview of your storage service</:subtitle>
-      </.header>
+      <div class="flex items-center justify-between">
+        <.header>
+          Storage Dashboard
+          <:subtitle>Overview of your storage service</:subtitle>
+        </.header>
+        <form action="/logout" method="post">
+          <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+          <input type="hidden" name="_method" value="delete" />
+          <button type="submit" class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50">
+            Logout
+          </button>
+        </form>
+      </div>
 
       <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
         <div class="bg-white overflow-hidden shadow rounded-lg">
@@ -122,6 +135,29 @@ defmodule ExStorageServiceWeb.DashboardLive do
         </div>
       </div>
 
+      <%!-- Replication Job Queue Status --%>
+      <div class="mt-8">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Replication Queue</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+          <div class="bg-white shadow rounded-lg p-4">
+            <dt class="text-sm font-medium text-gray-500">Pending</dt>
+            <dd class="mt-1 text-xl font-semibold text-yellow-600">{@replication_stats.pending}</dd>
+          </div>
+          <div class="bg-white shadow rounded-lg p-4">
+            <dt class="text-sm font-medium text-gray-500">Running</dt>
+            <dd class="mt-1 text-xl font-semibold text-blue-600">{@replication_stats.running}</dd>
+          </div>
+          <div class="bg-white shadow rounded-lg p-4">
+            <dt class="text-sm font-medium text-gray-500">Completed</dt>
+            <dd class="mt-1 text-xl font-semibold text-green-600">{@replication_stats.completed}</dd>
+          </div>
+          <div class="bg-white shadow rounded-lg p-4">
+            <dt class="text-sm font-medium text-gray-500">Dead Letter</dt>
+            <dd class="mt-1 text-xl font-semibold text-red-600">{@replication_stats.dead_letter}</dd>
+          </div>
+        </div>
+      </div>
+
       <div class="mt-8">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">System Information</h2>
         <div class="bg-white shadow rounded-lg overflow-hidden">
@@ -151,6 +187,37 @@ defmodule ExStorageServiceWeb.DashboardLive do
     """
   end
 
+  defp load_replication_stats do
+    case Concord.get_all() do
+      {:ok, all} ->
+        {pending, running, completed, dead_letter} =
+          Enum.reduce(all, {0, 0, 0, 0}, fn {k, v}, {p, r, c, d} ->
+            cond do
+              String.starts_with?(k, "job:dead_letter:") ->
+                {p, r, c, d + 1}
+
+              String.starts_with?(k, "job:") ->
+                status = v[:status] || v["status"]
+
+                case status do
+                  :pending -> {p + 1, r, c, d}
+                  :running -> {p, r + 1, c, d}
+                  :completed -> {p, r, c + 1, d}
+                  _ -> {p, r, c, d}
+                end
+
+              true ->
+                {p, r, c, d}
+            end
+          end)
+
+        %{pending: pending, running: running, completed: completed, dead_letter: dead_letter}
+
+      _ ->
+        %{pending: 0, running: 0, completed: 0, dead_letter: 0}
+    end
+  end
+
   defp calculate_disk_usage(data_root) do
     case System.cmd("du", ["-sb", data_root], stderr_to_stdout: true) do
       {output, 0} ->
@@ -166,7 +233,6 @@ defmodule ExStorageServiceWeb.DashboardLive do
         end
 
       _ ->
-        # Fallback: try to calculate manually
         if File.dir?(data_root) do
           bytes = dir_size(data_root)
           format_bytes(bytes)

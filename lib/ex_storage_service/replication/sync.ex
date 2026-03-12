@@ -224,14 +224,45 @@ defmodule ExStorageService.Replication.Sync do
   end
 
   defp parse_list_response(body) when is_binary(body) do
-    # Simple XML parsing to extract Key and ETag from ListBucketResult
-    # This is a basic implementation for S3-compatible responses
-    ~r/<Contents>.*?<Key>(.+?)<\/Key>.*?<ETag>"?(.+?)"?<\/ETag>.*?<\/Contents>/s
-    |> Regex.scan(body)
-    |> Enum.map(fn [_full, key, etag] -> {key, etag} end)
+    try do
+      {doc, _} = :xmerl_scan.string(String.to_charlist(body), quiet: true)
+      extract_contents(doc)
+    rescue
+      _ ->
+        Logger.warning("Failed to parse ListBucketResult XML response")
+        []
+    catch
+      :exit, _ ->
+        Logger.warning("Failed to parse ListBucketResult XML response")
+        []
+    end
   end
 
   defp parse_list_response(_), do: []
+
+  defp extract_contents(doc) do
+    contents = :xmerl_xpath.string(~c"//Contents", doc)
+
+    Enum.map(contents, fn content_elem ->
+      key = xpath_text(content_elem, ~c"Key")
+      etag = xpath_text(content_elem, ~c"ETag") |> String.trim("\"")
+      {key, etag}
+    end)
+    |> Enum.reject(fn {key, _} -> key == "" end)
+  end
+
+  defp xpath_text(parent, tag) do
+    case :xmerl_xpath.string(~c"./#{tag}/text()", parent) do
+      [text_node | _] ->
+        case text_node do
+          {:xmlText, _, _, _, value, _} -> List.to_string(value)
+          _ -> ""
+        end
+
+      [] ->
+        ""
+    end
+  end
 
   defp auth_headers(%Replica{access_key: access_key})
        when is_binary(access_key) and access_key != "" do

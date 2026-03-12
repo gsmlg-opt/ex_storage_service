@@ -114,6 +114,12 @@ defmodule ExStorageService.S3.MultipartHandlers do
                     response_body = XML.complete_multipart_upload_response(bucket, key, etag, location)
                     xml_response(conn, 200, response_body, request_id)
 
+                  {:error, {:etag_mismatch, pn, _expected, _actual}} ->
+                    error_response(conn, "InvalidPart", "Part #{pn} has an invalid ETag.", "/#{bucket}/#{key}", request_id)
+
+                  {:error, {:missing_part, pn, _reason}} ->
+                    error_response(conn, "InvalidPart", "Part #{pn} was not uploaded.", "/#{bucket}/#{key}", request_id)
+
                   {:error, reason} ->
                     error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
                 end

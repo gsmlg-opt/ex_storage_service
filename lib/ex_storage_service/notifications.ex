@@ -154,7 +154,14 @@ defmodule ExStorageService.Notifications do
       Task.start(fn -> deliver_webhook(endpoint, event) end)
   end
 
+  @max_retries 3
+  @initial_backoff_ms 500
+
   defp deliver_webhook(endpoint, event) do
+    deliver_webhook(endpoint, event, 0)
+  end
+
+  defp deliver_webhook(endpoint, event, attempt) do
     body = Jason.encode!(event)
 
     case Req.post(endpoint, body: body, headers: [{"content-type", "application/json"}]) do
@@ -162,12 +169,24 @@ defmodule ExStorageService.Notifications do
         Logger.debug("Notification delivered to #{endpoint}: #{status}")
         :ok
 
+      {:ok, %{status: status}} when status >= 500 and attempt < @max_retries ->
+        backoff = @initial_backoff_ms * Integer.pow(2, attempt)
+        Logger.warning("Notification to #{endpoint} failed (HTTP #{status}), retrying in #{backoff}ms (attempt #{attempt + 1}/#{@max_retries})")
+        Process.sleep(backoff)
+        deliver_webhook(endpoint, event, attempt + 1)
+
       {:ok, %{status: status}} ->
-        Logger.warning("Notification delivery failed to #{endpoint}: HTTP #{status}")
+        Logger.warning("Notification delivery failed to #{endpoint}: HTTP #{status} after #{attempt + 1} attempt(s)")
         {:error, {:http_error, status}}
 
+      {:error, reason} when attempt < @max_retries ->
+        backoff = @initial_backoff_ms * Integer.pow(2, attempt)
+        Logger.warning("Notification to #{endpoint} failed (#{inspect(reason)}), retrying in #{backoff}ms (attempt #{attempt + 1}/#{@max_retries})")
+        Process.sleep(backoff)
+        deliver_webhook(endpoint, event, attempt + 1)
+
       {:error, reason} ->
-        Logger.warning("Notification delivery failed to #{endpoint}: #{inspect(reason)}")
+        Logger.warning("Notification delivery failed to #{endpoint}: #{inspect(reason)} after #{attempt + 1} attempt(s)")
         {:error, reason}
     end
   rescue
