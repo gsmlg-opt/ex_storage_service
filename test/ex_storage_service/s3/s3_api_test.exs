@@ -40,9 +40,9 @@ defmodule ExStorageService.S3.ApiTest do
     test "create, head, list, and delete bucket" do
       bucket = unique_bucket()
 
-      # Create bucket
+      # Create bucket (S3 returns 201 Created)
       {:ok, resp} = Req.put("#{@base_url}/#{bucket}", body: "")
-      assert resp.status == 200
+      assert resp.status == 201
 
       # Head bucket
       {:ok, resp} = Req.head("#{@base_url}/#{bucket}")

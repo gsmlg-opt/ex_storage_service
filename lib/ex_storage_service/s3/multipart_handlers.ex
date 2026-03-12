@@ -45,6 +45,7 @@ defmodule ExStorageService.S3.MultipartHandlers do
     part_number_str = Map.get(params, "partNumber")
 
     with {part_number, _} <- Integer.parse(part_number_str || ""),
+         true <- part_number >= 1 and part_number <= 10_000,
          {:ok, _upload} <- Multipart.get_upload(bucket, upload_id),
          {:ok, body, conn} <- read_full_body(conn) do
       case Multipart.store_part(bucket, upload_id, part_number, body) do
@@ -60,6 +61,9 @@ defmodule ExStorageService.S3.MultipartHandlers do
     else
       :error ->
         error_response(conn, "InvalidArgument", "Invalid part number.", "/#{bucket}/#{key}", request_id)
+
+      false ->
+        error_response(conn, "InvalidArgument", "Part number must be between 1 and 10000.", "/#{bucket}/#{key}", request_id)
 
       {:error, :not_found} ->
         error_response(conn, "NoSuchUpload", "The specified multipart upload does not exist.", "/#{bucket}/#{key}", request_id)

@@ -206,6 +206,7 @@ defmodule ExStorageService.S3.XML do
       "NoSuchLifecycleConfiguration" -> 404
       "MethodNotAllowed" -> 405
       "SlowDown" -> 429
+      "EntityTooLarge" -> 413
       "InvalidRange" -> 416
       "InternalError" -> 500
       _ -> 500

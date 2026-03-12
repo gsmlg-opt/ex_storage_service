@@ -42,7 +42,7 @@ defmodule ExStorageService.S3.Handlers do
             conn
             |> put_s3_headers(request_id)
             |> put_resp_header("location", "/#{bucket}")
-            |> send_resp(200, "")
+            |> send_resp(201, "")
 
           {:error, reason} ->
             error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
@@ -338,6 +338,9 @@ defmodule ExStorageService.S3.Handlers do
               {:error, reason} ->
                 error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
             end
+
+          {:error, :entity_too_large} ->
+            error_response(conn, "EntityTooLarge", "Your proposed upload exceeds the maximum allowed object size.", "/#{bucket}/#{key}", request_id)
 
           {:error, reason} ->
             error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
@@ -716,10 +719,29 @@ defmodule ExStorageService.S3.Handlers do
   end
 
   defp read_full_body(conn, acc \\ <<>>) do
+    max_size = Application.get_env(:ex_storage_service, :max_object_size, 5 * 1024 * 1024 * 1024)
+
     case Plug.Conn.read_body(conn) do
-      {:ok, body, conn} -> {:ok, acc <> body, conn}
-      {:more, partial, conn} -> read_full_body(conn, acc <> partial)
-      {:error, reason} -> {:error, reason}
+      {:ok, body, conn} ->
+        result = acc <> body
+
+        if byte_size(result) > max_size do
+          {:error, :entity_too_large}
+        else
+          {:ok, result, conn}
+        end
+
+      {:more, partial, conn} ->
+        result = acc <> partial
+
+        if byte_size(result) > max_size do
+          {:error, :entity_too_large}
+        else
+          read_full_body(conn, result)
+        end
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

@@ -105,14 +105,20 @@ defmodule ExStorageService.Storage.Multipart do
             total_size = 0
 
             {sha256_ctx, md5_digests, total_size} =
-              Enum.reduce(sorted_parts, {sha256_ctx, md5_digests, total_size}, fn {pn, _etag}, {sha_ctx, md5s, size} ->
+              Enum.reduce(sorted_parts, {sha256_ctx, md5_digests, total_size}, fn {pn, client_etag}, {sha_ctx, md5s, size} ->
                 part_file = part_path(bucket, upload_id, pn)
 
                 case File.read(part_file) do
                   {:ok, part_data} ->
+                    part_md5 = :crypto.hash(:md5, part_data)
+                    computed_etag = Base.encode16(part_md5, case: :lower)
+
+                    if client_etag != "" and computed_etag != client_etag do
+                      throw({:etag_mismatch, pn, client_etag, computed_etag})
+                    end
+
                     :ok = IO.binwrite(file, part_data)
                     sha_ctx = :crypto.hash_update(sha_ctx, part_data)
-                    part_md5 = :crypto.hash(:md5, part_data)
                     {sha_ctx, md5s ++ [part_md5], size + byte_size(part_data)}
 
                   {:error, reason} ->
@@ -139,6 +145,10 @@ defmodule ExStorageService.Storage.Multipart do
             {:part_error, pn, reason} ->
               File.rm(tmp_path)
               {:error, {:missing_part, pn, reason}}
+
+            {:etag_mismatch, pn, expected, actual} ->
+              File.rm(tmp_path)
+              {:error, {:etag_mismatch, pn, expected, actual}}
           end
 
         case result do

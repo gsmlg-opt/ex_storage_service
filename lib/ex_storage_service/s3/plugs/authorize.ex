@@ -32,7 +32,7 @@ defmodule ExStorageService.S3.Plugs.Authorize do
     if user_id == "root" do
       conn
     else
-      action = map_action(conn.method, conn.path_info)
+      action = map_action(conn.method, conn.path_info, conn.query_params)
       resource = build_resource_arn(conn.path_info)
 
       case Policy.evaluate(user_id, action, resource) do
@@ -47,9 +47,9 @@ defmodule ExStorageService.S3.Plugs.Authorize do
 
   @doc """
   Maps an HTTP method and path segments to an S3 action string.
+  Optionally takes query_params to disambiguate POST operations.
   """
-  @spec map_action(String.t(), [String.t()]) :: String.t()
-  def map_action(method, path_info) do
+  def map_action(method, path_info, query_params \\ %{}) do
     case {method, path_info} do
       {"GET", []} -> "s3:ListAllMyBuckets"
       {"GET", [_bucket]} -> "s3:ListBucket"
@@ -61,6 +61,14 @@ defmodule ExStorageService.S3.Plugs.Authorize do
       {"DELETE", [_bucket]} -> "s3:DeleteBucket"
       {"DELETE", [_bucket | _key]} -> "s3:DeleteObject"
       {"POST", [_bucket]} -> "s3:DeleteObject"
+
+      {"POST", [_bucket | _key]} ->
+        cond do
+          Map.has_key?(query_params, "uploads") -> "s3:PutObject"
+          Map.has_key?(query_params, "uploadId") -> "s3:PutObject"
+          true -> "s3:PutObject"
+        end
+
       _ -> "s3:Unknown"
     end
   end

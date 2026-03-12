@@ -149,8 +149,7 @@ defmodule ExStorageService.Metadata do
       suffix = String.slice(key, prefix_len..-1//1)
 
       case String.split(suffix, delimiter, parts: 2) do
-        [_before, _after] ->
-          [before_delim | _] = String.split(suffix, delimiter, parts: 2)
+        [before_delim, _after] ->
           common_prefix = prefix <> before_delim <> delimiter
           {keys_acc, [common_prefix | prefixes_acc]}
 

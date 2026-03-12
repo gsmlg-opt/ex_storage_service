@@ -198,12 +198,16 @@ defmodule ExStorageService.IAM.AccessKey do
   end
 
   defp master_key do
-    key_b64 = Application.get_env(:ex_storage_service, :master_key)
+    case Application.get_env(:ex_storage_service, :master_key) do
+      nil ->
+        raise "ESS_MASTER_KEY is not configured. Set :master_key in :ex_storage_service config."
 
-    case Base.decode64(key_b64) do
-      {:ok, key} when byte_size(key) >= 32 -> binary_part(key, 0, 32)
-      {:ok, key} -> :crypto.hash(:sha256, key)
-      :error -> :crypto.hash(:sha256, key_b64)
+      key_b64 when is_binary(key_b64) ->
+        case Base.decode64(key_b64) do
+          {:ok, key} when byte_size(key) >= 32 -> binary_part(key, 0, 32)
+          {:ok, key} -> :crypto.hash(:sha256, key)
+          :error -> :crypto.hash(:sha256, key_b64)
+        end
     end
   end
 
@@ -216,7 +220,13 @@ defmodule ExStorageService.IAM.AccessKey do
 
   defp decrypt_secret(encrypted_b64) do
     key = master_key()
-    <<iv::binary-16, ciphertext::binary>> = Base.decode64!(encrypted_b64)
-    :crypto.crypto_one_time(:aes_256_ctr, key, iv, ciphertext, false)
+
+    case Base.decode64(encrypted_b64) do
+      {:ok, <<iv::binary-16, ciphertext::binary>>} ->
+        :crypto.crypto_one_time(:aes_256_ctr, key, iv, ciphertext, false)
+
+      _ ->
+        raise "Failed to decrypt secret: invalid encrypted data"
+    end
   end
 end
