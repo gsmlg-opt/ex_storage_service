@@ -1,0 +1,137 @@
+name: E2E Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  MIX_ENV: prod
+  ELIXIR_VERSION: "1.19"
+  OTP_VERSION: "28"
+  ESS_S3_PORT: "9000"
+  ESS_ADMIN_PORT: "4000"
+  ESS_DATA_ROOT: /tmp/ex_storage_service/data
+  ESS_ADMIN_USER: admin
+  ESS_MASTER_KEY: test-master-key-for-ci-only
+  SECRET_KEY_BASE: $(mix phx.gen.secret)
+
+jobs:
+  e2e:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-prod-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-prod-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-
+
+      - name: Install dependencies
+        run: mix deps.get --only prod
+
+      - name: Build assets
+        run: mix assets.deploy
+
+      - name: Compile
+        run: mix compile
+
+      - name: Generate secret key base
+        run: echo "SECRET_KEY_BASE=$(mix phx.gen.secret)" >> "$GITHUB_ENV"
+
+      - name: Start application
+        run: |
+          mix phx.server &
+          echo "APP_PID=$!" >> "$GITHUB_ENV"
+
+      - name: Wait for S3 API to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:9000/ > /dev/null 2>&1; then
+              echo "S3 API is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "S3 API failed to start"
+          exit 1
+
+      - name: Wait for Admin UI to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4000/ > /dev/null 2>&1; then
+              echo "Admin UI is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Admin UI failed to start"
+          exit 1
+
+      - name: Test S3 API - List Buckets
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9000/)
+          echo "List buckets response: $response"
+          if [ "$response" -ge 200 ] && [ "$response" -lt 500 ]; then
+            echo "S3 API responding correctly"
+          else
+            echo "Unexpected response code: $response"
+            exit 1
+          fi
+
+      - name: Test S3 API - Create Bucket
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" -X PUT http://localhost:9000/e2e-test-bucket)
+          echo "Create bucket response: $response"
+
+      - name: Test S3 API - PUT Object
+        run: |
+          echo "hello e2e" > /tmp/test-object.txt
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X PUT \
+            -H "Content-Type: text/plain" \
+            --data-binary @/tmp/test-object.txt \
+            http://localhost:9000/e2e-test-bucket/test-key)
+          echo "PUT object response: $response"
+
+      - name: Test S3 API - GET Object
+        run: |
+          response=$(curl -s -w "\n%{http_code}" http://localhost:9000/e2e-test-bucket/test-key)
+          http_code=$(echo "$response" | tail -1)
+          body=$(echo "$response" | head -n -1)
+          echo "GET object response: $http_code"
+          echo "Body: $body"
+
+      - name: Test Admin UI health
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/)
+          echo "Admin UI response: $response"
+          if [ "$response" -ge 200 ] && [ "$response" -lt 400 ]; then
+            echo "Admin UI is healthy"
+          else
+            echo "Admin UI unhealthy: $response"
+            exit 1
+          fi
+
+      - name: Test Metrics endpoint
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/metrics)
+          echo "Metrics response: $response"
+
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -n "$APP_PID" ]; then
+            kill "$APP_PID" 2>/dev/null || true
+          fi
