@@ -181,7 +181,9 @@ defmodule ExStorageService.S3.MultipartTest do
 
   describe "multipart upload: error cases" do
     test "create multipart upload on non-existent bucket returns 404" do
-      {:ok, resp} = Req.post("#{@base_url}/no-such-bucket-#{:rand.uniform(99999)}/file.bin?uploads", body: "")
+      {:ok, resp} =
+        Req.post("#{@base_url}/no-such-bucket-#{:rand.uniform(99999)}/file.bin?uploads", body: "")
+
       assert resp.status == 404
       assert String.contains?(resp.body, "NoSuchBucket")
     end

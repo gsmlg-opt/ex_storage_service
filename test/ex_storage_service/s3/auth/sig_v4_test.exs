@@ -322,7 +322,10 @@ defmodule ExStorageService.S3.Auth.SigV4Test do
           signed_conn()
           |> Plug.Conn.get_req_header("authorization")
           |> hd()
-          |> String.replace(~r/Signature=\S+/, "Signature=0000000000000000000000000000000000000000000000000000000000000000")
+          |> String.replace(
+            ~r/Signature=\S+/,
+            "Signature=0000000000000000000000000000000000000000000000000000000000000000"
+          )
         )
 
       get_secret = fn @access_key -> @secret end

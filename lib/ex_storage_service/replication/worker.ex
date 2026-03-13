@@ -96,7 +96,8 @@ defmodule ExStorageService.Replication.Worker do
     "#{endpoint}/#{bucket}/#{key}"
   end
 
-  defp auth_headers(%Replica{access_key: access_key}) when is_binary(access_key) and access_key != "" do
+  defp auth_headers(%Replica{access_key: access_key})
+       when is_binary(access_key) and access_key != "" do
     [{"authorization", "Bearer #{access_key}"}]
   end
 

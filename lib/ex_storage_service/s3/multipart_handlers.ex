@@ -18,7 +18,13 @@ defmodule ExStorageService.S3.MultipartHandlers do
 
     case Metadata.head_bucket(bucket) do
       {:error, :not_found} ->
-        error_response(conn, "NoSuchBucket", "The specified bucket does not exist.", "/#{bucket}/#{key}", request_id)
+        error_response(
+          conn,
+          "NoSuchBucket",
+          "The specified bucket does not exist.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
 
       :ok ->
         case Multipart.init_upload(bucket, key) do
@@ -27,7 +33,13 @@ defmodule ExStorageService.S3.MultipartHandlers do
             xml_response(conn, 200, body, request_id)
 
           {:error, reason} ->
-            error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
+            error_response(
+              conn,
+              "InternalError",
+              inspect(reason),
+              "/#{bucket}/#{key}",
+              request_id
+            )
         end
 
       {:error, reason} ->
@@ -60,13 +72,31 @@ defmodule ExStorageService.S3.MultipartHandlers do
       end
     else
       :error ->
-        error_response(conn, "InvalidArgument", "Invalid part number.", "/#{bucket}/#{key}", request_id)
+        error_response(
+          conn,
+          "InvalidArgument",
+          "Invalid part number.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
 
       false ->
-        error_response(conn, "InvalidArgument", "Part number must be between 1 and 10000.", "/#{bucket}/#{key}", request_id)
+        error_response(
+          conn,
+          "InvalidArgument",
+          "Part number must be between 1 and 10000.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
 
       {:error, :not_found} ->
-        error_response(conn, "NoSuchUpload", "The specified multipart upload does not exist.", "/#{bucket}/#{key}", request_id)
+        error_response(
+          conn,
+          "NoSuchUpload",
+          "The specified multipart upload does not exist.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
 
       {:error, reason} ->
         error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
@@ -111,29 +141,68 @@ defmodule ExStorageService.S3.MultipartHandlers do
                     Hooks.after_put(bucket, key)
 
                     location = "/#{bucket}/#{key}"
-                    response_body = XML.complete_multipart_upload_response(bucket, key, etag, location)
+
+                    response_body =
+                      XML.complete_multipart_upload_response(bucket, key, etag, location)
+
                     xml_response(conn, 200, response_body, request_id)
 
                   {:error, {:etag_mismatch, pn, _expected, _actual}} ->
-                    error_response(conn, "InvalidPart", "Part #{pn} has an invalid ETag.", "/#{bucket}/#{key}", request_id)
+                    error_response(
+                      conn,
+                      "InvalidPart",
+                      "Part #{pn} has an invalid ETag.",
+                      "/#{bucket}/#{key}",
+                      request_id
+                    )
 
                   {:error, {:missing_part, pn, _reason}} ->
-                    error_response(conn, "InvalidPart", "Part #{pn} was not uploaded.", "/#{bucket}/#{key}", request_id)
+                    error_response(
+                      conn,
+                      "InvalidPart",
+                      "Part #{pn} was not uploaded.",
+                      "/#{bucket}/#{key}",
+                      request_id
+                    )
 
                   {:error, reason} ->
-                    error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
+                    error_response(
+                      conn,
+                      "InternalError",
+                      inspect(reason),
+                      "/#{bucket}/#{key}",
+                      request_id
+                    )
                 end
 
               {:error, _reason} ->
-                error_response(conn, "MalformedXML", "The XML you provided was not well-formed.", "/#{bucket}/#{key}", request_id)
+                error_response(
+                  conn,
+                  "MalformedXML",
+                  "The XML you provided was not well-formed.",
+                  "/#{bucket}/#{key}",
+                  request_id
+                )
             end
 
           {:error, reason} ->
-            error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
+            error_response(
+              conn,
+              "InternalError",
+              inspect(reason),
+              "/#{bucket}/#{key}",
+              request_id
+            )
         end
 
       {:error, :not_found} ->
-        error_response(conn, "NoSuchUpload", "The specified multipart upload does not exist.", "/#{bucket}/#{key}", request_id)
+        error_response(
+          conn,
+          "NoSuchUpload",
+          "The specified multipart upload does not exist.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
 
       {:error, reason} ->
         error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
@@ -156,7 +225,13 @@ defmodule ExStorageService.S3.MultipartHandlers do
         |> send_resp(204, "")
 
       {:error, :not_found} ->
-        error_response(conn, "NoSuchUpload", "The specified multipart upload does not exist.", "/#{bucket}/#{key}", request_id)
+        error_response(
+          conn,
+          "NoSuchUpload",
+          "The specified multipart upload does not exist.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
 
       {:error, reason} ->
         error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
@@ -176,7 +251,13 @@ defmodule ExStorageService.S3.MultipartHandlers do
         xml_response(conn, 200, body, request_id)
 
       {:error, :not_found} ->
-        error_response(conn, "NoSuchUpload", "The specified multipart upload does not exist.", "/#{bucket}/#{key}", request_id)
+        error_response(
+          conn,
+          "NoSuchUpload",
+          "The specified multipart upload does not exist.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
 
       {:error, reason} ->
         error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
@@ -233,12 +314,14 @@ defmodule ExStorageService.S3.MultipartHandlers do
 
           part_number =
             case part_number_text do
-              {:xmlText, _, _, _, value, _} -> value |> to_string() |> String.trim() |> String.to_integer()
+              {:xmlText, _, _, _, value, _} ->
+                value |> to_string() |> String.trim() |> String.to_integer()
             end
 
           etag =
             case etag_text do
-              {:xmlText, _, _, _, value, _} -> value |> to_string() |> String.trim() |> String.replace("\"", "")
+              {:xmlText, _, _, _, value, _} ->
+                value |> to_string() |> String.trim() |> String.replace("\"", "")
             end
 
           {part_number, etag}

@@ -45,7 +45,9 @@ defmodule ExStorageServiceWeb.DashboardLive do
           0
       end
 
-    data_root = Application.get_env(:ex_storage_service, :data_root, "/tmp/ex_storage_service/data")
+    data_root =
+      Application.get_env(:ex_storage_service, :data_root, "/tmp/ex_storage_service/data")
+
     disk_usage = calculate_disk_usage(data_root)
 
     replication_stats = load_replication_stats()
@@ -73,7 +75,10 @@ defmodule ExStorageServiceWeb.DashboardLive do
         <form action="/logout" method="post">
           <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
           <input type="hidden" name="_method" value="delete" />
-          <button type="submit" class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50">
+          <button
+            type="submit"
+            class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50"
+          >
             Logout
           </button>
         </form>

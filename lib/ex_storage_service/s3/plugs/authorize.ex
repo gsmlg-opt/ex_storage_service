@@ -51,16 +51,35 @@ defmodule ExStorageService.S3.Plugs.Authorize do
   """
   def map_action(method, path_info, query_params \\ %{}) do
     case {method, path_info} do
-      {"GET", []} -> "s3:ListAllMyBuckets"
-      {"GET", [_bucket]} -> "s3:ListBucket"
-      {"GET", [_bucket | _key]} -> "s3:GetObject"
-      {"HEAD", [_bucket]} -> "s3:HeadBucket"
-      {"HEAD", [_bucket | _key]} -> "s3:HeadObject"
-      {"PUT", [_bucket]} -> "s3:CreateBucket"
-      {"PUT", [_bucket | _key]} -> "s3:PutObject"
-      {"DELETE", [_bucket]} -> "s3:DeleteBucket"
-      {"DELETE", [_bucket | _key]} -> "s3:DeleteObject"
-      {"POST", [_bucket]} -> "s3:DeleteObject"
+      {"GET", []} ->
+        "s3:ListAllMyBuckets"
+
+      {"GET", [_bucket]} ->
+        "s3:ListBucket"
+
+      {"GET", [_bucket | _key]} ->
+        "s3:GetObject"
+
+      {"HEAD", [_bucket]} ->
+        "s3:HeadBucket"
+
+      {"HEAD", [_bucket | _key]} ->
+        "s3:HeadObject"
+
+      {"PUT", [_bucket]} ->
+        "s3:CreateBucket"
+
+      {"PUT", [_bucket | _key]} ->
+        "s3:PutObject"
+
+      {"DELETE", [_bucket]} ->
+        "s3:DeleteBucket"
+
+      {"DELETE", [_bucket | _key]} ->
+        "s3:DeleteObject"
+
+      {"POST", [_bucket]} ->
+        "s3:DeleteObject"
 
       {"POST", [_bucket | _key]} ->
         cond do
@@ -69,7 +88,8 @@ defmodule ExStorageService.S3.Plugs.Authorize do
           true -> "s3:PutObject"
         end
 
-      _ -> "s3:Unknown"
+      _ ->
+        "s3:Unknown"
     end
   end
 

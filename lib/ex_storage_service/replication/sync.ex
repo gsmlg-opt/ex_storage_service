@@ -179,9 +179,7 @@ defmodule ExStorageService.Replication.Sync do
     count = length(missing_or_changed)
 
     if count > 0 do
-      Logger.info(
-        "Sync: enqueued #{count} replication jobs for #{bucket} -> #{replica.endpoint}"
-      )
+      Logger.info("Sync: enqueued #{count} replication jobs for #{bucket} -> #{replica.endpoint}")
     end
   end
 

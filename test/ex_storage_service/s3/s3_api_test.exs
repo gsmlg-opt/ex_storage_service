@@ -125,7 +125,9 @@ defmodule ExStorageService.S3.ApiTest do
     end
 
     test "put object to non-existent bucket returns 404" do
-      {:ok, resp} = Req.put("#{@base_url}/no-such-bucket-#{:rand.uniform(99999)}/file.txt", body: "data")
+      {:ok, resp} =
+        Req.put("#{@base_url}/no-such-bucket-#{:rand.uniform(99999)}/file.txt", body: "data")
+
       assert resp.status == 404
       assert String.contains?(resp.body, "NoSuchBucket")
     end
@@ -194,7 +196,11 @@ defmodule ExStorageService.S3.ApiTest do
       {:ok, resp} = Req.get("#{@base_url}/#{bucket}?list-type=2&delimiter=/")
       assert resp.status == 200
       assert String.contains?(resp.body, "a.txt")
-      assert String.contains?(resp.body, "<CommonPrefixes><Prefix>folder/</Prefix></CommonPrefixes>")
+
+      assert String.contains?(
+               resp.body,
+               "<CommonPrefixes><Prefix>folder/</Prefix></CommonPrefixes>"
+             )
 
       cleanup_bucket(bucket)
     end

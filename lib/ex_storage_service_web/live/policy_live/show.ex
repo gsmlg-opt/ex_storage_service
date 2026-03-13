@@ -119,7 +119,9 @@ defmodule ExStorageServiceWeb.PolicyLive.Show do
   def render(assigns) do
     ~H"""
     <div>
-      <.link navigate={~p"/policies"} class="text-blue-600 hover:underline text-sm">&larr; Back to Policies</.link>
+      <.link navigate={~p"/policies"} class="text-blue-600 hover:underline text-sm">
+        &larr; Back to Policies
+      </.link>
 
       <.header class="mt-2">
         {@policy.name}
@@ -143,9 +145,14 @@ defmodule ExStorageServiceWeb.PolicyLive.Show do
                     {stmt.effect}
                   </span>
                 </div>
-                <button phx-click="remove_statement" phx-value-index={idx}
+                <button
+                  phx-click="remove_statement"
+                  phx-value-index={idx}
                   data-confirm="Remove this statement?"
-                  class="text-xs text-red-600 hover:text-red-800">Remove</button>
+                  class="text-xs text-red-600 hover:text-red-800"
+                >
+                  Remove
+                </button>
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -179,12 +186,26 @@ defmodule ExStorageServiceWeb.PolicyLive.Show do
                 <label class="block text-xs font-medium text-gray-500 mb-1">Effect</label>
                 <div class="flex gap-3">
                   <label class="inline-flex items-center gap-1 text-sm">
-                    <input type="radio" name="effect" value="allow" checked={@new_effect == "allow"}
-                      phx-click="set_effect" phx-value-effect="allow" class="text-green-600" /> Allow
+                    <input
+                      type="radio"
+                      name="effect"
+                      value="allow"
+                      checked={@new_effect == "allow"}
+                      phx-click="set_effect"
+                      phx-value-effect="allow"
+                      class="text-green-600"
+                    /> Allow
                   </label>
                   <label class="inline-flex items-center gap-1 text-sm">
-                    <input type="radio" name="effect" value="deny" checked={@new_effect == "deny"}
-                      phx-click="set_effect" phx-value-effect="deny" class="text-red-600" /> Deny
+                    <input
+                      type="radio"
+                      name="effect"
+                      value="deny"
+                      checked={@new_effect == "deny"}
+                      phx-click="set_effect"
+                      phx-value-effect="deny"
+                      class="text-red-600"
+                    /> Deny
                   </label>
                 </div>
               </div>
@@ -193,24 +214,37 @@ defmodule ExStorageServiceWeb.PolicyLive.Show do
                 <div class="grid grid-cols-2 gap-1 sm:grid-cols-3">
                   <%= for action <- @s3_actions do %>
                     <label class="inline-flex items-center gap-1 text-xs">
-                      <input type="checkbox" checked={action in @new_actions}
-                        phx-click="toggle_action" phx-value-action={action}
-                        class="rounded text-indigo-600" />
+                      <input
+                        type="checkbox"
+                        checked={action in @new_actions}
+                        phx-click="toggle_action"
+                        phx-value-action={action}
+                        class="rounded text-indigo-600"
+                      />
                       <span class="font-mono">{action}</span>
                     </label>
                   <% end %>
                 </div>
               </div>
               <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1">Resources (comma-separated ARNs)</label>
-                <input type="text" name="resources" value={@new_resources}
+                <label class="block text-xs font-medium text-gray-500 mb-1">
+                  Resources (comma-separated ARNs)
+                </label>
+                <input
+                  type="text"
+                  name="resources"
+                  value={@new_resources}
                   placeholder="arn:ess:::my-bucket/*, arn:ess:::my-bucket"
-                  class="w-full text-xs rounded border-gray-300 font-mono" />
+                  class="w-full text-xs rounded border-gray-300 font-mono"
+                />
                 <p class="text-xs text-gray-400 mt-1">
                   Format: arn:ess:::BUCKET, arn:ess:::BUCKET/KEY, arn:ess:::BUCKET/*, arn:ess:::*
                 </p>
               </div>
-              <button type="submit" class="px-4 py-1.5 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700">
+              <button
+                type="submit"
+                class="px-4 py-1.5 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700"
+              >
                 Add Statement
               </button>
             </form>
@@ -227,7 +261,9 @@ defmodule ExStorageServiceWeb.PolicyLive.Show do
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Status
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">

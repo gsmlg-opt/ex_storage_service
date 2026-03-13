@@ -160,7 +160,12 @@ defmodule ExStorageService.S3.ExtendedFeaturesTest do
         )
 
       # Tamper with the signature
-      tampered_url = String.replace(url, ~r/X-Amz-Signature=[a-f0-9]+/, "X-Amz-Signature=0000000000000000000000000000000000000000000000000000000000000000")
+      tampered_url =
+        String.replace(
+          url,
+          ~r/X-Amz-Signature=[a-f0-9]+/,
+          "X-Amz-Signature=0000000000000000000000000000000000000000000000000000000000000000"
+        )
 
       uri = URI.parse(tampered_url)
 
@@ -170,7 +175,10 @@ defmodule ExStorageService.S3.ExtendedFeaturesTest do
         |> Map.put(:port, 9000)
         |> Plug.Conn.fetch_query_params()
 
-      get_secret_fn = fn "AKID" -> "secret"; _ -> nil end
+      get_secret_fn = fn
+        "AKID" -> "secret"
+        _ -> nil
+      end
 
       assert {:error, "SignatureDoesNotMatch"} = Presigned.validate_presigned(conn, get_secret_fn)
     end
@@ -196,7 +204,10 @@ defmodule ExStorageService.S3.ExtendedFeaturesTest do
         |> Map.put(:port, 9000)
         |> Plug.Conn.fetch_query_params()
 
-      get_secret_fn = fn "AKID" -> "secret"; _ -> nil end
+      get_secret_fn = fn
+        "AKID" -> "secret"
+        _ -> nil
+      end
 
       assert {:error, "Request has expired"} = Presigned.validate_presigned(conn, get_secret_fn)
     end
@@ -250,8 +261,19 @@ defmodule ExStorageService.S3.ExtendedFeaturesTest do
       bucket = unique_bucket()
       Versioning.set_versioning(bucket, :enabled)
 
-      meta1 = %{content_hash: "hash1", size: 10, etag: "etag1", created_at: DateTime.utc_now() |> DateTime.to_iso8601()}
-      meta2 = %{content_hash: "hash2", size: 20, etag: "etag2", created_at: DateTime.utc_now() |> DateTime.to_iso8601()}
+      meta1 = %{
+        content_hash: "hash1",
+        size: 10,
+        etag: "etag1",
+        created_at: DateTime.utc_now() |> DateTime.to_iso8601()
+      }
+
+      meta2 = %{
+        content_hash: "hash2",
+        size: 20,
+        etag: "etag2",
+        created_at: DateTime.utc_now() |> DateTime.to_iso8601()
+      }
 
       {:ok, v1} = Versioning.put_version(bucket, "key.txt", meta1)
       {:ok, v2} = Versioning.put_version(bucket, "key.txt", meta2)
@@ -285,7 +307,13 @@ defmodule ExStorageService.S3.ExtendedFeaturesTest do
       bucket = unique_bucket()
       Versioning.set_versioning(bucket, :enabled)
 
-      meta = %{content_hash: "hash1", size: 10, etag: "etag1", created_at: DateTime.utc_now() |> DateTime.to_iso8601()}
+      meta = %{
+        content_hash: "hash1",
+        size: 10,
+        etag: "etag1",
+        created_at: DateTime.utc_now() |> DateTime.to_iso8601()
+      }
+
       {:ok, v1} = Versioning.put_version(bucket, "key.txt", meta)
 
       {:ok, marker_id, :delete_marker} = Versioning.delete_version(bucket, "key.txt")
@@ -311,7 +339,13 @@ defmodule ExStorageService.S3.ExtendedFeaturesTest do
       bucket = unique_bucket()
       Versioning.set_versioning(bucket, :suspended)
 
-      meta = %{content_hash: "hash1", size: 10, etag: "etag1", created_at: DateTime.utc_now() |> DateTime.to_iso8601()}
+      meta = %{
+        content_hash: "hash1",
+        size: 10,
+        etag: "etag1",
+        created_at: DateTime.utc_now() |> DateTime.to_iso8601()
+      }
+
       {:ok, vid} = Versioning.put_version(bucket, "key.txt", meta)
       assert vid == "null"
 
@@ -387,7 +421,11 @@ defmodule ExStorageService.S3.ExtendedFeaturesTest do
 
     test "delete lifecycle rules" do
       bucket = unique_bucket()
-      Lifecycle.put_rules(bucket, [%{id: "test", prefix: "", status: "Enabled", expiration_days: 7}])
+
+      Lifecycle.put_rules(bucket, [
+        %{id: "test", prefix: "", status: "Enabled", expiration_days: 7}
+      ])
+
       Lifecycle.delete_rules(bucket)
       assert {:error, :not_found} = Lifecycle.get_rules(bucket)
     end
@@ -496,7 +534,11 @@ defmodule ExStorageService.S3.ExtendedFeaturesTest do
 
     test "delete notification config" do
       bucket = unique_bucket()
-      Notifications.put_config(bucket, [%{id: "test", events: [], endpoint: "http://x", enabled: true}])
+
+      Notifications.put_config(bucket, [
+        %{id: "test", events: [], endpoint: "http://x", enabled: true}
+      ])
+
       Notifications.delete_config(bucket)
       assert {:error, :not_found} = Notifications.get_config(bucket)
     end
@@ -514,7 +556,10 @@ defmodule ExStorageService.S3.ExtendedFeaturesTest do
     end
 
     test "build_event creates proper event structure" do
-      event = Notifications.build_event("my-bucket", "my-key.txt", "s3:ObjectCreated:Put", %{"size" => 42})
+      event =
+        Notifications.build_event("my-bucket", "my-key.txt", "s3:ObjectCreated:Put", %{
+          "size" => 42
+        })
 
       assert is_list(event["Records"])
       record = hd(event["Records"])

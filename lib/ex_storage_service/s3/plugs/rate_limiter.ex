@@ -60,7 +60,14 @@ defmodule ExStorageService.S3.Plugs.RateLimiter do
   def ensure_table do
     case :ets.info(@table) do
       :undefined ->
-        :ets.new(@table, [:named_table, :public, :set, read_concurrency: true, write_concurrency: true])
+        :ets.new(@table, [
+          :named_table,
+          :public,
+          :set,
+          read_concurrency: true,
+          write_concurrency: true
+        ])
+
         @table
 
       _ ->

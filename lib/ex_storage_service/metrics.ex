@@ -24,19 +24,29 @@ defmodule ExStorageService.Metrics do
     case :ets.info(@counters_table) do
       :undefined ->
         :ets.new(@counters_table, [
-          :named_table, :public, :set,
-          read_concurrency: true, write_concurrency: true
+          :named_table,
+          :public,
+          :set,
+          read_concurrency: true,
+          write_concurrency: true
         ])
-      _ -> :ok
+
+      _ ->
+        :ok
     end
 
     case :ets.info(@histograms_table) do
       :undefined ->
         :ets.new(@histograms_table, [
-          :named_table, :public, :ordered_set,
-          read_concurrency: true, write_concurrency: true
+          :named_table,
+          :public,
+          :ordered_set,
+          read_concurrency: true,
+          write_concurrency: true
         ])
-      _ -> :ok
+
+      _ ->
+        :ok
     end
   end
 
@@ -90,6 +100,7 @@ defmodule ExStorageService.Metrics do
     catch
       :error, :badarg ->
         :ets.insert_new(@counters_table, {key, 0})
+
         try do
           :ets.update_counter(@counters_table, key, {2, 1})
         rescue
@@ -115,6 +126,7 @@ defmodule ExStorageService.Metrics do
     rescue
       _ ->
         :ets.insert_new(@histograms_table, {sum_key, 0})
+
         try do
           :ets.update_counter(@histograms_table, sum_key, {2, trunc(value)})
         rescue
@@ -125,6 +137,7 @@ defmodule ExStorageService.Metrics do
     catch
       _, _ ->
         :ets.insert_new(@histograms_table, {sum_key, 0})
+
         try do
           :ets.update_counter(@histograms_table, sum_key, {2, trunc(value)})
         rescue
@@ -139,6 +152,7 @@ defmodule ExStorageService.Metrics do
     rescue
       _ ->
         :ets.insert_new(@histograms_table, {count_key, 0})
+
         try do
           :ets.update_counter(@histograms_table, count_key, {2, 1})
         rescue
@@ -149,6 +163,7 @@ defmodule ExStorageService.Metrics do
     catch
       _, _ ->
         :ets.insert_new(@histograms_table, {count_key, 0})
+
         try do
           :ets.update_counter(@histograms_table, count_key, {2, 1})
         rescue
@@ -168,6 +183,7 @@ defmodule ExStorageService.Metrics do
         rescue
           _ ->
             :ets.insert_new(@histograms_table, {bucket_key, 0})
+
             try do
               :ets.update_counter(@histograms_table, bucket_key, {2, 1})
             rescue
@@ -178,6 +194,7 @@ defmodule ExStorageService.Metrics do
         catch
           _, _ ->
             :ets.insert_new(@histograms_table, {bucket_key, 0})
+
             try do
               :ets.update_counter(@histograms_table, bucket_key, {2, 1})
             rescue
@@ -197,6 +214,7 @@ defmodule ExStorageService.Metrics do
     rescue
       _ ->
         :ets.insert_new(@histograms_table, {inf_key, 0})
+
         try do
           :ets.update_counter(@histograms_table, inf_key, {2, 1})
         rescue
@@ -207,6 +225,7 @@ defmodule ExStorageService.Metrics do
     catch
       _, _ ->
         :ets.insert_new(@histograms_table, {inf_key, 0})
+
         try do
           :ets.update_counter(@histograms_table, inf_key, {2, 1})
         rescue
@@ -300,7 +319,12 @@ defmodule ExStorageService.Metrics do
                   |> Enum.map(fn {{_, _, {:le, le}}, val} ->
                     le_str = if le == :inf, do: "+Inf", else: to_string(le)
                     base_labels = format_labels_raw(labels)
-                    le_label = if base_labels == "", do: "le=\"#{le_str}\"", else: "#{base_labels},le=\"#{le_str}\""
+
+                    le_label =
+                      if base_labels == "",
+                        do: "le=\"#{le_str}\"",
+                        else: "#{base_labels},le=\"#{le_str}\""
+
                     "#{name}_bucket{#{le_label}} #{val}\n"
                   end)
 

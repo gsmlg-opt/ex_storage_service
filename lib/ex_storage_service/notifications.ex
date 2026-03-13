@@ -128,8 +128,14 @@ defmodule ExStorageService.Notifications do
 
         String.ends_with?(pattern, ":*") ->
           prefix = String.replace_trailing(pattern, ":*", ":")
+
           String.starts_with?(event_type, prefix) ||
-            String.replace_trailing(pattern, "*", "") == String.replace_trailing(event_type, String.split(event_type, ":") |> List.last(), "")
+            String.replace_trailing(pattern, "*", "") ==
+              String.replace_trailing(
+                event_type,
+                String.split(event_type, ":") |> List.last(),
+                ""
+              )
 
         pattern == "s3:ObjectCreated:*" ->
           String.starts_with?(event_type, "s3:ObjectCreated:")
@@ -171,22 +177,36 @@ defmodule ExStorageService.Notifications do
 
       {:ok, %{status: status}} when status >= 500 and attempt < @max_retries ->
         backoff = @initial_backoff_ms * Integer.pow(2, attempt)
-        Logger.warning("Notification to #{endpoint} failed (HTTP #{status}), retrying in #{backoff}ms (attempt #{attempt + 1}/#{@max_retries})")
+
+        Logger.warning(
+          "Notification to #{endpoint} failed (HTTP #{status}), retrying in #{backoff}ms (attempt #{attempt + 1}/#{@max_retries})"
+        )
+
         Process.sleep(backoff)
         deliver_webhook(endpoint, event, attempt + 1)
 
       {:ok, %{status: status}} ->
-        Logger.warning("Notification delivery failed to #{endpoint}: HTTP #{status} after #{attempt + 1} attempt(s)")
+        Logger.warning(
+          "Notification delivery failed to #{endpoint}: HTTP #{status} after #{attempt + 1} attempt(s)"
+        )
+
         {:error, {:http_error, status}}
 
       {:error, reason} when attempt < @max_retries ->
         backoff = @initial_backoff_ms * Integer.pow(2, attempt)
-        Logger.warning("Notification to #{endpoint} failed (#{inspect(reason)}), retrying in #{backoff}ms (attempt #{attempt + 1}/#{@max_retries})")
+
+        Logger.warning(
+          "Notification to #{endpoint} failed (#{inspect(reason)}), retrying in #{backoff}ms (attempt #{attempt + 1}/#{@max_retries})"
+        )
+
         Process.sleep(backoff)
         deliver_webhook(endpoint, event, attempt + 1)
 
       {:error, reason} ->
-        Logger.warning("Notification delivery failed to #{endpoint}: #{inspect(reason)} after #{attempt + 1} attempt(s)")
+        Logger.warning(
+          "Notification delivery failed to #{endpoint}: #{inspect(reason)} after #{attempt + 1} attempt(s)"
+        )
+
         {:error, reason}
     end
   rescue

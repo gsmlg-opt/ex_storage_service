@@ -32,7 +32,13 @@ defmodule ExStorageService.S3.Handlers do
 
     case Metadata.head_bucket(bucket) do
       :ok ->
-        error_response(conn, "BucketAlreadyOwnedByYou", "Your previous request to create the named bucket succeeded.", "/#{bucket}", request_id)
+        error_response(
+          conn,
+          "BucketAlreadyOwnedByYou",
+          "Your previous request to create the named bucket succeeded.",
+          "/#{bucket}",
+          request_id
+        )
 
       {:error, :not_found} ->
         Engine.ensure_bucket_dirs(bucket)
@@ -58,7 +64,13 @@ defmodule ExStorageService.S3.Handlers do
 
     case Metadata.head_bucket(bucket) do
       {:error, :not_found} ->
-        error_response(conn, "NoSuchBucket", "The specified bucket does not exist.", "/#{bucket}", request_id)
+        error_response(
+          conn,
+          "NoSuchBucket",
+          "The specified bucket does not exist.",
+          "/#{bucket}",
+          request_id
+        )
 
       {:error, reason} ->
         error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
@@ -73,7 +85,13 @@ defmodule ExStorageService.S3.Handlers do
             |> send_resp(204, "")
 
           {:ok, _} ->
-            error_response(conn, "BucketNotEmpty", "The bucket you tried to delete is not empty.", "/#{bucket}", request_id)
+            error_response(
+              conn,
+              "BucketNotEmpty",
+              "The bucket you tried to delete is not empty.",
+              "/#{bucket}",
+              request_id
+            )
 
           {:error, reason} ->
             error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
@@ -107,7 +125,13 @@ defmodule ExStorageService.S3.Handlers do
 
     case Metadata.head_bucket(bucket) do
       {:error, :not_found} ->
-        error_response(conn, "NoSuchBucket", "The specified bucket does not exist.", "/#{bucket}", request_id)
+        error_response(
+          conn,
+          "NoSuchBucket",
+          "The specified bucket does not exist.",
+          "/#{bucket}",
+          request_id
+        )
 
       {:error, reason} ->
         error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
@@ -228,16 +252,34 @@ defmodule ExStorageService.S3.Handlers do
               end
 
             {:error, _} ->
-              error_response(conn, "InternalError", "Content file missing", "/#{bucket}/#{key}", request_id)
+              error_response(
+                conn,
+                "InternalError",
+                "Content file missing",
+                "/#{bucket}/#{key}",
+                request_id
+              )
           end
 
         {:error, :not_found} ->
           case Metadata.head_bucket(bucket) do
             {:error, :not_found} ->
-              error_response(conn, "NoSuchBucket", "The specified bucket does not exist.", "/#{bucket}/#{key}", request_id)
+              error_response(
+                conn,
+                "NoSuchBucket",
+                "The specified bucket does not exist.",
+                "/#{bucket}/#{key}",
+                request_id
+              )
 
             :ok ->
-              error_response(conn, "NoSuchKey", "The specified key does not exist.", "/#{bucket}/#{key}", request_id)
+              error_response(
+                conn,
+                "NoSuchKey",
+                "The specified key does not exist.",
+                "/#{bucket}/#{key}",
+                request_id
+              )
           end
       end
     end)
@@ -295,57 +337,81 @@ defmodule ExStorageService.S3.Handlers do
     request_id = request_id(conn)
 
     ExStorageService.Telemetry.span(:put_object, %{bucket: bucket, key: key}, fn ->
-    case Metadata.head_bucket(bucket) do
-      {:error, :not_found} ->
-        error_response(conn, "NoSuchBucket", "The specified bucket does not exist.", "/#{bucket}/#{key}", request_id)
+      case Metadata.head_bucket(bucket) do
+        {:error, :not_found} ->
+          error_response(
+            conn,
+            "NoSuchBucket",
+            "The specified bucket does not exist.",
+            "/#{bucket}/#{key}",
+            request_id
+          )
 
-      {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
+        {:error, reason} ->
+          error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
 
-      :ok ->
-        case read_full_body(conn) do
-          {:ok, body, conn} ->
-            content_type =
-              case get_req_header(conn, "content-type") do
-                [ct | _] -> ct
-                [] -> "application/octet-stream"
+        :ok ->
+          case read_full_body(conn) do
+            {:ok, body, conn} ->
+              content_type =
+                case get_req_header(conn, "content-type") do
+                  [ct | _] -> ct
+                  [] -> "application/octet-stream"
+                end
+
+              custom_metadata = extract_custom_metadata(conn)
+
+              case Engine.put_object(bucket, key, body, content_type, custom_metadata) do
+                {:ok, {content_hash, etag, size}} ->
+                  now = DateTime.utc_now() |> DateTime.to_iso8601()
+
+                  meta = %{
+                    content_hash: content_hash,
+                    size: size,
+                    etag: etag,
+                    content_type: content_type,
+                    metadata: custom_metadata,
+                    created_at: now,
+                    updated_at: now
+                  }
+
+                  Metadata.put_object_meta(bucket, key, meta)
+                  Hooks.after_put(bucket, key)
+
+                  conn
+                  |> put_s3_headers(request_id)
+                  |> put_resp_header("etag", "\"#{etag}\"")
+                  |> send_resp(200, "")
+
+                {:error, reason} ->
+                  error_response(
+                    conn,
+                    "InternalError",
+                    inspect(reason),
+                    "/#{bucket}/#{key}",
+                    request_id
+                  )
               end
 
-            custom_metadata = extract_custom_metadata(conn)
+            {:error, :entity_too_large} ->
+              error_response(
+                conn,
+                "EntityTooLarge",
+                "Your proposed upload exceeds the maximum allowed object size.",
+                "/#{bucket}/#{key}",
+                request_id
+              )
 
-            case Engine.put_object(bucket, key, body, content_type, custom_metadata) do
-              {:ok, {content_hash, etag, size}} ->
-                now = DateTime.utc_now() |> DateTime.to_iso8601()
-
-                meta = %{
-                  content_hash: content_hash,
-                  size: size,
-                  etag: etag,
-                  content_type: content_type,
-                  metadata: custom_metadata,
-                  created_at: now,
-                  updated_at: now
-                }
-
-                Metadata.put_object_meta(bucket, key, meta)
-                Hooks.after_put(bucket, key)
-
-                conn
-                |> put_s3_headers(request_id)
-                |> put_resp_header("etag", "\"#{etag}\"")
-                |> send_resp(200, "")
-
-              {:error, reason} ->
-                error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
-            end
-
-          {:error, :entity_too_large} ->
-            error_response(conn, "EntityTooLarge", "Your proposed upload exceeds the maximum allowed object size.", "/#{bucket}/#{key}", request_id)
-
-          {:error, reason} ->
-            error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
-        end
-    end
+            {:error, reason} ->
+              error_response(
+                conn,
+                "InternalError",
+                inspect(reason),
+                "/#{bucket}/#{key}",
+                request_id
+              )
+          end
+      end
     end)
   end
 
@@ -382,7 +448,13 @@ defmodule ExStorageService.S3.Handlers do
           {:ok, source_meta} ->
             case Metadata.head_bucket(bucket) do
               {:error, :not_found} ->
-                error_response(conn, "NoSuchBucket", "The specified bucket does not exist.", "/#{bucket}/#{key}", request_id)
+                error_response(
+                  conn,
+                  "NoSuchBucket",
+                  "The specified bucket does not exist.",
+                  "/#{bucket}/#{key}",
+                  request_id
+                )
 
               :ok ->
                 now = DateTime.utc_now() |> DateTime.to_iso8601()
@@ -411,11 +483,23 @@ defmodule ExStorageService.S3.Handlers do
             end
 
           {:error, :not_found} ->
-            error_response(conn, "NoSuchKey", "The specified source key does not exist.", copy_source, request_id)
+            error_response(
+              conn,
+              "NoSuchKey",
+              "The specified source key does not exist.",
+              copy_source,
+              request_id
+            )
         end
 
       [] ->
-        error_response(conn, "InvalidArgument", "Missing x-amz-copy-source header.", "/#{bucket}/#{key}", request_id)
+        error_response(
+          conn,
+          "InvalidArgument",
+          "Missing x-amz-copy-source header.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
     end
   end
 
@@ -443,7 +527,13 @@ defmodule ExStorageService.S3.Handlers do
             xml_response(conn, 200, body, request_id)
 
           {:error, _reason} ->
-            error_response(conn, "MalformedXML", "The XML you provided was not well-formed.", "/#{bucket}?delete", request_id)
+            error_response(
+              conn,
+              "MalformedXML",
+              "The XML you provided was not well-formed.",
+              "/#{bucket}?delete",
+              request_id
+            )
         end
 
       {:error, reason} ->
@@ -472,7 +562,9 @@ defmodule ExStorageService.S3.Handlers do
               content_type = Map.get(meta, :content_type, "application/octet-stream")
               etag = Map.get(meta, :etag, "")
               size = Map.get(meta, :size, 0)
-              last_modified = format_http_date(Map.get(meta, :updated_at, Map.get(meta, :created_at)))
+
+              last_modified =
+                format_http_date(Map.get(meta, :updated_at, Map.get(meta, :created_at)))
 
               conn
               |> put_s3_headers(request_id)
@@ -485,12 +577,24 @@ defmodule ExStorageService.S3.Handlers do
               |> send_file(200, file_path)
 
             {:error, _} ->
-              error_response(conn, "InternalError", "Content file missing", "/#{bucket}/#{key}", request_id)
+              error_response(
+                conn,
+                "InternalError",
+                "Content file missing",
+                "/#{bucket}/#{key}",
+                request_id
+              )
           end
         end
 
       {:error, :not_found} ->
-        error_response(conn, "NoSuchKey", "The specified key does not exist.", "/#{bucket}/#{key}", request_id)
+        error_response(
+          conn,
+          "NoSuchKey",
+          "The specified key does not exist.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
     end
   end
 
@@ -499,7 +603,13 @@ defmodule ExStorageService.S3.Handlers do
 
     case Metadata.head_bucket(bucket) do
       {:error, :not_found} ->
-        error_response(conn, "NoSuchBucket", "The specified bucket does not exist.", "/#{bucket}", request_id)
+        error_response(
+          conn,
+          "NoSuchBucket",
+          "The specified bucket does not exist.",
+          "/#{bucket}",
+          request_id
+        )
 
       :ok ->
         case read_full_body(conn) do
@@ -514,11 +624,23 @@ defmodule ExStorageService.S3.Handlers do
                 |> send_resp(200, "")
 
               {:error, _} ->
-                error_response(conn, "MalformedXML", "The XML you provided was not well-formed.", "/#{bucket}?versioning", request_id)
+                error_response(
+                  conn,
+                  "MalformedXML",
+                  "The XML you provided was not well-formed.",
+                  "/#{bucket}?versioning",
+                  request_id
+                )
             end
 
           {:error, reason} ->
-            error_response(conn, "InternalError", inspect(reason), "/#{bucket}?versioning", request_id)
+            error_response(
+              conn,
+              "InternalError",
+              inspect(reason),
+              "/#{bucket}?versioning",
+              request_id
+            )
         end
 
       {:error, reason} ->
@@ -531,7 +653,13 @@ defmodule ExStorageService.S3.Handlers do
 
     case Metadata.head_bucket(bucket) do
       {:error, :not_found} ->
-        error_response(conn, "NoSuchBucket", "The specified bucket does not exist.", "/#{bucket}", request_id)
+        error_response(
+          conn,
+          "NoSuchBucket",
+          "The specified bucket does not exist.",
+          "/#{bucket}",
+          request_id
+        )
 
       :ok ->
         state = Versioning.get_versioning(bucket)
@@ -562,7 +690,13 @@ defmodule ExStorageService.S3.Handlers do
 
     case Metadata.head_bucket(bucket) do
       {:error, :not_found} ->
-        error_response(conn, "NoSuchBucket", "The specified bucket does not exist.", "/#{bucket}", request_id)
+        error_response(
+          conn,
+          "NoSuchBucket",
+          "The specified bucket does not exist.",
+          "/#{bucket}",
+          request_id
+        )
 
       :ok ->
         case read_full_body(conn) do
@@ -576,11 +710,23 @@ defmodule ExStorageService.S3.Handlers do
                 |> send_resp(200, "")
 
               {:error, _} ->
-                error_response(conn, "MalformedXML", "The XML you provided was not well-formed.", "/#{bucket}?lifecycle", request_id)
+                error_response(
+                  conn,
+                  "MalformedXML",
+                  "The XML you provided was not well-formed.",
+                  "/#{bucket}?lifecycle",
+                  request_id
+                )
             end
 
           {:error, reason} ->
-            error_response(conn, "InternalError", inspect(reason), "/#{bucket}?lifecycle", request_id)
+            error_response(
+              conn,
+              "InternalError",
+              inspect(reason),
+              "/#{bucket}?lifecycle",
+              request_id
+            )
         end
 
       {:error, reason} ->
@@ -593,7 +739,13 @@ defmodule ExStorageService.S3.Handlers do
 
     case Metadata.head_bucket(bucket) do
       {:error, :not_found} ->
-        error_response(conn, "NoSuchBucket", "The specified bucket does not exist.", "/#{bucket}", request_id)
+        error_response(
+          conn,
+          "NoSuchBucket",
+          "The specified bucket does not exist.",
+          "/#{bucket}",
+          request_id
+        )
 
       :ok ->
         case Lifecycle.get_rules(bucket) do
@@ -602,7 +754,13 @@ defmodule ExStorageService.S3.Handlers do
             xml_response(conn, 200, body, request_id)
 
           {:error, :not_found} ->
-            error_response(conn, "NoSuchLifecycleConfiguration", "The lifecycle configuration does not exist.", "/#{bucket}?lifecycle", request_id)
+            error_response(
+              conn,
+              "NoSuchLifecycleConfiguration",
+              "The lifecycle configuration does not exist.",
+              "/#{bucket}?lifecycle",
+              request_id
+            )
         end
 
       {:error, reason} ->
@@ -626,7 +784,13 @@ defmodule ExStorageService.S3.Handlers do
 
     case Metadata.head_bucket(bucket) do
       {:error, :not_found} ->
-        error_response(conn, "NoSuchBucket", "The specified bucket does not exist.", "/#{bucket}", request_id)
+        error_response(
+          conn,
+          "NoSuchBucket",
+          "The specified bucket does not exist.",
+          "/#{bucket}",
+          request_id
+        )
 
       :ok ->
         case read_full_body(conn) do
@@ -640,11 +804,23 @@ defmodule ExStorageService.S3.Handlers do
                 |> send_resp(200, "")
 
               {:error, _} ->
-                error_response(conn, "MalformedXML", "The XML you provided was not well-formed.", "/#{bucket}?notification", request_id)
+                error_response(
+                  conn,
+                  "MalformedXML",
+                  "The XML you provided was not well-formed.",
+                  "/#{bucket}?notification",
+                  request_id
+                )
             end
 
           {:error, reason} ->
-            error_response(conn, "InternalError", inspect(reason), "/#{bucket}?notification", request_id)
+            error_response(
+              conn,
+              "InternalError",
+              inspect(reason),
+              "/#{bucket}?notification",
+              request_id
+            )
         end
 
       {:error, reason} ->
@@ -657,7 +833,13 @@ defmodule ExStorageService.S3.Handlers do
 
     case Metadata.head_bucket(bucket) do
       {:error, :not_found} ->
-        error_response(conn, "NoSuchBucket", "The specified bucket does not exist.", "/#{bucket}", request_id)
+        error_response(
+          conn,
+          "NoSuchBucket",
+          "The specified bucket does not exist.",
+          "/#{bucket}",
+          request_id
+        )
 
       :ok ->
         case Notifications.get_config(bucket) do
@@ -866,19 +1048,36 @@ defmodule ExStorageService.S3.Handlers do
     date_str = String.trim(date_str)
 
     months = %{
-      "Jan" => 1, "Feb" => 2, "Mar" => 3, "Apr" => 4,
-      "May" => 5, "Jun" => 6, "Jul" => 7, "Aug" => 8,
-      "Sep" => 9, "Oct" => 10, "Nov" => 11, "Dec" => 12
+      "Jan" => 1,
+      "Feb" => 2,
+      "Mar" => 3,
+      "Apr" => 4,
+      "May" => 5,
+      "Jun" => 6,
+      "Jul" => 7,
+      "Aug" => 8,
+      "Sep" => 9,
+      "Oct" => 10,
+      "Nov" => 11,
+      "Dec" => 12
     }
 
-    case Regex.run(~r/\w+,\s+(\d{2})\s+(\w{3})\s+(\d{4})\s+(\d{2}):(\d{2}):(\d{2})\s+GMT/, date_str) do
+    case Regex.run(
+           ~r/\w+,\s+(\d{2})\s+(\w{3})\s+(\d{4})\s+(\d{2}):(\d{2}):(\d{2})\s+GMT/,
+           date_str
+         ) do
       [_, day, month_str, year, hour, min, sec] ->
         with month when month != nil <- Map.get(months, month_str),
-             {:ok, dt} <- DateTime.new(
-               Date.new!(String.to_integer(year), month, String.to_integer(day)),
-               Time.new!(String.to_integer(hour), String.to_integer(min), String.to_integer(sec)),
-               "Etc/UTC"
-             ) do
+             {:ok, dt} <-
+               DateTime.new(
+                 Date.new!(String.to_integer(year), month, String.to_integer(day)),
+                 Time.new!(
+                   String.to_integer(hour),
+                   String.to_integer(min),
+                   String.to_integer(sec)
+                 ),
+                 "Etc/UTC"
+               ) do
           {:ok, dt}
         else
           _ -> {:error, :invalid_date}
@@ -945,7 +1144,10 @@ defmodule ExStorageService.S3.Handlers do
         :xmerl_xpath.string(~c"//Rule", doc)
         |> Enum.map(fn rule_elem ->
           id = xpath_text(rule_elem, ~c"ID")
-          prefix = xpath_text(rule_elem, ~c"Filter/Prefix") || xpath_text(rule_elem, ~c"Prefix") || ""
+
+          prefix =
+            xpath_text(rule_elem, ~c"Filter/Prefix") || xpath_text(rule_elem, ~c"Prefix") || ""
+
           status = xpath_text(rule_elem, ~c"Status") || "Enabled"
           days_str = xpath_text(rule_elem, ~c"Expiration/Days") || "0"
           days = String.to_integer(days_str)

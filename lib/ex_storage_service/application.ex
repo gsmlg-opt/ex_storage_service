@@ -7,7 +7,9 @@ defmodule ExStorageService.Application do
   @impl true
   def start(_type, _args) do
     s3_port = Application.get_env(:ex_storage_service, :s3_port, 9000)
-    data_root = Application.get_env(:ex_storage_service, :data_root, "/tmp/ex_storage_service/data")
+
+    data_root =
+      Application.get_env(:ex_storage_service, :data_root, "/tmp/ex_storage_service/data")
 
     # Ensure data directories exist
     File.mkdir_p!(data_root)

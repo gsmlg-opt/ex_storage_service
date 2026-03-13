@@ -28,8 +28,7 @@ defmodule ExStorageServiceWeb.AuditLive.Index do
   def handle_event("load_more", _params, socket) do
     next_page = socket.assigns.page + 1
 
-    {:noreply,
-     push_patch(socket, to: ~p"/audit?#{%{page: next_page}}")}
+    {:noreply, push_patch(socket, to: ~p"/audit?#{%{page: next_page}}")}
   end
 
   @impl true
@@ -45,7 +44,9 @@ defmodule ExStorageServiceWeb.AuditLive.Index do
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timestamp</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Timestamp
+              </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actor</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Target</th>

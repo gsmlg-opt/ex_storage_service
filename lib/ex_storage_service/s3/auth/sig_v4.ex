@@ -85,14 +85,15 @@ defmodule ExStorageService.S3.Auth.SigV4 do
       payload_hash = get_payload_hash(conn)
 
       # Build canonical request
-      canonical = canonical_request(
-        conn.method,
-        conn.request_path,
-        conn.query_string || "",
-        conn.req_headers,
-        signed_headers_list,
-        payload_hash
-      )
+      canonical =
+        canonical_request(
+          conn.method,
+          conn.request_path,
+          conn.query_string || "",
+          conn.req_headers,
+          signed_headers_list,
+          payload_hash
+        )
 
       # Build string to sign
       datetime = get_amz_date(conn)

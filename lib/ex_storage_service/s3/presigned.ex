@@ -117,11 +117,21 @@ defmodule ExStorageService.S3.Presigned do
           payload_hash = "UNSIGNED-PAYLOAD"
 
           canonical_request =
-            [conn.method, conn.request_path, query_params, canonical_headers, signed_headers, payload_hash]
+            [
+              conn.method,
+              conn.request_path,
+              query_params,
+              canonical_headers,
+              signed_headers,
+              payload_hash
+            ]
             |> Enum.join("\n")
 
           string_to_sign = SigV4.string_to_sign(amz_date, scope, canonical_request)
-          signing_key = SigV4.signing_key(secret, credential.date, credential.region, credential.service)
+
+          signing_key =
+            SigV4.signing_key(secret, credential.date, credential.region, credential.service)
+
           expected_signature = SigV4.compute_signature(signing_key, string_to_sign)
 
           if secure_compare(expected_signature, claimed_signature) do
@@ -206,6 +216,7 @@ defmodule ExStorageService.S3.Presigned do
       [] ->
         # Fall back to conn.host + port
         host = conn.host || "localhost"
+
         if conn.port && conn.port not in [80, 443] do
           "#{host}:#{conn.port}"
         else

@@ -105,7 +105,10 @@ defmodule ExStorageService.Storage.Multipart do
             total_size = 0
 
             {sha256_ctx, md5_digests, total_size} =
-              Enum.reduce(sorted_parts, {sha256_ctx, md5_digests, total_size}, fn {pn, client_etag}, {sha_ctx, md5s, size} ->
+              Enum.reduce(sorted_parts, {sha256_ctx, md5_digests, total_size}, fn {pn,
+                                                                                   client_etag},
+                                                                                  {sha_ctx, md5s,
+                                                                                   size} ->
                 part_file = part_path(bucket, upload_id, pn)
 
                 case File.read(part_file) do
@@ -264,7 +267,8 @@ defmodule ExStorageService.Storage.Multipart do
 
   defp mpu_key(bucket, upload_id), do: "mpu:#{bucket}:#{upload_id}"
 
-  defp mpu_part_key(bucket, upload_id, part_number), do: "mpu_part:#{bucket}:#{upload_id}:#{part_number}"
+  defp mpu_part_key(bucket, upload_id, part_number),
+    do: "mpu_part:#{bucket}:#{upload_id}:#{part_number}"
 
   defp part_dir(bucket, upload_id) do
     Path.join([data_root(), bucket, "multipart", upload_id])

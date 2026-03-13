@@ -5,7 +5,13 @@ defmodule ExStorageService.S3.XMLTest do
 
   describe "error_response/4" do
     test "generates valid XML with all required elements" do
-      result = XML.error_response("NoSuchKey", "The specified key does not exist.", "/bucket/key", "REQ123")
+      result =
+        XML.error_response(
+          "NoSuchKey",
+          "The specified key does not exist.",
+          "/bucket/key",
+          "REQ123"
+        )
 
       assert result =~ ~s(<?xml version="1.0" encoding="UTF-8"?>)
       assert result =~ "<Error>"

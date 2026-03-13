@@ -115,7 +115,10 @@ defmodule ExStorageServiceWeb.UserLive.Index do
             <%= for user <- @users do %>
               <tr>
                 <td class="px-6 py-4">
-                  <.link navigate={~p"/users/#{user.id}"} class="text-blue-600 hover:underline font-medium">
+                  <.link
+                    navigate={~p"/users/#{user.id}"}
+                    class="text-blue-600 hover:underline font-medium"
+                  >
                     {user.name}
                   </.link>
                 </td>

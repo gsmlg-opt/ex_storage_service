@@ -191,7 +191,9 @@ defmodule ExStorageService.Storage.Lifecycle do
 
       enabled = status == "Enabled"
       prefix_matches = prefix == "" || String.starts_with?(key, prefix)
-      enabled && expiration_days > 0 && prefix_matches && object_expired?(meta, expiration_days, now)
+
+      enabled && expiration_days > 0 && prefix_matches &&
+        object_expired?(meta, expiration_days, now)
     end)
   end
 
@@ -208,7 +210,7 @@ defmodule ExStorageService.Storage.Lifecycle do
     end
   end
 
-  defp parse_datetime(nil), do: {:error, :nil}
+  defp parse_datetime(nil), do: {:error, nil}
 
   defp parse_datetime(dt_string) when is_binary(dt_string) do
     case DateTime.from_iso8601(dt_string) do

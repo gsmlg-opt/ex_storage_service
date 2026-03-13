@@ -48,7 +48,8 @@ defmodule ExStorageService.Storage.ContentGC do
   end
 
   defp do_gc do
-    data_root = Application.get_env(:ex_storage_service, :data_root, "/tmp/ex_storage_service/data")
+    data_root =
+      Application.get_env(:ex_storage_service, :data_root, "/tmp/ex_storage_service/data")
 
     # Get all buckets from metadata
     referenced_hashes = get_referenced_hashes()

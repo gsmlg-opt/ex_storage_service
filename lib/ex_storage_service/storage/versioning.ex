@@ -76,7 +76,8 @@ defmodule ExStorageService.Storage.Versioning do
   Get object metadata. Without version_id, returns the latest version.
   With version_id, returns that specific version.
   """
-  @spec get_version(String.t(), String.t(), String.t() | nil) :: {:ok, map()} | {:error, :not_found}
+  @spec get_version(String.t(), String.t(), String.t() | nil) ::
+          {:ok, map()} | {:error, :not_found}
   def get_version(bucket, key, nil) do
     case get_versioning(bucket) do
       :disabled ->

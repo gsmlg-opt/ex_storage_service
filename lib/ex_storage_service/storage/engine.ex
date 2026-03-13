@@ -22,8 +22,18 @@ defmodule ExStorageService.Storage.Engine do
 
   Returns `{:ok, {content_hash, etag, size}}` on success.
   """
-  def put_object(bucket, key, data_or_stream, content_type \\ "application/octet-stream", metadata \\ %{}) do
-    GenServer.call(__MODULE__, {:put_object, bucket, key, data_or_stream, content_type, metadata}, :infinity)
+  def put_object(
+        bucket,
+        key,
+        data_or_stream,
+        content_type \\ "application/octet-stream",
+        metadata \\ %{}
+      ) do
+    GenServer.call(
+      __MODULE__,
+      {:put_object, bucket, key, data_or_stream, content_type, metadata},
+      :infinity
+    )
   end
 
   @doc """
@@ -66,7 +76,11 @@ defmodule ExStorageService.Storage.Engine do
   end
 
   @impl true
-  def handle_call({:put_object, bucket, _key, data_or_stream, _content_type, _metadata}, _from, state) do
+  def handle_call(
+        {:put_object, bucket, _key, data_or_stream, _content_type, _metadata},
+        _from,
+        state
+      ) do
     %{data_root: data_root} = state
 
     ensure_bucket_dirs!(data_root, bucket)

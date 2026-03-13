@@ -124,7 +124,9 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
               </select>
             </div>
             <div class="w-48">
-              <label for="bucket_name" class="block text-sm text-gray-600 mb-1">Bucket (for BucketScoped)</label>
+              <label for="bucket_name" class="block text-sm text-gray-600 mb-1">
+                Bucket (for BucketScoped)
+              </label>
               <input
                 type="text"
                 name="bucket_name"
@@ -150,7 +152,9 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statements</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Statements
+              </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
             </tr>
@@ -159,7 +163,10 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
             <%= for policy <- @policies do %>
               <tr>
                 <td class="px-6 py-4">
-                  <.link navigate={~p"/policies/#{policy.id}"} class="text-blue-600 hover:underline font-medium">
+                  <.link
+                    navigate={~p"/policies/#{policy.id}"}
+                    class="text-blue-600 hover:underline font-medium"
+                  >
                     {policy.name}
                   </.link>
                 </td>

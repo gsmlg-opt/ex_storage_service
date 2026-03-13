@@ -44,7 +44,10 @@ defmodule ExStorageServiceWeb.UserLive.Show do
           socket
           |> assign(:new_secret, key.secret_access_key)
           |> assign(:new_key_id, key.access_key_id)
-          |> put_flash(:info, "Access key created. Copy the secret now - it will not be shown again!")
+          |> put_flash(
+            :info,
+            "Access key created. Copy the secret now - it will not be shown again!"
+          )
           |> load_keys()
 
         {:noreply, socket}
@@ -121,7 +124,9 @@ defmodule ExStorageServiceWeb.UserLive.Show do
   def render(assigns) do
     ~H"""
     <div>
-      <.link navigate={~p"/users"} class="text-blue-600 hover:underline text-sm">&larr; Back to Users</.link>
+      <.link navigate={~p"/users"} class="text-blue-600 hover:underline text-sm">
+        &larr; Back to Users
+      </.link>
 
       <.header class="mt-2">
         {@user.name}
@@ -142,7 +147,9 @@ defmodule ExStorageServiceWeb.UserLive.Show do
       <%!-- Secret reveal modal --%>
       <%= if @new_secret do %>
         <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <h3 class="text-sm font-semibold text-yellow-800 mb-2">New Access Key Created - Save the Secret Now!</h3>
+          <h3 class="text-sm font-semibold text-yellow-800 mb-2">
+            New Access Key Created - Save the Secret Now!
+          </h3>
           <p class="text-sm text-yellow-700 mb-2">This secret will not be shown again.</p>
           <div class="bg-white border rounded p-3 mb-3">
             <p class="text-xs text-gray-500">Access Key ID</p>
@@ -174,10 +181,18 @@ defmodule ExStorageServiceWeb.UserLive.Show do
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Access Key ID</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Access Key ID
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Status
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Created
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
@@ -241,9 +256,13 @@ defmodule ExStorageServiceWeb.UserLive.Show do
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Policy Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Policy Name
+                </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
@@ -275,7 +294,8 @@ defmodule ExStorageServiceWeb.UserLive.Show do
         </div>
 
         <%!-- Attach policy form --%>
-        <% available = Enum.reject(@all_policies, fn p -> p.id in Enum.map(@user_policies, & &1.id) end) %>
+        <% available =
+          Enum.reject(@all_policies, fn p -> p.id in Enum.map(@user_policies, & &1.id) end) %>
         <%= if available != [] do %>
           <div class="mt-4 bg-white shadow rounded-lg p-4">
             <h3 class="text-sm font-semibold text-gray-700 mb-3">Attach Policy</h3>

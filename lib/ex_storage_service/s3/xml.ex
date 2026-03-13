@@ -17,8 +17,12 @@ defmodule ExStorageService.S3.XML do
       Enum.map(buckets, fn b ->
         [
           "<Bucket>",
-          "<Name>", escape(b.name), "</Name>",
-          "<CreationDate>", escape(b.creation_date), "</CreationDate>",
+          "<Name>",
+          escape(b.name),
+          "</Name>",
+          "<CreationDate>",
+          escape(b.creation_date),
+          "</CreationDate>",
           "</Bucket>"
         ]
       end)
@@ -27,8 +31,12 @@ defmodule ExStorageService.S3.XML do
       ~s(<?xml version="1.0" encoding="UTF-8"?>),
       ~s(<ListAllMyBucketsResult xmlns="#{@s3_xmlns}">),
       "<Owner>",
-      "<ID>", escape(owner.id), "</ID>",
-      "<DisplayName>", escape(owner.display_name), "</DisplayName>",
+      "<ID>",
+      escape(owner.id),
+      "</ID>",
+      "<DisplayName>",
+      escape(owner.display_name),
+      "</DisplayName>",
       "</Owner>",
       "<Buckets>",
       bucket_elements,
@@ -67,11 +75,21 @@ defmodule ExStorageService.S3.XML do
       Enum.map(objects, fn obj ->
         [
           "<Contents>",
-          "<Key>", escape(obj.key), "</Key>",
-          "<LastModified>", escape(obj.last_modified), "</LastModified>",
-          "<ETag>", escape(obj.etag), "</ETag>",
-          "<Size>", to_string(obj.size), "</Size>",
-          "<StorageClass>", escape(Map.get(obj, :storage_class, "STANDARD")), "</StorageClass>",
+          "<Key>",
+          escape(obj.key),
+          "</Key>",
+          "<LastModified>",
+          escape(obj.last_modified),
+          "</LastModified>",
+          "<ETag>",
+          escape(obj.etag),
+          "</ETag>",
+          "<Size>",
+          to_string(obj.size),
+          "</Size>",
+          "<StorageClass>",
+          escape(Map.get(obj, :storage_class, "STANDARD")),
+          "</StorageClass>",
           "</Contents>"
         ]
       end)
@@ -98,12 +116,22 @@ defmodule ExStorageService.S3.XML do
     [
       ~s(<?xml version="1.0" encoding="UTF-8"?>),
       ~s(<ListBucketResult xmlns="#{@s3_xmlns}">),
-      "<Name>", escape(bucket), "</Name>",
-      "<Prefix>", escape(prefix), "</Prefix>",
+      "<Name>",
+      escape(bucket),
+      "</Name>",
+      "<Prefix>",
+      escape(prefix),
+      "</Prefix>",
       if(delimiter != "", do: ["<Delimiter>", escape(delimiter), "</Delimiter>"], else: []),
-      "<MaxKeys>", to_string(max_keys), "</MaxKeys>",
-      "<KeyCount>", to_string(key_count), "</KeyCount>",
-      "<IsTruncated>", to_string(is_truncated), "</IsTruncated>",
+      "<MaxKeys>",
+      to_string(max_keys),
+      "</MaxKeys>",
+      "<KeyCount>",
+      to_string(key_count),
+      "</KeyCount>",
+      "<IsTruncated>",
+      to_string(is_truncated),
+      "</IsTruncated>",
       "<EncodingType>url</EncodingType>",
       continuation,
       next_continuation,
@@ -121,8 +149,12 @@ defmodule ExStorageService.S3.XML do
     [
       ~s(<?xml version="1.0" encoding="UTF-8"?>),
       "<CopyObjectResult>",
-      "<ETag>", escape(etag), "</ETag>",
-      "<LastModified>", escape(last_modified), "</LastModified>",
+      "<ETag>",
+      escape(etag),
+      "</ETag>",
+      "<LastModified>",
+      escape(last_modified),
+      "</LastModified>",
       "</CopyObjectResult>"
     ]
     |> IO.iodata_to_binary()
@@ -141,16 +173,24 @@ defmodule ExStorageService.S3.XML do
         {:deleted, key} ->
           [
             "<Deleted>",
-            "<Key>", escape(key), "</Key>",
+            "<Key>",
+            escape(key),
+            "</Key>",
             "</Deleted>"
           ]
 
         {:error, key, code, message} ->
           [
             "<Error>",
-            "<Key>", escape(key), "</Key>",
-            "<Code>", escape(code), "</Code>",
-            "<Message>", escape(message), "</Message>",
+            "<Key>",
+            escape(key),
+            "</Key>",
+            "<Code>",
+            escape(code),
+            "</Code>",
+            "<Message>",
+            escape(message),
+            "</Message>",
             "</Error>"
           ]
       end)
@@ -179,10 +219,18 @@ defmodule ExStorageService.S3.XML do
     [
       ~s(<?xml version="1.0" encoding="UTF-8"?>),
       "<Error>",
-      "<Code>", escape(code), "</Code>",
-      "<Message>", escape(message), "</Message>",
-      "<Resource>", escape(resource), "</Resource>",
-      "<RequestId>", escape(request_id), "</RequestId>",
+      "<Code>",
+      escape(code),
+      "</Code>",
+      "<Message>",
+      escape(message),
+      "</Message>",
+      "<Resource>",
+      escape(resource),
+      "</Resource>",
+      "<RequestId>",
+      escape(request_id),
+      "</RequestId>",
       "</Error>"
     ]
     |> IO.iodata_to_binary()
@@ -222,9 +270,15 @@ defmodule ExStorageService.S3.XML do
     [
       ~s(<?xml version="1.0" encoding="UTF-8"?>),
       ~s(<InitiateMultipartUploadResult xmlns="#{@s3_xmlns}">),
-      "<Bucket>", escape(bucket), "</Bucket>",
-      "<Key>", escape(key), "</Key>",
-      "<UploadId>", escape(upload_id), "</UploadId>",
+      "<Bucket>",
+      escape(bucket),
+      "</Bucket>",
+      "<Key>",
+      escape(key),
+      "</Key>",
+      "<UploadId>",
+      escape(upload_id),
+      "</UploadId>",
       "</InitiateMultipartUploadResult>"
     ]
     |> IO.iodata_to_binary()
@@ -237,10 +291,18 @@ defmodule ExStorageService.S3.XML do
     [
       ~s(<?xml version="1.0" encoding="UTF-8"?>),
       ~s(<CompleteMultipartUploadResult xmlns="#{@s3_xmlns}">),
-      "<Location>", escape(location), "</Location>",
-      "<Bucket>", escape(bucket), "</Bucket>",
-      "<Key>", escape(key), "</Key>",
-      "<ETag>\"", escape(etag), "\"</ETag>",
+      "<Location>",
+      escape(location),
+      "</Location>",
+      "<Bucket>",
+      escape(bucket),
+      "</Bucket>",
+      "<Key>",
+      escape(key),
+      "</Key>",
+      "<ETag>\"",
+      escape(etag),
+      "\"</ETag>",
       "</CompleteMultipartUploadResult>"
     ]
     |> IO.iodata_to_binary()
@@ -256,9 +318,15 @@ defmodule ExStorageService.S3.XML do
       Enum.map(parts, fn p ->
         [
           "<Part>",
-          "<PartNumber>", to_string(p.part_number), "</PartNumber>",
-          "<ETag>\"", escape(p.etag), "\"</ETag>",
-          "<Size>", to_string(p.size), "</Size>",
+          "<PartNumber>",
+          to_string(p.part_number),
+          "</PartNumber>",
+          "<ETag>\"",
+          escape(p.etag),
+          "\"</ETag>",
+          "<Size>",
+          to_string(p.size),
+          "</Size>",
           if(Map.has_key?(p, :uploaded_at),
             do: ["<LastModified>", escape(p.uploaded_at), "</LastModified>"],
             else: []
@@ -270,9 +338,15 @@ defmodule ExStorageService.S3.XML do
     [
       ~s(<?xml version="1.0" encoding="UTF-8"?>),
       ~s(<ListPartsResult xmlns="#{@s3_xmlns}">),
-      "<Bucket>", escape(bucket), "</Bucket>",
-      "<Key>", escape(key), "</Key>",
-      "<UploadId>", escape(upload_id), "</UploadId>",
+      "<Bucket>",
+      escape(bucket),
+      "</Bucket>",
+      "<Key>",
+      escape(key),
+      "</Key>",
+      "<UploadId>",
+      escape(upload_id),
+      "</UploadId>",
       part_elements,
       "</ListPartsResult>"
     ]
@@ -283,6 +357,7 @@ defmodule ExStorageService.S3.XML do
   Escapes special XML characters in a string.
   """
   def escape(nil), do: ""
+
   def escape(value) when is_binary(value) do
     value
     |> String.replace("&", "&amp;")
@@ -291,5 +366,6 @@ defmodule ExStorageService.S3.XML do
     |> String.replace("\"", "&quot;")
     |> String.replace("'", "&apos;")
   end
+
   def escape(value), do: escape(to_string(value))
 end

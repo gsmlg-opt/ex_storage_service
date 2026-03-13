@@ -180,10 +180,12 @@ defmodule ExStorageService.Replication.JobQueue do
 
   defp do_process_jobs(state) do
     available = state.concurrency - state.running
+
     if available <= 0 do
       state
     else
       pending = load_pending_jobs(available)
+
       Enum.reduce(pending, state, fn job, acc ->
         run_job(job, acc)
       end)

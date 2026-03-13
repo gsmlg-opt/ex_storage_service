@@ -88,7 +88,11 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
   def handle_event("add_notification", params, socket) do
     bucket = socket.assigns.bucket_name
     endpoint = String.trim(params["endpoint"] || "")
-    events = String.split(params["events"] || "", ",") |> Enum.map(&String.trim/1) |> Enum.reject(&(&1 == ""))
+
+    events =
+      String.split(params["events"] || "", ",")
+      |> Enum.map(&String.trim/1)
+      |> Enum.reject(&(&1 == ""))
 
     if endpoint == "" or events == [] do
       {:noreply, put_flash(socket, :error, "Endpoint and events are required")}
@@ -124,7 +128,13 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
     if endpoint == "" do
       {:noreply, put_flash(socket, :error, "Replica endpoint is required")}
     else
-      replica = %{endpoint: endpoint, access_key: access_key, secret_key_enc: "", bucket: remote_bucket}
+      replica = %{
+        endpoint: endpoint,
+        access_key: access_key,
+        secret_key_enc: "",
+        bucket: remote_bucket
+      }
+
       existing = socket.assigns.replicas
       new_replicas = existing ++ [replica]
 
@@ -204,7 +214,9 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
   def render(assigns) do
     ~H"""
     <div class="max-w-4xl mx-auto p-6">
-      <.link navigate={~p"/buckets"} class="text-blue-600 hover:underline text-sm">&larr; Back to Buckets</.link>
+      <.link navigate={~p"/buckets"} class="text-blue-600 hover:underline text-sm">
+        &larr; Back to Buckets
+      </.link>
       <h1 class="text-2xl font-bold mb-6 mt-2">{@bucket_name}</h1>
 
       <%!-- Bucket Settings --%>
@@ -216,12 +228,18 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
             Current: <span class="font-medium text-gray-900">{@versioning}</span>
           </p>
           <div class="flex gap-2">
-            <button phx-click="set_versioning" phx-value-state="enabled"
-              class="px-3 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200">
+            <button
+              phx-click="set_versioning"
+              phx-value-state="enabled"
+              class="px-3 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200"
+            >
               Enable
             </button>
-            <button phx-click="set_versioning" phx-value-state="suspended"
-              class="px-3 py-1 text-xs bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200">
+            <button
+              phx-click="set_versioning"
+              phx-value-state="suspended"
+              class="px-3 py-1 text-xs bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200"
+            >
               Suspend
             </button>
           </div>
@@ -229,21 +247,51 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
 
         <%!-- Replication --%>
         <div class="bg-white shadow rounded-lg p-5">
-          <h3 class="text-sm font-semibold text-gray-700 mb-3">Replication ({length(@replicas)} replicas)</h3>
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">
+            Replication ({length(@replicas)} replicas)
+          </h3>
           <%= for replica <- @replicas do %>
-            <div class="text-xs text-gray-600 mb-1 font-mono truncate">{replica.endpoint} -> {replica.bucket || @bucket_name}</div>
+            <div class="text-xs text-gray-600 mb-1 font-mono truncate">
+              {replica.endpoint} -> {replica.bucket || @bucket_name}
+            </div>
           <% end %>
           <form phx-submit="add_replica" class="mt-3 space-y-2">
-            <input type="text" name="endpoint" placeholder="https://peer:9000" class="w-full text-xs rounded border-gray-300" />
+            <input
+              type="text"
+              name="endpoint"
+              placeholder="https://peer:9000"
+              class="w-full text-xs rounded border-gray-300"
+            />
             <div class="flex gap-2">
-              <input type="text" name="access_key" placeholder="Access Key" class="flex-1 text-xs rounded border-gray-300" />
-              <input type="text" name="remote_bucket" placeholder="Remote bucket" class="flex-1 text-xs rounded border-gray-300" />
+              <input
+                type="text"
+                name="access_key"
+                placeholder="Access Key"
+                class="flex-1 text-xs rounded border-gray-300"
+              />
+              <input
+                type="text"
+                name="remote_bucket"
+                placeholder="Remote bucket"
+                class="flex-1 text-xs rounded border-gray-300"
+              />
             </div>
             <div class="flex gap-2">
-              <button type="submit" class="px-3 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700">Add Replica</button>
+              <button
+                type="submit"
+                class="px-3 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700"
+              >
+                Add Replica
+              </button>
               <%= if @replicas != [] do %>
-                <button type="button" phx-click="remove_replicas" data-confirm="Remove all replicas?"
-                  class="px-3 py-1 text-xs text-red-600 border border-red-300 rounded hover:bg-red-50">Remove All</button>
+                <button
+                  type="button"
+                  phx-click="remove_replicas"
+                  data-confirm="Remove all replicas?"
+                  class="px-3 py-1 text-xs text-red-600 border border-red-300 rounded hover:bg-red-50"
+                >
+                  Remove All
+                </button>
               <% end %>
             </div>
           </form>
@@ -251,42 +299,96 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
 
         <%!-- Lifecycle --%>
         <div class="bg-white shadow rounded-lg p-5">
-          <h3 class="text-sm font-semibold text-gray-700 mb-3">Lifecycle Rules ({length(@lifecycle_rules)})</h3>
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">
+            Lifecycle Rules ({length(@lifecycle_rules)})
+          </h3>
           <%= for rule <- @lifecycle_rules do %>
             <div class="text-xs text-gray-600 mb-1">
               Prefix: "<span class="font-mono">{rule[:prefix] || rule.prefix}</span>"
-              Expire after <span class="font-medium">{rule[:expiration_days] || rule.expiration_days}</span> days
-              (<span class={if (rule[:status] || rule.status) == "Enabled", do: "text-green-600", else: "text-gray-400"}>{rule[:status] || rule.status}</span>)
+              Expire after
+              <span class="font-medium">{rule[:expiration_days] || rule.expiration_days}</span>
+              days
+              (<span class={
+                if (rule[:status] || rule.status) == "Enabled",
+                  do: "text-green-600",
+                  else: "text-gray-400"
+              }>{rule[:status] || rule.status}</span>)
             </div>
           <% end %>
           <form phx-submit="add_lifecycle_rule" class="mt-3 flex gap-2 items-end">
-            <input type="text" name="prefix" placeholder="Prefix (e.g. logs/)" class="flex-1 text-xs rounded border-gray-300" />
-            <input type="number" name="expiration_days" placeholder="Days" min="1" class="w-20 text-xs rounded border-gray-300" />
-            <button type="submit" class="px-3 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700">Add</button>
+            <input
+              type="text"
+              name="prefix"
+              placeholder="Prefix (e.g. logs/)"
+              class="flex-1 text-xs rounded border-gray-300"
+            />
+            <input
+              type="number"
+              name="expiration_days"
+              placeholder="Days"
+              min="1"
+              class="w-20 text-xs rounded border-gray-300"
+            />
+            <button
+              type="submit"
+              class="px-3 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            >
+              Add
+            </button>
           </form>
           <%= if @lifecycle_rules != [] do %>
-            <button phx-click="delete_lifecycle_rules" data-confirm="Remove all rules?"
-              class="mt-2 text-xs text-red-600 hover:text-red-800">Remove All Rules</button>
+            <button
+              phx-click="delete_lifecycle_rules"
+              data-confirm="Remove all rules?"
+              class="mt-2 text-xs text-red-600 hover:text-red-800"
+            >
+              Remove All Rules
+            </button>
           <% end %>
         </div>
 
         <%!-- Notifications --%>
         <div class="bg-white shadow rounded-lg p-5">
-          <h3 class="text-sm font-semibold text-gray-700 mb-3">Notifications ({length(@notifications)})</h3>
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">
+            Notifications ({length(@notifications)})
+          </h3>
           <%= for notif <- @notifications do %>
             <div class="text-xs text-gray-600 mb-1">
               <span class="font-mono truncate">{notif[:endpoint] || notif.endpoint}</span>
-              <span class="text-gray-400 ml-1">{Enum.join(notif[:events] || notif.events, ", ")}</span>
+              <span class="text-gray-400 ml-1">
+                {Enum.join(notif[:events] || notif.events, ", ")}
+              </span>
             </div>
           <% end %>
           <form phx-submit="add_notification" class="mt-3 space-y-2">
-            <input type="text" name="endpoint" placeholder="https://example.com/webhook" class="w-full text-xs rounded border-gray-300" />
-            <input type="text" name="events" placeholder="s3:ObjectCreated:*,s3:ObjectRemoved:*" class="w-full text-xs rounded border-gray-300" />
+            <input
+              type="text"
+              name="endpoint"
+              placeholder="https://example.com/webhook"
+              class="w-full text-xs rounded border-gray-300"
+            />
+            <input
+              type="text"
+              name="events"
+              placeholder="s3:ObjectCreated:*,s3:ObjectRemoved:*"
+              class="w-full text-xs rounded border-gray-300"
+            />
             <div class="flex gap-2">
-              <button type="submit" class="px-3 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700">Add</button>
+              <button
+                type="submit"
+                class="px-3 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700"
+              >
+                Add
+              </button>
               <%= if @notifications != [] do %>
-                <button type="button" phx-click="delete_notifications" data-confirm="Remove all notifications?"
-                  class="px-3 py-1 text-xs text-red-600 border border-red-300 rounded hover:bg-red-50">Remove All</button>
+                <button
+                  type="button"
+                  phx-click="delete_notifications"
+                  data-confirm="Remove all notifications?"
+                  class="px-3 py-1 text-xs text-red-600 border border-red-300 rounded hover:bg-red-50"
+                >
+                  Remove All
+                </button>
               <% end %>
             </div>
           </form>
@@ -298,8 +400,12 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
         <h3 class="text-sm font-semibold text-gray-700 mb-3">Presigned URL Generator</h3>
         <form phx-submit="generate_presigned" class="space-y-3">
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <input type="text" name="object_key" placeholder="Object key (e.g. photos/image.jpg)"
-              class="w-full text-xs rounded border-gray-300" />
+            <input
+              type="text"
+              name="object_key"
+              placeholder="Object key (e.g. photos/image.jpg)"
+              class="w-full text-xs rounded border-gray-300"
+            />
             <select name="access_key_id" class="w-full text-xs rounded border-gray-300">
               <option value="">Select access key...</option>
               <%= for key <- @access_keys do %>
@@ -317,10 +423,19 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
             </div>
             <div>
               <label class="block text-xs text-gray-500 mb-1">Expires (seconds)</label>
-              <input type="number" name="expires" value="3600" min="1" max="604800"
-                class="w-28 text-xs rounded border-gray-300" />
+              <input
+                type="number"
+                name="expires"
+                value="3600"
+                min="1"
+                max="604800"
+                class="w-28 text-xs rounded border-gray-300"
+              />
             </div>
-            <button type="submit" class="px-4 py-1.5 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700">
+            <button
+              type="submit"
+              class="px-4 py-1.5 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            >
               Generate URL
             </button>
           </div>
@@ -341,8 +456,12 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Key</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Size</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Modified</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Last Modified
+              </th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
@@ -352,9 +471,14 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
                 <td class="px-6 py-4 text-gray-500">{format_size(obj[:size] || 0)}</td>
                 <td class="px-6 py-4 text-gray-500">{obj[:updated_at] || obj[:created_at]}</td>
                 <td class="px-6 py-4 text-right">
-                  <button phx-click="delete_object" phx-value-key={obj.key}
+                  <button
+                    phx-click="delete_object"
+                    phx-value-key={obj.key}
                     data-confirm={"Delete #{obj.key}?"}
-                    class="text-xs text-red-600 hover:text-red-800">Delete</button>
+                    class="text-xs text-red-600 hover:text-red-800"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             <% end %>
