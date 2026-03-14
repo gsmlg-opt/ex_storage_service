@@ -40,35 +40,33 @@ defmodule ExStorageServiceWeb.AuditLive.Index do
         <:subtitle>IAM activity log</:subtitle>
       </.header>
 
-      <div class="mt-6 bg-white shadow rounded-lg overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+      <div class="mt-6 card">
+        <table class="table table-hover w-full">
+          <thead>
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Timestamp
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actor</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Target</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
+              <th class="text-on-surface-variant">Timestamp</th>
+              <th class="text-on-surface-variant">Actor</th>
+              <th class="text-on-surface-variant">Action</th>
+              <th class="text-on-surface-variant">Target</th>
+              <th class="text-on-surface-variant">Details</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200">
+          <tbody>
             <%= for event <- @events do %>
               <tr>
-                <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{event.timestamp}</td>
-                <td class="px-6 py-4 text-sm text-gray-900 font-mono">{event.actor}</td>
-                <td class="px-6 py-4">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {event.action}
-                  </span>
+                <td class="text-sm text-on-surface-variant whitespace-nowrap">{event.timestamp}</td>
+                <td class="text-sm text-on-surface font-mono">{event.actor}</td>
+                <td>
+                  <span class="badge badge-info">{event.action}</span>
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-500 font-mono">{event.target}</td>
-                <td class="px-6 py-4 text-sm text-gray-500">
+                <td class="text-sm text-on-surface-variant font-mono">{event.target}</td>
+                <td class="text-sm text-on-surface-variant">
                   <%= if event.details != %{} do %>
-                    <code class="text-xs bg-gray-50 px-2 py-1 rounded">{inspect(event.details)}</code>
+                    <code class="text-xs bg-surface-container px-2 py-1 rounded">
+                      {inspect(event.details)}
+                    </code>
                   <% else %>
-                    <span class="text-gray-400">-</span>
+                    <span class="opacity-40">-</span>
                   <% end %>
                 </td>
               </tr>
@@ -76,35 +74,24 @@ defmodule ExStorageServiceWeb.AuditLive.Index do
           </tbody>
         </table>
         <%= if @events == [] do %>
-          <p class="px-6 py-8 text-center text-gray-400">No audit events recorded.</p>
+          <p class="px-6 py-8 text-center text-on-surface-variant">No audit events recorded.</p>
         <% end %>
       </div>
 
       <%= if @has_more do %>
         <div class="mt-4 text-center">
-          <button
-            phx-click="load_more"
-            class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200"
-          >
-            Load More
-          </button>
+          <button phx-click="load_more" class="btn btn-secondary btn-sm">Load More</button>
         </div>
       <% end %>
 
       <%= if @page > 1 do %>
         <div class="mt-4 text-center">
-          <.link
-            patch={~p"/audit?#{%{page: @page - 1}}"}
-            class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 inline-block"
-          >
+          <.link patch={~p"/audit?#{%{page: @page - 1}}"} class="btn btn-secondary btn-sm">
             Previous Page
           </.link>
-          <span class="mx-4 text-sm text-gray-500">Page {@page}</span>
+          <span class="mx-4 text-sm text-on-surface-variant">Page {@page}</span>
           <%= if @has_more do %>
-            <.link
-              patch={~p"/audit?#{%{page: @page + 1}}"}
-              class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 inline-block"
-            >
+            <.link patch={~p"/audit?#{%{page: @page + 1}}"} class="btn btn-secondary btn-sm">
               Next Page
             </.link>
           <% end %>

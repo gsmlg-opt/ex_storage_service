@@ -124,9 +124,9 @@ defmodule ExStorageServiceWeb.UserLive.Show do
   def render(assigns) do
     ~H"""
     <div>
-      <.link navigate={~p"/users"} class="text-blue-600 hover:underline text-sm">
+      <.dm_link navigate={~p"/users"} class="text-primary text-sm">
         &larr; Back to Users
-      </.link>
+      </.dm_link>
 
       <.header class="mt-2">
         {@user.name}
@@ -134,9 +134,9 @@ defmodule ExStorageServiceWeb.UserLive.Show do
           ID: {@user.id} &middot;
           Status:
           <span class={[
-            "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
-            @user.status == :active && "bg-green-100 text-green-800",
-            @user.status == :suspended && "bg-red-100 text-red-800"
+            "badge",
+            @user.status == :active && "badge-success",
+            @user.status == :suspended && "badge-error"
           ]}>
             {@user.status}
           </span>
@@ -144,77 +144,59 @@ defmodule ExStorageServiceWeb.UserLive.Show do
         </:subtitle>
       </.header>
 
-      <%!-- Secret reveal modal --%>
       <%= if @new_secret do %>
-        <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <h3 class="text-sm font-semibold text-yellow-800 mb-2">
-            New Access Key Created - Save the Secret Now!
-          </h3>
-          <p class="text-sm text-yellow-700 mb-2">This secret will not be shown again.</p>
-          <div class="bg-white border rounded p-3 mb-3">
-            <p class="text-xs text-gray-500">Access Key ID</p>
-            <p class="font-mono text-sm select-all">{@new_key_id}</p>
-            <p class="text-xs text-gray-500 mt-2">Secret Access Key</p>
-            <p class="font-mono text-sm select-all">{@new_secret}</p>
+        <div class="mt-4 alert alert-warning">
+          <div>
+            <h3 class="text-sm font-semibold mb-2">New Access Key Created - Save the Secret Now!</h3>
+            <p class="text-sm mb-2">This secret will not be shown again.</p>
+            <div class="bg-surface-container rounded-lg p-3 mb-3">
+              <p class="text-xs text-on-surface-variant">Access Key ID</p>
+              <p class="font-mono text-sm select-all">{@new_key_id}</p>
+              <p class="text-xs text-on-surface-variant mt-2">Secret Access Key</p>
+              <p class="font-mono text-sm select-all">{@new_secret}</p>
+            </div>
+            <button phx-click="dismiss_secret" class="btn btn-warning btn-sm">
+              I have saved the secret
+            </button>
           </div>
-          <button
-            phx-click="dismiss_secret"
-            class="px-3 py-1.5 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-700"
-          >
-            I have saved the secret
-          </button>
         </div>
       <% end %>
 
-      <%!-- Access Keys Section --%>
       <div class="mt-8">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-gray-900">Access Keys</h2>
-          <button
-            phx-click="create_key"
-            class="px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700"
-          >
-            Create Access Key
-          </button>
+          <h2 class="text-lg font-semibold text-on-surface">Access Keys</h2>
+          <button phx-click="create_key" class="btn btn-primary btn-sm">Create Access Key</button>
         </div>
-        <div class="bg-white shadow rounded-lg overflow-hidden">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+        <div class="card">
+          <table class="table table-hover w-full">
+            <thead>
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Access Key ID
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Status
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Created
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Actions
-                </th>
+                <th class="text-on-surface-variant">Access Key ID</th>
+                <th class="text-on-surface-variant">Status</th>
+                <th class="text-on-surface-variant">Created</th>
+                <th class="text-on-surface-variant">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody>
               <%= for key <- @access_keys do %>
                 <tr>
-                  <td class="px-6 py-4 font-mono text-sm">{key.access_key_id}</td>
-                  <td class="px-6 py-4">
+                  <td class="font-mono text-sm">{key.access_key_id}</td>
+                  <td>
                     <span class={[
-                      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-                      key.status == :active && "bg-green-100 text-green-800",
-                      key.status == :inactive && "bg-gray-100 text-gray-800"
+                      "badge",
+                      key.status == :active && "badge-success",
+                      key.status == :inactive && "badge-info"
                     ]}>
                       {key.status}
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-sm text-gray-500">{key.created_at}</td>
-                  <td class="px-6 py-4 space-x-2">
+                  <td class="text-sm text-on-surface-variant">{key.created_at}</td>
+                  <td class="space-x-2">
                     <%= if key.status == :active do %>
                       <button
                         phx-click="deactivate_key"
                         phx-value-key-id={key.access_key_id}
-                        class="text-sm text-yellow-600 hover:text-yellow-800"
+                        class="btn btn-ghost btn-xs text-warning"
                       >
                         Deactivate
                       </button>
@@ -222,7 +204,7 @@ defmodule ExStorageServiceWeb.UserLive.Show do
                       <button
                         phx-click="activate_key"
                         phx-value-key-id={key.access_key_id}
-                        class="text-sm text-green-600 hover:text-green-800"
+                        class="btn btn-ghost btn-xs text-success"
                       >
                         Activate
                       </button>
@@ -231,7 +213,7 @@ defmodule ExStorageServiceWeb.UserLive.Show do
                       phx-click="delete_key"
                       phx-value-key-id={key.access_key_id}
                       data-confirm="Delete this access key? This cannot be undone."
-                      class="text-sm text-red-600 hover:text-red-800"
+                      class="btn btn-ghost btn-xs text-error"
                     >
                       Delete
                     </button>
@@ -241,45 +223,39 @@ defmodule ExStorageServiceWeb.UserLive.Show do
             </tbody>
           </table>
           <%= if @access_keys == [] do %>
-            <p class="px-6 py-8 text-center text-gray-400">No access keys.</p>
+            <p class="px-6 py-8 text-center text-on-surface-variant">No access keys.</p>
           <% end %>
         </div>
       </div>
 
-      <%!-- Policies Section --%>
       <div class="mt-8">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-gray-900">Attached Policies</h2>
+          <h2 class="text-lg font-semibold text-on-surface">Attached Policies</h2>
         </div>
-
-        <div class="bg-white shadow rounded-lg overflow-hidden">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+        <div class="card">
+          <table class="table table-hover w-full">
+            <thead>
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Policy Name
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Actions
-                </th>
+                <th class="text-on-surface-variant">Policy Name</th>
+                <th class="text-on-surface-variant">ID</th>
+                <th class="text-on-surface-variant">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody>
               <%= for policy <- @user_policies do %>
                 <tr>
-                  <td class="px-6 py-4">
-                    <.link navigate={~p"/policies/#{policy.id}"} class="text-blue-600 hover:underline">
+                  <td>
+                    <.link navigate={~p"/policies/#{policy.id}"} class="text-primary hover:underline">
                       {policy.name}
                     </.link>
                   </td>
-                  <td class="px-6 py-4 text-sm text-gray-500 font-mono">{policy.id}</td>
-                  <td class="px-6 py-4">
+                  <td class="text-sm text-on-surface-variant font-mono">{policy.id}</td>
+                  <td>
                     <button
                       phx-click="detach_policy"
                       phx-value-policy-id={policy.id}
                       data-confirm="Detach this policy?"
-                      class="text-sm text-red-600 hover:text-red-800"
+                      class="btn btn-ghost btn-xs text-error"
                     >
                       Detach
                     </button>
@@ -289,34 +265,27 @@ defmodule ExStorageServiceWeb.UserLive.Show do
             </tbody>
           </table>
           <%= if @user_policies == [] do %>
-            <p class="px-6 py-6 text-center text-gray-400">No policies attached.</p>
+            <p class="px-6 py-6 text-center text-on-surface-variant">No policies attached.</p>
           <% end %>
         </div>
 
-        <%!-- Attach policy form --%>
         <% available =
           Enum.reject(@all_policies, fn p -> p.id in Enum.map(@user_policies, & &1.id) end) %>
         <%= if available != [] do %>
-          <div class="mt-4 bg-white shadow rounded-lg p-4">
-            <h3 class="text-sm font-semibold text-gray-700 mb-3">Attach Policy</h3>
-            <form phx-submit="attach_policy" class="flex items-end gap-3">
-              <div class="flex-1">
-                <select
-                  name="policy_id"
-                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-                >
-                  <%= for policy <- available do %>
-                    <option value={policy.id}>{policy.name}</option>
-                  <% end %>
-                </select>
-              </div>
-              <button
-                type="submit"
-                class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700"
-              >
-                Attach
-              </button>
-            </form>
+          <div class="mt-4 card">
+            <div class="card-body">
+              <h3 class="card-title text-sm">Attach Policy</h3>
+              <form phx-submit="attach_policy" class="flex items-end gap-3">
+                <div class="flex-1">
+                  <select name="policy_id" class="select select-primary w-full">
+                    <%= for policy <- available do %>
+                      <option value={policy.id}>{policy.name}</option>
+                    <% end %>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Attach</button>
+              </form>
+            </div>
           </div>
         <% end %>
       </div>

@@ -213,269 +213,248 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="max-w-4xl mx-auto p-6">
-      <.link navigate={~p"/buckets"} class="text-blue-600 hover:underline text-sm">
+    <div class="max-w-4xl mx-auto">
+      <.dm_link navigate={~p"/buckets"} class="text-primary text-sm">
         &larr; Back to Buckets
-      </.link>
-      <h1 class="text-2xl font-bold mb-6 mt-2">{@bucket_name}</h1>
+      </.dm_link>
+      <h1 class="text-2xl font-bold mb-6 mt-2 text-on-surface">{@bucket_name}</h1>
 
-      <%!-- Bucket Settings --%>
       <div class="grid grid-cols-1 gap-6 mb-8 lg:grid-cols-2">
         <%!-- Versioning --%>
-        <div class="bg-white shadow rounded-lg p-5">
-          <h3 class="text-sm font-semibold text-gray-700 mb-3">Versioning</h3>
-          <p class="text-sm text-gray-500 mb-3">
-            Current: <span class="font-medium text-gray-900">{@versioning}</span>
-          </p>
-          <div class="flex gap-2">
-            <button
-              phx-click="set_versioning"
-              phx-value-state="enabled"
-              class="px-3 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200"
-            >
-              Enable
-            </button>
-            <button
-              phx-click="set_versioning"
-              phx-value-state="suspended"
-              class="px-3 py-1 text-xs bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200"
-            >
-              Suspend
-            </button>
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title text-sm">Versioning</h3>
+            <p class="text-sm text-on-surface-variant mb-3">
+              Current: <span class="font-medium text-on-surface">{@versioning}</span>
+            </p>
+            <div class="flex gap-2">
+              <button
+                phx-click="set_versioning"
+                phx-value-state="enabled"
+                class="btn btn-success btn-xs"
+              >
+                Enable
+              </button>
+              <button
+                phx-click="set_versioning"
+                phx-value-state="suspended"
+                class="btn btn-warning btn-xs"
+              >
+                Suspend
+              </button>
+            </div>
           </div>
         </div>
 
         <%!-- Replication --%>
-        <div class="bg-white shadow rounded-lg p-5">
-          <h3 class="text-sm font-semibold text-gray-700 mb-3">
-            Replication ({length(@replicas)} replicas)
-          </h3>
-          <%= for replica <- @replicas do %>
-            <div class="text-xs text-gray-600 mb-1 font-mono truncate">
-              {replica.endpoint} -> {replica.bucket || @bucket_name}
-            </div>
-          <% end %>
-          <form phx-submit="add_replica" class="mt-3 space-y-2">
-            <input
-              type="text"
-              name="endpoint"
-              placeholder="https://peer:9000"
-              class="w-full text-xs rounded border-gray-300"
-            />
-            <div class="flex gap-2">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title text-sm">Replication ({length(@replicas)} replicas)</h3>
+            <%= for replica <- @replicas do %>
+              <div class="text-xs text-on-surface-variant mb-1 font-mono truncate">
+                {replica.endpoint} -> {replica.bucket || @bucket_name}
+              </div>
+            <% end %>
+            <form phx-submit="add_replica" class="mt-3 space-y-2">
               <input
                 type="text"
-                name="access_key"
-                placeholder="Access Key"
-                class="flex-1 text-xs rounded border-gray-300"
+                name="endpoint"
+                placeholder="https://peer:9000"
+                class="input input-primary w-full text-xs"
               />
-              <input
-                type="text"
-                name="remote_bucket"
-                placeholder="Remote bucket"
-                class="flex-1 text-xs rounded border-gray-300"
-              />
-            </div>
-            <div class="flex gap-2">
-              <button
-                type="submit"
-                class="px-3 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700"
-              >
-                Add Replica
-              </button>
-              <%= if @replicas != [] do %>
-                <button
-                  type="button"
-                  phx-click="remove_replicas"
-                  data-confirm="Remove all replicas?"
-                  class="px-3 py-1 text-xs text-red-600 border border-red-300 rounded hover:bg-red-50"
-                >
-                  Remove All
-                </button>
-              <% end %>
-            </div>
-          </form>
+              <div class="flex gap-2">
+                <input
+                  type="text"
+                  name="access_key"
+                  placeholder="Access Key"
+                  class="input input-primary flex-1 text-xs"
+                />
+                <input
+                  type="text"
+                  name="remote_bucket"
+                  placeholder="Remote bucket"
+                  class="input input-primary flex-1 text-xs"
+                />
+              </div>
+              <div class="flex gap-2">
+                <button type="submit" class="btn btn-primary btn-xs">Add Replica</button>
+                <%= if @replicas != [] do %>
+                  <button
+                    type="button"
+                    phx-click="remove_replicas"
+                    data-confirm="Remove all replicas?"
+                    class="btn btn-outline btn-error btn-xs"
+                  >
+                    Remove All
+                  </button>
+                <% end %>
+              </div>
+            </form>
+          </div>
         </div>
 
         <%!-- Lifecycle --%>
-        <div class="bg-white shadow rounded-lg p-5">
-          <h3 class="text-sm font-semibold text-gray-700 mb-3">
-            Lifecycle Rules ({length(@lifecycle_rules)})
-          </h3>
-          <%= for rule <- @lifecycle_rules do %>
-            <div class="text-xs text-gray-600 mb-1">
-              Prefix: "<span class="font-mono">{rule[:prefix] || rule.prefix}</span>"
-              Expire after
-              <span class="font-medium">{rule[:expiration_days] || rule.expiration_days}</span>
-              days
-              (<span class={
-                if (rule[:status] || rule.status) == "Enabled",
-                  do: "text-green-600",
-                  else: "text-gray-400"
-              }>{rule[:status] || rule.status}</span>)
-            </div>
-          <% end %>
-          <form phx-submit="add_lifecycle_rule" class="mt-3 flex gap-2 items-end">
-            <input
-              type="text"
-              name="prefix"
-              placeholder="Prefix (e.g. logs/)"
-              class="flex-1 text-xs rounded border-gray-300"
-            />
-            <input
-              type="number"
-              name="expiration_days"
-              placeholder="Days"
-              min="1"
-              class="w-20 text-xs rounded border-gray-300"
-            />
-            <button
-              type="submit"
-              class="px-3 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700"
-            >
-              Add
-            </button>
-          </form>
-          <%= if @lifecycle_rules != [] do %>
-            <button
-              phx-click="delete_lifecycle_rules"
-              data-confirm="Remove all rules?"
-              class="mt-2 text-xs text-red-600 hover:text-red-800"
-            >
-              Remove All Rules
-            </button>
-          <% end %>
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title text-sm">Lifecycle Rules ({length(@lifecycle_rules)})</h3>
+            <%= for rule <- @lifecycle_rules do %>
+              <div class="text-xs text-on-surface-variant mb-1">
+                Prefix: "<span class="font-mono">{rule[:prefix] || rule.prefix}</span>"
+                Expire after
+                <span class="font-medium">{rule[:expiration_days] || rule.expiration_days}</span>
+                days
+                (<span class={
+                  if (rule[:status] || rule.status) == "Enabled",
+                    do: "text-success",
+                    else: "text-on-surface-variant"
+                }>{rule[:status] || rule.status}</span>)
+              </div>
+            <% end %>
+            <form phx-submit="add_lifecycle_rule" class="mt-3 flex gap-2 items-end">
+              <input
+                type="text"
+                name="prefix"
+                placeholder="Prefix (e.g. logs/)"
+                class="input input-primary flex-1 text-xs"
+              />
+              <input
+                type="number"
+                name="expiration_days"
+                placeholder="Days"
+                min="1"
+                class="input input-primary w-20 text-xs"
+              />
+              <button type="submit" class="btn btn-primary btn-xs">Add</button>
+            </form>
+            <%= if @lifecycle_rules != [] do %>
+              <button
+                phx-click="delete_lifecycle_rules"
+                data-confirm="Remove all rules?"
+                class="mt-2 text-xs text-error hover:underline"
+              >
+                Remove All Rules
+              </button>
+            <% end %>
+          </div>
         </div>
 
         <%!-- Notifications --%>
-        <div class="bg-white shadow rounded-lg p-5">
-          <h3 class="text-sm font-semibold text-gray-700 mb-3">
-            Notifications ({length(@notifications)})
-          </h3>
-          <%= for notif <- @notifications do %>
-            <div class="text-xs text-gray-600 mb-1">
-              <span class="font-mono truncate">{notif[:endpoint] || notif.endpoint}</span>
-              <span class="text-gray-400 ml-1">
-                {Enum.join(notif[:events] || notif.events, ", ")}
-              </span>
-            </div>
-          <% end %>
-          <form phx-submit="add_notification" class="mt-3 space-y-2">
-            <input
-              type="text"
-              name="endpoint"
-              placeholder="https://example.com/webhook"
-              class="w-full text-xs rounded border-gray-300"
-            />
-            <input
-              type="text"
-              name="events"
-              placeholder="s3:ObjectCreated:*,s3:ObjectRemoved:*"
-              class="w-full text-xs rounded border-gray-300"
-            />
-            <div class="flex gap-2">
-              <button
-                type="submit"
-                class="px-3 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700"
-              >
-                Add
-              </button>
-              <%= if @notifications != [] do %>
-                <button
-                  type="button"
-                  phx-click="delete_notifications"
-                  data-confirm="Remove all notifications?"
-                  class="px-3 py-1 text-xs text-red-600 border border-red-300 rounded hover:bg-red-50"
-                >
-                  Remove All
-                </button>
-              <% end %>
-            </div>
-          </form>
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title text-sm">Notifications ({length(@notifications)})</h3>
+            <%= for notif <- @notifications do %>
+              <div class="text-xs text-on-surface-variant mb-1">
+                <span class="font-mono truncate">{notif[:endpoint] || notif.endpoint}</span>
+                <span class="opacity-60 ml-1">{Enum.join(notif[:events] || notif.events, ", ")}</span>
+              </div>
+            <% end %>
+            <form phx-submit="add_notification" class="mt-3 space-y-2">
+              <input
+                type="text"
+                name="endpoint"
+                placeholder="https://example.com/webhook"
+                class="input input-primary w-full text-xs"
+              />
+              <input
+                type="text"
+                name="events"
+                placeholder="s3:ObjectCreated:*,s3:ObjectRemoved:*"
+                class="input input-primary w-full text-xs"
+              />
+              <div class="flex gap-2">
+                <button type="submit" class="btn btn-primary btn-xs">Add</button>
+                <%= if @notifications != [] do %>
+                  <button
+                    type="button"
+                    phx-click="delete_notifications"
+                    data-confirm="Remove all notifications?"
+                    class="btn btn-outline btn-error btn-xs"
+                  >
+                    Remove All
+                  </button>
+                <% end %>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
 
       <%!-- Presigned URL Generator --%>
-      <div class="bg-white shadow rounded-lg p-5 mb-8">
-        <h3 class="text-sm font-semibold text-gray-700 mb-3">Presigned URL Generator</h3>
-        <form phx-submit="generate_presigned" class="space-y-3">
-          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <input
-              type="text"
-              name="object_key"
-              placeholder="Object key (e.g. photos/image.jpg)"
-              class="w-full text-xs rounded border-gray-300"
-            />
-            <select name="access_key_id" class="w-full text-xs rounded border-gray-300">
-              <option value="">Select access key...</option>
-              <%= for key <- @access_keys do %>
-                <option value={key.access_key_id}>{key.access_key_id} ({key.user_id})</option>
-              <% end %>
-            </select>
-          </div>
-          <div class="flex gap-3 items-end">
-            <div>
-              <label class="block text-xs text-gray-500 mb-1">Method</label>
-              <select name="method" class="text-xs rounded border-gray-300">
-                <option value="GET">GET</option>
-                <option value="PUT">PUT</option>
+      <div class="card mb-8">
+        <div class="card-body">
+          <h3 class="card-title text-sm">Presigned URL Generator</h3>
+          <form phx-submit="generate_presigned" class="space-y-3">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <input
+                type="text"
+                name="object_key"
+                placeholder="Object key (e.g. photos/image.jpg)"
+                class="input input-primary w-full text-xs"
+              />
+              <select name="access_key_id" class="select select-primary w-full text-xs">
+                <option value="">Select access key...</option>
+                <%= for key <- @access_keys do %>
+                  <option value={key.access_key_id}>{key.access_key_id} ({key.user_id})</option>
+                <% end %>
               </select>
             </div>
-            <div>
-              <label class="block text-xs text-gray-500 mb-1">Expires (seconds)</label>
-              <input
-                type="number"
-                name="expires"
-                value="3600"
-                min="1"
-                max="604800"
-                class="w-28 text-xs rounded border-gray-300"
-              />
+            <div class="flex gap-3 items-end">
+              <div class="form-group">
+                <label class="form-label text-xs">Method</label>
+                <select name="method" class="select select-primary text-xs">
+                  <option value="GET">GET</option>
+                  <option value="PUT">PUT</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label text-xs">Expires (seconds)</label>
+                <input
+                  type="number"
+                  name="expires"
+                  value="3600"
+                  min="1"
+                  max="604800"
+                  class="input input-primary w-28 text-xs"
+                />
+              </div>
+              <button type="submit" class="btn btn-primary btn-sm">Generate URL</button>
             </div>
-            <button
-              type="submit"
-              class="px-4 py-1.5 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700"
-            >
-              Generate URL
-            </button>
-          </div>
-        </form>
-        <%= if @presigned_url do %>
-          <div class="mt-3 p-3 bg-gray-50 rounded border">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Generated URL</label>
-            <div class="font-mono text-xs break-all text-gray-800 select-all">{@presigned_url}</div>
-          </div>
-        <% end %>
+          </form>
+          <%= if @presigned_url do %>
+            <div class="mt-3 p-3 bg-surface-container rounded-lg">
+              <label class="form-label text-xs">Generated URL</label>
+              <div class="font-mono text-xs break-all text-on-surface select-all">
+                {@presigned_url}
+              </div>
+            </div>
+          <% end %>
+        </div>
       </div>
 
       <%!-- Objects Table --%>
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Objects</h2>
-      <div class="bg-white shadow rounded-lg">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+      <h2 class="text-lg font-semibold text-on-surface mb-4">Objects</h2>
+      <div class="card">
+        <table class="table table-hover w-full">
+          <thead>
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Key</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Size</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Last Modified
-              </th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                Actions
-              </th>
+              <th class="text-on-surface-variant">Key</th>
+              <th class="text-on-surface-variant">Size</th>
+              <th class="text-on-surface-variant">Last Modified</th>
+              <th class="text-on-surface-variant text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200">
+          <tbody>
             <%= for obj <- @objects do %>
               <tr>
-                <td class="px-6 py-4 font-mono text-sm">{obj.key}</td>
-                <td class="px-6 py-4 text-gray-500">{format_size(obj[:size] || 0)}</td>
-                <td class="px-6 py-4 text-gray-500">{obj[:updated_at] || obj[:created_at]}</td>
-                <td class="px-6 py-4 text-right">
+                <td class="font-mono text-sm">{obj.key}</td>
+                <td class="text-on-surface-variant">{format_size(obj[:size] || 0)}</td>
+                <td class="text-on-surface-variant">{obj[:updated_at] || obj[:created_at]}</td>
+                <td class="text-right">
                   <button
                     phx-click="delete_object"
                     phx-value-key={obj.key}
                     data-confirm={"Delete #{obj.key}?"}
-                    class="text-xs text-red-600 hover:text-red-800"
+                    class="btn btn-ghost btn-xs text-error"
                   >
                     Delete
                   </button>
@@ -485,7 +464,7 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
           </tbody>
         </table>
         <%= if @objects == [] do %>
-          <p class="px-6 py-8 text-center text-gray-400">No objects in this bucket.</p>
+          <p class="px-6 py-8 text-center text-on-surface-variant">No objects in this bucket.</p>
         <% end %>
       </div>
     </div>

@@ -22,31 +22,34 @@ defmodule ExStorageServiceWeb.BucketLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="max-w-4xl mx-auto p-6">
-      <h1 class="text-2xl font-bold mb-6">Buckets</h1>
-      <div class="bg-white shadow rounded-lg">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+    <div class="max-w-4xl mx-auto">
+      <.header>
+        Buckets
+        <:subtitle>Manage storage buckets</:subtitle>
+      </.header>
+      <div class="mt-6 card">
+        <table class="table table-hover w-full">
+          <thead>
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
+              <th class="text-on-surface-variant">Name</th>
+              <th class="text-on-surface-variant">Created</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200">
+          <tbody>
             <%= for bucket <- @buckets do %>
               <tr>
-                <td class="px-6 py-4">
-                  <.link navigate={~p"/buckets/#{bucket.name}"} class="text-blue-600 hover:underline">
+                <td>
+                  <.link navigate={~p"/buckets/#{bucket.name}"} class="text-primary hover:underline">
                     {bucket.name}
                   </.link>
                 </td>
-                <td class="px-6 py-4 text-gray-500">{bucket.creation_date}</td>
+                <td class="text-on-surface-variant">{bucket.creation_date}</td>
               </tr>
             <% end %>
           </tbody>
         </table>
         <%= if @buckets == [] do %>
-          <p class="px-6 py-8 text-center text-gray-400">No buckets yet.</p>
+          <p class="px-6 py-8 text-center text-on-surface-variant">No buckets yet.</p>
         <% end %>
       </div>
     </div>

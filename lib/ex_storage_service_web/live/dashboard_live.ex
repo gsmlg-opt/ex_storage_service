@@ -75,114 +75,106 @@ defmodule ExStorageServiceWeb.DashboardLive do
         <form action="/logout" method="post">
           <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
           <input type="hidden" name="_method" value="delete" />
-          <button
-            type="submit"
-            class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50"
-          >
+          <button type="submit" class="btn btn-outline btn-sm">
             Logout
           </button>
         </form>
       </div>
 
       <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="h-10 w-10 rounded-md bg-indigo-500 flex items-center justify-center">
-                  <span class="text-white text-lg font-bold">B</span>
-                </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
+                <span class="text-on-primary text-lg font-bold">B</span>
               </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Total Buckets</dt>
-                  <dd class="text-2xl font-semibold text-gray-900">{@bucket_count}</dd>
-                </dl>
+              <div>
+                <p class="text-sm text-on-surface-variant">Total Buckets</p>
+                <p class="text-2xl font-semibold text-on-surface">{@bucket_count}</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="h-10 w-10 rounded-md bg-green-500 flex items-center justify-center">
-                  <span class="text-white text-lg font-bold">O</span>
-                </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-md bg-success flex items-center justify-center">
+                <span class="text-success-content text-lg font-bold">O</span>
               </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Total Objects</dt>
-                  <dd class="text-2xl font-semibold text-gray-900">{@object_count}</dd>
-                </dl>
+              <div>
+                <p class="text-sm text-on-surface-variant">Total Objects</p>
+                <p class="text-2xl font-semibold text-on-surface">{@object_count}</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="h-10 w-10 rounded-md bg-yellow-500 flex items-center justify-center">
-                  <span class="text-white text-lg font-bold">D</span>
-                </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-md bg-warning flex items-center justify-center">
+                <span class="text-warning-content text-lg font-bold">D</span>
               </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Disk Usage</dt>
-                  <dd class="text-2xl font-semibold text-gray-900">{@disk_usage}</dd>
-                </dl>
+              <div>
+                <p class="text-sm text-on-surface-variant">Disk Usage</p>
+                <p class="text-2xl font-semibold text-on-surface">{@disk_usage}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <%!-- Replication Job Queue Status --%>
       <div class="mt-8">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Replication Queue</h2>
+        <h2 class="text-lg font-semibold text-on-surface mb-4">Replication Queue</h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
-          <div class="bg-white shadow rounded-lg p-4">
-            <dt class="text-sm font-medium text-gray-500">Pending</dt>
-            <dd class="mt-1 text-xl font-semibold text-yellow-600">{@replication_stats.pending}</dd>
+          <div class="card">
+            <div class="card-body">
+              <p class="text-sm text-on-surface-variant">Pending</p>
+              <p class="mt-1 text-xl font-semibold text-warning">{@replication_stats.pending}</p>
+            </div>
           </div>
-          <div class="bg-white shadow rounded-lg p-4">
-            <dt class="text-sm font-medium text-gray-500">Running</dt>
-            <dd class="mt-1 text-xl font-semibold text-blue-600">{@replication_stats.running}</dd>
+          <div class="card">
+            <div class="card-body">
+              <p class="text-sm text-on-surface-variant">Running</p>
+              <p class="mt-1 text-xl font-semibold text-info">{@replication_stats.running}</p>
+            </div>
           </div>
-          <div class="bg-white shadow rounded-lg p-4">
-            <dt class="text-sm font-medium text-gray-500">Completed</dt>
-            <dd class="mt-1 text-xl font-semibold text-green-600">{@replication_stats.completed}</dd>
+          <div class="card">
+            <div class="card-body">
+              <p class="text-sm text-on-surface-variant">Completed</p>
+              <p class="mt-1 text-xl font-semibold text-success">{@replication_stats.completed}</p>
+            </div>
           </div>
-          <div class="bg-white shadow rounded-lg p-4">
-            <dt class="text-sm font-medium text-gray-500">Dead Letter</dt>
-            <dd class="mt-1 text-xl font-semibold text-red-600">{@replication_stats.dead_letter}</dd>
+          <div class="card">
+            <div class="card-body">
+              <p class="text-sm text-on-surface-variant">Dead Letter</p>
+              <p class="mt-1 text-xl font-semibold text-error">{@replication_stats.dead_letter}</p>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="mt-8">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">System Information</h2>
-        <div class="bg-white shadow rounded-lg overflow-hidden">
-          <table class="min-w-full divide-y divide-gray-200">
-            <tbody class="divide-y divide-gray-200">
+        <h2 class="text-lg font-semibold text-on-surface mb-4">System Information</h2>
+        <div class="card">
+          <table class="table w-full">
+            <tbody>
               <tr>
-                <td class="px-6 py-3 text-sm font-medium text-gray-500 w-48">Elixir Version</td>
-                <td class="px-6 py-3 text-sm text-gray-900">{@elixir_version}</td>
+                <td class="text-sm font-medium text-on-surface-variant w-48">Elixir Version</td>
+                <td class="text-sm text-on-surface">{@elixir_version}</td>
               </tr>
               <tr>
-                <td class="px-6 py-3 text-sm font-medium text-gray-500">OTP Version</td>
-                <td class="px-6 py-3 text-sm text-gray-900">{@otp_version}</td>
+                <td class="text-sm font-medium text-on-surface-variant">OTP Version</td>
+                <td class="text-sm text-on-surface">{@otp_version}</td>
               </tr>
               <tr>
-                <td class="px-6 py-3 text-sm font-medium text-gray-500">Node Name</td>
-                <td class="px-6 py-3 text-sm text-gray-900 font-mono">{@node_name}</td>
+                <td class="text-sm font-medium text-on-surface-variant">Node Name</td>
+                <td class="text-sm text-on-surface font-mono">{@node_name}</td>
               </tr>
               <tr>
-                <td class="px-6 py-3 text-sm font-medium text-gray-500">Uptime</td>
-                <td class="px-6 py-3 text-sm text-gray-900">{@uptime}</td>
+                <td class="text-sm font-medium text-on-surface-variant">Uptime</td>
+                <td class="text-sm text-on-surface">{@uptime}</td>
               </tr>
             </tbody>
           </table>

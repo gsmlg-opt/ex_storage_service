@@ -1,8 +1,9 @@
 defmodule ExStorageServiceWeb.CoreComponents do
   @moduledoc """
-  Provides core UI components.
+  Provides core UI components built on duskmoon design system.
   """
   use Phoenix.Component
+  use PhoenixDuskmoon.Component
 
   alias Phoenix.LiveView.JS
 
@@ -19,14 +20,14 @@ defmodule ExStorageServiceWeb.CoreComponents do
     ~H"""
     <header class={["space-y-1", @class]}>
       <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-semibold leading-8 text-zinc-800">
+        <h1 class="text-2xl font-semibold leading-8 text-on-surface">
           {render_slot(@inner_block)}
         </h1>
         <div :if={@actions != []} class="flex items-center gap-4">
           {render_slot(@actions)}
         </div>
       </div>
-      <p :for={subtitle <- @subtitle} class="text-sm leading-6 text-zinc-600">
+      <p :for={subtitle <- @subtitle} class="text-sm leading-6 text-on-surface-variant">
         {render_slot(subtitle)}
       </p>
     </header>
@@ -54,9 +55,9 @@ defmodule ExStorageServiceWeb.CoreComponents do
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
       class={[
-        "fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
-        @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
-        @kind == :error && "bg-rose-50 text-rose-900 ring-rose-500 fill-rose-900"
+        "fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3",
+        @kind == :info && "alert alert-success",
+        @kind == :error && "alert alert-error"
       ]}
       {@rest}
     >
@@ -64,7 +65,7 @@ defmodule ExStorageServiceWeb.CoreComponents do
         {@title}
       </p>
       <p class="mt-2 text-sm leading-5">{msg}</p>
-      <button type="button" class="absolute top-1 right-1 p-2 group" aria-label="close">
+      <button type="button" class="absolute top-1 right-1 p-2" aria-label="close">
         <span class="text-lg">&times;</span>
       </button>
     </div>
@@ -113,8 +114,8 @@ defmodule ExStorageServiceWeb.CoreComponents do
   """
   attr :id, :string, required: true
   attr :rows, :list, required: true
-  attr :row_id, :any, default: nil, doc: "the function for generating the row id"
-  attr :row_click, :any, default: nil, doc: "the function for handling phx-click on each row"
+  attr :row_id, :any, default: nil
+  attr :row_click, :any, default: nil
 
   slot :col, required: true do
     attr :label, :string
@@ -127,30 +128,24 @@ defmodule ExStorageServiceWeb.CoreComponents do
       end
 
     ~H"""
-    <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
-      <table class="w-full mt-4">
-        <thead class="text-sm text-left leading-6 text-zinc-500">
+    <div class="overflow-x-auto">
+      <table class="table table-hover w-full">
+        <thead>
           <tr>
-            <th :for={col <- @col} class="p-0 pb-4 pr-6 font-normal">{col[:label]}</th>
+            <th :for={col <- @col} class="text-on-surface-variant">{col[:label]}</th>
           </tr>
         </thead>
         <tbody
           id={@id}
           phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
-          class="relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700"
         >
-          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50">
+          <tr :for={row <- @rows} id={@row_id && @row_id.(row)}>
             <td
               :for={col <- @col}
               phx-click={@row_click && @row_click.(row)}
-              class={["relative p-0", @row_click && "hover:cursor-pointer"]}
+              class={[@row_click && "cursor-pointer"]}
             >
-              <div class="block py-4 pr-6">
-                <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl" />
-                <span class="relative">
-                  {render_slot(col, @row_id && @row_id.(row))}
-                </span>
-              </div>
+              {render_slot(col, @row_id && @row_id.(row))}
             </td>
           </tr>
         </tbody>
@@ -169,12 +164,9 @@ defmodule ExStorageServiceWeb.CoreComponents do
   def back(assigns) do
     ~H"""
     <div class="mt-8">
-      <.link
-        navigate={@navigate}
-        class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
-      >
+      <.dm_link navigate={@navigate} class="text-sm font-semibold text-on-surface">
         &larr; {render_slot(@inner_block)}
-      </.link>
+      </.dm_link>
     </div>
     """
   end
@@ -192,11 +184,7 @@ defmodule ExStorageServiceWeb.CoreComponents do
     ~H"""
     <button
       type={@type}
-      class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
-        "text-sm font-semibold leading-6 text-white active:text-white/80",
-        @class
-      ]}
+      class={["btn btn-primary", @class]}
       {@rest}
     >
       {render_slot(@inner_block)}

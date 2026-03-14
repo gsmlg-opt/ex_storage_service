@@ -12,20 +12,19 @@ config :ex_storage_service, ExStorageServiceWeb.Endpoint,
 
 config :ex_storage_service, :json_library, Jason
 
-config :esbuild,
-  version: "0.21.5",
+config :bun,
+  version: "1.2.5",
   ex_storage_service: [
     args:
-      ~w(js/app.js --bundle --target=es2022 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+      ~w(build js/app.js --outdir=../priv/static/assets --external=/fonts/* --external=/images/*),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
 config :tailwind,
-  version: "3.4.17",
+  version: "4.1.4",
   ex_storage_service: [
     args: ~w(
-      --config=tailwind.config.js
       --input=css/app.css
       --output=../priv/static/assets/app.css
     ),

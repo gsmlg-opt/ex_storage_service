@@ -38,26 +38,23 @@ defmodule ExStorageService.MixProject do
       {:telemetry_poller, "~> 1.1"},
       {:dns_cluster, "~> 0.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
+      {:bun, "~> 1.4", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
-      {:heroicons, "~> 0.5",
-       github: "tailwindlabs/heroicons",
-       tag: "v2.2.0",
-       sparse: "optimized",
-       app: false,
-       compile: false,
-       depth: 1}
+      {:phoenix_duskmoon,
+       github: "duskmoon-dev/phoenix-duskmoon-ui",
+       tag: "v9.0.0-rc.3",
+       sparse: "apps/phoenix_duskmoon"}
     ]
   end
 
   defp aliases do
     [
-      setup: ["deps.get", "assets.setup", "assets.build"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind ex_storage_service", "esbuild ex_storage_service"],
+      setup: ["deps.get", "bun.install", "assets.setup", "assets.build"],
+      "assets.setup": ["tailwind.install --if-missing"],
+      "assets.build": ["tailwind ex_storage_service", "bun ex_storage_service"],
       "assets.deploy": [
         "tailwind ex_storage_service --minify",
-        "esbuild ex_storage_service --minify",
+        "bun ex_storage_service",
         "phx.digest"
       ]
     ]

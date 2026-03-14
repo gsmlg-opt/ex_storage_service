@@ -119,167 +119,167 @@ defmodule ExStorageServiceWeb.PolicyLive.Show do
   def render(assigns) do
     ~H"""
     <div>
-      <.link navigate={~p"/policies"} class="text-blue-600 hover:underline text-sm">
+      <.dm_link navigate={~p"/policies"} class="text-primary text-sm">
         &larr; Back to Policies
-      </.link>
+      </.dm_link>
 
       <.header class="mt-2">
         {@policy.name}
         <:subtitle>ID: {@policy.id} &middot; Created: {@policy.created_at}</:subtitle>
       </.header>
 
-      <%!-- Statements --%>
       <div class="mt-8">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Statements</h2>
+        <h2 class="text-lg font-semibold text-on-surface mb-4">Statements</h2>
         <div class="space-y-4">
           <%= for {stmt, idx} <- Enum.with_index(@policy.statements) do %>
-            <div class="bg-white shadow rounded-lg p-4">
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-medium text-gray-500">Statement {idx + 1}</span>
-                  <span class={[
-                    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-                    stmt.effect == :allow && "bg-green-100 text-green-800",
-                    stmt.effect == :deny && "bg-red-100 text-red-800"
-                  ]}>
-                    {stmt.effect}
-                  </span>
+            <div class="card">
+              <div class="card-body">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-on-surface-variant">
+                      Statement {idx + 1}
+                    </span>
+                    <span class={[
+                      "badge",
+                      stmt.effect == :allow && "badge-success",
+                      stmt.effect == :deny && "badge-error"
+                    ]}>
+                      {stmt.effect}
+                    </span>
+                  </div>
+                  <button
+                    phx-click="remove_statement"
+                    phx-value-index={idx}
+                    data-confirm="Remove this statement?"
+                    class="btn btn-ghost btn-xs text-error"
+                  >
+                    Remove
+                  </button>
                 </div>
-                <button
-                  phx-click="remove_statement"
-                  phx-value-index={idx}
-                  data-confirm="Remove this statement?"
-                  class="text-xs text-red-600 hover:text-red-800"
-                >
-                  Remove
-                </button>
-              </div>
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <p class="text-xs font-medium text-gray-500 uppercase mb-1">Actions</p>
-                  <ul class="space-y-1">
-                    <%= for action <- stmt.actions do %>
-                      <li class="text-sm font-mono bg-gray-50 px-2 py-1 rounded">{action}</li>
-                    <% end %>
-                  </ul>
-                </div>
-                <div>
-                  <p class="text-xs font-medium text-gray-500 uppercase mb-1">Resources</p>
-                  <ul class="space-y-1">
-                    <%= for resource <- stmt.resources do %>
-                      <li class="text-sm font-mono bg-gray-50 px-2 py-1 rounded">{resource}</li>
-                    <% end %>
-                  </ul>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <p class="text-xs font-medium text-on-surface-variant uppercase mb-1">Actions</p>
+                    <ul class="space-y-1">
+                      <%= for action <- stmt.actions do %>
+                        <li class="text-sm font-mono bg-surface-container px-2 py-1 rounded">
+                          {action}
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-on-surface-variant uppercase mb-1">
+                      Resources
+                    </p>
+                    <ul class="space-y-1">
+                      <%= for resource <- stmt.resources do %>
+                        <li class="text-sm font-mono bg-surface-container px-2 py-1 rounded">
+                          {resource}
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
           <% end %>
           <%= if @policy.statements == [] do %>
-            <p class="text-gray-400">No statements in this policy.</p>
+            <p class="text-on-surface-variant">No statements in this policy.</p>
           <% end %>
 
-          <%!-- Statement Builder --%>
-          <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 mt-4">
-            <h3 class="text-sm font-semibold text-gray-700 mb-3">Add Statement</h3>
-            <form phx-submit="add_statement" class="space-y-3">
-              <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1">Effect</label>
-                <div class="flex gap-3">
-                  <label class="inline-flex items-center gap-1 text-sm">
-                    <input
-                      type="radio"
-                      name="effect"
-                      value="allow"
-                      checked={@new_effect == "allow"}
-                      phx-click="set_effect"
-                      phx-value-effect="allow"
-                      class="text-green-600"
-                    /> Allow
-                  </label>
-                  <label class="inline-flex items-center gap-1 text-sm">
-                    <input
-                      type="radio"
-                      name="effect"
-                      value="deny"
-                      checked={@new_effect == "deny"}
-                      phx-click="set_effect"
-                      phx-value-effect="deny"
-                      class="text-red-600"
-                    /> Deny
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1">Actions</label>
-                <div class="grid grid-cols-2 gap-1 sm:grid-cols-3">
-                  <%= for action <- @s3_actions do %>
-                    <label class="inline-flex items-center gap-1 text-xs">
+          <div class="card border-2 border-dashed border-outline-variant mt-4">
+            <div class="card-body">
+              <h3 class="card-title text-sm">Add Statement</h3>
+              <form phx-submit="add_statement" class="space-y-3">
+                <div class="form-group">
+                  <label class="form-label">Effect</label>
+                  <div class="flex gap-3">
+                    <label class="inline-flex items-center gap-1 text-sm">
                       <input
-                        type="checkbox"
-                        checked={action in @new_actions}
-                        phx-click="toggle_action"
-                        phx-value-action={action}
-                        class="rounded text-indigo-600"
-                      />
-                      <span class="font-mono">{action}</span>
+                        type="radio"
+                        name="effect"
+                        value="allow"
+                        checked={@new_effect == "allow"}
+                        phx-click="set_effect"
+                        phx-value-effect="allow"
+                        class="radio radio-success"
+                      /> Allow
                     </label>
-                  <% end %>
+                    <label class="inline-flex items-center gap-1 text-sm">
+                      <input
+                        type="radio"
+                        name="effect"
+                        value="deny"
+                        checked={@new_effect == "deny"}
+                        phx-click="set_effect"
+                        phx-value-effect="deny"
+                        class="radio radio-error"
+                      /> Deny
+                    </label>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1">
-                  Resources (comma-separated ARNs)
-                </label>
-                <input
-                  type="text"
-                  name="resources"
-                  value={@new_resources}
-                  placeholder="arn:ess:::my-bucket/*, arn:ess:::my-bucket"
-                  class="w-full text-xs rounded border-gray-300 font-mono"
-                />
-                <p class="text-xs text-gray-400 mt-1">
-                  Format: arn:ess:::BUCKET, arn:ess:::BUCKET/KEY, arn:ess:::BUCKET/*, arn:ess:::*
-                </p>
-              </div>
-              <button
-                type="submit"
-                class="px-4 py-1.5 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700"
-              >
-                Add Statement
-              </button>
-            </form>
+                <div class="form-group">
+                  <label class="form-label">Actions</label>
+                  <div class="grid grid-cols-2 gap-1 sm:grid-cols-3">
+                    <%= for action <- @s3_actions do %>
+                      <label class="inline-flex items-center gap-1 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={action in @new_actions}
+                          phx-click="toggle_action"
+                          phx-value-action={action}
+                          class="checkbox checkbox-primary"
+                        />
+                        <span class="font-mono">{action}</span>
+                      </label>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Resources (comma-separated ARNs)</label>
+                  <input
+                    type="text"
+                    name="resources"
+                    value={@new_resources}
+                    placeholder="arn:ess:::my-bucket/*, arn:ess:::my-bucket"
+                    class="input input-primary w-full font-mono text-xs"
+                  />
+                  <p class="text-xs text-on-surface-variant mt-1">
+                    Format: arn:ess:::BUCKET, arn:ess:::BUCKET/KEY, arn:ess:::BUCKET/*, arn:ess:::*
+                  </p>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Add Statement</button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
 
-      <%!-- Attached Users --%>
       <div class="mt-8">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Attached Users</h2>
-        <div class="bg-white shadow rounded-lg overflow-hidden">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+        <h2 class="text-lg font-semibold text-on-surface mb-4">Attached Users</h2>
+        <div class="card">
+          <table class="table table-hover w-full">
+            <thead>
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Status
-                </th>
+                <th class="text-on-surface-variant">Name</th>
+                <th class="text-on-surface-variant">ID</th>
+                <th class="text-on-surface-variant">Status</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody>
               <%= for user <- @attached_users do %>
                 <tr>
-                  <td class="px-6 py-4">
-                    <.link navigate={~p"/users/#{user.id}"} class="text-blue-600 hover:underline">
+                  <td>
+                    <.link navigate={~p"/users/#{user.id}"} class="text-primary hover:underline">
                       {user.name}
                     </.link>
                   </td>
-                  <td class="px-6 py-4 text-sm text-gray-500 font-mono">{user.id}</td>
-                  <td class="px-6 py-4">
+                  <td class="text-sm text-on-surface-variant font-mono">{user.id}</td>
+                  <td>
                     <span class={[
-                      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-                      user.status == :active && "bg-green-100 text-green-800",
-                      user.status == :suspended && "bg-red-100 text-red-800"
+                      "badge",
+                      user.status == :active && "badge-success",
+                      user.status == :suspended && "badge-error"
                     ]}>
                       {user.status}
                     </span>
@@ -289,7 +289,9 @@ defmodule ExStorageServiceWeb.PolicyLive.Show do
             </tbody>
           </table>
           <%= if @attached_users == [] do %>
-            <p class="px-6 py-6 text-center text-gray-400">No users attached to this policy.</p>
+            <p class="px-6 py-6 text-center text-on-surface-variant">
+              No users attached to this policy.
+            </p>
           <% end %>
         </div>
       </div>

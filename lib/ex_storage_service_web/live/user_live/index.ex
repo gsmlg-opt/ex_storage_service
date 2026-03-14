@@ -77,69 +77,66 @@ defmodule ExStorageServiceWeb.UserLive.Index do
         <:subtitle>Manage IAM users</:subtitle>
       </.header>
 
-      <div class="mt-6 bg-white shadow rounded-lg p-6">
-        <h3 class="text-sm font-semibold text-gray-700 mb-3">Create New User</h3>
-        <form phx-submit="create_user" class="flex items-end gap-3">
-          <div class="flex-1">
-            <label for="name" class="block text-sm text-gray-600 mb-1">Name</label>
-            <input
-              type="text"
-              name="name"
-              id="name"
-              value={@new_user_name}
-              placeholder="Enter user name"
-              class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-            />
-          </div>
-          <button
-            type="submit"
-            class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700"
-          >
-            Create User
-          </button>
-        </form>
+      <div class="mt-6 card">
+        <div class="card-body">
+          <h3 class="card-title text-sm">Create New User</h3>
+          <form phx-submit="create_user" class="flex items-end gap-3">
+            <div class="flex-1 form-group">
+              <label for="name" class="form-label">Name</label>
+              <input
+                type="text"
+                name="name"
+                id="name"
+                value={@new_user_name}
+                placeholder="Enter user name"
+                class="input input-primary w-full"
+              />
+            </div>
+            <button type="submit" class="btn btn-primary">Create User</button>
+          </form>
+        </div>
       </div>
 
-      <div class="mt-6 bg-white shadow rounded-lg overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+      <div class="mt-6 card">
+        <table class="table table-hover w-full">
+          <thead>
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Keys</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th class="text-on-surface-variant">Name</th>
+              <th class="text-on-surface-variant">ID</th>
+              <th class="text-on-surface-variant">Status</th>
+              <th class="text-on-surface-variant">Keys</th>
+              <th class="text-on-surface-variant">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200">
+          <tbody>
             <%= for user <- @users do %>
               <tr>
-                <td class="px-6 py-4">
+                <td>
                   <.link
                     navigate={~p"/users/#{user.id}"}
-                    class="text-blue-600 hover:underline font-medium"
+                    class="text-primary hover:underline font-medium"
                   >
                     {user.name}
                   </.link>
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-500 font-mono">{user.id}</td>
-                <td class="px-6 py-4">
+                <td class="text-sm text-on-surface-variant font-mono">{user.id}</td>
+                <td>
                   <span class={[
-                    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-                    user.status == :active && "bg-green-100 text-green-800",
-                    user.status == :suspended && "bg-red-100 text-red-800"
+                    "badge",
+                    user.status == :active && "badge-success",
+                    user.status == :suspended && "badge-error"
                   ]}>
                     {user.status}
                   </span>
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-500">{user.key_count}</td>
-                <td class="px-6 py-4">
+                <td class="text-sm text-on-surface-variant">{user.key_count}</td>
+                <td>
                   <%= if user.status == :active do %>
                     <button
                       phx-click="suspend_user"
                       phx-value-id={user.id}
                       data-confirm="Suspend this user?"
-                      class="text-sm text-red-600 hover:text-red-800 mr-3"
+                      class="btn btn-ghost btn-xs text-error"
                     >
                       Suspend
                     </button>
@@ -147,7 +144,7 @@ defmodule ExStorageServiceWeb.UserLive.Index do
                     <button
                       phx-click="activate_user"
                       phx-value-id={user.id}
-                      class="text-sm text-green-600 hover:text-green-800 mr-3"
+                      class="btn btn-ghost btn-xs text-success"
                     >
                       Activate
                     </button>
@@ -158,7 +155,7 @@ defmodule ExStorageServiceWeb.UserLive.Index do
           </tbody>
         </table>
         <%= if @users == [] do %>
-          <p class="px-6 py-8 text-center text-gray-400">No users yet.</p>
+          <p class="px-6 py-8 text-center text-on-surface-variant">No users yet.</p>
         <% end %>
       </div>
     </div>

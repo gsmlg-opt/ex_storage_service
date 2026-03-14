@@ -1,32 +1,44 @@
-<header class="bg-gray-800 text-white">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
-      <div class="flex items-center space-x-8">
-        <a href={~p"/dashboard"} class="text-xl font-bold">
+<div class="drawer drawer-left">
+  <input id="admin-drawer" type="checkbox" class="drawer-toggle" />
+  <div class="drawer-content flex flex-col min-h-screen">
+    <.dm_navbar class="bg-surface-container shadow-sm px-4">
+      <:start_part>
+        <label for="admin-drawer" class="btn btn-ghost lg:hidden">
+          <.dm_mdi name="menu" class="w-6 h-6" />
+        </label>
+        <.dm_link navigate={~p"/dashboard"} class="text-xl font-bold text-primary no-underline">
           ExStorageService
-        </a>
-        <nav class="flex space-x-4">
-          <a href={~p"/dashboard"} class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-            Dashboard
-          </a>
-          <a href={~p"/buckets"} class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-            Buckets
-          </a>
-          <a href={~p"/users"} class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-            Users
-          </a>
-          <a href={~p"/policies"} class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-            Policies
-          </a>
-          <a href={~p"/audit"} class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-            Audit
-          </a>
-        </nav>
-      </div>
-    </div>
+        </.dm_link>
+      </:start_part>
+      <:center_part>
+        <div class="hidden lg:flex gap-1">
+          <.dm_link navigate={~p"/dashboard"} class="btn btn-ghost btn-sm">Dashboard</.dm_link>
+          <.dm_link navigate={~p"/buckets"} class="btn btn-ghost btn-sm">Buckets</.dm_link>
+          <.dm_link navigate={~p"/users"} class="btn btn-ghost btn-sm">Users</.dm_link>
+          <.dm_link navigate={~p"/policies"} class="btn btn-ghost btn-sm">Policies</.dm_link>
+          <.dm_link navigate={~p"/audit"} class="btn btn-ghost btn-sm">Audit</.dm_link>
+        </div>
+      </:center_part>
+      <:end_part>
+        <.dm_theme_switcher id="theme-toggle" />
+      </:end_part>
+    </.dm_navbar>
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <.flash_group flash={@flash} />
+      {@inner_content}
+    </main>
   </div>
-</header>
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <.flash_group flash={@flash} />
-  {@inner_content}
-</main>
+  <div class="drawer-side z-40">
+    <label for="admin-drawer" class="drawer-overlay"></label>
+    <nav class="bg-surface-container-low w-64 min-h-screen p-4">
+      <div class="text-lg font-bold text-primary mb-6 px-2">ESS Admin</div>
+      <ul class="nested-menu nested-menu-compact">
+        <li><.dm_link navigate={~p"/dashboard"} class="no-underline">Dashboard</.dm_link></li>
+        <li><.dm_link navigate={~p"/buckets"} class="no-underline">Buckets</.dm_link></li>
+        <li><.dm_link navigate={~p"/users"} class="no-underline">Users</.dm_link></li>
+        <li><.dm_link navigate={~p"/policies"} class="no-underline">Policies</.dm_link></li>
+        <li><.dm_link navigate={~p"/audit"} class="no-underline">Audit</.dm_link></li>
+      </ul>
+    </nav>
+  </div>
+</div>
