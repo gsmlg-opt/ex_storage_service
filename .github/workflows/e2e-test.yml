@@ -2,9 +2,18 @@ name: E2E Test
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version to test (optional, runs from source if empty)"
+        required: false
+        type: string
 
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   MIX_ENV: prod
@@ -15,7 +24,6 @@ env:
   ESS_DATA_ROOT: /tmp/ex_storage_service/data
   ESS_ADMIN_USER: admin
   ESS_MASTER_KEY: test-master-key-for-ci-only
-  SECRET_KEY_BASE: $(mix phx.gen.secret)
 
 jobs:
   e2e:

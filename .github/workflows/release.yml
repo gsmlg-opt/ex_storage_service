@@ -7,10 +7,19 @@ on:
         description: "Release version (e.g. 0.2.0)"
         required: true
         type: string
+      git_ref:
+        description: "Git ref to release from"
+        required: true
+        default: "main"
+        type: string
 
 permissions:
   contents: write
   packages: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   REGISTRY: ghcr.io
@@ -22,6 +31,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref }}
 
       - name: Validate version format
         run: |
@@ -30,6 +41,16 @@ jobs:
             echo "Expected: MAJOR.MINOR.PATCH or MAJOR.MINOR.PATCH-prerelease"
             exit 1
           fi
+
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.19"
+          otp-version: "28"
+
+      - name: Update version in mix.exs
+        run: |
+          sed -i 's/version: "[^"]*"/version: "${{ inputs.version }}"/' mix.exs
+          cat mix.exs | grep 'version:'
 
       - uses: docker/login-action@v3
         with:
@@ -57,9 +78,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Create tag
+      - name: Commit version bump, tag, and push
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add mix.exs
+          git commit -m "chore(release): v${{ inputs.version }}"
           git tag "v${{ inputs.version }}"
+          git push origin HEAD
           git push origin "v${{ inputs.version }}"
 
       - uses: softprops/action-gh-release@v2
