@@ -32,33 +32,43 @@ defmodule ExStorageService.S3.Auth.SigV4 do
       If not provided, defaults to looking up keys via IAM.AccessKey.
   """
   def call(conn, opts) do
-    if auth_configured?() do
-      get_secret_fn = Keyword.get(opts, :get_secret_fn) || (&iam_get_secret/1)
+    cond do
+      # Health endpoint must be accessible without authentication
+      conn.request_path == "/health" ->
+        conn
 
-      case verify_request_with_iam(conn, get_secret_fn) do
-        {:ok, conn} ->
-          conn
+      # Presigned requests already verified by router — skip SigV4
+      conn.assigns[:presigned_auth] ->
+        conn
 
-        {:error, reason} ->
-          request_id = generate_request_id()
+      auth_configured?() ->
+        get_secret_fn = Keyword.get(opts, :get_secret_fn) || (&iam_get_secret/1)
 
-          body =
-            ExStorageService.S3.XML.error_response(
-              "AccessDenied",
-              reason,
-              conn.request_path,
-              request_id
-            )
+        case verify_request_with_iam(conn, get_secret_fn) do
+          {:ok, conn} ->
+            conn
 
-          conn
-          |> put_resp_header("content-type", "application/xml")
-          |> put_resp_header("x-amz-request-id", request_id)
-          |> send_resp(403, body)
-          |> halt()
-      end
-    else
-      # Bypass mode: no auth configured, allow all requests
-      conn
+          {:error, reason} ->
+            request_id = generate_request_id()
+
+            body =
+              ExStorageService.S3.XML.error_response(
+                "AccessDenied",
+                reason,
+                conn.request_path,
+                request_id
+              )
+
+            conn
+            |> put_resp_header("content-type", "application/xml")
+            |> put_resp_header("x-amz-request-id", request_id)
+            |> send_resp(403, body)
+            |> halt()
+        end
+
+      true ->
+        # Bypass mode: no auth configured, allow all requests
+        conn
     end
   end
 

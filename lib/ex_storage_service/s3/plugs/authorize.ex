@@ -26,6 +26,15 @@ defmodule ExStorageService.S3.Plugs.Authorize do
   end
 
   defp authorize(conn) do
+    # Presigned URLs are pre-authorized at signature time
+    if conn.assigns[:presigned_auth] do
+      conn
+    else
+      authorize_user(conn)
+    end
+  end
+
+  defp authorize_user(conn) do
     user_id = conn.assigns[:user_id]
 
     # Root admin bypass
