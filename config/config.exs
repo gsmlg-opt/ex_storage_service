@@ -13,7 +13,7 @@ config :ex_storage_service, ExStorageServiceWeb.Endpoint,
 config :ex_storage_service, :json_library, Jason
 
 config :bun,
-  version: "1.2.5",
+  version: "1.3.4",
   ex_storage_service: [
     args:
       ~w(build js/app.js --outdir=../priv/static/assets --external=/fonts/* --external=/images/*),
@@ -22,7 +22,7 @@ config :bun,
   ]
 
 config :tailwind,
-  version: "4.1.4",
+  version: "4.1.11",
   ex_storage_service: [
     args: ~w(
       --input=css/app.css

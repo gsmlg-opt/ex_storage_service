@@ -1,9 +1,0 @@
-{
-  "name": "ex_storage_service_assets",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "@duskmoon-dev/core": "^3.0.0",
-    "@duskmoon-dev/elements": "^3.0.0"
-  }
-}
