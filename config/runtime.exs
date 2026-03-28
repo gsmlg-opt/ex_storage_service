@@ -29,6 +29,14 @@ config :ex_storage_service,
   max_part_size: 5 * 1024 * 1024 * 1024,
   min_part_size: 5 * 1024 * 1024
 
+if System.get_env("MIX_BUN_PATH") do
+  config :bun, path: System.get_env("MIX_BUN_PATH")
+end
+
+if System.get_env("MIX_TAILWIND_PATH") do
+  config :tailwind, path: System.get_env("MIX_TAILWIND_PATH")
+end
+
 if config_env() == :prod do
   master_key =
     System.get_env("ESS_MASTER_KEY") ||

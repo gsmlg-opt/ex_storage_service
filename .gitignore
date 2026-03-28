@@ -5,3 +5,4 @@ deps/
 *.beam
 /tmp/
 erl_crash.dump
+node_modules
