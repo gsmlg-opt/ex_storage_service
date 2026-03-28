@@ -19,6 +19,12 @@ mix compile --warnings-as-errors  # Compile with strict warnings (CI)
 mix phx.server         # Start both S3 API and admin portal
 ```
 
+## Key Design Decisions
+
+- **No Ecto/database.** All metadata lives in Concord (Raft KV). There are no migrations, no Repo, no schemas.
+- **S3 router is not Phoenix.** The S3 API (`lib/ex_storage_service/s3/router.ex`) is a standalone `Plug.Router`, not a Phoenix router. Don't use Phoenix helpers there.
+- **Assets use Bun + Tailwind v4.** The admin UI uses `phoenix_duskmoon` (GitHub dep: `duskmoon-dev/phoenix-duskmoon-ui` tag `v9.0.0-rc.3`), not standard Phoenix components.
+
 ## Architecture
 
 ### Dual HTTP Server Design
