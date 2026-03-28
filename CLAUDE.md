@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ExStorageService is an S3-compatible object storage server built with Elixir/Phoenix. It runs two HTTP servers: an S3 API (Plug.Router on Bandit, default port 9000) and a Phoenix admin portal (LiveView, default port 4000).
+ExStorageService is an S3-compatible object storage server built with Elixir/Phoenix. It runs two HTTP servers under one supervision tree: an S3 API (Plug.Router on Bandit, default port 9000) and a Phoenix admin portal (LiveView, default port 4000).
 
 ## Common Commands
 
@@ -23,49 +23,66 @@ mix phx.server         # Start both S3 API and admin portal
 
 - **No Ecto/database.** All metadata lives in Concord (Raft KV). There are no migrations, no Repo, no schemas.
 - **S3 router is not Phoenix.** The S3 API (`lib/ex_storage_service/s3/router.ex`) is a standalone `Plug.Router`, not a Phoenix router. Don't use Phoenix helpers there.
-- **Assets use Bun + Tailwind v4.** The admin UI uses `phoenix_duskmoon` (GitHub dep: `duskmoon-dev/phoenix-duskmoon-ui` tag `v9.0.0-rc.3`), not standard Phoenix components.
+- **Assets use Bun + Tailwind v4.** The admin UI uses `phoenix_duskmoon` (GitHub dep), not standard Phoenix components.
+- **Elixir ~> 1.19, OTP 28.** CI uses these versions. The built-in `JSON` module is available (Elixir 1.18+).
 
 ## Architecture
 
 ### Dual HTTP Server Design
 
-The app runs two independent HTTP servers under the same supervision tree:
+- **S3 API** (`lib/ex_storage_service/s3/router.ex`): A `Plug.Router` served by Bandit on port 9000. Implements path-style S3 operations (`/{bucket}/{key}`). Returns XML responses.
+- **Admin Portal** (`lib/ex_storage_service_web/router.ex`): Phoenix with LiveView on port 4000. Dashboard, bucket/user/policy management, audit log. Protected by admin session auth.
 
-- **S3 API** (`lib/ex_storage_service/s3/router.ex`): A `Plug.Router` served by Bandit on port 9000. Implements path-style S3 operations (`/{bucket}/{key}`). Not a Phoenix router.
-- **Admin Portal** (`lib/ex_storage_service_web/router.ex`): Phoenix with LiveView on port 4000. Dashboard, bucket/user/policy management, audit log.
+### Supervision Tree
 
-### Metadata via Concord (Raft Consensus)
+`application.ex` bootstraps: Ra system init → Concord recovery → Concord readiness wait (50 retries) → then starts children:
 
-All metadata is stored in Concord (a distributed KV store built on Ra/Raft), not a traditional database. The `Metadata` module (`lib/ex_storage_service/metadata.ex`) wraps Concord with a namespace schema:
+`Storage.Engine` → `Bandit` (S3) → `PubSub` → `Phoenix.Endpoint` → `MultipartGC` → `ContentGC` → `Replication.JobQueue` → `Replication.Sync` → `NotificationTaskSupervisor` → `Storage.Lifecycle`
+
+Strategy: `one_for_one`.
+
+### Metadata via Concord (Raft KV)
+
+`Metadata` module (`lib/ex_storage_service/metadata.ex`) wraps Concord with namespace prefixes:
 - `"bucket:{name}"` — bucket metadata
 - `"obj:{bucket}:{key}"` — object metadata
-- `"access_key:{id}"` — IAM access keys
+- `"user:{user_id}"` / `"access_key:{id}"` / `"policy:{id}"` / `"user_policies:{user_id}"` — IAM
 - `"mpu:{bucket}:{upload_id}"` — multipart uploads
 - `"audit:{timestamp}:{id}"` — audit entries
 
-The application startup (`application.ex`) handles Ra system initialization and waits for Concord cluster readiness with retries.
+Prefix queries are O(N) full table scan — acceptable for < 50K keys.
 
 ### Content-Addressable Storage
 
-`Storage.Engine` writes objects to disk using SHA-256 content addressing. Files are organized as `{data_root}/{bucket}/objects/{hash_prefix}/{hash_rest}`. PUT operations compute SHA-256 + MD5 in a single streaming pass.
+`Storage.Engine` writes objects to disk using SHA-256 content addressing. Layout: `{data_root}/{bucket}/objects/{hash_prefix}/{hash_rest}`. PUT operations compute SHA-256 + MD5 in a single streaming pass. Reads use zero-copy sendfile.
 
 ### S3 Request Pipeline
 
-Requests flow through: `assign_request_id` → `check_presigned_auth` → `SigV4` (identity) → `RateLimiter` → `Authorize` (IAM policy) → route match → `Handlers`/`MultipartHandlers` → `Storage.Engine` (disk) + `Metadata` (Concord) → XML response.
+`assign_request_id` → `check_presigned_auth` → `SigV4` (identity) → `RateLimiter` → `Authorize` (IAM policy) → route match → `Handlers`/`MultipartHandlers` → `Storage.Engine` (disk) + `Metadata` (Concord) → XML response.
 
 ### IAM & Auth
 
-- **SigV4** (`s3/auth/sig_v4.ex`): AWS Signature V4 verification. Access key secrets are AES-256-CTR encrypted at rest using `ESS_MASTER_KEY`.
-- **Authorize** (`s3/plugs/authorize.ex`): Maps HTTP method + path to S3 actions (e.g., `s3:GetObject`), evaluates IAM policies. Root admin bypasses checks.
-- **Policy** (`iam/policy.ex`): AWS-style policy engine with allow/deny statements, action wildcards, and ARN resource matching.
+- **SigV4** (`s3/auth/sig_v4.ex`): AWS Signature V4 verification. Access key secrets are AES-256-CTR encrypted at rest using `ESS_MASTER_KEY`. Health endpoint and presigned requests bypass SigV4.
+- **Authorize** (`s3/plugs/authorize.ex`): Maps HTTP method + path to S3 actions (e.g., `s3:GetObject`), evaluates IAM policies. Root admin and presigned requests bypass authorization.
+- **Policy** (`iam/policy.ex`): AWS-style policy engine — default deny → explicit allow → explicit deny wins. Supports action wildcards and ARN resource matching.
 
 ### Background Processes
 
-The supervision tree includes several GenServers:
-- `Storage.MultipartGC` — cleans abandoned multipart uploads (24h max age)
+- `Storage.MultipartGC` — cleans abandoned multipart uploads (24h max age, 1h check interval)
 - `Storage.ContentGC` — removes unreferenced content files (30min interval)
 - `Storage.Lifecycle` — evaluates object expiration rules
-- `Replication.JobQueue` + `Replication.Sync` — cross-node replication with dead-letter queue
+- `Replication.JobQueue` + `Replication.Sync` — async cross-node replication with dead-letter queue
+
+### Admin LiveView Pages
+
+Routes require admin session (`RequireAdmin` plug):
+- `/dashboard` — DashboardLive
+- `/buckets` — BucketLive.Index (list, create, delete)
+- `/buckets/:name` — BucketLive.Show (objects, presigned URL generation with policy check)
+- `/users` — UserLive.Index (list, create, suspend, delete with audit)
+- `/users/:id` — UserLive.Show
+- `/policies` — PolicyLive.Index / `/policies/:id` — PolicyLive.Show
+- `/audit` — AuditLive.Index
 
 ## Environment Variables
 
@@ -78,6 +95,8 @@ The supervision tree includes several GenServers:
 | `ESS_ADMIN_PASSWORD_HASH` | SHA256("admin") | Admin password hash |
 | `ESS_MASTER_KEY` | auto-generated (dev/test) | AES-256 encryption key (required in prod) |
 | `SECRET_KEY_BASE` | — | Phoenix session key (required in prod) |
+| `MIX_BUN_PATH` | — | Override bun binary path (for devenv) |
+| `MIX_TAILWIND_PATH` | — | Override tailwind binary path (for devenv) |
 
 ## UI Library
 
@@ -108,3 +127,4 @@ If you encounter missing features, bugs, or need functionality not yet available
 - Rate limiting is disabled in test env
 - `test/test_helper.exs` cleans Ra/Concord data directories before each run to avoid stale state
 - Tests cover: S3 API operations, SigV4 auth, IAM policies, XML parsing, multipart uploads, replication
+- Run scoped tests: `mix test test/ex_storage_service/s3/` for S3, `mix test test/ex_storage_service/iam/` for IAM
