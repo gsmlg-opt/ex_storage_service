@@ -64,7 +64,7 @@ defmodule ExStorageServiceWeb do
     quote do
       use PhoenixDuskmoon.Component
       import Phoenix.HTML.Form
-      import ExStorageServiceWeb.CoreComponents
+      import ExStorageServiceWeb.AppComponents
 
       unquote(verified_routes())
     end
