@@ -46,8 +46,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mix-prod-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-
 
+      - uses: oven-sh/setup-bun@v2
+
       - name: Install dependencies
         run: mix deps.get --only prod
+
+      - name: Install JS packages
+        run: bun install
 
       - name: Build assets
         run: mix assets.deploy
