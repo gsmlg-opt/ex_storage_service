@@ -7,6 +7,8 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
   alias ExStorageService.Notifications
   alias ExStorageService.Replication.Config, as: ReplicationConfig
   alias ExStorageService.IAM.AccessKey
+  alias ExStorageService.IAM.Policy
+  alias ExStorageService.S3.Plugs.Authorize
   alias ExStorageService.S3.Presigned
   alias ExStorageService.Storage.Engine
 
@@ -188,21 +190,35 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
       true ->
         case AccessKey.get_access_key(access_key_id) do
           {:ok, key} ->
-            s3_port = Application.get_env(:ex_storage_service, :s3_port, 9000)
-            host = "localhost:#{s3_port}"
-            scheme = "http"
+            action = Authorize.map_action(method, [bucket, object_key])
+            resource = Authorize.build_resource_arn([bucket, object_key])
 
-            url =
-              Presigned.generate_url(bucket, object_key,
-                access_key_id: key.access_key_id,
-                secret_access_key: key.secret_access_key,
-                method: method,
-                expires: expires,
-                host: host,
-                scheme: scheme
-              )
+            case Policy.evaluate(key.user_id, action, resource) do
+              :allow ->
+                s3_port = Application.get_env(:ex_storage_service, :s3_port, 9000)
+                host = "localhost:#{s3_port}"
+                scheme = "http"
 
-            {:noreply, assign(socket, :presigned_url, url)}
+                url =
+                  Presigned.generate_url(bucket, object_key,
+                    access_key_id: key.access_key_id,
+                    secret_access_key: key.secret_access_key,
+                    method: method,
+                    expires: expires,
+                    host: host,
+                    scheme: scheme
+                  )
+
+                {:noreply, assign(socket, :presigned_url, url)}
+
+              :deny ->
+                {:noreply,
+                 put_flash(
+                   socket,
+                   :error,
+                   "Access key owner does not have permission for #{action}"
+                 )}
+            end
 
           {:error, _} ->
             {:noreply, put_flash(socket, :error, "Access key not found")}
