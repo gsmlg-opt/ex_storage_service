@@ -68,6 +68,23 @@ defmodule ExStorageServiceWeb.UserLive.Index do
     end
   end
 
+  def handle_event("delete_user", %{"id" => user_id}, socket) do
+    user_name =
+      case User.get_user(user_id) do
+        {:ok, user} -> user.name
+        _ -> user_id
+      end
+
+    case User.delete_user(user_id) do
+      :ok ->
+        Audit.log_event("root", :delete_user, user_id, %{name: user_name})
+        {:noreply, socket |> put_flash(:info, "User #{user_name} deleted") |> load_users()}
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, "Failed to delete user: #{inspect(reason)}")}
+    end
+  end
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -149,6 +166,14 @@ defmodule ExStorageServiceWeb.UserLive.Index do
                       Activate
                     </button>
                   <% end %>
+                  <button
+                    phx-click="delete_user"
+                    phx-value-id={user.id}
+                    data-confirm="Permanently delete this user? This cannot be undone."
+                    class="btn btn-ghost btn-xs text-error"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             <% end %>
