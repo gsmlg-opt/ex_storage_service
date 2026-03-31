@@ -1,0 +1,12 @@
+{
+  "name": "ex_storage_service_assets",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@duskmoon-dev/core": "latest",
+    "@duskmoon-dev/css-art": "latest",
+    "@duskmoon-dev/elements": "latest",
+    "@duskmoon-dev/art-elements": "latest",
+    "phoenix_duskmoon": "file:../../deps/phoenix_duskmoon/apps/phoenix_duskmoon"
+  }
+}

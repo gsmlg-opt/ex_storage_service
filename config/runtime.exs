@@ -57,7 +57,7 @@ if config_env() == :prod do
   host = System.get_env("PHX_HOST", "localhost")
   port = String.to_integer(System.get_env("ESS_ADMIN_PORT", "4000"))
 
-  config :ex_storage_service, ExStorageServiceWeb.Endpoint,
+  config :ex_storage_service_web, ExStorageServiceWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
     http: [
       ip: {0, 0, 0, 0, 0, 0, 0, 0},

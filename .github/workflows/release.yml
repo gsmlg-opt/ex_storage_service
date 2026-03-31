@@ -49,8 +49,8 @@ jobs:
 
       - name: Update version in mix.exs
         run: |
-          sed -i 's/version: "[^"]*"/version: "${{ inputs.version }}"/' mix.exs
-          cat mix.exs | grep 'version:'
+          sed -i 's/version: "[^"]*"/version: "${{ inputs.version }}"/' mix.exs apps/*/mix.exs
+          grep -r 'version:' mix.exs apps/*/mix.exs
 
       - uses: docker/login-action@v3
         with:
@@ -82,7 +82,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add mix.exs
+          git add mix.exs apps/*/mix.exs
           git commit -m "chore(release): v${{ inputs.version }}"
           git tag "v${{ inputs.version }}"
           git push origin HEAD

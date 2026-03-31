@@ -1,6 +1,6 @@
 import Config
 
-config :ex_storage_service, ExStorageServiceWeb.Endpoint,
+config :ex_storage_service_web, ExStorageServiceWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
@@ -14,21 +14,21 @@ config :ex_storage_service, :json_library, Jason
 
 config :bun,
   version: "1.3.4",
-  ex_storage_service: [
+  ex_storage_service_web: [
     args:
       ~w(build js/app.js --outdir=../priv/static/assets --external=/fonts/* --external=/images/*),
-    cd: Path.expand("../assets", __DIR__),
+    cd: Path.expand("../apps/ex_storage_service_web/assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
 config :tailwind,
   version: "4.1.11",
-  ex_storage_service: [
+  ex_storage_service_web: [
     args: ~w(
       --input=css/app.css
       --output=../priv/static/assets/app.css
     ),
-    cd: Path.expand("../assets", __DIR__)
+    cd: Path.expand("../apps/ex_storage_service_web/assets", __DIR__)
   ]
 
 # Ra configuration (Raft consensus used by Concord)
