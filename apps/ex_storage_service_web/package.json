@@ -5,8 +5,8 @@
   "dependencies": {
     "@duskmoon-dev/core": "latest",
     "@duskmoon-dev/css-art": "latest",
-    "@duskmoon-dev/elements": "latest",
+    "@duskmoon-dev/elements": "0.12.0",
     "@duskmoon-dev/art-elements": "latest",
-    "phoenix_duskmoon": "file:../../deps/phoenix_duskmoon/apps/phoenix_duskmoon"
+    "phoenix_duskmoon": "file:../../deps/phoenix_duskmoon"
   }
 }

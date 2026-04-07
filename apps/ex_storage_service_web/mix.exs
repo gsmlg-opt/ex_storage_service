@@ -38,9 +38,9 @@ defmodule ExStorageServiceWeb.MixProject do
       {:phoenix_live_dashboard, "~> 0.8"},
       {:jason, "~> 1.4"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:bun, "~> 1.4", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
-      {:phoenix_duskmoon, "~> 9.0"}
+      {:bun, "~> 1.6 or ~> 2.0", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.4", runtime: Mix.env() == :dev},
+      {:phoenix_duskmoon, "~> 9.1"}
     ]
   end
 
