@@ -40,10 +40,7 @@ defmodule ExStorageServiceWeb.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:bun, "~> 1.4", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
-      {:phoenix_duskmoon,
-       github: "duskmoon-dev/phoenix-duskmoon-ui",
-       tag: "v9.0.0-rc.3",
-       sparse: "apps/phoenix_duskmoon"}
+      {:phoenix_duskmoon, "~> 9.0"}
     ]
   end
 
