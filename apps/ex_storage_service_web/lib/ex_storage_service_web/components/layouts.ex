@@ -9,4 +9,17 @@ defmodule ExStorageServiceWeb.Layouts do
   use ExStorageServiceWeb, :html
 
   embed_templates "layouts/*"
+
+  def active_nav_id(page_title) when is_binary(page_title) do
+    cond do
+      page_title == "Dashboard" -> "dashboard"
+      String.starts_with?(page_title, "Bucket") -> "buckets"
+      String.starts_with?(page_title, "User") -> "users"
+      String.starts_with?(page_title, "Polic") -> "policies"
+      String.starts_with?(page_title, "Audit") -> "audit"
+      true -> ""
+    end
+  end
+
+  def active_nav_id(_page_title), do: ""
 end

@@ -66,120 +66,142 @@ defmodule ExStorageServiceWeb.DashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
-      <div class="flex items-center justify-between">
-        <.header>
-          Storage Dashboard
-          <:subtitle>Overview of your storage service</:subtitle>
-        </.header>
-        <form action="/logout" method="post">
-          <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
-          <input type="hidden" name="_method" value="delete" />
-          <button type="submit" class="btn btn-outline btn-sm">
-            Logout
-          </button>
-        </form>
-      </div>
+    <div class="space-y-6">
+      <section class="ess-dashboard-hero bg-primary-container text-on-primary-container rounded-xl p-6 shadow-sm">
+        <div class="max-w-4xl">
+          <p class="text-sm font-semibold uppercase opacity-80">Storage Control Plane</p>
+          <h1 class="mt-2 text-4xl font-bold leading-tight">Storage Dashboard</h1>
+          <p class="mt-3 max-w-2xl text-base">
+            Live operational overview for buckets, objects, disk pressure, and replication flow.
+          </p>
+        </div>
+      </section>
 
-      <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
-        <div class="card">
-          <div class="card-body">
+      <section class="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <article class="card ess-card-hover">
+          <div class="card-body p-5">
             <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-md bg-primary flex items-center justify-center">
-                <span class="text-on-primary text-lg font-bold">B</span>
+              <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-content">
+                <.dm_mdi name="bucket-outline" class="h-6 w-6" />
               </div>
               <div>
                 <p class="text-sm text-on-surface-variant">Total Buckets</p>
-                <p class="text-2xl font-semibold text-on-surface">{@bucket_count}</p>
+                <p class="text-3xl font-semibold text-on-surface">{@bucket_count}</p>
               </div>
             </div>
           </div>
-        </div>
+        </article>
 
-        <div class="card">
-          <div class="card-body">
+        <article class="card ess-card-hover">
+          <div class="card-body p-5">
             <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-md bg-success flex items-center justify-center">
-                <span class="text-success-content text-lg font-bold">O</span>
+              <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary text-secondary-content">
+                <.dm_mdi name="cube-outline" class="h-6 w-6" />
               </div>
               <div>
                 <p class="text-sm text-on-surface-variant">Total Objects</p>
-                <p class="text-2xl font-semibold text-on-surface">{@object_count}</p>
+                <p class="text-3xl font-semibold text-on-surface">{@object_count}</p>
               </div>
             </div>
           </div>
-        </div>
+        </article>
 
-        <div class="card">
-          <div class="card-body">
+        <article class="card ess-card-hover">
+          <div class="card-body p-5">
             <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-md bg-warning flex items-center justify-center">
-                <span class="text-warning-content text-lg font-bold">D</span>
+              <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-tertiary text-tertiary-content">
+                <.dm_mdi name="harddisk" class="h-6 w-6" />
               </div>
               <div>
                 <p class="text-sm text-on-surface-variant">Disk Usage</p>
-                <p class="text-2xl font-semibold text-on-surface">{@disk_usage}</p>
+                <p class="text-3xl font-semibold text-on-surface">{@disk_usage}</p>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </article>
+      </section>
 
-      <div class="mt-8">
-        <h2 class="text-lg font-semibold text-on-surface mb-4">Replication Queue</h2>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
-          <div class="card">
-            <div class="card-body">
+      <section class="bg-surface-container-low text-on-surface rounded-xl p-6">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-semibold">Replication Queue</h2>
+            <p class="mt-1 text-sm text-on-surface-variant">Current job lifecycle state counts.</p>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <article class="card">
+            <div class="card-body p-4">
               <p class="text-sm text-on-surface-variant">Pending</p>
-              <p class="mt-1 text-xl font-semibold text-warning">{@replication_stats.pending}</p>
+              <p class="mt-2 text-2xl font-semibold text-warning">{@replication_stats.pending}</p>
             </div>
-          </div>
-          <div class="card">
-            <div class="card-body">
+          </article>
+          <article class="card">
+            <div class="card-body p-4">
               <p class="text-sm text-on-surface-variant">Running</p>
-              <p class="mt-1 text-xl font-semibold text-info">{@replication_stats.running}</p>
+              <p class="mt-2 text-2xl font-semibold text-info">{@replication_stats.running}</p>
             </div>
-          </div>
-          <div class="card">
-            <div class="card-body">
+          </article>
+          <article class="card">
+            <div class="card-body p-4">
               <p class="text-sm text-on-surface-variant">Completed</p>
-              <p class="mt-1 text-xl font-semibold text-success">{@replication_stats.completed}</p>
+              <p class="mt-2 text-2xl font-semibold text-success">{@replication_stats.completed}</p>
             </div>
-          </div>
-          <div class="card">
-            <div class="card-body">
+          </article>
+          <article class="card">
+            <div class="card-body p-4">
               <p class="text-sm text-on-surface-variant">Dead Letter</p>
-              <p class="mt-1 text-xl font-semibold text-error">{@replication_stats.dead_letter}</p>
+              <p class="mt-2 text-2xl font-semibold text-error">{@replication_stats.dead_letter}</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <article class="card card-elevated lg:col-span-2">
+          <div class="card-header px-5 py-4">
+            <h2 class="text-lg font-semibold">System Information</h2>
+          </div>
+          <.dm_table
+            data={[
+              %{label: "Elixir Version", value: @elixir_version},
+              %{label: "OTP Version", value: @otp_version},
+              %{label: "Node Name", value: @node_name, mono: true},
+              %{label: "Uptime", value: @uptime}
+            ]}
+            hover
+            compact
+            class="w-full"
+          >
+            <:col :let={row} label="Metric" class="w-48 text-sm font-medium text-on-surface-variant">
+              {row.label}
+            </:col>
+            <:col :let={row} label="Value" class="text-sm text-on-surface">
+              <span class={row[:mono] && "font-mono"}>{row.value}</span>
+            </:col>
+          </.dm_table>
+        </article>
+
+        <article class="card card-elevated bg-surface-container-high text-on-surface">
+          <div class="card-body p-5">
+            <h2 class="text-lg font-semibold">Health Snapshot</h2>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between gap-4">
+                <span class="text-sm text-on-surface-variant">Metadata</span>
+                <span class="font-medium text-success">Online</span>
+              </div>
+              <div class="flex items-center justify-between gap-4">
+                <span class="text-sm text-on-surface-variant">Replication Lag</span>
+                <span class="font-medium text-on-surface">{@replication_stats.pending}</span>
+              </div>
+              <div class="flex items-center justify-between gap-4">
+                <span class="text-sm text-on-surface-variant">Refresh</span>
+                <span class="font-medium text-on-surface">5s</span>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="mt-8">
-        <h2 class="text-lg font-semibold text-on-surface mb-4">System Information</h2>
-        <div class="card">
-          <table class="table w-full">
-            <tbody>
-              <tr>
-                <td class="text-sm font-medium text-on-surface-variant w-48">Elixir Version</td>
-                <td class="text-sm text-on-surface">{@elixir_version}</td>
-              </tr>
-              <tr>
-                <td class="text-sm font-medium text-on-surface-variant">OTP Version</td>
-                <td class="text-sm text-on-surface">{@otp_version}</td>
-              </tr>
-              <tr>
-                <td class="text-sm font-medium text-on-surface-variant">Node Name</td>
-                <td class="text-sm text-on-surface font-mono">{@node_name}</td>
-              </tr>
-              <tr>
-                <td class="text-sm font-medium text-on-surface-variant">Uptime</td>
-                <td class="text-sm text-on-surface">{@uptime}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+        </article>
+      </section>
     </div>
     """
   end

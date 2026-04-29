@@ -1,44 +1,97 @@
-<div class="drawer drawer-left">
-  <input id="admin-drawer" type="checkbox" class="drawer-toggle" />
-  <div class="drawer-content flex flex-col min-h-screen">
-    <.dm_navbar class="bg-surface-container shadow-sm px-4">
-      <:start_part>
-        <label for="admin-drawer" class="btn btn-ghost lg:hidden">
-          <.dm_mdi name="menu" class="w-6 h-6" />
-        </label>
-        <.dm_link navigate={~p"/dashboard"} class="text-xl font-bold text-primary no-underline">
-          ExStorageService
+<% active_nav = active_nav_id(assigns[:page_title]) %>
+
+<div class="min-h-screen bg-surface text-on-surface">
+  <.dm_appbar title="ExStorageService" title_to={~p"/dashboard"} class="appbar-primary appbar-elevated">
+    <:logo>
+      <.dm_mdi name="database" class="w-7 h-7" />
+    </:logo>
+    <:menu class="hidden lg:flex" to={~p"/dashboard"} active={active_nav == "dashboard"}>Dashboard</:menu>
+    <:menu class="hidden lg:flex" to={~p"/buckets"} active={active_nav == "buckets"}>Buckets</:menu>
+    <:menu class="hidden lg:flex" to={~p"/users"} active={active_nav == "users"}>Users</:menu>
+    <:menu class="hidden lg:flex" to={~p"/policies"} active={active_nav == "policies"}>Policies</:menu>
+    <:menu class="hidden lg:flex" to={~p"/audit"} active={active_nav == "audit"}>Audit</:menu>
+    <:user_profile>
+      <div class="flex items-center gap-2">
+        <.dm_theme_switcher id="theme-toggle" theme={assigns[:theme] || "sunshine"} />
+        <.dm_link href={~p"/logout"} method="delete" class="appbar-action no-underline">
+          Logout
         </.dm_link>
-      </:start_part>
-      <:center_part>
-        <div class="hidden lg:flex gap-1">
-          <.dm_link navigate={~p"/dashboard"} class="btn btn-ghost btn-sm">Dashboard</.dm_link>
-          <.dm_link navigate={~p"/buckets"} class="btn btn-ghost btn-sm">Buckets</.dm_link>
-          <.dm_link navigate={~p"/users"} class="btn btn-ghost btn-sm">Users</.dm_link>
-          <.dm_link navigate={~p"/policies"} class="btn btn-ghost btn-sm">Policies</.dm_link>
-          <.dm_link navigate={~p"/audit"} class="btn btn-ghost btn-sm">Audit</.dm_link>
-        </div>
-      </:center_part>
-      <:end_part>
-        <.dm_theme_switcher id="theme-toggle" />
-      </:end_part>
-    </.dm_navbar>
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <.dm_flash_group flash={@flash} />
-      {@inner_content}
+      </div>
+    </:user_profile>
+  </.dm_appbar>
+
+  <nav class="lg:hidden bg-secondary text-secondary-content px-4 py-3 overflow-x-auto" aria-label="Mobile admin navigation">
+    <div class="flex gap-2 min-w-max">
+      <.dm_link
+        navigate={~p"/dashboard"}
+        class={[
+          "no-underline px-3 py-2 rounded-md whitespace-nowrap",
+          active_nav == "dashboard" && "bg-primary-container text-on-primary-container"
+        ]}
+      >
+        Dashboard
+      </.dm_link>
+      <.dm_link
+        navigate={~p"/buckets"}
+        class={[
+          "no-underline px-3 py-2 rounded-md whitespace-nowrap",
+          active_nav == "buckets" && "bg-primary-container text-on-primary-container"
+        ]}
+      >
+        Buckets
+      </.dm_link>
+      <.dm_link
+        navigate={~p"/users"}
+        class={[
+          "no-underline px-3 py-2 rounded-md whitespace-nowrap",
+          active_nav == "users" && "bg-primary-container text-on-primary-container"
+        ]}
+      >
+        Users
+      </.dm_link>
+      <.dm_link
+        navigate={~p"/policies"}
+        class={[
+          "no-underline px-3 py-2 rounded-md whitespace-nowrap",
+          active_nav == "policies" && "bg-primary-container text-on-primary-container"
+        ]}
+      >
+        Policies
+      </.dm_link>
+      <.dm_link
+        navigate={~p"/audit"}
+        class={[
+          "no-underline px-3 py-2 rounded-md whitespace-nowrap",
+          active_nav == "audit" && "bg-primary-container text-on-primary-container"
+        ]}
+      >
+        Audit
+      </.dm_link>
+    </div>
+  </nav>
+
+  <div class="flex min-h-[calc(100vh-4rem)]">
+    <aside class="hidden lg:block w-64 shrink-0 bg-secondary text-secondary-content border-r border-outline-variant p-4">
+      <.dm_left_menu active={active_nav} nav_label="Admin navigation">
+        <:title class="uppercase text-xs font-semibold opacity-80">Admin Console</:title>
+        <:menu>
+          <.dm_left_menu_group active={active_nav}>
+            <:title>Storage Service</:title>
+            <:menu id="dashboard" to={~p"/dashboard"}>Dashboard</:menu>
+            <:menu id="buckets" to={~p"/buckets"}>Buckets</:menu>
+            <:menu id="users" to={~p"/users"}>Users</:menu>
+            <:menu id="policies" to={~p"/policies"}>Policies</:menu>
+            <:menu id="audit" to={~p"/audit"}>Audit</:menu>
+          </.dm_left_menu_group>
+        </:menu>
+      </.dm_left_menu>
+    </aside>
+
+    <main class="flex-1 bg-surface px-4 py-6 sm:px-6 lg:px-8">
+      <div class="mx-auto w-full max-w-7xl">
+        <.dm_flash_group flash={@flash} />
+        {@inner_content}
+      </div>
     </main>
-  </div>
-  <div class="drawer-side z-40">
-    <label for="admin-drawer" class="drawer-overlay"></label>
-    <nav class="bg-surface-container-low w-64 min-h-screen p-4">
-      <div class="text-lg font-bold text-primary mb-6 px-2">ESS Admin</div>
-      <ul class="nested-menu nested-menu-compact">
-        <li><.dm_link navigate={~p"/dashboard"} class="no-underline">Dashboard</.dm_link></li>
-        <li><.dm_link navigate={~p"/buckets"} class="no-underline">Buckets</.dm_link></li>
-        <li><.dm_link navigate={~p"/users"} class="no-underline">Users</.dm_link></li>
-        <li><.dm_link navigate={~p"/policies"} class="no-underline">Policies</.dm_link></li>
-        <li><.dm_link navigate={~p"/audit"} class="no-underline">Audit</.dm_link></li>
-      </ul>
-    </nav>
   </div>
 </div>

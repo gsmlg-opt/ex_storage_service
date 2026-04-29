@@ -1,8 +1,69 @@
 @import "tailwindcss";
 @plugin "@duskmoon-dev/core/plugin";
+/* WORKAROUND(upstream): duskmoon-dev/phoenix-duskmoon-ui#30 */
+/* Use direct CSS imports until phoenix_duskmoon/components is exported. */
 @import "@duskmoon-dev/core/themes/sunshine";
 @import "@duskmoon-dev/core/themes/moonlight";
 @import "@duskmoon-dev/core/components";
+@import "../../../../deps/phoenix_duskmoon/assets/css/element-theme-bridge.css";
 @source "../../lib/ex_storage_service_web.ex";
 @source "../../lib/ex_storage_service_web/**/*.ex";
+@source "../../lib/ex_storage_service_web/**/*.heex";
 @source "../js/**/*.js";
+
+:root {
+  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+  --font-body: "Avenir Next", "Trebuchet MS", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", monospace;
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: 0;
+}
+
+code,
+pre,
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.ess-dashboard-hero {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-container),
+    var(--color-tertiary-container)
+  );
+}
+
+.ess-card-hover {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ess-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.appbar .appbar-actions .appbar-action,
+.appbar .appbar-trailing > .appbar-action {
+  width: auto;
+  padding-inline: 0.75rem;
+  white-space: nowrap;
+  border-radius: var(--radius-md);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

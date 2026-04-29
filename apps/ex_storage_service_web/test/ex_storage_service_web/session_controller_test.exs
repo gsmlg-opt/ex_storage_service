@@ -1,6 +1,8 @@
 defmodule ExStorageServiceWeb.SessionControllerTest do
   use ExStorageServiceWeb.ConnCase
 
+  import Phoenix.LiveViewTest
+
   @admin_user "admin"
   @admin_password "admin"
 
@@ -69,6 +71,22 @@ defmodule ExStorageServiceWeb.SessionControllerTest do
     test "GET /audit redirects to /login", %{conn: conn} do
       conn = get(conn, "/audit")
       assert redirected_to(conn, 302) =~ "/login"
+    end
+  end
+
+  describe "admin layout theme switcher" do
+    test "handles theme changes from the shared layout", %{conn: conn} do
+      conn =
+        post(conn, "/login", %{
+          "username" => @admin_user,
+          "password" => @admin_password
+        })
+        |> recycle()
+
+      {:ok, view, _html} = live(conn, "/dashboard")
+
+      assert render_hook(view, "theme_changed", %{"theme" => "moonlight"}) =~
+               "Storage Dashboard"
     end
   end
 
