@@ -1,6 +1,8 @@
 import Config
 
 data_root = System.get_env("ESS_DATA_ROOT", "/tmp/ex_storage_service/data")
+s3_auth_enabled_value = System.get_env("ESS_S3_AUTH_ENABLED", "false") |> String.downcase()
+s3_auth_enabled? = s3_auth_enabled_value in ["1", "true", "yes", "on"]
 
 # Configure Ra and Concord data directories
 config :ra, data_dir: ~c"#{Path.join(data_root, "ra")}"
@@ -10,6 +12,7 @@ config :ex_storage_service,
   data_root: data_root,
   s3_port: String.to_integer(System.get_env("ESS_S3_PORT", "9000")),
   admin_port: String.to_integer(System.get_env("ESS_ADMIN_PORT", "4000")),
+  s3_auth_enabled: s3_auth_enabled?,
   root_admin_user: System.get_env("ESS_ADMIN_USER", "admin"),
   root_admin_password_hash:
     System.get_env(

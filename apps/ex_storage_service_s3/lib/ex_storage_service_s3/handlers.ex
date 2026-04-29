@@ -420,9 +420,8 @@ defmodule ExStorageServiceS3.Handlers do
 
     ExStorageService.Telemetry.span(:delete_object, %{bucket: bucket, key: key}, fn ->
       case Metadata.get_object_meta(bucket, key) do
-        {:ok, meta} ->
+        {:ok, _meta} ->
           Metadata.delete_object_meta(bucket, key)
-          Engine.delete_content(bucket, meta.content_hash)
           Hooks.after_delete(bucket, key)
 
           conn
@@ -513,9 +512,8 @@ defmodule ExStorageServiceS3.Handlers do
             results =
               Enum.map(keys, fn key ->
                 case Metadata.get_object_meta(bucket, key) do
-                  {:ok, meta} ->
+                  {:ok, _meta} ->
                     Metadata.delete_object_meta(bucket, key)
-                    Engine.delete_content(bucket, meta.content_hash)
                     {:deleted, key}
 
                   {:error, :not_found} ->

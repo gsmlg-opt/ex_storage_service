@@ -319,6 +319,7 @@ defmodule ExStorageServiceS3.Auth.SigV4 do
   defp uri_encode_path(path) do
     path
     |> String.split("/")
+    |> Enum.map(&URI.decode/1)
     |> Enum.map(&URI.encode_www_form/1)
     |> Enum.map(&String.replace(&1, "+", "%20"))
     |> Enum.join("/")

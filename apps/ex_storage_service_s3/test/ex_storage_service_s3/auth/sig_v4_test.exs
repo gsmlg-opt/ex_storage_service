@@ -199,6 +199,23 @@ defmodule ExStorageServiceS3.Auth.SigV4Test do
 
       assert String.starts_with?(result, "DELETE\n")
     end
+
+    test "preserves already-encoded path characters" do
+      headers = [{"host", "localhost:9000"}]
+
+      result =
+        canonical_request(
+          "PUT",
+          "/bucket/folder/test%20object%2Bmetadata.txt",
+          "",
+          headers,
+          ["host"],
+          "UNSIGNED-PAYLOAD"
+        )
+
+      assert [_method, "/bucket/folder/test%20object%2Bmetadata.txt" | _] =
+               String.split(result, "\n")
+    end
   end
 
   # ---------------------------------------------------------------------------

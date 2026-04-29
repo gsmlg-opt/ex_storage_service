@@ -102,6 +102,7 @@ Routes require admin session (`RequireAdmin` plug):
 | `ESS_DATA_ROOT` | `/tmp/ex_storage_service/data` | Storage root directory |
 | `ESS_S3_PORT` | `9000` | S3 API port |
 | `ESS_ADMIN_PORT` | `4000` | Admin portal port |
+| `ESS_S3_AUTH_ENABLED` | `false` | Require SigV4 authentication and IAM authorization for S3 requests |
 | `ESS_ADMIN_USER` | `admin` | Root admin username |
 | `ESS_ADMIN_PASSWORD_HASH` | SHA256("admin") | Admin password hash |
 | `ESS_MASTER_KEY` | auto-generated (dev/test) | AES-256 encryption key (required in prod) |

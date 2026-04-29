@@ -226,6 +226,13 @@ defmodule ExStorageServiceS3.ApiTest do
       assert resp.status == 200
       assert resp.body == "copy me"
 
+      {:ok, resp} = Req.delete("#{@base_url}/#{bucket}/dest.txt")
+      assert resp.status == 204
+
+      {:ok, resp} = Req.get("#{@base_url}/#{bucket}/source.txt")
+      assert resp.status == 200
+      assert resp.body == "copy me"
+
       cleanup_bucket(bucket)
     end
 

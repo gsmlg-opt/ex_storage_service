@@ -23,7 +23,13 @@ env:
   ESS_ADMIN_PORT: "4000"
   ESS_DATA_ROOT: /tmp/ex_storage_service/data
   ESS_ADMIN_USER: admin
+  ESS_S3_AUTH_ENABLED: "true"
   ESS_MASTER_KEY: test-master-key-for-ci-only
+  E2E_S3_ENDPOINT: http://localhost:9000
+  E2E_ADMIN_ENDPOINT: http://localhost:4000
+  E2E_STATE_FILE: /tmp/ex_storage_service/e2e-state.json
+  AWS_DEFAULT_REGION: us-east-1
+  PYTHONUNBUFFERED: "1"
 
 jobs:
   e2e:
@@ -54,6 +60,9 @@ jobs:
       - name: Install JS packages
         run: cd apps/ex_storage_service_web && bun install
 
+      - name: Install e2e Python packages
+        run: python3 -m pip install -r e2e/requirements.txt
+
       - name: Generate secret key base
         run: echo "SECRET_KEY_BASE=$(openssl rand -hex 64)" >> "$GITHUB_ENV"
 
@@ -63,21 +72,30 @@ jobs:
       - name: Compile
         run: mix compile
 
+      - name: Reset e2e data root
+        run: |
+          rm -rf "$ESS_DATA_ROOT"
+          mkdir -p "$ESS_DATA_ROOT"
+
+      - name: Seed e2e IAM credentials
+        run: E2E_GITHUB_ENV="$GITHUB_ENV" mix run --no-start e2e/scripts/seed_e2e.exs
+
       - name: Start application
         run: |
-          mix phx.server &
+          mix phx.server > /tmp/ex_storage_service/app.log 2>&1 &
           echo "APP_PID=$!" >> "$GITHUB_ENV"
 
       - name: Wait for S3 API to be ready
         run: |
           for i in $(seq 1 30); do
-            if curl -sf http://localhost:9000/ > /dev/null 2>&1; then
+            if curl -sf http://localhost:9000/health > /dev/null 2>&1; then
               echo "S3 API is ready"
               exit 0
             fi
             sleep 2
           done
           echo "S3 API failed to start"
+          cat /tmp/ex_storage_service/app.log || true
           exit 1
 
       - name: Wait for Admin UI to be ready
@@ -90,57 +108,34 @@ jobs:
             sleep 2
           done
           echo "Admin UI failed to start"
+          cat /tmp/ex_storage_service/app.log || true
           exit 1
 
-      - name: Test S3 API - List Buckets
-        run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9000/)
-          echo "List buckets response: $response"
-          if [ "$response" -ge 200 ] && [ "$response" -lt 500 ]; then
-            echo "S3 API responding correctly"
-          else
-            echo "Unexpected response code: $response"
-            exit 1
-          fi
+      - name: Run signed S3 e2e exercise
+        run: python3 e2e/s3_compat.py --phase exercise --state-file "$E2E_STATE_FILE"
 
-      - name: Test S3 API - Create Bucket
+      - name: Restart application
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" -X PUT http://localhost:9000/e2e-test-bucket)
-          echo "Create bucket response: $response"
+          kill "$APP_PID" 2>/dev/null || true
+          sleep 3
+          mix phx.server > /tmp/ex_storage_service/app-restart.log 2>&1 &
+          echo "APP_PID=$!" >> "$GITHUB_ENV"
 
-      - name: Test S3 API - PUT Object
+      - name: Wait for restarted S3 API
         run: |
-          echo "hello e2e" > /tmp/test-object.txt
-          response=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X PUT \
-            -H "Content-Type: text/plain" \
-            --data-binary @/tmp/test-object.txt \
-            http://localhost:9000/e2e-test-bucket/test-key)
-          echo "PUT object response: $response"
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:9000/health > /dev/null 2>&1; then
+              echo "Restarted S3 API is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Restarted S3 API failed to start"
+          cat /tmp/ex_storage_service/app-restart.log || true
+          exit 1
 
-      - name: Test S3 API - GET Object
-        run: |
-          response=$(curl -s -w "\n%{http_code}" http://localhost:9000/e2e-test-bucket/test-key)
-          http_code=$(echo "$response" | tail -1)
-          body=$(echo "$response" | head -n -1)
-          echo "GET object response: $http_code"
-          echo "Body: $body"
-
-      - name: Test Admin UI health
-        run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/)
-          echo "Admin UI response: $response"
-          if [ "$response" -ge 200 ] && [ "$response" -lt 400 ]; then
-            echo "Admin UI is healthy"
-          else
-            echo "Admin UI unhealthy: $response"
-            exit 1
-          fi
-
-      - name: Test Metrics endpoint
-        run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/metrics)
-          echo "Metrics response: $response"
+      - name: Verify persistence after restart
+        run: python3 e2e/s3_compat.py --phase verify-persistence --state-file "$E2E_STATE_FILE"
 
       - name: Stop application
         if: always()
@@ -148,3 +143,5 @@ jobs:
           if [ -n "$APP_PID" ]; then
             kill "$APP_PID" 2>/dev/null || true
           fi
+          cat /tmp/ex_storage_service/app.log || true
+          cat /tmp/ex_storage_service/app-restart.log || true

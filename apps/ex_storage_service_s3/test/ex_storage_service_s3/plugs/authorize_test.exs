@@ -104,5 +104,14 @@ defmodule ExStorageServiceS3.Plugs.AuthorizeTest do
 
       refute result.halted
     end
+
+    test "health check bypasses authorization" do
+      conn = Plug.Test.conn(:get, "/health")
+
+      result = Authorize.call(conn, [])
+
+      refute result.halted
+      assert result.status != 403
+    end
   end
 end

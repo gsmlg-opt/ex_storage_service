@@ -18,10 +18,15 @@ defmodule ExStorageServiceS3.Plugs.Authorize do
 
   @impl Plug
   def call(conn, _opts) do
-    if auth_enabled?() do
-      authorize(conn)
-    else
-      conn
+    cond do
+      conn.request_path == "/health" ->
+        conn
+
+      auth_enabled?() ->
+        authorize(conn)
+
+      true ->
+        conn
     end
   end
 
