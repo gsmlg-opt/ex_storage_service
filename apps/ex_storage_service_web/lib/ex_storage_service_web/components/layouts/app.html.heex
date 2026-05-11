@@ -1,15 +1,14 @@
 <% active_nav = active_nav_id(assigns[:page_title]) %>
 
 <div class="min-h-screen bg-surface text-on-surface">
-  <.dm_appbar title="ExStorageService" title_to={~p"/dashboard"} class="appbar-primary appbar-elevated">
+  <.dm_appbar
+    title="ExStorageService"
+    title_to={~p"/dashboard"}
+    class="appbar-primary appbar-elevated"
+  >
     <:logo>
       <.dm_mdi name="database" class="w-7 h-7" />
     </:logo>
-    <:menu class="hidden lg:flex" to={~p"/dashboard"} active={active_nav == "dashboard"}>Dashboard</:menu>
-    <:menu class="hidden lg:flex" to={~p"/buckets"} active={active_nav == "buckets"}>Buckets</:menu>
-    <:menu class="hidden lg:flex" to={~p"/users"} active={active_nav == "users"}>Users</:menu>
-    <:menu class="hidden lg:flex" to={~p"/policies"} active={active_nav == "policies"}>Policies</:menu>
-    <:menu class="hidden lg:flex" to={~p"/audit"} active={active_nav == "audit"}>Audit</:menu>
     <:user_profile>
       <div class="flex items-center gap-2">
         <.dm_theme_switcher id="theme-toggle" theme={assigns[:theme] || "sunshine"} />
@@ -19,56 +18,6 @@
       </div>
     </:user_profile>
   </.dm_appbar>
-
-  <nav class="lg:hidden bg-secondary text-secondary-content px-4 py-3 overflow-x-auto" aria-label="Mobile admin navigation">
-    <div class="flex gap-2 min-w-max">
-      <.dm_link
-        navigate={~p"/dashboard"}
-        class={[
-          "no-underline px-3 py-2 rounded-md whitespace-nowrap",
-          active_nav == "dashboard" && "bg-primary-container text-on-primary-container"
-        ]}
-      >
-        Dashboard
-      </.dm_link>
-      <.dm_link
-        navigate={~p"/buckets"}
-        class={[
-          "no-underline px-3 py-2 rounded-md whitespace-nowrap",
-          active_nav == "buckets" && "bg-primary-container text-on-primary-container"
-        ]}
-      >
-        Buckets
-      </.dm_link>
-      <.dm_link
-        navigate={~p"/users"}
-        class={[
-          "no-underline px-3 py-2 rounded-md whitespace-nowrap",
-          active_nav == "users" && "bg-primary-container text-on-primary-container"
-        ]}
-      >
-        Users
-      </.dm_link>
-      <.dm_link
-        navigate={~p"/policies"}
-        class={[
-          "no-underline px-3 py-2 rounded-md whitespace-nowrap",
-          active_nav == "policies" && "bg-primary-container text-on-primary-container"
-        ]}
-      >
-        Policies
-      </.dm_link>
-      <.dm_link
-        navigate={~p"/audit"}
-        class={[
-          "no-underline px-3 py-2 rounded-md whitespace-nowrap",
-          active_nav == "audit" && "bg-primary-container text-on-primary-container"
-        ]}
-      >
-        Audit
-      </.dm_link>
-    </div>
-  </nav>
 
   <div class="flex min-h-[calc(100vh-4rem)]">
     <aside class="hidden lg:block w-64 shrink-0 bg-secondary text-secondary-content border-r border-outline-variant p-4">

@@ -75,6 +75,21 @@ defmodule ExStorageServiceWeb.SessionControllerTest do
   end
 
   describe "admin layout theme switcher" do
+    test "keeps admin navigation only in the left menu", %{conn: conn} do
+      conn =
+        post(conn, "/login", %{
+          "username" => @admin_user,
+          "password" => @admin_password
+        })
+        |> recycle()
+
+      {:ok, _view, html} = live(conn, "/dashboard")
+
+      assert html =~ ~s(aria-label="Admin navigation")
+      refute html =~ ~s(aria-label="Main navigation")
+      refute html =~ ~s(aria-label="Mobile admin navigation")
+    end
+
     test "handles theme changes from the shared layout", %{conn: conn} do
       conn =
         post(conn, "/login", %{
