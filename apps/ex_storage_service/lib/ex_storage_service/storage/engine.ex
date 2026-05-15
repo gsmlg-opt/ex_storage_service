@@ -20,6 +20,14 @@ defmodule ExStorageService.Storage.Engine do
   @doc """
   Store object data, computing SHA-256 and MD5 in a single pass.
 
+  `data_or_stream` can be a binary (for small objects / multipart completion)
+  or an `Enumerable` of binary chunks.
+
+  **Important for streaming:** when passing a stream that wraps `Plug.Conn.read_body`,
+  the stream *must* be enumerated in the calling (request handler) process, not inside
+  the GenServer. Use `put_object_stream/5` for that case, which performs the write in
+  the caller's process and only calls the GenServer to commit the final file.
+
   Returns `{:ok, {content_hash, etag, size}}` on success.
   """
   def put_object(
@@ -34,6 +42,69 @@ defmodule ExStorageService.Storage.Engine do
       {:put_object, bucket, key, data_or_stream, content_type, metadata},
       :infinity
     )
+  end
+
+  @doc """
+  Stream-aware PUT that performs the expensive write in the *calling process*.
+
+  This is the correct API to use when the source is a `Plug.Conn` body stream,
+  because `Plug.Conn.read_body/2` must be called from the process that owns the
+  connection socket — i.e., the request handler, not a GenServer.
+
+  Flow:
+    1. Caller obtains `data_root` from the GenServer.
+    2. Caller writes stream chunks to a temp file in the caller's process.
+    3. Caller calls `commit_object/4` to atomically move the temp file.
+
+  Returns `{:ok, {content_hash, etag, size}}` on success.
+  """
+  def put_object_stream(
+        bucket,
+        _key,
+        stream,
+        _content_type \\ "application/octet-stream",
+        _metadata \\ %{}
+      ) do
+    data_root = data_root()
+    ensure_bucket_dirs!(data_root, bucket)
+
+    tmp_dir = Path.join([data_root, bucket, "tmp"])
+    File.mkdir_p!(tmp_dir)
+    tmp_path = Path.join(tmp_dir, "upload_#{:erlang.unique_integer([:positive])}")
+
+    case stream_to_file(stream, tmp_path) do
+      {:ok, {sha256_hash, md5_hash, size}} ->
+        etag = Base.encode16(md5_hash, case: :lower)
+        # Atomically move the temp file into content-addressed storage.
+        commit_object(bucket, sha256_hash, tmp_path, data_root)
+        {:ok, {sha256_hash, etag, size}}
+
+      {:error, reason} ->
+        File.rm(tmp_path)
+        {:error, reason}
+    end
+  rescue
+    e -> {:error, Exception.message(e)}
+  end
+
+  @doc """
+  Returns the data_root path configured for the engine.
+  """
+  def data_root do
+    GenServer.call(__MODULE__, :data_root)
+  end
+
+  @doc """
+  Atomically moves a completed temp file into content-addressed storage.
+  Safe to call from any process after `stream_to_file/2` completes.
+  """
+  def commit_object(bucket, content_hash, tmp_path, data_root) do
+    dest = content_path(data_root, bucket, content_hash)
+    dest_dir = Path.dirname(dest)
+    File.mkdir_p!(dest_dir)
+    # rename is atomic on the same filesystem (same data_root mount)
+    File.rename!(tmp_path, dest)
+    :ok
   end
 
   @doc """
@@ -133,6 +204,10 @@ defmodule ExStorageService.Storage.Engine do
     %{data_root: data_root} = state
     ensure_bucket_dirs!(data_root, bucket)
     {:reply, :ok, state}
+  end
+
+  def handle_call(:data_root, _from, state) do
+    {:reply, state.data_root, state}
   end
 
   ## Private

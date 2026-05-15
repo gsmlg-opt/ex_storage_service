@@ -21,7 +21,6 @@ defmodule ExStorageService.Storage.Lifecycle do
   require Logger
 
   alias ExStorageService.Metadata
-  alias ExStorageService.Storage.Engine
 
   @default_interval :timer.hours(1)
 
@@ -162,9 +161,12 @@ defmodule ExStorageService.Storage.Lifecycle do
             if should_expire?(key, meta, enabled_rules, now) do
               Metadata.delete_object_meta(bucket, key)
 
-              if content_hash = Map.get(meta, :content_hash) do
-                Engine.delete_content(bucket, content_hash)
-              end
+              # NOTE: We deliberately do NOT call Engine.delete_content here.
+              # Content storage is content-addressed: multiple object keys may
+              # share the same content hash. Directly deleting the file would
+              # corrupt any other key that references the same hash.
+              # ContentGC will remove the file in its next pass once no
+              # metadata references remain.
 
               acc + 1
             else

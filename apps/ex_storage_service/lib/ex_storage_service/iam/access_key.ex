@@ -64,7 +64,8 @@ defmodule ExStorageService.IAM.AccessKey do
   @doc """
   Creates an access key with fixed ID and secret. Useful for dev/test.
   """
-  @spec create_fixed_access_key(String.t(), String.t(), String.t()) :: {:ok, t()} | {:error, term()}
+  @spec create_fixed_access_key(String.t(), String.t(), String.t()) ::
+          {:ok, t()} | {:error, term()}
   def create_fixed_access_key(user_id, access_key_id, secret_access_key) do
     case User.get_user(user_id) do
       {:ok, _user} ->

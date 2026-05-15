@@ -48,26 +48,34 @@ defmodule ExStorageService.Application do
   defp seed_dev_keys do
     alias ExStorageService.IAM.{User, Policy, AccessKey}
 
-    user_id = "dev-user"
+    dev_user_name = "dev-user"
     access_key_id = "AKIA-DEV-ACCESS-KEY"
     secret_access_key = "DEV-SECRET-ACCESS-KEY-DO-NOT-USE"
 
-    case User.get_user(user_id) do
-      {:error, :not_found} ->
-        {:ok, _user} = User.create_user(user_id)
-        
-        case Policy.get_policy("dev-full-access") do
-          {:ok, policy} ->
-            Policy.attach_policy(user_id, policy.id)
-          {:error, :not_found} ->
-            {:ok, policy} = Policy.create_policy("dev-full-access", Policy.full_access_statements())
-            Policy.attach_policy(user_id, policy.id)
-        end
+    # Check if the fixed dev access key already exists — if so, seeding is done.
+    case AccessKey.lookup_by_access_key_id(access_key_id) do
+      {:ok, _key} ->
+        Logger.debug("Dev access key already seeded, skipping.")
 
-        AccessKey.create_fixed_access_key(user_id, access_key_id, secret_access_key)
-        Logger.info("Seeded dev user 'dev-user' with fixed access key: #{access_key_id}")
       _ ->
-        :ok
+        {:ok, user} = User.create_user(dev_user_name)
+
+        policy =
+          case Policy.get_policy("dev-full-access") do
+            {:ok, p} ->
+              p
+
+            {:error, :not_found} ->
+              {:ok, p} = Policy.create_policy("dev-full-access", Policy.full_access_statements())
+              p
+          end
+
+        Policy.attach_policy(user.id, policy.id)
+        AccessKey.create_fixed_access_key(user.id, access_key_id, secret_access_key)
+
+        Logger.info(
+          "Seeded dev user '#{dev_user_name}' (#{user.id}) with access key: #{access_key_id}"
+        )
     end
   end
 

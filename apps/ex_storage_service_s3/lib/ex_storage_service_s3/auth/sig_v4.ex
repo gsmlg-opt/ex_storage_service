@@ -107,16 +107,25 @@ defmodule ExStorageServiceS3.Auth.SigV4 do
 
       # Build string to sign
       datetime = get_amz_date(conn)
-      sts = string_to_sign(datetime, scope, canonical)
 
-      # Compute expected signature
-      key = signing_key(secret, credential.date, credential.region, credential.service)
-      expected_signature = compute_signature(key, sts)
+      # Enforce time skew before verifying the signature — this prevents
+      # replay attacks with old but cryptographically valid signatures.
+      case check_time_skew(datetime) do
+        :ok ->
+          sts = string_to_sign(datetime, scope, canonical)
 
-      if secure_compare(expected_signature, claimed_signature) do
-        {:ok, conn}
-      else
-        {:error, "SignatureDoesNotMatch"}
+          # Compute expected signature
+          key = signing_key(secret, credential.date, credential.region, credential.service)
+          expected_signature = compute_signature(key, sts)
+
+          if secure_compare(expected_signature, claimed_signature) do
+            {:ok, conn}
+          else
+            {:error, "SignatureDoesNotMatch"}
+          end
+
+        {:error, reason} ->
+          {:error, reason}
       end
     else
       nil -> {:error, "InvalidAccessKeyId"}
@@ -248,7 +257,14 @@ defmodule ExStorageServiceS3.Auth.SigV4 do
                     # Check if user is active
                     case User.get_user(user_id) do
                       {:ok, %{status: :active}} ->
-                        {:ok, Plug.Conn.assign(conn, :user_id, user_id)}
+                        # Assign both :user_id and :access_key_id so that the
+                        # rate limiter can limit per-key instead of falling back to IP.
+                        conn =
+                          conn
+                          |> Plug.Conn.assign(:user_id, user_id)
+                          |> Plug.Conn.assign(:access_key_id, access_key_id)
+
+                        {:ok, conn}
 
                       {:ok, %{status: :suspended}} ->
                         {:error, "User account is suspended"}
@@ -293,6 +309,52 @@ defmodule ExStorageServiceS3.Auth.SigV4 do
 
   defp auth_configured? do
     Application.get_env(:ex_storage_service, :s3_auth_enabled, false)
+  end
+
+  defp check_time_skew(amz_date_str) do
+    max_skew =
+      Application.get_env(:ex_storage_service, :sigv4_max_skew_seconds, 900)
+
+    case parse_amz_date(amz_date_str) do
+      {:ok, request_time} ->
+        now = DateTime.utc_now()
+        skew = abs(DateTime.diff(now, request_time, :second))
+
+        if skew <= max_skew do
+          :ok
+        else
+          {:error,
+           "RequestTimeTooSkewed: The difference between the request time and the current time is too large. " <>
+             "Max allowed skew: #{max_skew} seconds, actual: #{skew} seconds."}
+        end
+
+      {:error, _} ->
+        {:error, "InvalidSignature: Could not parse X-Amz-Date header."}
+    end
+  end
+
+  defp parse_amz_date("") do
+    {:error, :missing}
+  end
+
+  defp parse_amz_date(amz_date_str) do
+    case Regex.run(~r/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/, amz_date_str) do
+      [_, y, mo, d, h, mi, s] ->
+        case NaiveDateTime.new(
+               String.to_integer(y),
+               String.to_integer(mo),
+               String.to_integer(d),
+               String.to_integer(h),
+               String.to_integer(mi),
+               String.to_integer(s)
+             ) do
+          {:ok, ndt} -> {:ok, DateTime.from_naive!(ndt, "Etc/UTC")}
+          _ -> {:error, :invalid_date}
+        end
+
+      _ ->
+        {:error, :invalid_format}
+    end
   end
 
   defp get_authorization_header(conn) do

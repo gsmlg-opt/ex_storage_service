@@ -91,18 +91,45 @@ defmodule ExStorageService.Storage.ContentGC do
     case Concord.get_all() do
       {:ok, all} ->
         all
-        |> Enum.filter(fn {k, _v} -> String.starts_with?(k, "obj:") end)
-        |> Enum.map(fn {k, v} ->
-          # key format: "obj:bucket:object_key"
-          case String.split(k, ":", parts: 3) do
-            ["obj", bucket, _key] ->
-              {bucket, Map.get(v, :content_hash)}
+        |> Enum.filter(fn {k, _v} ->
+          # Include both current object metadata and versioned object metadata.
+          # Content is content-addressed: a file is referenced if ANY metadata
+          # key (obj: or obj_ver:) points to its hash. If we only check obj:
+          # we would GC content that versioned objects still need.
+          String.starts_with?(k, "obj:") or String.starts_with?(k, "obj_ver:")
+        end)
+        |> Enum.flat_map(fn {k, v} ->
+          case k do
+            "obj:" <> rest ->
+              # key format: "obj:{bucket}:{object_key}"
+              case String.split(rest, ":", parts: 2) do
+                [bucket, _key] ->
+                  case Map.get(v, :content_hash) do
+                    nil -> []
+                    hash -> [{bucket, hash}]
+                  end
+
+                _ ->
+                  []
+              end
+
+            "obj_ver:" <> rest ->
+              # key format: "obj_ver:{bucket}:{key}:{version_id}"
+              case String.split(rest, ":", parts: 2) do
+                [bucket, _rest] ->
+                  case Map.get(v, :content_hash) do
+                    nil -> []
+                    hash -> [{bucket, hash}]
+                  end
+
+                _ ->
+                  []
+              end
 
             _ ->
-              nil
+              []
           end
         end)
-        |> Enum.reject(&is_nil/1)
         |> MapSet.new()
 
       {:error, _} ->

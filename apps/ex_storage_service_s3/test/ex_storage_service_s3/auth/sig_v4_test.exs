@@ -27,6 +27,7 @@ defmodule ExStorageServiceS3.Auth.SigV4Test do
   end
 
   # Build a fully-signed Plug.Test conn for verify_request tests.
+  # Uses the current UTC time so the time skew check (±900s) always passes.
   defp signed_conn(opts \\ []) do
     method = Keyword.get(opts, :method, "GET")
     path = Keyword.get(opts, :path, "/test-bucket/test-key")
@@ -36,9 +37,14 @@ defmodule ExStorageServiceS3.Auth.SigV4Test do
     region = Keyword.get(opts, :region, @region)
     service = Keyword.get(opts, :service, @service)
     date = Keyword.get(opts, :date, @date)
-    datetime = Keyword.get(opts, :datetime, @datetime)
     body = Keyword.get(opts, :body, "")
     payload_hash = Keyword.get(opts, :payload_hash, sha256_hex(body))
+
+    # Use current time so the ±900s skew window is satisfied.
+    now = DateTime.utc_now()
+    datetime = Calendar.strftime(now, "%Y%m%dT%H%M%SZ")
+    # Use the current date as the credential scope date so it matches the datetime.
+    scope_date = Calendar.strftime(now, "%Y%m%d")
 
     signed_headers = ["host", "x-amz-content-sha256", "x-amz-date"]
 
@@ -59,16 +65,16 @@ defmodule ExStorageServiceS3.Auth.SigV4Test do
       end
 
     headers = conn.req_headers
-    scope = "#{date}/#{region}/#{service}/aws4_request"
+    scope = "#{scope_date}/#{region}/#{service}/aws4_request"
 
     canonical =
       canonical_request(method, path, query, headers, signed_headers, payload_hash)
 
     sts = string_to_sign(datetime, scope, canonical)
-    key = signing_key(secret, date, region, service)
+    key = signing_key(secret, scope_date, region, service)
     signature = compute_signature(key, sts)
 
-    auth = build_authorization(access_key, date, region, service, signed_headers, signature)
+    auth = build_authorization(access_key, scope_date, region, service, signed_headers, signature)
 
     Plug.Conn.put_req_header(conn, "authorization", auth)
   end

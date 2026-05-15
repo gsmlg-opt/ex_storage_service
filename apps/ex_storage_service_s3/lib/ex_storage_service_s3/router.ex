@@ -250,7 +250,9 @@ defmodule ExStorageServiceS3.Router do
   # Check for pre-signed URL authentication via query parameters
   defp check_presigned_auth(conn, _opts) do
     if Map.has_key?(conn.query_params, "X-Amz-Signature") do
-      # Pre-signed URL request — validate signature
+      # Pre-signed URL request — validate signature and resolve identity.
+      # The signature establishes *who* is making the request; IAM (Authorize plug)
+      # then checks *whether* they are allowed to perform the operation.
       get_secret_fn = fn access_key_id ->
         case ExStorageService.IAM.AccessKey.lookup_by_access_key_id(access_key_id) do
           {:ok, %{secret_access_key: secret, status: :active}} -> secret
@@ -260,29 +262,80 @@ defmodule ExStorageServiceS3.Router do
 
       case Presigned.validate_presigned(conn, get_secret_fn) do
         {:ok, conn} ->
-          # Mark as presigned-authenticated, skip further auth
-          Plug.Conn.assign(conn, :presigned_auth, true)
+          # Resolve user from the access key embedded in the presigned credential
+          case get_presigned_identity(conn) do
+            {:ok, {user_id, access_key_id}} ->
+              case ExStorageService.IAM.User.get_user(user_id) do
+                {:ok, %{status: :active}} ->
+                  conn
+                  |> Plug.Conn.assign(:presigned_auth, true)
+                  |> Plug.Conn.assign(:user_id, user_id)
+                  |> Plug.Conn.assign(:access_key_id, access_key_id)
+
+                {:ok, %{status: :suspended}} ->
+                  presigned_error(conn, "User account is suspended")
+
+                _ ->
+                  presigned_error(conn, "InvalidAccessKeyId")
+              end
+
+            {:error, reason} ->
+              presigned_error(conn, reason)
+          end
 
         {:error, reason} ->
-          request_id = conn.assigns[:request_id] || generate_request_id()
-
-          body =
-            ExStorageServiceS3.XML.error_response(
-              "AccessDenied",
-              reason,
-              conn.request_path,
-              request_id
-            )
-
-          conn
-          |> Plug.Conn.put_resp_header("content-type", "application/xml")
-          |> Plug.Conn.put_resp_header("x-amz-request-id", request_id)
-          |> Plug.Conn.send_resp(403, body)
-          |> Plug.Conn.halt()
+          presigned_error(conn, reason)
       end
     else
       conn
     end
+  end
+
+  # Extract the access key ID from the X-Amz-Credential query param and
+  # resolve it to a (user_id, access_key_id) pair.
+  defp get_presigned_identity(conn) do
+    params = conn.query_params
+
+    case Map.fetch(params, "X-Amz-Credential") do
+      {:ok, credential_str} ->
+        case String.split(credential_str, "/") do
+          [access_key_id | _] ->
+            case ExStorageService.IAM.AccessKey.lookup_by_access_key_id(access_key_id) do
+              {:ok, %{user_id: user_id, status: :active}} ->
+                {:ok, {user_id, access_key_id}}
+
+              {:ok, %{status: :inactive}} ->
+                {:error, "Access key is inactive"}
+
+              _ ->
+                {:error, "InvalidAccessKeyId"}
+            end
+
+          _ ->
+            {:error, "Malformed X-Amz-Credential"}
+        end
+
+      :error ->
+        {:error, "Missing X-Amz-Credential"}
+    end
+  end
+
+  defp presigned_error(conn, reason) do
+    request_id = conn.assigns[:request_id] || generate_request_id()
+
+    body =
+      ExStorageServiceS3.XML.error_response(
+        "AccessDenied",
+        reason,
+        conn.request_path,
+        request_id
+      )
+
+    conn
+    |> Plug.Conn.put_resp_header("content-type", "application/xml")
+    |> Plug.Conn.put_resp_header("x-amz-request-id", request_id)
+    |> Plug.Conn.send_resp(403, body)
+    |> Plug.Conn.halt()
   end
 
   defp generate_request_id do

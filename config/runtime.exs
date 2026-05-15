@@ -4,6 +4,10 @@ data_root = System.get_env("ESS_DATA_ROOT", "/tmp/ex_storage_service/data")
 s3_auth_enabled_value = System.get_env("ESS_S3_AUTH_ENABLED", "false") |> String.downcase()
 s3_auth_enabled? = s3_auth_enabled_value in ["1", "true", "yes", "on"]
 
+# Compute the well-known default admin password hash once at the top so it can
+# be referenced both in the config block and in the prod guard below.
+default_admin_hash = Base.encode16(:crypto.hash(:sha256, "admin"), case: :lower)
+
 # Configure Ra and Concord data directories
 config :ra, data_dir: ~c"#{Path.join(data_root, "ra")}"
 config :concord, data_dir: Path.join(data_root, "concord")
@@ -15,10 +19,7 @@ config :ex_storage_service,
   s3_auth_enabled: s3_auth_enabled?,
   root_admin_user: System.get_env("ESS_ADMIN_USER", "admin"),
   root_admin_password_hash:
-    System.get_env(
-      "ESS_ADMIN_PASSWORD_HASH",
-      Base.encode16(:crypto.hash(:sha256, "admin"), case: :lower)
-    ),
+    System.get_env("ESS_ADMIN_PASSWORD_HASH", default_admin_hash),
   master_key:
     System.get_env("ESS_MASTER_KEY") ||
       if(config_env() != :prod,
@@ -41,6 +42,31 @@ if System.get_env("MIX_TAILWIND_PATH") do
 end
 
 if config_env() == :prod do
+  # ── Security guardrail 1: S3 auth must be explicitly enabled ───────────────
+  unless s3_auth_enabled? do
+    raise """
+    ESS_S3_AUTH_ENABLED must be set to "true" in production.
+
+    Allowing unauthenticated S3 access in production is a critical security risk.
+    Set ESS_S3_AUTH_ENABLED=true in your environment or Docker compose file.
+    """
+  end
+
+  # ── Security guardrail 2: reject the well-known default admin password ──────
+  configured_admin_hash = System.get_env("ESS_ADMIN_PASSWORD_HASH", default_admin_hash)
+
+  if configured_admin_hash == default_admin_hash do
+    raise """
+    ESS_ADMIN_PASSWORD_HASH must be explicitly set in production.
+
+    Do not use the default "admin" password. Generate a hash with:
+
+        echo -n "your-secure-password" | sha256sum | awk '{print $1}'
+
+    Then set ESS_ADMIN_PASSWORD_HASH to that value.
+    """
+  end
+
   master_key =
     System.get_env("ESS_MASTER_KEY") ||
       raise """

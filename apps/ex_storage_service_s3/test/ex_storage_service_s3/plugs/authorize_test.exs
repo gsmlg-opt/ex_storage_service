@@ -40,14 +40,14 @@ defmodule ExStorageServiceS3.Plugs.AuthorizeTest do
       assert Authorize.map_action("POST", ["my-bucket"]) == "s3:DeleteObject"
     end
 
-    test "POST [bucket, key] with uploads query maps to s3:PutObject" do
+    test "POST [bucket, key] with uploads query maps to s3:CreateMultipartUpload" do
       assert Authorize.map_action("POST", ["my-bucket", "my-key"], %{"uploads" => ""}) ==
-               "s3:PutObject"
+               "s3:CreateMultipartUpload"
     end
 
-    test "POST [bucket, key] with uploadId query maps to s3:PutObject" do
+    test "POST [bucket, key] with uploadId query maps to s3:CompleteMultipartUpload" do
       assert Authorize.map_action("POST", ["my-bucket", "my-key"], %{"uploadId" => "abc123"}) ==
-               "s3:PutObject"
+               "s3:CompleteMultipartUpload"
     end
   end
 

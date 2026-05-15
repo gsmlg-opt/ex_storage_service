@@ -34,6 +34,8 @@ defmodule ExStorageServiceWeb.Router do
       live "/dashboard", DashboardLive
       live "/buckets", BucketLive.Index
       live "/buckets/:name", BucketLive.Show
+      live "/buckets/:name/files", BucketLive.Files
+      live "/buckets/:name/settings", BucketLive.Settings
 
       live "/users", UserLive.Index
       live "/users/:id", UserLive.Show

@@ -6,6 +6,9 @@ defmodule ExStorageServiceS3.Plugs.Authorize do
   If auth is disabled, all requests are allowed.
   If the user is the root admin, all requests are allowed.
   Otherwise, Policy.evaluate/3 determines access.
+
+  Presigned URL requests are no longer exempt from IAM checks. The signature
+  verifies *identity*; the IAM policy verifies *authorization*.
   """
 
   import Plug.Conn
@@ -23,26 +26,17 @@ defmodule ExStorageServiceS3.Plugs.Authorize do
         conn
 
       auth_enabled?() ->
-        authorize(conn)
+        authorize_user(conn)
 
       true ->
         conn
     end
   end
 
-  defp authorize(conn) do
-    # Presigned URLs are pre-authorized at signature time
-    if conn.assigns[:presigned_auth] do
-      conn
-    else
-      authorize_user(conn)
-    end
-  end
-
   defp authorize_user(conn) do
     user_id = conn.assigns[:user_id]
 
-    # Root admin bypass
+    # Root admin bypasses all IAM checks
     if user_id == "root" do
       conn
     else
@@ -61,44 +55,75 @@ defmodule ExStorageServiceS3.Plugs.Authorize do
 
   @doc """
   Maps an HTTP method and path segments to an S3 action string.
-  Optionally takes query_params to disambiguate POST operations.
+  Optionally takes query_params to disambiguate operations.
   """
   def map_action(method, path_info, query_params \\ %{}) do
     case {method, path_info} do
+      # ── Service-level ───────────────────────────────────────────────────────
       {"GET", []} ->
         "s3:ListAllMyBuckets"
 
+      # ── Bucket-level ─────────────────────────────────────────────────────────
       {"GET", [_bucket]} ->
-        "s3:ListBucket"
-
-      {"GET", [_bucket | _key]} ->
-        "s3:GetObject"
+        cond do
+          Map.has_key?(query_params, "versioning") -> "s3:GetBucketVersioning"
+          Map.has_key?(query_params, "lifecycle") -> "s3:GetLifecycleConfiguration"
+          Map.has_key?(query_params, "notification") -> "s3:GetBucketNotification"
+          Map.has_key?(query_params, "versions") -> "s3:ListBucketVersions"
+          true -> "s3:ListBucket"
+        end
 
       {"HEAD", [_bucket]} ->
         "s3:HeadBucket"
 
+      {"PUT", [_bucket]} ->
+        cond do
+          Map.has_key?(query_params, "versioning") -> "s3:PutBucketVersioning"
+          Map.has_key?(query_params, "lifecycle") -> "s3:PutLifecycleConfiguration"
+          Map.has_key?(query_params, "notification") -> "s3:PutBucketNotification"
+          true -> "s3:CreateBucket"
+        end
+
+      {"DELETE", [_bucket]} ->
+        cond do
+          Map.has_key?(query_params, "lifecycle") -> "s3:PutLifecycleConfiguration"
+          Map.has_key?(query_params, "notification") -> "s3:PutBucketNotification"
+          true -> "s3:DeleteBucket"
+        end
+
+      {"POST", [_bucket]} ->
+        # Bucket-level POST is only used for DeleteObjects
+        "s3:DeleteObject"
+
+      # ── Object-level ─────────────────────────────────────────────────────────
+      {"GET", [_bucket | _key]} ->
+        if Map.has_key?(query_params, "uploadId") do
+          # ListParts
+          "s3:ListMultipartUploadParts"
+        else
+          "s3:GetObject"
+        end
+
       {"HEAD", [_bucket | _key]} ->
         "s3:HeadObject"
 
-      {"PUT", [_bucket]} ->
-        "s3:CreateBucket"
-
       {"PUT", [_bucket | _key]} ->
-        "s3:PutObject"
-
-      {"DELETE", [_bucket]} ->
-        "s3:DeleteBucket"
+        cond do
+          Map.has_key?(query_params, "partNumber") -> "s3:UploadPart"
+          true -> "s3:PutObject"
+        end
 
       {"DELETE", [_bucket | _key]} ->
-        "s3:DeleteObject"
-
-      {"POST", [_bucket]} ->
-        "s3:DeleteObject"
+        if Map.has_key?(query_params, "uploadId") do
+          "s3:AbortMultipartUpload"
+        else
+          "s3:DeleteObject"
+        end
 
       {"POST", [_bucket | _key]} ->
         cond do
-          Map.has_key?(query_params, "uploads") -> "s3:PutObject"
-          Map.has_key?(query_params, "uploadId") -> "s3:PutObject"
+          Map.has_key?(query_params, "uploads") -> "s3:CreateMultipartUpload"
+          Map.has_key?(query_params, "uploadId") -> "s3:CompleteMultipartUpload"
           true -> "s3:PutObject"
         end
 

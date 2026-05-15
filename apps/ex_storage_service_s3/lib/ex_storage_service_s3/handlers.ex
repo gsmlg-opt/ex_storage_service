@@ -7,6 +7,7 @@ defmodule ExStorageServiceS3.Handlers do
 
   import Plug.Conn
   alias ExStorageServiceS3.XML
+  alias ExStorageService.BucketValidator
   alias ExStorageService.Metadata
   alias ExStorageService.Notifications
   alias ExStorageService.Replication.Hooks
@@ -30,32 +31,37 @@ defmodule ExStorageServiceS3.Handlers do
   def create_bucket(conn, bucket) do
     request_id = request_id(conn)
 
-    case Metadata.head_bucket(bucket) do
-      :ok ->
-        error_response(
-          conn,
-          "BucketAlreadyOwnedByYou",
-          "Your previous request to create the named bucket succeeded.",
-          "/#{bucket}",
-          request_id
-        )
+    with :ok <- BucketValidator.validate(bucket) do
+      case Metadata.head_bucket(bucket) do
+        :ok ->
+          error_response(
+            conn,
+            "BucketAlreadyOwnedByYou",
+            "Your previous request to create the named bucket succeeded.",
+            "/#{bucket}",
+            request_id
+          )
 
-      {:error, :not_found} ->
-        Engine.ensure_bucket_dirs(bucket)
+        {:error, :not_found} ->
+          Engine.ensure_bucket_dirs(bucket)
 
-        case Metadata.create_bucket(bucket) do
-          :ok ->
-            conn
-            |> put_s3_headers(request_id)
-            |> put_resp_header("location", "/#{bucket}")
-            |> send_resp(200, "")
+          case Metadata.create_bucket(bucket) do
+            :ok ->
+              conn
+              |> put_s3_headers(request_id)
+              |> put_resp_header("location", "/#{bucket}")
+              |> send_resp(200, "")
 
-          {:error, reason} ->
-            error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
-        end
+            {:error, reason} ->
+              error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
+          end
 
-      {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
+        {:error, reason} ->
+          error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
+      end
+    else
+      {:error, msg} ->
+        error_response(conn, "InvalidBucketName", msg, "/#{bucket}", request_id)
     end
   end
 
@@ -351,62 +357,59 @@ defmodule ExStorageServiceS3.Handlers do
           error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
 
         :ok ->
-          case read_full_body(conn) do
-            {:ok, body, conn} ->
-              content_type =
-                case get_req_header(conn, "content-type") do
-                  [ct | _] -> ct
-                  [] -> "application/octet-stream"
-                end
+          content_type =
+            case get_req_header(conn, "content-type") do
+              [ct | _] -> ct
+              [] -> "application/octet-stream"
+            end
 
-              custom_metadata = extract_custom_metadata(conn)
+          custom_metadata = extract_custom_metadata(conn)
 
-              case Engine.put_object(bucket, key, body, content_type, custom_metadata) do
-                {:ok, {content_hash, etag, size}} ->
-                  now = DateTime.utc_now() |> DateTime.to_iso8601()
+          # Stream the body directly to the storage engine rather than
+          # accumulating the full object in memory. The stream enforces
+          # max_object_size incrementally and halts early on oversize uploads.
+          # We use put_object_stream/5 (not put_object/5) because Plug.Conn.read_body
+          # must be called from the request process, not inside the Engine GenServer.
+          stream = body_stream(conn)
 
-                  meta = %{
-                    content_hash: content_hash,
-                    size: size,
-                    etag: etag,
-                    content_type: content_type,
-                    metadata: custom_metadata,
-                    created_at: now,
-                    updated_at: now
-                  }
+          try do
+            case Engine.put_object_stream(bucket, key, stream, content_type, custom_metadata) do
+              {:ok, {content_hash, etag, size}} ->
+                now = DateTime.utc_now() |> DateTime.to_iso8601()
 
-                  Metadata.put_object_meta(bucket, key, meta)
-                  Hooks.after_put(bucket, key)
+                meta = %{
+                  content_hash: content_hash,
+                  size: size,
+                  etag: etag,
+                  content_type: content_type,
+                  metadata: custom_metadata,
+                  created_at: now,
+                  updated_at: now
+                }
 
-                  conn
-                  |> put_s3_headers(request_id)
-                  |> put_resp_header("etag", "\"#{etag}\"")
-                  |> send_resp(200, "")
+                Metadata.put_object_meta(bucket, key, meta)
+                Hooks.after_put(bucket, key)
 
-                {:error, reason} ->
-                  error_response(
-                    conn,
-                    "InternalError",
-                    inspect(reason),
-                    "/#{bucket}/#{key}",
-                    request_id
-                  )
-              end
+                conn
+                |> put_s3_headers(request_id)
+                |> put_resp_header("etag", "\"#{etag}\"")
+                |> send_resp(200, "")
 
+              {:error, reason} ->
+                error_response(
+                  conn,
+                  "InternalError",
+                  inspect(reason),
+                  "/#{bucket}/#{key}",
+                  request_id
+                )
+            end
+          catch
             {:error, :entity_too_large} ->
               error_response(
                 conn,
                 "EntityTooLarge",
                 "Your proposed upload exceeds the maximum allowed object size.",
-                "/#{bucket}/#{key}",
-                request_id
-              )
-
-            {:error, reason} ->
-              error_response(
-                conn,
-                "InternalError",
-                inspect(reason),
                 "/#{bucket}/#{key}",
                 request_id
               )
@@ -898,6 +901,51 @@ defmodule ExStorageServiceS3.Handlers do
     |> send_resp(status, body)
   end
 
+  # Streaming body reader — yields chunks from the request body without
+  # accumulating the entire object in memory. Enforces max_object_size
+  # inline by throwing {:error, :entity_too_large} when the limit is exceeded.
+  # The caller must catch this throw.
+  defp body_stream(conn) do
+    max_size = Application.get_env(:ex_storage_service, :max_object_size, 5 * 1024 * 1024 * 1024)
+    # 1 MiB read chunks — large enough for throughput, small enough for memory
+    read_opts = [length: 1_048_576, read_timeout: 60_000]
+
+    Stream.resource(
+      fn -> {conn, 0} end,
+      fn
+        :done ->
+          {:halt, :done}
+
+        {conn, acc_size} ->
+          case Plug.Conn.read_body(conn, read_opts) do
+            {:ok, chunk, _conn} ->
+              new_size = acc_size + byte_size(chunk)
+
+              if new_size > max_size do
+                throw({:error, :entity_too_large})
+              end
+
+              {[chunk], :done}
+
+            {:more, chunk, conn} ->
+              new_size = acc_size + byte_size(chunk)
+
+              if new_size > max_size do
+                throw({:error, :entity_too_large})
+              end
+
+              {[chunk], {conn, new_size}}
+
+            {:error, reason} ->
+              throw({:error, reason})
+          end
+      end,
+      fn _ -> :ok end
+    )
+  end
+
+  # Kept for handlers that must fully buffer the body (e.g., XML parse operations).
+  # NOT used for PutObject — use body_stream/1 there.
   defp read_full_body(conn, acc \\ <<>>) do
     max_size = Application.get_env(:ex_storage_service, :max_object_size, 5 * 1024 * 1024 * 1024)
 
