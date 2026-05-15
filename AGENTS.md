@@ -6,7 +6,7 @@ ExStorageService is an S3-compatible object storage server built with Elixir/Pho
 
 - **`ex_storage_service`** (core) — Storage engine, metadata (Concord/Raft KV), IAM, replication, background processes. No Phoenix dependency.
 - **`ex_storage_service_s3`** (S3 API) — Plug.Router served by Bandit on port 9000. S3-compatible REST API with SigV4 auth.
-- **`ex_storage_service_web`** (admin portal) — Phoenix LiveView on port 4000. Dashboard, bucket/user/policy management, audit log.
+- **`ex_storage_service_web`** (admin portal) — Phoenix LiveView on port 4900. Dashboard, bucket/user/policy management, audit log.
 
 ## Common Commands
 
@@ -48,7 +48,7 @@ apps/
 
 **S3 (`ExStorageServiceS3.Application`):** Bandit (S3 Router on port 9000)
 
-**Web (`ExStorageServiceWeb.Application`):** Phoenix.Endpoint (port 4000)
+**Web (`ExStorageServiceWeb.Application`):** Phoenix.Endpoint (port 4900)
 
 OTP starts apps in dependency order: core → S3 → web.
 
@@ -101,7 +101,7 @@ Routes require admin session (`RequireAdmin` plug):
 |---|---|---|
 | `ESS_DATA_ROOT` | `/tmp/ex_storage_service/data` | Storage root directory |
 | `ESS_S3_PORT` | `9000` | S3 API port |
-| `ESS_ADMIN_PORT` | `4000` | Admin portal port |
+| `ESS_ADMIN_PORT` | `4900` | Admin portal port |
 | `ESS_S3_AUTH_ENABLED` | `false` | Require SigV4 authentication and IAM authorization for S3 requests |
 | `ESS_ADMIN_USER` | `admin` | Root admin username |
 | `ESS_ADMIN_PASSWORD_HASH` | SHA256("admin") | Admin password hash |

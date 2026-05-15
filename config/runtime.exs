@@ -11,7 +11,7 @@ config :concord, data_dir: Path.join(data_root, "concord")
 config :ex_storage_service,
   data_root: data_root,
   s3_port: String.to_integer(System.get_env("ESS_S3_PORT", "9000")),
-  admin_port: String.to_integer(System.get_env("ESS_ADMIN_PORT", "4000")),
+  admin_port: String.to_integer(System.get_env("ESS_ADMIN_PORT", "4900")),
   s3_auth_enabled: s3_auth_enabled?,
   root_admin_user: System.get_env("ESS_ADMIN_USER", "admin"),
   root_admin_password_hash:
@@ -58,7 +58,7 @@ if config_env() == :prod do
       """
 
   host = System.get_env("PHX_HOST", "localhost")
-  port = String.to_integer(System.get_env("ESS_ADMIN_PORT", "4000"))
+  port = String.to_integer(System.get_env("ESS_ADMIN_PORT", "4900"))
 
   config :ex_storage_service_web, ExStorageServiceWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],

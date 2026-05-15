@@ -48,7 +48,7 @@ defmodule ExStorageServiceS3.Handlers do
             conn
             |> put_s3_headers(request_id)
             |> put_resp_header("location", "/#{bucket}")
-            |> send_resp(201, "")
+            |> send_resp(200, "")
 
           {:error, reason} ->
             error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)

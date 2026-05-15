@@ -11,7 +11,7 @@ tools that normally talk to MinIO.
 export MIX_ENV=prod
 export ESS_S3_AUTH_ENABLED=true
 export ESS_S3_PORT=9000
-export ESS_ADMIN_PORT=4000
+export ESS_ADMIN_PORT=4900
 export ESS_DATA_ROOT=/tmp/ex_storage_service/e2e-data
 export ESS_MASTER_KEY=test-master-key-for-local-e2e
 export SECRET_KEY_BASE=$(mix phx.gen.secret)

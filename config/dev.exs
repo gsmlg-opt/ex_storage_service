@@ -1,7 +1,7 @@
 import Config
 
 config :ex_storage_service_web, ExStorageServiceWeb.Endpoint,
-  http: [ip: {127, 0, 0, 1}, port: 4000],
+  http: [ip: {127, 0, 0, 1}, port: 4900],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,

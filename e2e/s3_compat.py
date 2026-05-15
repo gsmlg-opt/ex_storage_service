@@ -27,7 +27,7 @@ def endpoint_url():
 
 
 def admin_url():
-    return os.environ.get("E2E_ADMIN_ENDPOINT", "http://localhost:4000").rstrip("/")
+    return os.environ.get("E2E_ADMIN_ENDPOINT", "http://localhost:4900").rstrip("/")
 
 
 def s3_client(access_key_id=None, secret_access_key=None):

@@ -58,7 +58,7 @@ ExStorageService is a standalone S3-compatible object storage server built with 
 │  │    Phoenix Admin UI (LiveView)   │    │
 │  │    bucket mgmt, replication      │    │
 │  │    status, metrics dashboard     │    │
-│  │    Port 4000                     │    │
+│  │    Port 4900                     │    │
 │  └──────────────────────────────────┘    │
 └──────────────────────────────────────────┘
 ```
@@ -589,7 +589,7 @@ config :ex_storage_service,
   s3_host: "0.0.0.0",
 
   # Admin UI
-  admin_port: 4000,
+  admin_port: 4900,
 
   # Root Admin (bootstrapped, manages users/keys/policies via UI)
   root_admin_user: System.fetch_env!("ESS_ADMIN_USER"),
@@ -622,7 +622,7 @@ ExStorageService.Application
 │   └── queue: :gc (concurrency: 1)
 ├── ExStorageService.StorageEngine (file operations, content addressing)
 ├── Bandit.child_spec(plug: ExStorageService.S3.Router, port: 9000)
-└── Phoenix.Endpoint (ExStorageService.AdminWeb.Endpoint, port: 4000)
+└── Phoenix.Endpoint (ExStorageService.AdminWeb.Endpoint, port: 4900)
     ├── LiveView — bucket management
     ├── LiveView — replication status
     └── LiveView — metrics dashboard
@@ -690,7 +690,7 @@ Note on job queue: Since we're avoiding PostgreSQL, Oban is not viable. Options:
 
 ### Phase 4 — Admin UI
 
-- Phoenix LiveView admin app (port 4000)
+- Phoenix LiveView admin app (port 4900)
 - Root admin session auth (separate from S3 access keys)
 - User management (create, suspend, view keys, attach policies)
 - Access key creation (show secret once)

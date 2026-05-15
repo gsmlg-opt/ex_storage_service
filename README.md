@@ -22,7 +22,7 @@ An S3-compatible object storage server built with Elixir and Phoenix.
 # Install dependencies and build assets
 mix setup
 
-# Start the server (S3 API on :9000, Admin UI on :4000)
+# Start the server (S3 API on :9000, Admin UI on :4900)
 mix phx.server
 ```
 
@@ -48,6 +48,41 @@ aws --endpoint-url http://localhost:9000 s3 cp file.txt s3://my-bucket/file.txt
 aws --endpoint-url http://localhost:9000 s3 cp s3://my-bucket/file.txt downloaded.txt
 ```
 
+### Use with mc
+
+[MinIO Client (`mc`)](https://min.io/docs/minio/linux/reference/minio-mc.html) provides a modern alternative to UNIX commands like ls, cat, cp, mirror, diff, etc. for object storage.
+
+**Getting Access Keys:**
+- **Development Mode:** When running in dev mode (`mix phx.server`), the service automatically seeds a fixed test access key with full permissions:
+  - Access Key: `AKIA-DEV-ACCESS-KEY`
+  - Secret Key: `DEV-SECRET-ACCESS-KEY-DO-NOT-USE`
+- **When Auth is Disabled:** If `ESS_S3_AUTH_ENABLED` is `false` (the default), you can use any dummy strings for the credentials (e.g., `dummy` and `dummy`).
+- **When Auth is Enabled:** Log into the Admin Dashboard (`http://localhost:4900`) using the default credentials (`admin` / `admin`). Navigate to the **Users** tab, select a user (or create one), and generate a new Access Key to get your `<your-access-key>` and `<your-secret-key>`.
+
+```bash
+# Add an alias for your local ExStorageService instance
+# Syntax: mc alias set <ALIAS> <YOUR-S3-ENDPOINT> [YOUR-ACCESS-KEY] [YOUR-SECRET-KEY]
+mc alias set ess http://localhost:9000 <your-access-key> <your-secret-key>
+
+# List buckets
+mc ls ess
+
+# Create a bucket
+mc mb ess/my-bucket
+
+# Upload a file
+mc cp file.txt ess/my-bucket/
+
+# Download a file
+mc cp ess/my-bucket/file.txt .
+
+# Remove a file
+mc rm ess/my-bucket/file.txt
+
+# Mirror a directory
+mc mirror ./my-local-dir ess/my-bucket/backup
+```
+
 ## Architecture
 
 The application runs two HTTP servers under one OTP supervision tree:
@@ -55,7 +90,7 @@ The application runs two HTTP servers under one OTP supervision tree:
 | Server | Port | Stack | Purpose |
 |---|---|---|---|
 | S3 API | 9000 | Plug.Router + Bandit | S3-compatible object operations |
-| Admin Portal | 4000 | Phoenix + LiveView | Web dashboard and management |
+| Admin Portal | 4900 | Phoenix + LiveView | Web dashboard and management |
 
 ### Storage
 
@@ -85,7 +120,7 @@ The application runs two HTTP servers under one OTP supervision tree:
 |---|---|---|
 | `ESS_DATA_ROOT` | `/tmp/ex_storage_service/data` | Storage root directory |
 | `ESS_S3_PORT` | `9000` | S3 API port |
-| `ESS_ADMIN_PORT` | `4000` | Admin portal port |
+| `ESS_ADMIN_PORT` | `4900` | Admin portal port |
 | `ESS_S3_AUTH_ENABLED` | `false` | Require SigV4 authentication and IAM authorization for S3 requests |
 | `ESS_ADMIN_USER` | `admin` | Root admin username |
 | `ESS_ADMIN_PASSWORD_HASH` | SHA256("admin") | Admin password hash |
