@@ -29,15 +29,19 @@ COPY config ./config
 COPY apps ./apps
 
 # Build assets (tailwind + bun bundler)
-# ESS_MASTER_KEY and SECRET_KEY_BASE are required by runtime.exs in prod mode
-# but are not used during asset compilation; supply dummies for the build step.
+# Dummy env vars satisfy runtime.exs prod guards during the build step only.
+# Real values must be provided at container runtime by the operator.
 RUN ESS_MASTER_KEY=$(openssl rand -base64 32) \
     SECRET_KEY_BASE=$(openssl rand -base64 64) \
+    ESS_S3_AUTH_ENABLED=true \
+    ESS_ADMIN_PASSWORD_HASH=0000000000000000000000000000000000000000000000000000000000000000 \
     mix assets.deploy
 
 # Build the Elixir release
 RUN ESS_MASTER_KEY=$(openssl rand -base64 32) \
     SECRET_KEY_BASE=$(openssl rand -base64 64) \
+    ESS_S3_AUTH_ENABLED=true \
+    ESS_ADMIN_PASSWORD_HASH=0000000000000000000000000000000000000000000000000000000000000000 \
     mix release ess
 
 # Stage 2: Lean runtime image
