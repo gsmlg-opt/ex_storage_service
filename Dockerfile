@@ -21,7 +21,7 @@ RUN mix deps.get --only prod
 
 # Install JS deps
 COPY package.json bunfig.toml bun.lock* ./
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # Copy source and config
 COPY config ./config
