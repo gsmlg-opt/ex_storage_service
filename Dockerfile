@@ -29,10 +29,16 @@ COPY config ./config
 COPY apps ./apps
 
 # Build assets (tailwind + bun bundler)
-RUN mix assets.deploy
+# ESS_MASTER_KEY and SECRET_KEY_BASE are required by runtime.exs in prod mode
+# but are not used during asset compilation; supply dummies for the build step.
+RUN ESS_MASTER_KEY=$(openssl rand -base64 32) \
+    SECRET_KEY_BASE=$(openssl rand -base64 64) \
+    mix assets.deploy
 
 # Build the Elixir release
-RUN mix release ess
+RUN ESS_MASTER_KEY=$(openssl rand -base64 32) \
+    SECRET_KEY_BASE=$(openssl rand -base64 64) \
+    mix release ess
 
 # Stage 2: Lean runtime image
 FROM alpine:3.21 AS runtime
