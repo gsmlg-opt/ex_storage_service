@@ -1,8 +1,10 @@
-# Development artifacts
+# Development build artifacts
 _build/
-deps/
 .git/
 .gitignore
+
+# Only exclude non-prod Elixir deps (keep deps/ for phoenix_duskmoon local ref)
+# deps/ -- do NOT exclude; phoenix_duskmoon is a local file dep
 
 # Dev/test configs
 config/dev.exs
@@ -13,10 +15,6 @@ docs/
 e2e/
 *.md
 .github/
-
-# Local node modules (built in Docker)
-node_modules/
-apps/*/node_modules/
 
 # Logs and temp files
 *.log

@@ -19,8 +19,9 @@ COPY apps/ex_storage_service_web/mix.exs ./apps/ex_storage_service_web/mix.exs
 
 RUN mix deps.get --only prod
 
-# Install JS deps
+# Install JS deps (copy all workspace package.json files for bun workspaces)
 COPY package.json bunfig.toml bun.lock* ./
+COPY apps/ex_storage_service_web/package.json ./apps/ex_storage_service_web/package.json
 RUN bun install
 
 # Copy source and config
