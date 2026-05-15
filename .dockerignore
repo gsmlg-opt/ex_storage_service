@@ -1,0 +1,23 @@
+# Development artifacts
+_build/
+deps/
+.git/
+.gitignore
+
+# Dev/test configs
+config/dev.exs
+config/test.exs
+
+# Docs and tooling
+docs/
+e2e/
+*.md
+.github/
+
+# Local node modules (built in Docker)
+node_modules/
+apps/*/node_modules/
+
+# Logs and temp files
+*.log
+/tmp/

@@ -8,12 +8,25 @@ defmodule ExStorageService.Umbrella.MixProject do
       start_permanent: Mix.env() == :prod,
       listeners: [Phoenix.CodeReloader],
       deps: deps(),
-      aliases: aliases()
+      aliases: aliases(),
+      releases: releases()
     ]
   end
 
   defp deps do
     []
+  end
+
+  defp releases do
+    [
+      ess: [
+        applications: [
+          ex_storage_service: :permanent,
+          ex_storage_service_s3: :permanent,
+          ex_storage_service_web: :permanent
+        ]
+      ]
+    ]
   end
 
   defp aliases do
