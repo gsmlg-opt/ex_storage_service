@@ -1,34 +1,23 @@
-import "phoenix_html"
+import "phoenix_html";
+import { Socket } from "phoenix";
+import * as DuskmoonHooks from "phoenix_duskmoon/hooks";
+import { LiveSocket } from "phoenix_live_view";
+
 // NOTE: Do NOT import @duskmoon-dev/elements/register here.
-// That package overrides window.dispatchEvent which crashes Phoenix LiveSocket.
-// See: https://github.com/gsmlg-dev/duskmoon-dev/issues (label: internal request)
-import {Socket} from "phoenix"
-import {LiveSocket} from "phoenix_live_view"
-import * as DuskmoonHooks from "phoenix_duskmoon/hooks"
-
-// CloseModal hook: closes an el-dm-dialog when the server pushes a named event.
-// Usage: phx-hook="CloseModal" data-modal-event="my-event" data-modal-id="my-dialog-id"
-const CloseModal = {
-  mounted() {
-    const eventName = this.el.dataset.modalEvent
-    const modalId = this.el.dataset.modalId
-
-    if (!eventName || !modalId) return
-
-    this.handleEvent(eventName, () => {
-      const dialog = document.getElementById(modalId)
-      if (dialog && typeof dialog.close === "function") {
-        dialog.close()
-      }
-    })
-  }
-}
+// When bundled with Bun, it throws:
+//   ReferenceError: Cannot access 'ElDmCodeEngine' before initialization
+// due to a circular dependency in the package. This crashes ALL element
+// registration, not just code-engine.
+// Issue filed: https://github.com/gsmlg-dev/duskmoon-dev/issues
+//
+// This app currently only uses dm_link, dm_mdi, and dm_table components
+// which render plain HTML and don't require custom element registration.
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken},
-  hooks: {...DuskmoonHooks, CloseModal}
+  params: { _csrf_token: csrfToken },
+  hooks: { ...DuskmoonHooks }
 })
 
 liveSocket.connect()

@@ -10,8 +10,9 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
       {:ok, _bucket} ->
         {:ok,
          socket
-         |> assign(bucket_name: name, objects: [])
-         |> load_objects()}
+         |> assign(bucket_name: name, prefix: "", objects: [], folders: [], total_count: 0)
+         |> assign(show_confirm_modal: false, confirm_title: "", confirm_message: "",
+                  confirm_event: "", confirm_params: %{})}
 
       {:error, :not_found} ->
         {:ok, socket |> put_flash(:error, "Bucket not found") |> redirect(to: ~p"/buckets")}
@@ -19,10 +20,46 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
   end
 
   @impl true
-  def handle_params(_params, _url, socket), do: {:noreply, socket}
+  def handle_params(params, _url, socket) do
+    prefix = Map.get(params, "prefix", "")
+    {:noreply, socket |> assign(:prefix, prefix) |> load_objects()}
+  end
 
   @impl true
-  def handle_event("delete_object", %{"key" => key}, socket) do
+  def handle_event("navigate_folder", %{"prefix" => prefix}, socket) do
+    {:noreply,
+     push_patch(socket, to: ~p"/buckets/#{socket.assigns.bucket_name}/files?#{%{prefix: prefix}}")}
+  end
+
+  def handle_event("navigate_up", _params, socket) do
+    parent = parent_prefix(socket.assigns.prefix)
+
+    path =
+      if parent == "" do
+        ~p"/buckets/#{socket.assigns.bucket_name}/files"
+      else
+        ~p"/buckets/#{socket.assigns.bucket_name}/files?#{%{prefix: parent}}"
+      end
+
+    {:noreply, push_patch(socket, to: path)}
+  end
+
+  def handle_event("open_confirm_modal", %{"key" => key, "name" => name}, socket) do
+    {:noreply,
+     assign(socket,
+       show_confirm_modal: true,
+       confirm_title: "Delete Object",
+       confirm_message: "Delete \"#{name}\"?",
+       confirm_event: "confirm_delete_object",
+       confirm_params: %{"key" => key}
+     )}
+  end
+
+  def handle_event("close_confirm_modal", _params, socket) do
+    {:noreply, assign(socket, show_confirm_modal: false)}
+  end
+
+  def handle_event("confirm_delete_object", %{"key" => key}, socket) do
     bucket = socket.assigns.bucket_name
 
     case Metadata.get_object_meta(bucket, key) do
@@ -32,11 +69,15 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
 
         {:noreply,
          socket
+         |> assign(show_confirm_modal: false)
          |> put_flash(:info, "Deleted \"#{key}\"")
          |> load_objects()}
 
       {:error, :not_found} ->
-        {:noreply, put_flash(socket, :error, "Object not found")}
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> put_flash(:error, "Object not found")}
     end
   end
 
@@ -52,14 +93,37 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
           {@bucket_name}
         </.dm_link>
         <span>/</span>
-        <span>Files</span>
+        <%= if @prefix == "" do %>
+          <span class="text-on-surface font-medium">Files</span>
+        <% else %>
+          <.dm_link
+            patch={~p"/buckets/#{@bucket_name}/files"}
+            class="text-primary"
+          >
+            Files
+          </.dm_link>
+          <%= for {segment, seg_prefix} <- path_segments(@prefix) do %>
+            <span>/</span>
+            <%= if seg_prefix == @prefix do %>
+              <span class="text-on-surface font-medium">{segment}</span>
+            <% else %>
+              <.dm_link
+                patch={~p"/buckets/#{@bucket_name}/files?#{%{prefix: seg_prefix}}"}
+                class="text-primary"
+              >
+                {segment}
+              </.dm_link>
+            <% end %>
+          <% end %>
+        <% end %>
       </div>
 
       <%!-- Header --%>
       <div class="flex items-center justify-between mt-2 mb-4">
         <h1 class="text-2xl font-bold text-on-surface">{@bucket_name}</h1>
         <span class="text-sm text-on-surface-variant">
-          {length(@objects)} object{if length(@objects) != 1, do: "s", else: ""}
+          {length(@folders)} folder{if length(@folders) != 1, do: "s", else: ""},
+          {length(@objects)} file{if length(@objects) != 1, do: "s", else: ""}
         </span>
       </div>
 
@@ -85,31 +149,116 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
         </.dm_link>
       </div>
 
-      <%!-- Objects table --%>
+      <%!-- File browser --%>
       <div class="card">
+        <%!-- Path bar --%>
+        <div class="flex items-center gap-2 px-4 py-3 border-b border-outline-variant bg-surface-variant/30">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4 text-on-surface-variant"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+          </svg>
+          <span class="text-sm font-mono text-on-surface">
+            /{@prefix}
+          </span>
+        </div>
+
         <table class="table table-hover w-full">
           <thead>
             <tr>
-              <th class="text-on-surface-variant">Key</th>
+              <th class="text-on-surface-variant w-8"></th>
+              <th class="text-on-surface-variant">Name</th>
               <th class="text-on-surface-variant">Size</th>
               <th class="text-on-surface-variant">Last Modified</th>
               <th class="text-on-surface-variant text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
+            <%!-- Go up row --%>
+            <%= if @prefix != "" do %>
+              <tr
+                class="cursor-pointer"
+                phx-click="navigate_up"
+              >
+                <td class="w-8">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5 text-on-surface-variant"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                </td>
+                <td colspan="4" class="text-sm text-on-surface-variant">..</td>
+              </tr>
+            <% end %>
+            <%!-- Folder rows --%>
+            <%= for folder <- @folders do %>
+              <tr
+                class="cursor-pointer"
+                phx-click="navigate_folder"
+                phx-value-prefix={folder}
+              >
+                <td class="w-8">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5 text-warning"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    stroke-width="0"
+                  >
+                    <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                  </svg>
+                </td>
+                <td class="font-medium text-sm">{display_folder_name(folder, @prefix)}</td>
+                <td class="text-on-surface-variant text-sm">—</td>
+                <td class="text-on-surface-variant text-sm">—</td>
+                <td></td>
+              </tr>
+            <% end %>
+            <%!-- File rows --%>
             <%= for obj <- @objects do %>
               <tr>
-                <td class="font-mono text-sm">{obj.key}</td>
+                <td class="w-8">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5 text-on-surface-variant"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+                </td>
+                <td class="font-mono text-sm">{display_file_name(obj.key, @prefix)}</td>
                 <td class="text-on-surface-variant text-sm">{format_size(obj[:size] || 0)}</td>
                 <td class="text-on-surface-variant text-sm">
                   {obj[:updated_at] || obj[:created_at]}
                 </td>
                 <td class="text-right">
                   <button
-                    phx-click="delete_object"
-                    phx-value-key={obj.key}
-                    data-confirm={"Delete \"#{obj.key}\"?"}
+                    type="button"
                     class="btn btn-ghost btn-xs text-error hover:btn-error"
+                    phx-click="open_confirm_modal"
+                    phx-value-key={obj.key}
+                    phx-value-name={display_file_name(obj.key, @prefix)}
                   >
                     Delete
                   </button>
@@ -118,7 +267,7 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
             <% end %>
           </tbody>
         </table>
-        <%= if @objects == [] do %>
+        <%= if @folders == [] and @objects == [] do %>
           <div class="flex flex-col items-center gap-2 px-6 py-16 text-on-surface-variant">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -130,26 +279,92 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
             >
               <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
             </svg>
-            <p class="text-sm">No objects in this bucket.</p>
+            <p class="text-sm">
+              <%= if @prefix == "" do %>
+                No objects in this bucket.
+              <% else %>
+                This folder is empty.
+              <% end %>
+            </p>
           </div>
         <% end %>
       </div>
+
+      <.confirm_modal
+        show={@show_confirm_modal}
+        title={@confirm_title}
+        message={@confirm_message}
+        confirm_event={@confirm_event}
+        confirm_params={@confirm_params}
+        confirm_label="Delete"
+      />
     </div>
     """
   end
 
   defp load_objects(socket) do
-    case Metadata.list_objects(socket.assigns.bucket_name) do
-      {:ok, %{keys: keys}} ->
+    bucket = socket.assigns.bucket_name
+    prefix = socket.assigns.prefix
+
+    case Metadata.list_objects(bucket, prefix: prefix, delimiter: "/") do
+      {:ok, %{keys: keys, common_prefixes: common_prefixes}} ->
         objects = Enum.map(keys, fn {key, meta} -> Map.put(meta, :key, key) end)
-        assign(socket, :objects, objects)
+
+        socket
+        |> assign(:objects, objects)
+        |> assign(:folders, common_prefixes)
 
       _ ->
-        assign(socket, :objects, [])
+        socket
+        |> assign(:objects, [])
+        |> assign(:folders, [])
     end
+  end
+
+  # Compute the parent prefix: "a/b/c/" -> "a/b/", "a/" -> ""
+  defp parent_prefix(prefix) do
+    prefix
+    |> String.trim_trailing("/")
+    |> String.split("/")
+    |> Enum.drop(-1)
+    |> case do
+      [] -> ""
+      parts -> Enum.join(parts, "/") <> "/"
+    end
+  end
+
+  # Build breadcrumb segments: "a/b/c/" -> [{"a", "a/"}, {"b", "a/b/"}, {"c", "a/b/c/"}]
+  defp path_segments(prefix) do
+    prefix
+    |> String.trim_trailing("/")
+    |> String.split("/")
+    |> Enum.reject(&(&1 == ""))
+    |> Enum.reduce([], fn segment, acc ->
+      parent =
+        case acc do
+          [] -> ""
+          [{_, prev} | _] -> prev
+        end
+
+      [{segment, parent <> segment <> "/"} | acc]
+    end)
+    |> Enum.reverse()
+  end
+
+  # Display just the folder segment name: "a/b/" with prefix "a/" -> "b"
+  defp display_folder_name(folder, prefix) do
+    folder
+    |> String.replace_prefix(prefix, "")
+    |> String.trim_trailing("/")
+  end
+
+  # Display just the file name: "a/b/file.txt" with prefix "a/b/" -> "file.txt"
+  defp display_file_name(key, prefix) do
+    String.replace_prefix(key, prefix, "")
   end
 
   defp format_size(bytes) when bytes < 1024, do: "#{bytes} B"
   defp format_size(bytes) when bytes < 1_048_576, do: "#{Float.round(bytes / 1024, 1)} KB"
-  defp format_size(bytes), do: "#{Float.round(bytes / 1_048_576, 1)} MB"
+  defp format_size(bytes) when bytes < 1_073_741_824, do: "#{Float.round(bytes / 1_048_576, 1)} MB"
+  defp format_size(bytes), do: "#{Float.round(bytes / 1_073_741_824, 1)} GB"
 end

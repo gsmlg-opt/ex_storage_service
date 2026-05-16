@@ -14,6 +14,9 @@ defmodule ExStorageServiceWeb.UserLive.Index do
       |> assign(:new_user_name, "")
       |> assign(:create_error, nil)
       |> assign(:show_create_modal, false)
+      |> assign(show_confirm_modal: false, confirm_title: "", confirm_message: "",
+               confirm_event: "", confirm_params: %{}, confirm_label: "Confirm",
+               confirm_style: "error")
 
     {:ok, socket}
   end
@@ -58,14 +61,77 @@ defmodule ExStorageServiceWeb.UserLive.Index do
     end
   end
 
-  def handle_event("suspend_user", %{"id" => user_id}, socket) do
+  def handle_event("open_confirm_modal", params, socket) do
+    {title, message, event, label, style} =
+      case params["action"] do
+        "suspend" ->
+          {"Suspend User", "Suspend this user?", "confirm_suspend_user", "Suspend", "warning"}
+
+        "delete" ->
+          {"Delete User", "Permanently delete this user? This cannot be undone.",
+           "confirm_delete_user", "Delete", "error"}
+
+        _ ->
+          {"Confirm", "Are you sure?", "", "Confirm", "error"}
+      end
+
+    {:noreply,
+     assign(socket,
+       show_confirm_modal: true,
+       confirm_title: title,
+       confirm_message: message,
+       confirm_event: event,
+       confirm_params: %{"id" => params["id"]},
+       confirm_label: label,
+       confirm_style: style
+     )}
+  end
+
+  def handle_event("close_confirm_modal", _params, socket) do
+    {:noreply, assign(socket, show_confirm_modal: false)}
+  end
+
+  def handle_event("confirm_suspend_user", %{"id" => user_id}, socket) do
     case User.suspend_user(user_id) do
       {:ok, _} ->
         Audit.log_event("root", :suspend_user, user_id)
-        {:noreply, socket |> put_flash(:info, "User suspended") |> load_users()}
+
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> put_flash(:info, "User suspended")
+         |> load_users()}
 
       {:error, reason} ->
-        {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> put_flash(:error, "Failed: #{inspect(reason)}")}
+    end
+  end
+
+  def handle_event("confirm_delete_user", %{"id" => user_id}, socket) do
+    user_name =
+      case User.get_user(user_id) do
+        {:ok, user} -> user.name
+        _ -> user_id
+      end
+
+    case User.delete_user(user_id) do
+      :ok ->
+        Audit.log_event("root", :delete_user, user_id, %{name: user_name})
+
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> put_flash(:info, "User #{user_name} deleted")
+         |> load_users()}
+
+      {:error, reason} ->
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> put_flash(:error, "Failed to delete user: #{inspect(reason)}")}
     end
   end
 
@@ -77,23 +143,6 @@ defmodule ExStorageServiceWeb.UserLive.Index do
 
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}
-    end
-  end
-
-  def handle_event("delete_user", %{"id" => user_id}, socket) do
-    user_name =
-      case User.get_user(user_id) do
-        {:ok, user} -> user.name
-        _ -> user_id
-      end
-
-    case User.delete_user(user_id) do
-      :ok ->
-        Audit.log_event("root", :delete_user, user_id, %{name: user_name})
-        {:noreply, socket |> put_flash(:info, "User #{user_name} deleted") |> load_users()}
-
-      {:error, reason} ->
-        {:noreply, put_flash(socket, :error, "Failed to delete user: #{inspect(reason)}")}
     end
   end
 
@@ -245,27 +294,30 @@ defmodule ExStorageServiceWeb.UserLive.Index do
                 <td>
                   <%= if user.status == :active do %>
                     <button
-                      phx-click="suspend_user"
+                      type="button"
+                      class="btn btn-ghost btn-xs text-warning"
+                      phx-click="open_confirm_modal"
+                      phx-value-action="suspend"
                       phx-value-id={user.id}
-                      data-confirm="Suspend this user?"
-                      class="btn btn-ghost btn-xs text-error"
                     >
                       Suspend
                     </button>
                   <% else %>
                     <button
+                      type="button"
+                      class="btn btn-ghost btn-xs text-success"
                       phx-click="activate_user"
                       phx-value-id={user.id}
-                      class="btn btn-ghost btn-xs text-success"
                     >
                       Activate
                     </button>
                   <% end %>
                   <button
-                    phx-click="delete_user"
-                    phx-value-id={user.id}
-                    data-confirm="Permanently delete this user? This cannot be undone."
+                    type="button"
                     class="btn btn-ghost btn-xs text-error"
+                    phx-click="open_confirm_modal"
+                    phx-value-action="delete"
+                    phx-value-id={user.id}
                   >
                     Delete
                   </button>
@@ -301,6 +353,16 @@ defmodule ExStorageServiceWeb.UserLive.Index do
           </div>
         <% end %>
       </div>
+
+      <.confirm_modal
+        show={@show_confirm_modal}
+        title={@confirm_title}
+        message={@confirm_message}
+        confirm_event={@confirm_event}
+        confirm_params={@confirm_params}
+        confirm_label={@confirm_label}
+        confirm_style={@confirm_style}
+      />
     </div>
     """
   end

@@ -34,6 +34,8 @@ defmodule ExStorageServiceWeb.PolicyLive.Show do
           |> assign(:new_effect, "allow")
           |> assign(:new_actions, [])
           |> assign(:new_resources, "")
+          |> assign(show_confirm_modal: false, confirm_title: "", confirm_message: "",
+                   confirm_event: "", confirm_params: %{})
 
         {:ok, socket}
 
@@ -96,7 +98,22 @@ defmodule ExStorageServiceWeb.PolicyLive.Show do
     end
   end
 
-  def handle_event("remove_statement", %{"index" => index_str}, socket) do
+  def handle_event("open_confirm_remove", %{"index" => index_str}, socket) do
+    {:noreply,
+     assign(socket,
+       show_confirm_modal: true,
+       confirm_title: "Remove Statement",
+       confirm_message: "Remove this statement from the policy?",
+       confirm_event: "confirm_remove_statement",
+       confirm_params: %{"index" => index_str}
+     )}
+  end
+
+  def handle_event("close_confirm_modal", _params, socket) do
+    {:noreply, assign(socket, show_confirm_modal: false)}
+  end
+
+  def handle_event("confirm_remove_statement", %{"index" => index_str}, socket) do
     index = String.to_integer(index_str)
     policy = socket.assigns.policy
     updated_statements = List.delete_at(policy.statements, index)
@@ -104,14 +121,10 @@ defmodule ExStorageServiceWeb.PolicyLive.Show do
     case Policy.update_policy(policy.id, %{statements: updated_statements}) do
       {:ok, updated} ->
         Audit.log_event(:update_policy, :root, policy.id, %{removed_statement_index: index})
-
-        {:noreply,
-         socket
-         |> assign(:policy, updated)
-         |> put_flash(:info, "Statement removed")}
+        {:noreply, socket |> assign(show_confirm_modal: false) |> assign(:policy, updated) |> put_flash(:info, "Statement removed")}
 
       {:error, reason} ->
-        {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}
+        {:noreply, socket |> assign(show_confirm_modal: false) |> put_flash(:error, "Failed: #{inspect(reason)}")}
     end
   end
 
@@ -148,10 +161,10 @@ defmodule ExStorageServiceWeb.PolicyLive.Show do
                     </span>
                   </div>
                   <button
-                    phx-click="remove_statement"
-                    phx-value-index={idx}
-                    data-confirm="Remove this statement?"
+                    type="button"
                     class="btn btn-ghost btn-xs text-error"
+                    phx-click="open_confirm_remove"
+                    phx-value-index={idx}
                   >
                     Remove
                   </button>
@@ -295,6 +308,15 @@ defmodule ExStorageServiceWeb.PolicyLive.Show do
           <% end %>
         </div>
       </div>
+
+      <.confirm_modal
+        show={@show_confirm_modal}
+        title={@confirm_title}
+        message={@confirm_message}
+        confirm_event={@confirm_event}
+        confirm_params={@confirm_params}
+        confirm_label="Remove"
+      />
     </div>
     """
   end

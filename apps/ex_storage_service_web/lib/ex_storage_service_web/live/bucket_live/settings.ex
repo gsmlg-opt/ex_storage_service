@@ -20,6 +20,8 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
          |> assign(bucket: bucket, bucket_name: name)
          |> assign(versioning: :disabled, lifecycle_rules: [], notifications: [], replicas: [])
          |> assign(access_keys: [], presigned_url: nil)
+         |> assign(show_confirm_modal: false, confirm_title: "", confirm_message: "",
+                  confirm_event: "", confirm_params: %{})
          |> load_config()}
 
       {:error, :not_found} ->
@@ -174,7 +176,44 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
     end
   end
 
-  def handle_event("delete_bucket", _params, socket) do
+  def handle_event("open_confirm_modal", %{"action" => action}, socket) do
+    {title, message, event, _label} =
+      case action do
+        "delete_bucket" ->
+          {"Delete Bucket",
+           "Delete bucket \"#{socket.assigns.bucket_name}\"? This cannot be undone. The bucket must be empty.",
+           "confirm_delete_bucket", "Delete"}
+
+        "remove_replicas" ->
+          {"Remove Replicas", "Remove all replicas?", "confirm_remove_replicas", "Remove All"}
+
+        "delete_lifecycle" ->
+          {"Remove Lifecycle Rules", "Remove all lifecycle rules?",
+           "confirm_delete_lifecycle", "Remove All"}
+
+        "delete_notifications" ->
+          {"Remove Notifications", "Remove all notifications?",
+           "confirm_delete_notifications", "Remove All"}
+
+        _ ->
+          {"Confirm", "Are you sure?", "", "Confirm"}
+      end
+
+    {:noreply,
+     assign(socket,
+       show_confirm_modal: true,
+       confirm_title: title,
+       confirm_message: message,
+       confirm_event: event,
+       confirm_params: %{}
+     )}
+  end
+
+  def handle_event("close_confirm_modal", _params, socket) do
+    {:noreply, assign(socket, show_confirm_modal: false)}
+  end
+
+  def handle_event("confirm_delete_bucket", _params, socket) do
     name = socket.assigns.bucket_name
 
     case Metadata.list_objects(name, max_keys: 1) do
@@ -183,15 +222,37 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
 
         {:noreply,
          socket
+         |> assign(show_confirm_modal: false)
          |> put_flash(:info, "Bucket \"#{name}\" deleted")
          |> push_navigate(to: ~p"/buckets")}
 
       {:ok, _} ->
-        {:noreply, put_flash(socket, :error, "Cannot delete: bucket \"#{name}\" is not empty")}
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> put_flash(:error, "Cannot delete: bucket \"#{name}\" is not empty")}
 
       {:error, reason} ->
-        {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> put_flash(:error, "Failed: #{inspect(reason)}")}
     end
+  end
+
+  def handle_event("confirm_remove_replicas", _params, socket) do
+    ReplicationConfig.remove_bucket_replicas(socket.assigns.bucket_name)
+    {:noreply, socket |> assign(show_confirm_modal: false) |> put_flash(:info, "Replicas removed") |> load_config()}
+  end
+
+  def handle_event("confirm_delete_lifecycle", _params, socket) do
+    Lifecycle.delete_rules(socket.assigns.bucket_name)
+    {:noreply, socket |> assign(show_confirm_modal: false) |> put_flash(:info, "Lifecycle rules removed") |> load_config()}
+  end
+
+  def handle_event("confirm_delete_notifications", _params, socket) do
+    Notifications.delete_config(socket.assigns.bucket_name)
+    {:noreply, socket |> assign(show_confirm_modal: false) |> put_flash(:info, "Notifications removed") |> load_config()}
   end
 
   # ── Render ───────────────────────────────────────────────────────────────────
@@ -217,25 +278,10 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
         <button
           id="delete-bucket-btn"
           type="button"
-          class="btn btn-error btn-sm gap-2"
-          phx-click="delete_bucket"
-          data-confirm={"Delete bucket \"#{@bucket_name}\"? This cannot be undone. The bucket must be empty."}
+          class="btn btn-error btn-sm"
+          phx-click="open_confirm_modal"
+          phx-value-action="delete_bucket"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-4 h-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polyline points="3 6 5 6 21 6" />
-            <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-            <path d="M10 11v6" /><path d="M14 11v6" />
-            <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
-          </svg>
           Delete Bucket
         </button>
       </div>
@@ -325,9 +371,9 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                 <%= if @replicas != [] do %>
                   <button
                     type="button"
-                    phx-click="remove_replicas"
-                    data-confirm="Remove all replicas?"
                     class="btn btn-outline btn-error btn-xs"
+                    phx-click="open_confirm_modal"
+                    phx-value-action="remove_replicas"
                   >
                     Remove All
                   </button>
@@ -372,9 +418,10 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
             </form>
             <%= if @lifecycle_rules != [] do %>
               <button
-                phx-click="delete_lifecycle_rules"
-                data-confirm="Remove all lifecycle rules?"
+                type="button"
                 class="mt-2 text-xs text-error hover:underline"
+                phx-click="open_confirm_modal"
+                phx-value-action="delete_lifecycle"
               >
                 Remove All Rules
               </button>
@@ -412,9 +459,9 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                 <%= if @notifications != [] do %>
                   <button
                     type="button"
-                    phx-click="delete_notifications"
-                    data-confirm="Remove all notifications?"
                     class="btn btn-outline btn-error btn-xs"
+                    phx-click="open_confirm_modal"
+                    phx-value-action="delete_notifications"
                   >
                     Remove All
                   </button>
@@ -476,6 +523,15 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
           <% end %>
         </div>
       </div>
+
+      <.confirm_modal
+        show={@show_confirm_modal}
+        title={@confirm_title}
+        message={@confirm_message}
+        confirm_event={@confirm_event}
+        confirm_params={@confirm_params}
+        confirm_label="Confirm"
+      />
     </div>
     """
   end

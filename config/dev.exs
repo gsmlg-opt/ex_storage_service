@@ -26,6 +26,15 @@ config :logger, :console, level: :debug
 
 config :phoenix, :plug_init_mode, :runtime
 
+# Enable sourcemaps in dev for easier debugging
+config :bun,
+  ex_storage_service_web: [
+    args:
+      ~w(build js/app.js --outdir=../priv/static/assets --external=/fonts/* --external=/images/* --sourcemap=linked),
+    cd: Path.expand("../apps/ex_storage_service_web/assets", __DIR__),
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+  ]
+
 config :phoenix_live_view,
   debug_heex_annotations: true,
   enable_expensive_runtime_checks: true

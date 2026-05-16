@@ -19,6 +19,8 @@ defmodule ExStorageServiceWeb.UserLive.Show do
           |> assign(:all_policies, [])
           |> assign(:new_secret, nil)
           |> assign(:new_key_id, nil)
+          |> assign(show_confirm_modal: false, confirm_title: "", confirm_message: "",
+                   confirm_event: "", confirm_params: %{})
           |> load_keys()
           |> load_policies()
 
@@ -83,14 +85,72 @@ defmodule ExStorageServiceWeb.UserLive.Show do
     end
   end
 
-  def handle_event("delete_key", %{"key-id" => key_id}, socket) do
+  def handle_event("open_confirm_modal", params, socket) do
+    {title, message, event, confirm_params} =
+      case params["action"] do
+        "delete_key" ->
+          {"Delete Access Key", "Delete this access key? This cannot be undone.",
+           "confirm_delete_key", %{"key-id" => params["key-id"]}}
+
+        "detach_policy" ->
+          {"Detach Policy", "Detach this policy from the user?",
+           "confirm_detach_policy", %{"policy-id" => params["policy-id"]}}
+
+        _ ->
+          {"Confirm", "Are you sure?", "", %{}}
+      end
+
+    {:noreply,
+     assign(socket,
+       show_confirm_modal: true,
+       confirm_title: title,
+       confirm_message: message,
+       confirm_event: event,
+       confirm_params: confirm_params
+     )}
+  end
+
+  def handle_event("close_confirm_modal", _params, socket) do
+    {:noreply, assign(socket, show_confirm_modal: false)}
+  end
+
+  def handle_event("confirm_delete_key", %{"key-id" => key_id}, socket) do
     case AccessKey.delete_key(key_id) do
       :ok ->
         Audit.log_event("root", :delete_key, key_id)
-        {:noreply, socket |> put_flash(:info, "Key deleted") |> load_keys()}
+
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> put_flash(:info, "Key deleted")
+         |> load_keys()}
 
       {:error, reason} ->
-        {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> put_flash(:error, "Failed: #{inspect(reason)}")}
+    end
+  end
+
+  def handle_event("confirm_detach_policy", %{"policy-id" => policy_id}, socket) do
+    user = socket.assigns.user
+
+    case Policy.detach_policy(user.id, policy_id) do
+      :ok ->
+        Audit.log_event("root", :detach_policy, user.id, %{policy_id: policy_id})
+
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> put_flash(:info, "Policy detached")
+         |> load_policies()}
+
+      {:error, reason} ->
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> put_flash(:error, "Failed: #{inspect(reason)}")}
     end
   end
 
@@ -101,19 +161,6 @@ defmodule ExStorageServiceWeb.UserLive.Show do
       :ok ->
         Audit.log_event("root", :attach_policy, user.id, %{policy_id: policy_id})
         {:noreply, socket |> put_flash(:info, "Policy attached") |> load_policies()}
-
-      {:error, reason} ->
-        {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}
-    end
-  end
-
-  def handle_event("detach_policy", %{"policy-id" => policy_id}, socket) do
-    user = socket.assigns.user
-
-    case Policy.detach_policy(user.id, policy_id) do
-      :ok ->
-        Audit.log_event("root", :detach_policy, user.id, %{policy_id: policy_id})
-        {:noreply, socket |> put_flash(:info, "Policy detached") |> load_policies()}
 
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}
@@ -210,10 +257,11 @@ defmodule ExStorageServiceWeb.UserLive.Show do
                       </button>
                     <% end %>
                     <button
-                      phx-click="delete_key"
-                      phx-value-key-id={key.access_key_id}
-                      data-confirm="Delete this access key? This cannot be undone."
+                      type="button"
                       class="btn btn-ghost btn-xs text-error"
+                      phx-click="open_confirm_modal"
+                      phx-value-action="delete_key"
+                      phx-value-key-id={key.access_key_id}
                     >
                       Delete
                     </button>
@@ -252,10 +300,11 @@ defmodule ExStorageServiceWeb.UserLive.Show do
                   <td class="text-sm text-on-surface-variant font-mono">{policy.id}</td>
                   <td>
                     <button
-                      phx-click="detach_policy"
-                      phx-value-policy-id={policy.id}
-                      data-confirm="Detach this policy?"
+                      type="button"
                       class="btn btn-ghost btn-xs text-error"
+                      phx-click="open_confirm_modal"
+                      phx-value-action="detach_policy"
+                      phx-value-policy-id={policy.id}
                     >
                       Detach
                     </button>
@@ -289,6 +338,15 @@ defmodule ExStorageServiceWeb.UserLive.Show do
           </div>
         <% end %>
       </div>
+
+      <.confirm_modal
+        show={@show_confirm_modal}
+        title={@confirm_title}
+        message={@confirm_message}
+        confirm_event={@confirm_event}
+        confirm_params={@confirm_params}
+        confirm_label="Confirm"
+      />
     </div>
     """
   end

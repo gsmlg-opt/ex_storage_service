@@ -21,6 +21,8 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
       |> assign(:bucket_name, "")
       |> assign(:create_error, nil)
       |> assign(:show_create_modal, false)
+      |> assign(show_confirm_modal: false, confirm_title: "", confirm_message: "",
+               confirm_event: "", confirm_params: %{})
 
     {:ok, socket}
   end
@@ -94,14 +96,37 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
     end
   end
 
-  def handle_event("delete_policy", %{"id" => policy_id}, socket) do
+  def handle_event("open_confirm_delete", %{"id" => policy_id}, socket) do
+    {:noreply,
+     assign(socket,
+       show_confirm_modal: true,
+       confirm_title: "Delete Policy",
+       confirm_message: "Delete this policy? This cannot be undone.",
+       confirm_event: "confirm_delete_policy",
+       confirm_params: %{"id" => policy_id}
+     )}
+  end
+
+  def handle_event("close_confirm_modal", _params, socket) do
+    {:noreply, assign(socket, show_confirm_modal: false)}
+  end
+
+  def handle_event("confirm_delete_policy", %{"id" => policy_id}, socket) do
     case Policy.delete_policy(policy_id) do
       :ok ->
         Audit.log_event("root", :delete_policy, policy_id)
-        {:noreply, socket |> put_flash(:info, "Policy deleted") |> load_policies()}
+
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> put_flash(:info, "Policy deleted")
+         |> load_policies()}
 
       {:error, reason} ->
-        {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> put_flash(:error, "Failed: #{inspect(reason)}")}
     end
   end
 
@@ -273,10 +298,10 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
                 <td class="text-sm text-on-surface-variant">{policy.created_at}</td>
                 <td>
                   <button
-                    phx-click="delete_policy"
-                    phx-value-id={policy.id}
-                    data-confirm="Delete this policy? This cannot be undone."
+                    type="button"
                     class="btn btn-ghost btn-xs text-error"
+                    phx-click="open_confirm_delete"
+                    phx-value-id={policy.id}
                   >
                     Delete
                   </button>
@@ -312,6 +337,15 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
           </div>
         <% end %>
       </div>
+
+      <.confirm_modal
+        show={@show_confirm_modal}
+        title={@confirm_title}
+        message={@confirm_message}
+        confirm_event={@confirm_event}
+        confirm_params={@confirm_params}
+        confirm_label="Delete"
+      />
     </div>
     """
   end
