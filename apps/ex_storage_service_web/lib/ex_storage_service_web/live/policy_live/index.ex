@@ -19,6 +19,8 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
       |> assign(:policy_name, "")
       |> assign(:template, "ReadOnly")
       |> assign(:bucket_name, "")
+      |> assign(:create_error, nil)
+      |> assign(:show_create_modal, false)
 
     {:ok, socket}
   end
@@ -29,11 +31,26 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
   end
 
   @impl true
+  def handle_event("open_create_modal", _params, socket) do
+    {:noreply,
+     assign(socket,
+       show_create_modal: true,
+       policy_name: "",
+       template: "ReadOnly",
+       bucket_name: "",
+       create_error: nil
+     )}
+  end
+
+  def handle_event("close_create_modal", _params, socket) do
+    {:noreply, assign(socket, show_create_modal: false, create_error: nil)}
+  end
+
   def handle_event("create_policy", %{"name" => name, "template" => template} = params, socket) do
     name = String.trim(name)
 
     if name == "" do
-      {:noreply, put_flash(socket, :error, "Policy name cannot be empty")}
+      {:noreply, assign(socket, :create_error, "Policy name cannot be empty")}
     else
       statements =
         case template do
@@ -54,7 +71,7 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
         end
 
       if is_nil(statements) do
-        {:noreply, put_flash(socket, :error, "Invalid template or missing bucket name")}
+        {:noreply, assign(socket, :create_error, "Invalid template or missing bucket name")}
       else
         case Policy.create_policy(name, statements) do
           {:ok, policy} ->
@@ -64,12 +81,14 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
               socket
               |> put_flash(:info, "Policy '#{policy.name}' created")
               |> assign(:policy_name, "")
+              |> assign(:create_error, nil)
+              |> assign(:show_create_modal, false)
               |> load_policies()
 
             {:noreply, socket}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}
+            {:noreply, assign(socket, :create_error, "Failed: #{inspect(reason)}")}
         end
       end
     end
@@ -89,54 +108,144 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
+    <div class="max-w-4xl mx-auto">
       <.header>
         Policies
         <:subtitle>Manage IAM policies</:subtitle>
+        <:actions>
+          <button
+            id="open-create-policy-btn"
+            type="button"
+            class="btn btn-primary btn-sm gap-2"
+            phx-click="open_create_modal"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Create Policy
+          </button>
+        </:actions>
       </.header>
 
-      <div class="mt-6 card">
-        <div class="card-body">
-          <h3 class="card-title text-sm">Create Policy from Template</h3>
-          <form phx-submit="create_policy" class="space-y-3">
-            <div class="flex items-end gap-3">
-              <div class="flex-1 form-group">
-                <label for="name" class="form-label">Policy Name</label>
+      <%!-- Modal overlay --%>
+      <div
+        :if={@show_create_modal}
+        id="create-policy-overlay"
+        class="fixed inset-0 z-50 flex items-center justify-center"
+        phx-key="Escape"
+        phx-window-keydown="close_create_modal"
+      >
+        <%!-- Backdrop --%>
+        <div
+          class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          phx-click="close_create_modal"
+        >
+        </div>
+
+        <%!-- Dialog card --%>
+        <div class="relative w-full max-w-md mx-4 card shadow-2xl">
+          <div class="card-body p-6 flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+              <h2 id="create-policy-title" class="text-lg font-semibold">Create New Policy</h2>
+              <button
+                type="button"
+                class="btn btn-ghost btn-sm btn-circle"
+                phx-click="close_create_modal"
+                aria-label="Close"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            <form
+              id="create-policy-form"
+              phx-submit="create_policy"
+              class="flex flex-col gap-4"
+            >
+              <div class="form-group">
+                <label for="policy-name" class="form-label font-medium">Policy Name</label>
                 <input
                   type="text"
                   name="name"
-                  id="name"
+                  id="policy-name"
                   value={@policy_name}
                   placeholder="e.g. my-readonly-policy"
-                  class="input input-primary w-full"
+                  class={"input w-full #{if @create_error, do: "input-error", else: "input-primary"}"}
+                  autocomplete="off"
+                  autofocus
                 />
               </div>
-              <div class="w-48 form-group">
-                <label for="template" class="form-label">Template</label>
-                <select name="template" id="template" class="select select-primary w-full">
+
+              <div class="form-group">
+                <label for="policy-template" class="form-label font-medium">Template</label>
+                <select name="template" id="policy-template" class="select select-primary w-full">
                   <option value="ReadOnly">ReadOnly</option>
                   <option value="ReadWrite">ReadWrite</option>
                   <option value="FullAccess">FullAccess</option>
                   <option value="BucketScoped">BucketScoped</option>
                 </select>
               </div>
-              <div class="w-48 form-group">
-                <label for="bucket_name" class="form-label">Bucket (for BucketScoped)</label>
+
+              <div class="form-group">
+                <label for="policy-bucket-name" class="form-label font-medium">
+                  Bucket Name <span class="font-normal text-on-surface-variant">(for BucketScoped)</span>
+                </label>
                 <input
                   type="text"
                   name="bucket_name"
-                  id="bucket_name"
+                  id="policy-bucket-name"
                   value={@bucket_name}
                   placeholder="bucket-name"
                   class="input input-primary w-full"
+                  autocomplete="off"
                 />
+                <p class="mt-1 text-xs text-on-surface-variant">
+                  Only required when using the BucketScoped template.
+                </p>
               </div>
-              <button type="submit" class="btn btn-primary">Create</button>
-            </div>
-          </form>
+
+              <p :if={@create_error} class="text-xs text-error">
+                {@create_error}
+              </p>
+
+              <div class="flex justify-end gap-2">
+                <button type="button" class="btn btn-ghost btn-sm" phx-click="close_create_modal">
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  id="create-policy-submit"
+                  class="btn btn-primary btn-sm"
+                >
+                  Create
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
 
+      <%!-- Policy table --%>
       <div class="mt-6 card">
         <table class="table table-hover w-full">
           <thead>
@@ -177,7 +286,30 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
           </tbody>
         </table>
         <%= if @policies == [] do %>
-          <p class="px-6 py-8 text-center text-on-surface-variant">No policies yet.</p>
+          <div class="flex flex-col items-center gap-3 px-6 py-16 text-on-surface-variant">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-12 h-12 opacity-30"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="12" y1="18" x2="12" y2="12" />
+              <line x1="9" y1="15" x2="15" y2="15" />
+            </svg>
+            <p class="text-sm">No policies yet.</p>
+            <button
+              id="empty-state-create-policy-btn"
+              type="button"
+              class="btn btn-primary btn-sm"
+              phx-click="open_create_modal"
+            >
+              Create your first policy
+            </button>
+          </div>
         <% end %>
       </div>
     </div>
