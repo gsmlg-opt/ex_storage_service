@@ -45,7 +45,9 @@ RUN ESS_MASTER_KEY=$(openssl rand -base64 32) \
     mix release ess
 
 # Stage 2: Lean runtime image
-FROM alpine:3.21 AS runtime
+# IMPORTANT: must use the same base image as the builder to ensure
+# ERTS and NIF (e.g. crypto) ABI compatibility.
+FROM ghcr.io/gsmlg-dev/phoenix:1.8.3-alpine AS runtime
 
 RUN apk add --no-cache libstdc++ openssl ncurses-libs
 
