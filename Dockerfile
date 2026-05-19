@@ -69,4 +69,5 @@ VOLUME ["/data"]
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD wget -qO- http://127.0.0.1:9000/health || exit 1
 
-CMD ["/app/bin/ess", "start"]
+ENTRYPOINT ["/app/bin/ess"]
+CMD ["start"]
