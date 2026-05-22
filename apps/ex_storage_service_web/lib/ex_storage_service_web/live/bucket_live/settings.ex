@@ -6,6 +6,9 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
   alias ExStorageService.Storage.Lifecycle
   alias ExStorageService.Notifications
   alias ExStorageService.Replication.Config, as: ReplicationConfig
+  alias ExStorageService.CloudCache.Config, as: CloudConfig
+  alias ExStorageService.CloudCache.Client, as: CloudClient
+  alias ExStorageService.CloudCache.LocalStore
   alias ExStorageService.IAM.AccessKey
   alias ExStorageService.IAM.Policy
   alias ExStorageServiceS3.Plugs.Authorize
@@ -20,6 +23,7 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
          |> assign(bucket: bucket, bucket_name: name)
          |> assign(versioning: :disabled, lifecycle_rules: [], notifications: [], replicas: [])
          |> assign(access_keys: [], presigned_url: nil)
+         |> assign(cloud_cache: nil, cloud_cache_stats: nil, cloud_cache_test_result: nil)
          |> assign(show_confirm_modal: false, confirm_title: "", confirm_message: "",
                   confirm_event: "", confirm_params: %{})
          |> load_config()}
@@ -129,6 +133,84 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
     {:noreply, socket |> put_flash(:info, "Replicas removed") |> load_config()}
   end
 
+  ## Cloud Cache events
+
+  def handle_event("save_cloud_cache", params, socket) do
+    bucket = socket.assigns.bucket_name
+    provider = params["provider"] || "aws"
+    endpoint = String.trim(params["endpoint"] || "")
+    region = String.trim(params["region"] || "us-east-1")
+    remote_bucket = String.trim(params["bucket"] || "")
+    access_key_id = String.trim(params["access_key_id"] || "")
+    secret_key = String.trim(params["secret_access_key"] || "")
+    cache_max_gb = String.to_float(params["cache_max_gb"] || "10")
+    cache_enabled = params["cache_enabled"] == "true"
+
+    if remote_bucket == "" or access_key_id == "" do
+      {:noreply, put_flash(socket, :error, "Remote bucket and access key ID are required")}
+    else
+      existing_enc =
+        case socket.assigns.cloud_cache do
+          %CloudConfig{encrypted_secret: enc} when enc != "" -> enc
+          _ -> ""
+        end
+
+      config_params = %{
+        enabled: true,
+        provider: provider,
+        endpoint: if(endpoint == "", do: nil, else: endpoint),
+        region: region,
+        bucket: remote_bucket,
+        access_key_id: access_key_id,
+        cache_max_bytes: round(cache_max_gb * 1024 * 1024 * 1024),
+        cache_enabled: cache_enabled
+      }
+
+      # Only update secret if a new one was provided
+      config_params =
+        if secret_key != "" do
+          Map.put(config_params, :secret_access_key, secret_key)
+        else
+          Map.put(config_params, :encrypted_secret, existing_enc)
+        end
+
+      case CloudConfig.set_config(bucket, config_params) do
+        :ok -> {:noreply, socket |> put_flash(:info, "Cloud cache saved") |> load_config()}
+        {:error, reason} -> {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}
+      end
+    end
+  end
+
+  def handle_event("delete_cloud_cache", _params, socket) do
+    bucket = socket.assigns.bucket_name
+    CloudConfig.delete_config(bucket)
+    {:noreply, socket |> put_flash(:info, "Cloud cache configuration removed") |> load_config()}
+  end
+
+  def handle_event("clear_cloud_cache", _params, socket) do
+    bucket = socket.assigns.bucket_name
+    LocalStore.clear(bucket)
+    {:noreply, socket |> put_flash(:info, "Local cache cleared") |> load_config()}
+  end
+
+  def handle_event("test_cloud_connection", _params, socket) do
+    case socket.assigns.cloud_cache do
+      nil ->
+        {:noreply, put_flash(socket, :error, "No cloud cache configured")}
+
+      %CloudConfig{} = config ->
+        result =
+          case CloudClient.test_connection(config) do
+            :ok -> {:ok, "Connection successful!"}
+            {:error, :forbidden} -> {:error, "Connected but credentials may be invalid (403)"}
+            {:error, :bucket_not_found} -> {:error, "Bucket not found on remote (404)"}
+            {:error, reason} -> {:error, "Connection failed: #{inspect(reason)}"}
+          end
+
+        {:noreply, assign(socket, :cloud_cache_test_result, result)}
+    end
+  end
+
   def handle_event("generate_presigned", params, socket) do
     bucket = socket.assigns.bucket_name
     object_key = String.trim(params["object_key"] || "")
@@ -195,6 +277,11 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
           {"Remove Notifications", "Remove all notifications?",
            "confirm_delete_notifications", "Remove All"}
 
+        "delete_cloud_cache" ->
+          {"Remove Cloud Cache Config",
+           "Remove cloud cache configuration for \"#{socket.assigns.bucket_name}\"? The local cache will also be cleared.",
+           "confirm_delete_cloud_cache", "Remove"}
+
         _ ->
           {"Confirm", "Are you sure?", "", "Confirm"}
       end
@@ -253,6 +340,13 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
   def handle_event("confirm_delete_notifications", _params, socket) do
     Notifications.delete_config(socket.assigns.bucket_name)
     {:noreply, socket |> assign(show_confirm_modal: false) |> put_flash(:info, "Notifications removed") |> load_config()}
+  end
+
+  def handle_event("confirm_delete_cloud_cache", _params, socket) do
+    bucket = socket.assigns.bucket_name
+    CloudConfig.delete_config(bucket)
+    LocalStore.clear(bucket)
+    {:noreply, socket |> assign(show_confirm_modal: false) |> put_flash(:info, "Cloud cache removed") |> load_config()}
   end
 
   # ── Render ───────────────────────────────────────────────────────────────────
@@ -472,6 +566,188 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
         </div>
       </div>
 
+      <%!-- Cloud Cache --%>
+      <div class="card mb-8">
+        <div class="card-body">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="card-title text-sm">Cloud Cache</h3>
+            <%= if @cloud_cache do %>
+              <span class={"badge badge-xs #{if @cloud_cache.enabled, do: "badge-success", else: "badge-ghost"}"}>
+                {if @cloud_cache.enabled, do: "Enabled", else: "Disabled"}
+              </span>
+            <% end %>
+          </div>
+
+          <p class="text-xs text-on-surface-variant mb-4">
+            Route object storage to AWS S3 or Cloudflare R2. Reads are served from a
+            local LRU disk cache; writes go directly to the remote.
+          </p>
+
+          <%!-- Test result banner --%>
+          <%= if @cloud_cache_test_result do %>
+            <div class={"mb-3 p-2 rounded text-xs #{case @cloud_cache_test_result do; {:ok, _} -> "bg-success/10 text-success"; {:error, _} -> "bg-error/10 text-error"; end}"}>
+              {case @cloud_cache_test_result do
+                {:ok, msg} -> msg
+                {:error, msg} -> msg
+              end}
+            </div>
+          <% end %>
+
+          <form id="cloud-cache-form" phx-submit="save_cloud_cache" class="space-y-3">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <%!-- Provider --%>
+              <div class="form-group">
+                <label class="form-label text-xs">Provider</label>
+                <select
+                  id="cloud-cache-provider"
+                  name="provider"
+                  class="select select-primary w-full text-xs"
+                  phx-change=""
+                >
+                  <option value="aws" selected={not @cloud_cache or @cloud_cache.provider == :aws}>AWS S3</option>
+                  <option value="r2" selected={@cloud_cache && @cloud_cache.provider == :r2}>Cloudflare R2</option>
+                </select>
+              </div>
+
+              <%!-- Region (AWS) --%>
+              <div class="form-group">
+                <label class="form-label text-xs">Region</label>
+                <input
+                  id="cloud-cache-region"
+                  type="text"
+                  name="region"
+                  value={(@cloud_cache && @cloud_cache.region) || "us-east-1"}
+                  placeholder="us-east-1"
+                  class="input input-primary w-full text-xs"
+                />
+              </div>
+
+              <%!-- Remote bucket --%>
+              <div class="form-group">
+                <label class="form-label text-xs">Remote Bucket</label>
+                <input
+                  id="cloud-cache-bucket"
+                  type="text"
+                  name="bucket"
+                  value={(@cloud_cache && @cloud_cache.bucket) || ""}
+                  placeholder="my-s3-bucket"
+                  class="input input-primary w-full text-xs"
+                />
+              </div>
+
+              <%!-- Custom endpoint (R2 / custom) --%>
+              <div class="form-group">
+                <label class="form-label text-xs">Custom Endpoint (R2 or custom)</label>
+                <input
+                  id="cloud-cache-endpoint"
+                  type="text"
+                  name="endpoint"
+                  value={(@cloud_cache && @cloud_cache.endpoint) || ""}
+                  placeholder="https://<account>.r2.cloudflarestorage.com"
+                  class="input input-primary w-full text-xs"
+                />
+              </div>
+
+              <%!-- Access Key ID --%>
+              <div class="form-group">
+                <label class="form-label text-xs">Access Key ID</label>
+                <input
+                  id="cloud-cache-access-key"
+                  type="text"
+                  name="access_key_id"
+                  value={(@cloud_cache && @cloud_cache.access_key_id) || ""}
+                  placeholder="AKIAIOSFODNN7EXAMPLE"
+                  class="input input-primary w-full text-xs font-mono"
+                />
+              </div>
+
+              <%!-- Secret Access Key --%>
+              <div class="form-group">
+                <label class="form-label text-xs">
+                  Secret Access Key
+                  <%= if @cloud_cache && @cloud_cache.encrypted_secret != "" do %>
+                    <span class="opacity-50">(leave blank to keep existing)</span>
+                  <% end %>
+                </label>
+                <input
+                  id="cloud-cache-secret"
+                  type="password"
+                  name="secret_access_key"
+                  placeholder={if @cloud_cache && @cloud_cache.encrypted_secret != "", do: "(unchanged)", else: "Secret key"}
+                  class="input input-primary w-full text-xs font-mono"
+                />
+              </div>
+            </div>
+
+            <%!-- Cache settings --%>
+            <div class="border-t border-outline-variant pt-3 mt-2">
+              <div class="flex flex-wrap gap-4 items-end">
+                <div class="form-group flex-1 min-w-40">
+                  <label class="form-label text-xs">Local Cache Max Size (GB)</label>
+                  <input
+                    id="cloud-cache-max-gb"
+                    type="number"
+                    name="cache_max_gb"
+                    value={Float.round((@cloud_cache && @cloud_cache.cache_max_bytes * 1.0 / (1024 * 1024 * 1024)) || 10.0, 1)}
+                    min="0.1"
+                    step="0.5"
+                    class="input input-primary w-full text-xs"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label text-xs">Local Cache</label>
+                  <select id="cloud-cache-enabled" name="cache_enabled" class="select select-primary text-xs">
+                    <option value="true" selected={not @cloud_cache or @cloud_cache.cache_enabled}>Enabled</option>
+                    <option value="false" selected={@cloud_cache && not @cloud_cache.cache_enabled}>Disabled</option>
+                  </select>
+                </div>
+              </div>
+
+              <%!-- Cache stats --%>
+              <%= if @cloud_cache_stats do %>
+                <div class="mt-3 flex gap-4 text-xs text-on-surface-variant">
+                  <span>Cached objects: <span class="font-medium text-on-surface">{@cloud_cache_stats.count}</span></span>
+                  <span>Used: <span class="font-medium text-on-surface">{format_bytes(@cloud_cache_stats.total_bytes)}</span></span>
+                  <span>Limit: <span class="font-medium text-on-surface">{format_bytes(@cloud_cache_stats.max_bytes)}</span></span>
+                </div>
+              <% end %>
+            </div>
+
+            <div class="flex flex-wrap gap-2 pt-1">
+              <button id="save-cloud-cache-btn" type="submit" class="btn btn-primary btn-sm">Save</button>
+              <%= if @cloud_cache do %>
+                <button
+                  id="test-cloud-connection-btn"
+                  type="button"
+                  class="btn btn-outline btn-sm"
+                  phx-click="test_cloud_connection"
+                >
+                  Test Connection
+                </button>
+                <button
+                  id="clear-cloud-cache-btn"
+                  type="button"
+                  class="btn btn-outline btn-warning btn-sm"
+                  phx-click="clear_cloud_cache"
+                >
+                  Clear Local Cache
+                </button>
+                <button
+                  id="delete-cloud-cache-btn"
+                  type="button"
+                  class="btn btn-outline btn-error btn-sm"
+                  phx-click="open_confirm_modal"
+                  phx-value-action="delete_cloud_cache"
+                >
+                  Remove Config
+                </button>
+              <% end %>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <%!-- Presigned URL Generator --%>
       <div class="card mb-8">
         <div class="card-body">
@@ -561,6 +837,19 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
         _ -> []
       end
 
+    cloud_cache =
+      case CloudConfig.get_config(bucket) do
+        {:ok, config} -> config
+        _ -> nil
+      end
+
+    cloud_cache_stats =
+      if cloud_cache do
+        LocalStore.stats(bucket, cloud_cache.cache_max_bytes)
+      else
+        nil
+      end
+
     access_keys = load_all_active_keys()
 
     socket
@@ -568,8 +857,15 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
     |> assign(:lifecycle_rules, lifecycle_rules)
     |> assign(:notifications, notifications)
     |> assign(:replicas, replicas)
+    |> assign(:cloud_cache, cloud_cache)
+    |> assign(:cloud_cache_stats, cloud_cache_stats)
     |> assign(:access_keys, access_keys)
   end
+
+  defp format_bytes(bytes) when bytes < 1024, do: "#{bytes} B"
+  defp format_bytes(bytes) when bytes < 1_048_576, do: "#{Float.round(bytes / 1024, 1)} KB"
+  defp format_bytes(bytes) when bytes < 1_073_741_824, do: "#{Float.round(bytes / 1_048_576, 1)} MB"
+  defp format_bytes(bytes), do: "#{Float.round(bytes / 1_073_741_824, 2)} GB"
 
   defp load_all_active_keys do
     case Concord.get_all() do

@@ -8,6 +8,9 @@ defmodule ExStorageServiceS3.Handlers do
   import Plug.Conn
   alias ExStorageServiceS3.XML
   alias ExStorageService.BucketValidator
+  alias ExStorageService.CloudCache.Client, as: CloudClient
+  alias ExStorageService.CloudCache.Config, as: CloudConfig
+  alias ExStorageService.CloudCache.LocalStore
   alias ExStorageService.Metadata
   alias ExStorageService.Notifications
   alias ExStorageService.Replication.Hooks
@@ -189,96 +192,103 @@ defmodule ExStorageServiceS3.Handlers do
     request_id = request_id(conn)
 
     ExStorageService.Telemetry.span(:get_object, %{bucket: bucket, key: key}, fn ->
-      case Metadata.get_object_meta(bucket, key) do
-        {:ok, meta} ->
-          content_hash = meta.content_hash
+      case cloud_cache_config(bucket) do
+        {:ok, cloud_config} ->
+          get_object_cloud(conn, bucket, key, cloud_config, request_id)
 
-          case Engine.get_object(bucket, content_hash) do
-            {:ok, file_path} ->
-              content_type = Map.get(meta, :content_type, "application/octet-stream")
-              etag = Map.get(meta, :etag, "")
-              quoted_etag = "\"#{etag}\""
-              size = Map.get(meta, :size, 0)
-              last_modified_raw = Map.get(meta, :updated_at, Map.get(meta, :created_at))
-              last_modified = format_http_date(last_modified_raw)
+        :disabled ->
+          get_object_local(conn, bucket, key, request_id)
+      end
+    end)
+  end
 
-              # Conditional request checks
-              cond do
-                not_modified_etag?(conn, quoted_etag) ->
-                  conn
-                  |> put_s3_headers(request_id)
-                  |> put_resp_header("etag", quoted_etag)
-                  |> put_resp_header("last-modified", last_modified)
-                  |> send_resp(304, "")
+  # GET: cloud cache path — cache-aside pattern
+  defp get_object_cloud(conn, bucket, key, cloud_config, request_id) do
+    case Metadata.get_object_meta(bucket, key) do
+      {:ok, meta} ->
+        content_type = Map.get(meta, :content_type, "application/octet-stream")
+        etag = Map.get(meta, :etag, "")
+        quoted_etag = "\"#{etag}\""
+        size = Map.get(meta, :size, 0)
+        last_modified_raw = Map.get(meta, :updated_at, Map.get(meta, :created_at))
+        last_modified = format_http_date(last_modified_raw)
 
-                not_modified_since?(conn, last_modified_raw) ->
-                  conn
-                  |> put_s3_headers(request_id)
-                  |> put_resp_header("etag", quoted_etag)
-                  |> put_resp_header("last-modified", last_modified)
-                  |> send_resp(304, "")
+        cond do
+          not_modified_etag?(conn, quoted_etag) ->
+            conn
+            |> put_s3_headers(request_id)
+            |> put_resp_header("etag", quoted_etag)
+            |> put_resp_header("last-modified", last_modified)
+            |> send_resp(304, "")
 
-                true ->
-                  # Check for Range header
-                  case get_req_header(conn, "range") do
-                    [range_header | _] ->
-                      case parse_range(range_header, size) do
-                        {:ok, offset, length} ->
-                          content_range = "bytes #{offset}-#{offset + length - 1}/#{size}"
+          not_modified_since?(conn, last_modified_raw) ->
+            conn
+            |> put_s3_headers(request_id)
+            |> put_resp_header("etag", quoted_etag)
+            |> put_resp_header("last-modified", last_modified)
+            |> send_resp(304, "")
 
-                          conn
-                          |> put_s3_headers(request_id)
-                          |> put_resp_header("content-type", content_type)
-                          |> put_resp_header("etag", quoted_etag)
-                          |> put_resp_header("last-modified", last_modified)
-                          |> put_resp_header("content-length", to_string(length))
-                          |> put_resp_header("content-range", content_range)
-                          |> put_resp_header("accept-ranges", "bytes")
-                          |> put_custom_metadata_headers(meta)
-                          |> send_file(206, file_path, offset, length)
+          true ->
+            # Check local cache first
+            file_path =
+              case LocalStore.get(bucket, key) do
+                {:ok, path} ->
+                  path
 
-                        {:error, :invalid_range} ->
-                          conn
-                          |> put_s3_headers(request_id)
-                          |> put_resp_header("content-range", "bytes */#{size}")
-                          |> send_resp(416, "")
+                :miss ->
+                  # Fetch from cloud and populate cache
+                  case CloudClient.get_object(cloud_config, key) do
+                    {:ok, body} ->
+                      case LocalStore.put(bucket, key, body, cloud_config) do
+                        {:ok, path} -> path
+                        _ -> nil
                       end
 
-                    [] ->
+                    {:error, :not_found} ->
+                      nil
+
+                    {:error, _reason} ->
+                      nil
+                  end
+              end
+
+            if file_path do
+              case get_req_header(conn, "range") do
+                [range_header | _] ->
+                  case parse_range(range_header, size) do
+                    {:ok, offset, length} ->
+                      content_range = "bytes #{offset}-#{offset + length - 1}/#{size}"
+
                       conn
                       |> put_s3_headers(request_id)
                       |> put_resp_header("content-type", content_type)
                       |> put_resp_header("etag", quoted_etag)
                       |> put_resp_header("last-modified", last_modified)
-                      |> put_resp_header("content-length", to_string(size))
+                      |> put_resp_header("content-length", to_string(length))
+                      |> put_resp_header("content-range", content_range)
                       |> put_resp_header("accept-ranges", "bytes")
                       |> put_custom_metadata_headers(meta)
-                      |> send_file(200, file_path)
+                      |> send_file(206, file_path, offset, length)
+
+                    {:error, :invalid_range} ->
+                      conn
+                      |> put_s3_headers(request_id)
+                      |> put_resp_header("content-range", "bytes */#{size}")
+                      |> send_resp(416, "")
                   end
+
+                [] ->
+                  conn
+                  |> put_s3_headers(request_id)
+                  |> put_resp_header("content-type", content_type)
+                  |> put_resp_header("etag", quoted_etag)
+                  |> put_resp_header("last-modified", last_modified)
+                  |> put_resp_header("content-length", to_string(size))
+                  |> put_resp_header("accept-ranges", "bytes")
+                  |> put_custom_metadata_headers(meta)
+                  |> send_file(200, file_path)
               end
-
-            {:error, _} ->
-              error_response(
-                conn,
-                "InternalError",
-                "Content file missing",
-                "/#{bucket}/#{key}",
-                request_id
-              )
-          end
-
-        {:error, :not_found} ->
-          case Metadata.head_bucket(bucket) do
-            {:error, :not_found} ->
-              error_response(
-                conn,
-                "NoSuchBucket",
-                "The specified bucket does not exist.",
-                "/#{bucket}/#{key}",
-                request_id
-              )
-
-            :ok ->
+            else
               error_response(
                 conn,
                 "NoSuchKey",
@@ -286,9 +296,194 @@ defmodule ExStorageServiceS3.Handlers do
                 "/#{bucket}/#{key}",
                 request_id
               )
-          end
-      end
-    end)
+            end
+        end
+
+      {:error, :not_found} ->
+        # Not in local metadata — check cloud directly
+        case CloudClient.head_object(cloud_config, key) do
+          {:ok, cloud_meta} ->
+            # Object exists on cloud but not indexed locally — fetch and serve
+            case CloudClient.get_object(cloud_config, key) do
+              {:ok, body} ->
+                now = DateTime.utc_now() |> DateTime.to_iso8601()
+                content_hash = Base.encode16(:crypto.hash(:sha256, body), case: :lower)
+                size = byte_size(body)
+                etag = cloud_meta.etag || content_hash
+                content_type = cloud_meta.content_type || "application/octet-stream"
+
+                meta = %{
+                  content_hash: content_hash,
+                  size: size,
+                  etag: etag,
+                  content_type: content_type,
+                  metadata: %{},
+                  created_at: now,
+                  updated_at: now,
+                  cloud_backed: true
+                }
+
+                Metadata.put_object_meta(bucket, key, meta)
+
+                case LocalStore.put(bucket, key, body, cloud_config) do
+                  {:ok, file_path} ->
+                    conn
+                    |> put_s3_headers(request_id)
+                    |> put_resp_header("content-type", content_type)
+                    |> put_resp_header("etag", "\"#{etag}\"")
+                    |> put_resp_header("content-length", to_string(size))
+                    |> put_resp_header("accept-ranges", "bytes")
+                    |> send_file(200, file_path)
+
+                  _ ->
+                    conn
+                    |> put_s3_headers(request_id)
+                    |> put_resp_header("content-type", content_type)
+                    |> put_resp_header("content-length", to_string(size))
+                    |> send_resp(200, body)
+                end
+
+              {:error, :not_found} ->
+                error_response(
+                  conn,
+                  "NoSuchKey",
+                  "The specified key does not exist.",
+                  "/#{bucket}/#{key}",
+                  request_id
+                )
+
+              {:error, _reason} ->
+                error_response(
+                  conn,
+                  "InternalError",
+                  "Failed to fetch object from cloud backend.",
+                  "/#{bucket}/#{key}",
+                  request_id
+                )
+            end
+
+          {:error, :not_found} ->
+            error_response(
+              conn,
+              "NoSuchKey",
+              "The specified key does not exist.",
+              "/#{bucket}/#{key}",
+              request_id
+            )
+
+          {:error, _reason} ->
+            error_response(
+              conn,
+              "InternalError",
+              "Failed to reach cloud backend.",
+              "/#{bucket}/#{key}",
+              request_id
+            )
+        end
+    end
+  end
+
+  # GET: local (non-cloud) path — original implementation
+  defp get_object_local(conn, bucket, key, request_id) do
+    case Metadata.get_object_meta(bucket, key) do
+      {:ok, meta} ->
+        content_hash = meta.content_hash
+
+        case Engine.get_object(bucket, content_hash) do
+          {:ok, file_path} ->
+            content_type = Map.get(meta, :content_type, "application/octet-stream")
+            etag = Map.get(meta, :etag, "")
+            quoted_etag = "\"#{etag}\""
+            size = Map.get(meta, :size, 0)
+            last_modified_raw = Map.get(meta, :updated_at, Map.get(meta, :created_at))
+            last_modified = format_http_date(last_modified_raw)
+
+            # Conditional request checks
+            cond do
+              not_modified_etag?(conn, quoted_etag) ->
+                conn
+                |> put_s3_headers(request_id)
+                |> put_resp_header("etag", quoted_etag)
+                |> put_resp_header("last-modified", last_modified)
+                |> send_resp(304, "")
+
+              not_modified_since?(conn, last_modified_raw) ->
+                conn
+                |> put_s3_headers(request_id)
+                |> put_resp_header("etag", quoted_etag)
+                |> put_resp_header("last-modified", last_modified)
+                |> send_resp(304, "")
+
+              true ->
+                # Check for Range header
+                case get_req_header(conn, "range") do
+                  [range_header | _] ->
+                    case parse_range(range_header, size) do
+                      {:ok, offset, length} ->
+                        content_range = "bytes #{offset}-#{offset + length - 1}/#{size}"
+
+                        conn
+                        |> put_s3_headers(request_id)
+                        |> put_resp_header("content-type", content_type)
+                        |> put_resp_header("etag", quoted_etag)
+                        |> put_resp_header("last-modified", last_modified)
+                        |> put_resp_header("content-length", to_string(length))
+                        |> put_resp_header("content-range", content_range)
+                        |> put_resp_header("accept-ranges", "bytes")
+                        |> put_custom_metadata_headers(meta)
+                        |> send_file(206, file_path, offset, length)
+
+                      {:error, :invalid_range} ->
+                        conn
+                        |> put_s3_headers(request_id)
+                        |> put_resp_header("content-range", "bytes */#{size}")
+                        |> send_resp(416, "")
+                    end
+
+                  [] ->
+                    conn
+                    |> put_s3_headers(request_id)
+                    |> put_resp_header("content-type", content_type)
+                    |> put_resp_header("etag", quoted_etag)
+                    |> put_resp_header("last-modified", last_modified)
+                    |> put_resp_header("content-length", to_string(size))
+                    |> put_resp_header("accept-ranges", "bytes")
+                    |> put_custom_metadata_headers(meta)
+                    |> send_file(200, file_path)
+                end
+            end
+
+          {:error, _} ->
+            error_response(
+              conn,
+              "InternalError",
+              "Content file missing",
+              "/#{bucket}/#{key}",
+              request_id
+            )
+        end
+
+      {:error, :not_found} ->
+        case Metadata.head_bucket(bucket) do
+          {:error, :not_found} ->
+            error_response(
+              conn,
+              "NoSuchBucket",
+              "The specified bucket does not exist.",
+              "/#{bucket}/#{key}",
+              request_id
+            )
+
+          :ok ->
+            error_response(
+              conn,
+              "NoSuchKey",
+              "The specified key does not exist.",
+              "/#{bucket}/#{key}",
+              request_id
+            )
+        end
+    end
   end
 
   def head_object(conn, bucket, key) do
@@ -357,71 +552,174 @@ defmodule ExStorageServiceS3.Handlers do
           error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
 
         :ok ->
-          content_type =
-            case get_req_header(conn, "content-type") do
-              [ct | _] -> ct
-              [] -> "application/octet-stream"
-            end
+          case cloud_cache_config(bucket) do
+            {:ok, cloud_config} ->
+              put_object_cloud(conn, bucket, key, cloud_config, request_id)
 
-          custom_metadata = extract_custom_metadata(conn)
+            :disabled ->
+              put_object_local(conn, bucket, key, request_id)
+          end
+      end
+    end)
+  end
 
-          # Stream the body directly to the storage engine rather than
-          # accumulating the full object in memory. The stream enforces
-          # max_object_size incrementally and halts early on oversize uploads.
-          # We use put_object_stream/5 (not put_object/5) because Plug.Conn.read_body
-          # must be called from the request process, not inside the Engine GenServer.
-          stream = body_stream(conn)
+  # PUT: cloud cache path — upload to remote cloud backend
+  defp put_object_cloud(conn, bucket, key, cloud_config, request_id) do
+    content_type =
+      case get_req_header(conn, "content-type") do
+        [ct | _] -> ct
+        [] -> "application/octet-stream"
+      end
 
-          try do
-            case Engine.put_object_stream(bucket, key, stream, content_type, custom_metadata) do
-              {:ok, {content_hash, etag, size}} ->
-                now = DateTime.utc_now() |> DateTime.to_iso8601()
+    custom_metadata = extract_custom_metadata(conn)
 
-                meta = %{
-                  content_hash: content_hash,
-                  size: size,
-                  etag: etag,
-                  content_type: content_type,
-                  metadata: custom_metadata,
-                  created_at: now,
-                  updated_at: now
-                }
+    # Buffer the body (needed to compute hash and send to cloud)
+    try do
+      case read_full_body(conn) do
+        {:ok, body, _conn} ->
+          content_hash = Base.encode16(:crypto.hash(:sha256, body), case: :lower)
+          md5 = :crypto.hash(:md5, body)
+          etag = Base.encode16(md5, case: :lower)
+          size = byte_size(body)
 
-                Metadata.put_object_meta(bucket, key, meta)
-                Hooks.after_put(bucket, key)
+          case CloudClient.put_object(cloud_config, key, body, content_type, custom_metadata) do
+            :ok ->
+              now = DateTime.utc_now() |> DateTime.to_iso8601()
 
-                conn
-                |> put_s3_headers(request_id)
-                |> put_resp_header("etag", "\"#{etag}\"")
-                |> send_resp(200, "")
+              meta = %{
+                content_hash: content_hash,
+                size: size,
+                etag: etag,
+                content_type: content_type,
+                metadata: custom_metadata,
+                created_at: now,
+                updated_at: now,
+                cloud_backed: true
+              }
 
-              {:error, reason} ->
-                error_response(
-                  conn,
-                  "InternalError",
-                  inspect(reason),
-                  "/#{bucket}/#{key}",
-                  request_id
-                )
-            end
-          catch
-            {:error, :entity_too_large} ->
+              Metadata.put_object_meta(bucket, key, meta)
+
+              # Write-through: also cache locally if caching is enabled
+              if cloud_config.cache_enabled do
+                LocalStore.put(bucket, key, body, cloud_config)
+              end
+
+              Hooks.after_put(bucket, key)
+
+              conn
+              |> put_s3_headers(request_id)
+              |> put_resp_header("etag", "\"#{etag}\"")
+              |> send_resp(200, "")
+
+            {:error, reason} ->
               error_response(
                 conn,
-                "EntityTooLarge",
-                "Your proposed upload exceeds the maximum allowed object size.",
+                "InternalError",
+                inspect(reason),
                 "/#{bucket}/#{key}",
                 request_id
               )
           end
+
+        {:error, :entity_too_large} ->
+          error_response(
+            conn,
+            "EntityTooLarge",
+            "Your proposed upload exceeds the maximum allowed object size.",
+            "/#{bucket}/#{key}",
+            request_id
+          )
+
+        {:error, reason} ->
+          error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
       end
-    end)
+    catch
+      {:error, :entity_too_large} ->
+        error_response(
+          conn,
+          "EntityTooLarge",
+          "Your proposed upload exceeds the maximum allowed object size.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
+    end
+  end
+
+  # PUT: local (non-cloud) path — original implementation
+  defp put_object_local(conn, bucket, key, request_id) do
+    content_type =
+      case get_req_header(conn, "content-type") do
+        [ct | _] -> ct
+        [] -> "application/octet-stream"
+      end
+
+    custom_metadata = extract_custom_metadata(conn)
+
+    # Stream the body directly to the storage engine rather than
+    # accumulating the full object in memory. The stream enforces
+    # max_object_size incrementally and halts early on oversize uploads.
+    # We use put_object_stream/5 (not put_object/5) because Plug.Conn.read_body
+    # must be called from the request process, not inside the Engine GenServer.
+    stream = body_stream(conn)
+
+    try do
+      case Engine.put_object_stream(bucket, key, stream, content_type, custom_metadata) do
+        {:ok, {content_hash, etag, size}} ->
+          now = DateTime.utc_now() |> DateTime.to_iso8601()
+
+          meta = %{
+            content_hash: content_hash,
+            size: size,
+            etag: etag,
+            content_type: content_type,
+            metadata: custom_metadata,
+            created_at: now,
+            updated_at: now
+          }
+
+          Metadata.put_object_meta(bucket, key, meta)
+          Hooks.after_put(bucket, key)
+
+          conn
+          |> put_s3_headers(request_id)
+          |> put_resp_header("etag", "\"#{etag}\"")
+          |> send_resp(200, "")
+
+        {:error, reason} ->
+          error_response(
+            conn,
+            "InternalError",
+            inspect(reason),
+            "/#{bucket}/#{key}",
+            request_id
+          )
+      end
+    catch
+      {:error, :entity_too_large} ->
+        error_response(
+          conn,
+          "EntityTooLarge",
+          "Your proposed upload exceeds the maximum allowed object size.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
+    end
   end
 
   def delete_object(conn, bucket, key) do
     request_id = request_id(conn)
 
     ExStorageService.Telemetry.span(:delete_object, %{bucket: bucket, key: key}, fn ->
+      # For cloud-cached buckets, also delete from cloud and local cache
+      case cloud_cache_config(bucket) do
+        {:ok, cloud_config} ->
+          CloudClient.delete_object(cloud_config, key)
+          LocalStore.delete(bucket, key)
+
+        :disabled ->
+          :ok
+      end
+
       case Metadata.get_object_meta(bucket, key) do
         {:ok, _meta} ->
           Metadata.delete_object_meta(bucket, key)
@@ -872,6 +1170,11 @@ defmodule ExStorageServiceS3.Handlers do
   end
 
   # Private helpers
+
+  # Returns {:ok, cloud_config} if cloud cache is active for bucket, :disabled otherwise.
+  defp cloud_cache_config(bucket) do
+    CloudConfig.get_active_config(bucket)
+  end
 
   defp request_id(conn) do
     conn.assigns[:request_id] || :crypto.strong_rand_bytes(8) |> Base.encode16(case: :upper)
