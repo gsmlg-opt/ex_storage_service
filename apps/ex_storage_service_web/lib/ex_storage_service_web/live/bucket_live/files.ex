@@ -401,9 +401,9 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
     |> Enum.reverse()
   end
 
-  # Display just the folder segment name: "a/b/" with prefix "a/" -> "b"
   defp display_folder_name(folder, prefix) do
     folder
+    |> String.trim()
     |> String.replace_prefix(prefix, "")
     |> String.trim_trailing("/")
   end

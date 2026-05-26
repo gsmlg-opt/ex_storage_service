@@ -266,7 +266,20 @@ defmodule ExStorageService.CloudCache.Client do
     date_stamp = Calendar.strftime(now, "%Y%m%d")
     amz_date = Calendar.strftime(now, "%Y%m%dT%H%M%SZ")
 
-    canonical_query = query || ""
+    # SigV4 requires query params sorted alphabetically by name
+    canonical_query =
+      case query do
+        nil -> ""
+        "" -> ""
+        q ->
+          q
+          |> URI.decode_query()
+          |> Enum.sort_by(fn {k, _} -> k end)
+          |> Enum.map_join("&", fn {k, v} ->
+            URI.encode(k, &URI.char_unreserved?/1) <> "=" <> URI.encode(v, &URI.char_unreserved?/1)
+          end)
+      end
+
     canonical_uri = path || "/"
 
     # Compute payload hash
@@ -407,8 +420,8 @@ defmodule ExStorageService.CloudCache.Client do
 
   defp xpath_node_text(node) do
     case node do
-      {:xmlText, _, _, _, value, _} when is_list(value) -> List.to_string(value)
-      {:xmlText, _, _, _, value, _} when is_binary(value) -> value
+      {:xmlText, _, _, _, value, _} when is_list(value) -> value |> List.to_string() |> String.trim()
+      {:xmlText, _, _, _, value, _} when is_binary(value) -> String.trim(value)
       _ -> ""
     end
   end
