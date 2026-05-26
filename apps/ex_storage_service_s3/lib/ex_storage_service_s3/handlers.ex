@@ -6,6 +6,7 @@ defmodule ExStorageServiceS3.Handlers do
   """
 
   import Plug.Conn
+  require Logger
   alias ExStorageServiceS3.XML
   alias ExStorageService.BucketValidator
   alias ExStorageService.CloudCache.Client, as: CloudClient
@@ -789,10 +790,19 @@ defmodule ExStorageServiceS3.Handlers do
     request_id = request_id(conn)
 
     ExStorageService.Telemetry.span(:delete_object, %{bucket: bucket, key: key}, fn ->
-      # For cloud-cached buckets, also delete from cloud and local cache
+      # For cloud-cached buckets, delete from upstream cloud and clear local cache
       case cloud_cache_config(bucket) do
         {:ok, cloud_config} ->
-          CloudClient.delete_object(cloud_config, key)
+          case CloudClient.delete_object(cloud_config, key) do
+            :ok ->
+              Logger.info("CloudCache DELETE upstream OK: #{cloud_config.bucket}/#{key}")
+
+            {:error, reason} ->
+              Logger.error(
+                "CloudCache DELETE upstream FAILED: #{cloud_config.bucket}/#{key} — #{inspect(reason)}"
+              )
+          end
+
           LocalStore.delete(bucket, key)
 
         :disabled ->
