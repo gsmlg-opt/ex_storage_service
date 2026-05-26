@@ -143,7 +143,11 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
     remote_bucket = String.trim(params["bucket"] || "")
     access_key_id = String.trim(params["access_key_id"] || "")
     secret_key = String.trim(params["secret_access_key"] || "")
-    cache_max_gb = String.to_float(params["cache_max_gb"] || "10")
+    cache_max_gb =
+      case Float.parse(params["cache_max_gb"] || "10") do
+        {f, _} -> f
+        :error -> 10.0
+      end
     cache_enabled = params["cache_enabled"] == "true"
 
     if remote_bucket == "" or access_key_id == "" do
