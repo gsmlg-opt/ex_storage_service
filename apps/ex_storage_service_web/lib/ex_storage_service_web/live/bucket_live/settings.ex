@@ -815,7 +815,7 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                       name="cache_max_gb"
                       value={Float.round((@cloud_cache && @cloud_cache.cache_max_bytes * 1.0 / (1024 * 1024 * 1024)) || 10.0, 1)}
                       min="0.1"
-                      step="0.5"
+                      step="0.1"
                       class="input input-primary w-32 text-xs"
                     />
                   </div>
