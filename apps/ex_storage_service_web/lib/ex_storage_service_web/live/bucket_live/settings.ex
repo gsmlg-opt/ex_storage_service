@@ -402,402 +402,511 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
         </.dm_link>
       </div>
 
-      <%!-- Config grid --%>
-      <div class="grid grid-cols-1 gap-6 mb-8 lg:grid-cols-2">
-        <%!-- Versioning --%>
-        <div class="card">
-          <div class="card-body">
-            <h3 class="card-title text-sm">Versioning</h3>
-            <p class="text-sm text-on-surface-variant mb-3">
-              Current: <span class="font-medium text-on-surface">{@versioning}</span>
-            </p>
-            <div class="flex gap-2">
-              <button
-                phx-click="set_versioning"
-                phx-value-state="enabled"
-                class="btn btn-success btn-xs"
-              >
-                Enable
-              </button>
-              <button
-                phx-click="set_versioning"
-                phx-value-state="suspended"
-                class="btn btn-warning btn-xs"
-              >
-                Suspend
-              </button>
-            </div>
-          </div>
-        </div>
+      <%!-- Settings modules — each full-width with enable/disable toggle --%>
+      <div class="space-y-4 mb-8">
 
-        <%!-- Replication --%>
+        <%!-- ── Versioning ─────────────────────────────────────────────── --%>
         <div class="card">
           <div class="card-body">
-            <h3 class="card-title text-sm">Replication ({length(@replicas)} replicas)</h3>
-            <%= for replica <- @replicas do %>
-              <div class="text-xs text-on-surface-variant mb-1 font-mono truncate">
-                {replica.endpoint} -> {replica.bucket || @bucket_name}
+            <%!-- Header with toggle --%>
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="card-title text-base">Versioning</h3>
+                <p class="text-xs text-on-surface-variant mt-0.5">
+                  Keep multiple versions of every object for rollback and audit.
+                </p>
               </div>
-            <% end %>
-            <form phx-submit="add_replica" class="mt-3 space-y-2">
-              <input
-                type="text"
-                name="endpoint"
-                placeholder="https://peer:9000"
-                class="input input-primary w-full text-xs"
-              />
-              <div class="flex gap-2">
-                <input
-                  type="text"
-                  name="access_key"
-                  placeholder="Access Key"
-                  class="input input-primary flex-1 text-xs"
-                />
-                <input
-                  type="text"
-                  name="remote_bucket"
-                  placeholder="Remote bucket"
-                  class="input input-primary flex-1 text-xs"
-                />
-              </div>
-              <div class="flex gap-2">
-                <button type="submit" class="btn btn-primary btn-xs">Add Replica</button>
-                <%= if @replicas != [] do %>
-                  <button
-                    type="button"
-                    class="btn btn-outline btn-error btn-xs"
-                    phx-click="open_confirm_modal"
-                    phx-value-action="remove_replicas"
-                  >
-                    Remove All
-                  </button>
-                <% end %>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <%!-- Lifecycle --%>
-        <div class="card">
-          <div class="card-body">
-            <h3 class="card-title text-sm">Lifecycle Rules ({length(@lifecycle_rules)})</h3>
-            <%= for rule <- @lifecycle_rules do %>
-              <div class="text-xs text-on-surface-variant mb-1">
-                Prefix: "<span class="font-mono">{rule[:prefix] || rule.prefix}</span>"
-                — expire after
-                <span class="font-medium">{rule[:expiration_days] || rule.expiration_days}</span>
-                days
-                (<span class={
-                  if (rule[:status] || rule.status) == "Enabled",
-                    do: "text-success",
-                    else: "text-on-surface-variant"
-                }>{rule[:status] || rule.status}</span>)
-              </div>
-            <% end %>
-            <form phx-submit="add_lifecycle_rule" class="mt-3 flex gap-2 items-end">
-              <input
-                type="text"
-                name="prefix"
-                placeholder="Prefix (e.g. logs/)"
-                class="input input-primary flex-1 text-xs"
-              />
-              <input
-                type="number"
-                name="expiration_days"
-                placeholder="Days"
-                min="1"
-                class="input input-primary w-20 text-xs"
-              />
-              <button type="submit" class="btn btn-primary btn-xs">Add</button>
-            </form>
-            <%= if @lifecycle_rules != [] do %>
-              <button
-                type="button"
-                class="mt-2 text-xs text-error hover:underline"
-                phx-click="open_confirm_modal"
-                phx-value-action="delete_lifecycle"
-              >
-                Remove All Rules
-              </button>
-            <% end %>
-          </div>
-        </div>
-
-        <%!-- Notifications --%>
-        <div class="card">
-          <div class="card-body">
-            <h3 class="card-title text-sm">Notifications ({length(@notifications)})</h3>
-            <%= for notif <- @notifications do %>
-              <div class="text-xs text-on-surface-variant mb-1">
-                <span class="font-mono truncate">{notif[:endpoint] || notif.endpoint}</span>
-                <span class="opacity-60 ml-1">
-                  {Enum.join(notif[:events] || notif.events, ", ")}
+              <label id="versioning-toggle" class="flex items-center gap-2 cursor-pointer select-none">
+                <span class="text-xs text-on-surface-variant">
+                  {if @versioning == :enabled, do: "Enabled", else: "Suspended"}
                 </span>
+                <div class="relative">
+                  <input
+                    type="checkbox"
+                    class="sr-only peer"
+                    checked={@versioning == :enabled}
+                    phx-click="set_versioning"
+                    phx-value-state={if @versioning == :enabled, do: "suspended", else: "enabled"}
+                  />
+                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors"></div>
+                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                </div>
+              </label>
+            </div>
+
+            <%!-- Body (always shown for versioning since it's just a toggle) --%>
+            <%= if @versioning != :disabled do %>
+              <div class="mt-4 pt-4 border-t border-outline-variant flex gap-2">
+                <button
+                  phx-click="set_versioning"
+                  phx-value-state="enabled"
+                  class={"btn btn-xs #{if @versioning == :enabled, do: "btn-success", else: "btn-outline"}"}
+                >
+                  Enabled
+                </button>
+                <button
+                  phx-click="set_versioning"
+                  phx-value-state="suspended"
+                  class={"btn btn-xs #{if @versioning == :suspended, do: "btn-warning", else: "btn-outline"}"}
+                >
+                  Suspended
+                </button>
               </div>
             <% end %>
-            <form phx-submit="add_notification" class="mt-3 space-y-2">
-              <input
-                type="text"
-                name="endpoint"
-                placeholder="https://example.com/webhook"
-                class="input input-primary w-full text-xs"
-              />
-              <input
-                type="text"
-                name="events"
-                placeholder="s3:ObjectCreated:*,s3:ObjectRemoved:*"
-                class="input input-primary w-full text-xs"
-              />
-              <div class="flex gap-2">
-                <button type="submit" class="btn btn-primary btn-xs">Add</button>
-                <%= if @notifications != [] do %>
-                  <button
-                    type="button"
-                    class="btn btn-outline btn-error btn-xs"
-                    phx-click="open_confirm_modal"
-                    phx-value-action="delete_notifications"
-                  >
-                    Remove All
-                  </button>
-                <% end %>
-              </div>
-            </form>
           </div>
         </div>
-      </div>
 
-      <%!-- Cloud Cache --%>
-      <div class="card mb-8">
-        <div class="card-body">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="card-title text-sm">Cloud Cache</h3>
-            <%= if @cloud_cache do %>
-              <span class={"badge badge-xs #{if @cloud_cache.enabled, do: "badge-success", else: "badge-ghost"}"}>
-                {if @cloud_cache.enabled, do: "Enabled", else: "Disabled"}
-              </span>
-            <% end %>
-          </div>
-
-          <p class="text-xs text-on-surface-variant mb-4">
-            Route object storage to AWS S3 or Cloudflare R2. Reads are served from a
-            local LRU disk cache; writes go directly to the remote.
-          </p>
-
-          <%!-- Test result banner --%>
-          <%= if @cloud_cache_test_result do %>
-            <div class={"mb-3 p-2 rounded text-xs #{case @cloud_cache_test_result do; {:ok, _} -> "bg-success/10 text-success"; {:error, _} -> "bg-error/10 text-error"; end}"}>
-              {case @cloud_cache_test_result do
-                {:ok, msg} -> msg
-                {:error, msg} -> msg
-              end}
+        <%!-- ── Replication ──────────────────────────────────────────────── --%>
+        <div class="card">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="card-title text-base">Replication</h3>
+                <p class="text-xs text-on-surface-variant mt-0.5">
+                  Mirror objects to peer S3-compatible nodes for redundancy.
+                  {@replicas |> length()} replica(s) configured.
+                </p>
+              </div>
+              <label id="replication-toggle" class="flex items-center gap-2 cursor-pointer select-none">
+                <span class="text-xs text-on-surface-variant">
+                  {if @replicas != [], do: "Active", else: "Off"}
+                </span>
+                <div class="relative">
+                  <input
+                    type="checkbox"
+                    class="sr-only peer"
+                    checked={@replicas != []}
+                    phx-click={if @replicas != [], do: "open_confirm_modal", else: ""}
+                    phx-value-action="remove_replicas"
+                  />
+                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors"></div>
+                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                </div>
+              </label>
             </div>
-          <% end %>
 
-          <form id="cloud-cache-form" phx-submit="save_cloud_cache" class="space-y-3">
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <%!-- Provider --%>
-              <div class="form-group">
-                <label class="form-label text-xs">Provider</label>
-                <select
-                  id="cloud-cache-provider"
-                  name="provider"
-                  class="select select-primary w-full text-xs"
-                  phx-change=""
-                >
-                  <option value="aws" selected={!@cloud_cache or @cloud_cache.provider == :aws}>AWS S3</option>
-                  <option value="r2" selected={@cloud_cache && @cloud_cache.provider == :r2}>Cloudflare R2</option>
-                </select>
-              </div>
-
-              <%!-- Region (AWS) --%>
-              <div class="form-group">
-                <label class="form-label text-xs">Region</label>
+            <div class="mt-4 pt-4 border-t border-outline-variant space-y-3">
+              <%= for replica <- @replicas do %>
+                <div class="flex items-center gap-2 text-xs font-mono bg-surface-container rounded px-3 py-2">
+                  <span class="w-2 h-2 rounded-full bg-success flex-shrink-0"></span>
+                  <span class="truncate">{replica.endpoint}</span>
+                  <span class="text-on-surface-variant mx-1">→</span>
+                  <span class="text-primary">{replica.bucket || @bucket_name}</span>
+                </div>
+              <% end %>
+              <form phx-submit="add_replica" class="space-y-2">
                 <input
-                  id="cloud-cache-region"
-                  type="text"
-                  name="region"
-                  value={(@cloud_cache && @cloud_cache.region) || "us-east-1"}
-                  placeholder="us-east-1"
-                  class="input input-primary w-full text-xs"
-                />
-              </div>
-
-              <%!-- Remote bucket --%>
-              <div class="form-group">
-                <label class="form-label text-xs">Remote Bucket</label>
-                <input
-                  id="cloud-cache-bucket"
-                  type="text"
-                  name="bucket"
-                  value={(@cloud_cache && @cloud_cache.bucket) || ""}
-                  placeholder="my-s3-bucket"
-                  class="input input-primary w-full text-xs"
-                />
-              </div>
-
-              <%!-- Custom endpoint (R2 / custom) --%>
-              <div class="form-group">
-                <label class="form-label text-xs">Custom Endpoint (R2 or custom)</label>
-                <input
-                  id="cloud-cache-endpoint"
                   type="text"
                   name="endpoint"
-                  value={(@cloud_cache && @cloud_cache.endpoint) || ""}
-                  placeholder="https://<account>.r2.cloudflarestorage.com"
+                  placeholder="https://peer:9000"
                   class="input input-primary w-full text-xs"
                 />
-              </div>
-
-              <%!-- Access Key ID --%>
-              <div class="form-group">
-                <label class="form-label text-xs">Access Key ID</label>
-                <input
-                  id="cloud-cache-access-key"
-                  type="text"
-                  name="access_key_id"
-                  value={(@cloud_cache && @cloud_cache.access_key_id) || ""}
-                  placeholder="AKIAIOSFODNN7EXAMPLE"
-                  class="input input-primary w-full text-xs font-mono"
-                />
-              </div>
-
-              <%!-- Secret Access Key --%>
-              <div class="form-group">
-                <label class="form-label text-xs">
-                  Secret Access Key
-                  <%= if @cloud_cache && @cloud_cache.encrypted_secret != "" do %>
-                    <span class="opacity-50">(leave blank to keep existing)</span>
-                  <% end %>
-                </label>
-                <input
-                  id="cloud-cache-secret"
-                  type="password"
-                  name="secret_access_key"
-                  placeholder={if @cloud_cache && @cloud_cache.encrypted_secret != "", do: "(unchanged)", else: "Secret key"}
-                  class="input input-primary w-full text-xs font-mono"
-                />
-              </div>
-            </div>
-
-            <%!-- Cache settings --%>
-            <div class="border-t border-outline-variant pt-3 mt-2">
-              <div class="flex flex-wrap gap-4 items-end">
-                <div class="form-group flex-1 min-w-40">
-                  <label class="form-label text-xs">Local Cache Max Size (GB)</label>
+                <div class="flex gap-2">
                   <input
-                    id="cloud-cache-max-gb"
-                    type="number"
-                    name="cache_max_gb"
-                    value={Float.round((@cloud_cache && @cloud_cache.cache_max_bytes * 1.0 / (1024 * 1024 * 1024)) || 10.0, 1)}
-                    min="0.1"
-                    step="0.5"
-                    class="input input-primary w-full text-xs"
+                    type="text"
+                    name="access_key"
+                    placeholder="Access Key"
+                    class="input input-primary flex-1 text-xs"
+                  />
+                  <input
+                    type="text"
+                    name="remote_bucket"
+                    placeholder="Remote bucket (optional)"
+                    class="input input-primary flex-1 text-xs"
                   />
                 </div>
-
-                <div class="form-group">
-                  <label class="form-label text-xs">Local Cache</label>
-                  <select id="cloud-cache-enabled" name="cache_enabled" class="select select-primary text-xs">
-                    <option value="true" selected={!@cloud_cache or @cloud_cache.cache_enabled}>Enabled</option>
-                    <option value="false" selected={@cloud_cache && !@cloud_cache.cache_enabled}>Disabled</option>
-                  </select>
+                <div class="flex gap-2">
+                  <button type="submit" class="btn btn-primary btn-xs">Add Replica</button>
+                  <%= if @replicas != [] do %>
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-error btn-xs"
+                      phx-click="open_confirm_modal"
+                      phx-value-action="remove_replicas"
+                    >
+                      Remove All
+                    </button>
+                  <% end %>
                 </div>
-              </div>
-
-              <%!-- Cache stats --%>
-              <%= if @cloud_cache_stats do %>
-                <div class="mt-3 flex gap-4 text-xs text-on-surface-variant">
-                  <span>Cached objects: <span class="font-medium text-on-surface">{@cloud_cache_stats.count}</span></span>
-                  <span>Used: <span class="font-medium text-on-surface">{format_bytes(@cloud_cache_stats.total_bytes)}</span></span>
-                  <span>Limit: <span class="font-medium text-on-surface">{format_bytes(@cloud_cache_stats.max_bytes)}</span></span>
-                </div>
-              <% end %>
+              </form>
             </div>
-
-            <div class="flex flex-wrap gap-2 pt-1">
-              <button id="save-cloud-cache-btn" type="submit" class="btn btn-primary btn-sm">Save</button>
-              <%= if @cloud_cache do %>
-                <button
-                  id="test-cloud-connection-btn"
-                  type="button"
-                  class="btn btn-outline btn-sm"
-                  phx-click="test_cloud_connection"
-                >
-                  Test Connection
-                </button>
-                <button
-                  id="clear-cloud-cache-btn"
-                  type="button"
-                  class="btn btn-outline btn-warning btn-sm"
-                  phx-click="clear_cloud_cache"
-                >
-                  Clear Local Cache
-                </button>
-                <button
-                  id="delete-cloud-cache-btn"
-                  type="button"
-                  class="btn btn-outline btn-error btn-sm"
-                  phx-click="open_confirm_modal"
-                  phx-value-action="delete_cloud_cache"
-                >
-                  Remove Config
-                </button>
-              <% end %>
-            </div>
-          </form>
+          </div>
         </div>
-      </div>
 
-      <%!-- Presigned URL Generator --%>
-      <div class="card mb-8">
-        <div class="card-body">
-          <h3 class="card-title text-sm">Presigned URL Generator</h3>
-          <form phx-submit="generate_presigned" class="space-y-3">
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <input
-                type="text"
-                name="object_key"
-                placeholder="Object key (e.g. photos/image.jpg)"
-                class="input input-primary w-full text-xs"
-              />
-              <select name="access_key_id" class="select select-primary w-full text-xs">
-                <option value="">Select access key...</option>
-                <%= for key <- @access_keys do %>
-                  <option value={key.access_key_id}>{key.access_key_id} ({key.user_id})</option>
-                <% end %>
-              </select>
-            </div>
-            <div class="flex gap-3 items-end">
-              <div class="form-group">
-                <label class="form-label text-xs">Method</label>
-                <select name="method" class="select select-primary text-xs">
-                  <option value="GET">GET</option>
-                  <option value="PUT">PUT</option>
-                </select>
+        <%!-- ── Lifecycle Rules ──────────────────────────────────────────── --%>
+        <div class="card">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="card-title text-base">Lifecycle Rules</h3>
+                <p class="text-xs text-on-surface-variant mt-0.5">
+                  Automatically expire objects matching a prefix after N days.
+                  {@lifecycle_rules |> length()} rule(s) active.
+                </p>
               </div>
-              <div class="form-group">
-                <label class="form-label text-xs">Expires (seconds)</label>
+              <label id="lifecycle-toggle" class="flex items-center gap-2 cursor-pointer select-none">
+                <span class="text-xs text-on-surface-variant">
+                  {if @lifecycle_rules != [], do: "Active", else: "Off"}
+                </span>
+                <div class="relative">
+                  <input
+                    type="checkbox"
+                    class="sr-only peer"
+                    checked={@lifecycle_rules != []}
+                    phx-click={if @lifecycle_rules != [], do: "open_confirm_modal", else: ""}
+                    phx-value-action="delete_lifecycle"
+                  />
+                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors"></div>
+                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                </div>
+              </label>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-outline-variant space-y-3">
+              <%= for rule <- @lifecycle_rules do %>
+                <div class="flex items-center gap-3 text-xs bg-surface-container rounded px-3 py-2">
+                  <span class={
+                    "w-2 h-2 rounded-full flex-shrink-0 " <>
+                    if (rule[:status] || rule.status) == "Enabled", do: "bg-success", else: "bg-outline-variant"
+                  }></span>
+                  <span class="font-mono text-primary">{rule[:prefix] || rule.prefix || "(all)"}</span>
+                  <span class="text-on-surface-variant">→ expire after</span>
+                  <span class="font-medium">{rule[:expiration_days] || rule.expiration_days} days</span>
+                  <span class={"ml-auto text-xs #{if (rule[:status] || rule.status) == "Enabled", do: "text-success", else: "text-on-surface-variant"}"}>
+                    {rule[:status] || rule.status}
+                  </span>
+                </div>
+              <% end %>
+              <form phx-submit="add_lifecycle_rule" class="flex gap-2 items-end">
+                <input
+                  type="text"
+                  name="prefix"
+                  placeholder="Prefix (e.g. logs/)"
+                  class="input input-primary flex-1 text-xs"
+                />
                 <input
                   type="number"
-                  name="expires"
-                  value="3600"
+                  name="expiration_days"
+                  placeholder="Days"
                   min="1"
-                  max="604800"
-                  class="input input-primary w-28 text-xs"
+                  class="input input-primary w-24 text-xs"
                 />
-              </div>
-              <button type="submit" class="btn btn-primary btn-sm">Generate URL</button>
+                <button type="submit" class="btn btn-primary btn-xs">Add Rule</button>
+              </form>
             </div>
-          </form>
-          <%= if @presigned_url do %>
-            <div class="mt-3 p-3 bg-surface-container rounded-lg">
-              <label class="form-label text-xs">Generated URL</label>
-              <div class="font-mono text-xs break-all text-on-surface select-all">
-                {@presigned_url}
-              </div>
-            </div>
-          <% end %>
+          </div>
         </div>
+
+        <%!-- ── Notifications ────────────────────────────────────────────── --%>
+        <div class="card">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="card-title text-base">Notifications</h3>
+                <p class="text-xs text-on-surface-variant mt-0.5">
+                  Send webhook events on object create/delete.
+                  {@notifications |> length()} endpoint(s) configured.
+                </p>
+              </div>
+              <label id="notifications-toggle" class="flex items-center gap-2 cursor-pointer select-none">
+                <span class="text-xs text-on-surface-variant">
+                  {if @notifications != [], do: "Active", else: "Off"}
+                </span>
+                <div class="relative">
+                  <input
+                    type="checkbox"
+                    class="sr-only peer"
+                    checked={@notifications != []}
+                    phx-click={if @notifications != [], do: "open_confirm_modal", else: ""}
+                    phx-value-action="delete_notifications"
+                  />
+                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors"></div>
+                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                </div>
+              </label>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-outline-variant space-y-3">
+              <%= for notif <- @notifications do %>
+                <div class="flex items-center gap-2 text-xs bg-surface-container rounded px-3 py-2">
+                  <span class="w-2 h-2 rounded-full bg-success flex-shrink-0"></span>
+                  <span class="font-mono truncate">{notif[:endpoint] || notif.endpoint}</span>
+                  <span class="ml-auto text-on-surface-variant whitespace-nowrap">
+                    {Enum.join(notif[:events] || notif.events, ", ")}
+                  </span>
+                </div>
+              <% end %>
+              <form phx-submit="add_notification" class="space-y-2">
+                <input
+                  type="text"
+                  name="endpoint"
+                  placeholder="https://example.com/webhook"
+                  class="input input-primary w-full text-xs"
+                />
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    name="events"
+                    placeholder="s3:ObjectCreated:*,s3:ObjectRemoved:*"
+                    class="input input-primary flex-1 text-xs"
+                  />
+                  <button type="submit" class="btn btn-primary btn-xs">Add</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <%!-- ── Cloud Cache ──────────────────────────────────────────────── --%>
+        <div class="card">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="card-title text-base">Cloud Cache</h3>
+                <p class="text-xs text-on-surface-variant mt-0.5">
+                  Gateway to AWS S3 or Cloudflare R2 with a local LRU read cache.
+                </p>
+              </div>
+              <label id="cloud-cache-toggle" class="flex items-center gap-2 cursor-pointer select-none">
+                <span class="text-xs text-on-surface-variant">
+                  {if @cloud_cache && @cloud_cache.enabled, do: "Enabled", else: "Off"}
+                </span>
+                <div class="relative">
+                  <input
+                    type="checkbox"
+                    class="sr-only peer"
+                    checked={@cloud_cache && @cloud_cache.enabled}
+                    phx-click={
+                      if @cloud_cache && @cloud_cache.enabled,
+                        do: "open_confirm_modal",
+                        else: ""
+                    }
+                    phx-value-action="delete_cloud_cache"
+                  />
+                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors"></div>
+                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                </div>
+              </label>
+            </div>
+
+            <%!-- Test connection result --%>
+            <%= if @cloud_cache_test_result do %>
+              <div class={"mt-3 p-2 rounded text-xs #{case @cloud_cache_test_result do; {:ok, _} -> "bg-success/10 text-success"; {:error, _} -> "bg-error/10 text-error"; end}"}>
+                {case @cloud_cache_test_result do
+                  {:ok, msg} -> msg
+                  {:error, msg} -> msg
+                end}
+              </div>
+            <% end %>
+
+            <%!-- Cache stats bar --%>
+            <%= if @cloud_cache_stats && @cloud_cache_stats.max_bytes > 0 do %>
+              <div class="mt-3 space-y-1">
+                <div class="flex justify-between text-xs text-on-surface-variant">
+                  <span>{@cloud_cache_stats.count} objects cached</span>
+                  <span>{format_bytes(@cloud_cache_stats.total_bytes)} / {format_bytes(@cloud_cache_stats.max_bytes)}</span>
+                </div>
+                <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+                  <div
+                    class="h-full bg-primary rounded-full transition-all"
+                    style={"width: #{min(100, round(@cloud_cache_stats.total_bytes * 100 / max(@cloud_cache_stats.max_bytes, 1)))}%"}
+                  ></div>
+                </div>
+              </div>
+            <% end %>
+
+            <div class="mt-4 pt-4 border-t border-outline-variant">
+              <form id="cloud-cache-form" phx-submit="save_cloud_cache" class="space-y-4">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <div class="form-group">
+                    <label class="form-label text-xs">Provider</label>
+                    <select id="cloud-cache-provider" name="provider" class="select select-primary w-full text-xs">
+                      <option value="aws" selected={!@cloud_cache or @cloud_cache.provider == :aws}>AWS S3</option>
+                      <option value="r2" selected={@cloud_cache && @cloud_cache.provider == :r2}>Cloudflare R2</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label text-xs">Region</label>
+                    <input
+                      id="cloud-cache-region"
+                      type="text"
+                      name="region"
+                      value={(@cloud_cache && @cloud_cache.region) || "us-east-1"}
+                      placeholder="us-east-1"
+                      class="input input-primary w-full text-xs"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label text-xs">Remote Bucket</label>
+                    <input
+                      id="cloud-cache-bucket"
+                      type="text"
+                      name="bucket"
+                      value={(@cloud_cache && @cloud_cache.bucket) || ""}
+                      placeholder="my-s3-bucket"
+                      class="input input-primary w-full text-xs"
+                    />
+                  </div>
+                  <div class="form-group sm:col-span-3">
+                    <label class="form-label text-xs">Custom Endpoint <span class="text-on-surface-variant font-normal">(R2 or custom — leave blank for AWS)</span></label>
+                    <input
+                      id="cloud-cache-endpoint"
+                      type="text"
+                      name="endpoint"
+                      value={(@cloud_cache && @cloud_cache.endpoint) || ""}
+                      placeholder="https://<account>.r2.cloudflarestorage.com"
+                      class="input input-primary w-full text-xs"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label text-xs">Access Key ID</label>
+                    <input
+                      id="cloud-cache-access-key"
+                      type="text"
+                      name="access_key_id"
+                      value={(@cloud_cache && @cloud_cache.access_key_id) || ""}
+                      placeholder="AKIAIOSFODNN7EXAMPLE"
+                      class="input input-primary w-full text-xs font-mono"
+                    />
+                  </div>
+                  <div class="form-group sm:col-span-2">
+                    <label class="form-label text-xs">
+                      Secret Access Key
+                      <%= if @cloud_cache && @cloud_cache.encrypted_secret != "" do %>
+                        <span class="opacity-50 font-normal">(leave blank to keep existing)</span>
+                      <% end %>
+                    </label>
+                    <input
+                      id="cloud-cache-secret"
+                      type="password"
+                      name="secret_access_key"
+                      placeholder={if @cloud_cache && @cloud_cache.encrypted_secret != "", do: "(unchanged)", else: "Secret key"}
+                      class="input input-primary w-full text-xs font-mono"
+                    />
+                  </div>
+                </div>
+
+                <%!-- Cache controls row --%>
+                <div class="flex flex-wrap gap-4 items-end pt-2 border-t border-outline-variant">
+                  <div class="form-group">
+                    <label class="form-label text-xs">Cache Max Size (GB)</label>
+                    <input
+                      id="cloud-cache-max-gb"
+                      type="number"
+                      name="cache_max_gb"
+                      value={Float.round((@cloud_cache && @cloud_cache.cache_max_bytes * 1.0 / (1024 * 1024 * 1024)) || 10.0, 1)}
+                      min="0.1"
+                      step="0.5"
+                      class="input input-primary w-32 text-xs"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label text-xs">Local Cache</label>
+                    <div class="flex items-center gap-2 h-9">
+                      <label class="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          id="cloud-cache-enabled"
+                          type="checkbox"
+                          name="cache_enabled"
+                          value="true"
+                          class="sr-only peer"
+                          checked={!@cloud_cache || @cloud_cache.cache_enabled}
+                        />
+                        <div class="relative w-10 h-6">
+                          <div class="w-10 h-6 bg-outline-variant rounded-full peer-checked:bg-primary transition-colors"></div>
+                          <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                        </div>
+                        <span class="text-xs text-on-surface-variant">LRU cache reads</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="flex gap-2 ml-auto">
+                    <button id="save-cloud-cache-btn" type="submit" class="btn btn-primary btn-sm">Save</button>
+                    <%= if @cloud_cache do %>
+                      <button
+                        id="test-cloud-connection-btn"
+                        type="button"
+                        class="btn btn-outline btn-sm"
+                        phx-click="test_cloud_connection"
+                      >
+                        Test
+                      </button>
+                      <button
+                        id="clear-cloud-cache-btn"
+                        type="button"
+                        class="btn btn-outline btn-warning btn-sm"
+                        phx-click="clear_cloud_cache"
+                      >
+                        Clear Cache
+                      </button>
+                    <% end %>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <%!-- ── Presigned URL Generator ─────────────────────────────────── --%>
+        <div class="card">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="card-title text-base">Presigned URL Generator</h3>
+                <p class="text-xs text-on-surface-variant mt-0.5">
+                  Generate time-limited signed URLs for direct object access.
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-outline-variant">
+              <form phx-submit="generate_presigned" class="space-y-3">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <input
+                    type="text"
+                    name="object_key"
+                    placeholder="Object key (e.g. photos/image.jpg)"
+                    class="input input-primary w-full text-xs"
+                  />
+                  <select name="access_key_id" class="select select-primary w-full text-xs">
+                    <option value="">Select access key...</option>
+                    <%= for key <- @access_keys do %>
+                      <option value={key.access_key_id}>{key.access_key_id} ({key.user_id})</option>
+                    <% end %>
+                  </select>
+                </div>
+                <div class="flex flex-wrap gap-3 items-end">
+                  <div class="form-group">
+                    <label class="form-label text-xs">Method</label>
+                    <select name="method" class="select select-primary text-xs">
+                      <option value="GET">GET</option>
+                      <option value="PUT">PUT</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label text-xs">Expires (seconds)</label>
+                    <input
+                      type="number"
+                      name="expires"
+                      value="3600"
+                      min="1"
+                      max="604800"
+                      class="input input-primary w-32 text-xs"
+                    />
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-sm">Generate URL</button>
+                </div>
+              </form>
+              <%= if @presigned_url do %>
+                <div class="mt-3 p-3 bg-surface-container rounded-lg">
+                  <label class="form-label text-xs">Generated URL</label>
+                  <div class="font-mono text-xs break-all text-on-surface select-all">{@presigned_url}</div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <.confirm_modal
