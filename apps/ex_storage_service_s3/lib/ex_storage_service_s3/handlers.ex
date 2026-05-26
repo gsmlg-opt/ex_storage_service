@@ -6,7 +6,6 @@ defmodule ExStorageServiceS3.Handlers do
   """
 
   import Plug.Conn
-  require Logger
   alias ExStorageServiceS3.XML
   alias ExStorageService.BucketValidator
   alias ExStorageService.CloudCache.Client, as: CloudClient
