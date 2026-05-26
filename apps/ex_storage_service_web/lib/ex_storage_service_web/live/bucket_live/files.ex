@@ -176,10 +176,10 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
       <%!-- File browser --%>
       <div class="card">
         <%!-- Path bar --%>
-        <div class="flex items-center gap-2 px-4 py-3 border-b border-outline-variant bg-surface-variant/30">
+        <div class="flex items-center gap-1 px-4 py-3 border-b border-outline-variant bg-surface-variant/30 flex-wrap">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="w-4 h-4 text-on-surface-variant"
+            class="w-4 h-4 text-on-surface-variant shrink-0"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -189,9 +189,29 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
           >
             <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
           </svg>
-          <span class="text-sm font-mono text-on-surface">
-            /{@prefix}
-          </span>
+          <%!-- Root slash — always a link unless already at root --%>
+          <%= if @prefix == "" do %>
+            <span class="text-sm font-mono text-on-surface font-semibold">/</span>
+          <% else %>
+            <.dm_link
+              patch={~p"/buckets/#{@bucket_name}/files"}
+              class="text-sm font-mono text-primary hover:underline"
+            >/
+            </.dm_link>
+          <% end %>
+          <%!-- Each path segment --%>
+          <%= for {segment, seg_prefix} <- path_segments(@prefix) do %>
+            <%= if seg_prefix == @prefix do %>
+              <span class="text-sm font-mono text-on-surface font-semibold">{segment}/</span>
+            <% else %>
+              <.dm_link
+                patch={~p"/buckets/#{@bucket_name}/files?#{%{prefix: seg_prefix}}"}
+                class="text-sm font-mono text-primary hover:underline"
+              >
+                {segment}/
+              </.dm_link>
+            <% end %>
+          <% end %>
         </div>
 
         <table class="table table-hover w-full">
