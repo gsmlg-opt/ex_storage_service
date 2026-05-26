@@ -364,6 +364,7 @@ defmodule ExStorageServiceS3.Handlers do
                 size = byte_size(body)
                 etag = cloud_meta.etag || content_hash
                 content_type = cloud_meta.content_type || "application/octet-stream"
+                last_mod = cloud_meta.last_modified || format_http_date(now)
 
                 meta = %{
                   content_hash: content_hash,
@@ -384,6 +385,7 @@ defmodule ExStorageServiceS3.Handlers do
                     |> put_s3_headers(request_id)
                     |> put_resp_header("content-type", content_type)
                     |> put_resp_header("etag", "\"#{etag}\"")
+                    |> put_resp_header("last-modified", last_mod)
                     |> put_resp_header("content-length", to_string(size))
                     |> put_resp_header("accept-ranges", "bytes")
                     |> send_file(200, file_path)
@@ -392,6 +394,7 @@ defmodule ExStorageServiceS3.Handlers do
                     conn
                     |> put_s3_headers(request_id)
                     |> put_resp_header("content-type", content_type)
+                    |> put_resp_header("last-modified", last_mod)
                     |> put_resp_header("content-length", to_string(size))
                     |> send_resp(200, body)
                 end
@@ -585,11 +588,14 @@ defmodule ExStorageServiceS3.Handlers do
             {:ok, cloud_config} ->
               case CloudClient.head_object(cloud_config, key) do
                 {:ok, cloud_meta} ->
+                  last_mod = cloud_meta.last_modified || format_http_date(DateTime.utc_now() |> DateTime.to_iso8601())
+
                   conn
                   |> put_s3_headers(request_id)
-                  |> put_resp_header("content-type", cloud_meta.content_type)
+                  |> put_resp_header("content-type", cloud_meta.content_type || "application/octet-stream")
                   |> put_resp_header("etag", "\"#{cloud_meta.etag}\"")
                   |> put_resp_header("content-length", to_string(cloud_meta.content_length))
+                  |> put_resp_header("last-modified", last_mod)
                   |> put_resp_header("accept-ranges", "bytes")
                   |> send_resp(200, "")
 

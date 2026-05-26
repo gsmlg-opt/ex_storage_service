@@ -34,6 +34,34 @@ defmodule ExStorageServiceS3.Router do
     |> send_resp(200, ~s({"status":"ok"}))
   end
 
+  # Dev-only: POST /health/cloud_cache — configure cloud cache inline
+  if Code.ensure_loaded?(Mix) and Mix.env() == :dev do
+    post "/health/cloud_cache" do
+      {:ok, body, conn} = Plug.Conn.read_body(conn)
+      params = Jason.decode!(body)
+      bucket = params["local_bucket"] || params["bucket"]
+
+      result =
+        ExStorageService.CloudCache.Config.set_config(bucket, %{
+          enabled: true,
+          provider: String.to_atom(params["provider"] || "minio"),
+          endpoint: params["endpoint"],
+          region: params["region"] || "us-east-1",
+          bucket: params["remote_bucket"] || params["bucket"],
+          access_key_id: params["access_key_id"],
+          secret_access_key: params["secret_access_key"],
+          cache_max_bytes: params["cache_max_bytes"] || 10_737_418_240,
+          cache_enabled: true
+        })
+
+      body = Jason.encode!(%{result: inspect(result)})
+
+      conn
+      |> put_resp_header("content-type", "application/json")
+      |> send_resp(200, body)
+    end
+  end
+
   # GET / - ListBuckets
   get "/" do
     Handlers.list_buckets(conn)

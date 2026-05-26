@@ -23,7 +23,9 @@ config :ex_storage_service,
   master_key:
     System.get_env("ESS_MASTER_KEY") ||
       if(config_env() != :prod,
-        do: Base.encode64(:crypto.strong_rand_bytes(32)),
+        # Fixed dev/test key so encrypted secrets in Concord survive restarts.
+        # NEVER use this value in production — set ESS_MASTER_KEY instead.
+        do: Base.encode64("ex_storage_service_dev_master_key!!"),
         else: nil
       ),
   multipart_gc_interval: :timer.hours(1),

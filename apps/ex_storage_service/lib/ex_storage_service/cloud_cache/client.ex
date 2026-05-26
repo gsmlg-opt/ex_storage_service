@@ -359,6 +359,17 @@ defmodule ExStorageService.CloudCache.Client do
     :crypto.mac(:hmac, :sha256, key, data)
   end
 
+  # Req 0.5+ returns headers as %{String.t() => [String.t()]} (map of lists)
+  defp parse_headers(headers) when is_map(headers) do
+    %{
+      content_length: headers |> Map.get("content-length", []) |> List.first() |> parse_int(),
+      etag: headers |> Map.get("etag", [""]) |> List.first() |> String.trim("\""),
+      content_type: headers |> Map.get("content-type", ["application/octet-stream"]) |> List.first(),
+      last_modified: headers |> Map.get("last-modified", [nil]) |> List.first()
+    }
+  end
+
+  # Legacy: list of {key, value} tuples
   defp parse_headers(headers) when is_list(headers) do
     header_map = Map.new(headers, fn {k, v} -> {String.downcase(k), v} end)
 
