@@ -382,11 +382,12 @@ defmodule ExStorageService.CloudCache.Client do
       end)
 
     common_prefixes =
-      :xmerl_xpath.string(~c"//CommonPrefixes/Prefix", doc)
+      :xmerl_xpath.string(~c"//CommonPrefixes/Prefix/text()", doc)
       |> Enum.map(&xpath_node_text/1)
+      |> Enum.reject(&(&1 == ""))
 
     truncated =
-      :xmerl_xpath.string(~c"//IsTruncated", doc)
+      :xmerl_xpath.string(~c"//IsTruncated/text()", doc)
       |> case do
         [node] -> xpath_node_text(node) == "true"
         _ -> false
