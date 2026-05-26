@@ -6,6 +6,7 @@ defmodule ExStorageServiceS3.Handlers do
   """
 
   import Plug.Conn
+  require Logger
   alias ExStorageServiceS3.XML
   alias ExStorageService.BucketValidator
   alias ExStorageService.CloudCache.Client, as: CloudClient
@@ -192,9 +193,10 @@ defmodule ExStorageServiceS3.Handlers do
           delimiter: Keyword.get(cloud_opts, :delimiter, "/"),
           max_keys: Keyword.get(cloud_opts, :max_keys, 1000),
           is_truncated: result.truncated,
-          key_count: length(objects),
+          # S3 spec: KeyCount includes both Contents and CommonPrefixes
+          key_count: length(objects) + length(result.common_prefixes),
           continuation_token: Keyword.get(cloud_opts, :continuation_token),
-          next_continuation_token: nil,
+          next_continuation_token: result.next_continuation_token,
           common_prefixes: result.common_prefixes
         }
 

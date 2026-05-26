@@ -199,7 +199,8 @@ defmodule ExStorageService.CloudCache.Client do
            %{
              keys: [{String.t(), map()}],
              common_prefixes: [String.t()],
-             truncated: boolean()
+             truncated: boolean(),
+             next_continuation_token: String.t() | nil
            }}
           | {:error, term()}
   def list_objects(%Config{} = config, opts \\ []) do
@@ -406,10 +407,27 @@ defmodule ExStorageService.CloudCache.Client do
         _ -> false
       end
 
-    %{keys: keys, common_prefixes: common_prefixes, truncated: truncated}
+    next_continuation_token =
+      case :xmerl_xpath.string(~c"//NextContinuationToken/text()", doc) do
+        [node] ->
+          case xpath_node_text(node) do
+            "" -> nil
+            val -> val
+          end
+
+        _ ->
+          nil
+      end
+
+    %{
+      keys: keys,
+      common_prefixes: common_prefixes,
+      truncated: truncated,
+      next_continuation_token: next_continuation_token
+    }
   end
 
-  defp parse_list_objects_xml(_), do: %{keys: [], common_prefixes: [], truncated: false}
+  defp parse_list_objects_xml(_), do: %{keys: [], common_prefixes: [], truncated: false, next_continuation_token: nil}
 
   defp xpath_text(node, tag) do
     case :xmerl_xpath.string(~c"#{tag}/text()", node) do
