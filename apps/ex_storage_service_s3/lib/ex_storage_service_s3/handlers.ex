@@ -155,36 +155,88 @@ defmodule ExStorageServiceS3.Handlers do
           continuation_token: Map.get(params, "continuation-token")
         ]
 
-        case Metadata.list_objects(bucket, opts) do
-          {:ok, result} ->
-            objects =
-              Enum.map(result.keys, fn {key, meta} ->
-                %{
-                  key: key,
-                  last_modified: Map.get(meta, :updated_at, Map.get(meta, :created_at, "")),
-                  etag: "\"#{Map.get(meta, :etag, "")}\"",
-                  size: Map.get(meta, :size, 0),
-                  storage_class: "STANDARD"
-                }
-              end)
+        case cloud_cache_config(bucket) do
+          {:ok, cloud_config} ->
+            list_objects_cloud(conn, bucket, cloud_config, opts, request_id)
 
-            response_opts = %{
-              prefix: Keyword.get(opts, :prefix, ""),
-              delimiter: Keyword.get(opts, :delimiter) || "",
-              max_keys: Keyword.get(opts, :max_keys, 1000),
-              is_truncated: result.is_truncated,
-              key_count: length(objects),
-              continuation_token: Keyword.get(opts, :continuation_token),
-              next_continuation_token: result.next_continuation_token,
-              common_prefixes: result.common_prefixes
-            }
-
-            body = XML.list_objects_response(bucket, objects, response_opts)
-            xml_response(conn, 200, body, request_id)
-
-          {:error, reason} ->
-            error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
+          :disabled ->
+            list_objects_local(conn, bucket, opts, request_id)
         end
+    end
+  end
+
+  # LIST from remote cloud bucket — transparently proxies the S3 listing
+  defp list_objects_cloud(conn, bucket, cloud_config, opts, request_id) do
+    cloud_opts = [
+      prefix: Keyword.get(opts, :prefix, ""),
+      delimiter: Keyword.get(opts, :delimiter) || "/",
+      max_keys: Keyword.get(opts, :max_keys, 1000),
+      continuation_token: Keyword.get(opts, :continuation_token)
+    ]
+
+    case CloudClient.list_objects(cloud_config, cloud_opts) do
+      {:ok, result} ->
+        objects =
+          Enum.map(result.keys, fn {key, meta} ->
+            %{
+              key: key,
+              last_modified: Map.get(meta, :last_modified, Map.get(meta, :updated_at, "")),
+              etag: "\"#{Map.get(meta, :etag, "")}\"",
+              size: Map.get(meta, :size, 0),
+              storage_class: "STANDARD"
+            }
+          end)
+
+        response_opts = %{
+          prefix: Keyword.get(cloud_opts, :prefix, ""),
+          delimiter: Keyword.get(cloud_opts, :delimiter, "/"),
+          max_keys: Keyword.get(cloud_opts, :max_keys, 1000),
+          is_truncated: result.truncated,
+          key_count: length(objects),
+          continuation_token: Keyword.get(cloud_opts, :continuation_token),
+          next_continuation_token: nil,
+          common_prefixes: result.common_prefixes
+        }
+
+        body = XML.list_objects_response(bucket, objects, response_opts)
+        xml_response(conn, 200, body, request_id)
+
+      {:error, reason} ->
+        error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
+    end
+  end
+
+  # LIST from local Concord metadata — original implementation
+  defp list_objects_local(conn, bucket, opts, request_id) do
+    case Metadata.list_objects(bucket, opts) do
+      {:ok, result} ->
+        objects =
+          Enum.map(result.keys, fn {key, meta} ->
+            %{
+              key: key,
+              last_modified: Map.get(meta, :updated_at, Map.get(meta, :created_at, "")),
+              etag: "\"#{Map.get(meta, :etag, "")}\"",
+              size: Map.get(meta, :size, 0),
+              storage_class: "STANDARD"
+            }
+          end)
+
+        response_opts = %{
+          prefix: Keyword.get(opts, :prefix, ""),
+          delimiter: Keyword.get(opts, :delimiter) || "",
+          max_keys: Keyword.get(opts, :max_keys, 1000),
+          is_truncated: result.is_truncated,
+          key_count: length(objects),
+          continuation_token: Keyword.get(opts, :continuation_token),
+          next_continuation_token: result.next_continuation_token,
+          common_prefixes: result.common_prefixes
+        }
+
+        body = XML.list_objects_response(bucket, objects, response_opts)
+        xml_response(conn, 200, body, request_id)
+
+      {:error, reason} ->
+        error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
     end
   end
 
@@ -527,9 +579,29 @@ defmodule ExStorageServiceS3.Handlers do
           end
 
         {:error, :not_found} ->
-          conn
-          |> put_s3_headers(request_id)
-          |> send_resp(404, "")
+          # For cloud-cached buckets, fall back to HEAD on the remote
+          case cloud_cache_config(bucket) do
+            {:ok, cloud_config} ->
+              case CloudClient.head_object(cloud_config, key) do
+                {:ok, cloud_meta} ->
+                  conn
+                  |> put_s3_headers(request_id)
+                  |> put_resp_header("content-type", cloud_meta.content_type)
+                  |> put_resp_header("etag", "\"#{cloud_meta.etag}\"")
+                  |> put_resp_header("content-length", to_string(cloud_meta.content_length))
+                  |> put_resp_header("accept-ranges", "bytes")
+                  |> send_resp(200, "")
+
+                {:error, :not_found} ->
+                  conn |> put_s3_headers(request_id) |> send_resp(404, "")
+
+                {:error, _} ->
+                  conn |> put_s3_headers(request_id) |> send_resp(502, "")
+              end
+
+            :disabled ->
+              conn |> put_s3_headers(request_id) |> send_resp(404, "")
+          end
       end
     end)
   end
