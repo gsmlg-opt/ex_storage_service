@@ -3,15 +3,25 @@ defmodule ExStorageService.CloudCache.Config do
   Per-bucket cloud cache configuration backed by Concord KV.
 
   When enabled, a bucket acts as a gateway to a remote S3-compatible store
-  (AWS S3 or Cloudflare R2). Writes go directly to the remote; reads are
-  served from a local LRU disk cache that is populated on demand.
+  (AWS S3, Cloudflare R2, MinIO, or any S3-compatible endpoint). Writes go
+  directly to the remote; reads are served from a local LRU disk cache that
+  is populated on demand.
 
   Configuration is stored under `"cloud_cache:{bucket}"` in Concord.
   The secret access key is AES-256-CTR encrypted using the same
   `ESS_MASTER_KEY` as IAM secrets.
+
+  ## Providers
+
+  | Provider   | Endpoint                               | Notes                            |
+  |------------|----------------------------------------|----------------------------------|
+  | `:aws`     | Auto: `https://s3.{region}.amazonaws.com` | Override with custom endpoint  |
+  | `:r2`      | Required: account-specific R2 URL      | Region should be `"auto"`        |
+  | `:minio`   | Required: `http://host:9000`           | Path-style access, any region    |
+  | `:s3_compat` | Required: provider endpoint URL      | Generic S3-compatible backend    |
   """
 
-  @type provider :: :aws | :r2
+  @type provider :: :aws | :r2 | :minio | :s3_compat
 
   @type t :: %__MODULE__{
           enabled: boolean(),
@@ -127,9 +137,10 @@ defmodule ExStorageService.CloudCache.Config do
   @doc """
   Derive the S3 endpoint URL from the config.
 
-  For AWS: `https://s3.{region}.amazonaws.com`
-  For R2: uses the `endpoint` field directly (account-specific)
-  For custom: uses `endpoint` field directly
+  - `:aws`      — auto-builds `https://s3.{region}.amazonaws.com` if no endpoint given
+  - `:r2`       — uses `endpoint` field directly (account-specific URL)
+  - `:minio`    — uses `endpoint` field directly (e.g. `http://host:9000`)
+  - `:s3_compat` — uses `endpoint` field directly
   """
   @spec endpoint_url(t()) :: String.t()
   def endpoint_url(%__MODULE__{provider: :aws, endpoint: nil, region: region}) do
@@ -138,6 +149,15 @@ defmodule ExStorageService.CloudCache.Config do
 
   def endpoint_url(%__MODULE__{provider: :aws, endpoint: ep}) when is_binary(ep) and ep != "" do
     ep
+  end
+
+  def endpoint_url(%__MODULE__{provider: provider, endpoint: ep})
+      when provider in [:r2, :minio, :s3_compat] and is_binary(ep) and ep != "" do
+    ep
+  end
+
+  def endpoint_url(%__MODULE__{provider: provider}) when provider in [:r2, :minio, :s3_compat] do
+    raise "Cloud cache endpoint is required for provider #{provider}"
   end
 
   def endpoint_url(%__MODULE__{endpoint: ep}) when is_binary(ep) and ep != "" do
@@ -218,7 +238,11 @@ defmodule ExStorageService.CloudCache.Config do
 
   defp normalize_provider(:aws), do: :aws
   defp normalize_provider(:r2), do: :r2
+  defp normalize_provider(:minio), do: :minio
+  defp normalize_provider(:s3_compat), do: :s3_compat
   defp normalize_provider("aws"), do: :aws
   defp normalize_provider("r2"), do: :r2
+  defp normalize_provider("minio"), do: :minio
+  defp normalize_provider("s3_compat"), do: :s3_compat
   defp normalize_provider(_), do: :aws
 end

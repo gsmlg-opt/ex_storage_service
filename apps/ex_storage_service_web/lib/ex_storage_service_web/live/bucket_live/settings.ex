@@ -723,6 +723,8 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                     <select id="cloud-cache-provider" name="provider" class="select select-primary w-full text-xs">
                       <option value="aws" selected={!@cloud_cache or @cloud_cache.provider == :aws}>AWS S3</option>
                       <option value="r2" selected={@cloud_cache && @cloud_cache.provider == :r2}>Cloudflare R2</option>
+                      <option value="minio" selected={@cloud_cache && @cloud_cache.provider == :minio}>MinIO</option>
+                      <option value="s3_compat" selected={@cloud_cache && @cloud_cache.provider == :s3_compat}>S3 Compatible</option>
                     </select>
                   </div>
                   <div class="form-group">
@@ -748,13 +750,30 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                     />
                   </div>
                   <div class="form-group sm:col-span-3">
-                    <label class="form-label text-xs">Custom Endpoint <span class="text-on-surface-variant font-normal">(R2 or custom — leave blank for AWS)</span></label>
+                    <label class="form-label text-xs">
+                      Endpoint URL
+                      <span class="text-on-surface-variant font-normal">
+                        <%= case (@cloud_cache && @cloud_cache.provider) || :aws do %>
+                          <% :aws -> %>(leave blank to auto-build from region)
+                          <% :r2 -> %>(required: https://&lt;account&gt;.r2.cloudflarestorage.com)
+                          <% :minio -> %>(required: http://host:9000)
+                          <% :s3_compat -> %>(required: https://your-s3-provider.com)
+                        <% end %>
+                      </span>
+                    </label>
                     <input
                       id="cloud-cache-endpoint"
                       type="text"
                       name="endpoint"
                       value={(@cloud_cache && @cloud_cache.endpoint) || ""}
-                      placeholder="https://<account>.r2.cloudflarestorage.com"
+                      placeholder={
+                        case (@cloud_cache && @cloud_cache.provider) || :aws do
+                          :aws -> "https://s3.us-east-1.amazonaws.com (optional)"
+                          :r2 -> "https://<account>.r2.cloudflarestorage.com"
+                          :minio -> "http://minio:9000"
+                          :s3_compat -> "https://your-s3-provider.com"
+                        end
+                      }
                       class="input input-primary w-full text-xs"
                     />
                   </div>

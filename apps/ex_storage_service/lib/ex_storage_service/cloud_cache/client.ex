@@ -1,14 +1,21 @@
 defmodule ExStorageService.CloudCache.Client do
   @moduledoc """
-  HTTP client for S3-compatible cloud storage (AWS S3, Cloudflare R2).
+  HTTP client for S3-compatible cloud storage (AWS S3, Cloudflare R2, MinIO, S3-compatible).
 
   Handles:
   - `put_object/5` — upload to remote bucket (streaming via binary)
   - `get_object/2` — download from remote bucket
   - `head_object/2` — check existence and metadata
   - `delete_object/2` — delete from remote bucket
+  - `test_connection/1` — HEAD on bucket to verify credentials/reachability
 
   All requests are signed with AWS Signature Version 4.
+
+  Region used for SigV4 signing:
+  - `:aws`      — uses `config.region` (default `us-east-1`)
+  - `:r2`       — always `"auto"` (Cloudflare requirement)
+  - `:minio`    — uses `config.region` (default `us-east-1`; value is arbitrary for MinIO)
+  - `:s3_compat` — uses `config.region`
   """
 
   require Logger
@@ -192,7 +199,7 @@ defmodule ExStorageService.CloudCache.Client do
   defp sign_request(method, url_string, extra_headers, body, %Config{} = config) do
     %URI{host: host, path: path, query: query} = URI.parse(url_string)
 
-    region = config.region || "auto"
+    region = signing_region(config)
     access_key_id = config.access_key_id
     secret_key = Config.plaintext_secret(config)
 
@@ -269,6 +276,11 @@ defmodule ExStorageService.CloudCache.Client do
       {"x-amz-content-sha256", payload_hash}
     ] ++ extra_headers
   end
+
+  # R2 always uses "auto" for signing; everything else uses the configured region.
+  defp signing_region(%Config{provider: :r2}), do: "auto"
+  defp signing_region(%Config{region: r}) when is_binary(r) and r != "", do: r
+  defp signing_region(_), do: "us-east-1"
 
   defp hmac_sha256(key, data) when is_binary(key) and is_binary(data) do
     :crypto.mac(:hmac, :sha256, key, data)
