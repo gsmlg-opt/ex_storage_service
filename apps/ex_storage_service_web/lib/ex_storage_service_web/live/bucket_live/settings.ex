@@ -604,7 +604,7 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                   class="select select-primary w-full text-xs"
                   phx-change=""
                 >
-                  <option value="aws" selected={not @cloud_cache or @cloud_cache.provider == :aws}>AWS S3</option>
+                  <option value="aws" selected={!@cloud_cache or @cloud_cache.provider == :aws}>AWS S3</option>
                   <option value="r2" selected={@cloud_cache && @cloud_cache.provider == :r2}>Cloudflare R2</option>
                 </select>
               </div>
@@ -698,8 +698,8 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                 <div class="form-group">
                   <label class="form-label text-xs">Local Cache</label>
                   <select id="cloud-cache-enabled" name="cache_enabled" class="select select-primary text-xs">
-                    <option value="true" selected={not @cloud_cache or @cloud_cache.cache_enabled}>Enabled</option>
-                    <option value="false" selected={@cloud_cache && not @cloud_cache.cache_enabled}>Disabled</option>
+                    <option value="true" selected={!@cloud_cache or @cloud_cache.cache_enabled}>Enabled</option>
+                    <option value="false" selected={@cloud_cache && !@cloud_cache.cache_enabled}>Disabled</option>
                   </select>
                 </div>
               </div>
