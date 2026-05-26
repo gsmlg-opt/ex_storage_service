@@ -3,14 +3,23 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
 
   alias ExStorageService.Metadata
   alias ExStorageService.Storage.Engine
+  alias ExStorageService.CloudCache.Config, as: CloudConfig
+  alias ExStorageService.CloudCache.Client, as: CloudClient
 
   @impl true
   def mount(%{"name" => name}, _session, socket) do
     case Metadata.get_bucket(name) do
       {:ok, _bucket} ->
+        cloud_cache =
+          case CloudConfig.get_active_config(name) do
+            {:ok, config} -> config
+            :disabled -> nil
+          end
+
         {:ok,
          socket
          |> assign(bucket_name: name, prefix: "", objects: [], folders: [], total_count: 0)
+         |> assign(cloud_cache: cloud_cache, cloud_loading: false, cloud_error: nil)
          |> assign(show_confirm_modal: false, confirm_title: "", confirm_message: "",
                   confirm_event: "", confirm_params: %{})}
 
@@ -120,11 +129,26 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
 
       <%!-- Header --%>
       <div class="flex items-center justify-between mt-2 mb-4">
-        <h1 class="text-2xl font-bold text-on-surface">{@bucket_name}</h1>
-        <span class="text-sm text-on-surface-variant">
-          {length(@folders)} folder{if length(@folders) != 1, do: "s", else: ""},
-          {length(@objects)} file{if length(@objects) != 1, do: "s", else: ""}
-        </span>
+        <div class="flex items-center gap-3">
+          <h1 class="text-2xl font-bold text-on-surface">{@bucket_name}</h1>
+          <%= if @cloud_cache do %>
+            <span class="badge badge-xs badge-primary gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/>
+              </svg>
+              Cloud Cache
+            </span>
+          <% end %>
+        </div>
+        <div class="flex items-center gap-3">
+          <%= if @cloud_error do %>
+            <span class="text-xs text-error">{@cloud_error}</span>
+          <% end %>
+          <span class="text-sm text-on-surface-variant">
+            {length(@folders)} folder{if length(@folders) != 1, do: "s", else: ""},
+            {length(@objects)} file{if length(@objects) != 1, do: "s", else: ""}
+          </span>
+        </div>
       </div>
 
       <%!-- Sub-nav tabs --%>
@@ -250,18 +274,20 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
                 <td class="font-mono text-sm">{display_file_name(obj.key, @prefix)}</td>
                 <td class="text-on-surface-variant text-sm">{format_size(obj[:size] || 0)}</td>
                 <td class="text-on-surface-variant text-sm">
-                  {obj[:updated_at] || obj[:created_at]}
+                  {obj[:updated_at] || obj[:last_modified] || obj[:created_at]}
                 </td>
                 <td class="text-right">
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-xs text-error hover:btn-error"
-                    phx-click="open_confirm_modal"
-                    phx-value-key={obj.key}
-                    phx-value-name={display_file_name(obj.key, @prefix)}
-                  >
-                    Delete
-                  </button>
+                  <%= if is_nil(@cloud_cache) do %>
+                    <button
+                      type="button"
+                      class="btn btn-ghost btn-xs text-error hover:btn-error"
+                      phx-click="open_confirm_modal"
+                      phx-value-key={obj.key}
+                      phx-value-name={display_file_name(obj.key, @prefix)}
+                    >
+                      Delete
+                    </button>
+                  <% end %>
                 </td>
               </tr>
             <% end %>
@@ -306,18 +332,42 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
     bucket = socket.assigns.bucket_name
     prefix = socket.assigns.prefix
 
-    case Metadata.list_objects(bucket, prefix: prefix, delimiter: "/") do
-      {:ok, %{keys: keys, common_prefixes: common_prefixes}} ->
-        objects = Enum.map(keys, fn {key, meta} -> Map.put(meta, :key, key) end)
+    case socket.assigns.cloud_cache do
+      nil ->
+        # Local storage: read from Concord metadata
+        case Metadata.list_objects(bucket, prefix: prefix, delimiter: "/") do
+          {:ok, %{keys: keys, common_prefixes: common_prefixes}} ->
+            objects = Enum.map(keys, fn {key, meta} -> Map.put(meta, :key, key) end)
 
-        socket
-        |> assign(:objects, objects)
-        |> assign(:folders, common_prefixes)
+            socket
+            |> assign(:objects, objects)
+            |> assign(:folders, common_prefixes)
+            |> assign(:cloud_error, nil)
 
-      _ ->
-        socket
-        |> assign(:objects, [])
-        |> assign(:folders, [])
+          _ ->
+            socket
+            |> assign(:objects, [])
+            |> assign(:folders, [])
+            |> assign(:cloud_error, nil)
+        end
+
+      cloud_config ->
+        # Cloud cache: list from the remote S3/R2/MinIO bucket
+        case CloudClient.list_objects(cloud_config, prefix: prefix, delimiter: "/") do
+          {:ok, %{keys: keys, common_prefixes: common_prefixes}} ->
+            objects = Enum.map(keys, fn {key, meta} -> Map.put(meta, :key, key) end)
+
+            socket
+            |> assign(:objects, objects)
+            |> assign(:folders, common_prefixes)
+            |> assign(:cloud_error, nil)
+
+          {:error, reason} ->
+            socket
+            |> assign(:objects, [])
+            |> assign(:folders, [])
+            |> assign(:cloud_error, "Failed to list remote objects: #{inspect(reason)}")
+        end
     end
   end
 

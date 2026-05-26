@@ -182,6 +182,65 @@ defmodule ExStorageService.CloudCache.Client do
     end
   end
 
+  @doc """
+  List objects in the remote bucket, using S3 ListObjectsV2.
+
+  Options:
+  - `:prefix` — key prefix to filter (default `""`)
+  - `:delimiter` — delimiter for virtual folders (default `"/"`)
+  - `:max_keys` — max results (default 1000)
+  - `:continuation_token` — pagination token
+
+  Returns `{:ok, %{keys: [{key, meta}], common_prefixes: [prefix], truncated: bool}}`
+  where `meta` is `%{size: integer, last_modified: string, etag: string}`.
+  """
+  @spec list_objects(Config.t(), keyword()) ::
+          {:ok,
+           %{
+             keys: [{String.t(), map()}],
+             common_prefixes: [String.t()],
+             truncated: boolean()
+           }}
+          | {:error, term()}
+  def list_objects(%Config{} = config, opts \\ []) do
+    endpoint = Config.endpoint_url(config)
+    base = String.trim_trailing(endpoint, "/")
+
+    prefix = Keyword.get(opts, :prefix, "")
+    delimiter = Keyword.get(opts, :delimiter, "/")
+    max_keys = Keyword.get(opts, :max_keys, 1000)
+    cont_token = Keyword.get(opts, :continuation_token)
+
+    params =
+      %{
+        "list-type" => "2",
+        "prefix" => prefix,
+        "delimiter" => delimiter,
+        "max-keys" => to_string(max_keys)
+      }
+      |> then(fn m ->
+        if cont_token, do: Map.put(m, "continuation-token", cont_token), else: m
+      end)
+
+    query = URI.encode_query(params)
+    url = "#{base}/#{config.bucket}?#{query}"
+
+    signed_headers = sign_request("GET", url, [], "", config)
+
+    case Req.get(url, headers: signed_headers, decode_body: false) do
+      {:ok, %{status: 200, body: xml_body}} ->
+        {:ok, parse_list_objects_xml(xml_body)}
+
+      {:ok, %{status: status, body: body}} ->
+        Logger.warning("CloudCache LIST failed #{config.bucket}: HTTP #{status} — #{inspect(body)}")
+        {:error, {:http_error, status}}
+
+      {:error, reason} ->
+        Logger.error("CloudCache LIST failed #{config.bucket}: #{inspect(reason)}")
+        {:error, reason}
+    end
+  end
+
   ## Private
 
   defp object_url(endpoint, bucket, key) do
@@ -302,4 +361,54 @@ defmodule ExStorageService.CloudCache.Client do
   defp parse_int(nil), do: 0
   defp parse_int(s) when is_binary(s), do: String.to_integer(s)
   defp parse_int(n) when is_integer(n), do: n
+
+  # Parse S3 ListObjectsV2 XML response into our standard shape.
+  # Uses OTP built-in :xmerl_scan — no extra dependency needed.
+  defp parse_list_objects_xml(xml) when is_binary(xml) do
+    xml_charlist = :erlang.binary_to_list(xml)
+
+    {doc, _rest} =
+      :xmerl_scan.string(xml_charlist, [{:quiet, true}])
+
+    keys =
+      :xmerl_xpath.string(~c"//Contents", doc)
+      |> Enum.map(fn node ->
+        key = xpath_text(node, "Key")
+        size = xpath_text(node, "Size") |> parse_int()
+        last_modified = xpath_text(node, "LastModified")
+        etag = xpath_text(node, "ETag") |> String.trim("\"")
+
+        {key, %{size: size, last_modified: last_modified, etag: etag, updated_at: last_modified}}
+      end)
+
+    common_prefixes =
+      :xmerl_xpath.string(~c"//CommonPrefixes/Prefix", doc)
+      |> Enum.map(&xpath_node_text/1)
+
+    truncated =
+      :xmerl_xpath.string(~c"//IsTruncated", doc)
+      |> case do
+        [node] -> xpath_node_text(node) == "true"
+        _ -> false
+      end
+
+    %{keys: keys, common_prefixes: common_prefixes, truncated: truncated}
+  end
+
+  defp parse_list_objects_xml(_), do: %{keys: [], common_prefixes: [], truncated: false}
+
+  defp xpath_text(node, tag) do
+    case :xmerl_xpath.string(~c"#{tag}/text()", node) do
+      [text_node | _] -> xpath_node_text(text_node)
+      _ -> ""
+    end
+  end
+
+  defp xpath_node_text(node) do
+    case node do
+      {:xmlText, _, _, _, value, _} when is_list(value) -> List.to_string(value)
+      {:xmlText, _, _, _, value, _} when is_binary(value) -> value
+      _ -> ""
+    end
+  end
 end
