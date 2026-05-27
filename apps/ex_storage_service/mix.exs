@@ -28,10 +28,10 @@ defmodule ExStorageService.MixProject do
 
   defp deps do
     [
-      {:concord, "~> 1.0"},
+      {:concord, "~> 2.0"},
       {:req, "~> 0.5"},
       {:jason, "~> 1.4"},
-      {:telemetry_metrics, "~> 0.6"},
+      {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.1"},
       {:dns_cluster, "~> 0.1"},
       {:phoenix_pubsub, "~> 2.1"}
