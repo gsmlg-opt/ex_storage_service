@@ -899,8 +899,30 @@ defmodule ExStorageServiceS3.Handlers do
       {:ok, body, _conn} ->
         case parse_delete_objects_xml(body) do
           {:ok, keys} ->
+            # Resolve cloud cache config once for the batch
+            cloud_cfg = cloud_cache_config(bucket)
+
             results =
               Enum.map(keys, fn key ->
+                # Delete from upstream cloud and clear local cache
+                case cloud_cfg do
+                  {:ok, cloud_config} ->
+                    case CloudClient.delete_object(cloud_config, key) do
+                      :ok ->
+                        Logger.info("CloudCache DELETE upstream OK: #{cloud_config.bucket}/#{key}")
+
+                      {:error, reason} ->
+                        Logger.error(
+                          "CloudCache DELETE upstream FAILED: #{cloud_config.bucket}/#{key} — #{inspect(reason)}"
+                        )
+                    end
+
+                    LocalStore.delete(bucket, key)
+
+                  :disabled ->
+                    :ok
+                end
+
                 case Metadata.get_object_meta(bucket, key) do
                   {:ok, _meta} ->
                     Metadata.delete_object_meta(bucket, key)
