@@ -10,6 +10,11 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
   def mount(%{"name" => name}, _session, socket) do
     case Metadata.get_bucket(name) do
       {:ok, _bucket} ->
+        # Subscribe to real-time bucket change notifications
+        if connected?(socket) do
+          Phoenix.PubSub.subscribe(ExStorageService.PubSub, "bucket:#{name}")
+        end
+
         cloud_cache =
           case CloudConfig.get_active_config(name) do
             {:ok, config} -> config
@@ -89,6 +94,13 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
          |> put_flash(:error, "Object not found")}
     end
   end
+
+  @impl true
+  def handle_info({:bucket_changed, _event}, socket) do
+    {:noreply, load_objects(socket)}
+  end
+
+  def handle_info(_msg, socket), do: {:noreply, socket}
 
   @impl true
   def render(assigns) do

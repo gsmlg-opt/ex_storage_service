@@ -139,6 +139,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
 
                     Metadata.put_object_meta(bucket, key, meta)
                     Hooks.after_put(bucket, key)
+                    broadcast_bucket_change(bucket, :put, key)
 
                     location = "/#{bucket}/#{key}"
 
@@ -265,6 +266,14 @@ defmodule ExStorageServiceS3.MultipartHandlers do
   end
 
   # Private helpers
+
+  defp broadcast_bucket_change(bucket, action, key) do
+    Phoenix.PubSub.broadcast(
+      ExStorageService.PubSub,
+      "bucket:#{bucket}",
+      {:bucket_changed, %{action: action, key: key, bucket: bucket}}
+    )
+  end
 
   defp request_id(conn) do
     conn.assigns[:request_id] || :crypto.strong_rand_bytes(8) |> Base.encode16(case: :upper)

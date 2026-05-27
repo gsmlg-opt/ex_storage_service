@@ -685,6 +685,7 @@ defmodule ExStorageServiceS3.Handlers do
               end
 
               Hooks.after_put(bucket, key)
+              broadcast_bucket_change(bucket, :put, key)
 
               conn
               |> put_s3_headers(request_id)
@@ -759,6 +760,7 @@ defmodule ExStorageServiceS3.Handlers do
 
           Metadata.put_object_meta(bucket, key, meta)
           Hooks.after_put(bucket, key)
+          broadcast_bucket_change(bucket, :put, key)
 
           conn
           |> put_s3_headers(request_id)
@@ -813,6 +815,7 @@ defmodule ExStorageServiceS3.Handlers do
         {:ok, _meta} ->
           Metadata.delete_object_meta(bucket, key)
           Hooks.after_delete(bucket, key)
+          broadcast_bucket_change(bucket, :delete, key)
 
           conn
           |> put_s3_headers(request_id)
@@ -866,6 +869,7 @@ defmodule ExStorageServiceS3.Handlers do
 
                 Metadata.put_object_meta(bucket, key, new_meta)
                 Hooks.after_put(bucket, key)
+                broadcast_bucket_change(bucket, :put, key)
                 last_modified = format_http_date(now)
                 body = XML.copy_object_response("\"#{source_meta.etag}\"", last_modified)
                 xml_response(conn, 200, body, request_id)
@@ -932,6 +936,8 @@ defmodule ExStorageServiceS3.Handlers do
                     {:deleted, key}
                 end
               end)
+
+            broadcast_bucket_change(bucket, :delete_objects, nil)
 
             body = XML.delete_objects_response(results)
             xml_response(conn, 200, body, request_id)
@@ -1285,6 +1291,14 @@ defmodule ExStorageServiceS3.Handlers do
   # Returns {:ok, cloud_config} if cloud cache is active for bucket, :disabled otherwise.
   defp cloud_cache_config(bucket) do
     CloudConfig.get_active_config(bucket)
+  end
+
+  defp broadcast_bucket_change(bucket, action, key) do
+    Phoenix.PubSub.broadcast(
+      ExStorageService.PubSub,
+      "bucket:#{bucket}",
+      {:bucket_changed, %{action: action, key: key, bucket: bucket}}
+    )
   end
 
   defp request_id(conn) do
