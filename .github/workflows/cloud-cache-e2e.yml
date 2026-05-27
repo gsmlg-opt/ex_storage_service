@@ -1,0 +1,161 @@
+name: Cloud Cache E2E
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/ex_storage_service/lib/ex_storage_service/cloud_cache/**'
+      - 'apps/ex_storage_service_s3/lib/ex_storage_service_s3/handlers.ex'
+      - 'apps/ex_storage_service_s3/lib/ex_storage_service_s3/multipart_handlers.ex'
+      - 'e2e/cloud_cache_e2e.sh'
+      - 'e2e/scripts/seed_cloud_cache.exs'
+      - '.github/workflows/cloud-cache-e2e.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MIX_ENV: prod
+  ELIXIR_VERSION: "1.19"
+  OTP_VERSION: "28"
+  ESS_S3_PORT: "9000"
+  ESS_ADMIN_PORT: "4000"
+  ESS_DATA_ROOT: /tmp/ex_storage_service/data
+  ESS_ADMIN_USER: admin
+  ESS_S3_AUTH_ENABLED: "true"
+  ESS_MASTER_KEY: cloud-cache-e2e-master-key-for-ci
+  MINIO_PORT: "9100"
+  MINIO_ENDPOINT: http://localhost:9100
+  MINIO_ACCESS_KEY: minioadmin
+  MINIO_SECRET_KEY: minioadmin
+  MINIO_BUCKET: upstream-e2e
+  ESS_CLOUD_E2E_BUCKET: cloud-e2e
+
+jobs:
+  cloud-cache-e2e:
+    name: Cloud Cache E2E Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Start MinIO properly — service containers use default entrypoint,
+      # so we start minio via a sidecar approach instead.
+      - name: Start MinIO server
+        run: |
+          docker run -d --name minio-server \
+            -p 9100:9000 \
+            -e MINIO_ROOT_USER=minioadmin \
+            -e MINIO_ROOT_PASSWORD=minioadmin \
+            minio/minio server /data
+          # Wait for MinIO to be ready
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:9100/minio/health/live > /dev/null 2>&1; then
+              echo "MinIO is ready"
+              break
+            fi
+            sleep 2
+          done
+
+      - name: Install mc CLI
+        run: |
+          curl -sL https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc
+          chmod +x /usr/local/bin/mc
+          mc --version
+
+      - name: Create upstream MinIO bucket
+        run: |
+          mc alias set minio-upstream "$MINIO_ENDPOINT" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY" --api S3v4
+          mc mb "minio-upstream/${MINIO_BUCKET}"
+          mc ls minio-upstream/
+
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-prod-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-prod-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: mix deps.get --only prod
+
+      - name: Install JS packages
+        run: cd apps/ex_storage_service_web && bun install
+
+      - name: Generate secret key base
+        run: echo "SECRET_KEY_BASE=$(openssl rand -hex 64)" >> "$GITHUB_ENV"
+
+      - name: Build assets
+        run: mix assets.deploy
+
+      - name: Compile
+        run: mix compile
+
+      - name: Reset data root
+        run: |
+          rm -rf "$ESS_DATA_ROOT"
+          mkdir -p "$ESS_DATA_ROOT"
+
+      - name: Seed IAM credentials
+        run: E2E_GITHUB_ENV="$GITHUB_ENV" mix run --no-start e2e/scripts/seed_e2e.exs
+
+      - name: Seed Cloud Cache config
+        run: mix run --no-start e2e/scripts/seed_cloud_cache.exs
+
+      - name: Start ESS application
+        run: |
+          mix phx.server > /tmp/ex_storage_service/app.log 2>&1 &
+          echo "APP_PID=$!" >> "$GITHUB_ENV"
+
+      - name: Wait for ESS S3 API to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:9000/health > /dev/null 2>&1; then
+              echo "ESS S3 API is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "ESS S3 API failed to start"
+          cat /tmp/ex_storage_service/app.log || true
+          exit 1
+
+      - name: Run Cloud Cache E2E tests
+        run: bash e2e/cloud_cache_e2e.sh
+        env:
+          ESS_S3_ENDPOINT: http://localhost:9000
+          ESS_ACCESS_KEY: ${{ env.E2E_ACCESS_KEY_ID }}
+          ESS_SECRET_KEY: ${{ env.E2E_SECRET_ACCESS_KEY }}
+
+      - name: Stop ESS application
+        if: always()
+        run: |
+          if [ -n "${APP_PID:-}" ]; then
+            kill "$APP_PID" 2>/dev/null || true
+          fi
+
+      - name: Print ESS logs on failure
+        if: failure()
+        run: |
+          echo "═══ ESS Application Logs ═══"
+          cat /tmp/ex_storage_service/app.log || true
+
+      - name: Stop MinIO
+        if: always()
+        run: docker rm -f minio-server 2>/dev/null || true
