@@ -90,7 +90,7 @@ defmodule ExStorageService.Application do
         cluster_name = Application.get_env(:concord, :cluster_name, :concord_cluster)
         node_id = {cluster_name, node()}
 
-        case :ra.restart_server(node_id) do
+        case :ra.restart_server(:default, node_id) do
           :ok ->
             Logger.info("Recovered Concord cluster via Ra restart")
             :ra.trigger_election(node_id)
@@ -110,7 +110,7 @@ defmodule ExStorageService.Application do
 
   defp ensure_ra_system do
     case :ra_system.fetch(:default) do
-      %{} ->
+      {:ok, _} ->
         Logger.info("Ra default system already running")
 
       _ ->
