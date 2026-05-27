@@ -12,6 +12,9 @@ default_admin_hash = Base.encode16(:crypto.hash(:sha256, "admin"), case: :lower)
 config :ra, data_dir: ~c"#{Path.join(data_root, "ra")}"
 config :concord, data_dir: Path.join(data_root, "concord")
 
+# Disable libcluster
+config :libcluster, topologies: []
+
 config :ex_storage_service,
   data_root: data_root,
   s3_port: String.to_integer(System.get_env("ESS_S3_PORT", "9000")),
