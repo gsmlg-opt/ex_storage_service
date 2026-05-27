@@ -3,14 +3,22 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
 
   alias ExStorageService.Metadata
   alias ExStorageService.Storage.Versioning
+  alias ExStorageService.CloudCache.Config, as: CloudConfig
+  alias ExStorageService.CloudCache.Client, as: CloudClient
 
   @impl true
   def mount(%{"name" => name}, _session, socket) do
+    cloud_cache =
+      case CloudConfig.get_active_config(name) do
+        {:ok, config} -> config
+        :disabled -> nil
+      end
+
     case Metadata.get_bucket(name) do
       {:ok, bucket} ->
         {:ok,
          socket
-         |> assign(bucket: bucket, bucket_name: name)
+         |> assign(bucket: bucket, bucket_name: name, cloud_cache: cloud_cache)
          |> assign(object_count: 0, total_size: 0, versioning: :disabled)
          |> load_summary()}
 
@@ -182,13 +190,14 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
     bucket = socket.assigns.bucket_name
 
     {count, size} =
-      case Metadata.list_objects(bucket) do
-        {:ok, %{keys: keys}} ->
-          total_size = keys |> Enum.map(fn {_k, meta} -> meta[:size] || 0 end) |> Enum.sum()
-          {length(keys), total_size}
+      case socket.assigns.cloud_cache do
+        nil ->
+          # Local storage: paginate through all Concord metadata
+          collect_local_summary(bucket, nil, 0, 0)
 
-        _ ->
-          {0, 0}
+        cloud_config ->
+          # Cloud-cached bucket: paginate through all remote objects
+          collect_cloud_summary(cloud_config, nil, 0, 0)
       end
 
     versioning = Versioning.get_versioning(bucket)
@@ -197,6 +206,50 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
     |> assign(:object_count, count)
     |> assign(:total_size, size)
     |> assign(:versioning, versioning)
+  end
+
+  defp collect_local_summary(bucket, continuation_token, count_acc, size_acc) do
+    opts =
+      [max_keys: 1000] ++
+        if(continuation_token, do: [continuation_token: continuation_token], else: [])
+
+    case Metadata.list_objects(bucket, opts) do
+      {:ok, %{keys: keys, is_truncated: is_truncated, next_continuation_token: next_token}} ->
+        page_size = keys |> Enum.map(fn {_k, meta} -> Map.get(meta, :size, 0) end) |> Enum.sum()
+        new_count = count_acc + length(keys)
+        new_size = size_acc + page_size
+
+        if is_truncated and next_token do
+          collect_local_summary(bucket, next_token, new_count, new_size)
+        else
+          {new_count, new_size}
+        end
+
+      _ ->
+        {count_acc, size_acc}
+    end
+  end
+
+  defp collect_cloud_summary(cloud_config, continuation_token, count_acc, size_acc) do
+    opts =
+      [max_keys: 1000] ++
+        if(continuation_token, do: [continuation_token: continuation_token], else: [])
+
+    case CloudClient.list_objects(cloud_config, opts) do
+      {:ok, %{keys: keys, truncated: truncated, next_continuation_token: next_token}} ->
+        page_size = keys |> Enum.map(fn {_k, meta} -> Map.get(meta, :size, 0) end) |> Enum.sum()
+        new_count = count_acc + length(keys)
+        new_size = size_acc + page_size
+
+        if truncated and next_token do
+          collect_cloud_summary(cloud_config, next_token, new_count, new_size)
+        else
+          {new_count, new_size}
+        end
+
+      {:error, _reason} ->
+        {count_acc, size_acc}
+    end
   end
 
   defp format_size(bytes) when bytes < 1024, do: "#{bytes} B"
