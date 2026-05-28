@@ -232,7 +232,7 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
 
   defp collect_cloud_summary(cloud_config, continuation_token, count_acc, size_acc) do
     opts =
-      [max_keys: 1000] ++
+      [max_keys: 1000, delimiter: ""] ++
         if(continuation_token, do: [continuation_token: continuation_token], else: [])
 
     case CloudClient.list_objects(cloud_config, opts) do
