@@ -8,3 +8,4 @@ __pycache__/
 /tmp/
 erl_crash.dump
 node_modules
+/apps/ex_storage_service_cli/ess

@@ -92,3 +92,13 @@ jobs:
           tag_name: v${{ inputs.version }}
           name: v${{ inputs.version }}
           generate_release_notes: true
+
+  publish-cli:
+    name: Publish CLI to Hex.pm
+    needs: build-and-release
+    uses: ./.github/workflows/publish-cli.yml
+    with:
+      git_ref: v${{ inputs.version }}
+      version: ${{ inputs.version }}
+    secrets:
+      HEX_API_KEY: ${{ secrets.HEX_API_KEY }}

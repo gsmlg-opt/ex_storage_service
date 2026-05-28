@@ -1,0 +1,106 @@
+name: Publish CLI to Hex.pm
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_ref:
+        description: "Git ref to publish from"
+        required: true
+        default: "main"
+        type: string
+      version:
+        description: "Version to publish (e.g. 0.1.0)"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      git_ref:
+        description: "Git ref to publish from"
+        required: true
+        type: string
+      version:
+        description: "Version to publish"
+        required: true
+        type: string
+    secrets:
+      HEX_API_KEY:
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.version }}
+  cancel-in-progress: false
+
+env:
+  ELIXIR_VERSION: "1.19"
+  OTP_VERSION: "28"
+
+jobs:
+  publish:
+    name: Publish ess v${{ inputs.version }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref }}
+
+      - name: Validate version format
+        run: |
+          if ! echo "${{ inputs.version }}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$'; then
+            echo "::error::Invalid version format: ${{ inputs.version }}"
+            echo "Expected: MAJOR.MINOR.PATCH or MAJOR.MINOR.PATCH-prerelease"
+            exit 1
+          fi
+
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-
+
+      - name: Set version in CLI mix.exs
+        run: |
+          sed -i 's/@version "[^"]*"/@version "${{ inputs.version }}"/' apps/ex_storage_service_cli/mix.exs
+          echo "Updated version:"
+          grep '@version' apps/ex_storage_service_cli/mix.exs
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Compile
+        run: mix compile --warnings-as-errors
+        env:
+          MIX_ENV: prod
+
+      - name: Run CLI tests
+        working-directory: apps/ex_storage_service_cli
+        run: mix test
+
+      - name: Build escript
+        working-directory: apps/ex_storage_service_cli
+        run: |
+          mix escript.build
+          echo "Built escript:"
+          ls -la ess
+          ./ess version
+
+      - name: Publish to Hex.pm
+        working-directory: apps/ex_storage_service_cli
+        run: mix hex.publish --yes
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+
+      - name: Verify published package
+        run: |
+          sleep 5
+          mix hex.info ex_storage_service_cli || echo "Package info will be available shortly"
