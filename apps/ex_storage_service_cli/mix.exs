@@ -8,10 +8,6 @@ defmodule ExStorageServiceCli.MixProject do
     [
       app: :ex_storage_service_cli,
       version: @version,
-      build_path: "../../_build",
-      config_path: "../../config/config.exs",
-      deps_path: "../../deps",
-      lockfile: "../../mix.lock",
       elixir: "~> 1.19",
       start_permanent: false,
       deps: deps(),
@@ -19,7 +15,7 @@ defmodule ExStorageServiceCli.MixProject do
       package: package(),
       description: "CLI tool for ExStorageService S3-compatible object storage",
       source_url: @source_url
-    ]
+    ] ++ umbrella_paths()
   end
 
   def application do
@@ -51,4 +47,20 @@ defmodule ExStorageServiceCli.MixProject do
       files: ~w(lib mix.exs README.md LICENSE)
     ]
   end
+
+  # Only set umbrella paths when running inside the umbrella project.
+  # When installed standalone from hex.pm, these paths don't exist.
+  defp umbrella_paths do
+    if File.exists?(Path.expand("../../mix.exs", __DIR__)) do
+      [
+        build_path: "../../_build",
+        config_path: "../../config/config.exs",
+        deps_path: "../../deps",
+        lockfile: "../../mix.lock"
+      ]
+    else
+      []
+    end
+  end
 end
+
