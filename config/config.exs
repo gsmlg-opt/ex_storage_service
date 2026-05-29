@@ -17,12 +17,18 @@ config :volt,
   root: Path.expand("../apps/ex_storage_service_web/assets", __DIR__),
   outdir: Path.expand("../apps/ex_storage_service_web/priv/static/assets", __DIR__),
   resolve_dirs: [Path.expand("../deps", __DIR__), Path.expand("../node_modules", __DIR__)],
-  target: :es2020,
+  target: :es2022,
   tailwind: [
     css: Path.expand("../apps/ex_storage_service_web/assets/css/app.css", __DIR__),
     sources: [
-      %{base: Path.expand("../apps/ex_storage_service_web/lib/", __DIR__), pattern: "**/*.{ex,heex}"},
-      %{base: Path.expand("../apps/ex_storage_service_web/assets/", __DIR__), pattern: "**/*.{js,ts,jsx,tsx}"},
+      %{
+        base: Path.expand("../apps/ex_storage_service_web/lib/", __DIR__),
+        pattern: "**/*.{ex,heex}"
+      },
+      %{
+        base: Path.expand("../apps/ex_storage_service_web/assets/", __DIR__),
+        pattern: "**/*.{js,ts,jsx,tsx}"
+      },
       %{base: Path.expand("../deps/phoenix_duskmoon/", __DIR__), pattern: "**/*.{ex,heex}"}
     ]
   ]

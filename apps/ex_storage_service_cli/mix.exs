@@ -38,7 +38,7 @@ defmodule ExStorageServiceCli.MixProject do
     [
       {:req, "~> 0.5"},
       {:jason, "~> 1.4"},
-      {:toml, "~> 0.7"},
+      {:gsmlg_toml, "~> 1.0"},
       {:ex_doc, "~> 0.35", only: :dev, runtime: false}
     ]
   end
