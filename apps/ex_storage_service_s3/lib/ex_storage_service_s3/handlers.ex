@@ -170,7 +170,7 @@ defmodule ExStorageServiceS3.Handlers do
   defp list_objects_cloud(conn, bucket, cloud_config, opts, request_id) do
     cloud_opts = [
       prefix: Keyword.get(opts, :prefix, ""),
-      delimiter: Keyword.get(opts, :delimiter) || "/",
+      delimiter: Keyword.get(opts, :delimiter),
       max_keys: Keyword.get(opts, :max_keys, 1000),
       continuation_token: Keyword.get(opts, :continuation_token)
     ]
@@ -190,7 +190,7 @@ defmodule ExStorageServiceS3.Handlers do
 
         response_opts = %{
           prefix: Keyword.get(cloud_opts, :prefix, ""),
-          delimiter: Keyword.get(cloud_opts, :delimiter, "/"),
+          delimiter: Keyword.get(cloud_opts, :delimiter) || "",
           max_keys: Keyword.get(cloud_opts, :max_keys, 1000),
           is_truncated: result.truncated,
           # S3 spec: KeyCount includes both Contents and CommonPrefixes
@@ -589,11 +589,16 @@ defmodule ExStorageServiceS3.Handlers do
             {:ok, cloud_config} ->
               case CloudClient.head_object(cloud_config, key) do
                 {:ok, cloud_meta} ->
-                  last_mod = cloud_meta.last_modified || format_http_date(DateTime.utc_now() |> DateTime.to_iso8601())
+                  last_mod =
+                    cloud_meta.last_modified ||
+                      format_http_date(DateTime.utc_now() |> DateTime.to_iso8601())
 
                   conn
                   |> put_s3_headers(request_id)
-                  |> put_resp_header("content-type", cloud_meta.content_type || "application/octet-stream")
+                  |> put_resp_header(
+                    "content-type",
+                    cloud_meta.content_type || "application/octet-stream"
+                  )
                   |> put_resp_header("etag", "\"#{cloud_meta.etag}\"")
                   |> put_resp_header("content-length", to_string(cloud_meta.content_length))
                   |> put_resp_header("last-modified", last_mod)
@@ -913,7 +918,9 @@ defmodule ExStorageServiceS3.Handlers do
                   {:ok, cloud_config} ->
                     case CloudClient.delete_object(cloud_config, key) do
                       :ok ->
-                        Logger.info("CloudCache DELETE upstream OK: #{cloud_config.bucket}/#{key}")
+                        Logger.info(
+                          "CloudCache DELETE upstream OK: #{cloud_config.bucket}/#{key}"
+                        )
 
                       {:error, reason} ->
                         Logger.error(

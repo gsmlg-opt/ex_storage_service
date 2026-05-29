@@ -54,7 +54,7 @@ defmodule ExStorageServiceCli do
 
   def main(args) do
     {global_opts, rest, _invalid} =
-      OptionParser.parse(args,
+      OptionParser.parse_head(args,
         strict: [
           endpoint: :string,
           profile: :string,

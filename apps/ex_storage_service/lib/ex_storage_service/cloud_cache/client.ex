@@ -208,7 +208,7 @@ defmodule ExStorageService.CloudCache.Client do
     base = String.trim_trailing(endpoint, "/")
 
     prefix = Keyword.get(opts, :prefix, "")
-    delimiter = Keyword.get(opts, :delimiter, "/")
+    delimiter = Keyword.get(opts, :delimiter)
     max_keys = Keyword.get(opts, :max_keys, 1000)
     cont_token = Keyword.get(opts, :continuation_token)
 
@@ -216,9 +216,11 @@ defmodule ExStorageService.CloudCache.Client do
       %{
         "list-type" => "2",
         "prefix" => prefix,
-        "delimiter" => delimiter,
         "max-keys" => to_string(max_keys)
       }
+      |> then(fn m ->
+        if delimiter && delimiter != "", do: Map.put(m, "delimiter", delimiter), else: m
+      end)
       |> then(fn m ->
         if cont_token, do: Map.put(m, "continuation-token", cont_token), else: m
       end)
@@ -233,7 +235,10 @@ defmodule ExStorageService.CloudCache.Client do
         {:ok, parse_list_objects_xml(xml_body)}
 
       {:ok, %{status: status, body: body}} ->
-        Logger.warning("CloudCache LIST failed #{config.bucket}: HTTP #{status} — #{inspect(body)}")
+        Logger.warning(
+          "CloudCache LIST failed #{config.bucket}: HTTP #{status} — #{inspect(body)}"
+        )
+
         {:error, {:http_error, status}}
 
       {:error, reason} ->
@@ -270,14 +275,19 @@ defmodule ExStorageService.CloudCache.Client do
     # SigV4 requires query params sorted alphabetically by name
     canonical_query =
       case query do
-        nil -> ""
-        "" -> ""
+        nil ->
+          ""
+
+        "" ->
+          ""
+
         q ->
           q
           |> URI.decode_query()
           |> Enum.sort_by(fn {k, _} -> k end)
           |> Enum.map_join("&", fn {k, v} ->
-            URI.encode(k, &URI.char_unreserved?/1) <> "=" <> URI.encode(v, &URI.char_unreserved?/1)
+            URI.encode(k, &URI.char_unreserved?/1) <>
+              "=" <> URI.encode(v, &URI.char_unreserved?/1)
           end)
       end
 
@@ -364,7 +374,8 @@ defmodule ExStorageService.CloudCache.Client do
     %{
       content_length: headers |> Map.get("content-length", []) |> List.first() |> parse_int(),
       etag: headers |> Map.get("etag", [""]) |> List.first() |> String.trim("\""),
-      content_type: headers |> Map.get("content-type", ["application/octet-stream"]) |> List.first(),
+      content_type:
+        headers |> Map.get("content-type", ["application/octet-stream"]) |> List.first(),
       last_modified: headers |> Map.get("last-modified", [nil]) |> List.first()
     }
   end
@@ -438,7 +449,8 @@ defmodule ExStorageService.CloudCache.Client do
     }
   end
 
-  defp parse_list_objects_xml(_), do: %{keys: [], common_prefixes: [], truncated: false, next_continuation_token: nil}
+  defp parse_list_objects_xml(_),
+    do: %{keys: [], common_prefixes: [], truncated: false, next_continuation_token: nil}
 
   defp xpath_text(node, tag) do
     case :xmerl_xpath.string(~c"#{tag}/text()", node) do
@@ -449,9 +461,14 @@ defmodule ExStorageService.CloudCache.Client do
 
   defp xpath_node_text(node) do
     case node do
-      {:xmlText, _, _, _, value, _} when is_list(value) -> value |> List.to_string() |> String.trim()
-      {:xmlText, _, _, _, value, _} when is_binary(value) -> String.trim(value)
-      _ -> ""
+      {:xmlText, _, _, _, value, _} when is_list(value) ->
+        value |> List.to_string() |> String.trim()
+
+      {:xmlText, _, _, _, value, _} when is_binary(value) ->
+        String.trim(value)
+
+      _ ->
+        ""
     end
   end
 end
