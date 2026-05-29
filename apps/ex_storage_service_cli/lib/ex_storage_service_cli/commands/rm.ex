@@ -36,7 +36,7 @@ defmodule ExStorageServiceCli.Commands.Rm do
               end
 
             {:error, reason} ->
-              Output.error("Failed to delete: #{reason}")
+              Output.error("Failed to delete: #{Output.format_error(reason)}")
               System.halt(1)
           end
 

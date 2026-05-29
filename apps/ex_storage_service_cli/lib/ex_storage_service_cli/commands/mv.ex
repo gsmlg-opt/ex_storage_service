@@ -89,7 +89,9 @@ defmodule ExStorageServiceCli.Commands.Mv do
             end
 
           {:error, reason} ->
-            Output.warn("Object copied but source deletion failed: #{reason}")
+            Output.warn(
+              "Object copied but source deletion failed: #{Output.format_error(reason)}"
+            )
 
             Output.warn("Source: s3://#{src_bucket}/#{src_key}")
             Output.warn("Destination: s3://#{dst_bucket}/#{dst_key}")
@@ -97,7 +99,7 @@ defmodule ExStorageServiceCli.Commands.Mv do
         end
 
       {:error, reason} ->
-        Output.error("Move failed (copy step): #{reason}")
+        Output.error("Move failed (copy step): #{Output.format_error(reason)}")
         System.halt(1)
     end
   end

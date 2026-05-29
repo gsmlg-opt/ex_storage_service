@@ -127,7 +127,7 @@ defmodule ExStorageServiceCli.Commands.Cp do
         end
 
       {:error, reason} ->
-        Output.error("Upload failed: #{reason}")
+        Output.error("Upload failed: #{Output.format_error(reason)}")
         System.halt(1)
     end
   end
@@ -171,7 +171,7 @@ defmodule ExStorageServiceCli.Commands.Cp do
         System.halt(1)
 
       {:error, reason} ->
-        Output.error("Download failed: #{reason}")
+        Output.error("Download failed: #{Output.format_error(reason)}")
         System.halt(1)
     end
   end
@@ -204,7 +204,7 @@ defmodule ExStorageServiceCli.Commands.Cp do
         end
 
       {:error, reason} ->
-        Output.error("Copy failed: #{reason}")
+        Output.error("Copy failed: #{Output.format_error(reason)}")
         System.halt(1)
     end
   end

@@ -51,5 +51,3 @@ defmodule ExStorageServiceCli.MixProject do
     ]
   end
 end
-
-

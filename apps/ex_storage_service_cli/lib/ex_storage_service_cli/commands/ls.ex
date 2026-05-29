@@ -88,7 +88,7 @@ defmodule ExStorageServiceCli.Commands.Ls do
         end)
 
       {:error, reason} ->
-        Output.error("Failed to list buckets: #{reason}")
+        Output.error("Failed to list buckets: #{Output.format_error(reason)}")
         System.halt(1)
     end
   end
@@ -101,19 +101,20 @@ defmodule ExStorageServiceCli.Commands.Ls do
          ) do
       {:ok, result} ->
         Output.render(result, ctx, fn data ->
-          # Show common prefixes (directories)
-          Enum.each(data.common_prefixes, fn prefix ->
-            IO.puts("#{IO.ANSI.blue()}PRE#{IO.ANSI.reset()} #{prefix}")
+          # Show common prefixes (directories) with relative names
+          Enum.each(data.common_prefixes, fn cp ->
+            display_name = strip_prefix(cp, prefix)
+            IO.puts("#{IO.ANSI.blue()}PRE#{IO.ANSI.reset()} #{display_name}")
           end)
 
-          # Show objects
+          # Show objects with relative keys
           if data.contents != [] do
             rows =
               Enum.map(data.contents, fn obj ->
                 [
                   Output.format_datetime(obj.last_modified),
                   format_size(obj.size),
-                  obj.key
+                  strip_prefix(obj.key, prefix)
                 ]
               end)
 
@@ -126,7 +127,7 @@ defmodule ExStorageServiceCli.Commands.Ls do
         end)
 
       {:error, reason} ->
-        Output.error("Failed to list objects in '#{bucket}': #{reason}")
+        Output.error("Failed to list objects in '#{bucket}': #{Output.format_error(reason)}")
         System.halt(1)
     end
   end
@@ -145,4 +146,11 @@ defmodule ExStorageServiceCli.Commands.Ls do
   end
 
   defp format_size(_), do: String.pad_leading("0 B", 10)
+
+  defp strip_prefix(path, prefix) do
+    case String.trim_leading(path, prefix) do
+      "" -> path
+      relative -> relative
+    end
+  end
 end

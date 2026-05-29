@@ -30,7 +30,7 @@ defmodule ExStorageServiceCli.Commands.Bucket do
               end
 
             {:error, reason} ->
-              Output.error("Failed to create bucket '#{bucket}': #{reason}")
+              Output.error("Failed to create bucket '#{bucket}': #{Output.format_error(reason)}")
               System.halt(1)
           end
 
@@ -71,7 +71,7 @@ defmodule ExStorageServiceCli.Commands.Bucket do
               end
 
             {:error, reason} ->
-              Output.error("Failed to delete bucket '#{bucket}': #{reason}")
+              Output.error("Failed to delete bucket '#{bucket}': #{Output.format_error(reason)}")
               System.halt(1)
           end
 
