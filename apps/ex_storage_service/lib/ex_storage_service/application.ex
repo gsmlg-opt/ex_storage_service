@@ -21,6 +21,9 @@ defmodule ExStorageService.Application do
     # Wait for Concord/Ra to be ready before starting services
     wait_for_concord()
 
+    # Single-node deployment: stop Concord's gossip discovery
+    stop_unwanted_clustering()
+
     # Initialize metrics collection
     ExStorageService.Metrics.setup()
 
@@ -105,6 +108,23 @@ defmodule ExStorageService.Application do
 
       _ ->
         :ok
+    end
+  end
+
+  # WORKAROUND(upstream): gsmlg-dev/concord#11
+  # Concord hardcodes a libcluster Gossip topology (no secret, default multicast
+  # group) and exposes no config to disable it, so it discovers unrelated nodes
+  # on the LAN and logs repeated "not part of network" warnings — with a latent
+  # risk of joining a foreign cluster. This is a single-node deployment, so we
+  # shut the discovery supervisor down once Concord is up. Remove when concord#11
+  # ships a config knob to disable/isolate clustering.
+  defp stop_unwanted_clustering do
+    with pid when is_pid(pid) <- Process.whereis(Concord.ClusterSupervisor),
+         :ok <- Supervisor.terminate_child(Concord.Supervisor, Cluster.Supervisor) do
+      _ = Supervisor.delete_child(Concord.Supervisor, Cluster.Supervisor)
+      Logger.info("Stopped Concord libcluster gossip discovery (single-node deployment)")
+    else
+      _ -> :ok
     end
   end
 
