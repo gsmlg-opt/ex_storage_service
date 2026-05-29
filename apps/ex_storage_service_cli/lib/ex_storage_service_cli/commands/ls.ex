@@ -147,6 +147,9 @@ defmodule ExStorageServiceCli.Commands.Ls do
 
   defp format_size(_), do: String.pad_leading("0 B", 10)
 
+  defp strip_prefix(path, ""), do: path
+  defp strip_prefix(path, nil), do: path
+
   defp strip_prefix(path, prefix) do
     case String.trim_leading(path, prefix) do
       "" -> path
