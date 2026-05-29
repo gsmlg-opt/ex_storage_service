@@ -151,4 +151,85 @@ defmodule ExStorageServiceCli.Output do
   def format_error(reason) when is_binary(reason), do: reason
   def format_error(reason) when is_atom(reason), do: to_string(reason)
   def format_error(reason), do: inspect(reason)
+
+  @doc """
+  Formats an ISO 8601 datetime string to local timezone display format [YYYY-MM-DD HH:MM:SS TZ].
+  """
+  def format_datetime_local(nil), do: ""
+  def format_datetime_local(""), do: ""
+
+  def format_datetime_local(iso_string) do
+    case DateTime.from_iso8601(iso_string) do
+      {:ok, dt, _} ->
+        utc_tuple = {{dt.year, dt.month, dt.day}, {dt.hour, dt.minute, dt.second}}
+        local_tuple = :calendar.universal_time_to_local_time(utc_tuple)
+        {{y, m, d}, {hh, mm, ss}} = local_tuple
+
+        y_str = to_string(y)
+        m_str = to_string(m) |> String.pad_leading(2, "0")
+        d_str = to_string(d) |> String.pad_leading(2, "0")
+        hh_str = to_string(hh) |> String.pad_leading(2, "0")
+        mm_str = to_string(mm) |> String.pad_leading(2, "0")
+        ss_str = to_string(ss) |> String.pad_leading(2, "0")
+
+        tz = local_timezone()
+        "[#{y_str}-#{m_str}-#{d_str} #{hh_str}:#{mm_str}:#{ss_str} #{tz}]"
+
+      _ ->
+        iso_string
+    end
+  end
+
+  @doc """
+  Returns the current system datetime formatted in the local timezone.
+  """
+  def current_datetime_local do
+    utc_tuple = :erlang.universaltime()
+    local_tuple = :calendar.universal_time_to_local_time(utc_tuple)
+    {{y, m, d}, {hh, mm, ss}} = local_tuple
+
+    y_str = to_string(y)
+    m_str = to_string(m) |> String.pad_leading(2, "0")
+    d_str = to_string(d) |> String.pad_leading(2, "0")
+    hh_str = to_string(hh) |> String.pad_leading(2, "0")
+    mm_str = to_string(mm) |> String.pad_leading(2, "0")
+    ss_str = to_string(ss) |> String.pad_leading(2, "0")
+
+    tz = local_timezone()
+    "[#{y_str}-#{m_str}-#{d_str} #{hh_str}:#{mm_str}:#{ss_str} #{tz}]"
+  end
+
+  @doc """
+  Formats a byte count into a short representation like 36B, 12KB, 2.4MB, 1.2GB.
+  """
+  def format_bytes_short(bytes) when is_integer(bytes) do
+    cond do
+      bytes >= 1_073_741_824 ->
+        "#{Float.round(bytes / 1_073_741_824, 1)}GB"
+
+      bytes >= 1_048_576 ->
+        "#{Float.round(bytes / 1_048_576, 1)}MB"
+
+      bytes >= 1_024 ->
+        "#{Float.round(bytes / 1_024, 1)}KB"
+
+      true ->
+        "#{bytes}B"
+    end
+  end
+
+  def format_bytes_short(_), do: "0B"
+
+  defp local_timezone do
+    case :os.cmd(~c"date +%Z") do
+      tz when is_list(tz) ->
+        res = tz |> to_string() |> String.trim()
+        if res != "", do: res, else: "CST"
+
+      _ ->
+        "CST"
+    end
+  rescue
+    _ -> "CST"
+  end
 end

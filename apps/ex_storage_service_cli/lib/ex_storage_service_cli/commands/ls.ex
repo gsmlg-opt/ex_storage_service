@@ -101,29 +101,28 @@ defmodule ExStorageServiceCli.Commands.Ls do
          ) do
       {:ok, result} ->
         Output.render(result, ctx, fn data ->
-          # Show common prefixes (directories) with relative names
-          Enum.each(data.common_prefixes, fn cp ->
-            display_name = strip_prefix(cp, prefix)
-            IO.puts("#{IO.ANSI.blue()}PRE#{IO.ANSI.reset()} #{display_name}")
+          # Sort files and common prefixes (directories) alphabetically
+          sorted_contents = Enum.sort_by(data.contents, fn obj -> obj.key end)
+          sorted_prefixes = Enum.sort(data.common_prefixes)
+
+          # Show objects (files) first
+          Enum.each(sorted_contents, fn obj ->
+            datetime_str = Output.format_datetime_local(obj.last_modified)
+            size_str = Output.format_bytes_short(obj.size) |> String.pad_leading(6)
+            storage_class = if obj.storage_class == "", do: "STANDARD", else: obj.storage_class
+            name = strip_prefix(obj.key, prefix)
+
+            IO.puts("#{datetime_str} #{size_str} #{storage_class} #{name}")
           end)
 
-          # Show objects with relative keys
-          if data.contents != [] do
-            rows =
-              Enum.map(data.contents, fn obj ->
-                [
-                  Output.format_datetime(obj.last_modified),
-                  format_size(obj.size),
-                  strip_prefix(obj.key, prefix)
-                ]
-              end)
+          # Show common prefixes (directories) next
+          Enum.each(sorted_prefixes, fn cp ->
+            datetime_str = Output.current_datetime_local()
+            size_str = "0B" |> String.pad_leading(6)
+            name = strip_prefix(cp, prefix)
 
-            Output.table(["LAST MODIFIED", "SIZE", "KEY"], rows)
-          end
-
-          total = length(data.contents) + length(data.common_prefixes)
-          truncated = if data.is_truncated, do: " (truncated)", else: ""
-          Output.info("\n#{total} item(s)#{truncated}")
+            IO.puts("#{datetime_str} #{size_str} #{name}")
+          end)
         end)
 
       {:error, reason} ->
@@ -140,12 +139,6 @@ defmodule ExStorageServiceCli.Commands.Ls do
       [bucket, prefix] -> {bucket, prefix}
     end
   end
-
-  defp format_size(size) when is_integer(size) do
-    Output.format_bytes(size) |> String.pad_leading(10)
-  end
-
-  defp format_size(_), do: String.pad_leading("0 B", 10)
 
   defp strip_prefix(path, ""), do: path
   defp strip_prefix(path, nil), do: path
