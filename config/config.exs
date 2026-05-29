@@ -12,23 +12,19 @@ config :ex_storage_service_web, ExStorageServiceWeb.Endpoint,
 
 config :ex_storage_service, :json_library, Jason
 
-config :bun,
-  version: "1.3.4",
-  ex_storage_service_web: [
-    args:
-      ~w(build js/app.js --outdir=../priv/static/assets --external=/fonts/* --external=/images/*),
-    cd: Path.expand("../apps/ex_storage_service_web/assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
-  ]
-
-config :tailwind,
-  version: "4.1.11",
-  ex_storage_service_web: [
-    args: ~w(
-      --input=css/app.css
-      --output=../priv/static/assets/app.css
-    ),
-    cd: Path.expand("../apps/ex_storage_service_web/assets", __DIR__)
+config :volt,
+  entry: Path.expand("../apps/ex_storage_service_web/assets/js/app.js", __DIR__),
+  root: Path.expand("../apps/ex_storage_service_web/assets", __DIR__),
+  outdir: Path.expand("../apps/ex_storage_service_web/priv/static/assets", __DIR__),
+  resolve_dirs: [Path.expand("../deps", __DIR__), Path.expand("../node_modules", __DIR__)],
+  target: :es2020,
+  tailwind: [
+    css: Path.expand("../apps/ex_storage_service_web/assets/css/app.css", __DIR__),
+    sources: [
+      %{base: Path.expand("../apps/ex_storage_service_web/lib/", __DIR__), pattern: "**/*.{ex,heex}"},
+      %{base: Path.expand("../apps/ex_storage_service_web/assets/", __DIR__), pattern: "**/*.{js,ts,jsx,tsx}"},
+      %{base: Path.expand("../deps/phoenix_duskmoon/", __DIR__), pattern: "**/*.{ex,heex}"}
+    ]
   ]
 
 # Ra configuration (Raft consensus used by Concord)

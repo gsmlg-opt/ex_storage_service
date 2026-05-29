@@ -40,22 +40,17 @@ defmodule ExStorageServiceWeb.MixProject do
       {:phoenix_live_dashboard, "~> 0.8"},
       {:jason, "~> 1.4"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:bun, "~> 1.6 or ~> 2.0", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.4", runtime: Mix.env() == :dev},
+      {:volt, "~> 0.14"},
       {:phoenix_duskmoon, "~> 9.1"}
     ]
   end
 
   defp aliases do
     [
-      setup: ["deps.get", "bun.install", "assets.setup", "assets.build"],
-      "assets.setup": ["tailwind.install --if-missing"],
-      "assets.build": ["tailwind ex_storage_service_web", "bun ex_storage_service_web"],
-      "assets.deploy": [
-        "tailwind ex_storage_service_web --minify",
-        "bun ex_storage_service_web",
-        "phx.digest"
-      ]
+      setup: ["deps.get", "assets.setup", "assets.build"],
+      "assets.setup": ["cmd --app ex_storage_service_web mix npm.install", "duskmoon.bundle"],
+      "assets.build": ["volt.build --tailwind"],
+      "assets.deploy": ["duskmoon.bundle", "volt.build --tailwind", "phx.digest"]
     ]
   end
 end

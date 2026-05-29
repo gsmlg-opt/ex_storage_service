@@ -29,6 +29,7 @@ defmodule ExStorageService.Replication.Config do
   def get_bucket_replicas(bucket) do
     case Concord.get("replication:#{bucket}") do
       {:ok, nil} -> {:ok, []}
+      {:error, :not_found} -> {:ok, []}
       {:ok, replicas} when is_list(replicas) -> {:ok, to_structs(replicas)}
       {:ok, replicas} -> {:ok, to_structs(replicas)}
       {:error, reason} -> {:error, reason}

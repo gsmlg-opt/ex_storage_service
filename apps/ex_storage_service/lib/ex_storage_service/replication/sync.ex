@@ -113,7 +113,7 @@ defmodule ExStorageService.Replication.Sync do
         end)
 
       {:error, reason} ->
-        Logger.error("Failed to get replicas for bucket #{bucket}: #{inspect(reason)}")
+        Logger.warning("Failed to get replicas for bucket #{bucket}: #{inspect(reason)}")
     end
   end
 

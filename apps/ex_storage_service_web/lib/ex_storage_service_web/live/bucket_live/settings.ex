@@ -58,15 +58,24 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
   def handle_event("add_lifecycle_rule", params, socket) do
     bucket = socket.assigns.bucket_name
     prefix = String.trim(params["prefix"] || "")
-    days = String.to_integer(params["expiration_days"] || "0")
 
-    rule = %{prefix: prefix, status: "Enabled", expiration_days: days}
-    new_rules = socket.assigns.lifecycle_rules ++ [rule]
+    days =
+      case Integer.parse(params["expiration_days"] || "") do
+        {d, _} -> d
+        :error -> 0
+      end
 
-    case Lifecycle.put_rules(bucket, new_rules) do
-      :ok -> {:noreply, socket |> put_flash(:info, "Lifecycle rule added") |> load_config()}
-      {:ok, _} -> {:noreply, socket |> put_flash(:info, "Lifecycle rule added") |> load_config()}
-      {:error, reason} -> {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}
+    if days <= 0 do
+      {:noreply, put_flash(socket, :error, "Expiration days must be a positive number")}
+    else
+      rule = %{prefix: prefix, status: "Enabled", expiration_days: days}
+      new_rules = socket.assigns.lifecycle_rules ++ [rule]
+
+      case Lifecycle.put_rules(bucket, new_rules) do
+        :ok -> {:noreply, socket |> put_flash(:info, "Lifecycle rule added") |> load_config()}
+        {:ok, _} -> {:noreply, socket |> put_flash(:info, "Lifecycle rule added") |> load_config()}
+        {:error, reason} -> {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}
+      end
     end
   end
 
@@ -192,9 +201,14 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
   end
 
   def handle_event("clear_cloud_cache", _params, socket) do
-    bucket = socket.assigns.bucket_name
-    LocalStore.clear(bucket)
-    {:noreply, socket |> put_flash(:info, "Local cache cleared") |> load_config()}
+    {:noreply,
+     assign(socket,
+       show_confirm_modal: true,
+       confirm_title: "Clear Local Cache",
+       confirm_message: "Clear all cached files for \"#{socket.assigns.bucket_name}\"? This will remove locally cached objects and refresh metadata from the upstream S3.",
+       confirm_event: "confirm_clear_cloud_cache",
+       confirm_params: %{}
+     )}
   end
 
   def handle_event("test_cloud_connection", _params, socket) do
@@ -203,15 +217,19 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
         {:noreply, put_flash(socket, :error, "No cloud cache configured")}
 
       %CloudConfig{} = config ->
-        result =
-          case CloudClient.test_connection(config) do
-            :ok -> {:ok, "Connection successful!"}
-            {:error, :forbidden} -> {:error, "Connected but credentials may be invalid (403)"}
-            {:error, :bucket_not_found} -> {:error, "Bucket not found on remote (404)"}
-            {:error, reason} -> {:error, "Connection failed: #{inspect(reason)}"}
-          end
+        case CloudClient.test_connection(config) do
+          :ok ->
+            {:noreply, put_flash(socket, :info, "Connection successful!")}
 
-        {:noreply, assign(socket, :cloud_cache_test_result, result)}
+          {:error, :forbidden} ->
+            {:noreply, put_flash(socket, :error, "Connected but credentials may be invalid (403)")}
+
+          {:error, :bucket_not_found} ->
+            {:noreply, put_flash(socket, :error, "Bucket not found on remote (404)")}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Connection failed: #{inspect(reason)}")}
+        end
     end
   end
 
@@ -286,6 +304,11 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
            "Remove cloud cache configuration for \"#{socket.assigns.bucket_name}\"? The local cache will also be cleared.",
            "confirm_delete_cloud_cache", "Remove"}
 
+        "clear_cloud_cache" ->
+          {"Clear Local Cache",
+           "Clear all cached files for \"#{socket.assigns.bucket_name}\"? This will remove locally cached objects and refresh metadata from the upstream S3.",
+           "confirm_clear_cloud_cache", "Clear"}
+
         _ ->
           {"Confirm", "Are you sure?", "", "Confirm"}
       end
@@ -351,6 +374,12 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
     CloudConfig.delete_config(bucket)
     LocalStore.clear(bucket)
     {:noreply, socket |> assign(show_confirm_modal: false) |> put_flash(:info, "Cloud cache removed") |> load_config()}
+  end
+
+  def handle_event("confirm_clear_cloud_cache", _params, socket) do
+    bucket = socket.assigns.bucket_name
+    LocalStore.clear(bucket)
+    {:noreply, socket |> assign(show_confirm_modal: false) |> put_flash(:info, "Local cache cleared") |> load_config()}
   end
 
   # ── Render ───────────────────────────────────────────────────────────────────
@@ -593,6 +622,7 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                   name="expiration_days"
                   placeholder="Days"
                   min="1"
+                  required
                   class="input input-primary w-24 text-xs"
                 />
                 <button type="submit" class="btn btn-primary btn-xs">Add Rule</button>
@@ -693,15 +723,6 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
               </label>
             </div>
 
-            <%!-- Test connection result --%>
-            <%= if @cloud_cache_test_result do %>
-              <div class={"mt-3 p-2 rounded text-xs #{case @cloud_cache_test_result do; {:ok, _} -> "bg-success/10 text-success"; {:error, _} -> "bg-error/10 text-error"; end}"}>
-                {case @cloud_cache_test_result do
-                  {:ok, msg} -> msg
-                  {:error, msg} -> msg
-                end}
-              </div>
-            <% end %>
 
             <%!-- Cache stats bar --%>
             <%= if @cloud_cache_stats && @cloud_cache_stats.max_bytes > 0 do %>
@@ -827,16 +848,16 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                     <label class="form-label text-xs">Local Cache</label>
                     <div class="flex items-center gap-2 h-9">
                       <label class="flex items-center gap-2 cursor-pointer select-none">
-                        <input
-                          id="cloud-cache-enabled"
-                          type="checkbox"
-                          name="cache_enabled"
-                          value="true"
-                          class="sr-only peer"
-                          checked={!@cloud_cache || @cloud_cache.cache_enabled}
-                        />
-                        <div class="relative w-10 h-6">
-                          <div class="w-10 h-6 bg-outline-variant rounded-full peer-checked:bg-primary transition-colors"></div>
+                        <div class="relative">
+                          <input
+                            id="cloud-cache-enabled"
+                            type="checkbox"
+                            name="cache_enabled"
+                            value="true"
+                            class="sr-only peer"
+                            checked={!@cloud_cache || @cloud_cache.cache_enabled}
+                          />
+                          <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors"></div>
                           <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
                         </div>
                         <span class="text-xs text-on-surface-variant">LRU cache reads</span>
@@ -857,8 +878,9 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                       <button
                         id="clear-cloud-cache-btn"
                         type="button"
-                        class="btn btn-outline btn-warning btn-sm"
-                        phx-click="clear_cloud_cache"
+                        class="btn btn-warning text-on-primary btn-sm"
+                        phx-click="open_confirm_modal"
+                        phx-value-action="clear_cloud_cache"
                       >
                         Clear Cache
                       </button>

@@ -1,0 +1,21 @@
+{
+  "lockfileVersion": 1,
+  "packages": {
+    "@duskmoon-dev/core": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-217ZdHI3LdOBk/weWpJ0CX294693CpFdyeGUy7qO4C6MPEbjciyuA84lOWM258qE7P3yKVlAQQ9ni7kaU4wmIg==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@duskmoon-dev/core/-/core-1.17.0.tgz",
+      "version": "1.17.0"
+    }
+  },
+  "policy": {
+    "allow_registry_redirects": false,
+    "allowed_registries": [
+      "https://registry.npmjs.org"
+    ],
+    "block_exotic_subdeps": true,
+    "exotic_deps": []
+  }
+}

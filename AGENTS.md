@@ -20,7 +20,7 @@ mix format                         # Format code
 mix format --check-formatted       # Check formatting (CI)
 mix compile --warnings-as-errors   # Compile with strict warnings (CI)
 mix phx.server                     # Start all apps (S3 API + admin portal)
-cd apps/ex_storage_service_web && bun install  # Install JS deps
+mix volt.build --tailwind          # Build frontend assets
 ```
 
 ## Key Design Decisions
@@ -28,7 +28,7 @@ cd apps/ex_storage_service_web && bun install  # Install JS deps
 - **No Ecto/database.** All metadata lives in Concord (Raft KV). There are no migrations, no Repo, no schemas.
 - **S3 router is not Phoenix.** The S3 API (`apps/ex_storage_service_s3/lib/ex_storage_service_s3/router.ex`) is a standalone `Plug.Router`, not a Phoenix router. Don't use Phoenix helpers there.
 - **S3 modules use `ExStorageServiceS3.*` naming** (not `ExStorageService.S3.*`).
-- **Assets use Bun + Tailwind v4.** The admin UI uses `phoenix_duskmoon` (GitHub dep), not standard Phoenix components. Assets live in `apps/ex_storage_service_web/assets/`.
+- **Assets use Volt.** The admin UI uses `phoenix_duskmoon` (GitHub dep), not standard Phoenix components. Assets live in `apps/ex_storage_service_web/assets/`. Volt (Elixir-native, powered by OXC and LightningCSS) replaces Bun and the Tailwind CLI — no Node.js/Bun binaries needed. npm packages (e.g., `@duskmoon-dev/core`) are managed by `npm_ex` (`mix npm.install`) — no npm CLI required either.
 - **Elixir ~> 1.19, OTP 28.** CI uses these versions. The built-in `JSON` module is available (Elixir 1.18+).
 
 ## Architecture
@@ -107,15 +107,13 @@ Routes require admin session (`RequireAdmin` plug):
 | `ESS_ADMIN_PASSWORD_HASH` | SHA256("admin") | Admin password hash |
 | `ESS_MASTER_KEY` | auto-generated (dev/test) | AES-256 encryption key (required in prod) |
 | `SECRET_KEY_BASE` | — | Phoenix session key (required in prod) |
-| `MIX_BUN_PATH` | — | Override bun binary path (for devenv) |
-| `MIX_TAILWIND_PATH` | — | Override tailwind binary path (for devenv) |
 
 ## Configuration
 
 - Core config: `config :ex_storage_service, ...`
 - Web endpoint config: `config :ex_storage_service_web, ExStorageServiceWeb.Endpoint, ...`
 - S3 port is under core config: `config :ex_storage_service, s3_port: ...`
-- Asset build tools (bun, tailwind) use profile `:ex_storage_service_web`
+- Asset build tool: `config :volt, ...` in `config/config.exs`
 
 ## UI Library
 
