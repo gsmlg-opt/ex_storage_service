@@ -251,7 +251,7 @@ defmodule ExStorageService.CloudCache.Client do
 
   defp object_url(endpoint, bucket, key) do
     base = String.trim_trailing(endpoint, "/")
-    encoded_key = URI.encode(key, &URI.char_unreserved?/1)
+    encoded_key = URI.encode(key, &(&1 == ?/ or URI.char_unreserved?(&1)))
     "#{base}/#{bucket}/#{encoded_key}"
   end
 
