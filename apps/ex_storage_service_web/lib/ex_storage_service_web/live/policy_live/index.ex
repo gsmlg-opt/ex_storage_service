@@ -21,8 +21,13 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
       |> assign(:bucket_name, "")
       |> assign(:create_error, nil)
       |> assign(:show_create_modal, false)
-      |> assign(show_confirm_modal: false, confirm_title: "", confirm_message: "",
-               confirm_event: "", confirm_params: %{})
+      |> assign(
+        show_confirm_modal: false,
+        confirm_title: "",
+        confirm_message: "",
+        confirm_event: "",
+        confirm_params: %{}
+      )
 
     {:ok, socket}
   end
@@ -233,7 +238,8 @@ defmodule ExStorageServiceWeb.PolicyLive.Index do
 
               <div class="form-group">
                 <label for="policy-bucket-name" class="form-label font-medium">
-                  Bucket Name <span class="font-normal text-on-surface-variant">(for BucketScoped)</span>
+                  Bucket Name
+                  <span class="font-normal text-on-surface-variant">(for BucketScoped)</span>
                 </label>
                 <input
                   type="text"

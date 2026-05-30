@@ -24,8 +24,13 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
          |> assign(versioning: :disabled, lifecycle_rules: [], notifications: [], replicas: [])
          |> assign(access_keys: [], presigned_url: nil)
          |> assign(cloud_cache: nil, cloud_cache_stats: nil, cloud_cache_test_result: nil)
-         |> assign(show_confirm_modal: false, confirm_title: "", confirm_message: "",
-                  confirm_event: "", confirm_params: %{})
+         |> assign(
+           show_confirm_modal: false,
+           confirm_title: "",
+           confirm_message: "",
+           confirm_event: "",
+           confirm_params: %{}
+         )
          |> load_config()}
 
       {:error, :not_found} ->
@@ -72,9 +77,14 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
       new_rules = socket.assigns.lifecycle_rules ++ [rule]
 
       case Lifecycle.put_rules(bucket, new_rules) do
-        :ok -> {:noreply, socket |> put_flash(:info, "Lifecycle rule added") |> load_config()}
-        {:ok, _} -> {:noreply, socket |> put_flash(:info, "Lifecycle rule added") |> load_config()}
-        {:error, reason} -> {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}
+        :ok ->
+          {:noreply, socket |> put_flash(:info, "Lifecycle rule added") |> load_config()}
+
+        {:ok, _} ->
+          {:noreply, socket |> put_flash(:info, "Lifecycle rule added") |> load_config()}
+
+        {:error, reason} ->
+          {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}
       end
     end
   end
@@ -152,11 +162,13 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
     remote_bucket = String.trim(params["bucket"] || "")
     access_key_id = String.trim(params["access_key_id"] || "")
     secret_key = String.trim(params["secret_access_key"] || "")
+
     cache_max_gb =
       case Float.parse(params["cache_max_gb"] || "10") do
         {f, _} -> f
         :error -> 10.0
       end
+
     cache_enabled = params["cache_enabled"] == "true"
 
     if remote_bucket == "" or access_key_id == "" do
@@ -205,7 +217,8 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
      assign(socket,
        show_confirm_modal: true,
        confirm_title: "Clear Local Cache",
-       confirm_message: "Clear all cached files for \"#{socket.assigns.bucket_name}\"? This will remove locally cached objects and refresh metadata from the upstream S3.",
+       confirm_message:
+         "Clear all cached files for \"#{socket.assigns.bucket_name}\"? This will remove locally cached objects and refresh metadata from the upstream S3.",
        confirm_event: "confirm_clear_cloud_cache",
        confirm_params: %{}
      )}
@@ -222,7 +235,8 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
             {:noreply, put_flash(socket, :info, "Connection successful!")}
 
           {:error, :forbidden} ->
-            {:noreply, put_flash(socket, :error, "Connected but credentials may be invalid (403)")}
+            {:noreply,
+             put_flash(socket, :error, "Connected but credentials may be invalid (403)")}
 
           {:error, :bucket_not_found} ->
             {:noreply, put_flash(socket, :error, "Bucket not found on remote (404)")}
@@ -292,12 +306,12 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
           {"Remove Replicas", "Remove all replicas?", "confirm_remove_replicas", "Remove All"}
 
         "delete_lifecycle" ->
-          {"Remove Lifecycle Rules", "Remove all lifecycle rules?",
-           "confirm_delete_lifecycle", "Remove All"}
+          {"Remove Lifecycle Rules", "Remove all lifecycle rules?", "confirm_delete_lifecycle",
+           "Remove All"}
 
         "delete_notifications" ->
-          {"Remove Notifications", "Remove all notifications?",
-           "confirm_delete_notifications", "Remove All"}
+          {"Remove Notifications", "Remove all notifications?", "confirm_delete_notifications",
+           "Remove All"}
 
         "delete_cloud_cache" ->
           {"Remove Cloud Cache Config",
@@ -356,30 +370,55 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
 
   def handle_event("confirm_remove_replicas", _params, socket) do
     ReplicationConfig.remove_bucket_replicas(socket.assigns.bucket_name)
-    {:noreply, socket |> assign(show_confirm_modal: false) |> put_flash(:info, "Replicas removed") |> load_config()}
+
+    {:noreply,
+     socket
+     |> assign(show_confirm_modal: false)
+     |> put_flash(:info, "Replicas removed")
+     |> load_config()}
   end
 
   def handle_event("confirm_delete_lifecycle", _params, socket) do
     Lifecycle.delete_rules(socket.assigns.bucket_name)
-    {:noreply, socket |> assign(show_confirm_modal: false) |> put_flash(:info, "Lifecycle rules removed") |> load_config()}
+
+    {:noreply,
+     socket
+     |> assign(show_confirm_modal: false)
+     |> put_flash(:info, "Lifecycle rules removed")
+     |> load_config()}
   end
 
   def handle_event("confirm_delete_notifications", _params, socket) do
     Notifications.delete_config(socket.assigns.bucket_name)
-    {:noreply, socket |> assign(show_confirm_modal: false) |> put_flash(:info, "Notifications removed") |> load_config()}
+
+    {:noreply,
+     socket
+     |> assign(show_confirm_modal: false)
+     |> put_flash(:info, "Notifications removed")
+     |> load_config()}
   end
 
   def handle_event("confirm_delete_cloud_cache", _params, socket) do
     bucket = socket.assigns.bucket_name
     CloudConfig.delete_config(bucket)
     LocalStore.clear(bucket)
-    {:noreply, socket |> assign(show_confirm_modal: false) |> put_flash(:info, "Cloud cache removed") |> load_config()}
+
+    {:noreply,
+     socket
+     |> assign(show_confirm_modal: false)
+     |> put_flash(:info, "Cloud cache removed")
+     |> load_config()}
   end
 
   def handle_event("confirm_clear_cloud_cache", _params, socket) do
     bucket = socket.assigns.bucket_name
     LocalStore.clear(bucket)
-    {:noreply, socket |> assign(show_confirm_modal: false) |> put_flash(:info, "Local cache cleared") |> load_config()}
+
+    {:noreply,
+     socket
+     |> assign(show_confirm_modal: false)
+     |> put_flash(:info, "Local cache cleared")
+     |> load_config()}
   end
 
   # ── Render ───────────────────────────────────────────────────────────────────
@@ -437,7 +476,6 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
 
       <%!-- Settings modules — each full-width with enable/disable toggle --%>
       <div class="space-y-4 mb-8">
-
         <%!-- ── Versioning ─────────────────────────────────────────────── --%>
         <div class="card">
           <div class="card-body">
@@ -461,8 +499,10 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                     phx-click="set_versioning"
                     phx-value-state={if @versioning == :enabled, do: "suspended", else: "enabled"}
                   />
-                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors"></div>
-                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors">
+                  </div>
+                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4">
+                  </div>
                 </div>
               </label>
             </div>
@@ -496,11 +536,13 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
               <div>
                 <h3 class="card-title text-base">Replication</h3>
                 <p class="text-xs text-on-surface-variant mt-0.5">
-                  Mirror objects to peer S3-compatible nodes for redundancy.
-                  {@replicas |> length()} replica(s) configured.
+                  Mirror objects to peer S3-compatible nodes for redundancy. {@replicas |> length()} replica(s) configured.
                 </p>
               </div>
-              <label id="replication-toggle" class="flex items-center gap-2 cursor-pointer select-none">
+              <label
+                id="replication-toggle"
+                class="flex items-center gap-2 cursor-pointer select-none"
+              >
                 <span class="text-xs text-on-surface-variant">
                   {if @replicas != [], do: "Active", else: "Off"}
                 </span>
@@ -512,8 +554,10 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                     phx-click={if @replicas != [], do: "open_confirm_modal", else: ""}
                     phx-value-action="remove_replicas"
                   />
-                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors"></div>
-                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors">
+                  </div>
+                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4">
+                  </div>
                 </div>
               </label>
             </div>
@@ -573,8 +617,8 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
               <div>
                 <h3 class="card-title text-base">Lifecycle Rules</h3>
                 <p class="text-xs text-on-surface-variant mt-0.5">
-                  Automatically expire objects matching a prefix after N days.
-                  {@lifecycle_rules |> length()} rule(s) active.
+                  Automatically expire objects matching a prefix after N days. {@lifecycle_rules
+                  |> length()} rule(s) active.
                 </p>
               </div>
               <label id="lifecycle-toggle" class="flex items-center gap-2 cursor-pointer select-none">
@@ -589,8 +633,10 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                     phx-click={if @lifecycle_rules != [], do: "open_confirm_modal", else: ""}
                     phx-value-action="delete_lifecycle"
                   />
-                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors"></div>
-                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors">
+                  </div>
+                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4">
+                  </div>
                 </div>
               </label>
             </div>
@@ -601,10 +647,15 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                   <span class={
                     "w-2 h-2 rounded-full flex-shrink-0 " <>
                     if (rule[:status] || rule.status) == "Enabled", do: "bg-success", else: "bg-outline-variant"
-                  }></span>
-                  <span class="font-mono text-primary">{rule[:prefix] || rule.prefix || "(all)"}</span>
+                  }>
+                  </span>
+                  <span class="font-mono text-primary">
+                    {rule[:prefix] || rule.prefix || "(all)"}
+                  </span>
                   <span class="text-on-surface-variant">→ expire after</span>
-                  <span class="font-medium">{rule[:expiration_days] || rule.expiration_days} days</span>
+                  <span class="font-medium">
+                    {rule[:expiration_days] || rule.expiration_days} days
+                  </span>
                   <span class={"ml-auto text-xs #{if (rule[:status] || rule.status) == "Enabled", do: "text-success", else: "text-on-surface-variant"}"}>
                     {rule[:status] || rule.status}
                   </span>
@@ -638,11 +689,13 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
               <div>
                 <h3 class="card-title text-base">Notifications</h3>
                 <p class="text-xs text-on-surface-variant mt-0.5">
-                  Send webhook events on object create/delete.
-                  {@notifications |> length()} endpoint(s) configured.
+                  Send webhook events on object create/delete. {@notifications |> length()} endpoint(s) configured.
                 </p>
               </div>
-              <label id="notifications-toggle" class="flex items-center gap-2 cursor-pointer select-none">
+              <label
+                id="notifications-toggle"
+                class="flex items-center gap-2 cursor-pointer select-none"
+              >
                 <span class="text-xs text-on-surface-variant">
                   {if @notifications != [], do: "Active", else: "Off"}
                 </span>
@@ -654,8 +707,10 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                     phx-click={if @notifications != [], do: "open_confirm_modal", else: ""}
                     phx-value-action="delete_notifications"
                   />
-                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors"></div>
-                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors">
+                  </div>
+                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4">
+                  </div>
                 </div>
               </label>
             </div>
@@ -701,7 +756,10 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                   Gateway to AWS S3 or Cloudflare R2 with a local LRU read cache.
                 </p>
               </div>
-              <label id="cloud-cache-toggle" class="flex items-center gap-2 cursor-pointer select-none">
+              <label
+                id="cloud-cache-toggle"
+                class="flex items-center gap-2 cursor-pointer select-none"
+              >
                 <span class="text-xs text-on-surface-variant">
                   {if @cloud_cache && @cloud_cache.enabled, do: "Enabled", else: "Off"}
                 </span>
@@ -717,25 +775,31 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                     }
                     phx-value-action="delete_cloud_cache"
                   />
-                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors"></div>
-                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                  <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors">
+                  </div>
+                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4">
+                  </div>
                 </div>
               </label>
             </div>
-
 
             <%!-- Cache stats bar --%>
             <%= if @cloud_cache_stats && @cloud_cache_stats.max_bytes > 0 do %>
               <div class="mt-3 space-y-1">
                 <div class="flex justify-between text-xs text-on-surface-variant">
                   <span>{@cloud_cache_stats.count} objects cached</span>
-                  <span>{format_bytes(@cloud_cache_stats.total_bytes)} / {format_bytes(@cloud_cache_stats.max_bytes)}</span>
+                  <span>
+                    {format_bytes(@cloud_cache_stats.total_bytes)} / {format_bytes(
+                      @cloud_cache_stats.max_bytes
+                    )}
+                  </span>
                 </div>
                 <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
                   <div
                     class="h-full bg-primary rounded-full transition-all"
                     style={"width: #{min(100, round(@cloud_cache_stats.total_bytes * 100 / max(@cloud_cache_stats.max_bytes, 1)))}%"}
-                  ></div>
+                  >
+                  </div>
                 </div>
               </div>
             <% end %>
@@ -745,11 +809,26 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                   <div class="form-group">
                     <label class="form-label text-xs">Provider</label>
-                    <select id="cloud-cache-provider" name="provider" class="select select-primary w-full text-xs">
-                      <option value="aws" selected={!@cloud_cache or @cloud_cache.provider == :aws}>AWS S3</option>
-                      <option value="r2" selected={@cloud_cache && @cloud_cache.provider == :r2}>Cloudflare R2</option>
-                      <option value="minio" selected={@cloud_cache && @cloud_cache.provider == :minio}>MinIO</option>
-                      <option value="s3_compat" selected={@cloud_cache && @cloud_cache.provider == :s3_compat}>S3 Compatible</option>
+                    <select
+                      id="cloud-cache-provider"
+                      name="provider"
+                      class="select select-primary w-full text-xs"
+                    >
+                      <option value="aws" selected={!@cloud_cache or @cloud_cache.provider == :aws}>
+                        AWS S3
+                      </option>
+                      <option value="r2" selected={@cloud_cache && @cloud_cache.provider == :r2}>
+                        Cloudflare R2
+                      </option>
+                      <option value="minio" selected={@cloud_cache && @cloud_cache.provider == :minio}>
+                        MinIO
+                      </option>
+                      <option
+                        value="s3_compat"
+                        selected={@cloud_cache && @cloud_cache.provider == :s3_compat}
+                      >
+                        S3 Compatible
+                      </option>
                     </select>
                   </div>
                   <div class="form-group">
@@ -779,10 +858,14 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                       Endpoint URL
                       <span class="text-on-surface-variant font-normal">
                         <%= case (@cloud_cache && @cloud_cache.provider) || :aws do %>
-                          <% :aws -> %>(leave blank to auto-build from region)
-                          <% :r2 -> %>(required: https://&lt;account&gt;.r2.cloudflarestorage.com)
-                          <% :minio -> %>(required: http://host:9000)
-                          <% :s3_compat -> %>(required: https://your-s3-provider.com)
+                          <% :aws -> %>
+                            (leave blank to auto-build from region)
+                          <% :r2 -> %>
+                            (required: https://&lt;account&gt;.r2.cloudflarestorage.com)
+                          <% :minio -> %>
+                            (required: http://host:9000)
+                          <% :s3_compat -> %>
+                            (required: https://your-s3-provider.com)
                         <% end %>
                       </span>
                     </label>
@@ -824,7 +907,11 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                       id="cloud-cache-secret"
                       type="password"
                       name="secret_access_key"
-                      placeholder={if @cloud_cache && @cloud_cache.encrypted_secret != "", do: "(unchanged)", else: "Secret key"}
+                      placeholder={
+                        if @cloud_cache && @cloud_cache.encrypted_secret != "",
+                          do: "(unchanged)",
+                          else: "Secret key"
+                      }
                       class="input input-primary w-full text-xs font-mono"
                     />
                   </div>
@@ -838,7 +925,13 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                       id="cloud-cache-max-gb"
                       type="number"
                       name="cache_max_gb"
-                      value={Float.round((@cloud_cache && @cloud_cache.cache_max_bytes * 1.0 / (1024 * 1024 * 1024)) || 10.0, 1)}
+                      value={
+                        Float.round(
+                          (@cloud_cache && @cloud_cache.cache_max_bytes * 1.0 / (1024 * 1024 * 1024)) ||
+                            10.0,
+                          1
+                        )
+                      }
                       min="0.1"
                       step="0.1"
                       class="input input-primary w-32 text-xs"
@@ -857,15 +950,19 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                             class="sr-only peer"
                             checked={!@cloud_cache || @cloud_cache.cache_enabled}
                           />
-                          <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors"></div>
-                          <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                          <div class="w-10 h-6 bg-outline-variant rounded-full peer peer-checked:bg-primary transition-colors">
+                          </div>
+                          <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4">
+                          </div>
                         </div>
                         <span class="text-xs text-on-surface-variant">LRU cache reads</span>
                       </label>
                     </div>
                   </div>
                   <div class="flex gap-2 ml-auto">
-                    <button id="save-cloud-cache-btn" type="submit" class="btn btn-primary btn-sm">Save</button>
+                    <button id="save-cloud-cache-btn" type="submit" class="btn btn-primary btn-sm">
+                      Save
+                    </button>
                     <%= if @cloud_cache do %>
                       <button
                         id="test-cloud-connection-btn"
@@ -945,13 +1042,14 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
               <%= if @presigned_url do %>
                 <div class="mt-3 p-3 bg-surface-container rounded-lg">
                   <label class="form-label text-xs">Generated URL</label>
-                  <div class="font-mono text-xs break-all text-on-surface select-all">{@presigned_url}</div>
+                  <div class="font-mono text-xs break-all text-on-surface select-all">
+                    {@presigned_url}
+                  </div>
                 </div>
               <% end %>
             </div>
           </div>
         </div>
-
       </div>
 
       <.confirm_modal
@@ -1018,7 +1116,10 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
 
   defp format_bytes(bytes) when bytes < 1024, do: "#{bytes} B"
   defp format_bytes(bytes) when bytes < 1_048_576, do: "#{Float.round(bytes / 1024, 1)} KB"
-  defp format_bytes(bytes) when bytes < 1_073_741_824, do: "#{Float.round(bytes / 1_048_576, 1)} MB"
+
+  defp format_bytes(bytes) when bytes < 1_073_741_824,
+    do: "#{Float.round(bytes / 1_048_576, 1)} MB"
+
   defp format_bytes(bytes), do: "#{Float.round(bytes / 1_073_741_824, 2)} GB"
 
   defp load_all_active_keys do

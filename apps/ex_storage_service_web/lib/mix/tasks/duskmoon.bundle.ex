@@ -59,14 +59,14 @@ defmodule Mix.Tasks.Duskmoon.Bundle do
     entry = Path.join(tmp_dir, "entry.js")
     File.write!(entry, imports)
 
-    case OXC.bundle(entry, [
+    case OXC.bundle(entry,
            cwd: File.cwd!(),
            format: :esm,
            modules: [node_modules],
            define: %{"process.env.NODE_ENV" => ~s("development")},
            exports: :named,
            preserve_entry_signatures: :strict
-         ]) do
+         ) do
       {:ok, %{code: code}} ->
         write_output(code, elements)
 

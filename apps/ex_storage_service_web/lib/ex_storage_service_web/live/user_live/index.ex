@@ -14,9 +14,15 @@ defmodule ExStorageServiceWeb.UserLive.Index do
       |> assign(:new_user_name, "")
       |> assign(:create_error, nil)
       |> assign(:show_create_modal, false)
-      |> assign(show_confirm_modal: false, confirm_title: "", confirm_message: "",
-               confirm_event: "", confirm_params: %{}, confirm_label: "Confirm",
-               confirm_style: "error")
+      |> assign(
+        show_confirm_modal: false,
+        confirm_title: "",
+        confirm_message: "",
+        confirm_event: "",
+        confirm_params: %{},
+        confirm_label: "Confirm",
+        confirm_style: "error"
+      )
 
     {:ok, socket}
   end

@@ -25,8 +25,13 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
          socket
          |> assign(bucket_name: name, prefix: "", objects: [], folders: [], total_count: 0)
          |> assign(cloud_cache: cloud_cache, cloud_loading: false, cloud_error: nil)
-         |> assign(show_confirm_modal: false, confirm_title: "", confirm_message: "",
-                  confirm_event: "", confirm_params: %{})}
+         |> assign(
+           show_confirm_modal: false,
+           confirm_title: "",
+           confirm_message: "",
+           confirm_event: "",
+           confirm_params: %{}
+         )}
 
       {:error, :not_found} ->
         {:ok, socket |> put_flash(:error, "Bucket not found") |> redirect(to: ~p"/buckets")}
@@ -145,8 +150,17 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
           <h1 class="text-2xl font-bold text-on-surface">{@bucket_name}</h1>
           <%= if @cloud_cache do %>
             <span class="badge badge-xs badge-primary gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-3 h-3"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z" />
               </svg>
               Cloud Cache
             </span>
@@ -157,8 +171,14 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
             <span class="text-xs text-error">{@cloud_error}</span>
           <% end %>
           <span class="text-sm text-on-surface-variant">
-            {length(@folders)} folder{if length(@folders) != 1, do: "s", else: ""},
-            {length(@objects)} file{if length(@objects) != 1, do: "s", else: ""}
+            {length(@folders)} folder{if length(@folders) != 1, do: "s", else: ""}, {length(@objects)} file{if length(
+                                                                                                                 @objects
+                                                                                                               ) !=
+                                                                                                                 1,
+                                                                                                               do:
+                                                                                                                 "s",
+                                                                                                               else:
+                                                                                                                 ""}
           </span>
         </div>
       </div>
@@ -208,7 +228,8 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
             <.dm_link
               patch={~p"/buckets/#{@bucket_name}/files"}
               class="text-sm font-mono text-primary hover:underline"
-            >/
+            >
+              /
             </.dm_link>
           <% end %>
           <%!-- Each path segment --%>
@@ -447,6 +468,9 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
 
   defp format_size(bytes) when bytes < 1024, do: "#{bytes} B"
   defp format_size(bytes) when bytes < 1_048_576, do: "#{Float.round(bytes / 1024, 1)} KB"
-  defp format_size(bytes) when bytes < 1_073_741_824, do: "#{Float.round(bytes / 1_048_576, 1)} MB"
+
+  defp format_size(bytes) when bytes < 1_073_741_824,
+    do: "#{Float.round(bytes / 1_048_576, 1)} MB"
+
   defp format_size(bytes), do: "#{Float.round(bytes / 1_073_741_824, 1)} GB"
 end

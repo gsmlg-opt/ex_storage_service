@@ -126,8 +126,6 @@ The application runs two HTTP servers under one OTP supervision tree:
 | `ESS_ADMIN_PASSWORD_HASH` | SHA256("admin") | Admin password hash |
 | `ESS_MASTER_KEY` | auto-generated (dev/test) | AES-256 encryption key (**required in prod**) |
 | `SECRET_KEY_BASE` | — | Phoenix session key (**required in prod**) |
-| `MIX_BUN_PATH` | — | Override bun binary (for devenv/Nix) |
-| `MIX_TAILWIND_PATH` | — | Override tailwind binary (for devenv/Nix) |
 
 ## Development
 
@@ -135,7 +133,7 @@ The application runs two HTTP servers under one OTP supervision tree:
 
 - Elixir ~> 1.19
 - OTP 28
-- Bun (for JS bundling) — downloaded automatically by `mix setup`
+- Node.js & npm (for package installation via `mix npm.install` during setup)
 
 ### Commands
 
@@ -150,11 +148,15 @@ mix format                   # Format code
 
 ### Asset Pipeline
 
-Assets use Bun (JS bundler) and Tailwind CSS v4 with the DuskMoon UI component system:
+Assets use **Volt** (an Elixir-native asset pipeline powered by OXC and LightningCSS) and Tailwind CSS v4 with the DuskMoon UI component system:
 
-- CSS: `assets/css/app.css` — imports Tailwind + DuskMoon themes/components
-- JS: `assets/js/app.js` — Phoenix LiveView + DuskMoon hooks
+- CSS: `apps/ex_storage_service_web/assets/css/app.css` — imports Tailwind + DuskMoon themes/components
+- JS: `apps/ex_storage_service_web/assets/js/app.js` — Phoenix LiveView + DuskMoon hooks
 - Components: `phoenix_duskmoon` library (not standard Phoenix core_components)
+
+## Coding Agents & Automation
+
+This project includes an [AGENTS.md](file:///Users/gao/Workspace/gsmlg-opt/ex_storage_service/AGENTS.md) file optimized for terminal-based AI coding agents (such as pi.dev). If you are using an AI assistant to develop in this repo, ensure it reads [AGENTS.md](file:///Users/gao/Workspace/gsmlg-opt/ex_storage_service/AGENTS.md) first to adhere to the design decisions, coding standards, and safety guidelines.
 
 ## CI/CD
 

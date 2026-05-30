@@ -71,10 +71,9 @@ defmodule ExStorageService.CloudCache.Client do
 
     signed_headers = sign_request("GET", url, [], "", config)
 
-    case Req.get(url, headers: signed_headers) do
+    case Req.get(url, headers: signed_headers, decode_body: false) do
       {:ok, %{status: 200, body: body}} ->
-        body_bin = if is_binary(body), do: body, else: Jason.encode!(body)
-        {:ok, body_bin}
+        {:ok, body}
 
       {:ok, %{status: 404}} ->
         {:error, :not_found}

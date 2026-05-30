@@ -17,8 +17,8 @@ config :libcluster, topologies: []
 
 config :ex_storage_service,
   data_root: data_root,
-  s3_port: String.to_integer(System.get_env("ESS_S3_PORT", "9000")),
-  admin_port: String.to_integer(System.get_env("ESS_ADMIN_PORT", "4900")),
+  s3_port: String.to_integer(System.get_env("ESS_S3_PORT", if(config_env() == :test, do: "9001", else: "9000"))),
+  admin_port: String.to_integer(System.get_env("ESS_ADMIN_PORT", if(config_env() == :test, do: "4002", else: "4900"))),
   s3_auth_enabled: s3_auth_enabled?,
   root_admin_user: System.get_env("ESS_ADMIN_USER", "admin"),
   root_admin_password_hash:

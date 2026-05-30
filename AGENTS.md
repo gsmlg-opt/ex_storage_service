@@ -1,147 +1,203 @@
-# AGENTS.md
+# Agents
 
-## Project Overview
+This document defines the roles, rules, and guidelines for the Pi agent (pi.dev) when working on the **ExStorageService** project.
 
-ExStorageService is an S3-compatible object storage server built with Elixir/Phoenix, structured as an **umbrella project** with three apps:
+---
 
-- **`ex_storage_service`** (core) — Storage engine, metadata (Concord/Raft KV), IAM, replication, background processes. No Phoenix dependency.
-- **`ex_storage_service_s3`** (S3 API) — Plug.Router served by Bandit on port 9000. S3-compatible REST API with SigV4 auth.
-- **`ex_storage_service_web`** (admin portal) — Phoenix LiveView on port 4900. Dashboard, bucket/user/policy management, audit log.
+## Project Overview & Agent Philosophy
 
-## Common Commands
+ExStorageService is a high-performance, S3-compatible, umbrella-structured object storage service built with Elixir and Phoenix. The goal of the Pi agent is to provide rapid, precise, and correct feature development, debugging, and maintenance across all umbrella applications without introducing bloated dependencies or violating key design constraints (such as the database-free architecture or custom Plug.Router). The agent must operate with high autonomy but strong correctness guarantees, utilizing the comprehensive test suite to validate changes.
 
-```bash
-mix setup                          # Install deps + build assets
-mix test                           # Run all tests (all apps)
-mix test --app ex_storage_service  # Run core app tests only
-mix test --app ex_storage_service_s3  # Run S3 app tests only
-mix test --app ex_storage_service_web # Run web app tests only
-mix format                         # Format code
-mix format --check-formatted       # Check formatting (CI)
-mix compile --warnings-as-errors   # Compile with strict warnings (CI)
-mix phx.server                     # Start all apps (S3 API + admin portal)
-mix volt.build --tailwind          # Build frontend assets
+### Key Principles
+- **Minimalism & Simplicity**: Keep solutions Elixir-native and idiomatic. Avoid adding new dependencies unless absolutely necessary.
+- **Safety First**: Never execute commands or perform destructive operations that risk data loss without verification or testing. Preserve existing documentations and comments.
+- **Strict Database-Free Constraint**: Remember that there is **no database/Ecto**. All metadata goes to Concord/Raft KV, and files go directly to the content-addressed disk storage engine.
+- **Separation of Concerns**: Respect the boundary between the umbrella applications: Core is pure business logic, S3 is a pure Plug.Router, Web is Phoenix LiveView using DuskMoon UI components.
+- **Volt UI Asset Pipeline**: Do not use DaisyUI or Tailwind CLI. Use Volt and DuskMoon UI library components.
+
+### Context Loading Strategy
+The agent should prioritize reading files in the following order:
+1. `AGENTS.md` (this file) for behavior rules and architecture.
+2. The relevant application folder under `apps/` depending on the task.
+3. Test files under the target application to see expected behavior.
+4. Core configuration in `config/config.exs` and `config/test.exs` / `config/dev.exs`.
+
+---
+
+## Core Agent Definition (Main Pi Agent)
+
+- **Role**: Staff Elixir and Storage Systems Engineer.
+- **Personality & Style**: Concise, pragmatic, expert developer. Communicates with zero fluff, focused strictly on technical implementation and correctness. Does not apologize unnecessarily or write verbose pleasantries.
+- **Core Capabilities**: Deep understanding of Elixir concurrency, OTP supervision trees, S3 SigV4 signature protocol, Plug middleware, and Phoenix LiveView. Heavy usage of precise file edits, grep searches, and mix commands.
+- **Working Style**: 
+  - Plans before acting, laying out an explicit implementation step-by-step checklist.
+  - Prefers specific, localized file replacements (`replace_file_content` or direct edits) over full-file overwrites.
+  - Validates all changes via `mix test` and local compilation.
+  - Automatically runs `mix format` on any modified Elixir files.
+- **Restrictions & Safety Rules**:
+  - **NEVER** introduce Ecto, database schemas, or migrations.
+  - **NEVER** use standard Phoenix `core_components.ex` or DaisyUI; only use `phoenix_duskmoon` components and `@duskmoon-dev/core` styling.
+  - **NEVER** call `cd` inside commands. Run all commands from the repository root with appropriate flags/working directories.
+  - **NEVER** delete existing tests or silence warnings to make CI pass. Fix the root cause instead.
+- **Preferred Workflow**:
+  1. **Locate & Investigate**: Use grep or file views to find where features/issues reside.
+  2. **Plan**: Formulate a concise plan showing what files to edit and why.
+  3. **Edit**: Make clean, minimal, syntax-valid changes.
+  4. **Format & Compile**: Run `mix format` and compile with warning flags if applicable.
+  5. **Validate**: Run tests (`mix test`) for the affected applications.
+  6. **Commit**: Summarize changes cleanly and concisely.
+
+---
+
+## Extended / Sub-Agent Capabilities
+When executing complex tasks, the main Pi agent can emulate or spawn virtual sub-agents to handle specialized workflows:
+
+### 1. The Researcher
+- **Objective**: Explore the codebase, trace code pathways, and locate relevant files or documentation.
+- **Behavior**: Uses `grep_search` and `view_file` to build a mental map of how parts interact (e.g., tracing a request from S3 `router.ex` to `Storage.Engine`).
+- **Focus**: Non-destructive, read-only analysis.
+
+### 2. The Tester & Auditor
+- **Objective**: Ensure robustness, verify edge cases, and prevent regression.
+- **Behavior**: Examines existing tests, writes comprehensive test scenarios covering success and failure paths, and executes `mix test` targeting the modified app.
+- **Focus**: Code correctness, error handling, performance checks.
+
+### 3. The DuskMoon UI Designer
+- **Objective**: Build or refine Admin Portal views.
+- **Behavior**: Ensures layout changes conform strictly to `phoenix_duskmoon` components and Volt styles. Follows premium UI principles (vibrant palettes, modern typography, responsive design).
+- **Focus**: Aesthetics, responsiveness, and consistent component usage.
+
+---
+
+## Rules & Guidelines
+
+### Coding Standards & Elixir Conventions
+- Follow official Elixir style guidelines. Use `mix format` to enforce formatting.
+- Module naming conventions:
+  - Core app: `ExStorageService.*`
+  - S3 app: `ExStorageServiceS3.*` (strictly do NOT use `ExStorageService.S3.*`)
+  - Web app: `ExStorageServiceWeb.*`
+- Use the built-in `JSON` module (available in Elixir 1.18+) instead of third-party JSON parsers where appropriate.
+- Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
+
+### File Organization
+The codebase is structured as an umbrella project with three apps:
+- **`apps/ex_storage_service/`**: Core domain logic, storage engine, metadata via Concord/Raft KV, replication, background processes.
+- **`apps/ex_storage_service_s3/`**: S3 API server (Plug.Router served by Bandit on port 9000).
+- **`apps/ex_storage_service_web/`**: Admin portal web interface (Phoenix LiveView on port 4900).
+
+### Commit Message Style
+- Use clear, descriptive imperative-tense commit messages (e.g., `feat: add recursive folder download to CLI` or `fix: handle empty prefix on list objects`).
+- Reference issues or PRs if appropriate.
+
+### Testing & Validation Requirements
+- All new features must be accompanied by tests.
+- When fixing a bug, write a reproducing test case first to prevent future regression.
+- Always run the specific test suite of the application you modified before committing:
+  - Core app tests: `mix test --app ex_storage_service`
+  - S3 app tests: `mix test --app ex_storage_service_s3`
+  - Web app tests: `mix test --app ex_storage_service_web`
+
+### Documentation Rules
+- Keep documentation up-to-date.
+- Preserve existing docstrings (`@doc`) and module docs (`@moduledoc`) unless deliberately refactoring them.
+- Document any new environment variables in both `README.md` and `AGENTS.md`.
+
+### When to Ask for Human Input
+- Act autonomously on bug fixes, refactorings, and standard feature implementations.
+- Ask for confirmation when:
+  - Making changes that might break API compatibility for clients.
+  - Adding a new external hex dependency.
+  - Performing destructive operations or cleaning major local state.
+
+---
+
+## Tool Usage Guidelines
+
+### File Operations (`read`, `write`, `edit`)
+- Use `view_file` to read files. Limit line ranges if the file is large to save context tokens.
+- Use `replace_file_content` for editing a single contiguous block. Use `multi_replace_file_content` for non-contiguous changes.
+- Always double-check matching indentations and imports when writing replacement content.
+
+### Bash Command Usage (`run_command`)
+- Prefer Elixir-specific mix tasks over raw bash scripts (e.g., use `mix format` instead of external formatters).
+- **CRITICAL**: Never propose `cd` inside commands. Use paths or flags where appropriate.
+- Always run commands with `PAGER=cat`.
+- For background tasks or dev servers, use `mix phx.server` but be mindful that the server may already be running.
+
+### Handling Large Files & Search
+- Use `grep_search` with specific query strings to locate files instead of recursively reading directories.
+- Avoid printing full files to stdout when searching or testing; use target line numbers or output filters.
+
+---
+
+## Context & Memory Management
+
+### Essential Context Map
+```mermaid
+graph TD
+    Client[S3 Client / CLI / SDK] -->|Port 9000| S3App[ex_storage_service_s3]
+    Admin[Admin Browser] -->|Port 4900| WebApp[ex_storage_service_web]
+    S3App -->|Call Engine/Metadata| CoreApp[ex_storage_service]
+    WebApp -->|Call Engine/Metadata| CoreApp
+    CoreApp -->|Metadata Cache & State| Concord[Concord / Raft KV]
+    CoreApp -->|Objects storage| Disk[Disk Storage Engine]
 ```
 
-## Key Design Decisions
+### Important Files to Reference
+- **S3 Routing & Auth**:
+  - [S3 Router](file:///Users/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_s3/lib/ex_storage_service_s3/router.ex)
+  - [SigV4 Auth](file:///Users/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_s3/lib/ex_storage_service_s3/auth/sig_v4.ex)
+- **Metadata Management**:
+  - [Metadata Wrapper](file:///Users/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/lib/ex_storage_service/metadata.ex)
+- **Storage Operations**:
+  - [Storage Engine](file:///Users/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/lib/ex_storage_service/storage/engine.ex)
+- **DuskMoon Layout & Views**:
+  - [Root Layout](file:///Users/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/lib/ex_storage_service_web/components/layouts/root.html.heex)
+  - [DuskMoon Hooks](file:///Users/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/assets/js/duskmoon_hooks.js)
 
-- **No Ecto/database.** All metadata lives in Concord (Raft KV). There are no migrations, no Repo, no schemas.
-- **S3 router is not Phoenix.** The S3 API (`apps/ex_storage_service_s3/lib/ex_storage_service_s3/router.ex`) is a standalone `Plug.Router`, not a Phoenix router. Don't use Phoenix helpers there.
-- **S3 modules use `ExStorageServiceS3.*` naming** (not `ExStorageService.S3.*`).
-- **Assets use Volt.** The admin UI uses `phoenix_duskmoon` (GitHub dep), not standard Phoenix components. Assets live in `apps/ex_storage_service_web/assets/`. Volt (Elixir-native, powered by OXC and LightningCSS) replaces Bun and the Tailwind CLI — no Node.js/Bun binaries needed. npm packages (e.g., `@duskmoon-dev/core`) are managed by `npm_ex` (`mix npm.install`) — no npm CLI required either.
-- **Elixir ~> 1.19, OTP 28.** CI uses these versions. The built-in `JSON` module is available (Elixir 1.18+).
+### Common Mix Tasks
+| Command | Purpose |
+|---|---|
+| `mix setup` | Install dependencies + run npm installations + pre-bundle assets |
+| `mix compile --warnings-as-errors` | Validate compilation strictly (used in CI) |
+| `mix phx.server` | Start S3 API (port 9000) and Web App (port 4900) concurrently |
+| `mix test` | Execute the entire test suite |
+| `mix format` | Enforce formatting rule compliance across all directories |
+| `mix volt.build --tailwind` | Manually compile stylesheets and scripts using Volt |
 
-## Architecture
+---
 
-### Umbrella Structure
+## Examples
 
-```
-apps/
-├── ex_storage_service/        # Core domain (storage, metadata, IAM, replication)
-├── ex_storage_service_s3/     # S3 API (Plug.Router + Bandit)
-└── ex_storage_service_web/    # Admin portal (Phoenix LiveView)
-```
+### Example 1: Implementing a new S3 handler
+*Context: A request to support bucket lifecycle configuration in the S3 API.*
+1. **Research**: Search `router.ex` for lifecycle routing.
+2. **Implementation Plan**:
+   - Add route in `router.ex` matching `GET` or `PUT` request with `?lifecycle`.
+   - Implement handler function in `ExStorageServiceS3.Handlers.Bucket` delegate.
+   - Parse configuration XML using built-in or custom parser.
+   - Update bucket metadata prefix `"bucket:{name}"` in Concord.
+3. **Execution**:
+   - Create precise file edits.
+   - Format and compile.
+4. **Validation**:
+   - Write tests in `apps/ex_storage_service_s3/test/ex_storage_service_s3/router_test.exs`.
+   - Run `mix test --app ex_storage_service_s3`.
 
-### Supervision Trees (3 separate apps)
+### Example 2: Modifying an Admin LiveView page
+*Context: Adding a button to suspend a user.*
+1. **Research**: Find `UserLive.Index` and verify user actions.
+2. **Implementation Plan**:
+   - Open `apps/ex_storage_service_web/lib/ex_storage_service_web/live/user_live/index.ex`.
+   - Add button using `<.button>` component from `phoenix_duskmoon`.
+   - Implement `handle_event("suspend", %{"id" => id}, socket)` to invoke `IAM.suspend_user(id)`.
+3. **Execution**: Perform the precise replacement.
+4. **Validation**: Test the interaction using LiveView test assertions.
 
-**Core (`ExStorageService.Application`):** Ra/Concord init → Storage.Engine → PubSub → MultipartGC → ContentGC → Replication.JobQueue → Replication.Sync → NotificationTaskSupervisor → Storage.Lifecycle
+---
 
-**S3 (`ExStorageServiceS3.Application`):** Bandit (S3 Router on port 9000)
-
-**Web (`ExStorageServiceWeb.Application`):** Phoenix.Endpoint (port 4900)
-
-OTP starts apps in dependency order: core → S3 → web.
-
-### Metadata via Concord (Raft KV)
-
-`Metadata` module (`apps/ex_storage_service/lib/ex_storage_service/metadata.ex`) wraps Concord with namespace prefixes:
-- `"bucket:{name}"` — bucket metadata
-- `"obj:{bucket}:{key}"` — object metadata
-- `"user:{user_id}"` / `"access_key:{id}"` / `"policy:{id}"` / `"user_policies:{user_id}"` — IAM
-- `"mpu:{bucket}:{upload_id}"` — multipart uploads
-- `"audit:{timestamp}:{id}"` — audit entries
-
-Prefix queries are O(N) full table scan — acceptable for < 50K keys.
-
-### Content-Addressable Storage
-
-`Storage.Engine` writes objects to disk using SHA-256 content addressing. Layout: `{data_root}/{bucket}/objects/{hash_prefix}/{hash_rest}`. PUT operations compute SHA-256 + MD5 in a single streaming pass. Reads use zero-copy sendfile.
-
-### S3 Request Pipeline
-
-`assign_request_id` → `check_presigned_auth` → `SigV4` (identity) → `RateLimiter` → `Authorize` (IAM policy) → route match → `Handlers`/`MultipartHandlers` → `Storage.Engine` (disk) + `Metadata` (Concord) → XML response.
-
-### IAM & Auth
-
-- **SigV4** (`ExStorageServiceS3.Auth.SigV4`): AWS Signature V4 verification. Access key secrets are AES-256-CTR encrypted at rest using `ESS_MASTER_KEY`. Health endpoint and presigned requests bypass SigV4.
-- **Authorize** (`ExStorageServiceS3.Plugs.Authorize`): Maps HTTP method + path to S3 actions (e.g., `s3:GetObject`), evaluates IAM policies. Root admin and presigned requests bypass authorization.
-- **Policy** (`ExStorageService.IAM.Policy`): AWS-style policy engine — default deny → explicit allow → explicit deny wins. Supports action wildcards and ARN resource matching.
-
-### Background Processes
-
-- `Storage.MultipartGC` — cleans abandoned multipart uploads (24h max age, 1h check interval)
-- `Storage.ContentGC` — removes unreferenced content files (30min interval)
-- `Storage.Lifecycle` — evaluates object expiration rules
-- `Replication.JobQueue` + `Replication.Sync` — async cross-node replication with dead-letter queue
-
-### Admin LiveView Pages
-
-Routes require admin session (`RequireAdmin` plug):
-- `/dashboard` — DashboardLive
-- `/buckets` — BucketLive.Index (list, create, delete)
-- `/buckets/:name` — BucketLive.Show (objects, presigned URL generation with policy check)
-- `/users` — UserLive.Index (list, create, suspend, delete with audit)
-- `/users/:id` — UserLive.Show
-- `/policies` — PolicyLive.Index / `/policies/:id` — PolicyLive.Show
-- `/audit` — AuditLive.Index
-
-## Environment Variables
-
-| Variable | Default | Description |
-|---|---|---|
-| `ESS_DATA_ROOT` | `/tmp/ex_storage_service/data` | Storage root directory |
-| `ESS_S3_PORT` | `9000` | S3 API port |
-| `ESS_ADMIN_PORT` | `4900` | Admin portal port |
-| `ESS_S3_AUTH_ENABLED` | `false` | Require SigV4 authentication and IAM authorization for S3 requests |
-| `ESS_ADMIN_USER` | `admin` | Root admin username |
-| `ESS_ADMIN_PASSWORD_HASH` | SHA256("admin") | Admin password hash |
-| `ESS_MASTER_KEY` | auto-generated (dev/test) | AES-256 encryption key (required in prod) |
-| `SECRET_KEY_BASE` | — | Phoenix session key (required in prod) |
-
-## Configuration
-
-- Core config: `config :ex_storage_service, ...`
-- Web endpoint config: `config :ex_storage_service_web, ExStorageServiceWeb.Endpoint, ...`
-- S3 port is under core config: `config :ex_storage_service, s3_port: ...`
-- Asset build tool: `config :volt, ...` in `config/config.exs`
-
-## UI Library
-
-This project uses the DuskMoon UI system:
-
-- **`phoenix_duskmoon`** — Phoenix LiveView UI component library (primary web UI)
-- **`@duskmoon-dev/core`** — Core Tailwind CSS plugin and utilities
-- **`@duskmoon-dev/css-art`** — CSS art utilities
-- **`@duskmoon-dev/elements`** — Base web components
-- **`@duskmoon-dev/art-elements`** — Art/decorative web components
-
-Do NOT use DaisyUI or other CSS component libraries. Do NOT use `core_components.ex` — use `phoenix_duskmoon` components instead.
-Use `@duskmoon-dev/core/plugin` as the Tailwind CSS plugin.
-
-### Reporting issues or feature requests
-
-If you encounter missing features, bugs, or need functionality not yet available in any DuskMoon package, open a GitHub issue in the appropriate repository with the label `internal request`:
-
-- **`phoenix_duskmoon`** — https://github.com/gsmlg-dev/phoenix_duskmoon/issues
-- **`@duskmoon-dev/core`** — https://github.com/gsmlg-dev/duskmoon-dev/issues
-- **`@duskmoon-dev/css-art`** — https://github.com/gsmlg-dev/duskmoon-dev/issues
-- **`@duskmoon-dev/elements`** — https://github.com/gsmlg-dev/duskmoon-dev/issues
-- **`@duskmoon-dev/art-elements`** — https://github.com/gsmlg-dev/duskmoon-dev/issues
-
-## Testing Notes
-
-- Tests use S3 port `9001` and admin port `4002` (see `config/test.exs`)
-- Rate limiting is disabled in test env
-- Core app's `test_helper.exs` cleans Ra/Concord data directories before each run to avoid stale state
-- Tests cover: S3 API operations, SigV4 auth, IAM policies, XML parsing, multipart uploads, replication
-- Run per-app tests: `mix test --app ex_storage_service_s3` for S3, `mix test --app ex_storage_service` for core/IAM
+## Meta Instructions
+- This `AGENTS.md` is the source of truth for your behavior. Read it completely before executing any task.
+- If you notice missing constraints, new architectural components, or obsolete instructions (such as changes in libraries or ports), update this file immediately to keep it aligned with the code.
+- When pair programming with a user, refer back to the rules in this document to demonstrate alignment and build confidence.

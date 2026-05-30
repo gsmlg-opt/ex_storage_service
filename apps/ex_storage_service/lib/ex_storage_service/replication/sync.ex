@@ -201,7 +201,7 @@ defmodule ExStorageService.Replication.Sync do
     url = "#{String.trim_trailing(replica.endpoint, "/")}/#{remote_bucket}?list-type=2"
     headers = auth_headers(replica)
 
-    case Req.get(url, headers: headers) do
+    case Req.get(url, headers: headers, decode_body: false) do
       {:ok, %{status: 200, body: body}} ->
         parse_list_response(body)
 

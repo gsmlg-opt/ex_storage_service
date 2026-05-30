@@ -19,8 +19,13 @@ defmodule ExStorageServiceWeb.UserLive.Show do
           |> assign(:all_policies, [])
           |> assign(:new_secret, nil)
           |> assign(:new_key_id, nil)
-          |> assign(show_confirm_modal: false, confirm_title: "", confirm_message: "",
-                   confirm_event: "", confirm_params: %{})
+          |> assign(
+            show_confirm_modal: false,
+            confirm_title: "",
+            confirm_message: "",
+            confirm_event: "",
+            confirm_params: %{}
+          )
           |> load_keys()
           |> load_policies()
 
@@ -93,8 +98,8 @@ defmodule ExStorageServiceWeb.UserLive.Show do
            "confirm_delete_key", %{"key-id" => params["key-id"]}}
 
         "detach_policy" ->
-          {"Detach Policy", "Detach this policy from the user?",
-           "confirm_detach_policy", %{"policy-id" => params["policy-id"]}}
+          {"Detach Policy", "Detach this policy from the user?", "confirm_detach_policy",
+           %{"policy-id" => params["policy-id"]}}
 
         _ ->
           {"Confirm", "Are you sure?", "", %{}}

@@ -34,8 +34,13 @@ defmodule ExStorageServiceWeb.PolicyLive.Show do
           |> assign(:new_effect, "allow")
           |> assign(:new_actions, [])
           |> assign(:new_resources, "")
-          |> assign(show_confirm_modal: false, confirm_title: "", confirm_message: "",
-                   confirm_event: "", confirm_params: %{})
+          |> assign(
+            show_confirm_modal: false,
+            confirm_title: "",
+            confirm_message: "",
+            confirm_event: "",
+            confirm_params: %{}
+          )
 
         {:ok, socket}
 
@@ -121,10 +126,18 @@ defmodule ExStorageServiceWeb.PolicyLive.Show do
     case Policy.update_policy(policy.id, %{statements: updated_statements}) do
       {:ok, updated} ->
         Audit.log_event(:update_policy, :root, policy.id, %{removed_statement_index: index})
-        {:noreply, socket |> assign(show_confirm_modal: false) |> assign(:policy, updated) |> put_flash(:info, "Statement removed")}
+
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> assign(:policy, updated)
+         |> put_flash(:info, "Statement removed")}
 
       {:error, reason} ->
-        {:noreply, socket |> assign(show_confirm_modal: false) |> put_flash(:error, "Failed: #{inspect(reason)}")}
+        {:noreply,
+         socket
+         |> assign(show_confirm_modal: false)
+         |> put_flash(:error, "Failed: #{inspect(reason)}")}
     end
   end
 
