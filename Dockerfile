@@ -17,6 +17,7 @@ RUN mix local.hex --force && mix local.rebar --force
 # Fetch Elixir deps
 COPY mix.exs mix.lock ./
 COPY apps/ex_storage_service/mix.exs ./apps/ex_storage_service/mix.exs
+COPY apps/ex_storage_service_cli/mix.exs ./apps/ex_storage_service_cli/mix.exs
 COPY apps/ex_storage_service_s3/mix.exs ./apps/ex_storage_service_s3/mix.exs
 COPY apps/ex_storage_service_web/mix.exs ./apps/ex_storage_service_web/mix.exs
 
