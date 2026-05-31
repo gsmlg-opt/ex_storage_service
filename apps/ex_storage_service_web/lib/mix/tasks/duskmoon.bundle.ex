@@ -38,8 +38,6 @@ defmodule Mix.Tasks.Duskmoon.Bundle do
     el-tooltip
   )
 
-  @output_path "apps/ex_storage_service_web/assets/js/duskmoon_elements.js"
-
   @impl Mix.Task
   def run(args) do
     elements = if args == [], do: @all_elements, else: args
