@@ -28,6 +28,71 @@ mix phx.server
 
 Default admin credentials: `admin` / `admin`
 
+## Docker Deployment
+
+ExStorageService is distributed as a lightweight Docker image at `ghcr.io/gsmlg-dev/ess:latest`.
+
+### Running with Docker
+
+To start a quick instance with S3 auth disabled and a persistent data volume:
+
+```bash
+docker run -d \
+  --name ess \
+  --restart unless-stopped \
+  -p 9000:9000 \
+  -p 4900:4900 \
+  -v ess-data:/data \
+  ghcr.io/gsmlg-dev/ess:latest
+```
+
+### Running with Docker Compose
+
+Create a `docker-compose.yml` file:
+
+```yaml
+services:
+  ess:
+    image: ghcr.io/gsmlg-dev/ess:latest
+    restart: unless-stopped
+    ports:
+      - "9000:9000"   # S3 API
+      - "4900:4900"   # Admin Portal
+    volumes:
+      - ess-data:/data
+    environment:
+      ESS_DATA_ROOT: /data
+      ESS_S3_PORT: "9000"
+      ESS_ADMIN_PORT: "4900"
+      ESS_S3_AUTH_ENABLED: "true"
+      ESS_ADMIN_USER: admin
+      ESS_ADMIN_PASSWORD_HASH: "${ESS_ADMIN_PASSWORD_HASH}"
+      ESS_MASTER_KEY: "${ESS_MASTER_KEY}"
+      SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
+      PHX_HOST: "${PHX_HOST:-localhost}"
+
+volumes:
+  ess-data:
+```
+
+Create a `.env` file in the same directory:
+
+```bash
+# Generate keys with: openssl rand -base64 32
+ESS_MASTER_KEY=<your-32-byte-base64-key>
+# Generate session key with: openssl rand -base64 64
+SECRET_KEY_BASE=<your-64-byte-base64-key>
+# Generate password hash with: echo -n "your-password" | sha256sum
+ESS_ADMIN_PASSWORD_HASH=<your-password-sha256-hash>
+PHX_HOST=localhost
+```
+
+Then start the services:
+
+```bash
+docker compose up -d
+```
+
 ### Using with AWS CLI
 
 ```bash
