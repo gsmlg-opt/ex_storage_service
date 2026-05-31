@@ -1,5 +1,5 @@
 # Stage 1: Build Elixir release
-FROM hexpm/elixir:1.19.0-erlang-28.0-debian-bookworm-slim AS builder
+FROM elixir:1.19.5-otp-28-slim AS builder
 
 # Install build tools, git, curl, openssl, node, npm
 RUN apt-get update && apt-get install -y build-essential git curl openssl && \
