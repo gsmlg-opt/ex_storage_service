@@ -1,8 +1,11 @@
-# Stage 1: Build Elixir release (Elixir + Bun + Tailwind all-in-one)
-FROM ghcr.io/gsmlg-dev/phoenix:1.8.3-alpine AS builder
+# Stage 1: Build Elixir release
+FROM hexpm/elixir:1.19.0-erlang-28.0-debian-bookworm-slim AS builder
 
-# Install build tools
-RUN apk add --no-cache build-base git
+# Install build tools, git, curl, openssl, node, npm
+RUN apt-get update && apt-get install -y build-essential git curl openssl && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -19,16 +22,16 @@ COPY apps/ex_storage_service_web/mix.exs ./apps/ex_storage_service_web/mix.exs
 
 RUN mix deps.get --only prod
 
-# Install JS deps (copy all workspace package.json files for bun workspaces)
-COPY package.json bunfig.toml bun.lock* ./
+# Install JS deps via npm workspaces
+COPY package.json package-lock.json ./
 COPY apps/ex_storage_service_web/package.json ./apps/ex_storage_service_web/package.json
-RUN bun install
+RUN npm install
 
 # Copy source and config
 COPY config ./config
 COPY apps ./apps
 
-# Build assets (tailwind + bun bundler)
+# Build assets (duskmoon.bundle + volt.build --tailwind)
 # Dummy env vars satisfy runtime.exs prod guards during the build step only.
 # Real values must be provided at container runtime by the operator.
 RUN ESS_MASTER_KEY=$(openssl rand -base64 32) \
@@ -45,15 +48,15 @@ RUN ESS_MASTER_KEY=$(openssl rand -base64 32) \
     mix release ess
 
 # Stage 2: Lean runtime image
-# IMPORTANT: must use the same base image as the builder to ensure
-# ERTS and NIF (e.g. crypto) ABI compatibility.
-FROM ghcr.io/gsmlg-dev/phoenix:1.8.3-alpine AS runtime
+# IMPORTANT: must use the same base OS version as the builder to ensure
+# ERTS and NIF ABI compatibility.
+FROM debian:bookworm-slim AS runtime
 
-RUN apk add --no-cache libstdc++ openssl ncurses-libs
+RUN apt-get update && apt-get install -y openssl libncurses6 wget && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-RUN adduser -D -h /app appuser
+RUN useradd -d /app appuser
 USER appuser
 
 COPY --from=builder --chown=appuser:appuser /app/_build/prod/rel/ess ./
