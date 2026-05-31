@@ -49,9 +49,9 @@ RUN ESS_MASTER_KEY=$(openssl rand -base64 32) \
     mix release ess
 
 # Stage 2: Lean runtime image
-# IMPORTANT: must use the same base OS version as the builder to ensure
-# ERTS and NIF ABI compatibility.
-FROM debian:bookworm-slim AS runtime
+# IMPORTANT: must use a base OS with a glibc version compatible with the
+# builder image's bundled ERTS.
+FROM debian:trixie-slim AS runtime
 
 RUN apt-get update && apt-get install -y openssl libncurses6 wget && rm -rf /var/lib/apt/lists/*
 
