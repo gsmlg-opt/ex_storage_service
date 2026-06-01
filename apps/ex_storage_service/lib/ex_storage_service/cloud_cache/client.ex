@@ -41,7 +41,7 @@ defmodule ExStorageService.CloudCache.Client do
 
     case Req.put(url, body: body, headers: signed_headers) do
       {:ok, %{status: status}} when status in 200..299 ->
-        Logger.debug("CloudCache PUT #{config.bucket}/#{key} → #{endpoint} (#{status})")
+        Logger.info("CloudCache PUT #{config.bucket}/#{key} → #{endpoint} (#{status})")
         :ok
 
       {:ok, %{status: status, body: resp_body}} ->
@@ -231,7 +231,14 @@ defmodule ExStorageService.CloudCache.Client do
 
     case Req.get(url, headers: signed_headers, decode_body: false) do
       {:ok, %{status: 200, body: xml_body}} ->
-        {:ok, parse_list_objects_xml(xml_body)}
+        result = parse_list_objects_xml(xml_body)
+
+        Logger.info(
+          "CloudCache LIST #{config.bucket}: #{length(result.keys)} keys, " <>
+            "#{length(result.common_prefixes)} prefixes, xml_bytes=#{byte_size(xml_body)}"
+        )
+
+        {:ok, result}
 
       {:ok, %{status: status, body: body}} ->
         Logger.warning(
@@ -298,7 +305,8 @@ defmodule ExStorageService.CloudCache.Client do
           |> URI.decode_query()
           |> Enum.sort_by(fn {k, _} -> k end)
           |> Enum.map_join("&", fn {k, v} ->
-            URI.encode_www_form(k) <> "=" <> URI.encode_www_form(v)
+            URI.encode(k, &URI.char_unreserved?/1) <>
+              "=" <> URI.encode(v, &URI.char_unreserved?/1)
           end)
       end
 

@@ -119,13 +119,22 @@ echo "═══ 1. File Operations ═══"
 
 # 1.1 Create file
 echo "── 1.1 Create file ──"
-echo "hello cloud cache" | mc pipe "ess/${LOCAL_BUCKET}/test-file.txt"
-sleep 1
+echo "hello cloud cache" | mc pipe "ess/${LOCAL_BUCKET}/test-file.txt" || echo "mc pipe failed with $?"
+sleep 2
 
-listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
+echo "  [debug] mc stat on ESS:"
+mc stat "ess/${LOCAL_BUCKET}/test-file.txt" 2>&1 || true
+echo "  [debug] mc stat on MinIO upstream:"
+mc stat "minio-upstream/${REMOTE_BUCKET}/test-file.txt" 2>&1 || true
+
+echo "  [debug] ESS listing raw output:"
+listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1) || true
+echo "  $listing_ess"
 assert_contains "File visible on ESS" "test-file.txt" "$listing_ess"
 
-listing_minio=$(mc ls "minio-upstream/${REMOTE_BUCKET}/" 2>&1)
+echo "  [debug] MinIO listing raw output:"
+listing_minio=$(mc ls "minio-upstream/${REMOTE_BUCKET}/" 2>&1) || true
+echo "  $listing_minio"
 assert_contains "File visible on upstream MinIO" "test-file.txt" "$listing_minio"
 
 # 1.2 Download file
