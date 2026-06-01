@@ -31,6 +31,9 @@ env:
   ESS_ADMIN_USER: admin
   ESS_S3_AUTH_ENABLED: "true"
   ESS_MASTER_KEY: cloud-cache-e2e-master-key-for-ci
+  # SHA-256 of "cloud-cache-e2e-admin" — satisfies the runtime.exs prod guardrail
+  # that rejects the default "admin" password hash.
+  ESS_ADMIN_PASSWORD_HASH: c89aca9f1fbfa8dc9383ff1f97a9c0f64a9bb6c1f456f00f2888c2e2fb733d14
   MINIO_PORT: "9100"
   MINIO_ENDPOINT: http://localhost:9100
   MINIO_ACCESS_KEY: minioadmin
