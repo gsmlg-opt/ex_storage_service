@@ -1,20 +1,25 @@
 # ExStorageService
 
-An S3-compatible object storage server built with Elixir and Phoenix.
+[![ex_storage_service_cli on Hex.pm](https://img.shields.io/hexpm/v/ex_storage_service_cli.svg)](https://hex.pm/packages/ex_storage_service_cli)
+
+ExStorageService is an S3-compatible object storage server built with Elixir.
+It runs a Plug/Bandit S3 API, a Phoenix LiveView admin portal, and an optional
+`ess` command-line client from one umbrella repository.
 
 ## Features
 
-- **S3-Compatible API** — Path-style bucket and object operations with AWS Signature V4 authentication
-- **IAM** — Users, access keys, and policy-based authorization with ARN resource matching
-- **Multipart Uploads** — Full lifecycle support with automatic garbage collection
-- **Bucket Versioning** — Enable/suspend versioning per bucket
-- **Object Lifecycle** — Configurable expiration rules
-- **Replication** — Async cross-node replication with event-driven sync and anti-entropy
-- **Webhook Notifications** — Event-driven notifications for object operations
-- **Presigned URLs** — Time-limited access URLs with policy enforcement at generation time
-- **Admin Dashboard** — Phoenix LiveView UI for managing buckets, users, policies, and audit logs
-- **Observability** — Prometheus metrics endpoint, OpenTelemetry tracing, audit logging
-- **Content-Addressable Storage** — SHA-256 deduplication with zero-copy reads
+- **S3-compatible API** - Path-style bucket and object operations with AWS Signature V4 authentication
+- **IAM** - Users, access keys, and AWS-style policy evaluation with allow/deny statements, action wildcards, and ARN resource matching
+- **Multipart uploads** - Create, upload parts, complete, abort, list parts, and garbage collect abandoned uploads
+- **Bucket versioning** - Enable or suspend object versioning per bucket
+- **Object lifecycle** - Configure expiration rules for objects
+- **Replication** - Asynchronous cross-node replication with retry and dead-letter handling
+- **Cloud cache** - Per-bucket upstream cache support for AWS S3, Cloudflare R2, MinIO, and S3-compatible providers
+- **Webhook notifications** - S3-style bucket event notifications for object changes
+- **Presigned URLs** - Time-limited object access with policy checks at generation time
+- **Admin portal** - Phoenix LiveView UI for buckets, users, policies, settings, cloud cache, and audit logs
+- **Observability** - Prometheus-style metrics, Phoenix LiveDashboard in development, telemetry, and audit logging
+- **Content-addressable storage** - SHA-256-addressed object files with deduplication and zero-copy reads
 
 ## Quick Start
 
@@ -22,15 +27,31 @@ An S3-compatible object storage server built with Elixir and Phoenix.
 # Install dependencies and build assets
 mix setup
 
-# Start the server (S3 API on :9000, Admin UI on :4900)
+# Start the S3 API on :9000 and admin portal on :4900
 mix phx.server
 ```
 
-Default admin credentials: `admin` / `admin`
+Open the admin portal at <http://localhost:4900>.
+
+Default development admin credentials:
+
+```text
+admin / admin
+```
+
+By default, `ESS_S3_AUTH_ENABLED=false`, so local S3 requests do not require
+real credentials. Development startup also seeds a fixed full-access key for
+auth-enabled testing:
+
+```text
+Access Key: AKIA-DEV-ACCESS-KEY
+Secret Key: DEV-SECRET-ACCESS-KEY-DO-NOT-USE
+```
 
 ## Docker Deployment
 
-ExStorageService is distributed as a lightweight Docker image at `ghcr.io/gsmlg-dev/ess:latest`.
+ExStorageService is distributed as a lightweight Docker image at
+`ghcr.io/gsmlg-dev/ess:latest`.
 
 ### Running with Docker
 
@@ -43,6 +64,7 @@ docker run -d \
   -p 9000:9000 \
   -p 4900:4900 \
   -v ess-data:/data \
+  -e ESS_DATA_ROOT=/data \
   ghcr.io/gsmlg-dev/ess:latest
 ```
 
@@ -57,7 +79,7 @@ services:
     restart: unless-stopped
     ports:
       - "9000:9000"   # S3 API
-      - "4900:4900"   # Admin Portal
+      - "4900:4900"   # Admin portal
     volumes:
       - ess-data:/data
     environment:
@@ -78,89 +100,100 @@ volumes:
 Create a `.env` file in the same directory:
 
 ```bash
-# Generate keys with: openssl rand -base64 32
-ESS_MASTER_KEY=<your-32-byte-base64-key>
-# Generate session key with: openssl rand -base64 64
-SECRET_KEY_BASE=<your-64-byte-base64-key>
-# Generate password hash with: echo -n "your-password" | sha256sum
+# Generate with: mix phx.gen.secret 32
+ESS_MASTER_KEY=<your-master-key>
+# Generate with: mix phx.gen.secret
+SECRET_KEY_BASE=<your-secret-key-base>
+# Generate with: echo -n "your-password" | sha256sum | awk '{print $1}'
 ESS_ADMIN_PASSWORD_HASH=<your-password-sha256-hash>
 PHX_HOST=localhost
 ```
 
-Then start the services:
+Then start the service:
 
 ```bash
 docker compose up -d
 ```
 
-### Using with AWS CLI
+## Clients
+
+### AWS CLI
 
 ```bash
-# Configure AWS CLI for local use
-aws configure set aws_access_key_id <your-access-key>
-aws configure set aws_secret_access_key <your-secret-key>
+aws configure set aws_access_key_id dummy
+aws configure set aws_secret_access_key dummy
+aws configure set default.region us-east-1
 
-# List buckets
 aws --endpoint-url http://localhost:9000 s3 ls
-
-# Create a bucket
 aws --endpoint-url http://localhost:9000 s3 mb s3://my-bucket
-
-# Upload a file
 aws --endpoint-url http://localhost:9000 s3 cp file.txt s3://my-bucket/file.txt
-
-# Download a file
 aws --endpoint-url http://localhost:9000 s3 cp s3://my-bucket/file.txt downloaded.txt
+aws --endpoint-url http://localhost:9000 s3 rm s3://my-bucket/file.txt
 ```
 
-### Use with mc
+### MinIO Client
 
-[MinIO Client (`mc`)](https://min.io/docs/minio/linux/reference/minio-mc.html) provides a modern alternative to UNIX commands like ls, cat, cp, mirror, diff, etc. for object storage.
-
-**Getting Access Keys:**
-- **Development Mode:** When running in dev mode (`mix phx.server`), the service automatically seeds a fixed test access key with full permissions:
-  - Access Key: `AKIA-DEV-ACCESS-KEY`
-  - Secret Key: `DEV-SECRET-ACCESS-KEY-DO-NOT-USE`
-- **When Auth is Disabled:** If `ESS_S3_AUTH_ENABLED` is `false` (the default), you can use any dummy strings for the credentials (e.g., `dummy` and `dummy`).
-- **When Auth is Enabled:** Log into the Admin Dashboard (`http://localhost:4900`) using the default credentials (`admin` / `admin`). Navigate to the **Users** tab, select a user (or create one), and generate a new Access Key to get your `<your-access-key>` and `<your-secret-key>`.
+[MinIO Client (`mc`)](https://min.io/docs/minio/linux/reference/minio-mc.html)
+works well for local object storage workflows.
 
 ```bash
-# Add an alias for your local ExStorageService instance
-# Syntax: mc alias set <ALIAS> <YOUR-S3-ENDPOINT> [YOUR-ACCESS-KEY] [YOUR-SECRET-KEY]
-mc alias set ess http://localhost:9000 <your-access-key> <your-secret-key>
+mc alias set ess http://localhost:9000 dummy dummy
 
-# List buckets
 mc ls ess
-
-# Create a bucket
 mc mb ess/my-bucket
-
-# Upload a file
 mc cp file.txt ess/my-bucket/
-
-# Download a file
 mc cp ess/my-bucket/file.txt .
-
-# Remove a file
 mc rm ess/my-bucket/file.txt
+mc mirror ./local-dir ess/my-bucket/backup
+```
 
-# Mirror a directory
-mc mirror ./my-local-dir ess/my-bucket/backup
+When S3 auth is enabled, create an IAM user and access key in the admin portal,
+then use those credentials instead of `dummy`.
+
+### ExStorageService CLI
+
+This repository also contains `apps/ex_storage_service_cli`, which builds the
+`ess` escript client and is published as
+[`ex_storage_service_cli`](https://hex.pm/packages/ex_storage_service_cli) on Hex.pm.
+
+```bash
+cd apps/ex_storage_service_cli
+mix escript.build
+./ess configure
+./ess mb my-bucket
+./ess cp ./file.txt s3://my-bucket/file.txt
+./ess ls my-bucket
+```
+
+Published releases can be installed with:
+
+```bash
+mix escript.install hex ex_storage_service_cli
 ```
 
 ## Architecture
 
-The application runs two HTTP servers under one OTP supervision tree:
+The umbrella contains four apps:
 
-| Server | Port | Stack | Purpose |
-|---|---|---|---|
+| App | Purpose |
+|---|---|
+| `ex_storage_service` | Core storage engine, Concord metadata, IAM, replication, lifecycle, cloud cache, notifications, and background processes |
+| `ex_storage_service_s3` | S3-compatible Plug.Router served by Bandit on port 9000 |
+| `ex_storage_service_web` | Phoenix LiveView admin portal served on port 4900 |
+| `ex_storage_service_cli` | Standalone `ess` command-line client packaged as an escript |
+
+Runtime services:
+
+| Server | Default port | Stack | Purpose |
+|---|---:|---|---|
 | S3 API | 9000 | Plug.Router + Bandit | S3-compatible object operations |
-| Admin Portal | 4900 | Phoenix + LiveView | Web dashboard and management |
+| Admin portal | 4900 | Phoenix + LiveView + Bandit | Web dashboard and management |
 
-### Storage
+### Metadata and Storage
 
-- **Metadata**: [Concord](https://hex.pm/packages/concord) (Raft-based distributed KV store built on Ra) — no external database required
-- **Objects**: Content-addressable files on disk using SHA-256 hashing, enabling automatic deduplication
+- **Metadata**: [Concord](https://hex.pm/packages/concord), a Ra/Raft-backed distributed key-value store. No Ecto database, migrations, or Repo are used.
+- **Objects**: Content-addressable files on disk under `ESS_DATA_ROOT`, addressed by SHA-256 and deduplicated across object keys.
+- **Secrets**: IAM and cloud-cache secrets are encrypted with `ESS_MASTER_KEY`.
 
 ### S3 API Operations
 
@@ -169,68 +202,98 @@ The application runs two HTTP servers under one OTP supervision tree:
 | Buckets | ListBuckets, CreateBucket, DeleteBucket, HeadBucket |
 | Objects | ListObjectsV2, GetObject, HeadObject, PutObject, CopyObject, DeleteObject, DeleteObjects |
 | Multipart | CreateMultipartUpload, UploadPart, CompleteMultipartUpload, AbortMultipartUpload, ListParts |
-| Config | Versioning (GET/PUT), Lifecycle (GET/PUT/DELETE), Notification (GET/PUT/DELETE) |
+| Config | Versioning, Lifecycle, Notification |
+| Access | SigV4 headers, presigned URLs, IAM authorization |
 
 ### Admin Portal Pages
 
-- **Dashboard** — System overview and health
-- **Buckets** — Create, delete, browse objects, manage versioning/lifecycle/notifications, generate presigned URLs
-- **Users** — Create, suspend, activate, delete IAM users with access keys
-- **Policies** — Create and manage AWS-style IAM policies (allow/deny, action wildcards, ARN matching)
-- **Audit Log** — Searchable log of administrative and S3 operations
+- **Dashboard** - System overview and health
+- **Buckets** - Create, delete, browse objects, generate presigned URLs
+- **Bucket files** - Object browser with upload/download/delete workflows
+- **Bucket settings** - Versioning, lifecycle, notifications, replication, and cloud cache
+- **Users** - Create, suspend, activate, delete IAM users and manage access keys
+- **Policies** - Create and manage IAM policies
+- **Audit log** - Search administrative and S3 events
+- **Metrics** - Prometheus text endpoint at `/metrics`
 
 ## Configuration
 
 | Variable | Default | Description |
 |---|---|---|
-| `ESS_DATA_ROOT` | `/tmp/ex_storage_service/data` | Storage root directory |
+| `ESS_DATA_ROOT` | `/tmp/ex_storage_service/data` | Storage, Ra, and Concord data root |
 | `ESS_S3_PORT` | `9000` | S3 API port |
 | `ESS_ADMIN_PORT` | `4900` | Admin portal port |
 | `ESS_S3_AUTH_ENABLED` | `false` | Require SigV4 authentication and IAM authorization for S3 requests |
 | `ESS_ADMIN_USER` | `admin` | Root admin username |
-| `ESS_ADMIN_PASSWORD_HASH` | SHA256("admin") | Admin password hash |
-| `ESS_MASTER_KEY` | auto-generated (dev/test) | AES-256 encryption key (**required in prod**) |
-| `SECRET_KEY_BASE` | — | Phoenix session key (**required in prod**) |
+| `ESS_ADMIN_PASSWORD_HASH` | SHA256 of `admin` | Root admin password hash |
+| `ESS_MASTER_KEY` | fixed dev/test key | AES-256 secret encryption key; required in production |
+| `SECRET_KEY_BASE` | none | Phoenix session signing key; required in production |
+| `PHX_HOST` | `localhost` | Production URL host for the admin portal |
+
+Production startup refuses insecure defaults:
+
+- `ESS_S3_AUTH_ENABLED` must be true.
+- `ESS_ADMIN_PASSWORD_HASH` must not be the default `admin` hash.
+- `ESS_MASTER_KEY` and `SECRET_KEY_BASE` must be set.
+
+Generate production secrets with:
+
+```bash
+mix phx.gen.secret 32   # ESS_MASTER_KEY
+mix phx.gen.secret      # SECRET_KEY_BASE
+```
 
 ## Development
 
 ### Requirements
 
-- Elixir ~> 1.19
-- OTP 28
-- Node.js & npm (for package installation via `mix npm.install` during setup)
+- Elixir `~> 1.18` or newer
+- Erlang/OTP 28 for CI parity
+- No Node.js, npm CLI, Bun, or standalone Tailwind CLI is required for normal setup
 
 ### Commands
 
 ```bash
-mix setup                    # Install all deps + build assets
-mix phx.server               # Start dev server with watchers
-mix test                     # Run all tests
-mix test path/to/test.exs    # Run a single file
-mix test path/to/test.exs:42 # Run a specific test
-mix format                   # Format code
+mix setup                             # Install deps, npm_ex packages, DuskMoon bundle, and assets
+mix phx.server                        # Start S3 API and admin portal with dev watchers
+mix test                              # Run all tests
+mix test --app ex_storage_service     # Run core tests only
+mix test --app ex_storage_service_s3  # Run S3 API tests only
+mix test --app ex_storage_service_web # Run web tests only
+mix test path/to/test.exs             # Run one test file
+mix test path/to/test.exs:42          # Run one test
+mix format                            # Format code
+mix format --check-formatted          # Check formatting
+mix compile --warnings-as-errors      # Compile with CI warning strictness
+mix volt.build --tailwind             # Build frontend assets
 ```
 
 ### Asset Pipeline
 
-Assets use **Volt** (an Elixir-native asset pipeline powered by OXC and LightningCSS) and Tailwind CSS v4 with the DuskMoon UI component system:
+The admin UI uses Volt and DuskMoon:
 
-- CSS: `apps/ex_storage_service_web/assets/css/app.css` — imports Tailwind + DuskMoon themes/components
-- JS: `apps/ex_storage_service_web/assets/js/app.js` — Phoenix LiveView + DuskMoon hooks
-- Components: `phoenix_duskmoon` library (not standard Phoenix core_components)
+- `volt` builds JavaScript and Tailwind CSS from Elixir tooling.
+- `npm_ex` manages npm packages such as `@duskmoon-dev/core`; no npm CLI is needed.
+- `phoenix_duskmoon` provides the Phoenix LiveView UI components.
+- Assets live in `apps/ex_storage_service_web/assets/`.
+- Static output is written to `apps/ex_storage_service_web/priv/static/assets/`.
 
 ## Coding Agents & Automation
 
-This project includes an [AGENTS.md](file:///Users/gao/Workspace/gsmlg-opt/ex_storage_service/AGENTS.md) file optimized for terminal-based AI coding agents (such as pi.dev). If you are using an AI assistant to develop in this repo, ensure it reads [AGENTS.md](file:///Users/gao/Workspace/gsmlg-opt/ex_storage_service/AGENTS.md) first to adhere to the design decisions, coding standards, and safety guidelines.
+This project includes [AGENTS.md](AGENTS.md), which documents repo-specific
+instructions for terminal-based AI coding agents.
 
 ## CI/CD
 
-GitHub Actions workflows:
+GitHub Actions workflows include:
 
-- **CI** (`ci.yml`) — Compile with `--warnings-as-errors` and format check on every push/PR
-- **Test** (`test.yml`) — Full test suite on push/PR to main
-- **Release** (`release.yml`) — Manual dispatch: build Docker image (GHCR), create git tag
-- **E2E Test** (`e2e-test.yml`) — Manual dispatch: start server in prod mode, run S3 + admin integration checks
+- **CI** (`ci.yml`) - compile with warnings as errors and check formatting
+- **Test** (`test.yml`) - run the test suite
+- **Build** (`build.yml`) - build the release image
+- **Release** (`release.yml`) - manually publish a tagged GHCR image
+- **E2E Test** (`e2e-test.yml`) - run S3 and admin integration checks
+- **Cloud Cache E2E** (`cloud-cache-e2e.yml`) - validate cloud cache against MinIO
+- **Publish CLI** (`publish-cli.yml`) - publish the `ex_storage_service_cli` package
 
 ## License
 
