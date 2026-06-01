@@ -261,7 +261,20 @@ defmodule ExStorageService.CloudCache.Client do
 
   # Build AWS SigV4 Authorization header and return merged headers list.
   defp sign_request(method, url_string, extra_headers, body, %Config{} = config) do
-    %URI{host: host, path: path, query: query} = URI.parse(url_string)
+    %URI{host: host, port: port, scheme: scheme, path: path, query: query} =
+      URI.parse(url_string)
+
+    # SigV4 requires the host header to include the port when it's non-standard.
+    # URI.parse strips the port from host, so we must reconstruct it.
+    host_header =
+      case {scheme, port} do
+        {"https", 443} -> host
+        {"https", nil} -> host
+        {"http", 80} -> host
+        {"http", nil} -> host
+        {_, port} when is_integer(port) -> "#{host}:#{port}"
+        _ -> host
+      end
 
     region = signing_region(config)
     access_key_id = config.access_key_id
@@ -285,19 +298,18 @@ defmodule ExStorageService.CloudCache.Client do
           |> URI.decode_query()
           |> Enum.sort_by(fn {k, _} -> k end)
           |> Enum.map_join("&", fn {k, v} ->
-            URI.encode(k, &URI.char_unreserved?/1) <>
-              "=" <> URI.encode(v, &URI.char_unreserved?/1)
+            URI.encode_www_form(k) <> "=" <> URI.encode_www_form(v)
           end)
       end
 
-    canonical_uri = path || "/"
+    canonical_uri = uri_encode_path(path || "/")
 
     # Compute payload hash
     payload_hash = Base.encode16(:crypto.hash(:sha256, body), case: :lower)
 
     # Canonical headers (must be sorted)
     base_headers = [
-      {"host", host},
+      {"host", host_header},
       {"x-amz-content-sha256", payload_hash},
       {"x-amz-date", amz_date}
     ]
@@ -357,6 +369,17 @@ defmodule ExStorageService.CloudCache.Client do
       {"x-amz-date", amz_date},
       {"x-amz-content-sha256", payload_hash}
     ] ++ extra_headers
+  end
+
+  # Encode each path segment per the AWS SigV4 canonical URI spec.
+  # Matches the server-side implementation in ExStorageServiceS3.Auth.SigV4.
+  defp uri_encode_path(path) do
+    path
+    |> String.split("/")
+    |> Enum.map(&URI.decode/1)
+    |> Enum.map(&URI.encode_www_form/1)
+    |> Enum.map(&String.replace(&1, "+", "%20"))
+    |> Enum.join("/")
   end
 
   # R2 always uses "auto" for signing; everything else uses the configured region.
