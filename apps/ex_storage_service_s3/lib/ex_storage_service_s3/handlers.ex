@@ -661,7 +661,8 @@ defmodule ExStorageServiceS3.Handlers do
     # Buffer the body (needed to compute hash and send to cloud)
     try do
       case read_full_body(conn) do
-        {:ok, body, _conn} ->
+        {:ok, raw_body, _conn} ->
+          body = maybe_decode_aws_chunked(conn, raw_body)
           content_hash = Base.encode16(:crypto.hash(:sha256, body), case: :lower)
           md5 = :crypto.hash(:md5, body)
           etag = Base.encode16(md5, case: :lower)
@@ -741,6 +742,86 @@ defmodule ExStorageServiceS3.Handlers do
 
     custom_metadata = extract_custom_metadata(conn)
 
+    # If the client uses aws-chunked (STREAMING-AWS4-HMAC-SHA256-PAYLOAD), we
+    # must buffer and decode the body before writing. Otherwise, stream directly
+    # to the storage engine for better memory efficiency.
+    if aws_chunked?(conn) do
+      put_object_local_buffered(conn, bucket, key, content_type, custom_metadata, request_id)
+    else
+      put_object_local_streamed(conn, bucket, key, content_type, custom_metadata, request_id)
+    end
+  end
+
+  defp put_object_local_buffered(conn, bucket, key, content_type, custom_metadata, request_id) do
+    try do
+      case read_full_body(conn) do
+        {:ok, raw_body, _conn} ->
+          body = decode_aws_chunked(raw_body)
+          content_hash = Base.encode16(:crypto.hash(:sha256, body), case: :lower)
+          md5 = :crypto.hash(:md5, body)
+          etag = Base.encode16(md5, case: :lower)
+          size = byte_size(body)
+
+          Engine.ensure_bucket_dirs(bucket)
+
+          case Engine.put_object(bucket, key, body, content_type, custom_metadata) do
+            {:ok, _} ->
+              now = DateTime.utc_now() |> DateTime.to_iso8601()
+
+              meta = %{
+                content_hash: content_hash,
+                size: size,
+                etag: etag,
+                content_type: content_type,
+                metadata: custom_metadata,
+                created_at: now,
+                updated_at: now
+              }
+
+              Metadata.put_object_meta(bucket, key, meta)
+              Hooks.after_put(bucket, key)
+              broadcast_bucket_change(bucket, :put, key)
+
+              conn
+              |> put_s3_headers(request_id)
+              |> put_resp_header("etag", "\"#{etag}\"")
+              |> send_resp(200, "")
+
+            {:error, reason} ->
+              error_response(
+                conn,
+                "InternalError",
+                inspect(reason),
+                "/#{bucket}/#{key}",
+                request_id
+              )
+          end
+
+        {:error, :entity_too_large} ->
+          error_response(
+            conn,
+            "EntityTooLarge",
+            "Your proposed upload exceeds the maximum allowed object size.",
+            "/#{bucket}/#{key}",
+            request_id
+          )
+
+        {:error, reason} ->
+          error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
+      end
+    catch
+      {:error, :entity_too_large} ->
+        error_response(
+          conn,
+          "EntityTooLarge",
+          "Your proposed upload exceeds the maximum allowed object size.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
+    end
+  end
+
+  defp put_object_local_streamed(conn, bucket, key, content_type, custom_metadata, request_id) do
     # Stream the body directly to the storage engine rather than
     # accumulating the full object in memory. The stream enforces
     # max_object_size incrementally and halts early on oversize uploads.
@@ -858,7 +939,7 @@ defmodule ExStorageServiceS3.Handlers do
 
                 new_meta = Map.merge(source_meta, %{created_at: now, updated_at: now})
 
-                # Copy content file if different buckets
+                # Copy content file if different buckets (local storage)
                 if source_bucket != bucket do
                   case Engine.get_object(source_bucket, source_meta.content_hash) do
                     {:ok, source_path} ->
@@ -872,11 +953,54 @@ defmodule ExStorageServiceS3.Handlers do
                   end
                 end
 
+                # Copy to upstream cloud if cloud cache is enabled
+                case cloud_cache_config(bucket) do
+                  {:ok, cloud_config} ->
+                    # Get source data: try local cache first, then upstream
+                    source_data =
+                      case LocalStore.get(source_bucket, source_key) do
+                        {:ok, path} ->
+                          File.read(path)
+
+                        :miss ->
+                          # Download from upstream
+                          case cloud_cache_config(source_bucket) do
+                            {:ok, src_config} ->
+                              CloudClient.get_object(src_config, source_key)
+
+                            _ ->
+                              {:error, :no_source}
+                          end
+                      end
+
+                    case source_data do
+                      {:ok, data} ->
+                        content_type =
+                          Map.get(source_meta, :content_type, "application/octet-stream")
+
+                        custom_metadata = Map.get(source_meta, :metadata, %{})
+
+                        CloudClient.put_object(
+                          cloud_config,
+                          key,
+                          data,
+                          content_type,
+                          custom_metadata
+                        )
+
+                      _ ->
+                        :ok
+                    end
+
+                  :disabled ->
+                    :ok
+                end
+
                 Metadata.put_object_meta(bucket, key, new_meta)
                 Hooks.after_put(bucket, key)
                 broadcast_bucket_change(bucket, :put, key)
-                last_modified = format_http_date(now)
-                body = XML.copy_object_response("\"#{source_meta.etag}\"", last_modified)
+                # CopyObjectResult requires ISO 8601 (not HTTP date format)
+                body = XML.copy_object_response("\"#{source_meta.etag}\"", now)
                 xml_response(conn, 200, body, request_id)
             end
 
@@ -1405,6 +1529,79 @@ defmodule ExStorageServiceS3.Handlers do
 
       {:error, reason} ->
         {:error, reason}
+    end
+  end
+
+  # Returns true if the request uses S3 aws-chunked content encoding.
+  defp aws_chunked?(conn) do
+    payload_hash =
+      case get_req_header(conn, "x-amz-content-sha256") do
+        [h | _] -> h
+        [] -> ""
+      end
+
+    content_encoding =
+      case get_req_header(conn, "content-encoding") do
+        [ce | _] -> ce
+        [] -> ""
+      end
+
+    String.contains?(payload_hash, "STREAMING") or
+      String.contains?(content_encoding, "aws-chunked")
+  end
+
+  # Detects whether the body uses S3 aws-chunked content encoding
+  # (STREAMING-AWS4-HMAC-SHA256-PAYLOAD) and decodes it if so.
+  defp maybe_decode_aws_chunked(conn, body) do
+    payload_hash =
+      case get_req_header(conn, "x-amz-content-sha256") do
+        [h | _] -> h
+        [] -> ""
+      end
+
+    content_encoding =
+      case get_req_header(conn, "content-encoding") do
+        [ce | _] -> ce
+        [] -> ""
+      end
+
+    if String.contains?(payload_hash, "STREAMING") or
+         String.contains?(content_encoding, "aws-chunked") do
+      decode_aws_chunked(body)
+    else
+      body
+    end
+  end
+
+  # Decodes S3 aws-chunked body format:
+  #   <hex-size>;chunk-signature=<sig>\r\n<data>\r\n...
+  #   0;chunk-signature=<sig>\r\n\r\n
+  defp decode_aws_chunked(body) do
+    decode_aws_chunks(body, <<>>)
+  end
+
+  defp decode_aws_chunks(<<>>, acc), do: acc
+
+  defp decode_aws_chunks(data, acc) do
+    case :binary.split(data, "\r\n") do
+      [header, rest] ->
+        case Integer.parse(header, 16) do
+          {0, _} ->
+            # Terminal chunk
+            acc
+
+          {chunk_size, _} ->
+            <<chunk::binary-size(chunk_size), "\r\n", remaining::binary>> = rest
+            decode_aws_chunks(remaining, acc <> chunk)
+
+          :error ->
+            # Malformed — return what we have
+            acc <> data
+        end
+
+      [_no_crlf] ->
+        # No more CRLF — malformed or done
+        acc
     end
   end
 

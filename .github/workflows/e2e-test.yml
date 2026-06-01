@@ -25,6 +25,9 @@ env:
   ESS_ADMIN_USER: admin
   ESS_S3_AUTH_ENABLED: "true"
   ESS_MASTER_KEY: test-master-key-for-ci-only
+  # SHA-256 of "e2e-test-admin" — satisfies the runtime.exs prod guardrail
+  # that rejects the default "admin" password hash.
+  ESS_ADMIN_PASSWORD_HASH: 58183f72d80da07a4a90f521f3720f80990e002245a0f15cd9e5321bcd34125d
   E2E_S3_ENDPOINT: http://localhost:9000
   E2E_ADMIN_ENDPOINT: http://localhost:4000
   E2E_STATE_FILE: /tmp/ex_storage_service/e2e-state.json

@@ -22,7 +22,7 @@ defmodule ExStorageServiceWeb.Endpoint do
   plug Plug.Static,
     at: "/",
     from: :ex_storage_service_web,
-    gzip: false,
+    gzip: true,
     only: ExStorageServiceWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the

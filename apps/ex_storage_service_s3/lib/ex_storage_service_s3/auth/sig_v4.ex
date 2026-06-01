@@ -49,6 +49,10 @@ defmodule ExStorageServiceS3.Auth.SigV4 do
             conn
 
           {:error, reason} ->
+            require Logger
+
+            Logger.warning("SigV4 auth failed: #{reason} — #{conn.method} #{conn.request_path}")
+
             request_id = generate_request_id()
 
             body =

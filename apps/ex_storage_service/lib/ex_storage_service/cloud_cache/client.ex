@@ -41,7 +41,7 @@ defmodule ExStorageService.CloudCache.Client do
 
     case Req.put(url, body: body, headers: signed_headers) do
       {:ok, %{status: status}} when status in 200..299 ->
-        Logger.debug("CloudCache PUT #{config.bucket}/#{key} → #{endpoint} (#{status})")
+        Logger.info("CloudCache PUT #{config.bucket}/#{key} → #{endpoint} (#{status})")
         :ok
 
       {:ok, %{status: status, body: resp_body}} ->
@@ -231,7 +231,14 @@ defmodule ExStorageService.CloudCache.Client do
 
     case Req.get(url, headers: signed_headers, decode_body: false) do
       {:ok, %{status: 200, body: xml_body}} ->
-        {:ok, parse_list_objects_xml(xml_body)}
+        result = parse_list_objects_xml(xml_body)
+
+        Logger.info(
+          "CloudCache LIST #{config.bucket}: #{length(result.keys)} keys, " <>
+            "#{length(result.common_prefixes)} prefixes, xml_bytes=#{byte_size(xml_body)}"
+        )
+
+        {:ok, result}
 
       {:ok, %{status: status, body: body}} ->
         Logger.warning(
@@ -261,7 +268,20 @@ defmodule ExStorageService.CloudCache.Client do
 
   # Build AWS SigV4 Authorization header and return merged headers list.
   defp sign_request(method, url_string, extra_headers, body, %Config{} = config) do
-    %URI{host: host, path: path, query: query} = URI.parse(url_string)
+    %URI{host: host, port: port, scheme: scheme, path: path, query: query} =
+      URI.parse(url_string)
+
+    # SigV4 requires the host header to include the port when it's non-standard.
+    # URI.parse strips the port from host, so we must reconstruct it.
+    host_header =
+      case {scheme, port} do
+        {"https", 443} -> host
+        {"https", nil} -> host
+        {"http", 80} -> host
+        {"http", nil} -> host
+        {_, port} when is_integer(port) -> "#{host}:#{port}"
+        _ -> host
+      end
 
     region = signing_region(config)
     access_key_id = config.access_key_id
@@ -290,14 +310,14 @@ defmodule ExStorageService.CloudCache.Client do
           end)
       end
 
-    canonical_uri = path || "/"
+    canonical_uri = uri_encode_path(path || "/")
 
     # Compute payload hash
     payload_hash = Base.encode16(:crypto.hash(:sha256, body), case: :lower)
 
     # Canonical headers (must be sorted)
     base_headers = [
-      {"host", host},
+      {"host", host_header},
       {"x-amz-content-sha256", payload_hash},
       {"x-amz-date", amz_date}
     ]
@@ -357,6 +377,17 @@ defmodule ExStorageService.CloudCache.Client do
       {"x-amz-date", amz_date},
       {"x-amz-content-sha256", payload_hash}
     ] ++ extra_headers
+  end
+
+  # Encode each path segment per the AWS SigV4 canonical URI spec.
+  # Matches the server-side implementation in ExStorageServiceS3.Auth.SigV4.
+  defp uri_encode_path(path) do
+    path
+    |> String.split("/")
+    |> Enum.map(&URI.decode/1)
+    |> Enum.map(&URI.encode_www_form/1)
+    |> Enum.map(&String.replace(&1, "+", "%20"))
+    |> Enum.join("/")
   end
 
   # R2 always uses "auto" for signing; everything else uses the configured region.

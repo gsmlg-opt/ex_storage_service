@@ -36,6 +36,10 @@ REMOTE_BUCKET="${REMOTE_BUCKET:-upstream-e2e}"
 PASS_COUNT=0
 FAIL_COUNT=0
 
+# Temp dir for mc cp uploads (mc pipe doesn't send Authorization headers)
+E2E_TMPDIR=$(mktemp -d)
+trap 'rm -rf "$E2E_TMPDIR"' EXIT
+
 # ── Helpers ────────────────────────────────────────────────────────
 pass() {
   PASS_COUNT=$((PASS_COUNT + 1))
@@ -45,6 +49,17 @@ pass() {
 fail() {
   FAIL_COUNT=$((FAIL_COUNT + 1))
   echo "  ❌ FAIL: $1"
+}
+
+# Upload content string to an mc destination using mc cp (not mc pipe).
+# Usage: mc_put "content" "ess/bucket/key"
+mc_put() {
+  local content="$1" dest="$2"
+  local tmpfile
+  tmpfile=$(mktemp "$E2E_TMPDIR/upload.XXXXXX")
+  echo -n "$content" > "$tmpfile"
+  mc cp "$tmpfile" "$dest" 2>&1
+  rm -f "$tmpfile"
 }
 
 assert_eq() {
@@ -119,7 +134,7 @@ echo "═══ 1. File Operations ═══"
 
 # 1.1 Create file
 echo "── 1.1 Create file ──"
-echo "hello cloud cache" | mc pipe "ess/${LOCAL_BUCKET}/test-file.txt"
+mc_put "hello cloud cache" "ess/${LOCAL_BUCKET}/test-file.txt"
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
@@ -135,7 +150,7 @@ assert_eq "Downloaded content matches" "hello cloud cache" "$content"
 
 # 1.3 Update file (overwrite)
 echo "── 1.3 Update file ──"
-echo "updated content" | mc pipe "ess/${LOCAL_BUCKET}/test-file.txt"
+mc_put "updated content" "ess/${LOCAL_BUCKET}/test-file.txt"
 sleep 1
 
 content=$(mc cat "ess/${LOCAL_BUCKET}/test-file.txt" 2>&1)
@@ -146,7 +161,7 @@ assert_eq "Updated content on upstream" "updated content" "$content_upstream"
 
 # 1.4 Copy file
 echo "── 1.4 Copy file ──"
-mc cp "ess/${LOCAL_BUCKET}/test-file.txt" "ess/${LOCAL_BUCKET}/test-file-copy.txt" 2>&1
+mc cp "ess/${LOCAL_BUCKET}/test-file.txt" "ess/${LOCAL_BUCKET}/test-file-copy.txt" 2>&1 || echo "  [warn] mc cp failed: $?"
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
@@ -154,7 +169,7 @@ assert_contains "Copied file on ESS" "test-file-copy.txt" "$listing_ess"
 
 # 1.5 Move file (rename)
 echo "── 1.5 Move file ──"
-mc mv "ess/${LOCAL_BUCKET}/test-file-copy.txt" "ess/${LOCAL_BUCKET}/test-file-moved.txt" 2>&1
+mc mv "ess/${LOCAL_BUCKET}/test-file-copy.txt" "ess/${LOCAL_BUCKET}/test-file-moved.txt" 2>&1 || echo "  [warn] mc mv failed"
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
@@ -163,7 +178,7 @@ assert_not_contains "Original file gone after move" "test-file-copy.txt" "$listi
 
 # 1.6 Remove file
 echo "── 1.6 Remove file ──"
-mc rm "ess/${LOCAL_BUCKET}/test-file-moved.txt" 2>&1
+mc rm "ess/${LOCAL_BUCKET}/test-file-moved.txt" 2>&1 || true
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
@@ -183,9 +198,9 @@ echo "═══ 2. Directory Operations ═══"
 
 # 2.1 Create directory with files
 echo "── 2.1 Create directory with files ──"
-echo "file-a content" | mc pipe "ess/${LOCAL_BUCKET}/mydir/file-a.txt"
-echo "file-b content" | mc pipe "ess/${LOCAL_BUCKET}/mydir/file-b.txt"
-echo "sub file content" | mc pipe "ess/${LOCAL_BUCKET}/mydir/subdir/file-c.txt"
+mc_put "file-a content" "ess/${LOCAL_BUCKET}/mydir/file-a.txt"
+mc_put "file-b content" "ess/${LOCAL_BUCKET}/mydir/file-b.txt"
+mc_put "sub file content" "ess/${LOCAL_BUCKET}/mydir/subdir/file-c.txt"
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
@@ -211,18 +226,18 @@ assert_eq "Subdir file-c content" "sub file content" "$content_c"
 
 # 2.4 Copy directory (mc cp --recursive)
 echo "── 2.4 Copy directory ──"
-mc cp --recursive "ess/${LOCAL_BUCKET}/mydir/" "ess/${LOCAL_BUCKET}/mydir-copy/" 2>&1
+mc cp --recursive "ess/${LOCAL_BUCKET}/mydir/" "ess/${LOCAL_BUCKET}/mydir-copy/" 2>&1 || echo "  [warn] mc cp --recursive failed"
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
 assert_contains "Copied dir on ESS" "mydir-copy/" "$listing_ess"
 
-content_copy=$(mc cat "ess/${LOCAL_BUCKET}/mydir-copy/file-a.txt" 2>&1)
+content_copy=$(mc cat "ess/${LOCAL_BUCKET}/mydir-copy/file-a.txt" 2>&1) || true
 assert_eq "Copied dir file content" "file-a content" "$content_copy"
 
 # 2.5 Move directory
 echo "── 2.5 Move directory ──"
-mc mv --recursive "ess/${LOCAL_BUCKET}/mydir-copy/" "ess/${LOCAL_BUCKET}/mydir-moved/" 2>&1
+mc mv --recursive "ess/${LOCAL_BUCKET}/mydir-copy/" "ess/${LOCAL_BUCKET}/mydir-moved/" 2>&1 || echo "  [warn] mc mv --recursive failed"
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
@@ -231,7 +246,7 @@ assert_not_contains "Original dir gone after move" "mydir-copy/" "$listing_ess"
 
 # 2.6 Remove directory recursively
 echo "── 2.6 Remove directory ──"
-mc rm --recursive --force "ess/${LOCAL_BUCKET}/mydir-moved/" 2>&1
+mc rm --recursive --force "ess/${LOCAL_BUCKET}/mydir-moved/" 2>&1 || true
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
@@ -239,7 +254,7 @@ assert_not_contains "Removed dir gone from ESS" "mydir-moved/" "$listing_ess"
 
 # 2.7 Remove original directory
 echo "── 2.7 Remove original directory ──"
-mc rm --recursive --force "ess/${LOCAL_BUCKET}/mydir/" 2>&1
+mc rm --recursive --force "ess/${LOCAL_BUCKET}/mydir/" 2>&1 || true
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)

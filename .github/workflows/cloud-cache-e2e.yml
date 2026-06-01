@@ -31,6 +31,9 @@ env:
   ESS_ADMIN_USER: admin
   ESS_S3_AUTH_ENABLED: "true"
   ESS_MASTER_KEY: cloud-cache-e2e-master-key-for-ci
+  # SHA-256 of "cloud-cache-e2e-admin" — satisfies the runtime.exs prod guardrail
+  # that rejects the default "admin" password hash.
+  ESS_ADMIN_PASSWORD_HASH: c89aca9f1fbfa8dc9383ff1f97a9c0f64a9bb6c1f456f00f2888c2e2fb733d14
   MINIO_PORT: "9100"
   MINIO_ENDPOINT: http://localhost:9100
   MINIO_ACCESS_KEY: minioadmin
@@ -128,13 +131,25 @@ jobs:
           for i in $(seq 1 30); do
             if curl -sf http://localhost:9000/health > /dev/null 2>&1; then
               echo "ESS S3 API is ready"
-              exit 0
+              break
             fi
             sleep 2
           done
-          echo "ESS S3 API failed to start"
-          cat /tmp/ex_storage_service/app.log || true
-          exit 1
+
+          # Wait for Concord/Ra to fully recover seeded data (IAM keys, cloud cache config).
+          # The /health endpoint returns immediately but Ra log replay may still be in progress.
+          echo "Waiting for Concord readiness (bucket HEAD check)..."
+          for i in $(seq 1 15); do
+            if mc alias set ess-check "http://localhost:9000" "$E2E_ACCESS_KEY_ID" "$E2E_SECRET_ACCESS_KEY" --api S3v4 > /dev/null 2>&1 && \
+               mc ls "ess-check/${ESS_CLOUD_E2E_BUCKET}/" > /dev/null 2>&1; then
+              echo "Concord is ready — bucket ${ESS_CLOUD_E2E_BUCKET} accessible"
+              exit 0
+            fi
+            echo "  attempt $i: Concord not ready yet, waiting..."
+            sleep 2
+          done
+          echo "WARNING: Concord readiness check timed out, proceeding anyway"
+
 
       - name: Run Cloud Cache E2E tests
         run: bash e2e/cloud_cache_e2e.sh
