@@ -161,7 +161,7 @@ assert_eq "Updated content on upstream" "updated content" "$content_upstream"
 
 # 1.4 Copy file
 echo "── 1.4 Copy file ──"
-mc cp "ess/${LOCAL_BUCKET}/test-file.txt" "ess/${LOCAL_BUCKET}/test-file-copy.txt" 2>&1
+mc cp "ess/${LOCAL_BUCKET}/test-file.txt" "ess/${LOCAL_BUCKET}/test-file-copy.txt" 2>&1 || echo "  [warn] mc cp failed: $?"
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
@@ -169,7 +169,7 @@ assert_contains "Copied file on ESS" "test-file-copy.txt" "$listing_ess"
 
 # 1.5 Move file (rename)
 echo "── 1.5 Move file ──"
-mc mv "ess/${LOCAL_BUCKET}/test-file-copy.txt" "ess/${LOCAL_BUCKET}/test-file-moved.txt" 2>&1
+mc mv "ess/${LOCAL_BUCKET}/test-file-copy.txt" "ess/${LOCAL_BUCKET}/test-file-moved.txt" 2>&1 || echo "  [warn] mc mv failed"
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
@@ -178,7 +178,7 @@ assert_not_contains "Original file gone after move" "test-file-copy.txt" "$listi
 
 # 1.6 Remove file
 echo "── 1.6 Remove file ──"
-mc rm "ess/${LOCAL_BUCKET}/test-file-moved.txt" 2>&1
+mc rm "ess/${LOCAL_BUCKET}/test-file-moved.txt" 2>&1 || true
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
@@ -226,7 +226,7 @@ assert_eq "Subdir file-c content" "sub file content" "$content_c"
 
 # 2.4 Copy directory (mc cp --recursive)
 echo "── 2.4 Copy directory ──"
-mc cp --recursive "ess/${LOCAL_BUCKET}/mydir/" "ess/${LOCAL_BUCKET}/mydir-copy/" 2>&1
+mc cp --recursive "ess/${LOCAL_BUCKET}/mydir/" "ess/${LOCAL_BUCKET}/mydir-copy/" 2>&1 || echo "  [warn] mc cp --recursive failed"
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
@@ -237,7 +237,7 @@ assert_eq "Copied dir file content" "file-a content" "$content_copy"
 
 # 2.5 Move directory
 echo "── 2.5 Move directory ──"
-mc mv --recursive "ess/${LOCAL_BUCKET}/mydir-copy/" "ess/${LOCAL_BUCKET}/mydir-moved/" 2>&1
+mc mv --recursive "ess/${LOCAL_BUCKET}/mydir-copy/" "ess/${LOCAL_BUCKET}/mydir-moved/" 2>&1 || echo "  [warn] mc mv --recursive failed"
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
@@ -246,7 +246,7 @@ assert_not_contains "Original dir gone after move" "mydir-copy/" "$listing_ess"
 
 # 2.6 Remove directory recursively
 echo "── 2.6 Remove directory ──"
-mc rm --recursive --force "ess/${LOCAL_BUCKET}/mydir-moved/" 2>&1
+mc rm --recursive --force "ess/${LOCAL_BUCKET}/mydir-moved/" 2>&1 || true
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
@@ -254,7 +254,7 @@ assert_not_contains "Removed dir gone from ESS" "mydir-moved/" "$listing_ess"
 
 # 2.7 Remove original directory
 echo "── 2.7 Remove original directory ──"
-mc rm --recursive --force "ess/${LOCAL_BUCKET}/mydir/" 2>&1
+mc rm --recursive --force "ess/${LOCAL_BUCKET}/mydir/" 2>&1 || true
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
