@@ -119,7 +119,16 @@ echo "═══ 1. File Operations ═══"
 
 # 1.1 Create file
 echo "── 1.1 Create file ──"
-echo "hello cloud cache" | mc pipe "ess/${LOCAL_BUCKET}/test-file.txt" || echo "mc pipe failed with $?"
+echo "  [debug] PUT via mc pipe..."
+mc_pipe_output=$(echo "hello cloud cache" | mc pipe "ess/${LOCAL_BUCKET}/test-file.txt" 2>&1) || echo "  mc pipe exit code: $?"
+echo "  [debug] mc pipe output: $mc_pipe_output"
+
+echo "  [debug] PUT via curl to ESS..."
+curl_resp=$(curl -sv -X PUT "http://localhost:9000/${LOCAL_BUCKET}/test-file.txt" \
+  -H "Content-Type: text/plain" \
+  -d "hello cloud cache from curl" 2>&1) || true
+echo "  [debug] curl response: $curl_resp"
+
 sleep 2
 
 echo "  [debug] mc stat on ESS:"
