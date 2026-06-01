@@ -232,7 +232,7 @@ sleep 1
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
 assert_contains "Copied dir on ESS" "mydir-copy/" "$listing_ess"
 
-content_copy=$(mc cat "ess/${LOCAL_BUCKET}/mydir-copy/file-a.txt" 2>&1)
+content_copy=$(mc cat "ess/${LOCAL_BUCKET}/mydir-copy/file-a.txt" 2>&1) || true
 assert_eq "Copied dir file content" "file-a content" "$content_copy"
 
 # 2.5 Move directory

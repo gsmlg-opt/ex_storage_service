@@ -956,8 +956,8 @@ defmodule ExStorageServiceS3.Handlers do
                 Metadata.put_object_meta(bucket, key, new_meta)
                 Hooks.after_put(bucket, key)
                 broadcast_bucket_change(bucket, :put, key)
-                last_modified = format_http_date(now)
-                body = XML.copy_object_response("\"#{source_meta.etag}\"", last_modified)
+                # CopyObjectResult requires ISO 8601 (not HTTP date format)
+                body = XML.copy_object_response("\"#{source_meta.etag}\"", now)
                 xml_response(conn, 200, body, request_id)
             end
 
