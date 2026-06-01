@@ -939,7 +939,7 @@ defmodule ExStorageServiceS3.Handlers do
 
                 new_meta = Map.merge(source_meta, %{created_at: now, updated_at: now})
 
-                # Copy content file if different buckets
+                # Copy content file if different buckets (local storage)
                 if source_bucket != bucket do
                   case Engine.get_object(source_bucket, source_meta.content_hash) do
                     {:ok, source_path} ->
@@ -951,6 +951,49 @@ defmodule ExStorageServiceS3.Handlers do
                     {:error, _} ->
                       :ok
                   end
+                end
+
+                # Copy to upstream cloud if cloud cache is enabled
+                case cloud_cache_config(bucket) do
+                  {:ok, cloud_config} ->
+                    # Get source data: try local cache first, then upstream
+                    source_data =
+                      case LocalStore.get(source_bucket, source_key) do
+                        {:ok, path} ->
+                          File.read(path)
+
+                        :miss ->
+                          # Download from upstream
+                          case cloud_cache_config(source_bucket) do
+                            {:ok, src_config} ->
+                              CloudClient.get_object(src_config, source_key)
+
+                            _ ->
+                              {:error, :no_source}
+                          end
+                      end
+
+                    case source_data do
+                      {:ok, data} ->
+                        content_type =
+                          Map.get(source_meta, :content_type, "application/octet-stream")
+
+                        custom_metadata = Map.get(source_meta, :metadata, %{})
+
+                        CloudClient.put_object(
+                          cloud_config,
+                          key,
+                          data,
+                          content_type,
+                          custom_metadata
+                        )
+
+                      _ ->
+                        :ok
+                    end
+
+                  :disabled ->
+                    :ok
                 end
 
                 Metadata.put_object_meta(bucket, key, new_meta)
