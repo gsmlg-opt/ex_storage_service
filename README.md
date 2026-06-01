@@ -1,5 +1,7 @@
 # ExStorageService
 
+[![GitHub release](https://img.shields.io/github/v/release/gsmlg-opt/ex_storage_service)](https://github.com/gsmlg-opt/ex_storage_service/releases)
+[![Docker image](https://img.shields.io/badge/docker-ghcr.io%2Fgsmlg--dev%2Fess-blue)](https://github.com/gsmlg-opt/ex_storage_service/pkgs/container/ess)
 [![ex_storage_service_cli on Hex.pm](https://img.shields.io/hexpm/v/ex_storage_service_cli.svg)](https://hex.pm/packages/ex_storage_service_cli)
 
 ExStorageService is an S3-compatible object storage server built with Elixir.
