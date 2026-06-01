@@ -36,6 +36,10 @@ REMOTE_BUCKET="${REMOTE_BUCKET:-upstream-e2e}"
 PASS_COUNT=0
 FAIL_COUNT=0
 
+# Temp dir for mc cp uploads (mc pipe doesn't send Authorization headers)
+E2E_TMPDIR=$(mktemp -d)
+trap 'rm -rf "$E2E_TMPDIR"' EXIT
+
 # ── Helpers ────────────────────────────────────────────────────────
 pass() {
   PASS_COUNT=$((PASS_COUNT + 1))
@@ -45,6 +49,17 @@ pass() {
 fail() {
   FAIL_COUNT=$((FAIL_COUNT + 1))
   echo "  ❌ FAIL: $1"
+}
+
+# Upload content string to an mc destination using mc cp (not mc pipe).
+# Usage: mc_put "content" "ess/bucket/key"
+mc_put() {
+  local content="$1" dest="$2"
+  local tmpfile
+  tmpfile=$(mktemp "$E2E_TMPDIR/upload.XXXXXX")
+  echo -n "$content" > "$tmpfile"
+  mc cp "$tmpfile" "$dest" 2>&1
+  rm -f "$tmpfile"
 }
 
 assert_eq() {
@@ -119,31 +134,13 @@ echo "═══ 1. File Operations ═══"
 
 # 1.1 Create file
 echo "── 1.1 Create file ──"
-echo "  [debug] PUT via mc pipe..."
-mc_pipe_output=$(echo "hello cloud cache" | mc pipe "ess/${LOCAL_BUCKET}/test-file.txt" 2>&1) || echo "  mc pipe exit code: $?"
-echo "  [debug] mc pipe output: $mc_pipe_output"
+mc_put "hello cloud cache" "ess/${LOCAL_BUCKET}/test-file.txt"
+sleep 1
 
-echo "  [debug] PUT via curl to ESS..."
-curl_resp=$(curl -sv -X PUT "http://localhost:9000/${LOCAL_BUCKET}/test-file.txt" \
-  -H "Content-Type: text/plain" \
-  -d "hello cloud cache from curl" 2>&1) || true
-echo "  [debug] curl response: $curl_resp"
-
-sleep 2
-
-echo "  [debug] mc stat on ESS:"
-mc stat "ess/${LOCAL_BUCKET}/test-file.txt" 2>&1 || true
-echo "  [debug] mc stat on MinIO upstream:"
-mc stat "minio-upstream/${REMOTE_BUCKET}/test-file.txt" 2>&1 || true
-
-echo "  [debug] ESS listing raw output:"
-listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1) || true
-echo "  $listing_ess"
+listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
 assert_contains "File visible on ESS" "test-file.txt" "$listing_ess"
 
-echo "  [debug] MinIO listing raw output:"
-listing_minio=$(mc ls "minio-upstream/${REMOTE_BUCKET}/" 2>&1) || true
-echo "  $listing_minio"
+listing_minio=$(mc ls "minio-upstream/${REMOTE_BUCKET}/" 2>&1)
 assert_contains "File visible on upstream MinIO" "test-file.txt" "$listing_minio"
 
 # 1.2 Download file
@@ -153,7 +150,7 @@ assert_eq "Downloaded content matches" "hello cloud cache" "$content"
 
 # 1.3 Update file (overwrite)
 echo "── 1.3 Update file ──"
-echo "updated content" | mc pipe "ess/${LOCAL_BUCKET}/test-file.txt"
+mc_put "updated content" "ess/${LOCAL_BUCKET}/test-file.txt"
 sleep 1
 
 content=$(mc cat "ess/${LOCAL_BUCKET}/test-file.txt" 2>&1)
@@ -201,9 +198,9 @@ echo "═══ 2. Directory Operations ═══"
 
 # 2.1 Create directory with files
 echo "── 2.1 Create directory with files ──"
-echo "file-a content" | mc pipe "ess/${LOCAL_BUCKET}/mydir/file-a.txt"
-echo "file-b content" | mc pipe "ess/${LOCAL_BUCKET}/mydir/file-b.txt"
-echo "sub file content" | mc pipe "ess/${LOCAL_BUCKET}/mydir/subdir/file-c.txt"
+mc_put "file-a content" "ess/${LOCAL_BUCKET}/mydir/file-a.txt"
+mc_put "file-b content" "ess/${LOCAL_BUCKET}/mydir/file-b.txt"
+mc_put "sub file content" "ess/${LOCAL_BUCKET}/mydir/subdir/file-c.txt"
 sleep 1
 
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
