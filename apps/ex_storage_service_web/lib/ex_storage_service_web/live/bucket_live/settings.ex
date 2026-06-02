@@ -661,21 +661,27 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                   </span>
                 </div>
               <% end %>
-              <form phx-submit="add_lifecycle_rule" class="flex gap-2 items-end">
-                <input
-                  type="text"
-                  name="prefix"
-                  placeholder="Prefix (e.g. logs/)"
-                  class="input input-primary flex-1 text-xs"
-                />
-                <input
-                  type="number"
-                  name="expiration_days"
-                  placeholder="Days"
-                  min="1"
-                  required
-                  class="input input-primary w-24 text-xs"
-                />
+              <form phx-submit="add_lifecycle_rule" class="space-y-3">
+                <div class="form-group">
+                  <label class="form-label text-xs">Matcher</label>
+                  <input
+                    type="text"
+                    name="prefix"
+                    placeholder="Matcher (e.g. logs/)"
+                    class="input input-primary w-full text-xs"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label text-xs">Period of time (Days)</label>
+                  <input
+                    type="number"
+                    name="expiration_days"
+                    placeholder="Days"
+                    min="1"
+                    required
+                    class="input input-primary w-full text-xs"
+                  />
+                </div>
                 <button type="submit" class="btn btn-primary btn-xs">Add Rule</button>
               </form>
             </div>
