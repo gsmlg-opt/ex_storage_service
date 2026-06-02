@@ -1,6 +1,14 @@
 import Config
 
-data_root = System.get_env("ESS_DATA_ROOT", "/tmp/ex_storage_service/data")
+data_root =
+  System.get_env(
+    "ESS_DATA_ROOT",
+    if(config_env() == :test,
+      do: "/tmp/ex_storage_service/test_data",
+      else: "/tmp/ex_storage_service/data"
+    )
+  )
+
 s3_auth_enabled_value = System.get_env("ESS_S3_AUTH_ENABLED", "false") |> String.downcase()
 s3_auth_enabled? = s3_auth_enabled_value in ["1", "true", "yes", "on"]
 
@@ -17,12 +25,17 @@ config :libcluster, topologies: []
 
 config :ex_storage_service,
   data_root: data_root,
-  s3_port: String.to_integer(System.get_env("ESS_S3_PORT", if(config_env() == :test, do: "9001", else: "9000"))),
-  admin_port: String.to_integer(System.get_env("ESS_ADMIN_PORT", if(config_env() == :test, do: "4002", else: "4900"))),
+  s3_port:
+    String.to_integer(
+      System.get_env("ESS_S3_PORT", if(config_env() == :test, do: "9001", else: "9000"))
+    ),
+  admin_port:
+    String.to_integer(
+      System.get_env("ESS_ADMIN_PORT", if(config_env() == :test, do: "4002", else: "4900"))
+    ),
   s3_auth_enabled: s3_auth_enabled?,
   root_admin_user: System.get_env("ESS_ADMIN_USER", "admin"),
-  root_admin_password_hash:
-    System.get_env("ESS_ADMIN_PASSWORD_HASH", default_admin_hash),
+  root_admin_password_hash: System.get_env("ESS_ADMIN_PASSWORD_HASH", default_admin_hash),
   master_key:
     System.get_env("ESS_MASTER_KEY") ||
       if(config_env() != :prod,
@@ -37,8 +50,6 @@ config :ex_storage_service,
   max_object_size: 5 * 1024 * 1024 * 1024,
   max_part_size: 5 * 1024 * 1024 * 1024,
   min_part_size: 5 * 1024 * 1024
-
-
 
 if config_env() == :prod do
   # ── Security guardrail 1: S3 auth must be explicitly enabled ───────────────

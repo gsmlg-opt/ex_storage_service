@@ -12,7 +12,7 @@
     <:user_profile>
       <div class="flex items-center gap-2">
         <.dm_theme_switcher id="theme-toggle" theme={assigns[:theme] || "sunshine"} />
-        <.dm_link href={~p"/logout"} method="delete" class="appbar-action no-underline">
+        <.dm_link href={~p"/logout"} method="delete" class="btn btn-secondary">
           Logout
         </.dm_link>
       </div>

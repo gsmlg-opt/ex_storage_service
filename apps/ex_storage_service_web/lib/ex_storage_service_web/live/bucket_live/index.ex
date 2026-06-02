@@ -9,6 +9,7 @@ defmodule ExStorageServiceWeb.BucketLive.Index do
   def mount(_params, _session, socket) do
     socket =
       socket
+      |> assign(:page_title, "Buckets")
       |> assign(:buckets, [])
       |> assign(:new_bucket_name, "")
       |> assign(:create_error, nil)

@@ -18,7 +18,12 @@ defmodule ExStorageServiceWeb.BucketLive.Show do
       {:ok, bucket} ->
         {:ok,
          socket
-         |> assign(bucket: bucket, bucket_name: name, cloud_cache: cloud_cache)
+         |> assign(
+           page_title: "Bucket: #{name}",
+           bucket: bucket,
+           bucket_name: name,
+           cloud_cache: cloud_cache
+         )
          |> assign(object_count: 0, total_size: 0, versioning: :disabled)
          |> load_summary()}
 

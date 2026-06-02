@@ -20,7 +20,7 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
       {:ok, bucket} ->
         {:ok,
          socket
-         |> assign(bucket: bucket, bucket_name: name)
+         |> assign(page_title: "Bucket: #{name}", bucket: bucket, bucket_name: name)
          |> assign(versioning: :disabled, lifecycle_rules: [], notifications: [], replicas: [])
          |> assign(access_keys: [], presigned_url: nil)
          |> assign(cloud_cache: nil, cloud_cache_stats: nil, cloud_cache_test_result: nil)

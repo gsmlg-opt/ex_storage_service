@@ -23,7 +23,14 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
 
         {:ok,
          socket
-         |> assign(bucket_name: name, prefix: "", objects: [], folders: [], total_count: 0)
+         |> assign(
+           page_title: "Bucket: #{name}",
+           bucket_name: name,
+           prefix: "",
+           objects: [],
+           folders: [],
+           total_count: 0
+         )
          |> assign(cloud_cache: cloud_cache, cloud_loading: false, cloud_error: nil)
          |> assign(
            show_confirm_modal: false,

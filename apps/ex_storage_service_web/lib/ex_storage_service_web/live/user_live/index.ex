@@ -298,35 +298,84 @@ defmodule ExStorageServiceWeb.UserLive.Index do
                 </td>
                 <td class="text-sm text-on-surface-variant">{user.key_count}</td>
                 <td>
-                  <%= if user.status == :active do %>
-                    <button
-                      type="button"
-                      class="btn btn-ghost btn-xs text-warning"
-                      phx-click="open_confirm_modal"
-                      phx-value-action="suspend"
-                      phx-value-id={user.id}
-                    >
-                      Suspend
-                    </button>
-                  <% else %>
-                    <button
-                      type="button"
-                      class="btn btn-ghost btn-xs text-success"
-                      phx-click="activate_user"
-                      phx-value-id={user.id}
-                    >
-                      Activate
-                    </button>
-                  <% end %>
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-xs text-error"
-                    phx-click="open_confirm_modal"
-                    phx-value-action="delete"
-                    phx-value-id={user.id}
-                  >
-                    Delete
-                  </button>
+                  <div class="flex items-center gap-1">
+                    <%= if user.status == :active do %>
+                      <span class="tooltip">
+                        <button
+                          type="button"
+                          class="btn btn-ghost btn-circle btn-sm text-warning"
+                          phx-click="open_confirm_modal"
+                          phx-value-action="suspend"
+                          phx-value-id={user.id}
+                          aria-label="Suspend"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="w-4 h-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                          </svg>
+                        </button>
+                        <span class="tooltip-content">Suspend</span>
+                      </span>
+                    <% else %>
+                      <span class="tooltip">
+                        <button
+                          type="button"
+                          class="btn btn-ghost btn-circle btn-sm text-success"
+                          phx-click="activate_user"
+                          phx-value-id={user.id}
+                          aria-label="Activate"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="w-4 h-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <polygon points="5 3 19 12 5 21 5 3" />
+                          </svg>
+                        </button>
+                        <span class="tooltip-content">Activate</span>
+                      </span>
+                    <% end %>
+                    <span class="tooltip">
+                      <button
+                        type="button"
+                        class="btn btn-ghost btn-error btn-circle btn-sm"
+                        phx-click="open_confirm_modal"
+                        phx-value-action="delete"
+                        phx-value-id={user.id}
+                        aria-label="Delete"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="w-4 h-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                      </button>
+                      <span class="tooltip-content">Delete</span>
+                    </span>
+                  </div>
                 </td>
               </tr>
             <% end %>

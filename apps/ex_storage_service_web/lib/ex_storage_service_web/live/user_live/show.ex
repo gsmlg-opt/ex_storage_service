@@ -243,33 +243,82 @@ defmodule ExStorageServiceWeb.UserLive.Show do
                     </span>
                   </td>
                   <td class="text-sm text-on-surface-variant">{key.created_at}</td>
-                  <td class="space-x-2">
-                    <%= if key.status == :active do %>
-                      <button
-                        phx-click="deactivate_key"
-                        phx-value-key-id={key.access_key_id}
-                        class="btn btn-ghost btn-xs text-warning"
-                      >
-                        Deactivate
-                      </button>
-                    <% else %>
-                      <button
-                        phx-click="activate_key"
-                        phx-value-key-id={key.access_key_id}
-                        class="btn btn-ghost btn-xs text-success"
-                      >
-                        Activate
-                      </button>
-                    <% end %>
-                    <button
-                      type="button"
-                      class="btn btn-ghost btn-xs text-error"
-                      phx-click="open_confirm_modal"
-                      phx-value-action="delete_key"
-                      phx-value-key-id={key.access_key_id}
-                    >
-                      Delete
-                    </button>
+                  <td>
+                    <div class="flex items-center gap-1">
+                      <%= if key.status == :active do %>
+                        <span class="tooltip">
+                          <button
+                            phx-click="deactivate_key"
+                            phx-value-key-id={key.access_key_id}
+                            class="btn btn-ghost btn-circle btn-sm text-warning"
+                            aria-label="Deactivate"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="w-4 h-4"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <circle cx="12" cy="12" r="10" />
+                              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                            </svg>
+                          </button>
+                          <span class="tooltip-content">Deactivate</span>
+                        </span>
+                      <% else %>
+                        <span class="tooltip">
+                          <button
+                            phx-click="activate_key"
+                            phx-value-key-id={key.access_key_id}
+                            class="btn btn-ghost btn-circle btn-sm text-success"
+                            aria-label="Activate"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="w-4 h-4"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <polygon points="5 3 19 12 5 21 5 3" />
+                            </svg>
+                          </button>
+                          <span class="tooltip-content">Activate</span>
+                        </span>
+                      <% end %>
+                      <span class="tooltip">
+                        <button
+                          type="button"
+                          class="btn btn-ghost btn-error btn-circle btn-sm"
+                          phx-click="open_confirm_modal"
+                          phx-value-action="delete_key"
+                          phx-value-key-id={key.access_key_id}
+                          aria-label="Delete"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="w-4 h-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                          </svg>
+                        </button>
+                        <span class="tooltip-content">Delete</span>
+                      </span>
+                    </div>
                   </td>
                 </tr>
               <% end %>
@@ -304,15 +353,32 @@ defmodule ExStorageServiceWeb.UserLive.Show do
                   </td>
                   <td class="text-sm text-on-surface-variant font-mono">{policy.id}</td>
                   <td>
-                    <button
-                      type="button"
-                      class="btn btn-ghost btn-xs text-error"
-                      phx-click="open_confirm_modal"
-                      phx-value-action="detach_policy"
-                      phx-value-policy-id={policy.id}
-                    >
-                      Detach
-                    </button>
+                    <span class="tooltip">
+                      <button
+                        type="button"
+                        class="btn btn-ghost btn-error btn-circle btn-sm"
+                        phx-click="open_confirm_modal"
+                        phx-value-action="detach_policy"
+                        phx-value-policy-id={policy.id}
+                        aria-label="Detach"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="w-4 h-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="15" y1="9" x2="9" y2="15" />
+                          <line x1="9" y1="9" x2="15" y2="15" />
+                        </svg>
+                      </button>
+                      <span class="tooltip-content">Detach</span>
+                    </span>
                   </td>
                 </tr>
               <% end %>
