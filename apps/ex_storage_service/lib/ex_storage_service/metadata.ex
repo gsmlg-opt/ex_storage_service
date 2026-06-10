@@ -39,12 +39,9 @@ defmodule ExStorageService.Metadata do
   end
 
   def list_buckets do
-    case Concord.get_all() do
+    case Concord.prefix_scan("bucket:") do
       {:ok, all} ->
-        buckets =
-          all
-          |> Enum.filter(fn {k, _v} -> String.starts_with?(k, "bucket:") end)
-          |> Enum.map(fn {_k, v} -> v end)
+        buckets = Enum.map(all, fn {_k, v} -> v end)
 
         {:ok, buckets}
 
@@ -82,17 +79,16 @@ defmodule ExStorageService.Metadata do
     continuation_token = Keyword.get(opts, :continuation_token, nil)
 
     obj_prefix = "obj:#{bucket}:"
+    full_prefix = obj_prefix <> prefix
 
-    case Concord.get_all() do
+    case Concord.prefix_scan(full_prefix) do
       {:ok, all} ->
         entries =
           all
-          |> Enum.filter(fn {k, _v} -> String.starts_with?(k, obj_prefix) end)
           |> Enum.map(fn {k, v} ->
             object_key = String.replace_prefix(k, obj_prefix, "")
             {object_key, v}
           end)
-          |> Enum.filter(fn {object_key, _v} -> String.starts_with?(object_key, prefix) end)
           |> Enum.sort_by(fn {object_key, _v} -> object_key end)
 
         # Apply continuation token

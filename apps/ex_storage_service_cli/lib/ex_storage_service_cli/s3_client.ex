@@ -259,7 +259,7 @@ defmodule ExStorageServiceCli.S3Client do
 
     case Req.get(url) do
       {:ok, %{status: 200, body: body}} when is_binary(body) ->
-        {:ok, Jason.decode!(body)}
+        {:ok, JSON.decode!(body)}
 
       {:ok, %{status: 200, body: body}} when is_map(body) ->
         {:ok, body}

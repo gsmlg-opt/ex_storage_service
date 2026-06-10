@@ -168,7 +168,7 @@ defmodule ExStorageService.Notifications do
   end
 
   defp deliver_webhook(endpoint, event, attempt) do
-    body = Jason.encode!(event)
+    body = JSON.encode!(event)
 
     case Req.post(endpoint, body: body, headers: [{"content-type", "application/json"}]) do
       {:ok, %{status: status}} when status in 200..299 ->
