@@ -24,7 +24,7 @@ defmodule ExStorageServiceCli.Commands.Bucket do
           case S3Client.create_bucket(client, bucket) do
             :ok ->
               if ctx.json do
-                IO.puts(Jason.encode!(%{status: "ok", bucket: bucket}))
+                IO.puts(JSON.encode!(%{status: "ok", bucket: bucket}))
               else
                 Output.success("Bucket '#{bucket}' created")
               end
@@ -65,7 +65,7 @@ defmodule ExStorageServiceCli.Commands.Bucket do
           case S3Client.delete_bucket(client, bucket) do
             :ok ->
               if ctx.json do
-                IO.puts(Jason.encode!(%{status: "ok", bucket: bucket}))
+                IO.puts(JSON.encode!(%{status: "ok", bucket: bucket}))
               else
                 Output.success("Bucket '#{bucket}' deleted")
               end

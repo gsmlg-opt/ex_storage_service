@@ -38,7 +38,7 @@ defmodule ExStorageServiceS3.Router do
   if Code.ensure_loaded?(Mix) and Mix.env() == :dev do
     post "/health/cloud_cache" do
       {:ok, body, conn} = Plug.Conn.read_body(conn)
-      params = Jason.decode!(body)
+      params = JSON.decode!(body)
       bucket = params["local_bucket"] || params["bucket"]
 
       result =
@@ -54,7 +54,7 @@ defmodule ExStorageServiceS3.Router do
           cache_enabled: true
         })
 
-      body = Jason.encode!(%{result: inspect(result)})
+      body = JSON.encode!(%{result: inspect(result)})
 
       conn
       |> put_resp_header("content-type", "application/json")
@@ -64,7 +64,7 @@ defmodule ExStorageServiceS3.Router do
 
   # GET / - ListBuckets
   get "/" do
-    Handlers.list_buckets(conn)
+    Handlers.Bucket.list_buckets(conn)
   end
 
   # PUT /:bucket - CreateBucket, or bucket config operations
@@ -73,16 +73,16 @@ defmodule ExStorageServiceS3.Router do
 
     cond do
       Map.has_key?(params, "versioning") ->
-        Handlers.put_bucket_versioning(conn, bucket)
+        Handlers.Versioning.put_bucket_versioning(conn, bucket)
 
       Map.has_key?(params, "lifecycle") ->
-        Handlers.put_bucket_lifecycle(conn, bucket)
+        Handlers.Lifecycle.put_bucket_lifecycle(conn, bucket)
 
       Map.has_key?(params, "notification") ->
-        Handlers.put_bucket_notification(conn, bucket)
+        Handlers.Notification.put_bucket_notification(conn, bucket)
 
       true ->
-        Handlers.create_bucket(conn, bucket)
+        Handlers.Bucket.create_bucket(conn, bucket)
     end
   end
 
@@ -92,19 +92,19 @@ defmodule ExStorageServiceS3.Router do
 
     cond do
       Map.has_key?(params, "lifecycle") ->
-        Handlers.delete_bucket_lifecycle(conn, bucket)
+        Handlers.Lifecycle.delete_bucket_lifecycle(conn, bucket)
 
       Map.has_key?(params, "notification") ->
-        Handlers.delete_bucket_notification(conn, bucket)
+        Handlers.Notification.delete_bucket_notification(conn, bucket)
 
       true ->
-        Handlers.delete_bucket(conn, bucket)
+        Handlers.Bucket.delete_bucket(conn, bucket)
     end
   end
 
   # HEAD /:bucket - HeadBucket
   head "/:bucket" do
-    Handlers.head_bucket(conn, bucket)
+    Handlers.Bucket.head_bucket(conn, bucket)
   end
 
   # GET /:bucket - ListObjectsV2, or GET /:bucket/*key - GetObject / ListParts
@@ -116,16 +116,16 @@ defmodule ExStorageServiceS3.Router do
       [] ->
         cond do
           Map.has_key?(params, "versioning") ->
-            Handlers.get_bucket_versioning(conn, bucket)
+            Handlers.Versioning.get_bucket_versioning(conn, bucket)
 
           Map.has_key?(params, "lifecycle") ->
-            Handlers.get_bucket_lifecycle(conn, bucket)
+            Handlers.Lifecycle.get_bucket_lifecycle(conn, bucket)
 
           Map.has_key?(params, "notification") ->
-            Handlers.get_bucket_notification(conn, bucket)
+            Handlers.Notification.get_bucket_notification(conn, bucket)
 
           true ->
-            Handlers.list_objects(conn, bucket)
+            Handlers.Object.list_objects(conn, bucket)
         end
 
       key_parts ->
@@ -136,10 +136,10 @@ defmodule ExStorageServiceS3.Router do
             MultipartHandlers.list_parts(conn, bucket, object_key)
 
           Map.has_key?(params, "versionId") ->
-            Handlers.get_object_version(conn, bucket, object_key, params["versionId"])
+            Handlers.Object.get_object_version(conn, bucket, object_key, params["versionId"])
 
           true ->
-            Handlers.get_object(conn, bucket, object_key)
+            Handlers.Object.get_object(conn, bucket, object_key)
         end
     end
   end
@@ -148,11 +148,11 @@ defmodule ExStorageServiceS3.Router do
   head "/:bucket/*key" do
     case key do
       [] ->
-        Handlers.head_bucket(conn, bucket)
+        Handlers.Bucket.head_bucket(conn, bucket)
 
       key_parts ->
         object_key = Enum.join(key_parts, "/")
-        Handlers.head_object(conn, bucket, object_key)
+        Handlers.Object.head_object(conn, bucket, object_key)
     end
   end
 
@@ -166,10 +166,10 @@ defmodule ExStorageServiceS3.Router do
         MultipartHandlers.upload_part(conn, bucket, object_key)
 
       Plug.Conn.get_req_header(conn, "x-amz-copy-source") != [] ->
-        Handlers.copy_object(conn, bucket, object_key)
+        Handlers.Object.copy_object(conn, bucket, object_key)
 
       true ->
-        Handlers.put_object(conn, bucket, object_key)
+        Handlers.Object.put_object(conn, bucket, object_key)
     end
   end
 
@@ -181,7 +181,7 @@ defmodule ExStorageServiceS3.Router do
     if Map.has_key?(params, "uploadId") do
       MultipartHandlers.abort_multipart_upload(conn, bucket, object_key)
     else
-      Handlers.delete_object(conn, bucket, object_key)
+      Handlers.Object.delete_object(conn, bucket, object_key)
     end
   end
 
@@ -194,7 +194,7 @@ defmodule ExStorageServiceS3.Router do
       [] ->
         # No key segments — bucket-level POST
         if Map.has_key?(params, "delete") do
-          Handlers.delete_objects(conn, bucket)
+          Handlers.Object.delete_objects(conn, bucket)
         else
           request_id = conn.assigns[:request_id] || generate_request_id()
 

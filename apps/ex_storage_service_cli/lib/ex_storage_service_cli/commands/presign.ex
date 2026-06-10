@@ -89,7 +89,7 @@ defmodule ExStorageServiceCli.Commands.Presign do
 
     if ctx.json do
       IO.puts(
-        Jason.encode!(%{
+        JSON.encode!(%{
           url: presigned_url,
           method: method,
           expires: expires,

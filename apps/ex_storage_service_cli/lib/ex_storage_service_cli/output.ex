@@ -42,7 +42,7 @@ defmodule ExStorageServiceCli.Output do
   """
   def render(data, ctx, formatter) do
     if ctx[:json] do
-      IO.puts(Jason.encode!(data, pretty: true))
+      IO.puts(JSON.encode!(data))
     else
       formatter.(data)
     end

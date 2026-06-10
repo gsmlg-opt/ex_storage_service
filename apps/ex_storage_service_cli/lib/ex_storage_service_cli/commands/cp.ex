@@ -132,7 +132,7 @@ defmodule ExStorageServiceCli.Commands.Cp do
       {:ok, result} ->
         if ctx.json do
           IO.puts(
-            Jason.encode!(%{
+            JSON.encode!(%{
               status: "ok",
               operation: "upload",
               source: local_path,
@@ -189,7 +189,7 @@ defmodule ExStorageServiceCli.Commands.Cp do
             {:ok, result} ->
               if ctx.json do
                 IO.puts(
-                  Jason.encode!(%{
+                  JSON.encode!(%{
                     status: "ok",
                     operation: "upload",
                     source: file,
@@ -233,7 +233,7 @@ defmodule ExStorageServiceCli.Commands.Cp do
 
         if ctx.json do
           IO.puts(
-            Jason.encode!(%{
+            JSON.encode!(%{
               status: "ok",
               operation: "download",
               source: s3_path,
@@ -279,7 +279,7 @@ defmodule ExStorageServiceCli.Commands.Cp do
 
                 if ctx.json do
                   IO.puts(
-                    Jason.encode!(%{
+                    JSON.encode!(%{
                       status: "ok",
                       operation: "download",
                       source: "s3://#{bucket}/#{obj.key}",
@@ -322,7 +322,7 @@ defmodule ExStorageServiceCli.Commands.Cp do
       :ok ->
         if ctx.json do
           IO.puts(
-            Jason.encode!(%{
+            JSON.encode!(%{
               status: "ok",
               operation: "copy",
               source: src_path,
@@ -364,7 +364,7 @@ defmodule ExStorageServiceCli.Commands.Cp do
               :ok ->
                 if ctx.json do
                   IO.puts(
-                    Jason.encode!(%{
+                    JSON.encode!(%{
                       status: "ok",
                       operation: "copy",
                       source: "s3://#{src_bucket}/#{obj.key}",
