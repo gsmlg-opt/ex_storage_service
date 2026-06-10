@@ -30,7 +30,7 @@ defmodule ExStorageServiceCli.Commands.Rm do
           case S3Client.delete_object(client, bucket, key) do
             :ok ->
               if ctx.json do
-                IO.puts(Jason.encode!(%{status: "ok", bucket: bucket, key: key}))
+                IO.puts(JSON.encode!(%{status: "ok", bucket: bucket, key: key}))
               else
                 Output.success("Deleted s3://#{bucket}/#{key}")
               end

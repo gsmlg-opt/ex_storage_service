@@ -7,7 +7,7 @@ defmodule ExStorageServiceCli.Commands.Version do
     version = ExStorageServiceCli.version()
 
     if ctx.json do
-      IO.puts(Jason.encode!(%{version: version}))
+      IO.puts(JSON.encode!(%{version: version}))
     else
       IO.puts("ess version #{version}")
     end

@@ -75,7 +75,7 @@ defmodule ExStorageServiceCli.Commands.Mv do
           :ok ->
             if ctx.json do
               IO.puts(
-                Jason.encode!(%{
+                JSON.encode!(%{
                   status: "ok",
                   operation: "move",
                   source: src,

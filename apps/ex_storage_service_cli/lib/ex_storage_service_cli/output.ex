@@ -42,6 +42,7 @@ defmodule ExStorageServiceCli.Output do
   """
   def render(data, ctx, formatter) do
     if ctx[:json] do
+      # Kept on Jason: the built-in JSON module has no pretty-print option.
       IO.puts(Jason.encode!(data, pretty: true))
     else
       formatter.(data)
