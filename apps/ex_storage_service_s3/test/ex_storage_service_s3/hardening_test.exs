@@ -121,38 +121,38 @@ defmodule ExStorageServiceS3.HardeningTest do
   # ── Range Parser Unit Tests ──
 
   describe "parse_range/2" do
-    alias ExStorageServiceS3.Handlers
+    alias ExStorageServiceS3.Handlers.Shared
 
     test "parses bytes=0-9 range" do
-      assert Handlers.parse_range("bytes=0-9", 100) == {:ok, 0, 10}
+      assert Shared.parse_range("bytes=0-9", 100) == {:ok, 0, 10}
     end
 
     test "parses bytes=50- open end range" do
-      assert Handlers.parse_range("bytes=50-", 100) == {:ok, 50, 50}
+      assert Shared.parse_range("bytes=50-", 100) == {:ok, 50, 50}
     end
 
     test "parses bytes=-10 suffix range" do
-      assert Handlers.parse_range("bytes=-10", 100) == {:ok, 90, 10}
+      assert Shared.parse_range("bytes=-10", 100) == {:ok, 90, 10}
     end
 
     test "clamps range end to file size" do
-      assert Handlers.parse_range("bytes=0-999", 50) == {:ok, 0, 50}
+      assert Shared.parse_range("bytes=0-999", 50) == {:ok, 0, 50}
     end
 
     test "returns error for start beyond file size" do
-      assert Handlers.parse_range("bytes=100-200", 50) == {:error, :invalid_range}
+      assert Shared.parse_range("bytes=100-200", 50) == {:error, :invalid_range}
     end
 
     test "returns error for reversed range" do
-      assert Handlers.parse_range("bytes=50-10", 100) == {:error, :invalid_range}
+      assert Shared.parse_range("bytes=50-10", 100) == {:error, :invalid_range}
     end
 
     test "returns error for malformed range" do
-      assert Handlers.parse_range("invalid", 100) == {:error, :invalid_range}
+      assert Shared.parse_range("invalid", 100) == {:error, :invalid_range}
     end
 
     test "returns error for bytes=- (empty range)" do
-      assert Handlers.parse_range("bytes=-", 100) == {:error, :invalid_range}
+      assert Shared.parse_range("bytes=-", 100) == {:error, :invalid_range}
     end
   end
 
