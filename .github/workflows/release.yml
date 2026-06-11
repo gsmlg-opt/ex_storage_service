@@ -49,7 +49,9 @@ jobs:
       - name: Update version in mix.exs
         run: |
           sed -i 's/version: "[^"]*"/version: "${{ inputs.version }}"/' mix.exs apps/*/mix.exs
+          sed -i 's/@version "[^"]*"/@version "${{ inputs.version }}"/' apps/ex_storage_service_cli/mix.exs
           grep -r 'version:' mix.exs apps/*/mix.exs
+          grep '@version' apps/ex_storage_service_cli/mix.exs
 
       - uses: docker/login-action@v3
         with:
