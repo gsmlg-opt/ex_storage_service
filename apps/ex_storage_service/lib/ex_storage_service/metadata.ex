@@ -101,39 +101,38 @@ defmodule ExStorageService.Metadata do
             {object_key, v}
           end)
           |> Enum.filter(fn {object_key, _v} -> String.starts_with?(object_key, prefix) end)
-          |> Enum.sort_by(fn {object_key, _v} -> object_key end)
 
-        # Apply continuation token
-        entries =
-          if continuation_token do
-            Enum.drop_while(entries, fn {key, _v} -> key <= continuation_token end)
-          else
-            entries
-          end
-
-        # Handle delimiter for common prefixes
-        {keys, common_prefixes} =
+        # Collapse keys under their common prefix when a delimiter is set, then
+        # treat keys and common prefixes as one ordered, paginated result set so
+        # truncation and the continuation cursor stay consistent across pages.
+        items =
           if delimiter do
-            extract_with_delimiter(entries, prefix, delimiter)
+            group_with_delimiter(entries, prefix, delimiter)
           else
-            {entries, []}
+            Enum.map(entries, fn {key, meta} -> {:key, key, meta} end)
           end
 
-        common_prefixes = common_prefixes |> Enum.uniq() |> Enum.sort()
+        sorted = Enum.sort_by(items, &item_sort_key/1)
 
-        total_results = length(keys) + length(common_prefixes)
-        is_truncated = total_results > max_keys
-        keys = Enum.take(keys, max_keys)
+        remaining =
+          if continuation_token do
+            Enum.drop_while(sorted, fn item -> item_sort_key(item) <= continuation_token end)
+          else
+            sorted
+          end
+
+        page = Enum.take(remaining, max_keys)
+        is_truncated = length(remaining) > max_keys
 
         next_continuation_token =
           if is_truncated do
-            case List.last(keys) do
-              {key, _v} -> key
-              nil -> nil
-            end
+            page |> List.last() |> item_sort_key()
           else
             nil
           end
+
+        keys = for {:key, key, meta} <- page, do: {key, meta}
+        common_prefixes = for {:prefix, p} <- page, do: p
 
         {:ok,
          %{
@@ -150,20 +149,33 @@ defmodule ExStorageService.Metadata do
 
   ## Private
 
-  defp extract_with_delimiter(entries, prefix, delimiter) do
+  # Builds a deduplicated list mixing object keys and the common prefixes that
+  # collapse keys containing the delimiter beyond `prefix`.
+  defp group_with_delimiter(entries, prefix, delimiter) do
     prefix_len = String.length(prefix)
 
-    Enum.reduce(entries, {[], []}, fn {key, meta}, {keys_acc, prefixes_acc} ->
-      suffix = String.slice(key, prefix_len..-1//1)
+    {items, _seen} =
+      Enum.reduce(entries, {[], MapSet.new()}, fn {key, meta}, {acc, seen} ->
+        suffix = String.slice(key, prefix_len..-1//1)
 
-      case String.split(suffix, delimiter, parts: 2) do
-        [before_delim, _after] ->
-          common_prefix = prefix <> before_delim <> delimiter
-          {keys_acc, [common_prefix | prefixes_acc]}
+        case String.split(suffix, delimiter, parts: 2) do
+          [before_delim, _after] ->
+            common_prefix = prefix <> before_delim <> delimiter
 
-        [_no_delimiter] ->
-          {keys_acc ++ [{key, meta}], prefixes_acc}
-      end
-    end)
+            if MapSet.member?(seen, common_prefix) do
+              {acc, seen}
+            else
+              {[{:prefix, common_prefix} | acc], MapSet.put(seen, common_prefix)}
+            end
+
+          [_no_delimiter] ->
+            {[{:key, key, meta} | acc], seen}
+        end
+      end)
+
+    items
   end
+
+  defp item_sort_key({:key, key, _meta}), do: key
+  defp item_sort_key({:prefix, prefix}), do: prefix
 end

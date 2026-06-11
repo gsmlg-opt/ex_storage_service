@@ -49,7 +49,9 @@ config :ex_storage_service,
   sync_interval: :timer.seconds(30),
   max_object_size: 5 * 1024 * 1024 * 1024,
   max_part_size: 5 * 1024 * 1024 * 1024,
-  min_part_size: 5 * 1024 * 1024
+  # The S3 minimum part size (5 MiB) applies to every part but the last. It is
+  # disabled in the test env so multipart mechanics tests can use tiny parts.
+  min_part_size: if(config_env() == :test, do: 0, else: 5 * 1024 * 1024)
 
 if config_env() == :prod do
   # ── Security guardrail 1: S3 auth must be explicitly enabled ───────────────

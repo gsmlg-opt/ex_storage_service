@@ -257,6 +257,8 @@ defmodule ExStorageServiceS3.XML do
       "MethodNotAllowed" -> 405
       "SlowDown" -> 429
       "EntityTooLarge" -> 413
+      "EntityTooSmall" -> 400
+      "InvalidRequest" -> 400
       "InvalidRange" -> 416
       "InternalError" -> 500
       _ -> 500

@@ -36,7 +36,7 @@ defmodule ExStorageServiceS3.Auth.SigV4Test do
     access_key = Keyword.get(opts, :access_key, @access_key)
     region = Keyword.get(opts, :region, @region)
     service = Keyword.get(opts, :service, @service)
-    date = Keyword.get(opts, :date, @date)
+    _date = Keyword.get(opts, :date, @date)
     body = Keyword.get(opts, :body, "")
     payload_hash = Keyword.get(opts, :payload_hash, sha256_hex(body))
 

@@ -12,6 +12,11 @@ defmodule ExStorageService.Storage.ContentGC do
 
   @default_interval :timer.minutes(30)
 
+  # Content files are written to disk before their metadata is committed to
+  # Concord. Skip files modified within this window so a sweep that races an
+  # in-flight PUT cannot delete its freshly-written content as an "orphan".
+  @orphan_grace_seconds 600
+
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
@@ -57,10 +62,13 @@ defmodule ExStorageService.Storage.ContentGC do
     # Get all content files on disk
     disk_hashes = get_disk_content_hashes(data_root)
 
-    # Find unreferenced files
+    # Find unreferenced files that are also older than the grace period.
+    now = System.os_time(:second)
+
     orphans =
-      Enum.filter(disk_hashes, fn {bucket, hash, _path} ->
-        not MapSet.member?(referenced_hashes, {bucket, hash})
+      Enum.filter(disk_hashes, fn {bucket, hash, path} ->
+        not MapSet.member?(referenced_hashes, {bucket, hash}) and
+          older_than_grace?(path, now)
       end)
 
     # Delete orphans
@@ -85,6 +93,15 @@ defmodule ExStorageService.Storage.ContentGC do
     end
 
     {:ok, deleted}
+  end
+
+  # Returns true when the file's last-modified time is older than the grace
+  # window (or when it cannot be stat'd, in which case it is safe to reclaim).
+  defp older_than_grace?(path, now) do
+    case File.stat(path, time: :posix) do
+      {:ok, %File.Stat{mtime: mtime}} -> now - mtime > @orphan_grace_seconds
+      {:error, _} -> true
+    end
   end
 
   defp get_referenced_hashes do

@@ -32,6 +32,15 @@ defmodule ExStorageServiceS3.Handlers.Shared do
     |> send_resp(status, body)
   end
 
+  # Returns true if the XML declares a DOCTYPE or custom ENTITY. xmerl expands
+  # internal entities and may resolve external ones by default, exposing
+  # entity-expansion (billion laughs) and XXE risks. Callers reject such bodies
+  # before handing them to :xmerl_scan.
+  def xml_has_doctype?(xml_body) when is_binary(xml_body) do
+    downcased = String.downcase(xml_body)
+    String.contains?(downcased, "<!doctype") or String.contains?(downcased, "<!entity")
+  end
+
   def xpath_text(elem, path) do
     case :xmerl_xpath.string(path ++ ~c"/text()", elem) do
       [{:xmlText, _, _, _, value, _} | _] -> to_string(value)
@@ -39,11 +48,20 @@ defmodule ExStorageServiceS3.Handlers.Shared do
     end
   end
 
-  # Reads the entire request body into memory, enforcing max_object_size.
-  # Used by object PUT and by bucket-config handlers that parse XML bodies.
-  def read_full_body(conn, acc \\ <<>>) do
-    max_size = Application.get_env(:ex_storage_service, :max_object_size, 5 * 1024 * 1024 * 1024)
+  # Reads the entire request body into memory, enforcing a maximum size.
+  # `max_size` defaults to the configured max_object_size; callers that buffer
+  # smaller payloads (e.g. XML request bodies, multipart parts) should pass a
+  # tighter cap to bound memory use. Returns {:error, :entity_too_large} when
+  # the body exceeds the cap.
+  def read_full_body(conn, max_size \\ nil) do
+    max =
+      max_size ||
+        Application.get_env(:ex_storage_service, :max_object_size, 5 * 1024 * 1024 * 1024)
 
+    do_read_full_body(conn, max, <<>>)
+  end
+
+  defp do_read_full_body(conn, max_size, acc) do
     case Plug.Conn.read_body(conn) do
       {:ok, body, conn} ->
         result = acc <> body
@@ -60,7 +78,7 @@ defmodule ExStorageServiceS3.Handlers.Shared do
         if byte_size(result) > max_size do
           {:error, :entity_too_large}
         else
-          read_full_body(conn, result)
+          do_read_full_body(conn, max_size, result)
         end
 
       {:error, reason} ->
@@ -139,6 +157,14 @@ defmodule ExStorageServiceS3.Handlers.Shared do
 
   # Detects whether the body uses S3 aws-chunked content encoding
   # (STREAMING-AWS4-HMAC-SHA256-PAYLOAD) and decodes it if so.
+  #
+  # Returns the decoded payload, or {:error, :malformed_chunked} if the framing
+  # is invalid. Note: the per-chunk signature chain is NOT verified here, so the
+  # body of an aws-chunked upload is not authenticated end-to-end even when the
+  # request's Authorization header passes SigV4. Verifying the rolling
+  # chunk-signature chain is tracked as a follow-up; until then this only
+  # guarantees the framing is well-formed so signature/length bytes are never
+  # written into stored object content.
   def maybe_decode_aws_chunked(conn, body) do
     payload_hash =
       case get_req_header(conn, "x-amz-content-sha256") do
@@ -163,6 +189,10 @@ defmodule ExStorageServiceS3.Handlers.Shared do
   # Decodes S3 aws-chunked body format:
   #   <hex-size>;chunk-signature=<sig>\r\n<data>\r\n...
   #   0;chunk-signature=<sig>\r\n\r\n
+  #
+  # Returns the decoded binary, or {:error, :malformed_chunked} when the framing
+  # cannot be parsed. Callers must treat the error tuple as a client error
+  # rather than storing partially-decoded data.
   def decode_aws_chunked(body) do
     decode_aws_chunks(body, <<>>)
   end
@@ -172,23 +202,31 @@ defmodule ExStorageServiceS3.Handlers.Shared do
   def decode_aws_chunks(data, acc) do
     case :binary.split(data, "\r\n") do
       [header, rest] ->
-        case Integer.parse(header, 16) do
+        # The chunk header is "<hex-size>" optionally followed by
+        # ";chunk-signature=<sig>". Parse only the size portion.
+        size_str = header |> :binary.split(";") |> hd()
+
+        case Integer.parse(size_str, 16) do
           {0, _} ->
-            # Terminal chunk
+            # Terminal chunk — ignore any trailing headers/signatures.
             acc
 
           {chunk_size, _} ->
-            <<chunk::binary-size(chunk_size), "\r\n", remaining::binary>> = rest
-            decode_aws_chunks(remaining, acc <> chunk)
+            case rest do
+              <<chunk::binary-size(chunk_size), "\r\n", remaining::binary>> ->
+                decode_aws_chunks(remaining, acc <> chunk)
+
+              _ ->
+                # Declared size does not match available data — malformed framing.
+                {:error, :malformed_chunked}
+            end
 
           :error ->
-            # Malformed — return what we have
-            acc <> data
+            {:error, :malformed_chunked}
         end
 
       [_no_crlf] ->
-        # No more CRLF — malformed or done
-        acc
+        {:error, :malformed_chunked}
     end
   end
 

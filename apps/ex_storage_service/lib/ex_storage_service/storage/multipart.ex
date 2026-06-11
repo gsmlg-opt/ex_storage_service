@@ -92,6 +92,12 @@ defmodule ExStorageService.Storage.Multipart do
         # Sort parts by part number
         sorted_parts = Enum.sort_by(parts, fn {pn, _etag} -> pn end)
 
+        # All parts except the last must meet the minimum part size (S3 rule).
+        min_part_size =
+          Application.get_env(:ex_storage_service, :min_part_size, 5 * 1024 * 1024)
+
+        last_index = length(sorted_parts) - 1
+
         # Concatenate parts, computing hashes
         tmp_dir = Path.join([data_root, bucket, "tmp"])
         File.mkdir_p!(tmp_dir)
@@ -105,14 +111,20 @@ defmodule ExStorageService.Storage.Multipart do
             total_size = 0
 
             {sha256_ctx, md5_digests, total_size} =
-              Enum.reduce(sorted_parts, {sha256_ctx, md5_digests, total_size}, fn {pn,
-                                                                                   client_etag},
-                                                                                  {sha_ctx, md5s,
-                                                                                   size} ->
+              sorted_parts
+              |> Enum.with_index()
+              |> Enum.reduce({sha256_ctx, md5_digests, total_size}, fn {{pn, client_etag}, idx},
+                                                                       {sha_ctx, md5s, size} ->
                 part_file = part_path(bucket, upload_id, pn)
 
                 case File.read(part_file) do
                   {:ok, part_data} ->
+                    part_size = byte_size(part_data)
+
+                    if idx < last_index and part_size < min_part_size do
+                      throw({:entity_too_small, pn, part_size, min_part_size})
+                    end
+
                     part_md5 = :crypto.hash(:md5, part_data)
                     computed_etag = Base.encode16(part_md5, case: :lower)
 
@@ -122,7 +134,7 @@ defmodule ExStorageService.Storage.Multipart do
 
                     :ok = IO.binwrite(file, part_data)
                     sha_ctx = :crypto.hash_update(sha_ctx, part_data)
-                    {sha_ctx, md5s ++ [part_md5], size + byte_size(part_data)}
+                    {sha_ctx, md5s ++ [part_md5], size + part_size}
 
                   {:error, reason} ->
                     throw({:part_error, pn, reason})
@@ -152,6 +164,10 @@ defmodule ExStorageService.Storage.Multipart do
             {:etag_mismatch, pn, expected, actual} ->
               File.rm(tmp_path)
               {:error, {:etag_mismatch, pn, expected, actual}}
+
+            {:entity_too_small, pn, size, min} ->
+              File.rm(tmp_path)
+              {:error, {:entity_too_small, pn, size, min}}
           end
 
         case result do

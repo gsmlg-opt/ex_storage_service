@@ -5,10 +5,15 @@ defmodule ExStorageServiceS3.MultipartHandlers do
 
   import Plug.Conn
 
+  alias ExStorageServiceS3.Handlers.Shared
   alias ExStorageServiceS3.XML
   alias ExStorageService.Metadata
   alias ExStorageService.Replication.Hooks
   alias ExStorageService.Storage.Multipart
+
+  # Cap for buffered XML request bodies (CompleteMultipartUpload). Generous
+  # enough for the 10,000-part maximum while bounding memory use.
+  @max_xml_body 16 * 1024 * 1024
 
   @doc """
   POST /{bucket}/{key}?uploads — CreateMultipartUpload
@@ -56,10 +61,13 @@ defmodule ExStorageServiceS3.MultipartHandlers do
     upload_id = Map.get(params, "uploadId")
     part_number_str = Map.get(params, "partNumber")
 
+    max_part_size =
+      Application.get_env(:ex_storage_service, :max_part_size, 5 * 1024 * 1024 * 1024)
+
     with {part_number, _} <- Integer.parse(part_number_str || ""),
          true <- part_number >= 1 and part_number <= 10_000,
          {:ok, _upload} <- Multipart.get_upload(bucket, upload_id),
-         {:ok, body, conn} <- read_full_body(conn) do
+         {:ok, body, conn} <- Shared.read_full_body(conn, max_part_size) do
       case Multipart.store_part(bucket, upload_id, part_number, body) do
         {:ok, etag} ->
           conn
@@ -89,6 +97,15 @@ defmodule ExStorageServiceS3.MultipartHandlers do
           request_id
         )
 
+      {:error, :entity_too_large} ->
+        error_response(
+          conn,
+          "EntityTooLarge",
+          "Your proposed upload exceeds the maximum allowed part size.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
+
       {:error, :not_found} ->
         error_response(
           conn,
@@ -112,7 +129,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
 
     case Multipart.get_upload(bucket, upload_id) do
       {:ok, _upload} ->
-        case read_full_body(conn) do
+        case Shared.read_full_body(conn, @max_xml_body) do
           {:ok, body, conn} ->
             case parse_complete_multipart_xml(body) do
               {:ok, parts} ->
@@ -166,6 +183,16 @@ defmodule ExStorageServiceS3.MultipartHandlers do
                       request_id
                     )
 
+                  {:error, {:entity_too_small, pn, size, min}} ->
+                    error_response(
+                      conn,
+                      "EntityTooSmall",
+                      "Part #{pn} is #{size} bytes; all parts except the last must be " <>
+                        "at least #{min} bytes.",
+                      "/#{bucket}/#{key}",
+                      request_id
+                    )
+
                   {:error, reason} ->
                     error_response(
                       conn,
@@ -185,6 +212,15 @@ defmodule ExStorageServiceS3.MultipartHandlers do
                   request_id
                 )
             end
+
+          {:error, :entity_too_large} ->
+            error_response(
+              conn,
+              "EntityTooLarge",
+              "The CompleteMultipartUpload request body is too large.",
+              "/#{bucket}/#{key}",
+              request_id
+            )
 
           {:error, reason} ->
             error_response(
@@ -303,15 +339,15 @@ defmodule ExStorageServiceS3.MultipartHandlers do
     |> send_resp(status, body)
   end
 
-  defp read_full_body(conn, acc \\ <<>>) do
-    case Plug.Conn.read_body(conn) do
-      {:ok, body, conn} -> {:ok, acc <> body, conn}
-      {:more, partial, conn} -> read_full_body(conn, acc <> partial)
-      {:error, reason} -> {:error, reason}
+  defp parse_complete_multipart_xml(xml_body) do
+    if Shared.xml_has_doctype?(xml_body) do
+      {:error, :malformed_xml}
+    else
+      do_parse_complete_multipart_xml(xml_body)
     end
   end
 
-  defp parse_complete_multipart_xml(xml_body) do
+  defp do_parse_complete_multipart_xml(xml_body) do
     try do
       {doc, _} = :xmerl_scan.string(String.to_charlist(xml_body))
 

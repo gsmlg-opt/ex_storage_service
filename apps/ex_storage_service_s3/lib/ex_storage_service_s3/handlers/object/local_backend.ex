@@ -171,43 +171,18 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
     try do
       case read_full_body(conn) do
         {:ok, raw_body, _conn} ->
-          body = decode_aws_chunked(raw_body)
-          content_hash = Base.encode16(:crypto.hash(:sha256, body), case: :lower)
-          md5 = :crypto.hash(:md5, body)
-          etag = Base.encode16(md5, case: :lower)
-          size = byte_size(body)
+          case decode_aws_chunked(raw_body) do
+            {:error, :malformed_chunked} ->
+              throw(:malformed_chunked)
 
-          Engine.ensure_bucket_dirs(bucket)
-
-          case Engine.put_object(bucket, key, body, content_type, custom_metadata) do
-            {:ok, _} ->
-              now = DateTime.utc_now() |> DateTime.to_iso8601()
-
-              meta = %{
-                content_hash: content_hash,
-                size: size,
-                etag: etag,
-                content_type: content_type,
-                metadata: custom_metadata,
-                created_at: now,
-                updated_at: now
-              }
-
-              Metadata.put_object_meta(bucket, key, meta)
-              Hooks.after_put(bucket, key)
-              broadcast_bucket_change(bucket, :put, key)
-
-              conn
-              |> put_s3_headers(request_id)
-              |> put_resp_header("etag", "\"#{etag}\"")
-              |> send_resp(200, "")
-
-            {:error, reason} ->
-              error_response(
+            body ->
+              put_decoded_object(
                 conn,
-                "InternalError",
-                inspect(reason),
-                "/#{bucket}/#{key}",
+                bucket,
+                key,
+                body,
+                content_type,
+                custom_metadata,
                 request_id
               )
           end
@@ -225,11 +200,62 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
           error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
       end
     catch
+      :malformed_chunked ->
+        error_response(
+          conn,
+          "InvalidRequest",
+          "The aws-chunked request body is malformed.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
+
       {:error, :entity_too_large} ->
         error_response(
           conn,
           "EntityTooLarge",
           "Your proposed upload exceeds the maximum allowed object size.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
+    end
+  end
+
+  defp put_decoded_object(conn, bucket, key, body, content_type, custom_metadata, request_id) do
+    content_hash = Base.encode16(:crypto.hash(:sha256, body), case: :lower)
+    md5 = :crypto.hash(:md5, body)
+    etag = Base.encode16(md5, case: :lower)
+    size = byte_size(body)
+
+    Engine.ensure_bucket_dirs(bucket)
+
+    case Engine.put_object(bucket, key, body, content_type, custom_metadata) do
+      {:ok, _} ->
+        now = DateTime.utc_now() |> DateTime.to_iso8601()
+
+        meta = %{
+          content_hash: content_hash,
+          size: size,
+          etag: etag,
+          content_type: content_type,
+          metadata: custom_metadata,
+          created_at: now,
+          updated_at: now
+        }
+
+        Metadata.put_object_meta(bucket, key, meta)
+        Hooks.after_put(bucket, key)
+        broadcast_bucket_change(bucket, :put, key)
+
+        conn
+        |> put_s3_headers(request_id)
+        |> put_resp_header("etag", "\"#{etag}\"")
+        |> send_resp(200, "")
+
+      {:error, reason} ->
+        error_response(
+          conn,
+          "InternalError",
+          inspect(reason),
           "/#{bucket}/#{key}",
           request_id
         )
