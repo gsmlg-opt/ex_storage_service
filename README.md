@@ -4,9 +4,11 @@
 [![Docker image](https://img.shields.io/badge/docker-ghcr.io%2Fgsmlg--dev%2Fess-blue)](https://github.com/gsmlg-opt/ex_storage_service/pkgs/container/ess)
 [![ex_storage_service_cli on Hex.pm](https://img.shields.io/hexpm/v/ex_storage_service_cli.svg)](https://hex.pm/packages/ex_storage_service_cli)
 
-ExStorageService is an S3-compatible object storage server built with Elixir.
+ExStorageService is an S3-compatible object storage server built with Elixir/OTP.
 It runs a Plug/Bandit S3 API, a Phoenix LiveView admin portal, and an optional
-`ess` command-line client from one umbrella repository.
+`ess` command-line client from one umbrella repository. Metadata is stored in
+Concord/Raft KV, and object bytes are stored directly on a content-addressed
+disk backend; the service does not use Ecto or an external database.
 
 ## Features
 
@@ -48,6 +50,13 @@ auth-enabled testing:
 ```text
 Access Key: AKIA-DEV-ACCESS-KEY
 Secret Key: DEV-SECRET-ACCESS-KEY-DO-NOT-USE
+```
+
+Health and metrics endpoints:
+
+```bash
+curl http://localhost:9000/health
+curl http://localhost:4900/metrics
 ```
 
 ## Docker Deployment
@@ -159,12 +168,11 @@ This repository also contains `apps/ex_storage_service_cli`, which builds the
 [`ex_storage_service_cli`](https://hex.pm/packages/ex_storage_service_cli) on Hex.pm.
 
 ```bash
-cd apps/ex_storage_service_cli
-mix escript.build
-./ess configure
-./ess mb my-bucket
-./ess cp ./file.txt s3://my-bucket/file.txt
-./ess ls my-bucket
+mix do --app ex_storage_service_cli escript.build
+apps/ex_storage_service_cli/ess configure
+apps/ex_storage_service_cli/ess mb my-bucket
+apps/ex_storage_service_cli/ess cp ./file.txt s3://my-bucket/file.txt
+apps/ex_storage_service_cli/ess ls my-bucket
 ```
 
 Published releases can be installed with:
@@ -172,6 +180,21 @@ Published releases can be installed with:
 ```bash
 mix escript.install hex ex_storage_service_cli
 ```
+
+CLI commands include:
+
+| Command | Purpose |
+|---|---|
+| `ess configure` | Store endpoint and credentials in `~/.config/ess/config.toml` |
+| `ess mb <bucket>` | Create a bucket |
+| `ess rb <bucket>` | Delete a bucket |
+| `ess ls [bucket[/prefix]]` | List buckets or objects |
+| `ess cp <src> <dst>` | Upload, download, or copy objects |
+| `ess rm s3://bucket/key` | Delete an object |
+| `ess mv <src> <dst>` | Move an object by copy and delete |
+| `ess presign s3://bucket/key` | Generate a presigned object URL |
+| `ess info` | Show server health information |
+| `ess version` | Print the CLI version |
 
 ## Architecture
 
@@ -190,6 +213,17 @@ Runtime services:
 |---|---:|---|---|
 | S3 API | 9000 | Plug.Router + Bandit | S3-compatible object operations |
 | Admin portal | 4900 | Phoenix + LiveView + Bandit | Web dashboard and management |
+
+Repository layout:
+
+| Path | Contents |
+|---|---|
+| `apps/ex_storage_service/` | Core domain logic, Concord metadata, IAM, storage, replication, lifecycle, notifications, metrics |
+| `apps/ex_storage_service_s3/` | Plug.Router S3 API, SigV4 auth, authorization plugs, XML responses, multipart handlers |
+| `apps/ex_storage_service_web/` | Phoenix LiveView admin portal, DuskMoon UI components, Volt asset pipeline |
+| `apps/ex_storage_service_cli/` | Standalone `ess` escript client |
+| `e2e/` | Python and shell integration checks for S3 compatibility and cloud cache |
+| `docs/` | Deployment notes and product requirements |
 
 ### Metadata and Storage
 
@@ -268,6 +302,7 @@ mix format                            # Format code
 mix format --check-formatted          # Check formatting
 mix compile --warnings-as-errors      # Compile with CI warning strictness
 mix volt.build --tailwind             # Build frontend assets
+mix do --app ex_storage_service_cli escript.build
 ```
 
 ### Asset Pipeline
@@ -279,6 +314,15 @@ The admin UI uses Volt and DuskMoon:
 - `phoenix_duskmoon` provides the Phoenix LiveView UI components.
 - Assets live in `apps/ex_storage_service_web/assets/`.
 - Static output is written to `apps/ex_storage_service_web/priv/static/assets/`.
+
+### End-to-End Checks
+
+The `e2e/` directory contains S3 compatibility checks that run against a local
+server. See [e2e/README.md](e2e/README.md) for the exact environment setup and
+commands.
+
+For Docker deployment details beyond the quick examples above, see
+[docs/deploy.md](docs/deploy.md).
 
 ## Coding Agents & Automation
 
