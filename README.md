@@ -1,7 +1,7 @@
 # ExStorageService
 
 [![GitHub release](https://img.shields.io/github/v/release/gsmlg-opt/ex_storage_service)](https://github.com/gsmlg-opt/ex_storage_service/releases)
-[![Docker image](https://img.shields.io/badge/docker-ghcr.io%2Fgsmlg--dev%2Fess-blue)](https://github.com/gsmlg-opt/ex_storage_service/pkgs/container/ess)
+[![Docker image](https://img.shields.io/badge/docker-ghcr.io%2Fgsmlg--dev%2Fess-blue)](https://github.com/orgs/gsmlg-dev/packages/container/package/ess)
 [![ex_storage_service_cli on Hex.pm](https://img.shields.io/hexpm/v/ex_storage_service_cli.svg)](https://hex.pm/packages/ex_storage_service_cli)
 
 ExStorageService is an S3-compatible object storage server built with Elixir/OTP.
@@ -126,6 +126,8 @@ Then start the service:
 docker compose up -d
 ```
 
+For production-oriented deployment notes, see [docs/deploy.md](docs/deploy.md).
+
 ## Clients
 
 ### AWS CLI
@@ -169,10 +171,10 @@ This repository also contains `apps/ex_storage_service_cli`, which builds the
 
 ```bash
 mix do --app ex_storage_service_cli escript.build
-apps/ex_storage_service_cli/ess configure
-apps/ex_storage_service_cli/ess mb my-bucket
-apps/ex_storage_service_cli/ess cp ./file.txt s3://my-bucket/file.txt
-apps/ex_storage_service_cli/ess ls my-bucket
+./apps/ex_storage_service_cli/ess configure
+./apps/ex_storage_service_cli/ess mb my-bucket
+./apps/ex_storage_service_cli/ess cp ./file.txt s3://my-bucket/file.txt
+./apps/ex_storage_service_cli/ess ls my-bucket
 ```
 
 Published releases can be installed with:
@@ -293,16 +295,17 @@ mix phx.gen.secret      # SECRET_KEY_BASE
 mix setup                             # Install deps, npm_ex packages, DuskMoon bundle, and assets
 mix phx.server                        # Start S3 API and admin portal with dev watchers
 mix test                              # Run all tests
-mix test --app ex_storage_service     # Run core tests only
-mix test --app ex_storage_service_s3  # Run S3 API tests only
-mix test --app ex_storage_service_web # Run web tests only
+mix test apps/ex_storage_service/test     # Run core tests only
+mix test apps/ex_storage_service_s3/test  # Run S3 API tests only
+mix test apps/ex_storage_service_web/test # Run web tests only
+mix test apps/ex_storage_service_cli/test # Run CLI tests only
 mix test path/to/test.exs             # Run one test file
 mix test path/to/test.exs:42          # Run one test
 mix format                            # Format code
 mix format --check-formatted          # Check formatting
 mix compile --warnings-as-errors      # Compile with CI warning strictness
 mix volt.build --tailwind             # Build frontend assets
-mix do --app ex_storage_service_cli escript.build
+mix do --app ex_storage_service_cli escript.build # Build the local ess CLI
 ```
 
 ### Asset Pipeline
@@ -329,6 +332,12 @@ For Docker deployment details beyond the quick examples above, see
 This project includes [AGENTS.md](AGENTS.md), which documents repo-specific
 instructions for terminal-based AI coding agents.
 
+## End-to-End Testing
+
+Black-box S3 compatibility checks live in [e2e/](e2e/). See
+[e2e/README.md](e2e/README.md) for the local signed-S3 exercise and persistence
+verification workflow.
+
 ## CI/CD
 
 GitHub Actions workflows include:
@@ -336,7 +345,7 @@ GitHub Actions workflows include:
 - **CI** (`ci.yml`) - compile with warnings as errors and check formatting
 - **Test** (`test.yml`) - run the test suite
 - **Build** (`build.yml`) - build the release image
-- **Release** (`release.yml`) - manually publish a tagged GHCR image
+- **Release** (`release.yml`) - manually dispatch a versioned GHCR image, GitHub release, and CLI publish
 - **E2E Test** (`e2e-test.yml`) - run S3 and admin integration checks
 - **Cloud Cache E2E** (`cloud-cache-e2e.yml`) - validate cloud cache against MinIO
 - **Publish CLI** (`publish-cli.yml`) - publish the `ex_storage_service_cli` package

@@ -81,10 +81,11 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
 - Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
 
 ### File Organization
-The codebase is structured as an umbrella project with three apps:
+The codebase is structured as an umbrella project with four apps:
 - **`apps/ex_storage_service/`**: Core domain logic, storage engine, metadata via Concord/Raft KV, replication, background processes.
 - **`apps/ex_storage_service_s3/`**: S3 API server (Plug.Router served by Bandit on port 9000).
 - **`apps/ex_storage_service_web/`**: Admin portal web interface (Phoenix LiveView on port 4900).
+- **`apps/ex_storage_service_cli/`**: Standalone `ess` command-line client packaged as an escript.
 
 ### Commit Message Style
 - Use clear, descriptive imperative-tense commit messages (e.g., `feat: add recursive folder download to CLI` or `fix: handle empty prefix on list objects`).
@@ -94,9 +95,10 @@ The codebase is structured as an umbrella project with three apps:
 - All new features must be accompanied by tests.
 - When fixing a bug, write a reproducing test case first to prevent future regression.
 - Always run the specific test suite of the application you modified before committing:
-  - Core app tests: `mix test --app ex_storage_service`
-  - S3 app tests: `mix test --app ex_storage_service_s3`
-  - Web app tests: `mix test --app ex_storage_service_web`
+  - Core app tests: `mix test apps/ex_storage_service/test`
+  - S3 app tests: `mix test apps/ex_storage_service_s3/test`
+  - Web app tests: `mix test apps/ex_storage_service_web/test`
+  - CLI app tests: `mix test apps/ex_storage_service_cli/test`
 
 ### Documentation Rules
 - Keep documentation up-to-date.
@@ -183,7 +185,7 @@ graph TD
    - Format and compile.
 4. **Validation**:
    - Write tests in `apps/ex_storage_service_s3/test/ex_storage_service_s3/router_test.exs`.
-   - Run `mix test --app ex_storage_service_s3`.
+   - Run `mix test apps/ex_storage_service_s3/test`.
 
 ### Example 2: Modifying an Admin LiveView page
 *Context: Adding a button to suspend a user.*
