@@ -103,6 +103,14 @@ defmodule ExStorageServiceS3.Handlers.Notification do
 
   # Returns {:ok, cloud_config} if cloud cache is active for bucket, :disabled otherwise.
   defp parse_notification_xml(xml_body) do
+    if xml_has_doctype?(xml_body) do
+      {:error, :malformed_xml}
+    else
+      do_parse_notification_xml(xml_body)
+    end
+  end
+
+  defp do_parse_notification_xml(xml_body) do
     try do
       {doc, _} = :xmerl_scan.string(String.to_charlist(xml_body))
 

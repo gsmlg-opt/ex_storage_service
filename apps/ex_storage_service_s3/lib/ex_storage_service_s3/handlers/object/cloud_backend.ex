@@ -262,48 +262,25 @@ defmodule ExStorageServiceS3.Handlers.Object.CloudBackend do
     try do
       case read_full_body(conn) do
         {:ok, raw_body, _conn} ->
-          body = maybe_decode_aws_chunked(conn, raw_body)
-          content_hash = Base.encode16(:crypto.hash(:sha256, body), case: :lower)
-          md5 = :crypto.hash(:md5, body)
-          etag = Base.encode16(md5, case: :lower)
-          size = byte_size(body)
-
-          case CloudClient.put_object(cloud_config, key, body, content_type, custom_metadata) do
-            :ok ->
-              now = DateTime.utc_now() |> DateTime.to_iso8601()
-
-              meta = %{
-                content_hash: content_hash,
-                size: size,
-                etag: etag,
-                content_type: content_type,
-                metadata: custom_metadata,
-                created_at: now,
-                updated_at: now,
-                cloud_backed: true
-              }
-
-              Metadata.put_object_meta(bucket, key, meta)
-
-              # Write-through: also cache locally if caching is enabled
-              if cloud_config.cache_enabled do
-                LocalStore.put(bucket, key, body, cloud_config)
-              end
-
-              Hooks.after_put(bucket, key)
-              broadcast_bucket_change(bucket, :put, key)
-
-              conn
-              |> put_s3_headers(request_id)
-              |> put_resp_header("etag", "\"#{etag}\"")
-              |> send_resp(200, "")
-
-            {:error, reason} ->
+          case maybe_decode_aws_chunked(conn, raw_body) do
+            {:error, :malformed_chunked} ->
               error_response(
                 conn,
-                "InternalError",
-                inspect(reason),
+                "InvalidRequest",
+                "The aws-chunked request body is malformed.",
                 "/#{bucket}/#{key}",
+                request_id
+              )
+
+            body ->
+              put_decoded_object(
+                conn,
+                bucket,
+                key,
+                body,
+                cloud_config,
+                content_type,
+                custom_metadata,
                 request_id
               )
           end
@@ -326,6 +303,62 @@ defmodule ExStorageServiceS3.Handlers.Object.CloudBackend do
           conn,
           "EntityTooLarge",
           "Your proposed upload exceeds the maximum allowed object size.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
+    end
+  end
+
+  defp put_decoded_object(
+         conn,
+         bucket,
+         key,
+         body,
+         cloud_config,
+         content_type,
+         custom_metadata,
+         request_id
+       ) do
+    content_hash = Base.encode16(:crypto.hash(:sha256, body), case: :lower)
+    md5 = :crypto.hash(:md5, body)
+    etag = Base.encode16(md5, case: :lower)
+    size = byte_size(body)
+
+    case CloudClient.put_object(cloud_config, key, body, content_type, custom_metadata) do
+      :ok ->
+        now = DateTime.utc_now() |> DateTime.to_iso8601()
+
+        meta = %{
+          content_hash: content_hash,
+          size: size,
+          etag: etag,
+          content_type: content_type,
+          metadata: custom_metadata,
+          created_at: now,
+          updated_at: now,
+          cloud_backed: true
+        }
+
+        Metadata.put_object_meta(bucket, key, meta)
+
+        # Write-through: also cache locally if caching is enabled
+        if cloud_config.cache_enabled do
+          LocalStore.put(bucket, key, body, cloud_config)
+        end
+
+        Hooks.after_put(bucket, key)
+        broadcast_bucket_change(bucket, :put, key)
+
+        conn
+        |> put_s3_headers(request_id)
+        |> put_resp_header("etag", "\"#{etag}\"")
+        |> send_resp(200, "")
+
+      {:error, reason} ->
+        error_response(
+          conn,
+          "InternalError",
+          inspect(reason),
           "/#{bucket}/#{key}",
           request_id
         )

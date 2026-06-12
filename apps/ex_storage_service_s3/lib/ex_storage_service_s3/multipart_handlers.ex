@@ -66,14 +66,27 @@ defmodule ExStorageServiceS3.MultipartHandlers do
 
     with {part_number, _} <- Integer.parse(part_number_str || ""),
          true <- part_number >= 1 and part_number <= 10_000,
-         {:ok, _upload} <- Multipart.get_upload(bucket, upload_id),
-         {:ok, body, conn} <- Shared.read_full_body(conn, max_part_size) do
-      case Multipart.store_part(bucket, upload_id, part_number, body) do
+         {:ok, _upload} <- Multipart.get_upload(bucket, upload_id) do
+      case Multipart.store_part(
+             bucket,
+             upload_id,
+             part_number,
+             Shared.body_stream(conn, max_part_size)
+           ) do
         {:ok, etag} ->
           conn
           |> put_s3_headers(request_id)
           |> put_resp_header("etag", "\"#{etag}\"")
           |> send_resp(200, "")
+
+        {:error, :entity_too_large} ->
+          error_response(
+            conn,
+            "EntityTooLarge",
+            "Your proposed upload exceeds the maximum allowed part size.",
+            "/#{bucket}/#{key}",
+            request_id
+          )
 
         {:error, reason} ->
           error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)

@@ -103,6 +103,14 @@ defmodule ExStorageServiceS3.Handlers.Lifecycle do
   ## Notification handlers
 
   defp parse_lifecycle_xml(xml_body) do
+    if xml_has_doctype?(xml_body) do
+      {:error, :malformed_xml}
+    else
+      do_parse_lifecycle_xml(xml_body)
+    end
+  end
+
+  defp do_parse_lifecycle_xml(xml_body) do
     try do
       {doc, _} = :xmerl_scan.string(String.to_charlist(xml_body))
 

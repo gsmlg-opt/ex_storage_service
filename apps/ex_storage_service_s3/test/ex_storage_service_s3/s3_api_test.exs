@@ -1,6 +1,9 @@
 defmodule ExStorageServiceS3.ApiTest do
   use ExUnit.Case, async: false
 
+  alias ExStorageService.CloudCache.Config, as: CloudCacheConfig
+  alias ExStorageService.Metadata
+
   @s3_port Application.compile_env(:ex_storage_service, :s3_port, 9001)
   @base_url "http://localhost:#{@s3_port}"
 
@@ -26,6 +29,22 @@ defmodule ExStorageServiceS3.ApiTest do
     end
 
     Req.delete("#{@base_url}/#{bucket}")
+  end
+
+  defp enable_cloud_cache(bucket, remote_bucket) do
+    :ok =
+      CloudCacheConfig.set_config(bucket, %{
+        enabled: true,
+        provider: :s3_compat,
+        endpoint: @base_url,
+        region: "us-east-1",
+        bucket: remote_bucket,
+        access_key_id: "test-access-key",
+        secret_access_key: "test-secret-key",
+        cache_enabled: false
+      })
+
+    on_exit(fn -> CloudCacheConfig.delete_config(bucket) end)
   end
 
   describe "health check" do
@@ -234,6 +253,98 @@ defmodule ExStorageServiceS3.ApiTest do
       assert resp.body == "copy me"
 
       cleanup_bucket(bucket)
+    end
+
+    test "copy object to cloud-backed bucket fails when upstream write fails" do
+      source_bucket = create_bucket(unique_bucket())
+      dest_bucket = create_bucket(unique_bucket())
+      missing_remote_bucket = "missing-upstream-#{:erlang.unique_integer([:positive])}"
+
+      enable_cloud_cache(dest_bucket, missing_remote_bucket)
+
+      Req.put("#{@base_url}/#{source_bucket}/source.txt",
+        body: "copy me",
+        headers: [{"content-type", "text/plain"}]
+      )
+
+      {:ok, resp} =
+        Req.put("#{@base_url}/#{dest_bucket}/dest.txt",
+          body: "",
+          headers: [{"x-amz-copy-source", "/#{source_bucket}/source.txt"}]
+        )
+
+      assert resp.status == 500
+      assert String.contains?(resp.body, "InternalError")
+
+      {:ok, resp} = Req.get("#{@base_url}/#{dest_bucket}/dest.txt")
+      assert resp.status == 404
+
+      CloudCacheConfig.delete_config(dest_bucket)
+      cleanup_bucket(source_bucket)
+      cleanup_bucket(dest_bucket)
+    end
+
+    test "copy object to cloud-backed bucket fails when source content is missing" do
+      source_bucket = create_bucket(unique_bucket())
+      dest_bucket = create_bucket(unique_bucket())
+      remote_bucket = create_bucket(unique_bucket())
+
+      enable_cloud_cache(dest_bucket, remote_bucket)
+
+      now = DateTime.utc_now() |> DateTime.to_iso8601()
+
+      :ok =
+        Metadata.put_object_meta(source_bucket, "ghost.txt", %{
+          content_hash: String.duplicate("0", 64),
+          size: 5,
+          etag: "missing",
+          content_type: "text/plain",
+          metadata: %{},
+          created_at: now,
+          updated_at: now
+        })
+
+      {:ok, resp} =
+        Req.put("#{@base_url}/#{dest_bucket}/ghost-copy.txt",
+          body: "",
+          headers: [{"x-amz-copy-source", "/#{source_bucket}/ghost.txt"}]
+        )
+
+      assert resp.status == 404
+      assert String.contains?(resp.body, "NoSuchKey")
+
+      {:ok, resp} = Req.get("#{@base_url}/#{dest_bucket}/ghost-copy.txt")
+      assert resp.status == 404
+
+      CloudCacheConfig.delete_config(dest_bucket)
+      cleanup_bucket(source_bucket)
+      cleanup_bucket(dest_bucket)
+      cleanup_bucket(remote_bucket)
+    end
+
+    test "cloud-backed put rejects malformed aws-chunked body" do
+      bucket = create_bucket(unique_bucket())
+      remote_bucket = create_bucket(unique_bucket())
+
+      enable_cloud_cache(bucket, remote_bucket)
+
+      malformed_body = "10;chunk-signature=abc\r\nshort\r\n"
+
+      {:ok, resp} =
+        Req.put("#{@base_url}/#{bucket}/bad-chunked.txt",
+          body: malformed_body,
+          headers: [
+            {"content-encoding", "aws-chunked"},
+            {"x-amz-content-sha256", "STREAMING-AWS4-HMAC-SHA256-PAYLOAD"}
+          ]
+        )
+
+      assert resp.status == 400
+      assert String.contains?(resp.body, "InvalidRequest")
+
+      CloudCacheConfig.delete_config(bucket)
+      cleanup_bucket(bucket)
+      cleanup_bucket(remote_bucket)
     end
 
     test "delete multiple objects" do

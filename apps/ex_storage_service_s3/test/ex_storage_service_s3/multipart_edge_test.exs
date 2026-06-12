@@ -216,6 +216,30 @@ defmodule ExStorageServiceS3.MultipartEdgeTest do
     end
   end
 
+  describe "part size limits" do
+    test "upload part exceeding max_part_size returns EntityTooLarge" do
+      previous = Application.get_env(:ex_storage_service, :max_part_size)
+      Application.put_env(:ex_storage_service, :max_part_size, 5)
+
+      on_exit(fn ->
+        Application.put_env(:ex_storage_service, :max_part_size, previous)
+      end)
+
+      with_bucket_and_upload(fn bucket, key ->
+        upload_id = initiate_upload(bucket, key)
+
+        {:ok, resp} =
+          Req.put(
+            "#{@base_url}/#{bucket}/#{key}?partNumber=1&uploadId=#{upload_id}",
+            body: "123456"
+          )
+
+        assert resp.status == 413
+        assert String.contains?(resp.body, "EntityTooLarge")
+      end)
+    end
+  end
+
   describe "complete multipart with invalid parts XML" do
     test "empty parts list completes with zero-byte object" do
       with_bucket_and_upload(fn bucket, key ->

@@ -216,77 +216,39 @@ defmodule ExStorageServiceS3.Handlers.Object do
 
                 new_meta = Map.merge(source_meta, %{created_at: now, updated_at: now})
 
-                dest_cloud = cloud_cache_config(bucket)
+                case copy_destination_content(
+                       source_bucket,
+                       source_key,
+                       bucket,
+                       key,
+                       source_meta,
+                       cloud_cache_config(bucket)
+                     ) do
+                  :ok ->
+                    Metadata.put_object_meta(bucket, key, new_meta)
+                    Hooks.after_put(bucket, key)
+                    broadcast_bucket_change(bucket, :put, key)
+                    # CopyObjectResult requires ISO 8601 (not HTTP date format)
+                    body = XML.copy_object_response("\"#{source_meta.etag}\"", now)
+                    xml_response(conn, 200, body, request_id)
 
-                # Copy the content file when source and destination differ
-                # (content-addressed storage shares the file within one bucket).
-                content_copy =
-                  if source_bucket != bucket do
-                    copy_local_content(source_bucket, bucket, source_meta.content_hash)
-                  else
-                    :ok
-                  end
+                  {:error, :source_missing} ->
+                    error_response(
+                      conn,
+                      "NoSuchKey",
+                      "The source object's content is missing.",
+                      copy_source,
+                      request_id
+                    )
 
-                # For a local (non-cloud) destination the content file must be
-                # present, otherwise the copied object would be unreadable.
-                if dest_cloud == :disabled and content_copy == {:error, :not_found} do
-                  error_response(
-                    conn,
-                    "NoSuchKey",
-                    "The source object's content is missing.",
-                    copy_source,
-                    request_id
-                  )
-                else
-                  # Copy to upstream cloud if the destination bucket is cloud-cached
-                  case dest_cloud do
-                    {:ok, cloud_config} ->
-                      # Get source data: try local cache first, then upstream
-                      source_data =
-                        case LocalStore.get(source_bucket, source_key) do
-                          {:ok, path} ->
-                            File.read(path)
-
-                          :miss ->
-                            # Download from upstream
-                            case cloud_cache_config(source_bucket) do
-                              {:ok, src_config} ->
-                                CloudClient.get_object(src_config, source_key)
-
-                              _ ->
-                                {:error, :no_source}
-                            end
-                        end
-
-                      case source_data do
-                        {:ok, data} ->
-                          content_type =
-                            Map.get(source_meta, :content_type, "application/octet-stream")
-
-                          custom_metadata = Map.get(source_meta, :metadata, %{})
-
-                          CloudClient.put_object(
-                            cloud_config,
-                            key,
-                            data,
-                            content_type,
-                            custom_metadata
-                          )
-
-                        _ ->
-                          :ok
-                      end
-
-                    :disabled ->
-                      :ok
-                  end
-
-                  Metadata.put_object_meta(bucket, key, new_meta)
-                  Hooks.after_put(bucket, key)
-                  broadcast_bucket_change(bucket, :put, key)
-                  # CopyObjectResult requires ISO 8601 (not HTTP date format)
-                  body = XML.copy_object_response("\"#{source_meta.etag}\"", now)
-                  xml_response(conn, 200, body, request_id)
+                  {:error, reason} ->
+                    error_response(
+                      conn,
+                      "InternalError",
+                      inspect(reason),
+                      "/#{bucket}/#{key}",
+                      request_id
+                    )
                 end
             end
 
@@ -434,6 +396,76 @@ defmodule ExStorageServiceS3.Handlers.Object do
 
   defp cloud_cache_config(bucket) do
     CloudConfig.get_active_config(bucket)
+  end
+
+  defp copy_destination_content(
+         source_bucket,
+         _source_key,
+         dest_bucket,
+         _dest_key,
+         source_meta,
+         :disabled
+       ) do
+    copy_local_destination_content(source_bucket, dest_bucket, source_meta.content_hash)
+  end
+
+  defp copy_destination_content(
+         source_bucket,
+         source_key,
+         _dest_bucket,
+         dest_key,
+         source_meta,
+         {:ok, cloud_config}
+       ) do
+    with {:ok, data} <- read_source_object_data(source_bucket, source_key, source_meta),
+         content_type = Map.get(source_meta, :content_type, "application/octet-stream"),
+         custom_metadata = Map.get(source_meta, :metadata, %{}),
+         :ok <-
+           CloudClient.put_object(cloud_config, dest_key, data, content_type, custom_metadata) do
+      :ok
+    else
+      {:error, :not_found} -> {:error, :source_missing}
+      {:error, :no_source} -> {:error, :source_missing}
+      {:error, reason} -> {:error, {:cloud_copy_failed, reason}}
+    end
+  end
+
+  defp copy_local_destination_content(source_bucket, dest_bucket, content_hash)
+       when source_bucket == dest_bucket do
+    case Engine.get_object(source_bucket, content_hash) do
+      {:ok, _source_path} -> :ok
+      {:error, _} -> {:error, :source_missing}
+    end
+  end
+
+  defp copy_local_destination_content(source_bucket, dest_bucket, content_hash) do
+    case copy_local_content(source_bucket, dest_bucket, content_hash) do
+      :ok -> :ok
+      {:error, :not_found} -> {:error, :source_missing}
+    end
+  end
+
+  defp read_source_object_data(source_bucket, source_key, source_meta) do
+    case LocalStore.get(source_bucket, source_key) do
+      {:ok, path} ->
+        File.read(path)
+
+      :miss ->
+        read_uncached_source_object_data(source_bucket, source_key, source_meta.content_hash)
+    end
+  end
+
+  defp read_uncached_source_object_data(source_bucket, source_key, content_hash) do
+    case Engine.get_object(source_bucket, content_hash) do
+      {:ok, path} ->
+        File.read(path)
+
+      {:error, _} ->
+        case cloud_cache_config(source_bucket) do
+          {:ok, src_config} -> CloudClient.get_object(src_config, source_key)
+          :disabled -> {:error, :no_source}
+        end
+    end
   end
 
   # Copies a content-addressed file from one local bucket to another.

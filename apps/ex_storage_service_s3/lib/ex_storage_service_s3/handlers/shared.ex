@@ -98,8 +98,11 @@ defmodule ExStorageServiceS3.Handlers.Shared do
   # accumulating the entire object in memory. Enforces max_object_size
   # inline by throwing {:error, :entity_too_large} when the limit is exceeded.
   # The caller must catch this throw.
-  def body_stream(conn) do
-    max_size = Application.get_env(:ex_storage_service, :max_object_size, 5 * 1024 * 1024 * 1024)
+  def body_stream(conn, max_size \\ nil) do
+    max =
+      max_size ||
+        Application.get_env(:ex_storage_service, :max_object_size, 5 * 1024 * 1024 * 1024)
+
     # 1 MiB read chunks — large enough for throughput, small enough for memory
     read_opts = [length: 1_048_576, read_timeout: 60_000]
 
@@ -114,7 +117,7 @@ defmodule ExStorageServiceS3.Handlers.Shared do
             {:ok, chunk, _conn} ->
               new_size = acc_size + byte_size(chunk)
 
-              if new_size > max_size do
+              if new_size > max do
                 throw({:error, :entity_too_large})
               end
 
@@ -123,7 +126,7 @@ defmodule ExStorageServiceS3.Handlers.Shared do
             {:more, chunk, conn} ->
               new_size = acc_size + byte_size(chunk)
 
-              if new_size > max_size do
+              if new_size > max do
                 throw({:error, :entity_too_large})
               end
 

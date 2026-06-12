@@ -388,6 +388,29 @@ defmodule ExStorageServiceS3.ExtendedFeaturesTest do
 
       cleanup_bucket(bucket)
     end
+
+    test "versioning API rejects XML with a DOCTYPE declaration" do
+      bucket = create_bucket(unique_bucket())
+
+      versioning_xml = """
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE VersioningConfiguration>
+      <VersioningConfiguration>
+        <Status>Enabled</Status>
+      </VersioningConfiguration>
+      """
+
+      {:ok, resp} =
+        Req.put("#{@base_url}/#{bucket}?versioning",
+          body: versioning_xml,
+          headers: [{"content-type", "application/xml"}]
+        )
+
+      assert resp.status == 400
+      assert String.contains?(resp.body, "MalformedXML")
+
+      cleanup_bucket(bucket)
+    end
   end
 
   describe "lifecycle policies" do
@@ -507,6 +530,34 @@ defmodule ExStorageServiceS3.ExtendedFeaturesTest do
 
       cleanup_bucket(bucket)
     end
+
+    test "lifecycle API rejects XML with a DOCTYPE declaration" do
+      bucket = create_bucket(unique_bucket())
+
+      lifecycle_xml = """
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE LifecycleConfiguration>
+      <LifecycleConfiguration>
+        <Rule>
+          <ID>rule-1</ID>
+          <Filter><Prefix>logs/</Prefix></Filter>
+          <Status>Enabled</Status>
+          <Expiration><Days>30</Days></Expiration>
+        </Rule>
+      </LifecycleConfiguration>
+      """
+
+      {:ok, resp} =
+        Req.put("#{@base_url}/#{bucket}?lifecycle",
+          body: lifecycle_xml,
+          headers: [{"content-type", "application/xml"}]
+        )
+
+      assert resp.status == 400
+      assert String.contains?(resp.body, "MalformedXML")
+
+      cleanup_bucket(bucket)
+    end
   end
 
   describe "bucket notifications" do
@@ -608,6 +659,33 @@ defmodule ExStorageServiceS3.ExtendedFeaturesTest do
       # Delete notification
       {:ok, resp} = Req.delete("#{@base_url}/#{bucket}?notification")
       assert resp.status == 204
+
+      cleanup_bucket(bucket)
+    end
+
+    test "notification API rejects XML with a DOCTYPE declaration" do
+      bucket = create_bucket(unique_bucket())
+
+      notification_xml = """
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE NotificationConfiguration>
+      <NotificationConfiguration>
+        <TopicConfiguration>
+          <Id>notify-1</Id>
+          <Topic>arn:aws:sns:::topic</Topic>
+          <Event>s3:ObjectCreated:Put</Event>
+        </TopicConfiguration>
+      </NotificationConfiguration>
+      """
+
+      {:ok, resp} =
+        Req.put("#{@base_url}/#{bucket}?notification",
+          body: notification_xml,
+          headers: [{"content-type", "application/xml"}]
+        )
+
+      assert resp.status == 400
+      assert String.contains?(resp.body, "MalformedXML")
 
       cleanup_bucket(bucket)
     end

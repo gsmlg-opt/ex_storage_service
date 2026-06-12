@@ -51,12 +51,8 @@ defmodule ExStorageService.Storage.Multipart do
 
     part_path = part_path(bucket, upload_id, part_number)
 
-    case File.write(part_path, data) do
-      :ok ->
-        md5 = :crypto.hash(:md5, data)
-        etag = Base.encode16(md5, case: :lower)
-        size = byte_size(data)
-
+    case write_part_data(part_path, data) do
+      {:ok, {etag, size}} ->
         part_meta = %{
           part_number: part_number,
           etag: etag,
@@ -68,6 +64,7 @@ defmodule ExStorageService.Storage.Multipart do
         {:ok, etag}
 
       {:error, reason} ->
+        File.rm(part_path)
         {:error, reason}
     end
   end
@@ -293,6 +290,48 @@ defmodule ExStorageService.Storage.Multipart do
   defp part_path(bucket, upload_id, part_number) do
     padded = part_number |> Integer.to_string() |> String.pad_leading(5, "0")
     Path.join(part_dir(bucket, upload_id), "part.#{padded}")
+  end
+
+  defp write_part_data(part_path, data) when is_binary(data) do
+    case File.write(part_path, data) do
+      :ok ->
+        etag = :md5 |> :crypto.hash(data) |> Base.encode16(case: :lower)
+        {:ok, {etag, byte_size(data)}}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp write_part_data(part_path, stream) do
+    case File.open(part_path, [:write, :raw, :binary]) do
+      {:ok, file} ->
+        try do
+          md5_ctx = :crypto.hash_init(:md5)
+
+          {md5_ctx, size} =
+            Enum.reduce(stream, {md5_ctx, 0}, fn
+              chunk, {ctx, size} when is_binary(chunk) ->
+                :ok = IO.binwrite(file, chunk)
+                {:crypto.hash_update(ctx, chunk), size + byte_size(chunk)}
+
+              _chunk, _acc ->
+                throw({:error, :invalid_part_chunk})
+            end)
+
+          etag = md5_ctx |> :crypto.hash_final() |> Base.encode16(case: :lower)
+          {:ok, {etag, size}}
+        rescue
+          e -> {:error, Exception.message(e)}
+        catch
+          {:error, reason} -> {:error, reason}
+        after
+          File.close(file)
+        end
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   defp get_in_upload(meta, key) when is_map(meta), do: Map.get(meta, key)
