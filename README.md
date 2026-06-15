@@ -175,6 +175,7 @@ mix do --app ex_storage_service_cli escript.build
 ./apps/ex_storage_service_cli/ess mb my-bucket
 ./apps/ex_storage_service_cli/ess cp ./file.txt s3://my-bucket/file.txt
 ./apps/ex_storage_service_cli/ess ls my-bucket
+./apps/ex_storage_service_cli/ess tree my-bucket
 ```
 
 Published releases can be installed with:
@@ -191,6 +192,7 @@ CLI commands include:
 | `ess mb <bucket>` | Create a bucket |
 | `ess rb <bucket>` | Delete a bucket |
 | `ess ls [bucket[/prefix]]` | List buckets or objects |
+| `ess tree <bucket[/prefix]>` | Display objects as a directory tree |
 | `ess cp <src> <dst>` | Upload, download, or copy objects |
 | `ess rm s3://bucket/key` | Delete an object |
 | `ess mv <src> <dst>` | Move an object by copy and delete |

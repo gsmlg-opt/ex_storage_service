@@ -14,6 +14,7 @@ defmodule ExStorageServiceCli do
       mb <bucket>       Make (create) a bucket
       rb <bucket>       Remove (delete) a bucket
       ls [bucket[/prefix]]  List buckets or objects
+      tree <bucket[/prefix]>  Display objects as a directory tree
       cp <src> <dst>    Copy files (upload/download)
       rm <target>       Remove an object
       mv <src> <dst>    Move an object (copy + delete)
@@ -44,6 +45,7 @@ defmodule ExStorageServiceCli do
     "mb" => Commands.Bucket,
     "rb" => Commands.Bucket,
     "ls" => Commands.Ls,
+    "tree" => Commands.Tree,
     "cp" => Commands.Cp,
     "rm" => Commands.Rm,
     "mv" => Commands.Mv,
@@ -151,6 +153,7 @@ defmodule ExStorageServiceCli do
         mb <bucket>           Make (create) a bucket
         rb <bucket>           Remove (delete) a bucket
         ls [bucket[/prefix]]  List buckets or objects
+        tree <bucket[/prefix]>  Display objects as a directory tree
         cp <src> <dst>        Copy files (upload/download)
         rm s3://<bucket>/<key>  Remove an object
         mv <src> <dst>        Move an object (copy + delete)
@@ -172,6 +175,7 @@ defmodule ExStorageServiceCli do
         ess configure
         ess mb my-bucket
         ess ls
+        ess tree my-bucket
         ess cp ./file.txt s3://my-bucket/file.txt
         ess cp s3://my-bucket/file.txt ./downloaded.txt
         ess ls my-bucket --json

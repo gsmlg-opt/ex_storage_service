@@ -27,6 +27,9 @@ ess cp ./file.txt s3://my-bucket/file.txt
 # List objects
 ess ls my-bucket
 
+# Display objects as a tree
+ess tree my-bucket
+
 # Download a file
 ess cp s3://my-bucket/file.txt ./downloaded.txt
 
@@ -45,6 +48,7 @@ ess rb my-bucket
 | `ess mb <bucket>` | Make (create) a bucket |
 | `ess rb <bucket>` | Remove (delete) a bucket |
 | `ess ls [bucket[/prefix]]` | List buckets or objects |
+| `ess tree <bucket[/prefix]>` | Display objects as a directory tree |
 | `ess cp <src> <dst>` | Copy files (upload/download/S3-to-S3) |
 | `ess rm s3://bucket/key` | Remove an object |
 | `ess mv <src> <dst>` | Move an object (copy + delete) |
