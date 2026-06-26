@@ -3,7 +3,9 @@ set -euo pipefail
 
 # 1. Build the CLI binary
 echo "Building ess CLI..."
-mix escript.build --app ex_storage_service_cli
+(cd apps/ex_storage_service_cli && mix escript.build)
+mv apps/ex_storage_service_cli/ess ./ess
+
 
 # 2. Define ess command wrapper
 ESS="./ess --endpoint http://localhost:9000 --access-key $E2E_ACCESS_KEY_ID --secret-key $E2E_SECRET_ACCESS_KEY"
