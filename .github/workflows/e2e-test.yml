@@ -140,6 +140,9 @@ jobs:
       - name: Verify persistence after restart
         run: python3 e2e/s3_compat.py --phase verify-persistence --state-file "$E2E_STATE_FILE"
 
+      - name: Run CLI E2E tests
+        run: ./e2e/cli_e2e.sh
+
       - name: Stop application
         if: always()
         run: |
