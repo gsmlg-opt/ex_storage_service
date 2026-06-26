@@ -320,7 +320,7 @@ defmodule ExStorageServiceS3.StorageBackend.CloudCache do
     # Buffer the body (needed to compute hash and send to cloud)
     try do
       case read_full_body(conn) do
-        {:ok, raw_body, _conn} ->
+        {:ok, raw_body, conn} ->
           body = maybe_decode_aws_chunked(conn, raw_body)
           content_hash = Base.encode16(:crypto.hash(:sha256, body), case: :lower)
           md5 = :crypto.hash(:md5, body)
@@ -527,7 +527,7 @@ defmodule ExStorageServiceS3.StorageBackend.CloudCache do
   @impl true
   def delete_objects(conn, bucket, request_id, cloud_config) do
     case read_full_body(conn) do
-      {:ok, body, _conn} ->
+      {:ok, body, conn} ->
         case parse_delete_objects_xml(body) do
           {:ok, keys} ->
             results =

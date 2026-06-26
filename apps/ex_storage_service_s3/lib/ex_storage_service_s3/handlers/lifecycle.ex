@@ -30,7 +30,7 @@ defmodule ExStorageServiceS3.Handlers.Lifecycle do
 
       :ok ->
         case read_full_body(conn) do
-          {:ok, body, _conn} ->
+          {:ok, body, conn} ->
             case parse_lifecycle_xml(body) do
               {:ok, rules} ->
                 Lifecycle.put_rules(bucket, rules)

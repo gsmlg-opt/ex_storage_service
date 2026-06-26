@@ -184,7 +184,7 @@ defmodule ExStorageServiceS3.Handlers.Helpers do
             acc
 
           {chunk_size, _} ->
-            <<chunk::binary-size(chunk_size), "\r\n", remaining::binary>> = rest
+            <<chunk::binary-size(^chunk_size), "\r\n", remaining::binary>> = rest
             decode_aws_chunks(remaining, acc <> chunk)
 
           :error ->

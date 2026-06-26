@@ -30,7 +30,7 @@ defmodule ExStorageServiceS3.Handlers.Versioning do
 
       :ok ->
         case read_full_body(conn) do
-          {:ok, body, _conn} ->
+          {:ok, body, conn} ->
             case parse_versioning_xml(body) do
               {:ok, status} ->
                 state = if status == "Enabled", do: :enabled, else: :suspended

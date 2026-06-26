@@ -209,7 +209,7 @@ defmodule ExStorageServiceS3.StorageBackend.Local do
   defp put_object_buffered(conn, bucket, key, content_type, custom_metadata, request_id) do
     try do
       case read_full_body(conn) do
-        {:ok, raw_body, _conn} ->
+        {:ok, raw_body, conn} ->
           body = decode_aws_chunked(raw_body)
           content_hash = Base.encode16(:crypto.hash(:sha256, body), case: :lower)
           md5 = :crypto.hash(:md5, body)
@@ -411,7 +411,7 @@ defmodule ExStorageServiceS3.StorageBackend.Local do
   @impl true
   def delete_objects(conn, bucket, request_id, _config) do
     case read_full_body(conn) do
-      {:ok, body, _conn} ->
+      {:ok, body, conn} ->
         case parse_delete_objects_xml(body) do
           {:ok, keys} ->
             results =

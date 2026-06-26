@@ -30,7 +30,7 @@ defmodule ExStorageServiceS3.Handlers.Notification do
 
       :ok ->
         case read_full_body(conn) do
-          {:ok, body, _conn} ->
+          {:ok, body, conn} ->
             case parse_notification_xml(body) do
               {:ok, configs} ->
                 Notifications.put_config(bucket, configs)
