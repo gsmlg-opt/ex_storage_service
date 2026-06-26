@@ -62,6 +62,9 @@ defmodule ExStorageServiceS3.Handlers.Helpers do
     # 1 MiB read chunks — large enough for throughput, small enough for memory
     read_opts = [length: 1_048_576, read_timeout: 60_000]
 
+    # Pre-populate with initial connection in case stream consumption is immediate or empty
+    Process.put(:body_stream_conn, conn)
+
     Stream.resource(
       fn -> {conn, 0} end,
       fn
@@ -70,7 +73,8 @@ defmodule ExStorageServiceS3.Handlers.Helpers do
 
         {conn, acc_size} ->
           case Plug.Conn.read_body(conn, read_opts) do
-            {:ok, chunk, _conn} ->
+            {:ok, chunk, conn} ->
+              Process.put(:body_stream_conn, conn)
               new_size = acc_size + byte_size(chunk)
 
               if new_size > max_size do
@@ -80,6 +84,7 @@ defmodule ExStorageServiceS3.Handlers.Helpers do
               {[chunk], :done}
 
             {:more, chunk, conn} ->
+              Process.put(:body_stream_conn, conn)
               new_size = acc_size + byte_size(chunk)
 
               if new_size > max_size do

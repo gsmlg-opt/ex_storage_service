@@ -281,6 +281,8 @@ defmodule ExStorageServiceS3.StorageBackend.Local do
     try do
       case Engine.put_object_stream(bucket, key, stream, content_type, custom_metadata) do
         {:ok, {content_hash, etag, size}} ->
+          conn = Process.get(:body_stream_conn) || conn
+          Process.delete(:body_stream_conn)
           now = DateTime.utc_now() |> DateTime.to_iso8601()
 
           meta = %{
@@ -303,6 +305,9 @@ defmodule ExStorageServiceS3.StorageBackend.Local do
           |> send_resp(200, "")
 
         {:error, reason} ->
+          conn = Process.get(:body_stream_conn) || conn
+          Process.delete(:body_stream_conn)
+
           error_response(
             conn,
             "InternalError",
@@ -313,6 +318,9 @@ defmodule ExStorageServiceS3.StorageBackend.Local do
       end
     catch
       {:error, :entity_too_large} ->
+        conn = Process.get(:body_stream_conn) || conn
+        Process.delete(:body_stream_conn)
+
         error_response(
           conn,
           "EntityTooLarge",
