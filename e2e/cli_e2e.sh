@@ -26,16 +26,25 @@ $ESS mv -r s3://cli-e2e-bucket/folder/ s3://cli-e2e-bucket/moved-folder/
 
 # Verify objects moved
 # Check new location exists
-$ESS ls s3://cli-e2e-bucket/moved-folder/hello.txt
-$ESS ls s3://cli-e2e-bucket/moved-folder/nested/hello2.txt
+if [ -z "$($ESS ls s3://cli-e2e-bucket/moved-folder/hello.txt | tr -d '[:space:]')" ] || [ -z "$($ESS ls s3://cli-e2e-bucket/moved-folder/nested/hello2.txt | tr -d '[:space:]')" ]; then
+  echo "Error: New folder does not contain moved objects after mv -r"
+  exit 1
+fi
 
-# Check old location is empty (should fail or return not found)
+# Check old location is empty
+if [ -n "$($ESS ls s3://cli-e2e-bucket/folder/ | tr -d '[:space:]')" ]; then
+  echo "Error: Old folder still contains objects after mv -r"
+  exit 1
+fi
+
+
+# 6. Test rm --recursive
 echo "Testing rm --recursive..."
 $ESS rm -rf s3://cli-e2e-bucket/moved-folder/
 
 # Verify deletion
-if $ESS ls s3://cli-e2e-bucket/moved-folder/hello.txt 2>/dev/null; then
-  echo "Error: Object hello.txt still exists after rm -r"
+if [ -n "$($ESS ls s3://cli-e2e-bucket/moved-folder/ | tr -d '[:space:]')" ]; then
+  echo "Error: Objects still exist under moved-folder/ after rm -rf"
   exit 1
 fi
 
