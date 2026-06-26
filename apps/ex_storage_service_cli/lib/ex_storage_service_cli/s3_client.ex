@@ -45,7 +45,7 @@ defmodule ExStorageServiceCli.S3Client do
     url = "#{client.endpoint}/#{URI.encode(bucket)}"
 
     case signed_request(client, "PUT", url) do
-      {:ok, %{status: status}} when status in [200, 204] ->
+      {:ok, %{status: status}} when status in [200, 201, 204] ->
         :ok
 
       {:ok, resp} ->
