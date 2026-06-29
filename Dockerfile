@@ -24,9 +24,9 @@ COPY apps/ex_storage_service_web/mix.exs ./apps/ex_storage_service_web/mix.exs
 RUN mix deps.get --only prod
 
 # Install JS deps via npm workspaces
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc ./
 COPY apps/ex_storage_service_web/package.json ./apps/ex_storage_service_web/package.json
-RUN npm install
+RUN npm ci
 
 # Copy source and config
 COPY config ./config

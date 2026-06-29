@@ -5,7 +5,7 @@
  *
  * DO NOT EDIT — regenerate with: mix duskmoon.bundle el-accordion el-alert el-autocomplete el-badge el-bottom-navigation el-bottom-sheet el-breadcrumbs el-button el-card el-cascader el-chart el-chip el-circle-menu el-code-block el-datepicker el-dialog el-drawer el-file-upload el-form el-form-group el-input el-menu el-navbar el-navigation el-nested-menu el-otp-input el-pagination el-pin-input el-popover el-progress el-segment-control el-select el-slider el-stepper el-switch el-table el-tabs el-theme-controller el-time-input el-tooltip
  */
-//#region node_modules/@duskmoon-dev/el-base/dist/esm/index.js
+//#region ../../node_modules/@duskmoon-dev/el-base/dist/esm/index.js
 var styleSheetCache = new WeakMap();
 function css(strings, ...values) {
 	const cached = styleSheetCache.get(strings);
@@ -949,7 +949,7 @@ function scheduleIdle(callback, options) {
 }
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/accordion.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/accordion.js
 const css$31 = `/**
  * Accordion Component Styles
  * DuskMoonUI - Material Design 3 inspired accordion/expansion panel system
@@ -1201,7 +1201,7 @@ const styles$69 = sheet$30;
 var accordion_default = sheet$30;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-accordion/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-accordion/dist/esm/register.js
 var coreStyles$32 = css$31.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$68 = css`
   :host {
@@ -1427,7 +1427,7 @@ function register$39() {
 register$39();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/alert.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/alert.js
 const css$30 = `/**
  * Alert Component Styles
  * DuskMoonUI - Material Design 3 inspired alert system
@@ -1696,7 +1696,7 @@ const styles$67 = sheet$29;
 var alert_default = sheet$29;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-alert/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-alert/dist/esm/register.js
 var TYPE_CLASSES = {
 	info: "alert-info",
 	success: "alert-success",
@@ -1816,7 +1816,7 @@ function register$38() {
 register$38();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/autocomplete.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/autocomplete.js
 const css$29 = `/**
  * Autocomplete Component Styles
  * DuskMoonUI - Material Design 3 inspired autocomplete system
@@ -2153,7 +2153,7 @@ const styles$65 = sheet$28;
 var autocomplete_default = sheet$28;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-autocomplete/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-autocomplete/dist/esm/register.js
 var strippedCss$1 = css$29.replace(/@layer\s+components\s*\{/, "").replace(/\}[\s]*$/, "");
 var styles$64 = css`
   ${strippedCss$1}
@@ -2661,7 +2661,7 @@ function register$37() {
 register$37();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/badge.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/badge.js
 const css$28 = `/**
  * Badge Component Styles
  * DuskMoonUI - Material Design 3 inspired badge system
@@ -2847,7 +2847,7 @@ const styles$63 = sheet$27;
 var badge_default = sheet$27;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-badge/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-badge/dist/esm/register.js
 var VARIANT_CLASSES$3 = {
 	filled: "",
 	outlined: "badge-outlined",
@@ -2976,7 +2976,7 @@ function register$36() {
 register$36();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/bottom-navigation.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/bottom-navigation.js
 const css$27 = `/**
  * Bottom Navigation Component Styles
  * DuskMoonUI - Material Design 3 inspired bottom navigation system
@@ -3247,7 +3247,7 @@ const styles$61 = sheet$26;
 var bottom_navigation_default = sheet$26;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-bottom-navigation/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-bottom-navigation/dist/esm/register.js
 var coreStyles$29 = css$27.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$60 = css`
   :host {
@@ -3551,7 +3551,7 @@ function register$35() {
 register$35();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/bottomsheet.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/bottomsheet.js
 const css$26 = `/**
  * Bottom Sheet Component Styles
  * DuskMoonUI - Material Design 3 inspired bottom sheet system
@@ -3893,7 +3893,7 @@ const styles$59 = sheet$25;
 var bottomsheet_default = sheet$25;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-bottom-sheet/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-bottom-sheet/dist/esm/register.js
 var coreStyles$28 = css$26.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$58 = css`
   :host {
@@ -4269,7 +4269,7 @@ function register$34() {
 register$34();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/navigation.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/navigation.js
 const css$4 = `/**
  * Navigation Component Styles
  * DuskMoonUI - Material Design 3 inspired navigation system
@@ -5013,7 +5013,7 @@ const styles$57 = sheet$24;
 var navigation_default = sheet$24;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-breadcrumbs/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-breadcrumbs/dist/esm/register.js
 var coreStyles$27 = css$4.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$56 = css`
   :host {
@@ -5168,7 +5168,7 @@ function register$33() {
 register$33();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/button.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/button.js
 const css$25 = `/**
  * Button Component Styles
  * DuskMoonUI - Material Design 3 inspired button system
@@ -5703,7 +5703,7 @@ const styles$55 = sheet$23;
 var button_default = sheet$23;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-button/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-button/dist/esm/register.js
 var VARIANT_CLASSES$2 = {
 	primary: "btn-primary",
 	secondary: "btn-secondary",
@@ -5849,7 +5849,7 @@ function register$32() {
 register$32();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/card.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/card.js
 const css$24 = `/**
  * Card Component Styles
  * DuskMoonUI - Material Design 3 inspired card system
@@ -6120,7 +6120,7 @@ const styles$53 = sheet$22;
 var card_default = sheet$22;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-card/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-card/dist/esm/register.js
 var VARIANT_CLASSES$1 = {
 	elevated: "card-elevated",
 	outlined: "card-bordered",
@@ -6284,7 +6284,7 @@ function register$31() {
 register$31();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/cascader.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/cascader.js
 const css$23 = `/**
  * Cascader Component Styles
  * DuskMoonUI - Multi-level dropdown selection with horizontal panels
@@ -6760,7 +6760,7 @@ const styles$51 = sheet$21;
 var cascader_default = sheet$21;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-cascader/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-cascader/dist/esm/register.js
 var chevronDownIcon$1 = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
 var chevronRightIcon$1 = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
 var checkIcon$1 = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
@@ -7682,7 +7682,7 @@ function register$30() {
 register$30();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-chart/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-chart/dist/esm/register.js
 var CHART_TYPES = new Set([
 	"bar",
 	"line",
@@ -8117,7 +8117,7 @@ function register$29() {
 register$29();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/chip.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/chip.js
 const css$22 = `/**
  * Chip Component Styles
  * DuskMoonUI - Material Design 3 inspired chip system
@@ -8458,7 +8458,7 @@ const styles$48 = sheet$20;
 var chip_default = sheet$20;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-chip/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-chip/dist/esm/register.js
 var VARIANT_CLASSES = {
 	filled: "",
 	outlined: "chip-outlined",
@@ -8695,7 +8695,7 @@ function register$28() {
 register$28();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/circle-menu.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/circle-menu.js
 const css$21 = `/**
  * Circle Menu Component Styles
  * DuskMoonUI - Radial circular navigation menu with CSS-only checkbox toggle
@@ -9027,7 +9027,7 @@ const styles$46 = sheet$19;
 var circle_menu_default = sheet$19;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-circle-menu/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-circle-menu/dist/esm/register.js
 var COLOR_CLASSES$4 = {
 	primary: "circle-menu-primary",
 	secondary: "circle-menu-secondary",
@@ -9177,7 +9177,7 @@ function register$27() {
 register$27();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-code-block/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-code-block/dist/esm/register.js
 var styles$44 = css`
   :host {
     display: block;
@@ -9374,7 +9374,7 @@ function register$26() {
 register$26();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/datepicker.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/datepicker.js
 const css$20 = `/**
  * Datepicker Component Styles
  * DuskMoonUI - Material Design 3 inspired datepicker system
@@ -10196,7 +10196,7 @@ const styles$43 = sheet$18;
 var datepicker_default = sheet$18;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-datepicker/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-datepicker/dist/esm/register.js
 var strippedCss = css$20.replace(/@layer\s+components\s*\{/, "").replace(/\}[\s]*$/, "");
 var styles$42 = css`
   ${strippedCss}
@@ -10919,7 +10919,7 @@ function register$25() {
 register$25();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/dialog.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/dialog.js
 const css$19 = `/**
  * Dialog Component Styles
  * DuskMoonUI - Material Design 3 inspired dialog system
@@ -11100,7 +11100,7 @@ const styles$41 = sheet$17;
 var dialog_default = sheet$17;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-dialog/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-dialog/dist/esm/register.js
 var SIZE_CLASSES$5 = {
 	sm: "dialog-sm",
 	md: "",
@@ -11336,7 +11336,7 @@ function register$24() {
 register$24();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/drawer.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/drawer.js
 const css$18 = `/**
  * Drawer Component Styles
  * DuskMoonUI - Material Design 3 inspired navigation drawer system
@@ -11715,7 +11715,7 @@ const styles$39 = sheet$16;
 var drawer_default = sheet$16;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-drawer/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-drawer/dist/esm/register.js
 var coreStyles$20 = css$18.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$38 = css`
   :host {
@@ -11940,7 +11940,7 @@ function register$23() {
 register$23();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/file-upload.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/file-upload.js
 const css$17 = `/**
  * File Upload Component Styles
  * DuskMoonUI - Material Design 3 inspired file upload system
@@ -12329,7 +12329,7 @@ const styles$37 = sheet$15;
 var file_upload_default = sheet$15;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-file-upload/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-file-upload/dist/esm/register.js
 var SIZE_CLASSES$4 = {
 	sm: "file-upload-sm",
 	md: "",
@@ -12809,7 +12809,7 @@ function register$22() {
 register$22();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/form.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/form.js
 const css$16 = `/**
  * Form Component Styles
  * DuskMoonUI - Material Design 3 inspired form system
@@ -13396,7 +13396,7 @@ const styles$35 = sheet$14;
 var form_default = sheet$14;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-form/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-form/dist/esm/register.js
 var coreStyles$18 = css$16.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$34 = css`
   :host {
@@ -13544,7 +13544,7 @@ function register$21() {
 register$21();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/form-group.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/form-group.js
 const css$15 = `/**
  * Form Group Component Styles
  * DuskMoonUI - Form layout utilities including label, helper text, fieldset
@@ -14053,7 +14053,7 @@ const styles$33 = sheet$13;
 var form_group_default = sheet$13;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-form-group/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-form-group/dist/esm/register.js
 var coreStyles$17 = css$15.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$32 = css`
   :host {
@@ -14094,7 +14094,7 @@ function register$20() {
 register$20();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/input.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/input.js
 const css$14 = `/**
  * Input Component Styles
  * DuskMoonUI - Material Design 3 inspired input system
@@ -14305,7 +14305,7 @@ const styles$31 = sheet$12;
 var input_default = sheet$12;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-input/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-input/dist/esm/register.js
 var SIZE_CLASSES$3 = {
 	sm: "input-sm",
 	md: "",
@@ -14683,7 +14683,7 @@ function register$19() {
 register$19();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-menu/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-menu/dist/esm/register.js
 var coreStyles$15 = css$4.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var menuStyles = css`
   :host {
@@ -15174,7 +15174,7 @@ function register$18() {
 register$18();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-navbar/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-navbar/dist/esm/register.js
 var coreStyles$14 = css$4.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$29 = css`
   :host {
@@ -15502,7 +15502,7 @@ function register$17() {
 register$17();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-navigation/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-navigation/dist/esm/register.js
 var coreStyles$13 = css$4.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$28 = css`
   :host {
@@ -15533,7 +15533,7 @@ function register$16() {
 register$16();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/nested-menu.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/nested-menu.js
 const css$13 = `/**
  * Nested Menu Component Styles
  * DuskMoonUI - Sidebar navigation with collapsible cascading levels via <details>/<summary>
@@ -15802,7 +15802,7 @@ const styles$27 = sheet$11;
 var nested_menu_default = sheet$11;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-nested-menu/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-nested-menu/dist/esm/register.js
 var coreStyles$12 = css$13.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$26 = css`
   :host {
@@ -15833,7 +15833,7 @@ function register$15() {
 register$15();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/otp-input.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/otp-input.js
 const css$12 = `/**
  * OTP Input Component Styles
  * DuskMoonUI - One-Time Password input for verification codes
@@ -16068,7 +16068,7 @@ const styles$25 = sheet$10;
 var otp_input_default = sheet$10;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-otp-input/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-otp-input/dist/esm/register.js
 var coreStyles$11 = css$12.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$24 = css`
   :host {
@@ -16141,7 +16141,7 @@ function register$14() {
 register$14();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-pagination/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-pagination/dist/esm/register.js
 var styles$23 = css`
   :host {
     display: inline-flex;
@@ -16482,7 +16482,7 @@ function register$13() {
 register$13();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/pin-input.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/pin-input.js
 const css$11 = `/**
  * PIN Input Component Styles
  * DuskMoonUI - Secure PIN/password entry input
@@ -16711,7 +16711,7 @@ const styles$22 = sheet$9;
 var pin_input_default = sheet$9;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-pin-input/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-pin-input/dist/esm/register.js
 var coreStyles$10 = css$11.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$21 = css`
   :host {
@@ -16790,7 +16790,7 @@ function register$12() {
 register$12();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/popover.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/popover.js
 const css$10 = `/**
  * Popover Component Styles
  * DuskMoonUI - Material Design 3 inspired popover system
@@ -17524,7 +17524,7 @@ const styles$20 = sheet$8;
 var popover_default = sheet$8;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-popover/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-popover/dist/esm/register.js
 var coreStyles$9 = css$10.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$19 = css`
   :host {
@@ -17948,7 +17948,7 @@ function register$11() {
 register$11();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/progress.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/progress.js
 const css$9 = `/**
  * Progress Component Styles
  * DuskMoonUI - Material Design 3 inspired progress system
@@ -18194,7 +18194,7 @@ const styles$18 = sheet$7;
 var progress_default = sheet$7;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-progress/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-progress/dist/esm/register.js
 var COLOR_CLASSES$3 = {
 	primary: "progress-primary",
 	secondary: "progress-secondary",
@@ -18436,7 +18436,7 @@ function register$10() {
 register$10();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-segment-control/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-segment-control/dist/esm/register.js
 var styles$16 = css`
   :host {
     display: inline-flex;
@@ -18588,7 +18588,7 @@ function register$9() {
 register$9();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-select/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-select/dist/esm/register.js
 var chevronDownIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
 var chevronRightIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
 var checkIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
@@ -19755,7 +19755,7 @@ function register$8() {
 register$8();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/slider.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/slider.js
 const css$8 = `/**
  * Slider Component Styles
  * DuskMoonUI - Material Design 3 inspired slider system
@@ -20214,7 +20214,7 @@ const styles$14 = sheet$6;
 var slider_default = sheet$6;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-slider/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-slider/dist/esm/register.js
 var SIZE_CLASSES$1 = {
 	sm: "slider-sm",
 	md: "",
@@ -20576,7 +20576,7 @@ function register$7() {
 register$7();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/stepper.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/stepper.js
 const css$7 = `/**
  * Stepper Component Styles
  * DuskMoonUI - Material Design 3 inspired stepper/wizard system
@@ -20897,7 +20897,7 @@ const styles$12 = sheet$5;
 var stepper_default = sheet$5;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-stepper/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-stepper/dist/esm/register.js
 var COLOR_MAP = {
 	primary: "var(--color-primary)",
 	secondary: "var(--color-secondary)",
@@ -21218,7 +21218,7 @@ function register$6() {
 register$6();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/switch.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/switch.js
 const css$6 = `/**
  * Switch Component Styles
  * DuskMoonUI - Material Design 3 inspired switch/toggle
@@ -21483,7 +21483,7 @@ const styles$10 = sheet$4;
 var switch_default = sheet$4;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-switch/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-switch/dist/esm/register.js
 var SIZE_CLASSES = {
 	sm: "switch-sm",
 	md: "",
@@ -21625,7 +21625,7 @@ function register$5() {
 register$5();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/table.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/table.js
 const css$5 = `/**
  * Table Component Styles
  * DuskMoonUI - Material Design 3 inspired table system
@@ -21832,7 +21832,7 @@ const styles$8 = sheet$3;
 var table_default = sheet$3;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-table/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-table/dist/esm/register.js
 var ElDmTableColumn = class extends BaseElement {
 	static properties = {
 		key: {
@@ -22729,7 +22729,7 @@ function register$4() {
 register$4();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-tabs/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-tabs/dist/esm/register.js
 var coreStyles$3 = css$4.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$6 = css`
   :host {
@@ -23219,7 +23219,7 @@ function register$3() {
 register$3();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/theme-controller.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/theme-controller.js
 const css$3 = `/**
  * Theme Controller Component Styles
  * DuskMoonUI - Two display modes for theme switching:
@@ -23508,7 +23508,7 @@ const styles$5 = sheet$2;
 var theme_controller_default = sheet$2;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-theme-controller/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-theme-controller/dist/esm/register.js
 var coreStyles$2 = css$3.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$4 = css`
   :host {
@@ -23582,7 +23582,7 @@ function register$2() {
 register$2();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/time-input.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/time-input.js
 const css$2 = `/**
  * Time Input Component Styles
  * DuskMoonUI - Time selection input component
@@ -23891,7 +23891,7 @@ const styles$3 = sheet$1;
 var time_input_default = sheet$1;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-time-input/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-time-input/dist/esm/register.js
 var coreStyles$1 = css$2.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$2 = css`
   :host {
@@ -23941,7 +23941,7 @@ function register$1() {
 register$1();
 
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/tooltip.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/tooltip.js
 const css$1 = `/**
  * Tooltip Component Styles
  * DuskMoonUI - Material Design 3 inspired tooltip system
@@ -24317,7 +24317,7 @@ const styles$1 = sheet;
 var tooltip_default = sheet;
 
 //#endregion
-//#region node_modules/@duskmoon-dev/el-tooltip/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-tooltip/dist/esm/register.js
 var POSITION_CLASSES = {
 	top: "tooltip-top",
 	bottom: "tooltip-bottom",
