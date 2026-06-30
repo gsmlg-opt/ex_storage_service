@@ -23,7 +23,8 @@ defmodule ExStorageServiceWeb.Endpoint do
     at: "/",
     from: :ex_storage_service_web,
     gzip: true,
-    only: ExStorageServiceWeb.static_paths()
+    only: ExStorageServiceWeb.static_paths(),
+    only_matching: ExStorageServiceWeb.static_path_prefixes()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

@@ -12,13 +12,21 @@
     <link
       phx-track-static
       rel="stylesheet"
-      href={DuskmoonBundler.static_path(ExStorageServiceWeb.Endpoint, "/assets/css/app.css")}
+      href={
+        DuskmoonBundler.static_path(ExStorageServiceWeb.Endpoint, "/assets/css/app.css",
+          outdir: "priv/static/assets"
+        )
+      }
     />
     <script
       defer
       phx-track-static
       type="module"
-      src={DuskmoonBundler.static_path(ExStorageServiceWeb.Endpoint, "/assets/js/app.js")}
+      src={
+        DuskmoonBundler.static_path(ExStorageServiceWeb.Endpoint, "/assets/js/app.js",
+          outdir: "priv/static/assets"
+        )
+      }
     >
     </script>
   </head>

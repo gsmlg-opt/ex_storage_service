@@ -74,6 +74,14 @@ defmodule ExStorageServiceWeb.SessionControllerTest do
     end
   end
 
+  describe "missing routes" do
+    test "render a 404 page", %{conn: conn} do
+      conn = get(conn, "/assets/css/missing.css")
+
+      assert html_response(conn, 404) == "Not Found"
+    end
+  end
+
   describe "admin layout theme switcher" do
     test "keeps admin navigation only in the left menu", %{conn: conn} do
       conn =
