@@ -1,14 +1,14 @@
 defmodule Mix.Tasks.Duskmoon.Bundle do
   @moduledoc """
-  Pre-bundle @duskmoon-dev/elements for Volt dev server.
+  Pre-bundle @duskmoon-dev/elements for Duskmoon Bundler dev server.
 
-  Volt's vendor prebundler cannot bundle @duskmoon-dev elements in umbrella
-  projects because OXC sets the bundle cwd to the package's parent directory,
-  which prevents resolving sibling scoped packages (@duskmoon-dev/el-base,
+  Duskmoon elements are bundled locally so umbrella path resolution stays
+  deterministic for sibling scoped packages (@duskmoon-dev/el-base,
   @duskmoon-dev/core, etc.).
 
   This task uses OXC directly with the project root as cwd, then writes the
-  bundled output to assets/js/ where Volt can serve it as a regular source file.
+  bundled output to assets/js/ where Duskmoon Bundler can serve it as a regular
+  source file.
 
   ## Usage
 
@@ -23,7 +23,7 @@ defmodule Mix.Tasks.Duskmoon.Bundle do
 
   use Mix.Task
 
-  @shortdoc "Pre-bundle @duskmoon-dev/elements for Volt"
+  @shortdoc "Pre-bundle @duskmoon-dev/elements for Duskmoon Bundler"
 
   # Elements with dynamic imports (el-markdown, el-code-engine, el-markdown-input,
   # el-chat) are excluded — OXC cannot bundle them into a single file.

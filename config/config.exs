@@ -12,7 +12,7 @@ config :ex_storage_service_web, ExStorageServiceWeb.Endpoint,
 
 config :ex_storage_service, :json_library, Jason
 
-config :volt,
+config :duskmoon_bundler,
   entry: Path.expand("../apps/ex_storage_service_web/assets/js/app.js", __DIR__),
   root: Path.expand("../apps/ex_storage_service_web/assets", __DIR__),
   outdir: Path.expand("../apps/ex_storage_service_web/priv/static/assets", __DIR__),

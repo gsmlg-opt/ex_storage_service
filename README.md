@@ -224,7 +224,7 @@ Repository layout:
 |---|---|
 | `apps/ex_storage_service/` | Core domain logic, Concord metadata, IAM, storage, replication, lifecycle, notifications, metrics |
 | `apps/ex_storage_service_s3/` | Plug.Router S3 API, SigV4 auth, authorization plugs, XML responses, multipart handlers |
-| `apps/ex_storage_service_web/` | Phoenix LiveView admin portal, DuskMoon UI components, Volt asset pipeline |
+| `apps/ex_storage_service_web/` | Phoenix LiveView admin portal, DuskMoon UI components, Duskmoon Bundler asset pipeline |
 | `apps/ex_storage_service_cli/` | Standalone `ess` escript client |
 | `e2e/` | Python and shell integration checks for S3 compatibility and cloud cache |
 | `docs/` | Deployment notes and product requirements |
@@ -287,14 +287,14 @@ mix phx.gen.secret      # SECRET_KEY_BASE
 
 ### Requirements
 
-- Elixir `~> 1.18` or newer
+- Elixir `>= 1.18.0`
 - Erlang/OTP 28 for CI parity
 - No Node.js, npm CLI, Bun, or standalone Tailwind CLI is required for normal setup
 
 ### Commands
 
 ```bash
-mix setup                             # Install deps, npm_ex packages, DuskMoon bundle, and assets
+mix setup                             # Install deps, Duskmoon npm packages, DuskMoon bundle, and assets
 mix phx.server                        # Start S3 API and admin portal with dev watchers
 mix test                              # Run all tests
 mix test apps/ex_storage_service/test     # Run core tests only
@@ -306,16 +306,16 @@ mix test path/to/test.exs:42          # Run one test
 mix format                            # Format code
 mix format --check-formatted          # Check formatting
 mix compile --warnings-as-errors      # Compile with CI warning strictness
-mix volt.build --tailwind             # Build frontend assets
+mix duskmoon_bundler.build            # Build frontend assets
 mix do --app ex_storage_service_cli escript.build # Build the local ess CLI
 ```
 
 ### Asset Pipeline
 
-The admin UI uses Volt and DuskMoon:
+The admin UI uses Duskmoon Bundler and DuskMoon:
 
-- `volt` builds JavaScript and Tailwind CSS from Elixir tooling.
-- `npm_ex` manages npm packages such as `@duskmoon-dev/core`; no npm CLI is needed.
+- `duskmoon_bundler` builds JavaScript and Tailwind CSS from Elixir tooling.
+- `duskmoon_npm` provides `mix npm.install` for packages such as `@duskmoon-dev/core`; no npm CLI is needed.
 - `phoenix_duskmoon` provides the Phoenix LiveView UI components.
 - Assets live in `apps/ex_storage_service_web/assets/`.
 - Static output is written to `apps/ex_storage_service_web/priv/static/assets/`.

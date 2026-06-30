@@ -9,7 +9,7 @@ defmodule ExStorageServiceWeb.MixProject do
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.18",
+      elixir: ">= 1.18.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       listeners: [Phoenix.CodeReloader],
@@ -40,7 +40,9 @@ defmodule ExStorageServiceWeb.MixProject do
       {:phoenix_live_dashboard, "~> 0.8"},
       {:jason, "~> 1.4"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:volt, "~> 0.14"},
+      # WORKAROUND(upstream): duskmoon-dev/phoenix-duskmoon-ui#50
+      # DuskmoonBundler currently requires OXC/Vize releases that declare Elixir 1.19.
+      {:duskmoon_bundler, "~> 9.5"},
       {:phoenix_duskmoon, "~> 9.1"}
     ]
   end
@@ -48,9 +50,9 @@ defmodule ExStorageServiceWeb.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "assets.setup", "assets.build"],
-      "assets.setup": ["cmd --app ex_storage_service_web mix npm.install", "duskmoon.bundle"],
-      "assets.build": ["volt.build --tailwind"],
-      "assets.deploy": ["duskmoon.bundle", "volt.build --tailwind", "phx.digest"]
+      "assets.setup": ["npm.install", "duskmoon.bundle"],
+      "assets.build": ["duskmoon_bundler.build"],
+      "assets.deploy": ["duskmoon.bundle", "duskmoon_bundler.build", "phx.digest"]
     ]
   end
 end

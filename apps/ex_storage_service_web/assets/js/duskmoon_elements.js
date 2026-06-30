@@ -6,30 +6,18 @@
  * DO NOT EDIT — regenerate with: mix duskmoon.bundle el-accordion el-alert el-autocomplete el-badge el-bottom-navigation el-bottom-sheet el-breadcrumbs el-button el-card el-cascader el-chart el-chip el-circle-menu el-code-block el-datepicker el-dialog el-drawer el-file-upload el-form el-form-group el-input el-menu el-navbar el-navigation el-nested-menu el-otp-input el-pagination el-pin-input el-popover el-progress el-segment-control el-select el-slider el-stepper el-switch el-table el-tabs el-theme-controller el-time-input el-tooltip
  */
 //#region ../../node_modules/@duskmoon-dev/el-base/dist/esm/index.js
-var styleSheetCache = new WeakMap();
-function css(strings, ...values) {
+var styleSheetCache = /* @__PURE__ */ new WeakMap();
+function css$31(strings, ...values) {
 	const cached = styleSheetCache.get(strings);
-	if (cached && values.length === 0) {
-		return cached;
-	}
+	if (cached && values.length === 0) return cached;
 	let cssText = strings[0];
-	for (let i = 0; i < values.length; i++) {
-		cssText += String(values[i]) + strings[i + 1];
-	}
-	const sheet$31 = new CSSStyleSheet();
-	sheet$31.replaceSync(cssText);
-	if (values.length === 0) {
-		styleSheetCache.set(strings, sheet$31);
-	}
-	return sheet$31;
+	for (let i = 0; i < values.length; i++) cssText += String(values[i]) + strings[i + 1];
+	const sheet = new CSSStyleSheet();
+	sheet.replaceSync(cssText);
+	if (values.length === 0) styleSheetCache.set(strings, sheet);
+	return sheet;
 }
-function combineStyles(...sheets) {
-	return sheets;
-}
-function cssVars(vars) {
-	return Object.entries(vars).map(([key, value]) => `--${key}: ${value}`).join("; ");
-}
-var defaultTheme = css`
+var defaultTheme = css$31`
   :host {
     /* Typography - safe to set defaults */
     --font-family: system-ui, -apple-system, sans-serif;
@@ -63,52 +51,7 @@ var defaultTheme = css`
     --transition-slow: 300ms ease;
   }
 `;
-var lightThemeColors = `
-  /* Primary colors */
-  --color-primary: oklch(60% 0.15 250);
-  --color-primary-content: white;
-  --color-on-primary: white;
-
-  /* Secondary colors */
-  --color-secondary: oklch(55% 0.1 250);
-  --color-secondary-content: white;
-  --color-on-secondary: white;
-
-  /* Tertiary colors */
-  --color-tertiary: oklch(50% 0.12 300);
-  --color-tertiary-content: white;
-  --color-on-tertiary: white;
-
-  /* Surface colors */
-  --color-surface: white;
-  --color-surface-container: oklch(97% 0.01 250);
-  --color-surface-container-low: oklch(98% 0.005 250);
-  --color-surface-container-high: oklch(94% 0.01 250);
-  --color-on-surface: oklch(25% 0.02 250);
-  --color-on-surface-variant: oklch(45% 0.02 250);
-
-  /* Outline colors */
-  --color-outline: oklch(75% 0.02 250);
-  --color-outline-variant: oklch(85% 0.01 250);
-
-  /* Semantic colors */
-  --color-success: oklch(60% 0.15 145);
-  --color-warning: oklch(75% 0.15 85);
-  --color-error: oklch(55% 0.2 25);
-  --color-info: oklch(60% 0.15 250);
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-
-  /* Focus */
-  --focus-ring: 0 0 0 2px var(--color-primary);
-  --focus-ring-offset: 0 0 0 2px white, 0 0 0 4px var(--color-primary);
-`;
-var resetStyles = css`
+var resetStyles = css$31`
   *,
   *::before,
   *::after {
@@ -132,7 +75,7 @@ var BaseElement = class extends HTMLElement {
 	_isConnected = false;
 	_preUpgradeValues;
 	_pendingUpdate = false;
-	_propertyValues = new Map();
+	_propertyValues = /* @__PURE__ */ new Map();
 	constructor() {
 		super();
 		this.attachShadow({ mode: "open" });
@@ -141,25 +84,21 @@ var BaseElement = class extends HTMLElement {
 		this._initializeProperties();
 	}
 	_initializeProperties() {
-		const ctor = this.constructor;
-		const properties = ctor.properties;
+		const properties = this.constructor.properties;
 		for (const [name, def] of Object.entries(properties)) {
 			if (Object.prototype.hasOwnProperty.call(this, name)) {
 				const preValue = this[name];
 				delete this[name];
-				if (preValue !== undefined) {
-					if (!this._preUpgradeValues) this._preUpgradeValues = new Map();
+				if (preValue !== void 0) {
+					if (!this._preUpgradeValues) this._preUpgradeValues = /* @__PURE__ */ new Map();
 					this._preUpgradeValues.set(name, preValue);
 				}
 			}
-			if (def.default !== undefined) {
-				this._propertyValues.set(name, def.default);
-			}
+			if (def.default !== void 0) this._propertyValues.set(name, def.default);
 			Object.defineProperty(this, name, {
 				get: () => this._propertyValues.get(name),
 				set: (value) => {
-					const oldValue = this._propertyValues.get(name);
-					if (oldValue === value) return;
+					if (this._propertyValues.get(name) === value) return;
 					this._propertyValues.set(name, value);
 					if (def.reflect && def.attribute !== false) {
 						const attrName = def.attribute || toKebabCase(name);
@@ -173,16 +112,13 @@ var BaseElement = class extends HTMLElement {
 		}
 	}
 	_reflectToAttribute(attrName, value, type) {
-		if (value === null || value === undefined) {
+		if (value === null || value === void 0) {
 			this.removeAttribute(attrName);
 			return;
 		}
 		if (type === Boolean) {
-			if (value) {
-				this.setAttribute(attrName, "");
-			} else {
-				this.removeAttribute(attrName);
-			}
+			if (value) this.setAttribute(attrName, "");
+			else this.removeAttribute(attrName);
 			return;
 		}
 		if (type === Object || type === Array) {
@@ -192,9 +128,7 @@ var BaseElement = class extends HTMLElement {
 		this.setAttribute(attrName, String(value));
 	}
 	_attributeToProperty(value, type) {
-		if (value === null) {
-			return type === Boolean ? false : undefined;
-		}
+		if (value === null) return type === Boolean ? false : void 0;
 		switch (type) {
 			case Boolean: return true;
 			case Number: return Number(value);
@@ -212,23 +146,19 @@ var BaseElement = class extends HTMLElement {
 		this._pendingUpdate = true;
 		queueMicrotask(() => {
 			this._pendingUpdate = false;
-			if (this._isConnected) {
-				this.update();
-			}
+			if (this._isConnected) this.update();
 		});
 	}
-	attachStyles(styles$70) {
-		const sheets = Array.isArray(styles$70) ? styles$70 : [styles$70];
+	attachStyles(styles) {
+		const sheets = Array.isArray(styles) ? styles : [styles];
 		this._styles = [...this._styles, ...sheets];
 		this.shadowRoot.adoptedStyleSheets = [...this._styles];
 	}
 	connectedCallback() {
 		this._isConnected = true;
 		if (this._preUpgradeValues) {
-			for (const [name, value] of this._preUpgradeValues) {
-				this[name] = value;
-			}
-			this._preUpgradeValues = undefined;
+			for (const [name, value] of this._preUpgradeValues) this[name] = value;
+			this._preUpgradeValues = void 0;
 		}
 		this.update();
 	}
@@ -237,27 +167,19 @@ var BaseElement = class extends HTMLElement {
 	}
 	attributeChangedCallback(name, oldValue, newValue) {
 		if (oldValue === newValue) return;
-		const ctor = this.constructor;
-		const properties = ctor.properties;
-		for (const [propName, def] of Object.entries(properties)) {
-			const attrName = def.attribute || toKebabCase(propName);
-			if (attrName === name) {
-				const value = this._attributeToProperty(newValue, def.type);
-				this._propertyValues.set(propName, value);
-				this._scheduleUpdate();
-				break;
-			}
+		const properties = this.constructor.properties;
+		for (const [propName, def] of Object.entries(properties)) if ((def.attribute || toKebabCase(propName)) === name) {
+			const value = this._attributeToProperty(newValue, def.type);
+			this._propertyValues.set(propName, value);
+			this._scheduleUpdate();
+			break;
 		}
 	}
 	update() {
 		const content = this.render();
-		if (content !== undefined) {
-			this.shadowRoot.innerHTML = content;
-		}
+		if (content !== void 0) this.shadowRoot.innerHTML = content;
 	}
-	render() {
-		return;
-	}
+	render() {}
 	emit(name, detail, options) {
 		const event = new CustomEvent(name, {
 			bubbles: true,
@@ -278,20 +200,7 @@ var BaseElement = class extends HTMLElement {
 function toKebabCase(str) {
 	return str.replace(/([A-Z])/g, "-$1").toLowerCase();
 }
-var durations = {
-	fast: "150ms",
-	normal: "200ms",
-	slow: "300ms",
-	slower: "500ms"
-};
-var easings = {
-	ease: "ease",
-	easeIn: "cubic-bezier(0.4, 0, 1, 1)",
-	easeOut: "cubic-bezier(0, 0, 0.2, 1)",
-	easeInOut: "cubic-bezier(0.4, 0, 0.2, 1)",
-	spring: "cubic-bezier(0.175, 0.885, 0.32, 1.275)"
-};
-var animationStyles = css`
+var animationStyles = css$31`
   @keyframes dm-fade-in {
     from {
       opacity: 0;
@@ -426,531 +335,22 @@ var animationStyles = css`
     }
   }
 `;
-function animation(name, duration = "normal", easing = "easeOut", fillMode = "both") {
-	return `${name} ${durations[duration]} ${easings[easing]} ${fillMode}`;
-}
-function transition(properties, duration = "normal", easing = "ease") {
-	return properties.map((prop) => `${prop} ${durations[duration]} ${easings[easing]}`).join(", ");
-}
-var sunshineTheme = `
-  /* Primary */
-  --color-primary: oklch(60% 0.15 250);
-  --color-primary-content: white;
-  --color-on-primary: white;
-
-  /* Secondary */
-  --color-secondary: oklch(55% 0.1 250);
-  --color-secondary-content: white;
-  --color-on-secondary: white;
-
-  /* Tertiary */
-  --color-tertiary: oklch(50% 0.12 300);
-  --color-tertiary-content: white;
-  --color-on-tertiary: white;
-
-  /* Surface */
-  --color-surface: white;
-  --color-surface-container: oklch(97% 0.01 250);
-  --color-surface-container-low: oklch(98% 0.005 250);
-  --color-surface-container-high: oklch(94% 0.01 250);
-  --color-surface-variant: oklch(92% 0.01 250);
-  --color-on-surface: oklch(25% 0.02 250);
-  --color-on-surface-variant: oklch(45% 0.02 250);
-  --color-inverse-surface: oklch(25% 0.02 250);
-  --color-inverse-on-surface: oklch(95% 0.01 250);
-
-  /* Outline */
-  --color-outline: oklch(75% 0.02 250);
-  --color-outline-variant: oklch(85% 0.01 250);
-
-  /* Semantic */
-  --color-success: oklch(60% 0.15 145);
-  --color-on-success: white;
-  --color-warning: oklch(75% 0.15 85);
-  --color-on-warning: oklch(25% 0.05 85);
-  --color-error: oklch(55% 0.2 25);
-  --color-on-error: white;
-  --color-info: oklch(60% 0.15 250);
-  --color-on-info: white;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-
-  /* Focus */
-  --focus-ring: 0 0 0 2px var(--color-primary);
-  --focus-ring-offset: 0 0 0 2px white, 0 0 0 4px var(--color-primary);
-`;
-var moonlightTheme = `
-  /* Primary */
-  --color-primary: oklch(72% 0.15 250);
-  --color-primary-content: oklch(20% 0.05 250);
-  --color-on-primary: oklch(20% 0.05 250);
-
-  /* Secondary */
-  --color-secondary: oklch(68% 0.1 250);
-  --color-secondary-content: oklch(20% 0.05 250);
-  --color-on-secondary: oklch(20% 0.05 250);
-
-  /* Tertiary */
-  --color-tertiary: oklch(70% 0.12 300);
-  --color-tertiary-content: oklch(20% 0.05 300);
-  --color-on-tertiary: oklch(20% 0.05 300);
-
-  /* Surface */
-  --color-surface: oklch(18% 0.02 250);
-  --color-surface-container: oklch(22% 0.02 250);
-  --color-surface-container-low: oklch(20% 0.02 250);
-  --color-surface-container-high: oklch(26% 0.02 250);
-  --color-surface-variant: oklch(30% 0.02 250);
-  --color-on-surface: oklch(92% 0.01 250);
-  --color-on-surface-variant: oklch(75% 0.02 250);
-  --color-inverse-surface: oklch(92% 0.01 250);
-  --color-inverse-on-surface: oklch(25% 0.02 250);
-
-  /* Outline */
-  --color-outline: oklch(45% 0.02 250);
-  --color-outline-variant: oklch(35% 0.02 250);
-
-  /* Semantic */
-  --color-success: oklch(70% 0.15 145);
-  --color-on-success: oklch(20% 0.05 145);
-  --color-warning: oklch(80% 0.12 85);
-  --color-on-warning: oklch(20% 0.05 85);
-  --color-error: oklch(65% 0.2 25);
-  --color-on-error: oklch(20% 0.05 25);
-  --color-info: oklch(70% 0.15 250);
-  --color-on-info: oklch(20% 0.05 250);
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
-  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
-
-  /* Focus */
-  --focus-ring: 0 0 0 2px var(--color-primary);
-  --focus-ring-offset: 0 0 0 2px oklch(18% 0.02 250), 0 0 0 4px var(--color-primary);
-`;
-var oceanTheme = `
-  /* Primary */
-  --color-primary: oklch(58% 0.12 210);
-  --color-primary-content: white;
-  --color-on-primary: white;
-
-  /* Secondary */
-  --color-secondary: oklch(55% 0.08 185);
-  --color-secondary-content: white;
-  --color-on-secondary: white;
-
-  /* Tertiary */
-  --color-tertiary: oklch(60% 0.1 170);
-  --color-tertiary-content: white;
-  --color-on-tertiary: white;
-
-  /* Surface */
-  --color-surface: oklch(98% 0.005 210);
-  --color-surface-container: oklch(96% 0.01 210);
-  --color-surface-container-low: oklch(97% 0.005 210);
-  --color-surface-container-high: oklch(93% 0.01 210);
-  --color-surface-variant: oklch(91% 0.01 210);
-  --color-on-surface: oklch(22% 0.02 210);
-  --color-on-surface-variant: oklch(40% 0.02 210);
-  --color-inverse-surface: oklch(22% 0.02 210);
-  --color-inverse-on-surface: oklch(95% 0.01 210);
-
-  /* Outline */
-  --color-outline: oklch(72% 0.02 210);
-  --color-outline-variant: oklch(82% 0.01 210);
-
-  /* Semantic */
-  --color-success: oklch(62% 0.14 155);
-  --color-on-success: white;
-  --color-warning: oklch(76% 0.14 80);
-  --color-on-warning: oklch(25% 0.05 80);
-  --color-error: oklch(56% 0.18 20);
-  --color-on-error: white;
-  --color-info: oklch(58% 0.12 210);
-  --color-on-info: white;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.06);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-
-  /* Focus */
-  --focus-ring: 0 0 0 2px var(--color-primary);
-  --focus-ring-offset: 0 0 0 2px oklch(98% 0.005 210), 0 0 0 4px var(--color-primary);
-`;
-var forestTheme = `
-  /* Primary */
-  --color-primary: oklch(52% 0.12 155);
-  --color-primary-content: white;
-  --color-on-primary: white;
-
-  /* Secondary */
-  --color-secondary: oklch(50% 0.08 70);
-  --color-secondary-content: white;
-  --color-on-secondary: white;
-
-  /* Tertiary */
-  --color-tertiary: oklch(55% 0.1 120);
-  --color-tertiary-content: white;
-  --color-on-tertiary: white;
-
-  /* Surface */
-  --color-surface: oklch(97% 0.005 90);
-  --color-surface-container: oklch(95% 0.01 90);
-  --color-surface-container-low: oklch(96% 0.005 90);
-  --color-surface-container-high: oklch(92% 0.01 90);
-  --color-surface-variant: oklch(90% 0.01 90);
-  --color-on-surface: oklch(22% 0.03 90);
-  --color-on-surface-variant: oklch(40% 0.03 90);
-  --color-inverse-surface: oklch(22% 0.03 90);
-  --color-inverse-on-surface: oklch(95% 0.01 90);
-
-  /* Outline */
-  --color-outline: oklch(70% 0.03 90);
-  --color-outline-variant: oklch(82% 0.01 90);
-
-  /* Semantic */
-  --color-success: oklch(58% 0.14 145);
-  --color-on-success: white;
-  --color-warning: oklch(74% 0.14 85);
-  --color-on-warning: oklch(25% 0.05 85);
-  --color-error: oklch(54% 0.18 25);
-  --color-on-error: white;
-  --color-info: oklch(55% 0.12 230);
-  --color-on-info: white;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-
-  /* Focus */
-  --focus-ring: 0 0 0 2px var(--color-primary);
-  --focus-ring-offset: 0 0 0 2px oklch(97% 0.005 90), 0 0 0 4px var(--color-primary);
-`;
-var roseTheme = `
-  /* Primary */
-  --color-primary: oklch(60% 0.16 350);
-  --color-primary-content: white;
-  --color-on-primary: white;
-
-  /* Secondary */
-  --color-secondary: oklch(55% 0.1 330);
-  --color-secondary-content: white;
-  --color-on-secondary: white;
-
-  /* Tertiary */
-  --color-tertiary: oklch(58% 0.12 15);
-  --color-tertiary-content: white;
-  --color-on-tertiary: white;
-
-  /* Surface */
-  --color-surface: oklch(98% 0.005 350);
-  --color-surface-container: oklch(96% 0.01 350);
-  --color-surface-container-low: oklch(97% 0.005 350);
-  --color-surface-container-high: oklch(93% 0.01 350);
-  --color-surface-variant: oklch(91% 0.01 350);
-  --color-on-surface: oklch(22% 0.02 350);
-  --color-on-surface-variant: oklch(42% 0.02 350);
-  --color-inverse-surface: oklch(22% 0.02 350);
-  --color-inverse-on-surface: oklch(95% 0.005 350);
-
-  /* Outline */
-  --color-outline: oklch(72% 0.02 350);
-  --color-outline-variant: oklch(84% 0.01 350);
-
-  /* Semantic */
-  --color-success: oklch(62% 0.14 148);
-  --color-on-success: white;
-  --color-warning: oklch(76% 0.14 82);
-  --color-on-warning: oklch(25% 0.05 82);
-  --color-error: oklch(55% 0.2 22);
-  --color-on-error: white;
-  --color-info: oklch(58% 0.14 245);
-  --color-on-info: white;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-
-  /* Focus */
-  --focus-ring: 0 0 0 2px var(--color-primary);
-  --focus-ring-offset: 0 0 0 2px oklch(98% 0.005 350), 0 0 0 4px var(--color-primary);
-`;
-var themes = {
-	sunshine: sunshineTheme,
-	moonlight: moonlightTheme,
-	ocean: oceanTheme,
-	forest: forestTheme,
-	rose: roseTheme
-};
-function applyTheme(element, theme) {
-	const css2 = typeof theme === "string" && theme in themes ? themes[theme] : theme;
-	const props = css2.match(/--[\w-]+:\s*[^;]+/g);
-	if (props) {
-		for (const prop of props) {
-			const [name, ...valueParts] = prop.split(":");
-			const value = valueParts.join(":").trim();
-			element.style.setProperty(name.trim(), value);
-		}
-	}
-}
-function FocusableMixin(Base) {
-	class FocusableElement extends Base {
-		static properties = {
-			...Base.properties,
-			focused: {
-				type: Boolean,
-				reflect: true,
-				default: false
-			}
-		};
-		#handleFocus = () => {
-			this.focused = true;
-		};
-		#handleBlur = () => {
-			this.focused = false;
-		};
-		connectedCallback() {
-			super.connectedCallback();
-			if (!this.hasAttribute("tabindex")) {
-				this.setAttribute("tabindex", "0");
-			}
-			this.addEventListener("focus", this.#handleFocus);
-			this.addEventListener("blur", this.#handleBlur);
-		}
-		disconnectedCallback() {
-			super.disconnectedCallback();
-			this.removeEventListener("focus", this.#handleFocus);
-			this.removeEventListener("blur", this.#handleBlur);
-		}
-	}
-	return FocusableElement;
-}
-function FormMixin(Base) {
-	class FormElement extends Base {
-		static properties = {
-			...Base.properties,
-			name: {
-				type: String,
-				reflect: true,
-				default: ""
-			},
-			value: {
-				type: String,
-				reflect: true,
-				default: ""
-			},
-			disabled: {
-				type: Boolean,
-				reflect: true,
-				default: false
-			},
-			required: {
-				type: Boolean,
-				reflect: true,
-				default: false
-			}
-		};
-		get form() {
-			return this.closest("form");
-		}
-	}
-	return FormElement;
-}
-function EventListenerMixin(Base) {
-	class EventListenerElement extends Base {
-		#listeners = [];
-		addListener(target, type, handler, options) {
-			target.addEventListener(type, handler, options);
-			this.#listeners.push({
-				target,
-				type,
-				handler,
-				options
-			});
-		}
-		disconnectedCallback() {
-			super.disconnectedCallback();
-			for (const { target, type, handler, options } of this.#listeners) {
-				target.removeEventListener(type, handler, options);
-			}
-			this.#listeners = [];
-		}
-	}
-	return EventListenerElement;
-}
-function SlotObserverMixin(Base) {
-	class SlotObserverElement extends Base {
-		#slotObservers = new Map();
-		observeSlot(slotName, handler) {
-			this.#slotObservers.set(slotName, handler);
-		}
-		connectedCallback() {
-			super.connectedCallback();
-			requestAnimationFrame(() => this.#attachSlotListeners());
-		}
-		#attachSlotListeners() {
-			const slots = this.shadowRoot.querySelectorAll("slot");
-			for (const slot of slots) {
-				const name = slot.name || "";
-				const handler = this.#slotObservers.get(name);
-				if (handler) {
-					slot.addEventListener("slotchange", () => {
-						const elements2 = slot.assignedElements();
-						handler(elements2);
-					});
-					const elements = slot.assignedElements();
-					handler(elements);
-				}
-			}
-		}
-		disconnectedCallback() {
-			super.disconnectedCallback();
-			this.#slotObservers.clear();
-		}
-	}
-	return SlotObserverElement;
-}
 function validate(value, rules) {
 	for (const rule of rules) {
 		const message = rule(value);
-		if (message) {
-			return {
-				state: "invalid",
-				message
-			};
-		}
-	}
-	return {
-		state: "valid",
-		message: undefined
-	};
-}
-async function validateAsync(value, rules, asyncRule) {
-	const syncResult = validate(value, rules);
-	if (syncResult.state === "invalid") {
-		return syncResult;
-	}
-	const message = await asyncRule(value);
-	if (message) {
-		return {
+		if (message) return {
 			state: "invalid",
 			message
 		};
 	}
 	return {
 		state: "valid",
-		message: undefined
+		message: void 0
 	};
 }
-var validators = {
-	required(message = "This field is required") {
-		return (value) => !value || value.trim().length === 0 ? message : undefined;
-	},
-	minLength(min, message) {
-		return (value) => value && value.length < min ? message ?? `Must be at least ${min} characters` : undefined;
-	},
-	maxLength(max, message) {
-		return (value) => value && value.length > max ? message ?? `Must be at most ${max} characters` : undefined;
-	},
-	pattern(regex, message = "Invalid format") {
-		return (value) => value && !regex.test(value) ? message : undefined;
-	},
-	email(message = "Must be a valid email address") {
-		const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		return (value) => value && !emailRe.test(value) ? message : undefined;
-	},
-	range(min, max, message) {
-		return (value) => {
-			if (!value) return;
-			const num = Number(value);
-			if (isNaN(num) || num < min || num > max) {
-				return message ?? `Must be between ${min} and ${max}`;
-			}
-			return;
-		};
-	},
-	custom(predicate, message) {
-		return (value) => !predicate(value) ? message : undefined;
-	}
-};
-function debounce(fn, delay) {
-	let timeoutId;
-	const debounced = function(...args) {
-		if (timeoutId !== undefined) {
-			clearTimeout(timeoutId);
-		}
-		timeoutId = setTimeout(() => {
-			timeoutId = undefined;
-			fn.apply(this, args);
-		}, delay);
-	};
-	debounced.cancel = () => {
-		if (timeoutId !== undefined) {
-			clearTimeout(timeoutId);
-			timeoutId = undefined;
-		}
-	};
-	return debounced;
-}
-function throttle(fn, interval) {
-	let lastCall = 0;
-	let timeoutId;
-	const throttled = function(...args) {
-		const now = Date.now();
-		const remaining = interval - (now - lastCall);
-		if (remaining <= 0) {
-			if (timeoutId !== undefined) {
-				clearTimeout(timeoutId);
-				timeoutId = undefined;
-			}
-			lastCall = now;
-			fn.apply(this, args);
-		} else if (timeoutId === undefined) {
-			timeoutId = setTimeout(() => {
-				lastCall = Date.now();
-				timeoutId = undefined;
-				fn.apply(this, args);
-			}, remaining);
-		}
-	};
-	throttled.cancel = () => {
-		if (timeoutId !== undefined) {
-			clearTimeout(timeoutId);
-			timeoutId = undefined;
-		}
-		lastCall = 0;
-	};
-	return throttled;
-}
-function scheduleIdle(callback, options) {
-	if (typeof requestIdleCallback === "function") {
-		const id2 = requestIdleCallback(callback, options);
-		return () => cancelIdleCallback(id2);
-	}
-	const id = setTimeout(callback, options?.timeout ?? 50);
-	return () => clearTimeout(id);
-}
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/accordion.js
-const css$31 = `/**
+const css$30 = `/**
  * Accordion Component Styles
  * DuskMoonUI - Material Design 3 inspired accordion/expansion panel system
  */
@@ -1195,15 +595,11 @@ const css$31 = `/**
   }
 }
 `;
-const sheet$30 = new CSSStyleSheet();
-sheet$30.replaceSync(css$31);
-const styles$69 = sheet$30;
-var accordion_default = sheet$30;
-
+new CSSStyleSheet().replaceSync(css$30);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-accordion/dist/esm/register.js
-var coreStyles$32 = css$31.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$68 = css`
+var coreStyles$32 = css$30.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
+var styles$68 = css$31`
   :host {
     display: block;
   }
@@ -1257,43 +653,28 @@ var ElDmAccordion = class extends BaseElement {
 	}
 	open(itemId) {
 		const openItems = this.getOpenItems();
-		if (!openItems.includes(itemId)) {
-			if (this.multiple) {
-				this.setOpenItems([...openItems, itemId]);
-			} else {
-				this.setOpenItems([itemId]);
-			}
-		}
+		if (!openItems.includes(itemId)) if (this.multiple) this.setOpenItems([...openItems, itemId]);
+		else this.setOpenItems([itemId]);
 	}
 	close(itemId) {
 		const openItems = this.getOpenItems();
 		this.setOpenItems(openItems.filter((id) => id !== itemId));
 	}
 	toggle(itemId) {
-		const openItems = this.getOpenItems();
-		if (openItems.includes(itemId)) {
-			this.close(itemId);
-		} else {
-			this.open(itemId);
-		}
+		if (this.getOpenItems().includes(itemId)) this.close(itemId);
+		else this.open(itemId);
 	}
 	_handleItemToggle = (event) => {
 		const { itemId, open } = event.detail;
-		if (open) {
-			this.open(itemId);
-		} else {
-			this.close(itemId);
-		}
+		if (open) this.open(itemId);
+		else this.close(itemId);
 	};
 	_syncItemsWithValue() {
 		const openItems = this.getOpenItems();
-		const items = this.querySelectorAll("el-dm-accordion-item");
-		items.forEach((item) => {
+		this.querySelectorAll("el-dm-accordion-item").forEach((item) => {
 			const accordionItem = item;
 			const itemValue = accordionItem.value;
-			if (itemValue) {
-				accordionItem.open = openItems.includes(itemValue);
-			}
+			if (itemValue) accordionItem.open = openItems.includes(itemValue);
 		});
 	}
 	render() {
@@ -1304,7 +685,7 @@ var ElDmAccordion = class extends BaseElement {
     `;
 	}
 };
-var itemStyles = css`
+var itemStyles = css$31`
   :host {
     display: block;
   }
@@ -1366,16 +747,9 @@ var ElDmAccordionItem = class extends BaseElement {
 		}
 	}
 	toggle() {
-		if (!this.disabled) {
-			this._handleClick();
-		}
+		if (!this.disabled) this._handleClick();
 	}
 	render() {
-		const expandSvg = `
-      <svg class="accordion-expand" part="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-        <polyline points="6 9 12 15 18 9"></polyline>
-      </svg>
-    `;
 		return `
       <div class="accordion-item ${this.open ? "open" : ""}">
         <button
@@ -1390,7 +764,11 @@ var ElDmAccordionItem = class extends BaseElement {
           <span class="accordion-title">
             <slot name="header"></slot>
           </span>
-          ${expandSvg}
+          
+      <svg class="accordion-expand" part="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    
         </button>
         <div class="accordion-content">
           <div class="accordion-body">
@@ -1417,18 +795,13 @@ var ElDmAccordionItem = class extends BaseElement {
 	}
 };
 function register$39() {
-	if (!customElements.get("el-dm-accordion")) {
-		customElements.define("el-dm-accordion", ElDmAccordion);
-	}
-	if (!customElements.get("el-dm-accordion-item")) {
-		customElements.define("el-dm-accordion-item", ElDmAccordionItem);
-	}
+	if (!customElements.get("el-dm-accordion")) customElements.define("el-dm-accordion", ElDmAccordion);
+	if (!customElements.get("el-dm-accordion-item")) customElements.define("el-dm-accordion-item", ElDmAccordionItem);
 }
 register$39();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/alert.js
-const css$30 = `/**
+const css$29 = `/**
  * Alert Component Styles
  * DuskMoonUI - Material Design 3 inspired alert system
  */
@@ -1690,11 +1063,7 @@ const css$30 = `/**
   }
 }
 `;
-const sheet$29 = new CSSStyleSheet();
-sheet$29.replaceSync(css$30);
-const styles$67 = sheet$29;
-var alert_default = sheet$29;
-
+new CSSStyleSheet().replaceSync(css$29);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-alert/dist/esm/register.js
 var TYPE_CLASSES = {
@@ -1707,8 +1076,7 @@ var VARIANT_CLASSES$4 = {
 	filled: "alert-filled",
 	outlined: "alert-outlined"
 };
-var coreStyles$31 = css$30.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$66 = css`
+var styles$66 = css$31`
   :host {
     display: block;
   }
@@ -1717,7 +1085,7 @@ var styles$66 = css`
     display: none !important;
   }
 
-  ${coreStyles$31}
+  ${css$29.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   .alert {
     font-family: inherit;
@@ -1757,18 +1125,10 @@ var ElDmAlert = class extends BaseElement {
 	}
 	_getAlertClasses() {
 		const classes = ["alert"];
-		if (this.type && TYPE_CLASSES[this.type]) {
-			classes.push(TYPE_CLASSES[this.type]);
-		}
-		if (this.variant && VARIANT_CLASSES$4[this.variant]) {
-			classes.push(VARIANT_CLASSES$4[this.variant]);
-		}
-		if (this.dismissible) {
-			classes.push("alert-dismissible");
-		}
-		if (this.compact) {
-			classes.push("alert-compact");
-		}
+		if (this.type && TYPE_CLASSES[this.type]) classes.push(TYPE_CLASSES[this.type]);
+		if (this.variant && VARIANT_CLASSES$4[this.variant]) classes.push(VARIANT_CLASSES$4[this.variant]);
+		if (this.dismissible) classes.push("alert-dismissible");
+		if (this.compact) classes.push("alert-compact");
 		return classes.join(" ");
 	}
 	_getDefaultIcon() {
@@ -1781,9 +1141,8 @@ var ElDmAlert = class extends BaseElement {
 		return icons[this.type] || icons.info;
 	}
 	render() {
-		const alertClasses = this._getAlertClasses();
 		return `
-      <div class="${alertClasses}" role="alert" part="alert">
+      <div class="${this._getAlertClasses()}" role="alert" part="alert">
         <span class="alert-icon" part="icon">
           <slot name="icon">${this._getDefaultIcon()}</slot>
         </span>
@@ -1802,22 +1161,16 @@ var ElDmAlert = class extends BaseElement {
 	}
 	update() {
 		super.update();
-		if (this.dismissible) {
-			const closeBtn = this.shadowRoot?.querySelector(".alert-close");
-			closeBtn?.addEventListener("click", this._handleDismiss.bind(this));
-		}
+		if (this.dismissible) (this.shadowRoot?.querySelector(".alert-close"))?.addEventListener("click", this._handleDismiss.bind(this));
 	}
 };
 function register$38() {
-	if (!customElements.get("el-dm-alert")) {
-		customElements.define("el-dm-alert", ElDmAlert);
-	}
+	if (!customElements.get("el-dm-alert")) customElements.define("el-dm-alert", ElDmAlert);
 }
 register$38();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/autocomplete.js
-const css$29 = `/**
+const css$28 = `/**
  * Autocomplete Component Styles
  * DuskMoonUI - Material Design 3 inspired autocomplete system
  */
@@ -2147,16 +1500,9 @@ const css$29 = `/**
   }
 }
 `;
-const sheet$28 = new CSSStyleSheet();
-sheet$28.replaceSync(css$29);
-const styles$65 = sheet$28;
-var autocomplete_default = sheet$28;
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-autocomplete/dist/esm/register.js
-var strippedCss$1 = css$29.replace(/@layer\s+components\s*\{/, "").replace(/\}[\s]*$/, "");
-var styles$64 = css`
-  ${strippedCss$1}
+new CSSStyleSheet().replaceSync(css$28);
+var styles$64 = css$31`
+  ${css$28.replace(/@layer\s+components\s*\{/, "").replace(/\}[\s]*$/, "")}
 
   :host {
     display: block;
@@ -2253,20 +1599,15 @@ var ElDmAutocomplete = class extends BaseElement {
 		}
 	}
 	_handleOutsideClick = (e) => {
-		if (!this.contains(e.target)) {
-			this._close();
-		}
+		if (!this.contains(e.target)) this._close();
 	};
 	_parseValue() {
-		if (this.multiple && this.value) {
-			try {
-				this._selectedValues = JSON.parse(this.value);
-			} catch {
-				this._selectedValues = this.value ? [this.value] : [];
-			}
-		} else {
+		if (this.multiple && this.value) try {
+			this._selectedValues = JSON.parse(this.value);
+		} catch {
 			this._selectedValues = this.value ? [this.value] : [];
 		}
+		else this._selectedValues = this.value ? [this.value] : [];
 	}
 	_getOptions() {
 		try {
@@ -2311,11 +1652,9 @@ var ElDmAutocomplete = class extends BaseElement {
 			this._scrollHandler = null;
 		}
 		const dropdown = this.shadowRoot?.querySelector(".autocomplete-dropdown");
-		if (dropdown) {
-			try {
-				dropdown.hidePopover();
-			} catch {}
-		}
+		if (dropdown) try {
+			dropdown.hidePopover();
+		} catch {}
 		this.update();
 	}
 	_positionDropdown(dropdown, trigger) {
@@ -2323,35 +1662,23 @@ var ElDmAutocomplete = class extends BaseElement {
 		const dropdownRect = dropdown.getBoundingClientRect();
 		let top = triggerRect.bottom + 4;
 		let left = triggerRect.left;
-		if (top + dropdownRect.height > window.innerHeight) {
-			top = triggerRect.top - dropdownRect.height - 4;
-		}
-		if (left + triggerRect.width > window.innerWidth) {
-			left = window.innerWidth - triggerRect.width - 8;
-		}
-		if (left < 8) {
-			left = 8;
-		}
+		if (top + dropdownRect.height > window.innerHeight) top = triggerRect.top - dropdownRect.height - 4;
+		if (left + triggerRect.width > window.innerWidth) left = window.innerWidth - triggerRect.width - 8;
+		if (left < 8) left = 8;
 		dropdown.style.top = `${top}px`;
 		dropdown.style.left = `${left}px`;
 		dropdown.style.width = `${triggerRect.width}px`;
 	}
 	_toggle() {
-		if (this._isOpen) {
-			this._close();
-		} else {
-			this._open();
-		}
+		if (this._isOpen) this._close();
+		else this._open();
 	}
 	_handleInputChange(e) {
 		const input = e.target;
 		this._searchValue = input.value;
 		this._highlightedIndex = -1;
-		if (!this._isOpen) {
-			this._open();
-		} else {
-			this.update();
-		}
+		if (!this._isOpen) this._open();
+		else this.update();
 		this.emit("input", { searchValue: this._searchValue });
 	}
 	_handleKeyDown(e) {
@@ -2359,9 +1686,8 @@ var ElDmAutocomplete = class extends BaseElement {
 		switch (e.key) {
 			case "ArrowDown":
 				e.preventDefault();
-				if (!this._isOpen) {
-					this._open();
-				} else {
+				if (!this._isOpen) this._open();
+				else {
 					this._highlightedIndex = Math.min(this._highlightedIndex + 1, filteredOptions.length - 1);
 					this.update();
 				}
@@ -2375,11 +1701,8 @@ var ElDmAutocomplete = class extends BaseElement {
 				break;
 			case "Enter":
 				e.preventDefault();
-				if (this._isOpen && this._highlightedIndex >= 0 && this._highlightedIndex < filteredOptions.length) {
-					this._selectOption(filteredOptions[this._highlightedIndex]);
-				} else if (!this._isOpen) {
-					this._open();
-				}
+				if (this._isOpen && this._highlightedIndex >= 0 && this._highlightedIndex < filteredOptions.length) this._selectOption(filteredOptions[this._highlightedIndex]);
+				else if (!this._isOpen) this._open();
 				break;
 			case "Escape":
 				e.preventDefault();
@@ -2396,12 +1719,8 @@ var ElDmAutocomplete = class extends BaseElement {
 	_selectOption(option) {
 		if (option.disabled) return;
 		if (this.multiple) {
-			const index = this._selectedValues.indexOf(option.value);
-			if (index === -1) {
-				this._selectedValues = [...this._selectedValues, option.value];
-			} else {
-				this._selectedValues = this._selectedValues.filter((v) => v !== option.value);
-			}
+			if (this._selectedValues.indexOf(option.value) === -1) this._selectedValues = [...this._selectedValues, option.value];
+			else this._selectedValues = this._selectedValues.filter((v) => v !== option.value);
 			this.value = JSON.stringify(this._selectedValues);
 			this._searchValue = "";
 		} else {
@@ -2439,11 +1758,8 @@ var ElDmAutocomplete = class extends BaseElement {
 	_getDisplayValue() {
 		if (this._selectedValues.length === 0) return "";
 		const allOptions = this._getOptions();
-		if (this.multiple) {
-			return "";
-		}
-		const selectedOption = allOptions.find((opt) => opt.value === this._selectedValues[0]);
-		return selectedOption?.label || this._selectedValues[0];
+		if (this.multiple) return "";
+		return allOptions.find((opt) => opt.value === this._selectedValues[0])?.label || this._selectedValues[0];
 	}
 	_highlightMatch(text) {
 		if (!this._searchValue) return text;
@@ -2454,11 +1770,9 @@ var ElDmAutocomplete = class extends BaseElement {
 	_renderTags() {
 		const allOptions = this._getOptions();
 		return this._selectedValues.map((val) => {
-			const option = allOptions.find((opt) => opt.value === val);
-			const label = option?.label || val;
 			return `
         <span class="autocomplete-tag">
-          <span>${label}</span>
+          <span>${allOptions.find((opt) => opt.value === val)?.label || val}</span>
           <button
             type="button"
             class="autocomplete-tag-remove"
@@ -2471,54 +1785,41 @@ var ElDmAutocomplete = class extends BaseElement {
 	}
 	_renderOptions() {
 		const filteredOptions = this._getFilteredOptions();
-		if (this.loading) {
-			return `
+		if (this.loading) return `
         <div class="autocomplete-loading">
           <span>Loading...</span>
         </div>
       `;
-		}
-		if (filteredOptions.length === 0) {
-			return `
+		if (filteredOptions.length === 0) return `
         <div class="autocomplete-no-results">${this.noResultsText || "No results found"}</div>
       `;
-		}
-		const groups = new Map();
+		const groups = /* @__PURE__ */ new Map();
 		const ungrouped = [];
-		for (const opt of filteredOptions) {
-			if (opt.group) {
-				const group = groups.get(opt.group) || [];
-				group.push(opt);
-				groups.set(opt.group, group);
-			} else {
-				ungrouped.push(opt);
-			}
-		}
+		for (const opt of filteredOptions) if (opt.group) {
+			const group = groups.get(opt.group) || [];
+			group.push(opt);
+			groups.set(opt.group, group);
+		} else ungrouped.push(opt);
 		let html = "";
 		let globalIndex = 0;
 		for (const [groupName, options] of groups) {
 			html += `<div class="autocomplete-group-header">${groupName}</div>`;
-			for (const opt of options) {
-				html += this._renderOption(opt, globalIndex++);
-			}
+			for (const opt of options) html += this._renderOption(opt, globalIndex++);
 		}
-		for (const opt of ungrouped) {
-			html += this._renderOption(opt, globalIndex++);
-		}
+		for (const opt of ungrouped) html += this._renderOption(opt, globalIndex++);
 		return html;
 	}
 	_renderOption(opt, index) {
 		const isSelected = this._selectedValues.includes(opt.value);
 		const isHighlighted = index === this._highlightedIndex;
-		const classes = [
+		return `
+      <div
+        class="${[
 			"autocomplete-option",
 			isSelected ? "selected" : "",
 			isHighlighted ? "highlighted" : "",
 			opt.disabled ? "disabled" : ""
-		].filter(Boolean).join(" ");
-		return `
-      <div
-        class="${classes}"
+		].filter(Boolean).join(" ")}"
         data-value="${opt.value}"
         data-index="${index}"
         role="option"
@@ -2544,8 +1845,7 @@ var ElDmAutocomplete = class extends BaseElement {
 		const clearableClass = this.clearable ? "autocomplete-clearable" : "";
 		const showClear = this.clearable && this._selectedValues.length > 0 && !this.disabled;
 		const placeholder = this.placeholder || "";
-		if (this.multiple) {
-			return `
+		if (this.multiple) return `
         <div class="autocomplete ${sizeClass} ${openClass} ${clearableClass}">
           <div class="autocomplete-tags">
             ${this._renderTags()}
@@ -2569,7 +1869,6 @@ var ElDmAutocomplete = class extends BaseElement {
           </div>
         </div>
       `;
-		}
 		return `
       <div class="autocomplete ${sizeClass} ${openClass} ${clearableClass}">
         <input
@@ -2598,12 +1897,10 @@ var ElDmAutocomplete = class extends BaseElement {
 		if (this._isOpen) {
 			const dropdown = this.shadowRoot?.querySelector(".autocomplete-dropdown");
 			const trigger = this.shadowRoot?.querySelector(".autocomplete-input, .autocomplete-tags");
-			if (dropdown && trigger) {
-				try {
-					dropdown.showPopover();
-					this._positionDropdown(dropdown, trigger);
-				} catch {}
-			}
+			if (dropdown && trigger) try {
+				dropdown.showPopover();
+				this._positionDropdown(dropdown, trigger);
+			} catch {}
 		}
 	}
 	_attachEventListeners() {
@@ -2621,48 +1918,36 @@ var ElDmAutocomplete = class extends BaseElement {
 			clearBtn.removeEventListener("click", this._clear.bind(this));
 			clearBtn.addEventListener("click", this._clear.bind(this));
 		}
-		const options = this.shadowRoot?.querySelectorAll(".autocomplete-option");
-		options?.forEach((opt) => {
+		(this.shadowRoot?.querySelectorAll(".autocomplete-option"))?.forEach((opt) => {
 			opt.removeEventListener("click", this._handleOptionClick);
 			opt.addEventListener("click", this._handleOptionClick);
 		});
-		const tagRemoves = this.shadowRoot?.querySelectorAll(".autocomplete-tag-remove");
-		tagRemoves?.forEach((btn) => {
+		(this.shadowRoot?.querySelectorAll(".autocomplete-tag-remove"))?.forEach((btn) => {
 			btn.removeEventListener("click", this._handleTagRemove);
 			btn.addEventListener("click", this._handleTagRemove);
 		});
 	}
 	_handleOptionClick = (e) => {
 		e.stopPropagation();
-		const target = e.currentTarget;
-		const value = target.dataset.value;
+		const value = e.currentTarget.dataset.value;
 		if (value) {
-			const allOptions = this._getOptions();
-			const option = allOptions.find((opt) => opt.value === value);
-			if (option) {
-				this._selectOption(option);
-			}
+			const option = this._getOptions().find((opt) => opt.value === value);
+			if (option) this._selectOption(option);
 		}
 	};
 	_handleTagRemove = (e) => {
 		e.stopPropagation();
-		const target = e.currentTarget;
-		const value = target.dataset.value;
-		if (value) {
-			this._removeValue(value);
-		}
+		const value = e.currentTarget.dataset.value;
+		if (value) this._removeValue(value);
 	};
 };
 function register$37() {
-	if (!customElements.get("el-dm-autocomplete")) {
-		customElements.define("el-dm-autocomplete", ElDmAutocomplete);
-	}
+	if (!customElements.get("el-dm-autocomplete")) customElements.define("el-dm-autocomplete", ElDmAutocomplete);
 }
 register$37();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/badge.js
-const css$28 = `/**
+const css$27 = `/**
  * Badge Component Styles
  * DuskMoonUI - Material Design 3 inspired badge system
  */
@@ -2841,11 +2126,7 @@ const css$28 = `/**
   }
 }
 `;
-const sheet$27 = new CSSStyleSheet();
-sheet$27.replaceSync(css$28);
-const styles$63 = sheet$27;
-var badge_default = sheet$27;
-
+new CSSStyleSheet().replaceSync(css$27);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-badge/dist/esm/register.js
 var VARIANT_CLASSES$3 = {
@@ -2868,8 +2149,7 @@ var SIZE_CLASSES$9 = {
 	md: "",
 	lg: "badge-lg"
 };
-var coreStyles$30 = css$28.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$62 = css`
+var styles$62 = css$31`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -2879,7 +2159,7 @@ var styles$62 = css`
     display: none !important;
   }
 
-  ${coreStyles$30}
+  ${css$27.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   .badge {
     font-family: inherit;
@@ -2940,44 +2220,30 @@ var ElDmBadge = class extends BaseElement {
 	}
 	_getBadgeClasses() {
 		const classes = ["badge"];
-		if (this.variant && VARIANT_CLASSES$3[this.variant]) {
-			classes.push(VARIANT_CLASSES$3[this.variant]);
-		}
-		if (this.color && COLOR_CLASSES$6[this.color]) {
-			classes.push(COLOR_CLASSES$6[this.color]);
-		}
-		if (this.size && SIZE_CLASSES$9[this.size]) {
-			classes.push(SIZE_CLASSES$9[this.size]);
-		}
-		if (this.pill) {
-			classes.push("badge-pill");
-		}
-		if (this.dot) {
-			classes.push("badge-dot");
-		}
+		if (this.variant && VARIANT_CLASSES$3[this.variant]) classes.push(VARIANT_CLASSES$3[this.variant]);
+		if (this.color && COLOR_CLASSES$6[this.color]) classes.push(COLOR_CLASSES$6[this.color]);
+		if (this.size && SIZE_CLASSES$9[this.size]) classes.push(SIZE_CLASSES$9[this.size]);
+		if (this.pill) classes.push("badge-pill");
+		if (this.dot) classes.push("badge-dot");
 		return classes.join(" ");
 	}
 	render() {
 		const badgeClasses = this._getBadgeClasses();
 		const ariaLabel = this.getAttribute("aria-label");
-		const ariaLabelAttr = ariaLabel ? ` aria-label="${ariaLabel}"` : "";
 		return `
-      <span class="${badgeClasses}" part="badge" role="status"${ariaLabelAttr}>
+      <span class="${badgeClasses}" part="badge" role="status"${ariaLabel ? ` aria-label="${ariaLabel}"` : ""}>
         ${this.dot ? "" : "<slot></slot>"}
       </span>
     `;
 	}
 };
 function register$36() {
-	if (!customElements.get("el-dm-badge")) {
-		customElements.define("el-dm-badge", ElDmBadge);
-	}
+	if (!customElements.get("el-dm-badge")) customElements.define("el-dm-badge", ElDmBadge);
 }
 register$36();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/bottom-navigation.js
-const css$27 = `/**
+const css$26 = `/**
  * Bottom Navigation Component Styles
  * DuskMoonUI - Material Design 3 inspired bottom navigation system
  */
@@ -3241,15 +2507,8 @@ const css$27 = `/**
   }
 }
 `;
-const sheet$26 = new CSSStyleSheet();
-sheet$26.replaceSync(css$27);
-const styles$61 = sheet$26;
-var bottom_navigation_default = sheet$26;
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-bottom-navigation/dist/esm/register.js
-var coreStyles$29 = css$27.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$60 = css`
+new CSSStyleSheet().replaceSync(css$26);
+var styles$60 = css$31`
   :host {
     --bottom-nav-height: 56px;
     --bottom-nav-bg: var(--color-surface, #ffffff);
@@ -3281,7 +2540,7 @@ var styles$60 = css`
   }
 
   /* Import core bottom-navigation styles */
-  ${coreStyles$29}
+  ${css$26.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Override core's fixed positioning — :host handles it */
   .bottom-nav {
@@ -3455,11 +2714,8 @@ var ElDmBottomNavigation = class extends BaseElement {
 		this.removeEventListener("keydown", this._handleKeydown.bind(this));
 	}
 	_handleClick(event) {
-		const target = event.target;
-		const navItem = target.closest("[data-value]");
-		if (!navItem || navItem.hasAttribute("disabled")) {
-			return;
-		}
+		const navItem = event.target.closest("[data-value]");
+		if (!navItem || navItem.hasAttribute("disabled")) return;
 		const value = navItem.dataset.value;
 		if (value && value !== this.value) {
 			const item = this.items.find((i) => i.value === value);
@@ -3501,9 +2757,7 @@ var ElDmBottomNavigation = class extends BaseElement {
 				target.click();
 				return;
 		}
-		if (nextIndex >= 0 && items[nextIndex]) {
-			items[nextIndex].focus();
-		}
+		if (nextIndex >= 0 && items[nextIndex]) items[nextIndex].focus();
 	}
 	_renderItem(item) {
 		const isSelected = item.value === this.value;
@@ -3544,15 +2798,12 @@ var ElDmBottomNavigation = class extends BaseElement {
 	}
 };
 function register$35() {
-	if (!customElements.get("el-dm-bottom-navigation")) {
-		customElements.define("el-dm-bottom-navigation", ElDmBottomNavigation);
-	}
+	if (!customElements.get("el-dm-bottom-navigation")) customElements.define("el-dm-bottom-navigation", ElDmBottomNavigation);
 }
 register$35();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/bottomsheet.js
-const css$26 = `/**
+const css$25 = `/**
  * Bottom Sheet Component Styles
  * DuskMoonUI - Material Design 3 inspired bottom sheet system
  */
@@ -3887,15 +3138,8 @@ const css$26 = `/**
   }
 }
 `;
-const sheet$25 = new CSSStyleSheet();
-sheet$25.replaceSync(css$26);
-const styles$59 = sheet$25;
-var bottomsheet_default = sheet$25;
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-bottom-sheet/dist/esm/register.js
-var coreStyles$28 = css$26.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$58 = css`
+new CSSStyleSheet().replaceSync(css$25);
+var styles$58 = css$31`
   :host {
     display: contents;
   }
@@ -3905,7 +3149,7 @@ var styles$58 = css`
   }
 
   /* Import core bottomsheet styles */
-  ${coreStyles$28}
+  ${css$25.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Wrapper for fixed overlay with pointer-events control */
   .bottomsheet-wrapper {
@@ -4021,33 +3265,25 @@ var ElDmBottomSheet = class extends BaseElement {
 		}
 		this._parsedSnapPoints = this.snapPoints.split(",").map((point) => {
 			const trimmed = point.trim();
-			if (trimmed.endsWith("%")) {
-				return parseFloat(trimmed);
-			}
+			if (trimmed.endsWith("%")) return parseFloat(trimmed);
 			return parseFloat(trimmed);
 		}).filter((point) => !isNaN(point) && point > 0 && point <= 100).sort((a, b) => a - b);
-		if (this._parsedSnapPoints.length === 0) {
-			this._parsedSnapPoints = [100];
-		}
+		if (this._parsedSnapPoints.length === 0) this._parsedSnapPoints = [100];
 	}
 	_handleBackdropClick = (event) => {
-		if (!this.persistent && event.target === event.currentTarget) {
-			this.hide();
-		}
+		if (!this.persistent && event.target === event.currentTarget) this.hide();
 	};
 	_handleKeyDown = (event) => {
 		if (event.key === "Escape" && !this.persistent) {
 			this.hide();
 			return;
 		}
-		if (this.modal && event.key === "Tab") {
-			this._trapFocus(event);
-		}
+		if (this.modal && event.key === "Tab") this._trapFocus(event);
 	};
 	_trapFocus(event) {
-		const sheet$31 = this.shadowRoot?.querySelector(".bottomsheet");
-		if (!sheet$31) return;
-		this._focusableElements = Array.from(sheet$31.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex=\"-1\"])"));
+		const sheet = this.shadowRoot?.querySelector(".bottomsheet");
+		if (!sheet) return;
+		this._focusableElements = Array.from(sheet.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex=\"-1\"])"));
 		const slotContent = this.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex=\"-1\"])");
 		this._focusableElements.push(...Array.from(slotContent));
 		if (this._focusableElements.length === 0) return;
@@ -4065,10 +3301,10 @@ var ElDmBottomSheet = class extends BaseElement {
 		const touch = event.touches[0];
 		this._startY = touch.clientY;
 		this._isDragging = true;
-		const sheet$31 = this.shadowRoot?.querySelector(".bottomsheet");
-		if (sheet$31) {
-			this._sheetHeight = sheet$31.getBoundingClientRect().height;
-			sheet$31.classList.add("dragging");
+		const sheet = this.shadowRoot?.querySelector(".bottomsheet");
+		if (sheet) {
+			this._sheetHeight = sheet.getBoundingClientRect().height;
+			sheet.classList.add("dragging");
 		}
 	};
 	_handleTouchMove = (event) => {
@@ -4078,37 +3314,32 @@ var ElDmBottomSheet = class extends BaseElement {
 		const deltaY = this._currentY - this._startY;
 		if (deltaY > 0) {
 			event.preventDefault();
-			const sheet$31 = this.shadowRoot?.querySelector(".bottomsheet");
-			if (sheet$31) {
-				sheet$31.style.transform = `translateY(${deltaY}px)`;
-			}
+			const sheet = this.shadowRoot?.querySelector(".bottomsheet");
+			if (sheet) sheet.style.transform = `translateY(${deltaY}px)`;
 		}
 	};
 	_handleTouchEnd = () => {
 		if (!this._isDragging) return;
 		this._isDragging = false;
 		const deltaY = this._currentY - this._startY;
-		const sheet$31 = this.shadowRoot?.querySelector(".bottomsheet");
-		if (sheet$31) {
-			sheet$31.classList.remove("dragging");
-			sheet$31.style.transform = "";
+		const sheet = this.shadowRoot?.querySelector(".bottomsheet");
+		if (sheet) {
+			sheet.classList.remove("dragging");
+			sheet.style.transform = "";
 		}
 		const threshold = this._sheetHeight * .25;
-		if (!this.persistent && deltaY > threshold) {
-			this.hide();
-		} else if (this._parsedSnapPoints.length > 1) {
-			this._snapToNearestPoint(deltaY);
-		}
+		if (!this.persistent && deltaY > threshold) this.hide();
+		else if (this._parsedSnapPoints.length > 1) this._snapToNearestPoint(deltaY);
 		this._startY = 0;
 		this._currentY = 0;
 	};
 	_handleMouseDown = (event) => {
 		this._startY = event.clientY;
 		this._isDragging = true;
-		const sheet$31 = this.shadowRoot?.querySelector(".bottomsheet");
-		if (sheet$31) {
-			this._sheetHeight = sheet$31.getBoundingClientRect().height;
-			sheet$31.classList.add("dragging");
+		const sheet = this.shadowRoot?.querySelector(".bottomsheet");
+		if (sheet) {
+			this._sheetHeight = sheet.getBoundingClientRect().height;
+			sheet.classList.add("dragging");
 		}
 		document.addEventListener("mousemove", this._handleMouseMove);
 		document.addEventListener("mouseup", this._handleMouseUp);
@@ -4118,29 +3349,24 @@ var ElDmBottomSheet = class extends BaseElement {
 		this._currentY = event.clientY;
 		const deltaY = this._currentY - this._startY;
 		if (deltaY > 0) {
-			const sheet$31 = this.shadowRoot?.querySelector(".bottomsheet");
-			if (sheet$31) {
-				sheet$31.style.transform = `translateY(${deltaY}px)`;
-			}
+			const sheet = this.shadowRoot?.querySelector(".bottomsheet");
+			if (sheet) sheet.style.transform = `translateY(${deltaY}px)`;
 		}
 	};
 	_handleMouseUp = () => {
 		if (!this._isDragging) return;
 		this._isDragging = false;
 		const deltaY = this._currentY - this._startY;
-		const sheet$31 = this.shadowRoot?.querySelector(".bottomsheet");
-		if (sheet$31) {
-			sheet$31.classList.remove("dragging");
-			sheet$31.style.transform = "";
+		const sheet = this.shadowRoot?.querySelector(".bottomsheet");
+		if (sheet) {
+			sheet.classList.remove("dragging");
+			sheet.style.transform = "";
 		}
 		document.removeEventListener("mousemove", this._handleMouseMove);
 		document.removeEventListener("mouseup", this._handleMouseUp);
 		const threshold = this._sheetHeight * .25;
-		if (!this.persistent && deltaY > threshold) {
-			this.hide();
-		} else if (this._parsedSnapPoints.length > 1) {
-			this._snapToNearestPoint(deltaY);
-		}
+		if (!this.persistent && deltaY > threshold) this.hide();
+		else if (this._parsedSnapPoints.length > 1) this._snapToNearestPoint(deltaY);
 		this._startY = 0;
 		this._currentY = 0;
 	};
@@ -4158,10 +3384,8 @@ var ElDmBottomSheet = class extends BaseElement {
 		if (nearestIndex !== this._currentSnapIndex) {
 			this._currentSnapIndex = nearestIndex;
 			const snapHeight = this._parsedSnapPoints[nearestIndex];
-			const sheet$31 = this.shadowRoot?.querySelector(".bottomsheet");
-			if (sheet$31) {
-				sheet$31.style.height = `${snapHeight}vh`;
-			}
+			const sheet = this.shadowRoot?.querySelector(".bottomsheet");
+			if (sheet) sheet.style.height = `${snapHeight}vh`;
 			this.emit("snap", {
 				height: `${snapHeight}%`,
 				index: nearestIndex
@@ -4176,18 +3400,13 @@ var ElDmBottomSheet = class extends BaseElement {
 		document.body.style.overflow = "hidden";
 		if (this._parsedSnapPoints.length > 0) {
 			this._currentSnapIndex = this._parsedSnapPoints.length - 1;
-			const sheet$31 = this.shadowRoot?.querySelector(".bottomsheet");
-			if (sheet$31) {
-				sheet$31.style.height = `${this._parsedSnapPoints[this._currentSnapIndex]}vh`;
-			}
+			const sheet = this.shadowRoot?.querySelector(".bottomsheet");
+			if (sheet) sheet.style.height = `${this._parsedSnapPoints[this._currentSnapIndex]}vh`;
 		}
 		this.emit("open");
-		if (this.modal) {
-			requestAnimationFrame(() => {
-				const sheet$31 = this.shadowRoot?.querySelector(".bottomsheet");
-				sheet$31?.focus();
-			});
-		}
+		if (this.modal) requestAnimationFrame(() => {
+			(this.shadowRoot?.querySelector(".bottomsheet"))?.focus();
+		});
 	}
 	hide() {
 		this.open = false;
@@ -4237,23 +3456,22 @@ var ElDmBottomSheet = class extends BaseElement {
 			this._attachListeners();
 		}
 		const wrapper = this.shadowRoot.querySelector(".bottomsheet-wrapper");
-		const sheet$31 = this.shadowRoot.querySelector(".bottomsheet");
+		const sheet = this.shadowRoot.querySelector(".bottomsheet");
 		const backdrop = this.shadowRoot.querySelector(".bottomsheet-backdrop");
 		if (this.open) {
 			wrapper?.classList.add("open");
 			requestAnimationFrame(() => {
-				sheet$31?.classList.add("show");
+				sheet?.classList.add("show");
 				backdrop?.classList.add("show");
 			});
 		} else {
 			wrapper?.classList.remove("open");
-			sheet$31?.classList.remove("show");
+			sheet?.classList.remove("show");
 			backdrop?.classList.remove("show");
 		}
 	}
 	_attachListeners() {
-		const backdrop = this.shadowRoot?.querySelector(".bottomsheet-backdrop");
-		backdrop?.addEventListener("click", this._handleBackdropClick);
+		(this.shadowRoot?.querySelector(".bottomsheet-backdrop"))?.addEventListener("click", this._handleBackdropClick);
 		const handleArea = this.shadowRoot?.querySelector(".bottomsheet-handle");
 		handleArea?.addEventListener("touchstart", this._handleTouchStart, { passive: false });
 		handleArea?.addEventListener("touchmove", this._handleTouchMove, { passive: false });
@@ -4262,15 +3480,12 @@ var ElDmBottomSheet = class extends BaseElement {
 	}
 };
 function register$34() {
-	if (!customElements.get("el-dm-bottom-sheet")) {
-		customElements.define("el-dm-bottom-sheet", ElDmBottomSheet);
-	}
+	if (!customElements.get("el-dm-bottom-sheet")) customElements.define("el-dm-bottom-sheet", ElDmBottomSheet);
 }
 register$34();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/navigation.js
-const css$4 = `/**
+const css$24 = `/**
  * Navigation Component Styles
  * DuskMoonUI - Material Design 3 inspired navigation system
  */
@@ -5007,15 +4222,8 @@ const css$4 = `/**
   }
 }
 `;
-const sheet$24 = new CSSStyleSheet();
-sheet$24.replaceSync(css$4);
-const styles$57 = sheet$24;
-var navigation_default = sheet$24;
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-breadcrumbs/dist/esm/register.js
-var coreStyles$27 = css$4.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$56 = css`
+new CSSStyleSheet().replaceSync(css$24);
+var styles$56 = css$31`
   :host {
     display: block;
   }
@@ -5025,7 +4233,7 @@ var styles$56 = css`
   }
 
   /* Import core navigation styles */
-  ${coreStyles$27}
+  ${css$24.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   .breadcrumbs-nav {
     font-family: inherit;
@@ -5090,19 +4298,14 @@ var ElDmBreadcrumbs = class extends BaseElement {
 	}
 	_handleClick(event, item, index) {
 		event.preventDefault();
-		const notCancelled = this.emit("navigate", {
+		if (this.emit("navigate", {
 			item,
 			index
-		});
-		if (notCancelled && item.href) {
-			window.location.href = item.href;
-		}
+		}) && item.href) window.location.href = item.href;
 	}
 	_getSeparatorHtml() {
 		const slottedSeparator = this.querySelector("[slot=\"separator\"]");
-		if (slottedSeparator) {
-			return slottedSeparator.outerHTML.replace("slot=\"separator\"", "");
-		}
+		if (slottedSeparator) return slottedSeparator.outerHTML.replace("slot=\"separator\"", "");
 		return this.separator || "/";
 	}
 	_escapeHtml(text) {
@@ -5113,11 +4316,13 @@ var ElDmBreadcrumbs = class extends BaseElement {
 	render() {
 		const itemsArray = Array.isArray(this.items) ? this.items : [];
 		const separatorHtml = this._getSeparatorHtml();
-		const itemsHtml = itemsArray.map((item, index) => {
+		return `
+      <nav class="breadcrumbs-nav" part="nav" aria-label="Breadcrumb">
+        <ol class="breadcrumbs" part="list">
+          ${itemsArray.map((item, index) => {
 			const isLast = index === itemsArray.length - 1;
 			const escapedLabel = this._escapeHtml(item.label);
-			if (isLast) {
-				return `
+			if (isLast) return `
             <li class="breadcrumb-item" part="item">
               <span
                 class="breadcrumb-item-active"
@@ -5126,7 +4331,6 @@ var ElDmBreadcrumbs = class extends BaseElement {
               >${escapedLabel}</span>
             </li>
           `;
-			}
 			return `
           <li class="breadcrumb-item" part="item">
             <a
@@ -5138,11 +4342,7 @@ var ElDmBreadcrumbs = class extends BaseElement {
             <span class="breadcrumb-separator" part="separator" aria-hidden="true">${separatorHtml}</span>
           </li>
         `;
-		}).join("");
-		return `
-      <nav class="breadcrumbs-nav" part="nav" aria-label="Breadcrumb">
-        <ol class="breadcrumbs" part="list">
-          ${itemsHtml}
+		}).join("")}
         </ol>
         <slot name="separator"></slot>
       </nav>
@@ -5150,26 +4350,20 @@ var ElDmBreadcrumbs = class extends BaseElement {
 	}
 	update() {
 		super.update();
-		const links = this.shadowRoot?.querySelectorAll(".breadcrumb-link");
-		links?.forEach((link) => {
+		(this.shadowRoot?.querySelectorAll(".breadcrumb-link"))?.forEach((link) => {
 			const index = parseInt(link.getAttribute("data-index") || "0", 10);
 			const item = this.items[index];
-			if (item) {
-				link.addEventListener("click", (e) => this._handleClick(e, item, index));
-			}
+			if (item) link.addEventListener("click", (e) => this._handleClick(e, item, index));
 		});
 	}
 };
 function register$33() {
-	if (!customElements.get("el-dm-breadcrumbs")) {
-		customElements.define("el-dm-breadcrumbs", ElDmBreadcrumbs);
-	}
+	if (!customElements.get("el-dm-breadcrumbs")) customElements.define("el-dm-breadcrumbs", ElDmBreadcrumbs);
 }
 register$33();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/button.js
-const css$25 = `/**
+const css$23 = `/**
  * Button Component Styles
  * DuskMoonUI - Material Design 3 inspired button system
  */
@@ -5697,11 +4891,7 @@ const css$25 = `/**
   }
 }
 `;
-const sheet$23 = new CSSStyleSheet();
-sheet$23.replaceSync(css$25);
-const styles$55 = sheet$23;
-var button_default = sheet$23;
-
+new CSSStyleSheet().replaceSync(css$23);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-button/dist/esm/register.js
 var VARIANT_CLASSES$2 = {
@@ -5721,8 +4911,7 @@ var SIZE_CLASSES$8 = {
 	md: "btn-md",
 	lg: "btn-lg"
 };
-var coreStyles$26 = css$25.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$54 = css`
+var styles$54 = css$31`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -5733,7 +4922,7 @@ var styles$54 = css`
   }
 
   /* Import core button styles */
-  ${coreStyles$26}
+  ${css$23.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Web component specific adjustments */
   .btn {
@@ -5787,14 +4976,10 @@ var ElDmButton = class extends BaseElement {
 		}
 		if (this.type === "submit") {
 			const form = this._getAssociatedForm();
-			if (form) {
-				form.requestSubmit();
-			}
+			if (form) form.requestSubmit();
 		} else if (this.type === "reset") {
 			const form = this._getAssociatedForm();
-			if (form) {
-				form.reset();
-			}
+			if (form) form.reset();
 		}
 	}
 	_getAssociatedForm() {
@@ -5813,20 +4998,15 @@ var ElDmButton = class extends BaseElement {
 		const classes = ["btn"];
 		const variantClass = VARIANT_CLASSES$2[this.variant] || "btn-primary";
 		classes.push(variantClass);
-		if (this.size && SIZE_CLASSES$8[this.size]) {
-			classes.push(SIZE_CLASSES$8[this.size]);
-		}
-		if (this.loading) {
-			classes.push("btn-loading");
-		}
+		if (this.size && SIZE_CLASSES$8[this.size]) classes.push(SIZE_CLASSES$8[this.size]);
+		if (this.loading) classes.push("btn-loading");
 		return classes.join(" ");
 	}
 	render() {
 		const isDisabled = this.disabled || this.loading;
-		const buttonClasses = this._getButtonClasses();
 		return `
       <button
-        class="${buttonClasses}"
+        class="${this._getButtonClasses()}"
         part="button"
         type="${this.type || "button"}"
         ${isDisabled ? "disabled" : ""}
@@ -5842,15 +5022,12 @@ var ElDmButton = class extends BaseElement {
 	}
 };
 function register$32() {
-	if (!customElements.get("el-dm-button")) {
-		customElements.define("el-dm-button", ElDmButton);
-	}
+	if (!customElements.get("el-dm-button")) customElements.define("el-dm-button", ElDmButton);
 }
 register$32();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/card.js
-const css$24 = `/**
+const css$22 = `/**
  * Card Component Styles
  * DuskMoonUI - Material Design 3 inspired card system
  */
@@ -6114,11 +5291,7 @@ const css$24 = `/**
   }
 }
 `;
-const sheet$22 = new CSSStyleSheet();
-sheet$22.replaceSync(css$24);
-const styles$53 = sheet$22;
-var card_default = sheet$22;
-
+new CSSStyleSheet().replaceSync(css$22);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-card/dist/esm/register.js
 var VARIANT_CLASSES$1 = {
@@ -6126,8 +5299,7 @@ var VARIANT_CLASSES$1 = {
 	outlined: "card-bordered",
 	filled: ""
 };
-var coreStyles$25 = css$24.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$52 = css`
+var styles$52 = css$31`
   :host {
     display: block;
   }
@@ -6137,7 +5309,7 @@ var styles$52 = css`
   }
 
   /* Import core card styles */
-  ${coreStyles$25}
+  ${css$22.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Web component specific adjustments */
 
@@ -6210,20 +5382,16 @@ var ElDmCard = class extends BaseElement {
 	connectedCallback() {
 		super.connectedCallback();
 		this.shadowRoot.addEventListener("slotchange", this._handleSlotChange.bind(this));
-		if (this.interactive) {
-			this._setupInteractive();
-		}
+		if (this.interactive) this._setupInteractive();
 	}
 	_handleSlotChange(event) {
 		const slot = event.target;
-		const slotName = slot.name;
-		const wrapperMap = {
+		const wrapperClass = {
 			media: "card-image",
 			header: "card-header",
 			footer: "card-footer",
 			"": "card-body"
-		};
-		const wrapperClass = wrapperMap[slotName] || "card-body";
+		}[slot.name] || "card-body";
 		const wrapper = this.shadowRoot.querySelector(`.${wrapperClass}`);
 		if (wrapper) {
 			const hasContent = slot.assignedNodes().length > 0;
@@ -6245,21 +5413,14 @@ var ElDmCard = class extends BaseElement {
 	}
 	_getCardClasses() {
 		const classes = ["card"];
-		if (this.variant && VARIANT_CLASSES$1[this.variant]) {
-			classes.push(VARIANT_CLASSES$1[this.variant]);
-		}
-		if (this.interactive) {
-			classes.push("card-interactive");
-		}
-		if (this.padding === "sm") {
-			classes.push("card-compact");
-		}
+		if (this.variant && VARIANT_CLASSES$1[this.variant]) classes.push(VARIANT_CLASSES$1[this.variant]);
+		if (this.interactive) classes.push("card-interactive");
+		if (this.padding === "sm") classes.push("card-compact");
 		return classes.filter(Boolean).join(" ");
 	}
 	render() {
-		const cardClasses = this._getCardClasses();
 		return `
-      <div class="${cardClasses}" part="card"${!this.interactive ? " role=\"article\"" : ""}>
+      <div class="${this._getCardClasses()}" part="card"${!this.interactive ? " role=\"article\"" : ""}>
         <div class="card-image" part="media">
           <slot name="media"></slot>
         </div>
@@ -6277,15 +5438,12 @@ var ElDmCard = class extends BaseElement {
 	}
 };
 function register$31() {
-	if (!customElements.get("el-dm-card")) {
-		customElements.define("el-dm-card", ElDmCard);
-	}
+	if (!customElements.get("el-dm-card")) customElements.define("el-dm-card", ElDmCard);
 }
 register$31();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/cascader.js
-const css$23 = `/**
+const css$21 = `/**
  * Cascader Component Styles
  * DuskMoonUI - Multi-level dropdown selection with horizontal panels
  */
@@ -6754,11 +5912,7 @@ const css$23 = `/**
   }
 }
 `;
-const sheet$21 = new CSSStyleSheet();
-sheet$21.replaceSync(css$23);
-const styles$51 = sheet$21;
-var cascader_default = sheet$21;
-
+new CSSStyleSheet().replaceSync(css$21);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-cascader/dist/esm/register.js
 var chevronDownIcon$1 = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
@@ -6767,14 +5921,13 @@ var checkIcon$1 = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" s
 var closeIcon$1 = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`;
 var searchIcon$1 = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`;
 var loadingIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spinner"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
-var coreStyles$24 = css$23.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$50 = css`
+var styles$50 = css$31`
   :host {
     display: inline-block;
     width: 100%;
   }
 
-  ${coreStyles$24}
+  ${css$21.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Override: block display for full-width behavior */
   .cascader {
@@ -7093,7 +6246,7 @@ var ElDmCascader = class extends BaseElement {
 	_searchValue = "";
 	_activePath = [];
 	_selectedPaths = [];
-	_loadingKeys = new Set();
+	_loadingKeys = /* @__PURE__ */ new Set();
 	_options = [];
 	_loadDataFn = null;
 	_handleOutsideClick = this._onOutsideClick.bind(this);
@@ -7113,14 +6266,10 @@ var ElDmCascader = class extends BaseElement {
 		this._setupEventDelegation();
 	}
 	_parseOptionsFromAttribute() {
-		if (this.options) {
-			try {
-				const parsed = JSON.parse(this.options);
-				if (Array.isArray(parsed)) {
-					this._options = parsed;
-				}
-			} catch {}
-		}
+		if (this.options) try {
+			const parsed = JSON.parse(this.options);
+			if (Array.isArray(parsed)) this._options = parsed;
+		} catch {}
 	}
 	disconnectedCallback() {
 		super.disconnectedCallback();
@@ -7140,15 +6289,11 @@ var ElDmCascader = class extends BaseElement {
 		if (this._isOpen) {
 			const dropdown = this.shadowRoot?.querySelector(".cascader-dropdown");
 			const trigger = this.shadowRoot?.querySelector(".cascader-trigger");
-			if (dropdown && trigger) {
-				this._positionDropdown(dropdown, trigger);
-			}
+			if (dropdown && trigger) this._positionDropdown(dropdown, trigger);
 		}
 	}
 	_onResize() {
-		if (this._isOpen) {
-			this._close();
-		}
+		if (this._isOpen) this._close();
 	}
 	setOptions(options) {
 		this._options = options;
@@ -7164,11 +6309,8 @@ var ElDmCascader = class extends BaseElement {
 		}
 		try {
 			const parsed = JSON.parse(this.value);
-			if (this.multiple) {
-				this._selectedPaths = Array.isArray(parsed[0]) ? parsed : [parsed];
-			} else {
-				this._selectedPaths = Array.isArray(parsed) ? [parsed] : [];
-			}
+			if (this.multiple) this._selectedPaths = Array.isArray(parsed[0]) ? parsed : [parsed];
+			else this._selectedPaths = Array.isArray(parsed) ? [parsed] : [];
 		} catch {
 			this._selectedPaths = [];
 		}
@@ -7181,21 +6323,15 @@ var ElDmCascader = class extends BaseElement {
 			if (option?.children && option.children.length > 0) {
 				panels.push(option.children);
 				currentOptions = option.children;
-			} else {
-				break;
-			}
+			} else break;
 		}
 		return panels;
 	}
 	_getDisplayLabel() {
-		if (this._selectedPaths.length === 0) {
-			return "";
-		}
+		if (this._selectedPaths.length === 0) return "";
 		const path = this._selectedPaths[0];
 		const labels = this._getPathLabels(path);
-		if (this.showAllLevels) {
-			return labels.join(this.separator);
-		}
+		if (this.showAllLevels) return labels.join(this.separator);
 		return labels[labels.length - 1] || "";
 	}
 	_getPathLabels(path) {
@@ -7215,9 +6351,7 @@ var ElDmCascader = class extends BaseElement {
 		let option;
 		for (const value of path) {
 			option = currentOptions.find((o) => o.value === value);
-			if (option?.children) {
-				currentOptions = option.children;
-			}
+			if (option?.children) currentOptions = option.children;
 		}
 		return option;
 	}
@@ -7234,26 +6368,20 @@ var ElDmCascader = class extends BaseElement {
 				const newPath = [...path, option];
 				const newPathValues = [...pathValues, option.value];
 				if (option.label.toLowerCase().includes(search)) {
-					if (this._isLeaf(option) || this.changeOnSelect) {
-						results.push({
-							path: newPath,
-							pathLabels: newPath.map((o) => o.label),
-							pathValues: newPathValues
-						});
-					}
+					if (this._isLeaf(option) || this.changeOnSelect) results.push({
+						path: newPath,
+						pathLabels: newPath.map((o) => o.label),
+						pathValues: newPathValues
+					});
 				}
-				if (option.children) {
-					searchRecursive(option.children, newPath, newPathValues);
-				}
+				if (option.children) searchRecursive(option.children, newPath, newPathValues);
 			}
 		};
 		searchRecursive(this._options, [], []);
 		return results;
 	}
 	_onOutsideClick(e) {
-		if (!this.contains(e.target)) {
-			this._close();
-		}
+		if (!this.contains(e.target)) this._close();
 	}
 	_onKeyDown(e) {
 		if (!this._isOpen) {
@@ -7300,9 +6428,7 @@ var ElDmCascader = class extends BaseElement {
 				});
 			}
 			const searchInput = this.shadowRoot?.querySelector(".cascader-search-input");
-			if (searchInput) {
-				searchInput.focus();
-			}
+			if (searchInput) searchInput.focus();
 		});
 	}
 	_close() {
@@ -7311,11 +6437,9 @@ var ElDmCascader = class extends BaseElement {
 		this._activePath = [];
 		this._removeScrollListeners();
 		const dropdown = this.shadowRoot?.querySelector(".cascader-dropdown");
-		if (dropdown) {
-			try {
-				dropdown.hidePopover();
-			} catch {}
-		}
+		if (dropdown) try {
+			dropdown.hidePopover();
+		} catch {}
 		this.update();
 	}
 	_positionDropdown(dropdown, trigger) {
@@ -7325,39 +6449,27 @@ var ElDmCascader = class extends BaseElement {
 		let top = triggerRect.bottom + 4;
 		let left = triggerRect.left;
 		const dropdownRect = dropdown.getBoundingClientRect();
-		if (top + dropdownRect.height > viewportHeight && triggerRect.top > dropdownRect.height) {
-			top = triggerRect.top - dropdownRect.height - 4;
-		}
-		if (left + dropdownRect.width > viewportWidth) {
-			left = viewportWidth - dropdownRect.width - 8;
-		}
-		if (left < 8) {
-			left = 8;
-		}
+		if (top + dropdownRect.height > viewportHeight && triggerRect.top > dropdownRect.height) top = triggerRect.top - dropdownRect.height - 4;
+		if (left + dropdownRect.width > viewportWidth) left = viewportWidth - dropdownRect.width - 8;
+		if (left < 8) left = 8;
 		dropdown.style.top = `${top}px`;
 		dropdown.style.left = `${left}px`;
 		dropdown.style.minWidth = `${triggerRect.width}px`;
 	}
 	_toggle() {
-		if (this._isOpen) {
-			this._close();
-		} else {
-			this._open();
-		}
+		if (this._isOpen) this._close();
+		else this._open();
 	}
 	async _handleOptionClick(value, level) {
 		this._activePath = this._activePath.slice(0, level);
 		this._activePath.push(value);
 		const option = this._findOptionByPath(this._activePath);
-		if (!option) {
-			return;
-		}
+		if (!option) return;
 		if (this._loadDataFn && !option.children && !option.leaf) {
 			this._loadingKeys.add(value);
 			this.update();
 			try {
-				const children = await this._loadDataFn(option);
-				option.children = children;
+				option.children = await this._loadDataFn(option);
 			} finally {
 				this._loadingKeys.delete(value);
 			}
@@ -7369,9 +6481,7 @@ var ElDmCascader = class extends BaseElement {
 		const isLeaf = this._isLeaf(option);
 		if (isLeaf || this.changeOnSelect) {
 			this._selectPath([...this._activePath]);
-			if (isLeaf && !this.multiple) {
-				this._close();
-			}
+			if (isLeaf && !this.multiple) this._close();
 		}
 		this.update();
 	}
@@ -7381,19 +6491,14 @@ var ElDmCascader = class extends BaseElement {
 		this._activePath.push(value);
 		this.update();
 		const option = this._findOptionByPath(this._activePath);
-		if (option && this._loadDataFn && !option.children && !option.leaf) {
-			this._handleOptionClick(value, level);
-		}
+		if (option && this._loadDataFn && !option.children && !option.leaf) this._handleOptionClick(value, level);
 	}
 	_selectPath(path) {
 		if (this.multiple) {
 			const pathStr = JSON.stringify(path);
 			const index = this._selectedPaths.findIndex((p) => JSON.stringify(p) === pathStr);
-			if (index >= 0) {
-				this._selectedPaths.splice(index, 1);
-			} else {
-				this._selectedPaths.push(path);
-			}
+			if (index >= 0) this._selectedPaths.splice(index, 1);
+			else this._selectedPaths.push(path);
 			this.value = JSON.stringify(this._selectedPaths);
 		} else {
 			this._selectedPaths = [path];
@@ -7403,9 +6508,7 @@ var ElDmCascader = class extends BaseElement {
 	}
 	_selectSearchResult(result) {
 		this._selectPath(result.pathValues);
-		if (!this.multiple) {
-			this._close();
-		}
+		if (!this.multiple) this._close();
 		this.update();
 	}
 	_removeTag(pathIndex) {
@@ -7429,7 +6532,7 @@ var ElDmCascader = class extends BaseElement {
 		this.update();
 	}
 	_emitChange() {
-		const selectedOptions = this._selectedPaths.map((path) => this._findOptionByPath(path)).filter((o) => o !== undefined);
+		const selectedOptions = this._selectedPaths.map((path) => this._findOptionByPath(path)).filter((o) => o !== void 0);
 		this.emit("change", {
 			value: this.value,
 			selectedOptions,
@@ -7464,13 +6567,11 @@ var ElDmCascader = class extends BaseElement {
 	}
 	_renderValue() {
 		const displayLabel = this._getDisplayLabel();
-		if (!displayLabel) {
-			return `<span class="cascader-value cascader-placeholder">${this.placeholder}</span>`;
-		}
+		if (!displayLabel) return `<span class="cascader-value cascader-placeholder">${this.placeholder}</span>`;
 		return `<span class="cascader-value">${this._escapeHtml(displayLabel)}</span>`;
 	}
 	_renderTags() {
-		const tagsHtml = this._selectedPaths.map((path, index) => {
+		return `<div class="cascader-tags">${this._selectedPaths.map((path, index) => {
 			const labels = this._getPathLabels(path);
 			const displayLabel = this.showAllLevels ? labels.join(this.separator) : labels[labels.length - 1];
 			return `
@@ -7479,8 +6580,7 @@ var ElDmCascader = class extends BaseElement {
             <span class="cascader-tag-remove" role="button" tabindex="-1" data-action="remove-tag" data-index="${index}">${closeIcon$1}</span>
           </span>
         `;
-		}).join("");
-		return `<div class="cascader-tags">${tagsHtml || `<span class="cascader-placeholder">${this.placeholder}</span>`}</div>`;
+		}).join("") || `<span class="cascader-placeholder">${this.placeholder}</span>`}</div>`;
 	}
 	_renderDropdown() {
 		const showSearch = this.searchable && this._searchValue;
@@ -7507,9 +6607,7 @@ var ElDmCascader = class extends BaseElement {
 	}
 	_renderPanels() {
 		const panels = this._getPanels();
-		if (panels.length === 0 || panels[0].length === 0) {
-			return `<div class="cascader-empty">No options available</div>`;
-		}
+		if (panels.length === 0 || panels[0].length === 0) return `<div class="cascader-empty">No options available</div>`;
 		return `
       <div class="cascader-panels">
         ${panels.map((options, level) => this._renderPanel(options, level)).join("")}
@@ -7519,21 +6617,22 @@ var ElDmCascader = class extends BaseElement {
 	_renderPanel(options, level) {
 		const selectedValue = this._activePath[level];
 		const selectedPathValues = this._selectedPaths.flatMap((p) => p);
-		const optionsHtml = options.map((option) => {
+		return `
+      <div class="cascader-panel">
+        <div class="cascader-options">${options.map((option) => {
 			const isActive = option.value === selectedValue;
 			const isSelected = this.multiple ? selectedPathValues.includes(option.value) : JSON.stringify(this._selectedPaths[0]) === JSON.stringify([...this._activePath.slice(0, level), option.value]);
 			const isLoading = this._loadingKeys.has(option.value);
 			const hasChildren = !this._isLeaf(option);
-			const classes = [
+			return `
+          <button
+            type="button"
+            class="${[
 				"cascader-option",
 				isActive ? "cascader-option-active" : "",
 				isSelected ? "cascader-option-selected" : "",
 				option.disabled ? "cascader-option-disabled" : ""
-			].filter(Boolean).join(" ");
-			return `
-          <button
-            type="button"
-            class="${classes}"
+			].filter(Boolean).join(" ")}"
             data-action="option"
             data-value="${this._escapeHtml(option.value)}"
             data-level="${level}"
@@ -7545,20 +6644,15 @@ var ElDmCascader = class extends BaseElement {
             ${hasChildren && !isLoading ? `<span class="cascader-option-arrow">${chevronRightIcon$1}</span>` : ""}
           </button>
         `;
-		}).join("");
-		return `
-      <div class="cascader-panel">
-        <div class="cascader-options">${optionsHtml}</div>
+		}).join("")}</div>
       </div>
     `;
 	}
 	_renderSearchResults() {
 		const results = this._searchOptions();
-		if (results.length === 0) {
-			return `<div class="cascader-empty">No results found</div>`;
-		}
+		if (results.length === 0) return `<div class="cascader-empty">No results found</div>`;
 		const selectedPathStrs = this._selectedPaths.map((p) => JSON.stringify(p));
-		const resultsHtml = results.map((result) => {
+		return `<div class="cascader-search-results">${results.map((result) => {
 			const isSelected = selectedPathStrs.includes(JSON.stringify(result.pathValues));
 			const classes = ["cascader-search-result", isSelected ? "selected" : ""].filter(Boolean).join(" ");
 			const pathHtml = result.pathLabels.map((label, i) => {
@@ -7576,8 +6670,7 @@ var ElDmCascader = class extends BaseElement {
             <span class="cascader-search-result-path">${pathHtml}</span>
           </button>
         `;
-		}).join("");
-		return `<div class="cascader-search-results">${resultsHtml}</div>`;
+		}).join("")}</div>`;
 	}
 	_escapeHtml(str) {
 		const div = document.createElement("div");
@@ -7592,19 +6685,15 @@ var ElDmCascader = class extends BaseElement {
 		if (this._isOpen) {
 			const dropdown = this.shadowRoot?.querySelector(".cascader-dropdown");
 			const trigger = this.shadowRoot?.querySelector(".cascader-trigger");
-			if (dropdown && trigger) {
-				try {
-					dropdown.showPopover();
-					this._positionDropdown(dropdown, trigger);
-				} catch {}
-			}
+			if (dropdown && trigger) try {
+				dropdown.showPopover();
+				this._positionDropdown(dropdown, trigger);
+			} catch {}
 			if (hadFocus) {
 				const newSearchInput = this.shadowRoot?.querySelector(".cascader-search-input");
 				if (newSearchInput) {
 					newSearchInput.focus();
-					if (cursorPosition !== null) {
-						newSearchInput.setSelectionRange(cursorPosition, cursorPosition);
-					}
+					if (cursorPosition !== null) newSearchInput.setSelectionRange(cursorPosition, cursorPosition);
 				}
 			}
 		}
@@ -7612,8 +6701,7 @@ var ElDmCascader = class extends BaseElement {
 	_setupEventDelegation() {
 		this.shadowRoot?.addEventListener("click", (e) => {
 			const target = e.target;
-			const trigger = target.closest("[data-action=\"toggle\"]");
-			if (trigger && !target.closest("[data-action=\"clear\"]") && !target.closest("[data-action=\"remove-tag\"]")) {
+			if (target.closest("[data-action=\"toggle\"]") && !target.closest("[data-action=\"clear\"]") && !target.closest("[data-action=\"remove-tag\"]")) {
 				this._toggle();
 				return;
 			}
@@ -7632,55 +6720,42 @@ var ElDmCascader = class extends BaseElement {
 			if (option) {
 				const value = option.getAttribute("data-value");
 				const level = parseInt(option.getAttribute("data-level") || "0", 10);
-				if (value) {
-					this._handleOptionClick(value, level);
-				}
+				if (value) this._handleOptionClick(value, level);
 				return;
 			}
 			const searchResult = target.closest("[data-action=\"search-result\"]");
 			if (searchResult) {
 				const pathStr = searchResult.getAttribute("data-path");
-				if (pathStr) {
-					try {
-						const pathValues = JSON.parse(pathStr);
-						const result = {
-							pathValues,
-							path: [],
-							pathLabels: this._getPathLabels(pathValues)
-						};
-						this._selectSearchResult(result);
-					} catch {}
-				}
+				if (pathStr) try {
+					const pathValues = JSON.parse(pathStr);
+					const result = {
+						pathValues,
+						path: [],
+						pathLabels: this._getPathLabels(pathValues)
+					};
+					this._selectSearchResult(result);
+				} catch {}
 				return;
 			}
 		});
 		this.shadowRoot?.addEventListener("input", (e) => {
-			const target = e.target;
-			if (target.matches("[data-action=\"search\"]")) {
-				this._handleSearch(e);
-			}
+			if (e.target.matches("[data-action=\"search\"]")) this._handleSearch(e);
 		});
 		this.shadowRoot?.addEventListener("mouseenter", (e) => {
 			if (this.expandTrigger !== "hover") return;
-			const target = e.target;
-			const option = target.closest("[data-action=\"option\"]");
+			const option = e.target.closest("[data-action=\"option\"]");
 			if (option) {
 				const value = option.getAttribute("data-value");
 				const level = parseInt(option.getAttribute("data-level") || "0", 10);
-				if (value) {
-					this._handleOptionHover(value, level);
-				}
+				if (value) this._handleOptionHover(value, level);
 			}
 		}, true);
 	}
 };
 function register$30() {
-	if (!customElements.get("el-dm-cascader")) {
-		customElements.define("el-dm-cascader", ElDmCascader);
-	}
+	if (!customElements.get("el-dm-cascader")) customElements.define("el-dm-cascader", ElDmCascader);
 }
 register$30();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-chart/dist/esm/register.js
 var CHART_TYPES = new Set([
@@ -7711,7 +6786,7 @@ var CHART_VARIANTS = new Set([
 var DEFAULT_VIEWBOX_WIDTH = 320;
 var DEFAULT_VIEWBOX_HEIGHT = 180;
 var CHART_PADDING = 24;
-var styles$49 = css`
+var styles$49 = css$31`
   :host {
     display: block;
     width: 100%;
@@ -7895,9 +6970,9 @@ var ElDmChart = class extends BaseElement {
 		const parsed = parseJson(this.options);
 		if (!isRecord(parsed)) return {};
 		return {
-			height: typeof parsed.height === "number" && parsed.height > 0 ? parsed.height : undefined,
-			showLegend: typeof parsed.showLegend === "boolean" ? parsed.showLegend : undefined,
-			showValues: typeof parsed.showValues === "boolean" ? parsed.showValues : undefined
+			height: typeof parsed.height === "number" && parsed.height > 0 ? parsed.height : void 0,
+			showLegend: typeof parsed.showLegend === "boolean" ? parsed.showLegend : void 0,
+			showValues: typeof parsed.showValues === "boolean" ? parsed.showValues : void 0
 		};
 	}
 	_getData() {
@@ -7980,16 +7055,14 @@ var ElDmChart = class extends BaseElement {
 		const centerX = width / 2;
 		const centerY = height / 2;
 		let startAngle = -90;
-		const slices = values.map((value, index) => {
-			const sliceValue = Math.max(0, value);
-			const angle = total > 0 ? sliceValue / total * 360 : 0;
+		return `
+      <svg part="svg" role="img" viewBox="0 0 ${width} ${height}" aria-label="Pie chart">
+        ${values.map((value, index) => {
+			const angle = total > 0 ? Math.max(0, value) / total * 360 : 0;
 			const path = describeArc(centerX, centerY, radius, startAngle, startAngle + angle);
 			startAngle += angle;
 			return `<path class="slice" d="${path}" fill="currentColor" opacity="${getSliceOpacity(index)}"></path>`;
-		}).join("");
-		return `
-      <svg part="svg" role="img" viewBox="0 0 ${width} ${height}" aria-label="Pie chart">
-        ${slices}
+		}).join("")}
       </svg>
     `;
 	}
@@ -8011,10 +7084,7 @@ var ElDmChart = class extends BaseElement {
 	render() {
 		const data = this._getData();
 		const options = this._getOptions();
-		const values = data.datasets[0]?.data ?? [];
-		if (values.length === 0) {
-			return `<div class="${this._getClasses()}" part="chart"><div class="empty">No chart data</div></div>`;
-		}
+		if ((data.datasets[0]?.data ?? []).length === 0) return `<div class="${this._getClasses()}" part="chart"><div class="empty">No chart data</div></div>`;
 		const chart = this._getType() === "line" ? this._renderLineChart(data, options) : this._getType() === "pie" ? this._renderPieChart(data, options) : this._renderBarChart(data, options);
 		return `
       <div class="${this._getClasses()}" part="chart">
@@ -8040,25 +7110,21 @@ function normalizeChartData(value) {
 			datasets: [{ data: values2 }]
 		};
 	}
-	if (!isRecord(value)) {
-		return {
-			labels: [],
-			datasets: []
-		};
-	}
+	if (!isRecord(value)) return {
+		labels: [],
+		datasets: []
+	};
 	const labels = Array.isArray(value.labels) ? value.labels.filter(isString) : [];
 	const values = Array.isArray(value.values) ? value.values.filter(isFiniteNumber) : Array.isArray(value.data) ? value.data.filter(isFiniteNumber) : [];
-	if (values.length > 0) {
-		return {
-			labels: normalizeLabels(labels, values.length),
-			datasets: [{ data: values }]
-		};
-	}
+	if (values.length > 0) return {
+		labels: normalizeLabels(labels, values.length),
+		datasets: [{ data: values }]
+	};
 	if (Array.isArray(value.datasets)) {
 		const datasets = value.datasets.filter(isRecord).map((dataset) => ({
-			label: typeof dataset.label === "string" ? dataset.label : undefined,
+			label: typeof dataset.label === "string" ? dataset.label : void 0,
 			data: Array.isArray(dataset.data) ? dataset.data.filter(isFiniteNumber) : [],
-			color: typeof dataset.color === "string" ? dataset.color : undefined
+			color: typeof dataset.color === "string" ? dataset.color : void 0
 		})).filter((dataset) => dataset.data.length > 0);
 		return {
 			labels: normalizeLabels(labels, datasets[0]?.data.length ?? 0),
@@ -8110,15 +7176,12 @@ function escapeHtml(value) {
 	return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 function register$29() {
-	if (!customElements.get("el-dm-chart")) {
-		customElements.define("el-dm-chart", ElDmChart);
-	}
+	if (!customElements.get("el-dm-chart")) customElements.define("el-dm-chart", ElDmChart);
 }
 register$29();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/chip.js
-const css$22 = `/**
+const css$20 = `/**
  * Chip Component Styles
  * DuskMoonUI - Material Design 3 inspired chip system
  */
@@ -8452,11 +7515,7 @@ const css$22 = `/**
   }
 }
 `;
-const sheet$20 = new CSSStyleSheet();
-sheet$20.replaceSync(css$22);
-const styles$48 = sheet$20;
-var chip_default = sheet$20;
-
+new CSSStyleSheet().replaceSync(css$20);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-chip/dist/esm/register.js
 var VARIANT_CLASSES = {
@@ -8478,8 +7537,7 @@ var SIZE_CLASSES$7 = {
 	md: "",
 	lg: "chip-lg"
 };
-var coreStyles$23 = css$22.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$47 = css`
+var styles$47 = css$31`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -8489,7 +7547,7 @@ var styles$47 = css`
     display: none !important;
   }
 
-  ${coreStyles$23}
+  ${css$20.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   .chip {
     font-family: inherit;
@@ -8641,62 +7699,43 @@ var ElDmChip = class extends BaseElement {
 	}
 	_handleDelete(event) {
 		event.stopPropagation();
-		if (!this.disabled) {
-			this.emit("delete");
-		}
+		if (!this.disabled) this.emit("delete");
 	}
 	_handleClick() {
-		if (!this.disabled) {
-			this.emit("click");
-		}
+		if (!this.disabled) this.emit("click");
 	}
 	_getChipClasses() {
 		const classes = ["chip"];
-		if (this.variant && VARIANT_CLASSES[this.variant]) {
-			classes.push(VARIANT_CLASSES[this.variant]);
-		}
-		if (this.color && COLOR_CLASSES$5[this.color]) {
-			classes.push(COLOR_CLASSES$5[this.color]);
-		}
-		if (this.size && SIZE_CLASSES$7[this.size]) {
-			classes.push(SIZE_CLASSES$7[this.size]);
-		}
-		if (this.selected) {
-			classes.push("chip-selected");
-		}
+		if (this.variant && VARIANT_CLASSES[this.variant]) classes.push(VARIANT_CLASSES[this.variant]);
+		if (this.color && COLOR_CLASSES$5[this.color]) classes.push(COLOR_CLASSES$5[this.color]);
+		if (this.size && SIZE_CLASSES$7[this.size]) classes.push(SIZE_CLASSES$7[this.size]);
+		if (this.selected) classes.push("chip-selected");
 		return classes.join(" ");
 	}
 	render() {
-		const chipClasses = this._getChipClasses();
-		const deleteIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>`;
 		return `
-      <span class="${chipClasses}" part="chip" role="${this.getAttribute("role") || "button"}" tabindex="0"${this.selected ? " aria-selected=\"true\"" : ""}>
+      <span class="${this._getChipClasses()}" part="chip" role="${this.getAttribute("role") || "button"}" tabindex="0"${this.selected ? " aria-selected=\"true\"" : ""}>
         <span class="chip-icon" part="icon">
           <slot name="icon"></slot>
         </span>
         <slot></slot>
-        ${this.deletable ? `<span class="chip-delete" part="delete">${deleteIcon}</span>` : ""}
+        ${this.deletable ? `<span class="chip-delete" part="delete"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></span>` : ""}
       </span>
     `;
 	}
 	update() {
 		super.update();
-		const chip = this.shadowRoot?.querySelector(".chip");
-		chip?.addEventListener("click", this._handleClick.bind(this));
-		const deleteBtn = this.shadowRoot?.querySelector(".chip-delete");
-		deleteBtn?.addEventListener("click", this._handleDelete.bind(this));
+		(this.shadowRoot?.querySelector(".chip"))?.addEventListener("click", this._handleClick.bind(this));
+		(this.shadowRoot?.querySelector(".chip-delete"))?.addEventListener("click", this._handleDelete.bind(this));
 	}
 };
 function register$28() {
-	if (!customElements.get("el-dm-chip")) {
-		customElements.define("el-dm-chip", ElDmChip);
-	}
+	if (!customElements.get("el-dm-chip")) customElements.define("el-dm-chip", ElDmChip);
 }
 register$28();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/circle-menu.js
-const css$21 = `/**
+const css$19 = `/**
  * Circle Menu Component Styles
  * DuskMoonUI - Radial circular navigation menu with CSS-only checkbox toggle
  *
@@ -9021,11 +8060,7 @@ const css$21 = `/**
   }
 }
 `;
-const sheet$19 = new CSSStyleSheet();
-sheet$19.replaceSync(css$21);
-const styles$46 = sheet$19;
-var circle_menu_default = sheet$19;
-
+new CSSStyleSheet().replaceSync(css$19);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-circle-menu/dist/esm/register.js
 var COLOR_CLASSES$4 = {
@@ -9042,8 +8077,7 @@ var SIZE_CLASSES$6 = {
 	md: "",
 	lg: "circle-menu-lg"
 };
-var coreStyles$22 = css$21.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$45 = css`
+var styles$45 = css$31`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -9053,7 +8087,7 @@ var styles$45 = css`
     display: none !important;
   }
 
-  ${coreStyles$22}
+  ${css$19.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   .circle-menu {
     font-family: inherit;
@@ -9087,18 +8121,13 @@ var ElDmCircleMenu = class extends BaseElement {
 	}
 	_getContainerClasses() {
 		const classes = ["circle-menu"];
-		if (this.color && COLOR_CLASSES$4[this.color]) {
-			classes.push(COLOR_CLASSES$4[this.color]);
-		}
-		if (this.size && SIZE_CLASSES$6[this.size]) {
-			classes.push(SIZE_CLASSES$6[this.size]);
-		}
+		if (this.color && COLOR_CLASSES$4[this.color]) classes.push(COLOR_CLASSES$4[this.color]);
+		if (this.size && SIZE_CLASSES$6[this.size]) classes.push(SIZE_CLASSES$6[this.size]);
 		return classes.join(" ");
 	}
 	render() {
-		const classes = this._getContainerClasses();
 		return `
-      <nav class="${classes}" part="container">
+      <nav class="${this._getContainerClasses()}" part="container">
         <input
           type="checkbox"
           class="circle-menu-toggler"
@@ -9120,14 +8149,11 @@ var ElDmCircleMenu = class extends BaseElement {
 	}
 	connectedCallback() {
 		super.connectedCallback();
-		const slot = this.shadowRoot?.querySelector("slot");
-		slot?.addEventListener("slotchange", () => this.#syncItems());
+		(this.shadowRoot?.querySelector("slot"))?.addEventListener("slotchange", () => this.#syncItems());
 	}
 	#syncCheckbox() {
 		const checkbox = this.shadowRoot?.querySelector(".circle-menu-toggler");
-		if (checkbox && checkbox.checked !== this.open) {
-			checkbox.checked = this.open;
-		}
+		if (checkbox && checkbox.checked !== this.open) checkbox.checked = this.open;
 	}
 	#syncItems() {
 		const list = this.shadowRoot?.querySelector(".circle-menu-list");
@@ -9170,15 +8196,12 @@ var ElDmCircleMenu = class extends BaseElement {
 	}
 };
 function register$27() {
-	if (!customElements.get("el-dm-circle-menu")) {
-		customElements.define("el-dm-circle-menu", ElDmCircleMenu);
-	}
+	if (!customElements.get("el-dm-circle-menu")) customElements.define("el-dm-circle-menu", ElDmCircleMenu);
 }
 register$27();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-code-block/dist/esm/register.js
-var styles$44 = css`
+var styles$44 = css$31`
   :host {
     display: block;
   }
@@ -9336,14 +8359,11 @@ var ElDmCodeBlock = class extends BaseElement {
 	connectedCallback() {
 		super.connectedCallback();
 		this.shadowRoot?.addEventListener("click", (e) => {
-			if (e.target?.closest(".copy-button")) {
-				this._handleCopy();
-			}
+			if (e.target?.closest(".copy-button")) this._handleCopy();
 		});
 	}
 	_renderHeader() {
-		const hasHeader = this.title || this.language || this.copyable;
-		if (!hasHeader) return "";
+		if (!(this.title || this.language || this.copyable)) return "";
 		return `
       <div class="code-header" part="header">
         ${this.title ? `<span class="code-title">${this.title}</span>` : ""}
@@ -9367,15 +8387,12 @@ var ElDmCodeBlock = class extends BaseElement {
 	}
 };
 function register$26() {
-	if (!customElements.get("el-dm-code-block")) {
-		customElements.define("el-dm-code-block", ElDmCodeBlock);
-	}
+	if (!customElements.get("el-dm-code-block")) customElements.define("el-dm-code-block", ElDmCodeBlock);
 }
 register$26();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/datepicker.js
-const css$20 = `/**
+const css$18 = `/**
  * Datepicker Component Styles
  * DuskMoonUI - Material Design 3 inspired datepicker system
  */
@@ -10190,16 +9207,9 @@ const css$20 = `/**
   }
 }
 `;
-const sheet$18 = new CSSStyleSheet();
-sheet$18.replaceSync(css$20);
-const styles$43 = sheet$18;
-var datepicker_default = sheet$18;
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-datepicker/dist/esm/register.js
-var strippedCss = css$20.replace(/@layer\s+components\s*\{/, "").replace(/\}[\s]*$/, "");
-var styles$42 = css`
-  ${strippedCss}
+new CSSStyleSheet().replaceSync(css$18);
+var styles$42 = css$31`
+  ${css$18.replace(/@layer\s+components\s*\{/, "").replace(/\}[\s]*$/, "")}
 
   :host {
     display: block;
@@ -10345,7 +9355,7 @@ var ElDmDatepicker = class extends BaseElement {
 	};
 	_isOpen = false;
 	_viewMode = "days";
-	_viewDate = new Date();
+	_viewDate = /* @__PURE__ */ new Date();
 	_selectedDate = null;
 	_rangeStart = null;
 	_rangeEnd = null;
@@ -10405,13 +9415,13 @@ var ElDmDatepicker = class extends BaseElement {
 				return;
 			}
 			const monthBtn = target.closest(".datepicker-month");
-			if (monthBtn && monthBtn.dataset.month !== undefined) {
+			if (monthBtn && monthBtn.dataset.month !== void 0) {
 				e.stopPropagation();
 				this._selectMonth(parseInt(monthBtn.dataset.month, 10));
 				return;
 			}
 			const yearBtn = target.closest(".datepicker-year");
-			if (yearBtn && yearBtn.dataset.year !== undefined) {
+			if (yearBtn && yearBtn.dataset.year !== void 0) {
 				e.stopPropagation();
 				this._selectYear(parseInt(yearBtn.dataset.year, 10));
 				return;
@@ -10430,11 +9440,8 @@ var ElDmDatepicker = class extends BaseElement {
 			if (target.classList.contains("datepicker-time-input")) {
 				const type = target.dataset.time;
 				const value = parseInt(target.value, 10);
-				if (type === "hours") {
-					this._hours = Math.max(1, Math.min(12, value || 12));
-				} else if (type === "minutes") {
-					this._minutes = Math.max(0, Math.min(59, value || 0));
-				}
+				if (type === "hours") this._hours = Math.max(1, Math.min(12, value || 12));
+				else if (type === "minutes") this._minutes = Math.max(0, Math.min(59, value || 0));
 				this._updateValue();
 				this.update();
 			}
@@ -10443,17 +9450,11 @@ var ElDmDatepicker = class extends BaseElement {
 		this.shadowRoot?.addEventListener("change", this._delegatedChangeHandler);
 	}
 	_removeEventDelegation() {
-		if (this._delegatedClickHandler) {
-			this.shadowRoot?.removeEventListener("click", this._delegatedClickHandler);
-		}
-		if (this._delegatedChangeHandler) {
-			this.shadowRoot?.removeEventListener("change", this._delegatedChangeHandler);
-		}
+		if (this._delegatedClickHandler) this.shadowRoot?.removeEventListener("click", this._delegatedClickHandler);
+		if (this._delegatedChangeHandler) this.shadowRoot?.removeEventListener("change", this._delegatedChangeHandler);
 	}
 	_handleOutsideClick = (e) => {
-		if (!this.contains(e.target)) {
-			this._close();
-		}
+		if (!this.contains(e.target)) this._close();
 	};
 	_parseValue() {
 		if (!this.value) return;
@@ -10461,9 +9462,7 @@ var ElDmDatepicker = class extends BaseElement {
 			const [start, end] = this.value.split(" - ");
 			if (start) this._rangeStart = new Date(start);
 			if (end) this._rangeEnd = new Date(end);
-			if (this._rangeStart) {
-				this._viewDate = new Date(this._rangeStart);
-			}
+			if (this._rangeStart) this._viewDate = new Date(this._rangeStart);
 		} else {
 			const date = new Date(this.value);
 			if (!isNaN(date.getTime())) {
@@ -10507,34 +9506,23 @@ var ElDmDatepicker = class extends BaseElement {
 			this._scrollHandler = null;
 		}
 		const dropdown = this.shadowRoot?.querySelector(".datepicker-dropdown");
-		if (dropdown) {
-			try {
-				dropdown.hidePopover();
-			} catch {}
-		}
+		if (dropdown) try {
+			dropdown.hidePopover();
+		} catch {}
 		this.update();
 	}
 	_toggle() {
-		if (this._isOpen) {
-			this._close();
-		} else {
-			this._open();
-		}
+		if (this._isOpen) this._close();
+		else this._open();
 	}
 	_positionDropdown(dropdown, trigger) {
 		const triggerRect = trigger.getBoundingClientRect();
 		const dropdownRect = dropdown.getBoundingClientRect();
 		let top = triggerRect.bottom + 4;
 		let left = triggerRect.left;
-		if (top + dropdownRect.height > window.innerHeight) {
-			top = triggerRect.top - dropdownRect.height - 4;
-		}
-		if (left + dropdownRect.width > window.innerWidth) {
-			left = window.innerWidth - dropdownRect.width - 8;
-		}
-		if (left < 8) {
-			left = 8;
-		}
+		if (top + dropdownRect.height > window.innerHeight) top = triggerRect.top - dropdownRect.height - 4;
+		if (left + dropdownRect.width > window.innerWidth) left = window.innerWidth - dropdownRect.width - 8;
+		if (left < 8) left = 8;
 		dropdown.style.top = `${top}px`;
 		dropdown.style.left = `${left}px`;
 	}
@@ -10553,11 +9541,8 @@ var ElDmDatepicker = class extends BaseElement {
 	}
 	_getDisplayValue() {
 		if (this.range) {
-			if (this._rangeStart && this._rangeEnd) {
-				return `${this._formatDate(this._rangeStart)} - ${this._formatDate(this._rangeEnd)}`;
-			} else if (this._rangeStart) {
-				return this._formatDate(this._rangeStart);
-			}
+			if (this._rangeStart && this._rangeEnd) return `${this._formatDate(this._rangeStart)} - ${this._formatDate(this._rangeEnd)}`;
+			else if (this._rangeStart) return this._formatDate(this._rangeStart);
 			return "";
 		}
 		return this._formatDate(this._selectedDate);
@@ -10594,17 +9579,15 @@ var ElDmDatepicker = class extends BaseElement {
 	}
 	_isDateDisabled(date) {
 		if (this.minDate) {
-			const min = new Date(this.minDate);
-			if (date < min) return true;
+			if (date < new Date(this.minDate)) return true;
 		}
 		if (this.maxDate) {
-			const max = new Date(this.maxDate);
-			if (date > max) return true;
+			if (date > new Date(this.maxDate)) return true;
 		}
 		return false;
 	}
 	_isToday(date) {
-		const today = new Date();
+		const today = /* @__PURE__ */ new Date();
 		return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
 	}
 	_isSelected(date) {
@@ -10634,38 +9617,28 @@ var ElDmDatepicker = class extends BaseElement {
 	}
 	_selectDate(date) {
 		if (this._isDateDisabled(date)) return;
-		if (this.range) {
-			if (!this._rangeStart || this._rangeStart && this._rangeEnd) {
-				this._rangeStart = date;
-				this._rangeEnd = null;
-			} else {
-				if (date < this._rangeStart) {
-					this._rangeEnd = this._rangeStart;
-					this._rangeStart = date;
-				} else {
-					this._rangeEnd = date;
-				}
-				this._updateValue();
-				if (!this.showTime) {
-					this._close();
-				}
-			}
+		if (this.range) if (!this._rangeStart || this._rangeStart && this._rangeEnd) {
+			this._rangeStart = date;
+			this._rangeEnd = null;
 		} else {
+			if (date < this._rangeStart) {
+				this._rangeEnd = this._rangeStart;
+				this._rangeStart = date;
+			} else this._rangeEnd = date;
+			this._updateValue();
+			if (!this.showTime) this._close();
+		}
+		else {
 			this._selectedDate = date;
 			this._updateValue();
-			if (!this.showTime) {
-				this._close();
-			}
+			if (!this.showTime) this._close();
 		}
 		this.update();
 	}
 	_updateValue() {
 		if (this.range) {
-			if (this._rangeStart && this._rangeEnd) {
-				this.value = `${this._formatDate(this._rangeStart)} - ${this._formatDate(this._rangeEnd)}`;
-			} else if (this._rangeStart) {
-				this.value = this._formatDate(this._rangeStart);
-			}
+			if (this._rangeStart && this._rangeEnd) this.value = `${this._formatDate(this._rangeStart)} - ${this._formatDate(this._rangeEnd)}`;
+			else if (this._rangeStart) this.value = this._formatDate(this._rangeStart);
 		} else if (this._selectedDate) {
 			if (this.showTime) {
 				const hours24 = this._period === "PM" ? this._hours === 12 ? 12 : this._hours + 12 : this._hours === 12 ? 0 : this._hours;
@@ -10719,7 +9692,10 @@ var ElDmDatepicker = class extends BaseElement {
       </div>
       <div class="datepicker-days">
         ${days.map(({ date, isOtherMonth }) => {
-			const classes = [
+			return `
+            <button
+              type="button"
+              class="${[
 				"datepicker-day",
 				isOtherMonth ? "datepicker-day-other-month" : "",
 				this._isToday(date) ? "datepicker-day-today" : "",
@@ -10727,11 +9703,7 @@ var ElDmDatepicker = class extends BaseElement {
 				this._isInRange(date) ? "datepicker-day-in-range" : "",
 				this._isRangeStart(date) ? "datepicker-day-range-start" : "",
 				this._isRangeEnd(date) ? "datepicker-day-range-end" : ""
-			].filter(Boolean).join(" ");
-			return `
-            <button
-              type="button"
-              class="${classes}"
+			].filter(Boolean).join(" ")}"
               data-date="${date.toISOString()}"
               ${this._isDateDisabled(date) ? "disabled" : ""}
             >
@@ -10810,14 +9782,13 @@ var ElDmDatepicker = class extends BaseElement {
     `;
 	}
 	_renderHeader() {
-		const title = this._viewMode === "days" ? `${MONTHS[this._viewDate.getMonth()]} ${this._viewDate.getFullYear()}` : this._viewMode === "months" ? String(this._viewDate.getFullYear()) : `${this._viewDate.getFullYear() - 5} - ${this._viewDate.getFullYear() + 6}`;
 		return `
       <div class="datepicker-header">
         <div class="datepicker-nav">
           <button type="button" class="datepicker-nav-btn" data-nav="prev">&lt;</button>
         </div>
         <button type="button" class="datepicker-title" data-action="toggle-view">
-          ${title}
+          ${this._viewMode === "days" ? `${MONTHS[this._viewDate.getMonth()]} ${this._viewDate.getFullYear()}` : this._viewMode === "months" ? String(this._viewDate.getFullYear()) : `${this._viewDate.getFullYear() - 5} - ${this._viewDate.getFullYear() + 6}`}
         </button>
         <div class="datepicker-nav">
           <button type="button" class="datepicker-nav-btn" data-nav="next">&gt;</button>
@@ -10873,54 +9844,41 @@ var ElDmDatepicker = class extends BaseElement {
 		if (this._isOpen) {
 			const dropdown = this.shadowRoot?.querySelector(".datepicker-dropdown");
 			const trigger = this.shadowRoot?.querySelector(".datepicker-input");
-			if (dropdown && trigger) {
-				try {
-					dropdown.showPopover();
-					this._positionDropdown(dropdown, trigger);
-				} catch {}
-			}
+			if (dropdown && trigger) try {
+				dropdown.showPopover();
+				this._positionDropdown(dropdown, trigger);
+			} catch {}
 		}
 	}
 	_handlePrev = () => {
-		if (this._viewMode === "days") {
-			this._prevMonth();
-		} else if (this._viewMode === "months") {
-			this._prevYear();
-		} else {
+		if (this._viewMode === "days") this._prevMonth();
+		else if (this._viewMode === "months") this._prevYear();
+		else {
 			this._viewDate.setFullYear(this._viewDate.getFullYear() - 12);
 			this.update();
 		}
 	};
 	_handleNext = () => {
-		if (this._viewMode === "days") {
-			this._nextMonth();
-		} else if (this._viewMode === "months") {
-			this._nextYear();
-		} else {
+		if (this._viewMode === "days") this._nextMonth();
+		else if (this._viewMode === "months") this._nextYear();
+		else {
 			this._viewDate.setFullYear(this._viewDate.getFullYear() + 12);
 			this.update();
 		}
 	};
 	_handleToggleView = () => {
-		if (this._viewMode === "days") {
-			this._setViewMode("months");
-		} else if (this._viewMode === "months") {
-			this._setViewMode("years");
-		} else {
-			this._setViewMode("days");
-		}
+		if (this._viewMode === "days") this._setViewMode("months");
+		else if (this._viewMode === "months") this._setViewMode("years");
+		else this._setViewMode("days");
 	};
 };
 function register$25() {
-	if (!customElements.get("el-dm-datepicker")) {
-		customElements.define("el-dm-datepicker", ElDmDatepicker);
-	}
+	if (!customElements.get("el-dm-datepicker")) customElements.define("el-dm-datepicker", ElDmDatepicker);
 }
 register$25();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/dialog.js
-const css$19 = `/**
+const css$17 = `/**
  * Dialog Component Styles
  * DuskMoonUI - Material Design 3 inspired dialog system
  * Uses native HTML <dialog> element for accessibility and built-in functionality
@@ -11094,11 +10052,7 @@ const css$19 = `/**
   }
 }
 `;
-const sheet$17 = new CSSStyleSheet();
-sheet$17.replaceSync(css$19);
-const styles$41 = sheet$17;
-var dialog_default = sheet$17;
-
+new CSSStyleSheet().replaceSync(css$17);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-dialog/dist/esm/register.js
 var SIZE_CLASSES$5 = {
@@ -11108,8 +10062,7 @@ var SIZE_CLASSES$5 = {
 	xl: "dialog-xl",
 	full: "dialog-fullscreen"
 };
-var coreStyles$21 = css$19.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$40 = css`
+var styles$40 = css$31`
   :host {
     display: contents;
   }
@@ -11118,7 +10071,7 @@ var styles$40 = css`
     display: none !important;
   }
 
-  ${coreStyles$21}
+  ${css$17.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   .dialog-wrapper {
     position: fixed;
@@ -11260,20 +10213,14 @@ var ElDmDialog = class extends BaseElement {
 		return this.dismissible && !this.noDismiss;
 	}
 	_handleBackdropClick(event) {
-		if (this._canDismiss() && event.target === event.currentTarget) {
-			this.close();
-		}
+		if (this._canDismiss() && event.target === event.currentTarget) this.close();
 	}
 	_handleKeyDown = (event) => {
-		if (event.key === "Escape" && this._canDismiss()) {
-			this.close();
-		}
+		if (event.key === "Escape" && this._canDismiss()) this.close();
 	};
 	_getDialogClasses() {
 		const classes = ["dialog"];
-		if (this.size && SIZE_CLASSES$5[this.size]) {
-			classes.push(SIZE_CLASSES$5[this.size]);
-		}
+		if (this.size && SIZE_CLASSES$5[this.size]) classes.push(SIZE_CLASSES$5[this.size]);
 		return classes.join(" ");
 	}
 	show() {
@@ -11289,11 +10236,8 @@ var ElDmDialog = class extends BaseElement {
 		this.emit("close");
 	}
 	toggle() {
-		if (this.open) {
-			this.close();
-		} else {
-			this.show();
-		}
+		if (this.open) this.close();
+		else this.show();
 	}
 	disconnectedCallback() {
 		super.disconnectedCallback?.();
@@ -11322,22 +10266,17 @@ var ElDmDialog = class extends BaseElement {
 	}
 	update() {
 		super.update();
-		const backdrop = this.shadowRoot?.querySelector(".dialog-backdrop");
-		backdrop?.addEventListener("click", this._handleBackdropClick.bind(this));
-		const closeBtn = this.shadowRoot?.querySelector(".dialog-close");
-		closeBtn?.addEventListener("click", () => this.close());
+		(this.shadowRoot?.querySelector(".dialog-backdrop"))?.addEventListener("click", this._handleBackdropClick.bind(this));
+		(this.shadowRoot?.querySelector(".dialog-close"))?.addEventListener("click", () => this.close());
 	}
 };
 function register$24() {
-	if (!customElements.get("el-dm-dialog")) {
-		customElements.define("el-dm-dialog", ElDmDialog);
-	}
+	if (!customElements.get("el-dm-dialog")) customElements.define("el-dm-dialog", ElDmDialog);
 }
 register$24();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/drawer.js
-const css$18 = `/**
+const css$16 = `/**
  * Drawer Component Styles
  * DuskMoonUI - Material Design 3 inspired navigation drawer system
  */
@@ -11709,15 +10648,8 @@ const css$18 = `/**
   }
 }
 `;
-const sheet$16 = new CSSStyleSheet();
-sheet$16.replaceSync(css$18);
-const styles$39 = sheet$16;
-var drawer_default = sheet$16;
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-drawer/dist/esm/register.js
-var coreStyles$20 = css$18.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$38 = css`
+new CSSStyleSheet().replaceSync(css$16);
+var styles$38 = css$31`
   :host {
     display: contents;
   }
@@ -11727,7 +10659,7 @@ var styles$38 = css`
   }
 
   /* Import core drawer styles */
-  ${coreStyles$20}
+  ${css$16.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Web component specific: wrapper for positioning context */
   .drawer-wrapper {
@@ -11785,18 +10717,14 @@ var ElDmDrawer = class extends BaseElement {
 		this.attachStyles([styles$38, animationStyles]);
 	}
 	_handleBackdropClick(event) {
-		if (this.modal && event.target === event.currentTarget) {
-			this.hide();
-		}
+		if (this.modal && event.target === event.currentTarget) this.hide();
 	}
 	_handleKeyDown = (event) => {
 		if (event.key === "Escape" && this.modal) {
 			this.hide();
 			return;
 		}
-		if (event.key === "Tab" && this.modal && this.open) {
-			this._handleTabKey(event);
-		}
+		if (event.key === "Tab" && this.modal && this.open) this._handleTabKey(event);
 	};
 	_handleTabKey(event) {
 		const focusable = this._getFocusableElements();
@@ -11808,11 +10736,9 @@ var ElDmDrawer = class extends BaseElement {
 				event.preventDefault();
 				lastFocusable.focus();
 			}
-		} else {
-			if (document.activeElement === lastFocusable) {
-				event.preventDefault();
-				firstFocusable.focus();
-			}
+		} else if (document.activeElement === lastFocusable) {
+			event.preventDefault();
+			firstFocusable.focus();
 		}
 	}
 	_getFocusableElements() {
@@ -11830,12 +10756,9 @@ var ElDmDrawer = class extends BaseElement {
 		const slots = drawer.querySelectorAll("slot");
 		const slottedFocusable = [];
 		slots.forEach((slot) => {
-			const assignedElements = slot.assignedElements({ flatten: true });
-			assignedElements.forEach((el) => {
+			slot.assignedElements({ flatten: true }).forEach((el) => {
 				if (el instanceof HTMLElement) {
-					if (el.matches(focusableSelectors)) {
-						slottedFocusable.push(el);
-					}
+					if (el.matches(focusableSelectors)) slottedFocusable.push(el);
 					slottedFocusable.push(...Array.from(el.querySelectorAll(focusableSelectors)));
 				}
 			});
@@ -11846,18 +10769,12 @@ var ElDmDrawer = class extends BaseElement {
 		this._previouslyFocused = document.activeElement;
 		this._focusableElements = this._getFocusableElements();
 		requestAnimationFrame(() => {
-			if (this._focusableElements.length > 0) {
-				this._focusableElements[0].focus();
-			} else {
-				const drawer = this.shadowRoot?.querySelector(".drawer");
-				drawer?.focus();
-			}
+			if (this._focusableElements.length > 0) this._focusableElements[0].focus();
+			else (this.shadowRoot?.querySelector(".drawer"))?.focus();
 		});
 	}
 	_releaseFocus() {
-		if (this._previouslyFocused && this._previouslyFocused.focus) {
-			this._previouslyFocused.focus();
-		}
+		if (this._previouslyFocused && this._previouslyFocused.focus) this._previouslyFocused.focus();
 		this._previouslyFocused = null;
 	}
 	show() {
@@ -11879,11 +10796,8 @@ var ElDmDrawer = class extends BaseElement {
 		this.emit("close");
 	}
 	toggle() {
-		if (this.open) {
-			this.hide();
-		} else {
-			this.show();
-		}
+		if (this.open) this.hide();
+		else this.show();
 	}
 	disconnectedCallback() {
 		super.disconnectedCallback?.();
@@ -11926,22 +10840,17 @@ var ElDmDrawer = class extends BaseElement {
 	}
 	update() {
 		super.update();
-		const backdrop = this.shadowRoot?.querySelector(".drawer-backdrop");
-		backdrop?.addEventListener("click", this._handleBackdropClick.bind(this));
-		const closeBtn = this.shadowRoot?.querySelector(".drawer-close");
-		closeBtn?.addEventListener("click", () => this.hide());
+		(this.shadowRoot?.querySelector(".drawer-backdrop"))?.addEventListener("click", this._handleBackdropClick.bind(this));
+		(this.shadowRoot?.querySelector(".drawer-close"))?.addEventListener("click", () => this.hide());
 	}
 };
 function register$23() {
-	if (!customElements.get("el-dm-drawer")) {
-		customElements.define("el-dm-drawer", ElDmDrawer);
-	}
+	if (!customElements.get("el-dm-drawer")) customElements.define("el-dm-drawer", ElDmDrawer);
 }
 register$23();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/file-upload.js
-const css$17 = `/**
+const css$15 = `/**
  * File Upload Component Styles
  * DuskMoonUI - Material Design 3 inspired file upload system
  */
@@ -12323,11 +11232,7 @@ const css$17 = `/**
   }
 }
 `;
-const sheet$15 = new CSSStyleSheet();
-sheet$15.replaceSync(css$17);
-const styles$37 = sheet$15;
-var file_upload_default = sheet$15;
-
+new CSSStyleSheet().replaceSync(css$15);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-file-upload/dist/esm/register.js
 var SIZE_CLASSES$4 = {
@@ -12335,8 +11240,7 @@ var SIZE_CLASSES$4 = {
 	md: "",
 	lg: "file-upload-lg"
 };
-var coreStyles$19 = css$17.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$36 = css`
+var styles$36 = css$31`
   :host {
     display: block;
   }
@@ -12345,7 +11249,7 @@ var styles$36 = css`
     display: none !important;
   }
 
-  ${coreStyles$19}
+  ${css$15.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Web component specific adjustments */
   .file-upload {
@@ -12597,12 +11501,8 @@ var ElDmFileUpload = class extends BaseElement {
 	}
 	_getClasses() {
 		const classes = ["file-upload"];
-		if (this.size && SIZE_CLASSES$4[this.size]) {
-			classes.push(SIZE_CLASSES$4[this.size]);
-		}
-		if (this.compact) {
-			classes.push("file-upload-compact");
-		}
+		if (this.size && SIZE_CLASSES$4[this.size]) classes.push(SIZE_CLASSES$4[this.size]);
+		if (this.compact) classes.push("file-upload-compact");
 		return classes.join(" ");
 	}
 	_formatFileSize(bytes) {
@@ -12623,58 +11523,43 @@ var ElDmFileUpload = class extends BaseElement {
 	_handleDragOver(e) {
 		e.preventDefault();
 		if (this.disabled) return;
-		const dropzone = this.shadowRoot?.querySelector(".file-upload-dropzone");
-		dropzone?.classList.add("dragging");
+		(this.shadowRoot?.querySelector(".file-upload-dropzone"))?.classList.add("dragging");
 	}
 	_handleDragLeave(e) {
 		e.preventDefault();
-		const dropzone = this.shadowRoot?.querySelector(".file-upload-dropzone");
-		dropzone?.classList.remove("dragging");
+		(this.shadowRoot?.querySelector(".file-upload-dropzone"))?.classList.remove("dragging");
 	}
 	_handleDrop(e) {
 		e.preventDefault();
 		if (this.disabled) return;
-		const dropzone = this.shadowRoot?.querySelector(".file-upload-dropzone");
-		dropzone?.classList.remove("dragging");
+		(this.shadowRoot?.querySelector(".file-upload-dropzone"))?.classList.remove("dragging");
 		const files = e.dataTransfer?.files;
-		if (files) {
-			this._processFiles(files);
-		}
+		if (files) this._processFiles(files);
 	}
 	_handleClick() {
 		if (this.disabled) return;
-		const input = this.shadowRoot?.querySelector(".file-upload-input");
-		input?.click();
+		(this.shadowRoot?.querySelector(".file-upload-input"))?.click();
 	}
 	_handleInputChange(e) {
 		const input = e.target;
-		if (input.files) {
-			this._processFiles(input.files);
-		}
+		if (input.files) this._processFiles(input.files);
 		input.value = "";
 	}
 	_processFiles(fileList) {
 		const newFiles = [];
 		for (let i = 0; i < fileList.length; i++) {
 			const file = fileList[i];
-			if (this.maxFiles && this._files.length + newFiles.length >= this.maxFiles) {
-				break;
-			}
-			if (this.maxSize && file.size > this.maxSize) {
-				continue;
-			}
+			if (this.maxFiles && this._files.length + newFiles.length >= this.maxFiles) break;
+			if (this.maxSize && file.size > this.maxSize) continue;
 			const uploadedFile = {
 				file,
 				id: this._generateId()
 			};
-			if (this.showPreview && file.type.startsWith("image/")) {
-				uploadedFile.preview = URL.createObjectURL(file);
-			}
+			if (this.showPreview && file.type.startsWith("image/")) uploadedFile.preview = URL.createObjectURL(file);
 			newFiles.push(uploadedFile);
 		}
-		if (this.multiple) {
-			this._files = [...this._files, ...newFiles];
-		} else {
+		if (this.multiple) this._files = [...this._files, ...newFiles];
+		else {
 			this._files.forEach((f) => {
 				if (f.preview) URL.revokeObjectURL(f.preview);
 			});
@@ -12685,9 +11570,7 @@ var ElDmFileUpload = class extends BaseElement {
 	}
 	_removeFile(id) {
 		const file = this._files.find((f) => f.id === id);
-		if (file?.preview) {
-			URL.revokeObjectURL(file.preview);
-		}
+		if (file?.preview) URL.revokeObjectURL(file.preview);
 		this._files = this._files.filter((f) => f.id !== id);
 		this._updateFileList();
 		this.emit("remove", { files: this._files.map((f) => f.file) });
@@ -12752,9 +11635,8 @@ var ElDmFileUpload = class extends BaseElement {
 		this.emit("change", { files: [] });
 	}
 	render() {
-		const classes = this._getClasses();
 		return `
-      <div class="${classes}" part="file-upload">
+      <div class="${this._getClasses()}" part="file-upload">
         <input
           type="file"
           class="file-upload-input"
@@ -12802,15 +11684,12 @@ var ElDmFileUpload = class extends BaseElement {
 	}
 };
 function register$22() {
-	if (!customElements.get("el-dm-file-upload")) {
-		customElements.define("el-dm-file-upload", ElDmFileUpload);
-	}
+	if (!customElements.get("el-dm-file-upload")) customElements.define("el-dm-file-upload", ElDmFileUpload);
 }
 register$22();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/form.js
-const css$16 = `/**
+const css$14 = `/**
  * Form Component Styles
  * DuskMoonUI - Material Design 3 inspired form system
  */
@@ -13390,15 +12269,8 @@ const css$16 = `/**
   }
 }
 `;
-const sheet$14 = new CSSStyleSheet();
-sheet$14.replaceSync(css$16);
-const styles$35 = sheet$14;
-var form_default = sheet$14;
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-form/dist/esm/register.js
-var coreStyles$18 = css$16.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$34 = css`
+new CSSStyleSheet().replaceSync(css$14);
+var styles$34 = css$31`
   :host {
     display: block;
   }
@@ -13407,7 +12279,7 @@ var styles$34 = css`
     display: none !important;
   }
 
-  ${coreStyles$18}
+  ${css$14.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Web component specific adjustments */
   .form {
@@ -13524,9 +12396,7 @@ var ElDmForm = class extends BaseElement {
 	}
 	submit() {
 		const form = this.shadowRoot?.querySelector("form");
-		if (form && !this.disabled) {
-			form.requestSubmit();
-		}
+		if (form && !this.disabled) form.requestSubmit();
 	}
 	reset() {
 		const form = this.shadowRoot?.querySelector("form");
@@ -13537,15 +12407,12 @@ var ElDmForm = class extends BaseElement {
 	}
 };
 function register$21() {
-	if (!customElements.get("el-dm-form")) {
-		customElements.define("el-dm-form", ElDmForm);
-	}
+	if (!customElements.get("el-dm-form")) customElements.define("el-dm-form", ElDmForm);
 }
 register$21();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/form-group.js
-const css$15 = `/**
+const css$13 = `/**
  * Form Group Component Styles
  * DuskMoonUI - Form layout utilities including label, helper text, fieldset
  */
@@ -14047,15 +12914,8 @@ const css$15 = `/**
   }
 }
 `;
-const sheet$13 = new CSSStyleSheet();
-sheet$13.replaceSync(css$15);
-const styles$33 = sheet$13;
-var form_group_default = sheet$13;
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-form-group/dist/esm/register.js
-var coreStyles$17 = css$15.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$32 = css`
+new CSSStyleSheet().replaceSync(css$13);
+var styles$32 = css$31`
   :host {
     display: block;
     width: 100%;
@@ -14065,7 +12925,7 @@ var styles$32 = css`
     display: none !important;
   }
 
-  ${coreStyles$17}
+  ${css$13.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 `;
 var ElDmFormGroup = class extends BaseElement {
 	static properties = { orientation: {
@@ -14078,24 +12938,20 @@ var ElDmFormGroup = class extends BaseElement {
 		this.attachStyles(styles$32);
 	}
 	render() {
-		const orientationClass = this.orientation === "horizontal" ? "form-group form-group-horizontal" : "form-group";
 		return `
-      <div class="${orientationClass}">
+      <div class="${this.orientation === "horizontal" ? "form-group form-group-horizontal" : "form-group"}">
         <slot></slot>
       </div>
     `;
 	}
 };
 function register$20() {
-	if (!customElements.get("el-dm-form-group")) {
-		customElements.define("el-dm-form-group", ElDmFormGroup);
-	}
+	if (!customElements.get("el-dm-form-group")) customElements.define("el-dm-form-group", ElDmFormGroup);
 }
 register$20();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/input.js
-const css$14 = `/**
+const css$12 = `/**
  * Input Component Styles
  * DuskMoonUI - Material Design 3 inspired input system
  */
@@ -14299,11 +13155,7 @@ const css$14 = `/**
   }
 }
 `;
-const sheet$12 = new CSSStyleSheet();
-sheet$12.replaceSync(css$14);
-const styles$31 = sheet$12;
-var input_default = sheet$12;
-
+new CSSStyleSheet().replaceSync(css$12);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-input/dist/esm/register.js
 var SIZE_CLASSES$3 = {
@@ -14316,8 +13168,7 @@ var VALIDATION_CLASSES = {
 	invalid: "input-error",
 	pending: ""
 };
-var coreStyles$16 = css$14.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$30 = css`
+var styles$30 = css$31`
   :host {
     display: block;
   }
@@ -14327,7 +13178,7 @@ var styles$30 = css`
   }
 
   /* Import core input styles */
-  ${coreStyles$16}
+  ${css$12.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Form field container */
   .container {
@@ -14577,32 +13428,23 @@ var ElDmInput = class extends BaseElement {
 	}
 	_handleBlur() {
 		this._focused = false;
-		if (this._validators.length > 0) {
-			this.validate();
-		}
+		if (this._validators.length > 0) this.validate();
 		this.update();
 		this.emit("dm-blur");
 	}
 	focus() {
-		const input = this.shadowRoot.querySelector("input");
-		input?.focus();
+		this.shadowRoot.querySelector("input")?.focus();
 	}
 	blur() {
-		const input = this.shadowRoot.querySelector("input");
-		input?.blur();
+		this.shadowRoot.querySelector("input")?.blur();
 	}
 	select() {
-		const input = this.shadowRoot.querySelector("input");
-		input?.select();
+		this.shadowRoot.querySelector("input")?.select();
 	}
 	_getInputClasses() {
 		const classes = ["input", "input-bordered"];
-		if (this.size && SIZE_CLASSES$3[this.size]) {
-			classes.push(SIZE_CLASSES$3[this.size]);
-		}
-		if (this.validationState && VALIDATION_CLASSES[this.validationState]) {
-			classes.push(VALIDATION_CLASSES[this.validationState]);
-		}
+		if (this.size && SIZE_CLASSES$3[this.size]) classes.push(SIZE_CLASSES$3[this.size]);
+		if (this.validationState && VALIDATION_CLASSES[this.validationState]) classes.push(VALIDATION_CLASSES[this.validationState]);
 		return classes.filter(Boolean).join(" ");
 	}
 	update() {
@@ -14676,16 +13518,10 @@ var ElDmInput = class extends BaseElement {
 	}
 };
 function register$19() {
-	if (!customElements.get("el-dm-input")) {
-		customElements.define("el-dm-input", ElDmInput);
-	}
+	if (!customElements.get("el-dm-input")) customElements.define("el-dm-input", ElDmInput);
 }
 register$19();
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-menu/dist/esm/register.js
-var coreStyles$15 = css$4.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var menuStyles = css`
+var menuStyles = css$31`
   :host {
     display: inline-block;
     position: relative;
@@ -14696,7 +13532,7 @@ var menuStyles = css`
   }
 
   /* Import core navigation styles */
-  ${coreStyles$15}
+  ${css$24.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Override core .menu for dropdown behavior */
   .menu {
@@ -14849,9 +13685,7 @@ var ElDmMenu = class extends BaseElement {
 		this._removeGlobalListeners();
 	}
 	_setupAnchor() {
-		if (this.anchor) {
-			this._anchorElement = document.querySelector(this.anchor) || this.closest(this.anchor) || document.getElementById(this.anchor);
-		}
+		if (this.anchor) this._anchorElement = document.querySelector(this.anchor) || this.closest(this.anchor) || document.getElementById(this.anchor);
 	}
 	_addGlobalListeners() {
 		document.addEventListener("click", this._boundHandleDocumentClick);
@@ -14863,9 +13697,7 @@ var ElDmMenu = class extends BaseElement {
 	}
 	_handleDocumentClick(event) {
 		const target = event.target;
-		if (!this.contains(target) && !this._anchorElement?.contains(target)) {
-			this.hide();
-		}
+		if (!this.contains(target) && !this._anchorElement?.contains(target)) this.hide();
 	}
 	_handleKeydown(event) {
 		if (!this.open) return;
@@ -14898,9 +13730,7 @@ var ElDmMenu = class extends BaseElement {
 				event.preventDefault();
 				if (this._focusedIndex >= 0 && this._focusedIndex < items.length) {
 					const item = items[this._focusedIndex];
-					if (!item.disabled) {
-						this._selectItem(item);
-					}
+					if (!item.disabled) this._selectItem(item);
 				}
 				break;
 			case "Tab":
@@ -14916,24 +13746,16 @@ var ElDmMenu = class extends BaseElement {
 	_getNextFocusableIndex(currentIndex, direction, items) {
 		let nextIndex = currentIndex + direction;
 		while (nextIndex >= 0 && nextIndex < items.length) {
-			const item = items[nextIndex];
-			if (!item.disabled) {
-				return nextIndex;
-			}
+			if (!items[nextIndex].disabled) return nextIndex;
 			nextIndex += direction;
 		}
-		if (direction > 0) {
-			return this._getNextFocusableIndex(-1, 1, items);
-		} else {
-			return this._getNextFocusableIndex(items.length, -1, items);
-		}
+		if (direction > 0) return this._getNextFocusableIndex(-1, 1, items);
+		else return this._getNextFocusableIndex(items.length, -1, items);
 	}
 	_focusItem(index) {
 		const items = this._getMenuItems();
 		if (index < 0 || index >= items.length) return;
-		if (this._focusedIndex >= 0 && this._focusedIndex < items.length) {
-			items[this._focusedIndex].focused = false;
-		}
+		if (this._focusedIndex >= 0 && this._focusedIndex < items.length) items[this._focusedIndex].focused = false;
 		this._focusedIndex = index;
 		const item = items[index];
 		item.focused = true;
@@ -14951,19 +13773,11 @@ var ElDmMenu = class extends BaseElement {
 			const viewportHeight = window.innerHeight;
 			const viewportWidth = window.innerWidth;
 			let finalPlacement = this.placement;
-			if (finalPlacement.startsWith("bottom") && rect.bottom > viewportHeight) {
-				finalPlacement = finalPlacement.replace("bottom", "top");
-			} else if (finalPlacement.startsWith("top") && rect.top < 0) {
-				finalPlacement = finalPlacement.replace("top", "bottom");
-			}
-			if (finalPlacement === "right" && rect.right > viewportWidth) {
-				finalPlacement = "left";
-			} else if (finalPlacement === "left" && rect.left < 0) {
-				finalPlacement = "right";
-			}
-			if (finalPlacement !== this.placement) {
-				menuEl.className = `menu placement-${finalPlacement}${this.open ? " visible" : ""}`;
-			}
+			if (finalPlacement.startsWith("bottom") && rect.bottom > viewportHeight) finalPlacement = finalPlacement.replace("bottom", "top");
+			else if (finalPlacement.startsWith("top") && rect.top < 0) finalPlacement = finalPlacement.replace("top", "bottom");
+			if (finalPlacement === "right" && rect.right > viewportWidth) finalPlacement = "left";
+			else if (finalPlacement === "left" && rect.left < 0) finalPlacement = "right";
+			if (finalPlacement !== this.placement) menuEl.className = `menu placement-${finalPlacement}${this.open ? " visible" : ""}`;
 		});
 	}
 	show() {
@@ -14975,9 +13789,7 @@ var ElDmMenu = class extends BaseElement {
 		this.emit("open");
 		requestAnimationFrame(() => {
 			const items = this._getMenuItems();
-			if (items.length > 0) {
-				this._focusItem(this._getNextFocusableIndex(-1, 1, items));
-			}
+			if (items.length > 0) this._focusItem(this._getNextFocusableIndex(-1, 1, items));
 		});
 	}
 	hide() {
@@ -14986,34 +13798,27 @@ var ElDmMenu = class extends BaseElement {
 		this._focusedIndex = -1;
 		this._removeGlobalListeners();
 		this.emit("close");
-		const items = this._getMenuItems();
-		items.forEach((item) => {
+		this._getMenuItems().forEach((item) => {
 			item.focused = false;
 		});
 	}
 	toggle() {
-		if (this.open) {
-			this.hide();
-		} else {
-			this.show();
-		}
+		if (this.open) this.hide();
+		else this.show();
 	}
 	update() {
 		super.update?.();
 		const menuEl = this.shadowRoot?.querySelector(".menu");
 		if (menuEl) {
 			menuEl.classList.toggle("visible", this.open);
-			if (this.open) {
-				this._updatePosition();
-			}
+			if (this.open) this._updatePosition();
 		}
 	}
 	render() {
-		const placementClass = `placement-${this.placement || "bottom-start"}`;
 		return `
       <slot name="trigger"></slot>
       <div
-        class="menu ${placementClass}${this.open ? " visible" : ""}"
+        class="menu ${`placement-${this.placement || "bottom-start"}`}${this.open ? " visible" : ""}"
         part="menu"
         role="menu"
         aria-hidden="${!this.open}"
@@ -15025,7 +13830,7 @@ var ElDmMenu = class extends BaseElement {
     `;
 	}
 };
-var menuItemStyles = css`
+var menuItemStyles = css$31`
   :host {
     display: block;
   }
@@ -15164,19 +13969,11 @@ var ElDmMenuItem = class extends BaseElement {
 	}
 };
 function register$18() {
-	if (!customElements.get("el-dm-menu")) {
-		customElements.define("el-dm-menu", ElDmMenu);
-	}
-	if (!customElements.get("el-dm-menu-item")) {
-		customElements.define("el-dm-menu-item", ElDmMenuItem);
-	}
+	if (!customElements.get("el-dm-menu")) customElements.define("el-dm-menu", ElDmMenu);
+	if (!customElements.get("el-dm-menu-item")) customElements.define("el-dm-menu-item", ElDmMenuItem);
 }
 register$18();
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-navbar/dist/esm/register.js
-var coreStyles$14 = css$4.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$29 = css`
+var styles$29 = css$31`
   :host {
     display: block;
     width: 100%;
@@ -15195,7 +13992,7 @@ var styles$29 = css`
   }
 
   /* Import core navigation styles */
-  ${coreStyles$14}
+  ${css$24.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Web component specific adjustments */
   .navbar {
@@ -15415,9 +14212,7 @@ var ElDmNavbar = class extends BaseElement {
 	_handleScroll() {
 		if (!this.fixed) return;
 		const shouldElevate = window.scrollY > 0;
-		if (shouldElevate !== this.elevated) {
-			this.elevated = shouldElevate;
-		}
+		if (shouldElevate !== this.elevated) this.elevated = shouldElevate;
 	}
 	_toggleMobileMenu() {
 		this._mobileMenuOpen = !this._mobileMenuOpen;
@@ -15440,12 +14235,8 @@ var ElDmNavbar = class extends BaseElement {
 	}
 	_getNavbarClasses() {
 		const classes = ["navbar"];
-		if (this.color && this.color !== "surface") {
-			classes.push(`navbar-${this.color}`);
-		}
-		if (this.elevated) {
-			classes.push("navbar-elevated");
-		}
+		if (this.color && this.color !== "surface") classes.push(`navbar-${this.color}`);
+		if (this.elevated) classes.push("navbar-elevated");
 		return classes.join(" ");
 	}
 	render() {
@@ -15490,21 +14281,14 @@ var ElDmNavbar = class extends BaseElement {
 	}
 	update() {
 		super.update();
-		const hamburger = this.shadowRoot?.querySelector(".navbar-hamburger");
-		hamburger?.addEventListener("click", this._toggleMobileMenu.bind(this));
+		(this.shadowRoot?.querySelector(".navbar-hamburger"))?.addEventListener("click", this._toggleMobileMenu.bind(this));
 	}
 };
 function register$17() {
-	if (!customElements.get("el-dm-navbar")) {
-		customElements.define("el-dm-navbar", ElDmNavbar);
-	}
+	if (!customElements.get("el-dm-navbar")) customElements.define("el-dm-navbar", ElDmNavbar);
 }
 register$17();
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-navigation/dist/esm/register.js
-var coreStyles$13 = css$4.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$28 = css`
+var styles$28 = css$31`
   :host {
     display: block;
   }
@@ -15513,7 +14297,7 @@ var styles$28 = css`
     display: none !important;
   }
 
-  ${coreStyles$13}
+  ${css$24.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 `;
 var ElDmNavigation = class extends BaseElement {
 	static properties = {};
@@ -15526,15 +14310,12 @@ var ElDmNavigation = class extends BaseElement {
 	}
 };
 function register$16() {
-	if (!customElements.get("el-dm-navigation")) {
-		customElements.define("el-dm-navigation", ElDmNavigation);
-	}
+	if (!customElements.get("el-dm-navigation")) customElements.define("el-dm-navigation", ElDmNavigation);
 }
 register$16();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/nested-menu.js
-const css$13 = `/**
+const css$11 = `/**
  * Nested Menu Component Styles
  * DuskMoonUI - Sidebar navigation with collapsible cascading levels via <details>/<summary>
  */
@@ -15796,15 +14577,8 @@ const css$13 = `/**
   }
 }
 `;
-const sheet$11 = new CSSStyleSheet();
-sheet$11.replaceSync(css$13);
-const styles$27 = sheet$11;
-var nested_menu_default = sheet$11;
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-nested-menu/dist/esm/register.js
-var coreStyles$12 = css$13.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$26 = css`
+new CSSStyleSheet().replaceSync(css$11);
+var styles$26 = css$31`
   :host {
     display: block;
   }
@@ -15813,7 +14587,7 @@ var styles$26 = css`
     display: none !important;
   }
 
-  ${coreStyles$12}
+  ${css$11.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 `;
 var ElDmNestedMenu = class extends BaseElement {
 	static properties = {};
@@ -15826,15 +14600,12 @@ var ElDmNestedMenu = class extends BaseElement {
 	}
 };
 function register$15() {
-	if (!customElements.get("el-dm-nested-menu")) {
-		customElements.define("el-dm-nested-menu", ElDmNestedMenu);
-	}
+	if (!customElements.get("el-dm-nested-menu")) customElements.define("el-dm-nested-menu", ElDmNestedMenu);
 }
 register$15();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/otp-input.js
-const css$12 = `/**
+const css$10 = `/**
  * OTP Input Component Styles
  * DuskMoonUI - One-Time Password input for verification codes
  */
@@ -16062,15 +14833,8 @@ const css$12 = `/**
   }
 }
 `;
-const sheet$10 = new CSSStyleSheet();
-sheet$10.replaceSync(css$12);
-const styles$25 = sheet$10;
-var otp_input_default = sheet$10;
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-otp-input/dist/esm/register.js
-var coreStyles$11 = css$12.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$24 = css`
+new CSSStyleSheet().replaceSync(css$10);
+var styles$24 = css$31`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -16078,7 +14842,7 @@ var styles$24 = css`
   :host([hidden]) {
     display: none !important;
   }
-  ${coreStyles$11}
+  ${css$10.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 `;
 var ElDmOtpInput = class extends BaseElement {
 	static properties = {
@@ -16113,36 +14877,25 @@ var ElDmOtpInput = class extends BaseElement {
 	#onInput(e) {
 		const input = e.target;
 		if (!input.classList.contains("otp-input-field")) return;
-		if (input.value.length === 1) {
-			const next = input.nextElementSibling;
-			next?.focus();
-		}
+		if (input.value.length === 1) input.nextElementSibling?.focus();
 	}
 	#onKeydown(e) {
 		const input = e.target;
 		if (!input.classList.contains("otp-input-field")) return;
-		if (e.key === "Backspace" && input.value === "") {
-			const prev = input.previousElementSibling;
-			prev?.focus();
-		}
+		if (e.key === "Backspace" && input.value === "") input.previousElementSibling?.focus();
 	}
 	render() {
 		const len = this.length || 6;
-		const colorClass = `otp-input-${this.color || "primary"}`;
-		const fields = Array.from({ length: len }, () => `<input type="text" maxlength="1" class="otp-input-field" ${this.disabled ? "disabled" : ""} />`).join("");
-		return `<div class="otp-input ${colorClass}">${fields}</div>`;
+		return `<div class="otp-input ${`otp-input-${this.color || "primary"}`}">${Array.from({ length: len }, () => `<input type="text" maxlength="1" class="otp-input-field" ${this.disabled ? "disabled" : ""} />`).join("")}</div>`;
 	}
 };
 function register$14() {
-	if (!customElements.get("el-dm-otp-input")) {
-		customElements.define("el-dm-otp-input", ElDmOtpInput);
-	}
+	if (!customElements.get("el-dm-otp-input")) customElements.define("el-dm-otp-input", ElDmOtpInput);
 }
 register$14();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-pagination/dist/esm/register.js
-var styles$23 = css`
+var styles$23 = css$31`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -16335,38 +15088,19 @@ var ElDmPagination = class extends BaseElement {
 		const current = Math.min(Math.max(1, this.current), total);
 		const siblings = Math.max(0, this.siblings);
 		const boundaries = Math.max(0, this.boundaries);
-		const totalPageNumbers = boundaries * 2 + siblings * 2 + 3;
-		if (total <= totalPageNumbers) {
-			return Array.from({ length: total }, (_, i) => i + 1);
-		}
+		if (total <= boundaries * 2 + siblings * 2 + 3) return Array.from({ length: total }, (_, i) => i + 1);
 		const leftSiblingIndex = Math.max(current - siblings, boundaries + 1);
 		const rightSiblingIndex = Math.min(current + siblings, total - boundaries);
 		const showLeftEllipsis = leftSiblingIndex > boundaries + 2;
 		const showRightEllipsis = rightSiblingIndex < total - boundaries - 1;
 		const pages = [];
-		for (let i = 1; i <= boundaries; i++) {
-			pages.push(i);
-		}
-		if (showLeftEllipsis) {
-			pages.push("ellipsis");
-		} else if (boundaries + 1 < leftSiblingIndex) {
-			pages.push(boundaries + 1);
-		}
-		for (let i = leftSiblingIndex; i <= rightSiblingIndex; i++) {
-			if (i > boundaries && i <= total - boundaries) {
-				pages.push(i);
-			}
-		}
-		if (showRightEllipsis) {
-			pages.push("ellipsis");
-		} else if (rightSiblingIndex < total - boundaries) {
-			pages.push(total - boundaries);
-		}
-		for (let i = total - boundaries + 1; i <= total; i++) {
-			if (i > 0 && !pages.includes(i)) {
-				pages.push(i);
-			}
-		}
+		for (let i = 1; i <= boundaries; i++) pages.push(i);
+		if (showLeftEllipsis) pages.push("ellipsis");
+		else if (boundaries + 1 < leftSiblingIndex) pages.push(boundaries + 1);
+		for (let i = leftSiblingIndex; i <= rightSiblingIndex; i++) if (i > boundaries && i <= total - boundaries) pages.push(i);
+		if (showRightEllipsis) pages.push("ellipsis");
+		else if (rightSiblingIndex < total - boundaries) pages.push(total - boundaries);
+		for (let i = total - boundaries + 1; i <= total; i++) if (i > 0 && !pages.includes(i)) pages.push(i);
 		return pages;
 	}
 	_goToPage(page) {
@@ -16377,22 +15111,15 @@ var ElDmPagination = class extends BaseElement {
 		}
 	}
 	_handleClick(event) {
-		const target = event.target;
-		const button = target.closest("button");
+		const button = event.target.closest("button");
 		if (!button || button.disabled) return;
 		const action = button.dataset.action;
 		const page = button.dataset.page;
-		if (action === "first") {
-			this._goToPage(1);
-		} else if (action === "prev") {
-			this._goToPage(this.current - 1);
-		} else if (action === "next") {
-			this._goToPage(this.current + 1);
-		} else if (action === "last") {
-			this._goToPage(this.total);
-		} else if (page) {
-			this._goToPage(parseInt(page, 10));
-		}
+		if (action === "first") this._goToPage(1);
+		else if (action === "prev") this._goToPage(this.current - 1);
+		else if (action === "next") this._goToPage(this.current + 1);
+		else if (action === "last") this._goToPage(this.total);
+		else if (page) this._goToPage(parseInt(page, 10));
 	}
 	_handleKeydown(event) {
 		switch (event.key) {
@@ -16421,14 +15148,12 @@ var ElDmPagination = class extends BaseElement {
 		const isFirstPage = current === 1;
 		const isLastPage = current === total;
 		let pagesHtml = "";
-		for (const page of pages) {
-			if (page === "ellipsis") {
-				pagesHtml += `
+		for (const page of pages) if (page === "ellipsis") pagesHtml += `
           <span class="ellipsis" part="ellipsis" aria-hidden="true">...</span>
         `;
-			} else {
-				const isActive = page === current;
-				pagesHtml += `
+		else {
+			const isActive = page === current;
+			pagesHtml += `
           <button
             class="pagination-btn${isActive ? " active" : ""}"
             part="page"
@@ -16437,7 +15162,6 @@ var ElDmPagination = class extends BaseElement {
             aria-current="${isActive ? "page" : "false"}"
           >${page}</button>
         `;
-			}
 		}
 		return `
       <nav class="pagination" part="container" role="navigation" aria-label="Pagination">
@@ -16475,15 +15199,12 @@ var ElDmPagination = class extends BaseElement {
 	}
 };
 function register$13() {
-	if (!customElements.get("el-dm-pagination")) {
-		customElements.define("el-dm-pagination", ElDmPagination);
-	}
+	if (!customElements.get("el-dm-pagination")) customElements.define("el-dm-pagination", ElDmPagination);
 }
 register$13();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/pin-input.js
-const css$11 = `/**
+const css$9 = `/**
  * PIN Input Component Styles
  * DuskMoonUI - Secure PIN/password entry input
  */
@@ -16705,15 +15426,8 @@ const css$11 = `/**
   }
 }
 `;
-const sheet$9 = new CSSStyleSheet();
-sheet$9.replaceSync(css$11);
-const styles$22 = sheet$9;
-var pin_input_default = sheet$9;
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-pin-input/dist/esm/register.js
-var coreStyles$10 = css$11.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$21 = css`
+new CSSStyleSheet().replaceSync(css$9);
+var styles$21 = css$31`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -16721,7 +15435,7 @@ var styles$21 = css`
   :host([hidden]) {
     display: none !important;
   }
-  ${coreStyles$10}
+  ${css$9.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 `;
 var ElDmPinInput = class extends BaseElement {
 	static properties = {
@@ -16761,37 +15475,27 @@ var ElDmPinInput = class extends BaseElement {
 	#onInput(e) {
 		const input = e.target;
 		if (!input.classList.contains("pin-input-field")) return;
-		if (input.value.length === 1) {
-			const next = input.nextElementSibling;
-			next?.focus();
-		}
+		if (input.value.length === 1) input.nextElementSibling?.focus();
 	}
 	#onKeydown(e) {
 		const input = e.target;
 		if (!input.classList.contains("pin-input-field")) return;
-		if (e.key === "Backspace" && input.value === "") {
-			const prev = input.previousElementSibling;
-			prev?.focus();
-		}
+		if (e.key === "Backspace" && input.value === "") input.previousElementSibling?.focus();
 	}
 	render() {
 		const len = this.length || 4;
 		const colorClass = `pin-input-${this.color || "primary"}`;
 		const inputType = this.masked !== false ? "password" : "text";
-		const fields = Array.from({ length: len }, () => `<input type="${inputType}" maxlength="1" class="pin-input-field" ${this.disabled ? "disabled" : ""} />`).join("");
-		return `<div class="pin-input ${colorClass}">${fields}</div>`;
+		return `<div class="pin-input ${colorClass}">${Array.from({ length: len }, () => `<input type="${inputType}" maxlength="1" class="pin-input-field" ${this.disabled ? "disabled" : ""} />`).join("")}</div>`;
 	}
 };
 function register$12() {
-	if (!customElements.get("el-dm-pin-input")) {
-		customElements.define("el-dm-pin-input", ElDmPinInput);
-	}
+	if (!customElements.get("el-dm-pin-input")) customElements.define("el-dm-pin-input", ElDmPinInput);
 }
 register$12();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/popover.js
-const css$10 = `/**
+const css$8 = `/**
  * Popover Component Styles
  * DuskMoonUI - Material Design 3 inspired popover system
  */
@@ -17518,15 +16222,8 @@ const css$10 = `/**
   }
 }
 `;
-const sheet$8 = new CSSStyleSheet();
-sheet$8.replaceSync(css$10);
-const styles$20 = sheet$8;
-var popover_default = sheet$8;
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-popover/dist/esm/register.js
-var coreStyles$9 = css$10.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$19 = css`
+new CSSStyleSheet().replaceSync(css$8);
+var styles$19 = css$31`
   :host {
     display: inline-block;
     position: relative;
@@ -17537,7 +16234,7 @@ var styles$19 = css`
   }
 
   /* Import core popover styles */
-  ${coreStyles$9}
+  ${css$8.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   .popover-trigger {
     display: inline-flex;
@@ -17690,23 +16387,16 @@ var ElDmPopover = class extends BaseElement {
 		const triggerEl = this._getTriggerElement();
 		if (triggerEl) {
 			triggerEl.setAttribute("aria-expanded", String(expanded));
-			if (!triggerEl.hasAttribute("aria-haspopup")) {
-				triggerEl.setAttribute("aria-haspopup", "dialog");
-			}
+			if (!triggerEl.hasAttribute("aria-haspopup")) triggerEl.setAttribute("aria-haspopup", "dialog");
 		}
 	}
 	toggle() {
-		if (this.open) {
-			this.hide();
-		} else {
-			this.show();
-		}
+		if (this.open) this.hide();
+		else this.show();
 	}
 	_setVisible(visible) {
 		const panel = this.shadowRoot?.querySelector(".popover-content");
-		if (panel) {
-			panel.classList.toggle("show", visible);
-		}
+		if (panel) panel.classList.toggle("show", visible);
 	}
 	_setupTriggerListeners() {
 		const triggerSlot = this.shadowRoot?.querySelector("slot[name=\"trigger\"]");
@@ -17721,9 +16411,8 @@ var ElDmPopover = class extends BaseElement {
 		if (!triggerEl) return;
 		this._detachTriggerEvents(triggerEl);
 		this._updateTriggerAria(this.open);
-		if (this.trigger === "click") {
-			triggerEl.addEventListener("click", this._handleTriggerClick);
-		} else if (this.trigger === "hover") {
+		if (this.trigger === "click") triggerEl.addEventListener("click", this._handleTriggerClick);
+		else if (this.trigger === "hover") {
 			triggerEl.addEventListener("mouseenter", this._handleTriggerMouseEnter);
 			triggerEl.addEventListener("mouseleave", this._handleTriggerMouseLeave);
 			this.addEventListener("mouseenter", this._handlePopoverMouseEnter);
@@ -17744,15 +16433,12 @@ var ElDmPopover = class extends BaseElement {
 	}
 	_removeTriggerListeners() {
 		const triggerEl = this._getTriggerElement();
-		if (triggerEl) {
-			this._detachTriggerEvents(triggerEl);
-		}
+		if (triggerEl) this._detachTriggerEvents(triggerEl);
 	}
 	_getTriggerElement() {
 		const triggerSlot = this.shadowRoot?.querySelector("slot[name=\"trigger\"]");
 		if (!triggerSlot) return null;
-		const assigned = triggerSlot.assignedElements();
-		return assigned[0] || null;
+		return triggerSlot.assignedElements()[0] || null;
 	}
 	_handleTriggerClick = () => {
 		this.toggle();
@@ -17785,9 +16471,7 @@ var ElDmPopover = class extends BaseElement {
 	};
 	_handleTriggerBlur = () => {
 		setTimeout(() => {
-			if (!this.contains(document.activeElement)) {
-				this.hide();
-			}
+			if (!this.contains(document.activeElement)) this.hide();
 		}, 0);
 	};
 	_addGlobalListeners() {
@@ -17804,22 +16488,16 @@ var ElDmPopover = class extends BaseElement {
 	}
 	_handleClickOutside(e) {
 		if (this.trigger !== "click") return;
-		const path = e.composedPath();
-		if (!path.includes(this)) {
-			this.hide();
-		}
+		if (!e.composedPath().includes(this)) this.hide();
 	}
 	_handleKeyDown(e) {
 		if (e.key === "Escape") {
 			this.hide();
-			const triggerEl = this._getTriggerElement();
-			triggerEl?.focus?.();
+			this._getTriggerElement()?.focus?.();
 		}
 	}
 	_handleScroll() {
-		if (this.open) {
-			this._updatePosition();
-		}
+		if (this.open) this._updatePosition();
 	}
 	_updatePosition() {
 		const triggerEl = this._getTriggerElement();
@@ -17844,21 +16522,13 @@ var ElDmPopover = class extends BaseElement {
 		const spaceRight = viewportWidth - triggerRect.right;
 		let effectiveMainAxis = mainAxis;
 		if (mainAxis === "top" && spaceTop < panelRect.height + this.offset) {
-			if (spaceBottom >= panelRect.height + this.offset) {
-				effectiveMainAxis = "bottom";
-			}
+			if (spaceBottom >= panelRect.height + this.offset) effectiveMainAxis = "bottom";
 		} else if (mainAxis === "bottom" && spaceBottom < panelRect.height + this.offset) {
-			if (spaceTop >= panelRect.height + this.offset) {
-				effectiveMainAxis = "top";
-			}
+			if (spaceTop >= panelRect.height + this.offset) effectiveMainAxis = "top";
 		} else if (mainAxis === "left" && spaceLeft < panelRect.width + this.offset) {
-			if (spaceRight >= panelRect.width + this.offset) {
-				effectiveMainAxis = "right";
-			}
+			if (spaceRight >= panelRect.width + this.offset) effectiveMainAxis = "right";
 		} else if (mainAxis === "right" && spaceRight < panelRect.width + this.offset) {
-			if (spaceLeft >= panelRect.width + this.offset) {
-				effectiveMainAxis = "left";
-			}
+			if (spaceLeft >= panelRect.width + this.offset) effectiveMainAxis = "left";
 		}
 		return alignment ? `${effectiveMainAxis}-${alignment}` : effectiveMainAxis;
 	}
@@ -17880,26 +16550,23 @@ var ElDmPopover = class extends BaseElement {
 				x = triggerRect.right + this.offset;
 				break;
 		}
-		if (mainAxis === "top" || mainAxis === "bottom") {
-			switch (alignment) {
-				case "start":
-					x = triggerRect.left;
-					break;
-				case "end":
-					x = triggerRect.right - panelRect.width;
-					break;
-				default: x = triggerRect.left + (triggerRect.width - panelRect.width) / 2;
-			}
-		} else {
-			switch (alignment) {
-				case "start":
-					y = triggerRect.top;
-					break;
-				case "end":
-					y = triggerRect.bottom - panelRect.height;
-					break;
-				default: y = triggerRect.top + (triggerRect.height - panelRect.height) / 2;
-			}
+		if (mainAxis === "top" || mainAxis === "bottom") switch (alignment) {
+			case "start":
+				x = triggerRect.left;
+				break;
+			case "end":
+				x = triggerRect.right - panelRect.width;
+				break;
+			default: x = triggerRect.left + (triggerRect.width - panelRect.width) / 2;
+		}
+		else switch (alignment) {
+			case "start":
+				y = triggerRect.top;
+				break;
+			case "end":
+				y = triggerRect.bottom - panelRect.height;
+				break;
+			default: y = triggerRect.top + (triggerRect.height - panelRect.height) / 2;
 		}
 		const viewportWidth = window.innerWidth;
 		const viewportHeight = window.innerHeight;
@@ -17913,12 +16580,10 @@ var ElDmPopover = class extends BaseElement {
 	}
 	update() {
 		super.update();
-		if (this.open) {
-			requestAnimationFrame(() => {
-				this._updatePosition();
-				this._setVisible(true);
-			});
-		}
+		if (this.open) requestAnimationFrame(() => {
+			this._updatePosition();
+			this._setVisible(true);
+		});
 	}
 	render() {
 		return `
@@ -17941,15 +16606,12 @@ var ElDmPopover = class extends BaseElement {
 	}
 };
 function register$11() {
-	if (!customElements.get("el-dm-popover")) {
-		customElements.define("el-dm-popover", ElDmPopover);
-	}
+	if (!customElements.get("el-dm-popover")) customElements.define("el-dm-popover", ElDmPopover);
 }
 register$11();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/progress.js
-const css$9 = `/**
+const css$7 = `/**
  * Progress Component Styles
  * DuskMoonUI - Material Design 3 inspired progress system
  */
@@ -18188,11 +16850,7 @@ const css$9 = `/**
   }
 }
 `;
-const sheet$7 = new CSSStyleSheet();
-sheet$7.replaceSync(css$9);
-const styles$18 = sheet$7;
-var progress_default = sheet$7;
-
+new CSSStyleSheet().replaceSync(css$7);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-progress/dist/esm/register.js
 var COLOR_CLASSES$3 = {
@@ -18211,8 +16869,7 @@ var SIZE_CLASSES$2 = {
 	md: "",
 	lg: "progress-lg"
 };
-var coreStyles$8 = css$9.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$17 = css`
+var styles$17 = css$31`
   :host {
     display: block;
     width: 100%;
@@ -18222,7 +16879,7 @@ var styles$17 = css`
     display: none !important;
   }
 
-  ${coreStyles$8}
+  ${css$7.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   .progress {
     position: relative;
@@ -18384,26 +17041,15 @@ var ElDmProgress = class extends BaseElement {
 		this.attachStyles(styles$17);
 	}
 	_getPercentage() {
-		const val = Math.max(0, Math.min(this.value || 0, this.max || 100));
-		return val / (this.max || 100) * 100;
+		return Math.max(0, Math.min(this.value || 0, this.max || 100)) / (this.max || 100) * 100;
 	}
 	_getProgressClasses() {
 		const classes = ["progress"];
-		if (this.color && COLOR_CLASSES$3[this.color]) {
-			classes.push(COLOR_CLASSES$3[this.color]);
-		}
-		if (this.size && SIZE_CLASSES$2[this.size]) {
-			classes.push(SIZE_CLASSES$2[this.size]);
-		}
-		if (this.indeterminate) {
-			classes.push("progress-indeterminate");
-		}
-		if (this.striped) {
-			classes.push("progress-striped");
-		}
-		if (this.animated && this.striped) {
-			classes.push("progress-animated");
-		}
+		if (this.color && COLOR_CLASSES$3[this.color]) classes.push(COLOR_CLASSES$3[this.color]);
+		if (this.size && SIZE_CLASSES$2[this.size]) classes.push(SIZE_CLASSES$2[this.size]);
+		if (this.indeterminate) classes.push("progress-indeterminate");
+		if (this.striped) classes.push("progress-striped");
+		if (this.animated && this.striped) classes.push("progress-animated");
 		return classes.join(" ");
 	}
 	render() {
@@ -18429,15 +17075,12 @@ var ElDmProgress = class extends BaseElement {
 	}
 };
 function register$10() {
-	if (!customElements.get("el-dm-progress")) {
-		customElements.define("el-dm-progress", ElDmProgress);
-	}
+	if (!customElements.get("el-dm-progress")) customElements.define("el-dm-progress", ElDmProgress);
 }
 register$10();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-segment-control/dist/esm/register.js
-var styles$16 = css`
+var styles$16 = css$31`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -18543,16 +17186,14 @@ var ElDmSegmentControl = class extends BaseElement {
 	#handleClick = (e) => {
 		const target = e.currentTarget;
 		if (target.hasAttribute("disabled")) return;
-		const items = this.querySelectorAll("button");
-		items.forEach((item) => item.classList.remove("active"));
+		this.querySelectorAll("button").forEach((item) => item.classList.remove("active"));
 		target.classList.add("active");
 		this.emit("change", { value: target.textContent?.trim() ?? "" });
 	};
 	#handleSlotChange = () => {
 		const slot = this.shadowRoot.querySelector("slot");
 		if (!slot) return;
-		const nodes = slot.assignedElements({ flatten: true });
-		nodes.forEach((node) => {
+		slot.assignedElements({ flatten: true }).forEach((node) => {
 			if (node instanceof HTMLElement) {
 				node.removeEventListener("click", this.#handleClick);
 				node.addEventListener("click", this.#handleClick);
@@ -18570,23 +17211,18 @@ var ElDmSegmentControl = class extends BaseElement {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 		this.shadowRoot.removeEventListener("slotchange", this.#handleSlotChange);
-		const items = this.querySelectorAll("button");
-		items.forEach((item) => {
+		this.querySelectorAll("button").forEach((item) => {
 			item.removeEventListener("click", this.#handleClick);
 		});
 	}
 	render() {
-		const colorClass = `segment-control-${this.color || "primary"}`;
-		return `<div class="segment-control ${colorClass}"><slot></slot></div>`;
+		return `<div class="segment-control ${`segment-control-${this.color || "primary"}`}"><slot></slot></div>`;
 	}
 };
 function register$9() {
-	if (!customElements.get("el-dm-segment-control")) {
-		customElements.define("el-dm-segment-control", ElDmSegmentControl);
-	}
+	if (!customElements.get("el-dm-segment-control")) customElements.define("el-dm-segment-control", ElDmSegmentControl);
 }
 register$9();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-select/dist/esm/register.js
 var chevronDownIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
@@ -18594,7 +17230,7 @@ var chevronRightIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="no
 var checkIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
 var closeIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`;
 var searchIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`;
-var styles$15 = css`
+var styles$15 = css$31`
   :host {
     display: inline-block;
     width: 100%;
@@ -19118,7 +17754,7 @@ var ElDmSelect = class extends BaseElement {
 	_isOpen = false;
 	_searchValue = "";
 	_highlightedIndex = -1;
-	_expandedKeys = new Set();
+	_expandedKeys = /* @__PURE__ */ new Set();
 	_options = [];
 	_treeOptions = [];
 	_handleOutsideClick = this._onOutsideClick.bind(this);
@@ -19134,28 +17770,18 @@ var ElDmSelect = class extends BaseElement {
 		document.addEventListener("click", this._handleOutsideClick);
 		document.addEventListener("keydown", this._handleKeyDown);
 		this._parseOptionsFromAttributes();
-		if (this.defaultExpandAll && this.treeData) {
-			this._expandAllNodes();
-		}
+		if (this.defaultExpandAll && this.treeData) this._expandAllNodes();
 		this._setupEventDelegation();
 	}
 	_parseOptionsFromAttributes() {
-		if (this.options) {
-			try {
-				const parsed = JSON.parse(this.options);
-				if (Array.isArray(parsed)) {
-					this._options = parsed;
-				}
-			} catch {}
-		}
-		if (this.treeOptions) {
-			try {
-				const parsed = JSON.parse(this.treeOptions);
-				if (Array.isArray(parsed)) {
-					this._treeOptions = parsed;
-				}
-			} catch {}
-		}
+		if (this.options) try {
+			const parsed = JSON.parse(this.options);
+			if (Array.isArray(parsed)) this._options = parsed;
+		} catch {}
+		if (this.treeOptions) try {
+			const parsed = JSON.parse(this.treeOptions);
+			if (Array.isArray(parsed)) this._treeOptions = parsed;
+		} catch {}
 	}
 	disconnectedCallback() {
 		super.disconnectedCallback();
@@ -19175,15 +17801,11 @@ var ElDmSelect = class extends BaseElement {
 		if (this._isOpen) {
 			const dropdown = this.shadowRoot?.querySelector(".select-dropdown");
 			const trigger = this.shadowRoot?.querySelector(".select-trigger");
-			if (dropdown && trigger) {
-				this._positionDropdown(dropdown, trigger);
-			}
+			if (dropdown && trigger) this._positionDropdown(dropdown, trigger);
 		}
 	}
 	_onResize() {
-		if (this._isOpen) {
-			this._close();
-		}
+		if (this._isOpen) this._close();
 	}
 	setOptions(options) {
 		this._options = options;
@@ -19191,20 +17813,16 @@ var ElDmSelect = class extends BaseElement {
 	}
 	setTreeOptions(options) {
 		this._treeOptions = options;
-		if (this.defaultExpandAll) {
-			this._expandAllNodes();
-		}
+		if (this.defaultExpandAll) this._expandAllNodes();
 		this.update();
 	}
 	_getSelectedValues() {
 		if (!this.value) return [];
-		if (this.multiple || this.treeData) {
-			try {
-				const parsed = JSON.parse(this.value);
-				return Array.isArray(parsed) ? parsed : [this.value];
-			} catch {
-				return this.value ? [this.value] : [];
-			}
+		if (this.multiple || this.treeData) try {
+			const parsed = JSON.parse(this.value);
+			return Array.isArray(parsed) ? parsed : [this.value];
+		} catch {
+			return this.value ? [this.value] : [];
 		}
 		return this.value ? [this.value] : [];
 	}
@@ -19231,9 +17849,7 @@ var ElDmSelect = class extends BaseElement {
 					hasChildren,
 					isExpanded
 				});
-				if (hasChildren && isExpanded) {
-					flatten(option.children, level + 1);
-				}
+				if (hasChildren && isExpanded) flatten(option.children, level + 1);
 			}
 		};
 		flatten(this._treeOptions, 0);
@@ -19249,11 +17865,9 @@ var ElDmSelect = class extends BaseElement {
 	}
 	_expandAllNodes() {
 		const expandAll = (options) => {
-			for (const option of options) {
-				if (option.children && option.children.length > 0) {
-					this._expandedKeys.add(option.value);
-					expandAll(option.children);
-				}
+			for (const option of options) if (option.children && option.children.length > 0) {
+				this._expandedKeys.add(option.value);
+				expandAll(option.children);
 			}
 		};
 		expandAll(this._treeOptions);
@@ -19262,9 +17876,7 @@ var ElDmSelect = class extends BaseElement {
 		const values = [];
 		const collect = (opt) => {
 			values.push(opt.value);
-			if (opt.children) {
-				opt.children.forEach(collect);
-			}
+			if (opt.children) opt.children.forEach(collect);
 		};
 		collect(option);
 		return values;
@@ -19280,12 +17892,9 @@ var ElDmSelect = class extends BaseElement {
 				if (found) return found;
 			}
 		}
-		return;
 	}
 	_onOutsideClick(e) {
-		if (!this.contains(e.target)) {
-			this._close();
-		}
+		if (!this.contains(e.target)) this._close();
 	}
 	_onKeyDown(e) {
 		if (!this._isOpen) {
@@ -19325,9 +17934,7 @@ var ElDmSelect = class extends BaseElement {
 				if (this.multiple && !this._searchValue) {
 					e.preventDefault();
 					const selected = this._getSelectedValues();
-					if (selected.length > 0) {
-						this._removeTag(selected[selected.length - 1]);
-					}
+					if (selected.length > 0) this._removeTag(selected[selected.length - 1]);
 				}
 				break;
 		}
@@ -19352,9 +17959,7 @@ var ElDmSelect = class extends BaseElement {
 				});
 			}
 			const searchInput = this.shadowRoot?.querySelector(".select-search-input");
-			if (searchInput) {
-				searchInput.focus();
-			}
+			if (searchInput) searchInput.focus();
 		});
 	}
 	_close() {
@@ -19363,11 +17968,9 @@ var ElDmSelect = class extends BaseElement {
 		this._highlightedIndex = -1;
 		this._removeScrollListeners();
 		const dropdown = this.shadowRoot?.querySelector(".select-dropdown");
-		if (dropdown) {
-			try {
-				dropdown.hidePopover();
-			} catch {}
-		}
+		if (dropdown) try {
+			dropdown.hidePopover();
+		} catch {}
 		this.update();
 	}
 	_positionDropdown(dropdown, trigger) {
@@ -19376,45 +17979,29 @@ var ElDmSelect = class extends BaseElement {
 		const viewportHeight = window.innerHeight;
 		let top = triggerRect.bottom + 4;
 		let left = triggerRect.left;
-		if (top + dropdownRect.height > viewportHeight && triggerRect.top > dropdownRect.height) {
-			top = triggerRect.top - dropdownRect.height - 4;
-		}
+		if (top + dropdownRect.height > viewportHeight && triggerRect.top > dropdownRect.height) top = triggerRect.top - dropdownRect.height - 4;
 		const viewportWidth = window.innerWidth;
-		if (left + triggerRect.width > viewportWidth) {
-			left = viewportWidth - triggerRect.width - 8;
-		}
+		if (left + triggerRect.width > viewportWidth) left = viewportWidth - triggerRect.width - 8;
 		dropdown.style.top = `${top}px`;
 		dropdown.style.left = `${left}px`;
 		dropdown.style.width = `${triggerRect.width}px`;
 	}
 	_toggle() {
-		if (this._isOpen) {
-			this._close();
-		} else {
-			this._open();
-		}
+		if (this._isOpen) this._close();
+		else this._open();
 	}
 	_selectOption(value) {
 		const selectedValues = this._getSelectedValues();
 		if (this.multiple) {
 			const index = selectedValues.indexOf(value);
-			if (index >= 0) {
-				selectedValues.splice(index, 1);
-			} else {
-				if (this.treeData && this.cascade && !this.checkStrictly) {
-					const option = this._findTreeOption(value);
-					if (option) {
-						const descendants = this._getDescendantValues(option);
-						for (const v of descendants) {
-							if (!selectedValues.includes(v)) {
-								selectedValues.push(v);
-							}
-						}
-					}
-				} else {
-					selectedValues.push(value);
+			if (index >= 0) selectedValues.splice(index, 1);
+			else if (this.treeData && this.cascade && !this.checkStrictly) {
+				const option = this._findTreeOption(value);
+				if (option) {
+					const descendants = this._getDescendantValues(option);
+					for (const v of descendants) if (!selectedValues.includes(v)) selectedValues.push(v);
 				}
-			}
+			} else selectedValues.push(value);
 			this.value = JSON.stringify(selectedValues);
 		} else {
 			this.value = value;
@@ -19438,11 +18025,8 @@ var ElDmSelect = class extends BaseElement {
 		const option = this._findTreeOption(value);
 		if (!option) return;
 		const wasExpanded = this._expandedKeys.has(value);
-		if (wasExpanded) {
-			this._expandedKeys.delete(value);
-		} else {
-			this._expandedKeys.add(value);
-		}
+		if (wasExpanded) this._expandedKeys.delete(value);
+		else this._expandedKeys.add(value);
 		this.emit("expand", {
 			node: option,
 			expanded: !wasExpanded
@@ -19467,11 +18051,8 @@ var ElDmSelect = class extends BaseElement {
 	_emitChange() {
 		const selectedValues = this._getSelectedValues();
 		let selectedOptions;
-		if (this.treeData) {
-			selectedOptions = selectedValues.map((v) => this._findTreeOption(v)).filter((o) => o !== undefined);
-		} else {
-			selectedOptions = selectedValues.map((v) => this._findOption(v)).filter((o) => o !== undefined);
-		}
+		if (this.treeData) selectedOptions = selectedValues.map((v) => this._findTreeOption(v)).filter((o) => o !== void 0);
+		else selectedOptions = selectedValues.map((v) => this._findOption(v)).filter((o) => o !== void 0);
 		this.emit("change", {
 			value: this.value,
 			selectedOptions
@@ -19486,8 +18067,7 @@ var ElDmSelect = class extends BaseElement {
     `;
 	}
 	_renderTrigger() {
-		const selectedValues = this._getSelectedValues();
-		const hasValue = selectedValues.length > 0;
+		const hasValue = this._getSelectedValues().length > 0;
 		const showClear = this.clearable && hasValue && !this.disabled && !this.readonly;
 		return `
       <button
@@ -19506,9 +18086,7 @@ var ElDmSelect = class extends BaseElement {
 	}
 	_renderValue() {
 		const selectedValues = this._getSelectedValues();
-		if (selectedValues.length === 0) {
-			return `<span class="select-value select-placeholder">${this.placeholder}</span>`;
-		}
+		if (selectedValues.length === 0) return `<span class="select-value select-placeholder">${this.placeholder}</span>`;
 		const value = selectedValues[0];
 		let label = value;
 		if (this.treeData) {
@@ -19542,9 +18120,7 @@ var ElDmSelect = class extends BaseElement {
           </span>
         `;
 		}).join("");
-		if (overflowCount > 0) {
-			tagsHtml += `<span class="select-tag select-tag-overflow">+${overflowCount}</span>`;
-		}
+		if (overflowCount > 0) tagsHtml += `<span class="select-tag select-tag-overflow">+${overflowCount}</span>`;
 		return `<div class="select-tags">${tagsHtml || `<span class="select-placeholder">${this.placeholder}</span>`}</div>`;
 	}
 	_renderDropdown() {
@@ -19573,21 +18149,15 @@ var ElDmSelect = class extends BaseElement {
 	}
 	_renderFlatOptions() {
 		const options = this._getFilteredOptions();
-		if (options.length === 0) {
-			return `<div class="select-empty">No options available</div>`;
-		}
+		if (options.length === 0) return `<div class="select-empty">No options available</div>`;
 		const selectedValues = this._getSelectedValues();
-		const grouped = new Map();
+		const grouped = /* @__PURE__ */ new Map();
 		const ungrouped = [];
-		for (const opt of options) {
-			if (opt.group) {
-				const group = grouped.get(opt.group) || [];
-				group.push(opt);
-				grouped.set(opt.group, group);
-			} else {
-				ungrouped.push(opt);
-			}
-		}
+		for (const opt of options) if (opt.group) {
+			const group = grouped.get(opt.group) || [];
+			group.push(opt);
+			grouped.set(opt.group, group);
+		} else ungrouped.push(opt);
 		let html = "";
 		let index = 0;
 		for (const opt of ungrouped) {
@@ -19606,16 +18176,15 @@ var ElDmSelect = class extends BaseElement {
 	_renderOption(option, selectedValues, index) {
 		const isSelected = selectedValues.includes(option.value);
 		const isHighlighted = index === this._highlightedIndex;
-		const classes = [
+		return `
+      <button
+        type="button"
+        class="${[
 			"select-option",
 			isSelected ? "selected" : "",
 			isHighlighted ? "highlighted" : "",
 			option.disabled ? "disabled" : ""
-		].filter(Boolean).join(" ");
-		return `
-      <button
-        type="button"
-        class="${classes}"
+		].filter(Boolean).join(" ")}"
         role="option"
         aria-selected="${isSelected}"
         ${option.disabled ? "aria-disabled=\"true\"" : ""}
@@ -19630,9 +18199,7 @@ var ElDmSelect = class extends BaseElement {
 	}
 	_renderTreeOptions() {
 		const flatNodes = this._getFlattenedTreeOptions();
-		if (flatNodes.length === 0) {
-			return `<div class="select-empty">No options available</div>`;
-		}
+		if (flatNodes.length === 0) return `<div class="select-empty">No options available</div>`;
 		const selectedValues = this._getSelectedValues();
 		return flatNodes.map((node, index) => this._renderTreeNode(node, selectedValues, index)).join("");
 	}
@@ -19658,7 +18225,7 @@ var ElDmSelect = class extends BaseElement {
         class="${classes}"
         role="treeitem"
         aria-selected="${isSelected}"
-        aria-expanded="${hasChildren ? isExpanded : undefined}"
+        aria-expanded="${hasChildren ? isExpanded : void 0}"
         ${option.disabled ? "aria-disabled=\"true\"" : ""}
         data-action="select-tree"
         data-value="${this._escapeHtml(option.value)}"
@@ -19684,19 +18251,15 @@ var ElDmSelect = class extends BaseElement {
 		if (this._isOpen) {
 			const dropdown = this.shadowRoot?.querySelector(".select-dropdown");
 			const trigger = this.shadowRoot?.querySelector(".select-trigger");
-			if (dropdown && trigger) {
-				try {
-					dropdown.showPopover();
-					this._positionDropdown(dropdown, trigger);
-				} catch {}
-			}
+			if (dropdown && trigger) try {
+				dropdown.showPopover();
+				this._positionDropdown(dropdown, trigger);
+			} catch {}
 			if (hadFocus) {
 				const newSearchInput = this.shadowRoot?.querySelector(".select-search-input");
 				if (newSearchInput) {
 					newSearchInput.focus();
-					if (cursorPosition !== null) {
-						newSearchInput.setSelectionRange(cursorPosition, cursorPosition);
-					}
+					if (cursorPosition !== null) newSearchInput.setSelectionRange(cursorPosition, cursorPosition);
 				}
 			}
 		}
@@ -19704,8 +18267,7 @@ var ElDmSelect = class extends BaseElement {
 	_setupEventDelegation() {
 		this.shadowRoot?.addEventListener("click", (e) => {
 			const target = e.target;
-			const trigger = target.closest("[data-action=\"toggle\"]");
-			if (trigger && !target.closest("[data-action=\"clear\"]") && !target.closest("[data-action=\"remove-tag\"]")) {
+			if (target.closest("[data-action=\"toggle\"]") && !target.closest("[data-action=\"clear\"]") && !target.closest("[data-action=\"remove-tag\"]")) {
 				this._toggle();
 				return;
 			}
@@ -19740,23 +18302,17 @@ var ElDmSelect = class extends BaseElement {
 			}
 		});
 		this.shadowRoot?.addEventListener("input", (e) => {
-			const target = e.target;
-			if (target.matches("[data-action=\"search\"]")) {
-				this._handleSearch(e);
-			}
+			if (e.target.matches("[data-action=\"search\"]")) this._handleSearch(e);
 		});
 	}
 };
 function register$8() {
-	if (!customElements.get("el-dm-select")) {
-		customElements.define("el-dm-select", ElDmSelect);
-	}
+	if (!customElements.get("el-dm-select")) customElements.define("el-dm-select", ElDmSelect);
 }
 register$8();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/slider.js
-const css$8 = `/**
+const css$6 = `/**
  * Slider Component Styles
  * DuskMoonUI - Material Design 3 inspired slider system
  */
@@ -20208,11 +18764,7 @@ const css$8 = `/**
   }
 }
 `;
-const sheet$6 = new CSSStyleSheet();
-sheet$6.replaceSync(css$8);
-const styles$14 = sheet$6;
-var slider_default = sheet$6;
-
+new CSSStyleSheet().replaceSync(css$6);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-slider/dist/esm/register.js
 var SIZE_CLASSES$1 = {
@@ -20229,8 +18781,7 @@ var COLOR_CLASSES$2 = {
 	error: "slider-error",
 	info: "slider-info"
 };
-var coreStyles$7 = css$8.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$13 = css`
+var styles$13 = css$31`
   :host {
     display: block;
     width: 100%;
@@ -20240,7 +18791,7 @@ var styles$13 = css`
     display: none !important;
   }
 
-  ${coreStyles$7}
+  ${css$6.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Web component specific adjustments */
   .slider {
@@ -20434,15 +18985,9 @@ var ElDmSlider = class extends BaseElement {
 	}
 	_getClasses() {
 		const classes = ["slider"];
-		if (this.size && SIZE_CLASSES$1[this.size]) {
-			classes.push(SIZE_CLASSES$1[this.size]);
-		}
-		if (this.color && COLOR_CLASSES$2[this.color]) {
-			classes.push(COLOR_CLASSES$2[this.color]);
-		}
-		if (this.showValue) {
-			classes.push("show-value");
-		}
+		if (this.size && SIZE_CLASSES$1[this.size]) classes.push(SIZE_CLASSES$1[this.size]);
+		if (this.color && COLOR_CLASSES$2[this.color]) classes.push(COLOR_CLASSES$2[this.color]);
+		if (this.showValue) classes.push("show-value");
 		return classes.join(" ");
 	}
 	_getPercentage() {
@@ -20530,15 +19075,9 @@ var ElDmSlider = class extends BaseElement {
 		const filled = this.shadowRoot?.querySelector(".slider-track-filled");
 		const thumb = this.shadowRoot?.querySelector(".slider-thumb");
 		const label = this.shadowRoot?.querySelector(".slider-thumb-label");
-		if (filled) {
-			filled.style.width = `${percentage}%`;
-		}
-		if (thumb) {
-			thumb.style.left = `${percentage}%`;
-		}
-		if (label) {
-			label.textContent = String(this.value);
-		}
+		if (filled) filled.style.width = `${percentage}%`;
+		if (thumb) thumb.style.left = `${percentage}%`;
+		if (label) label.textContent = String(this.value);
 	}
 	render() {
 		const classes = this._getClasses();
@@ -20569,15 +19108,12 @@ var ElDmSlider = class extends BaseElement {
 	}
 };
 function register$7() {
-	if (!customElements.get("el-dm-slider")) {
-		customElements.define("el-dm-slider", ElDmSlider);
-	}
+	if (!customElements.get("el-dm-slider")) customElements.define("el-dm-slider", ElDmSlider);
 }
 register$7();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/stepper.js
-const css$7 = `/**
+const css$5 = `/**
  * Stepper Component Styles
  * DuskMoonUI - Material Design 3 inspired stepper/wizard system
  */
@@ -20891,11 +19427,7 @@ const css$7 = `/**
   }
 }
 `;
-const sheet$5 = new CSSStyleSheet();
-sheet$5.replaceSync(css$7);
-const styles$12 = sheet$5;
-var stepper_default = sheet$5;
-
+new CSSStyleSheet().replaceSync(css$5);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-stepper/dist/esm/register.js
 var COLOR_MAP = {
@@ -20907,8 +19439,8 @@ var COLOR_MAP = {
 	error: "var(--color-error)",
 	info: "var(--color-info)"
 };
-var coreStyles$6 = css$7.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$11 = css`
+var coreStyles$6 = css$5.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
+var styles$11 = css$31`
   :host {
     display: block;
     font-family: var(--font-family-sans, system-ui, sans-serif);
@@ -20994,8 +19526,7 @@ var ElDmStepper = class extends BaseElement {
 	}
 	_handleClick(e) {
 		if (!this.clickable) return;
-		const target = e.target;
-		const stepEl = target.closest("[data-step-index]");
+		const stepEl = e.target.closest("[data-step-index]");
 		if (!stepEl) return;
 		const index = parseInt(stepEl.dataset.stepIndex || "0", 10);
 		if (index !== this.current) {
@@ -21018,29 +19549,17 @@ var ElDmStepper = class extends BaseElement {
 		return "";
 	}
 	_renderStepIndicator(step, index, state) {
-		if (state === "completed") {
-			return step.icon ? `<span class="step-icon">${step.icon}</span>` : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-		}
-		if (step.icon) {
-			return `<span class="step-icon">${step.icon}</span>`;
-		}
+		if (state === "completed") return step.icon ? `<span class="step-icon">${step.icon}</span>` : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+		if (step.icon) return `<span class="step-icon">${step.icon}</span>`;
 		return `${index + 1}`;
 	}
 	_getContainerClasses() {
 		const classes = ["stepper"];
-		if (this.orientation === "vertical") {
-			classes.push("stepper-vertical");
-		}
-		if (this.clickable) {
-			classes.push("stepper-clickable");
-		}
-		if (this.color === "secondary") {
-			classes.push("stepper-secondary");
-		} else if (this.color === "tertiary") {
-			classes.push("stepper-tertiary");
-		} else if (this.color !== "primary") {
-			classes.push("stepper-custom-color");
-		}
+		if (this.orientation === "vertical") classes.push("stepper-vertical");
+		if (this.clickable) classes.push("stepper-clickable");
+		if (this.color === "secondary") classes.push("stepper-secondary");
+		else if (this.color === "tertiary") classes.push("stepper-tertiary");
+		else if (this.color !== "primary") classes.push("stepper-custom-color");
 		return classes.join(" ");
 	}
 	render() {
@@ -21054,10 +19573,9 @@ var ElDmStepper = class extends BaseElement {
 		].includes(this.color);
 		const stepsHtml = stepsArray.map((step, index) => {
 			const state = this._getStepState(index);
-			const stateClass = this._getStepStateClass(state);
 			return `
           <div
-            class="stepper-step ${stateClass}"
+            class="stepper-step ${this._getStepStateClass(state)}"
             data-step-index="${index}"
             part="step"
           >
@@ -21085,7 +19603,7 @@ var ElDmStepper = class extends BaseElement {
     `;
 	}
 };
-var stepStyles = css`
+var stepStyles = css$31`
   :host {
     display: flex;
     position: relative;
@@ -21185,18 +19703,13 @@ var ElDmStep = class extends BaseElement {
 		this.attachStyles(stepStyles);
 	}
 	_renderIndicator() {
-		if (this.status === "completed" && !this.icon) {
-			return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-		}
-		if (this.icon) {
-			return this.icon;
-		}
+		if (this.status === "completed" && !this.icon) return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+		if (this.icon) return this.icon;
 		return `${this.stepNumber}`;
 	}
 	render() {
-		const colorValue = COLOR_MAP[this.color] || COLOR_MAP.primary;
 		return `
-      <div class="stepper-step-icon" style="--step-color: ${colorValue}" part="indicator">
+      <div class="stepper-step-icon" style="--step-color: ${COLOR_MAP[this.color] || COLOR_MAP.primary}" part="indicator">
         <slot name="icon">${this._renderIndicator()}</slot>
       </div>
       <div class="step-content" part="content">
@@ -21208,18 +19721,13 @@ var ElDmStep = class extends BaseElement {
 	}
 };
 function register$6() {
-	if (!customElements.get("el-dm-stepper")) {
-		customElements.define("el-dm-stepper", ElDmStepper);
-	}
-	if (!customElements.get("el-dm-step")) {
-		customElements.define("el-dm-step", ElDmStep);
-	}
+	if (!customElements.get("el-dm-stepper")) customElements.define("el-dm-stepper", ElDmStepper);
+	if (!customElements.get("el-dm-step")) customElements.define("el-dm-step", ElDmStep);
 }
 register$6();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/switch.js
-const css$6 = `/**
+const css$4 = `/**
  * Switch Component Styles
  * DuskMoonUI - Material Design 3 inspired switch/toggle
  *
@@ -21477,11 +19985,7 @@ const css$6 = `/**
   }
 }
 `;
-const sheet$4 = new CSSStyleSheet();
-sheet$4.replaceSync(css$6);
-const styles$10 = sheet$4;
-var switch_default = sheet$4;
-
+new CSSStyleSheet().replaceSync(css$4);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-switch/dist/esm/register.js
 var SIZE_CLASSES = {
@@ -21498,8 +20002,7 @@ var COLOR_CLASSES$1 = {
 	error: "switch-error",
 	info: "switch-info"
 };
-var coreStyles$5 = css$6.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$9 = css`
+var styles$9 = css$31`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -21510,7 +20013,7 @@ var styles$9 = css`
   }
 
   /* Import core switch styles */
-  ${coreStyles$5}
+  ${css$4.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Web component specific adjustments */
   .switch-label {
@@ -21578,12 +20081,8 @@ var ElDmSwitch = class extends BaseElement {
 	}
 	_getSwitchClasses() {
 		const classes = ["switch"];
-		if (this.size && SIZE_CLASSES[this.size]) {
-			classes.push(SIZE_CLASSES[this.size]);
-		}
-		if (this.color && COLOR_CLASSES$1[this.color]) {
-			classes.push(COLOR_CLASSES$1[this.color]);
-		}
+		if (this.size && SIZE_CLASSES[this.size]) classes.push(SIZE_CLASSES[this.size]);
+		if (this.color && COLOR_CLASSES$1[this.color]) classes.push(COLOR_CLASSES$1[this.color]);
 		return classes.join(" ");
 	}
 	connectedCallback() {
@@ -21612,21 +20111,16 @@ var ElDmSwitch = class extends BaseElement {
 	update() {
 		super.update();
 		const input = this.shadowRoot?.querySelector("input");
-		if (input) {
-			input.addEventListener("change", this._handleChange.bind(this));
-		}
+		if (input) input.addEventListener("change", this._handleChange.bind(this));
 	}
 };
 function register$5() {
-	if (!customElements.get("el-dm-switch")) {
-		customElements.define("el-dm-switch", ElDmSwitch);
-	}
+	if (!customElements.get("el-dm-switch")) customElements.define("el-dm-switch", ElDmSwitch);
 }
 register$5();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/table.js
-const css$5 = `/**
+const css$3 = `/**
  * Table Component Styles
  * DuskMoonUI - Material Design 3 inspired table system
  */
@@ -21826,11 +20320,7 @@ const css$5 = `/**
   }
 }
 `;
-const sheet$3 = new CSSStyleSheet();
-sheet$3.replaceSync(css$5);
-const styles$8 = sheet$3;
-var table_default = sheet$3;
-
+new CSSStyleSheet().replaceSync(css$3);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-table/dist/esm/register.js
 var ElDmTableColumn = class extends BaseElement {
@@ -21890,9 +20380,7 @@ var ElDmTableColumn = class extends BaseElement {
 	}
 };
 function registerTableColumn() {
-	if (!customElements.get("el-dm-table-column")) {
-		customElements.define("el-dm-table-column", ElDmTableColumn);
-	}
+	if (!customElements.get("el-dm-table-column")) customElements.define("el-dm-table-column", ElDmTableColumn);
 }
 var ICONS = {
 	sortAsc: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M11 4h4"/><path d="M11 8h7"/><path d="M11 12h10"/></svg>`,
@@ -21903,8 +20391,7 @@ var ICONS = {
 	chevronFirst: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 18-6-6 6-6"/><path d="M7 6v12"/></svg>`,
 	chevronLast: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 18 6-6-6-6"/><path d="M17 6v12"/></svg>`
 };
-var coreStyles$4 = css$5.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$7 = css`
+var styles$7 = css$31`
   :host {
     display: block;
     font-family: inherit;
@@ -21915,7 +20402,7 @@ var styles$7 = css`
   }
 
   /* Import core table styles */
-  ${coreStyles$4}
+  ${css$3.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Main wrapper */
   .table-wrapper {
@@ -22254,7 +20741,7 @@ var ElDmTable = class extends BaseElement {
 			default: "No data available"
 		}
 	};
-	_internalSelectedIds = new Set();
+	_internalSelectedIds = /* @__PURE__ */ new Set();
 	constructor() {
 		super();
 		this.attachStyles(styles$7);
@@ -22294,20 +20781,15 @@ var ElDmTable = class extends BaseElement {
 		this.shadowRoot?.querySelectorAll(".row-select").forEach((input) => {
 			input.addEventListener("change", this._handleRowSelectChange);
 		});
-		const selectAll = this.shadowRoot?.querySelector(".select-all");
-		selectAll?.addEventListener("change", this._handleSelectAllChange);
+		(this.shadowRoot?.querySelector(".select-all"))?.addEventListener("change", this._handleSelectAllChange);
 		this.shadowRoot?.querySelectorAll(".pagination-btn").forEach((btn) => {
 			btn.addEventListener("click", this._handlePaginationClick);
 		});
-		const pageSizeSelect = this.shadowRoot?.querySelector(".page-size-select");
-		pageSizeSelect?.addEventListener("change", this._handlePageSizeChange);
+		(this.shadowRoot?.querySelector(".page-size-select"))?.addEventListener("change", this._handlePageSizeChange);
 	}
 	_handleHeaderClick = (e) => {
-		const th = e.currentTarget.closest("[data-column]");
-		const column = th?.getAttribute("data-column");
-		if (column) {
-			this.sort(column);
-		}
+		const column = e.currentTarget.closest("[data-column]")?.getAttribute("data-column");
+		if (column) this.sort(column);
 	};
 	_handleHeaderKeydown = (e) => {
 		const keyEvent = e;
@@ -22320,9 +20802,8 @@ var ElDmTable = class extends BaseElement {
 		if (direction) {
 			this.sortColumn = column;
 			this.sortDirection = direction;
-		} else if (this.sortColumn === column) {
-			this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
-		} else {
+		} else if (this.sortColumn === column) this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
+		else {
 			this.sortColumn = column;
 			this.sortDirection = "asc";
 		}
@@ -22337,22 +20818,16 @@ var ElDmTable = class extends BaseElement {
 			const aVal = a[this.sortColumn];
 			const bVal = b[this.sortColumn];
 			let comparison;
-			if (aVal === null || aVal === undefined) comparison = 1;
-			else if (bVal === null || bVal === undefined) comparison = -1;
-			else if (typeof aVal === "string" && typeof bVal === "string") {
-				comparison = aVal.localeCompare(bVal);
-			} else if (typeof aVal === "number" && typeof bVal === "number") {
-				comparison = aVal - bVal;
-			} else {
-				comparison = String(aVal).localeCompare(String(bVal));
-			}
+			if (aVal === null || aVal === void 0) comparison = 1;
+			else if (bVal === null || bVal === void 0) comparison = -1;
+			else if (typeof aVal === "string" && typeof bVal === "string") comparison = aVal.localeCompare(bVal);
+			else if (typeof aVal === "number" && typeof bVal === "number") comparison = aVal - bVal;
+			else comparison = String(aVal).localeCompare(String(bVal));
 			return this.sortDirection === "desc" ? -comparison : comparison;
 		});
 	}
 	_handlePaginationClick = (e) => {
-		const btn = e.currentTarget;
-		const action = btn.getAttribute("data-action");
-		switch (action) {
+		switch (e.currentTarget.getAttribute("data-action")) {
 			case "first":
 				this.goToPage(1);
 				break;
@@ -22418,9 +20893,7 @@ var ElDmTable = class extends BaseElement {
 					row: rowData,
 					rowIndex
 				});
-				if (this.selectionMode !== "none") {
-					this.toggleRowSelection(id);
-				}
+				if (this.selectionMode !== "none") this.toggleRowSelection(id);
 			}
 		}
 	};
@@ -22429,29 +20902,20 @@ var ElDmTable = class extends BaseElement {
 		const rowId = input.getAttribute("data-row-id");
 		if (rowId !== null) {
 			const id = this._parseId(rowId);
-			if (input.checked) {
-				this.selectRow(id);
-			} else {
-				this.deselectRow(id);
-			}
+			if (input.checked) this.selectRow(id);
+			else this.deselectRow(id);
 		}
 	};
 	_handleSelectAllChange = (e) => {
-		const input = e.target;
-		if (input.checked) {
-			this.selectAll();
-		} else {
-			this.deselectAll();
-		}
+		if (e.target.checked) this.selectAll();
+		else this.deselectAll();
 	};
 	_parseId(idStr) {
 		const num = Number(idStr);
 		return isNaN(num) ? idStr : num;
 	}
 	selectRow(id) {
-		if (this.selectionMode === "single") {
-			this._internalSelectedIds.clear();
-		}
+		if (this.selectionMode === "single") this._internalSelectedIds.clear();
 		this._internalSelectedIds.add(id);
 		this._emitSelectionChange();
 	}
@@ -22460,15 +20924,11 @@ var ElDmTable = class extends BaseElement {
 		this._emitSelectionChange();
 	}
 	toggleRowSelection(id) {
-		if (this._internalSelectedIds.has(id)) {
-			this.deselectRow(id);
-		} else {
-			this.selectRow(id);
-		}
+		if (this._internalSelectedIds.has(id)) this.deselectRow(id);
+		else this.selectRow(id);
 	}
 	selectAll() {
-		const visibleData = this._getProcessedData();
-		visibleData.forEach((row) => this._internalSelectedIds.add(row.id));
+		this._getProcessedData().forEach((row) => this._internalSelectedIds.add(row.id));
 		this._emitSelectionChange();
 	}
 	deselectAll() {
@@ -22495,21 +20955,16 @@ var ElDmTable = class extends BaseElement {
 		return visibleData.every((row) => this._internalSelectedIds.has(row.id));
 	}
 	_isSomeSelected() {
-		const visibleData = this._getProcessedData();
-		return visibleData.some((row) => this._internalSelectedIds.has(row.id)) && !this._isAllSelected();
+		return this._getProcessedData().some((row) => this._internalSelectedIds.has(row.id)) && !this._isAllSelected();
 	}
 	_getEffectiveColumns() {
-		if (this.columns && this.columns.length > 0) {
-			return this.columns.filter((col) => !col.hidden);
-		}
+		if (this.columns && this.columns.length > 0) return this.columns.filter((col) => !col.hidden);
 		const columnElements = this.querySelectorAll("el-dm-table-column");
 		const cols = [];
 		columnElements.forEach((el) => {
 			if (el instanceof ElDmTableColumn) {
 				const colDef = el.toColumnDef();
-				if (!colDef.hidden) {
-					cols.push(colDef);
-				}
+				if (!colDef.hidden) cols.push(colDef);
 			}
 		});
 		return cols;
@@ -22527,7 +20982,7 @@ var ElDmTable = class extends BaseElement {
 		this.update();
 	}
 	_formatCellValue(value) {
-		if (value === null || value === undefined) return "";
+		if (value === null || value === void 0) return "";
 		if (typeof value === "boolean") return value ? "Yes" : "No";
 		if (value instanceof Date) return value.toLocaleDateString();
 		return String(value);
@@ -22553,9 +21008,7 @@ var ElDmTable = class extends BaseElement {
     `;
 	}
 	_renderSelectAllCell() {
-		if (this.selectionMode !== "multiple") {
-			return "<th class=\"table-header-cell select-cell\" part=\"th\"></th>";
-		}
+		if (this.selectionMode !== "multiple") return "<th class=\"table-header-cell select-cell\" part=\"th\"></th>";
 		const isAllSelected = this._isAllSelected();
 		const isSomeSelected = this._isSomeSelected();
 		return `
@@ -22572,11 +21025,10 @@ var ElDmTable = class extends BaseElement {
 	}
 	_renderSelectCell(row) {
 		const isSelected = this._isRowSelected(row);
-		const inputType = this.selectionMode === "single" ? "radio" : "checkbox";
 		return `
       <td class="table-cell select-cell" part="td">
         <input
-          type="${inputType}"
+          type="${this.selectionMode === "single" ? "radio" : "checkbox"}"
           class="row-select"
           name="table-selection"
           data-row-id="${row.id}"
@@ -22611,10 +21063,9 @@ var ElDmTable = class extends BaseElement {
     `;
 	}
 	_renderLoadingRow(colCount) {
-		const totalCols = this.selectionMode !== "none" ? colCount + 1 : colCount;
 		return `
       <tr class="loading-row">
-        <td colspan="${totalCols}">
+        <td colspan="${this.selectionMode !== "none" ? colCount + 1 : colCount}">
           <div class="loading-spinner"></div>
           <div>Loading...</div>
         </td>
@@ -22622,10 +21073,9 @@ var ElDmTable = class extends BaseElement {
     `;
 	}
 	_renderEmptyRow(colCount) {
-		const totalCols = this.selectionMode !== "none" ? colCount + 1 : colCount;
 		return `
       <tr class="empty-row">
-        <td colspan="${totalCols}">
+        <td colspan="${this.selectionMode !== "none" ? colCount + 1 : colCount}">
           <slot name="empty">${this.emptyMessage}</slot>
         </td>
       </tr>
@@ -22718,20 +21168,14 @@ var ElDmTable = class extends BaseElement {
 	}
 };
 function registerTable() {
-	if (!customElements.get("el-dm-table")) {
-		customElements.define("el-dm-table", ElDmTable);
-	}
+	if (!customElements.get("el-dm-table")) customElements.define("el-dm-table", ElDmTable);
 }
 function register$4() {
 	registerTable();
 	registerTableColumn();
 }
 register$4();
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-tabs/dist/esm/register.js
-var coreStyles$3 = css$4.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$6 = css`
+var styles$6 = css$31`
   :host {
     display: block;
     font-family: inherit;
@@ -22747,7 +21191,7 @@ var styles$6 = css`
   }
 
   /* Import core navigation styles */
-  ${coreStyles$3}
+  ${css$24.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Override core .tabs for our custom behavior */
   .tabs {
@@ -22864,11 +21308,8 @@ var ElDmTabs = class extends BaseElement {
 		const tabs = this._getTabs();
 		if (tabs.length === 0) return;
 		if (!this.value && tabs.length > 0) {
-			const firstTab = tabs[0];
-			const tabId = firstTab.getAttribute("tab-id");
-			if (tabId) {
-				this.value = tabId;
-			}
+			const tabId = tabs[0].getAttribute("tab-id");
+			if (tabId) this.value = tabId;
 		}
 		this._updateSelection();
 	}
@@ -22900,24 +21341,16 @@ var ElDmTabs = class extends BaseElement {
 		const isVertical = this.orientation === "vertical";
 		switch (event.key) {
 			case "ArrowLeft":
-				if (!isVertical) {
-					nextIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
-				}
+				if (!isVertical) nextIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
 				break;
 			case "ArrowRight":
-				if (!isVertical) {
-					nextIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
-				}
+				if (!isVertical) nextIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
 				break;
 			case "ArrowUp":
-				if (isVertical) {
-					nextIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
-				}
+				if (isVertical) nextIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
 				break;
 			case "ArrowDown":
-				if (isVertical) {
-					nextIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
-				}
+				if (isVertical) nextIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
 				break;
 			case "Home":
 				nextIndex = 0;
@@ -22947,20 +21380,14 @@ var ElDmTabs = class extends BaseElement {
 		const tabs = this._getTabs();
 		const panels = this._getPanels();
 		tabs.forEach((tab) => {
-			const tabId = tab.getAttribute("tab-id");
-			const isSelected = tabId === this.value;
+			const isSelected = tab.getAttribute("tab-id") === this.value;
 			tab.setAttribute("aria-selected", String(isSelected));
 			tab.setAttribute("tabindex", isSelected ? "0" : "-1");
-			if (isSelected) {
-				tab.setAttribute("active", "");
-			} else {
-				tab.removeAttribute("active");
-			}
+			if (isSelected) tab.setAttribute("active", "");
+			else tab.removeAttribute("active");
 		});
 		panels.forEach((panel) => {
-			const panelFor = panel.getAttribute("panel-for");
-			const isActive = panelFor === this.value;
-			if (isActive) {
+			if (panel.getAttribute("panel-for") === this.value) {
 				panel.setAttribute("active", "");
 				panel.removeAttribute("hidden");
 			} else {
@@ -23016,7 +21443,7 @@ var ElDmTabs = class extends BaseElement {
 		});
 	}
 };
-var tabStyles = css`
+var tabStyles = css$31`
   :host {
     display: inline-flex;
   }
@@ -23157,11 +21584,10 @@ var ElDmTab = class extends BaseElement {
 	}
 	update() {
 		super.update();
-		const button = this.shadowRoot?.querySelector("button");
-		button?.addEventListener("click", this._handleClick.bind(this));
+		(this.shadowRoot?.querySelector("button"))?.addEventListener("click", this._handleClick.bind(this));
 	}
 };
-var panelStyles = css`
+var panelStyles = css$31`
   :host {
     display: block;
   }
@@ -23193,9 +21619,7 @@ var ElDmTabPanel = class extends BaseElement {
 	connectedCallback() {
 		super.connectedCallback();
 		this.setAttribute("role", "tabpanel");
-		if (!this.active) {
-			this.setAttribute("hidden", "");
-		}
+		if (!this.active) this.setAttribute("hidden", "");
 	}
 	render() {
 		return `
@@ -23206,21 +21630,14 @@ var ElDmTabPanel = class extends BaseElement {
 	}
 };
 function register$3() {
-	if (!customElements.get("el-dm-tabs")) {
-		customElements.define("el-dm-tabs", ElDmTabs);
-	}
-	if (!customElements.get("el-dm-tab")) {
-		customElements.define("el-dm-tab", ElDmTab);
-	}
-	if (!customElements.get("el-dm-tab-panel")) {
-		customElements.define("el-dm-tab-panel", ElDmTabPanel);
-	}
+	if (!customElements.get("el-dm-tabs")) customElements.define("el-dm-tabs", ElDmTabs);
+	if (!customElements.get("el-dm-tab")) customElements.define("el-dm-tab", ElDmTab);
+	if (!customElements.get("el-dm-tab-panel")) customElements.define("el-dm-tab-panel", ElDmTabPanel);
 }
 register$3();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/theme-controller.js
-const css$3 = `/**
+const css$2 = `/**
  * Theme Controller Component Styles
  * DuskMoonUI - Two display modes for theme switching:
  *
@@ -23502,15 +21919,8 @@ const css$3 = `/**
   }
 }
 `;
-const sheet$2 = new CSSStyleSheet();
-sheet$2.replaceSync(css$3);
-const styles$5 = sheet$2;
-var theme_controller_default = sheet$2;
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-theme-controller/dist/esm/register.js
-var coreStyles$2 = css$3.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$4 = css`
+new CSSStyleSheet().replaceSync(css$2);
+var styles$4 = css$31`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -23518,7 +21928,7 @@ var styles$4 = css`
   :host([hidden]) {
     display: none !important;
   }
-  ${coreStyles$2}
+  ${css$2.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 `;
 var ElDmThemeController = class extends BaseElement {
 	static properties = { size: {
@@ -23548,8 +21958,7 @@ var ElDmThemeController = class extends BaseElement {
 		const name = inputs[0].name || this.#name;
 		const items = [];
 		inputs.forEach((input) => {
-			const label = input.closest("label");
-			const text = label?.textContent?.replace(input.textContent || "", "").trim() || input.value;
+			const text = input.closest("label")?.textContent?.replace(input.textContent || "", "").trim() || input.value;
 			items.push({
 				value: input.value,
 				label: text,
@@ -23563,7 +21972,7 @@ var ElDmThemeController = class extends BaseElement {
 		const container = shadow.querySelector(".theme-controller");
 		if (!container) return;
 		container.className = `theme-controller${sizeClass}`;
-		container.innerHTML = items.map((item, i) => `<input type="radio" class="theme-controller-item" name="${name}" value="${item.value}" id="${this.#name}-${i}"${item.checked ? " checked" : ""} />` + `<label class="theme-controller-label" for="${this.#name}-${i}">${item.label}</label>`).join("");
+		container.innerHTML = items.map((item, i) => `<input type="radio" class="theme-controller-item" name="${name}" value="${item.value}" id="${this.#name}-${i}"${item.checked ? " checked" : ""} /><label class="theme-controller-label" for="${this.#name}-${i}">${item.label}</label>`).join("");
 		container.querySelectorAll("input[type=\"radio\"]").forEach((radio) => {
 			radio.addEventListener("change", () => {
 				this.emit("change", { value: radio.value });
@@ -23575,15 +21984,12 @@ var ElDmThemeController = class extends BaseElement {
 	}
 };
 function register$2() {
-	if (!customElements.get("el-dm-theme-controller")) {
-		customElements.define("el-dm-theme-controller", ElDmThemeController);
-	}
+	if (!customElements.get("el-dm-theme-controller")) customElements.define("el-dm-theme-controller", ElDmThemeController);
 }
 register$2();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/time-input.js
-const css$2 = `/**
+const css$1 = `/**
  * Time Input Component Styles
  * DuskMoonUI - Time selection input component
  */
@@ -23885,15 +22291,8 @@ const css$2 = `/**
   }
 }
 `;
-const sheet$1 = new CSSStyleSheet();
-sheet$1.replaceSync(css$2);
-const styles$3 = sheet$1;
-var time_input_default = sheet$1;
-
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-time-input/dist/esm/register.js
-var coreStyles$1 = css$2.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$2 = css`
+new CSSStyleSheet().replaceSync(css$1);
+var styles$2 = css$31`
   :host {
     display: block;
     width: 100%;
@@ -23901,7 +22300,7 @@ var styles$2 = css`
   :host([hidden]) {
     display: none !important;
   }
-  ${coreStyles$1}
+  ${css$1.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 `;
 var ElDmTimeInput = class extends BaseElement {
 	static properties = {
@@ -23925,24 +22324,20 @@ var ElDmTimeInput = class extends BaseElement {
 		this.attachStyles(styles$2);
 	}
 	render() {
-		const colorClass = `time-input-${this.color || "primary"}`;
 		return `
-      <div class="time-input ${colorClass}">
+      <div class="time-input ${`time-input-${this.color || "primary"}`}">
         <input type="time" class="time-input-field" value="${this.value || ""}" ${this.disabled ? "disabled" : ""} />
       </div>
     `;
 	}
 };
 function register$1() {
-	if (!customElements.get("el-dm-time-input")) {
-		customElements.define("el-dm-time-input", ElDmTimeInput);
-	}
+	if (!customElements.get("el-dm-time-input")) customElements.define("el-dm-time-input", ElDmTimeInput);
 }
 register$1();
-
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/tooltip.js
-const css$1 = `/**
+const css = `/**
  * Tooltip Component Styles
  * DuskMoonUI - Material Design 3 inspired tooltip system
  */
@@ -24311,11 +22706,7 @@ const css$1 = `/**
   }
 }
 `;
-const sheet = new CSSStyleSheet();
-sheet.replaceSync(css$1);
-const styles$1 = sheet;
-var tooltip_default = sheet;
-
+new CSSStyleSheet().replaceSync(css);
 //#endregion
 //#region ../../node_modules/@duskmoon-dev/el-tooltip/dist/esm/register.js
 var POSITION_CLASSES = {
@@ -24333,8 +22724,7 @@ var COLOR_CLASSES = {
 	warning: "tooltip-warning",
 	error: "tooltip-error"
 };
-var coreStyles = css$1.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles = css`
+var styles = css$31`
   :host {
     display: inline-flex;
     position: relative;
@@ -24344,7 +22734,7 @@ var styles = css`
     display: none !important;
   }
 
-  ${coreStyles}
+  ${css.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   .tooltip-wrapper {
     display: inline-flex;
@@ -24635,13 +23025,10 @@ var ElDmTooltip = class extends BaseElement {
 	}
 	_show() {
 		if (this.disabled || !this.content) return;
-		if (this.delay > 0) {
-			this._showTimeout = window.setTimeout(() => {
-				this._setVisible(true);
-			}, this.delay);
-		} else {
+		if (this.delay > 0) this._showTimeout = window.setTimeout(() => {
 			this._setVisible(true);
-		}
+		}, this.delay);
+		else this._setVisible(true);
 	}
 	_hide() {
 		if (this._showTimeout) {
@@ -24653,41 +23040,27 @@ var ElDmTooltip = class extends BaseElement {
 	_setVisible(visible) {
 		this._isVisible = visible;
 		const tooltipContent = this.shadowRoot?.querySelector(".tooltip-content");
-		if (tooltipContent) {
-			tooltipContent.classList.toggle("visible", visible);
-		}
+		if (tooltipContent) tooltipContent.classList.toggle("visible", visible);
 	}
 	_toggle() {
-		if (this._isVisible) {
-			this._hide();
-		} else {
-			this._show();
-		}
+		if (this._isVisible) this._hide();
+		else this._show();
 	}
 	_getTooltipClasses() {
 		const classes = ["tooltip-content"];
-		if (this.position && POSITION_CLASSES[this.position]) {
-			classes.push(POSITION_CLASSES[this.position]);
-		} else {
-			classes.push("tooltip-top");
-		}
-		if (this.color && COLOR_CLASSES[this.color]) {
-			classes.push(COLOR_CLASSES[this.color]);
-		}
+		if (this.position && POSITION_CLASSES[this.position]) classes.push(POSITION_CLASSES[this.position]);
+		else classes.push("tooltip-top");
+		if (this.color && COLOR_CLASSES[this.color]) classes.push(COLOR_CLASSES[this.color]);
 		return classes.join(" ");
 	}
 	connectedCallback() {
 		super.connectedCallback();
 		this._setupListeners();
-		if (this.open) {
-			this._setVisible(true);
-		}
+		if (this.open) this._setVisible(true);
 	}
 	update() {
 		super.update();
-		if (this.open) {
-			this._setVisible(true);
-		}
+		if (this.open) this._setVisible(true);
 	}
 	disconnectedCallback() {
 		super.disconnectedCallback?.();
@@ -24697,9 +23070,7 @@ var ElDmTooltip = class extends BaseElement {
 		if (this.trigger === "hover") {
 			this.addEventListener("mouseenter", this._show.bind(this));
 			this.addEventListener("mouseleave", this._hide.bind(this));
-		} else if (this.trigger === "click") {
-			this.addEventListener("click", this._toggle.bind(this));
-		}
+		} else if (this.trigger === "click") this.addEventListener("click", this._toggle.bind(this));
 		if (this.trigger === "focus" || this.trigger === "hover") {
 			this.addEventListener("focusin", this._show.bind(this));
 			this.addEventListener("focusout", this._hide.bind(this));
@@ -24713,11 +23084,10 @@ var ElDmTooltip = class extends BaseElement {
 		this.removeEventListener("focusout", this._hide.bind(this));
 	}
 	render() {
-		const tooltipClasses = this._getTooltipClasses();
 		return `
       <div class="tooltip-wrapper" part="tooltip">
         <slot></slot>
-        <div class="${tooltipClasses}" role="tooltip" part="content">
+        <div class="${this._getTooltipClasses()}" role="tooltip" part="content">
           ${this.content || ""}
           ${this.arrow ? "<span class=\"tooltip-arrow\" part=\"arrow\"></span>" : ""}
         </div>
@@ -24726,10 +23096,7 @@ var ElDmTooltip = class extends BaseElement {
 	}
 };
 function register() {
-	if (!customElements.get("el-dm-tooltip")) {
-		customElements.define("el-dm-tooltip", ElDmTooltip);
-	}
+	if (!customElements.get("el-dm-tooltip")) customElements.define("el-dm-tooltip", ElDmTooltip);
 }
 register();
-
 //#endregion

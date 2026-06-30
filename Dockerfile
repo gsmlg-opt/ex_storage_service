@@ -32,7 +32,7 @@ RUN npm ci
 COPY config ./config
 COPY apps ./apps
 
-# Build assets (duskmoon.bundle + volt.build --tailwind)
+# Build assets (duskmoon.bundle + duskmoon_bundler.build)
 # Dummy env vars satisfy runtime.exs prod guards during the build step only.
 # Real values must be provided at container runtime by the operator.
 RUN ESS_MASTER_KEY=$(openssl rand -base64 32) \

@@ -5,6 +5,7 @@ defmodule ExStorageService.Umbrella.MixProject do
     [
       apps_path: "apps",
       version: "0.2.0",
+      elixir: ">= 1.18.0",
       start_permanent: Mix.env() == :prod,
       listeners: [Phoenix.CodeReloader],
       deps: deps(),
@@ -31,8 +32,8 @@ defmodule ExStorageService.Umbrella.MixProject do
 
   defp aliases do
     [
-      setup: ["deps.get", "cmd --app ex_storage_service_web mix setup"],
-      "assets.deploy": ["cmd --app ex_storage_service_web mix assets.deploy"]
+      setup: ["deps.get", "do --app ex_storage_service_web cmd mix setup"],
+      "assets.deploy": ["do --app ex_storage_service_web cmd mix assets.deploy"]
     ]
   end
 end

@@ -13,7 +13,7 @@ ExStorageService is a high-performance, S3-compatible, umbrella-structured objec
 - **Safety First**: Never execute commands or perform destructive operations that risk data loss without verification or testing. Preserve existing documentations and comments.
 - **Strict Database-Free Constraint**: Remember that there is **no database/Ecto**. All metadata goes to Concord/Raft KV, and files go directly to the content-addressed disk storage engine.
 - **Separation of Concerns**: Respect the boundary between the umbrella applications: Core is pure business logic, S3 is a pure Plug.Router, Web is Phoenix LiveView using DuskMoon UI components.
-- **Volt UI Asset Pipeline**: Do not use DaisyUI or Tailwind CLI. Use Volt and DuskMoon UI library components.
+- **Duskmoon Bundler UI Asset Pipeline**: Do not use DaisyUI or Tailwind CLI. Use Duskmoon Bundler and DuskMoon UI library components.
 
 ### Context Loading Strategy
 The agent should prioritize reading files in the following order:
@@ -64,7 +64,7 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
 
 ### 3. The DuskMoon UI Designer
 - **Objective**: Build or refine Admin Portal views.
-- **Behavior**: Ensures layout changes conform strictly to `phoenix_duskmoon` components and Volt styles. Follows premium UI principles (vibrant palettes, modern typography, responsive design).
+- **Behavior**: Ensures layout changes conform strictly to `phoenix_duskmoon` components and DuskMoon styles. Follows premium UI principles (vibrant palettes, modern typography, responsive design).
 - **Focus**: Aesthetics, responsiveness, and consistent component usage.
 
 ---
@@ -166,7 +166,7 @@ graph TD
 | `mix phx.server` | Start S3 API (port 9000) and Web App (port 4900) concurrently |
 | `mix test` | Execute the entire test suite |
 | `mix format` | Enforce formatting rule compliance across all directories |
-| `mix volt.build --tailwind` | Manually compile stylesheets and scripts using Volt |
+| `mix duskmoon_bundler.build` | Manually compile stylesheets and scripts using Duskmoon Bundler |
 
 ---
 

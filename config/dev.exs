@@ -8,8 +8,8 @@ config :ex_storage_service_web, ExStorageServiceWeb.Endpoint,
   secret_key_base:
     "dev_secret_key_base_that_is_at_least_64_bytes_long_for_development_only_000000000",
   watchers: [
-    volt:
-      {Mix.Tasks.Volt.Dev, :run,
+    duskmoon_bundler:
+      {Mix.Tasks.DuskmoonBundler.Dev, :run,
        [
          ~w(--tailwind --tailwind-outdir) ++
            [Path.expand("../apps/ex_storage_service_web/priv/static/assets/css", __DIR__)]
@@ -30,11 +30,11 @@ config :logger, :console, level: :debug
 
 config :phoenix, :plug_init_mode, :runtime
 
-config :volt, :server,
+config :duskmoon_bundler, :server,
   prefix: "/assets",
   watch_dirs: [Path.expand("../apps/ex_storage_service_web/lib/", __DIR__)]
 
-config :volt,
+config :duskmoon_bundler,
   sourcemap: :linked
 
 config :phoenix_live_view,

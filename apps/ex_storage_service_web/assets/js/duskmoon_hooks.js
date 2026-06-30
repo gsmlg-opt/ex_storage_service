@@ -1,7 +1,7 @@
 /**
  * Phoenix Duskmoon UI v9 Hooks (local bundle)
  *
- * Bundled locally to work around Volt's inability to vendor-prebundle
+ * Bundled locally to keep Duskmoon Bundler from vendor-prebundling
  * symlinked Elixir deps in umbrella projects (OXC bundler rejects
  * entries that resolve outside its cwd via symlinks).
  *

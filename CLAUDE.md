@@ -16,7 +16,7 @@ The `ess` release includes only the three server apps. The CLI's version in `app
 ## Common Commands
 
 ```bash
-mix setup                          # Install deps + npm_ex packages + DuskMoon bundle + build assets
+mix setup                          # Install deps + Duskmoon npm packages + DuskMoon bundle + build assets
 mix test                           # Run all tests (all apps)
 mix test --app ex_storage_service  # Run core app tests only
 mix test --app ex_storage_service_s3  # Run S3 app tests only
@@ -27,7 +27,7 @@ mix format                         # Format code
 mix format --check-formatted       # Check formatting (CI)
 mix compile --warnings-as-errors   # Compile with strict warnings (CI)
 mix phx.server                     # Start all apps (S3 API :9000 + admin portal :4900)
-mix volt.build --tailwind          # Build frontend assets manually
+mix duskmoon_bundler.build         # Build frontend assets manually
 ```
 
 Build the CLI escript: `mix escript.build` inside `apps/ex_storage_service_cli` (produces `./ess`).
@@ -37,8 +37,8 @@ Build the CLI escript: `mix escript.build` inside `apps/ex_storage_service_cli` 
 - **No Ecto/database.** All metadata lives in Concord (Raft KV). There are no migrations, no Repo, no schemas.
 - **S3 router is not Phoenix.** The S3 API (`apps/ex_storage_service_s3/lib/ex_storage_service_s3/router.ex`) is a standalone `Plug.Router`, not a Phoenix router. Don't use Phoenix helpers there.
 - **S3 modules use `ExStorageServiceS3.*` naming** (not `ExStorageService.S3.*`).
-- **Assets use Volt, not Bun/Tailwind CLI.** The `volt` hex dep builds JS + Tailwind v4 from Elixir tooling; `npm_ex` (`mix npm.install`) manages npm packages — no Node, npm CLI, or Bun binary is required. Volt config lives in `config/config.exs`; the dev watcher is `Mix.Tasks.Volt.Dev`. Assets live in `apps/ex_storage_service_web/assets/`, output goes to `apps/ex_storage_service_web/priv/static/assets/`.
-- **Elixir ~> 1.18, OTP 28.** CI uses these versions. The built-in `JSON` module is available (Elixir 1.18+).
+- **Assets use Duskmoon Bundler, not Bun/Tailwind CLI.** The `duskmoon_bundler` hex dep builds JS + Tailwind v4 from Elixir tooling; `duskmoon_npm` provides `mix npm.install` - no Node, npm CLI, or Bun binary is required. Duskmoon Bundler config lives in `config/config.exs`; the dev watcher is `Mix.Tasks.DuskmoonBundler.Dev`. Assets live in `apps/ex_storage_service_web/assets/`, output goes to `apps/ex_storage_service_web/priv/static/assets/`.
+- **Elixir >= 1.18.0, OTP 28.** CI uses these versions. The built-in `JSON` module is available (Elixir 1.18+).
 - **S3 auth is off by default in dev** (`ESS_S3_AUTH_ENABLED=false`), so local S3 requests accept dummy credentials. Dev startup seeds a fixed full-access key: `AKIA-DEV-ACCESS-KEY` / `DEV-SECRET-ACCESS-KEY-DO-NOT-USE`.
 
 ## Architecture
@@ -136,7 +136,7 @@ Production startup (`config/runtime.exs`) refuses insecure defaults: `ESS_S3_AUT
 
 - Core config: `config :ex_storage_service, ...` — includes `s3_port`, `admin_port`, `data_root`, GC intervals, size limits (see `config/runtime.exs`)
 - Web endpoint config: `config :ex_storage_service_web, ExStorageServiceWeb.Endpoint, ...`
-- Volt asset pipeline config: `config :volt, ...` in `config/config.exs` (entry, outdir, tailwind sources include `deps/phoenix_duskmoon`)
+- Duskmoon Bundler asset pipeline config: `config :duskmoon_bundler, ...` in `config/config.exs` (entry, outdir, tailwind sources include `deps/phoenix_duskmoon`)
 
 ## UI Library
 

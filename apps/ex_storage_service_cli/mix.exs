@@ -11,7 +11,7 @@ defmodule ExStorageServiceCli.MixProject do
       build_path: "../../_build",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.18",
+      elixir: ">= 1.18.0",
       start_permanent: false,
       deps: deps(),
       escript: escript(),
