@@ -647,8 +647,7 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
                   <span class={
                     "w-2 h-2 rounded-full flex-shrink-0 " <>
                     if (rule[:status] || rule.status) == "Enabled", do: "bg-success", else: "bg-outline-variant"
-                  }>
-                  </span>
+                  }></span>
                   <span class="font-mono text-primary">
                     {rule[:prefix] || rule.prefix || "(all)"}
                   </span>
