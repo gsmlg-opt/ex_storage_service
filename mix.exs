@@ -15,7 +15,9 @@ defmodule ExStorageService.Umbrella.MixProject do
   end
 
   defp deps do
-    []
+    [
+      {:ex_doc, "~> 0.40", runtime: false, override: true}
+    ]
   end
 
   defp releases do
