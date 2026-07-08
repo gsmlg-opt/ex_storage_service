@@ -12,6 +12,10 @@ defmodule ExStorageService.BucketValidator do
   Also rejects names that could escape the data root directory via path traversal.
   """
 
+  # Directory names under data_root reserved for internal storage layouts
+  # (see docs/prd/git-style-data-model.md §6).
+  @reserved_names ["cas"]
+
   @doc """
   Returns `true` if the bucket name is valid according to S3 rules and is
   safe to use as a filesystem directory name.
@@ -36,6 +40,7 @@ defmodule ExStorageService.BucketValidator do
       no_consecutive_dots?(name) and
       no_dot_hyphen_sequences?(name) and
       not ip_address_format?(name) and
+      not reserved_name?(name) and
       path_safe?(name)
   end
 
@@ -66,6 +71,9 @@ defmodule ExStorageService.BucketValidator do
 
       ip_address_format?(name) ->
         {:error, "Bucket name must not be formatted as an IP address."}
+
+      reserved_name?(name) ->
+        {:error, "Bucket name \"#{name}\" is reserved for internal use."}
 
       not path_safe?(name) ->
         {:error, "Bucket name contains characters not safe for use in filesystem paths."}
@@ -104,6 +112,8 @@ defmodule ExStorageService.BucketValidator do
   defp ip_address_format?(name) do
     Regex.match?(~r/^\d+\.\d+\.\d+\.\d+$/, name)
   end
+
+  defp reserved_name?(name), do: name in @reserved_names
 
   # Reject any name that contains path traversal sequences or filesystem-unsafe
   # characters, even if encoded.  We check the raw name after it has been
