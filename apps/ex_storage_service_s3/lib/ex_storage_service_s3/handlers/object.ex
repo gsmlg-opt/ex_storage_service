@@ -401,12 +401,18 @@ defmodule ExStorageServiceS3.Handlers.Object do
   defp copy_destination_content(
          source_bucket,
          _source_key,
-         dest_bucket,
+         _dest_bucket,
          _dest_key,
          source_meta,
          :disabled
        ) do
-    copy_local_destination_content(source_bucket, dest_bucket, source_meta.content_hash)
+    # Content is globally addressed: ensure the blob is in the CAS
+    # (promoting pre-migration legacy content), then the copy is
+    # metadata-only — no physical file duplication.
+    case Engine.promote_to_global(source_bucket, source_meta.content_hash) do
+      :ok -> :ok
+      {:error, :not_found} -> {:error, :source_missing}
+    end
   end
 
   defp copy_destination_content(
@@ -430,21 +436,6 @@ defmodule ExStorageServiceS3.Handlers.Object do
     end
   end
 
-  defp copy_local_destination_content(source_bucket, dest_bucket, content_hash)
-       when source_bucket == dest_bucket do
-    case Engine.get_object(source_bucket, content_hash) do
-      {:ok, _source_path} -> :ok
-      {:error, _} -> {:error, :source_missing}
-    end
-  end
-
-  defp copy_local_destination_content(source_bucket, dest_bucket, content_hash) do
-    case copy_local_content(source_bucket, dest_bucket, content_hash) do
-      :ok -> :ok
-      {:error, :not_found} -> {:error, :source_missing}
-    end
-  end
-
   defp read_source_object_data(source_bucket, source_key, source_meta) do
     case LocalStore.get(source_bucket, source_key) do
       {:ok, path} ->
@@ -465,22 +456,6 @@ defmodule ExStorageServiceS3.Handlers.Object do
           {:ok, src_config} -> CloudClient.get_object(src_config, source_key)
           :disabled -> {:error, :no_source}
         end
-    end
-  end
-
-  # Copies a content-addressed file from one local bucket to another.
-  # Returns {:error, :not_found} when the source content file is absent.
-  defp copy_local_content(source_bucket, dest_bucket, content_hash) do
-    case Engine.get_object(source_bucket, content_hash) do
-      {:ok, source_path} ->
-        data_root = Application.get_env(:ex_storage_service, :data_root)
-        dest_path = Engine.content_path(data_root, dest_bucket, content_hash)
-        File.mkdir_p!(Path.dirname(dest_path))
-        File.cp!(source_path, dest_path)
-        :ok
-
-      {:error, _} ->
-        {:error, :not_found}
     end
   end
 
