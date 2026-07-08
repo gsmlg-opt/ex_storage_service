@@ -133,17 +133,6 @@ defmodule ExStorageService.Storage.Engine do
     Path.join([data_root, bucket, "objects", prefix, rest])
   end
 
-  # Transitional delegate for callers not yet migrated to the global CAS
-  # (removed once handlers/object.ex and bucket_live/files.ex are updated).
-  def content_path(data_root, bucket, content_hash) do
-    legacy_content_path(data_root, bucket, content_hash)
-  end
-
-  # Transitional no-op: content files are removed by GC only (PRD §10.3).
-  def delete_content(_bucket, _content_hash) do
-    :ok
-  end
-
   @doc """
   Ensure the bucket directory structure exists (legacy layout; still used
   for multipart part staging).
