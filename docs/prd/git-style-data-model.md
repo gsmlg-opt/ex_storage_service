@@ -15,6 +15,7 @@
 > 10. Versioning is documented as mostly unwired today: `Versioning.put_version/3` and `delete_version/3` have no callers; Phase 2 is new behavior, and `ver:*` subsumes (migrates, does not parallel) the existing `obj_ver:*` / `obj_ver_list:*` schema.
 > 11a. **Phase 3 implementation note (2026-07-09):** multipart parts are CAS blobs (part records carry the blob hash) and CompleteMultipartUpload streams the concatenation with constant memory into a whole-object CAS blob *and* records a content-addressed manifest (`manifest:sha256:{hash}` record + canonical JSON file under `cas/manifests/`, linked from version metadata via `manifest_hash`). **Serving stays whole-blob** — manifest-streaming GET was deliberately not implemented because chunked transfer-encoding drops `Content-Length` and complicates Range, regressing S3 client compatibility (§12.4). Manifest-based serving is deferred to Phase 6 (packs). Part blobs become unreferenced after completion and are reclaimed by Phase 4 GC.
 > 11b. **Phase 4 implementation note (2026-07-09):** `Storage.CasGC` implements the candidate → quarantine → delete pipeline for `cas/objects` with per-stage reachability re-checks, restore-on-rereference for quarantined blobs, dry-run mode, `stats/0` for operator visibility, and audit logging. GC roots: `obj:*`/`obj_ver:*` `content_hash` plus active `mpu_part:*` `hash`. Manifest files/records are never swept. Admin *UI* for GC visibility is a follow-up; the legacy `ContentGC` continues to own the legacy tree until it is deleted.
+> 11c. **Phase 5 implementation note (2026-07-09):** replication jobs pin the replicated version at enqueue time (`payload.object`: version_id, content_hash, etag, size, content_type); the worker skips transfer when the destination already holds identical content (key-level HEAD etag+size comparison — targets are generic S3 endpoints, so there is no cross-node blob-hash endpoint) and skips superseded-and-collected versions as stale. Delete/delete-marker replication is body-less (plain DELETE, 404-idempotent). "Transfer manifests before refs" is N/A — multipart objects replicate as their materialized whole blob. Follow-ups: streaming PUT bodies (chunked enumerable bodies corrupt pooled HTTP/1.1 connections with Bandit targets; needs explicit content-length streaming) and SigV4 replica auth (still bearer-token v1).
 > 11. **Phase 2 implementation note (2026-07-09):** the existing `obj:{bucket}:{key}` record serves as the mutable ref (it is absent when the latest version is a delete marker), and the existing `obj_ver:*` / `obj_ver_list:*` keys serve as the version store — no `ref:*`/`ver:*` key rename or metadata migration was needed since the schema already matched. `bucket_versioning:{bucket}` is retained as a separate key. Version records gained `object_type` and `parent_version_id` fields. Phase 2 follow-ups (not yet implemented): `ListObjectVersions` API, `HeadObject` with `versionId`, `x-amz-copy-source` with `?versionId=`, and `x-amz-version-id` on the CompleteMultipartUpload response.
 
 ## 1. Overview
@@ -777,13 +778,13 @@ ExStorageService.Storage.Migration    (mix task / admin-triggered)
 * Extend mark-and-sweep to the global CAS with candidate queue, quarantine, dry-run, audit logs, admin visibility. ✅ (`Storage.CasGC`: `gc:candidate:{hash}` records with stages, `cas/gc/quarantine/` holding area, restore-on-rereference, `dry_run/0` + `stats/0`; per-stage reachability re-checks. Admin UI is a follow-up.)
 * Legacy `ContentGC` retires when the legacy layout is deleted. (Unchanged — still owns the legacy tree.)
 
-### Phase 5: Replication Upgrade
+### Phase 5: Replication Upgrade — ✅ done (2026-07-09)
 
-* Replicate by version/root hash.
-* Skip already-present blobs.
-* Transfer manifests before refs.
-* Delete-marker replication without body transfer.
-* Make replication idempotent.
+* Replicate by version/root hash. ✅ (jobs pin version_id + content_hash + etag + size at enqueue time; superseded-and-collected versions skip as stale.)
+* Skip already-present blobs. ✅ (key-level HEAD etag+size comparison — targets are generic S3, no cross-node blob endpoint; see revision note 11c.)
+* ~~Transfer manifests before refs~~ → N/A: multipart objects replicate as their materialized whole blob.
+* Delete-marker replication without body transfer. ✅ (plain DELETE, 404-idempotent — unchanged.)
+* Make replication idempotent. ✅ (skip-if-present + stale skip + idempotent delete.)
 
 ### Phase 6: Pack Storage
 
