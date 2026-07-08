@@ -148,7 +148,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
             case parse_complete_multipart_xml(body) do
               {:ok, parts} ->
                 case Multipart.complete_upload(bucket, upload_id, parts) do
-                  {:ok, {content_hash, etag, size}} ->
+                  {:ok, {content_hash, etag, size, manifest_hash}} ->
                     # Store object metadata
                     now = DateTime.utc_now() |> DateTime.to_iso8601()
 
@@ -160,6 +160,8 @@ defmodule ExStorageServiceS3.MultipartHandlers do
 
                     meta = %{
                       content_hash: content_hash,
+                      manifest_hash: manifest_hash,
+                      object_type: :blob,
                       size: size,
                       etag: etag,
                       content_type: content_type,

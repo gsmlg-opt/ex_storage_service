@@ -45,10 +45,64 @@ defmodule ExStorageService.Storage.MultipartTest do
 
     parts = [{1, ""}, {2, etag2}]
 
-    assert {:ok, {content_hash, _etag, _size}} =
+    assert {:ok, {content_hash, _etag, _size, _manifest_hash}} =
              ExStorageService.Storage.Multipart.complete_upload(bucket, upload_id, parts)
 
     assert File.exists?(ExStorageService.Storage.CAS.blob_path(content_hash))
     assert {:ok, _} = ExStorageService.Metadata.get_blob_meta(content_hash)
+  end
+
+  test "store_part commits the part to the global CAS and records its hash" do
+    bucket = "mpu-part-#{:erlang.unique_integer([:positive])}"
+    ExStorageService.Metadata.create_bucket(bucket)
+    {:ok, upload_id} = Multipart.init_upload(bucket, "obj")
+
+    data = "part-data-#{System.unique_integer()}"
+    expected_hash = Base.encode16(:crypto.hash(:sha256, data), case: :lower)
+
+    {:ok, _etag} = Multipart.store_part(bucket, upload_id, 1, data)
+
+    assert File.exists?(ExStorageService.Storage.CAS.blob_path(expected_hash))
+    assert {:ok, [part]} = Multipart.list_parts(bucket, upload_id)
+    assert part.hash == expected_hash
+    # no bucket-local part files
+    refute File.dir?(
+             Path.join([ExStorageService.Storage.CAS.data_root(), bucket, "multipart", upload_id])
+           )
+  end
+
+  test "complete_upload creates a manifest describing the parts" do
+    bucket = "mpu-man-#{:erlang.unique_integer([:positive])}"
+    ExStorageService.Metadata.create_bucket(bucket)
+    {:ok, upload_id} = Multipart.init_upload(bucket, "obj")
+
+    p1 = String.duplicate("x", 5 * 1024 * 1024)
+    p2 = "tail-#{System.unique_integer()}"
+    {:ok, etag1} = Multipart.store_part(bucket, upload_id, 1, p1)
+    {:ok, etag2} = Multipart.store_part(bucket, upload_id, 2, p2)
+
+    assert {:ok, {content_hash, _etag, size, manifest_hash}} =
+             Multipart.complete_upload(bucket, upload_id, [{1, etag1}, {2, etag2}])
+
+    assert size == byte_size(p1) + byte_size(p2)
+    # whole-object blob equals the concatenation
+    assert File.read!(ExStorageService.Storage.CAS.blob_path(content_hash)) == p1 <> p2
+
+    assert {:ok, manifest} = ExStorageService.Storage.Manifest.get_manifest(manifest_hash)
+    assert [%{number: 1, etag: ^etag1}, %{number: 2, etag: ^etag2}] = manifest.parts
+    assert manifest.total_size == size
+
+    # part records cleaned up after completion
+    assert {:ok, []} = Multipart.list_parts(bucket, upload_id)
+  end
+
+  test "complete_upload with a never-uploaded part returns missing_part" do
+    bucket = "mpu-miss-#{:erlang.unique_integer([:positive])}"
+    ExStorageService.Metadata.create_bucket(bucket)
+    {:ok, upload_id} = Multipart.init_upload(bucket, "obj")
+    {:ok, etag1} = Multipart.store_part(bucket, upload_id, 1, "only-part")
+
+    assert {:error, {:missing_part, 2, _reason}} =
+             Multipart.complete_upload(bucket, upload_id, [{1, etag1}, {2, "bogus"}])
   end
 end

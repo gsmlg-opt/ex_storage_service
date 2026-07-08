@@ -195,6 +195,11 @@ defmodule ExStorageService.Storage.Engine do
       {:ok, {content_hash, md5, size}}
     rescue
       e -> {:error, Exception.message(e)}
+    catch
+      # Body streams throw tagged errors (e.g. {:error, :entity_too_large}
+      # from Shared.body_stream when a size limit is exceeded); surface them
+      # as return values so handlers can map them to S3 error responses.
+      {:error, reason} -> {:error, reason}
     end
   end
 end
