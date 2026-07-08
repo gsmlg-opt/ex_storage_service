@@ -157,7 +157,11 @@ defmodule ExStorageService.Storage.ContentGC do
   defp get_disk_content_hashes(data_root) do
     case File.ls(data_root) do
       {:ok, entries} ->
-        Enum.flat_map(entries, fn bucket_dir ->
+        entries
+        # The reserved global-CAS root is not a bucket; its blobs are
+        # managed by the Phase 4 CAS GC, never by this legacy sweep.
+        |> Enum.reject(&(&1 == ExStorageService.Storage.CAS.reserved_root()))
+        |> Enum.flat_map(fn bucket_dir ->
           objects_dir = Path.join([data_root, bucket_dir, "objects"])
           list_content_files(bucket_dir, objects_dir)
         end)
