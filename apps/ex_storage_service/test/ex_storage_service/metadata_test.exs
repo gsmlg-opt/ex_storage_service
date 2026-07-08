@@ -83,4 +83,24 @@ defmodule ExStorageService.MetadataTest do
       assert Enum.map(page2.keys, fn {k, _} -> k end) == ["k3"]
     end
   end
+
+  describe "blob metadata" do
+    test "ensure_blob_meta creates a record once and get_blob_meta reads it" do
+      hash =
+        Base.encode16(:crypto.hash(:sha256, "blob-meta-#{System.unique_integer()}"), case: :lower)
+
+      assert {:error, :not_found} = ExStorageService.Metadata.get_blob_meta(hash)
+      assert :ok = ExStorageService.Metadata.ensure_blob_meta(hash, 42)
+
+      assert {:ok, meta} = ExStorageService.Metadata.get_blob_meta(hash)
+      assert meta.hash == "sha256:#{hash}"
+      assert meta.size == 42
+      assert meta.state == :active
+      created = meta.created_at
+
+      # Second ensure is a no-op — created_at is preserved
+      assert :ok = ExStorageService.Metadata.ensure_blob_meta(hash, 42)
+      assert {:ok, %{created_at: ^created}} = ExStorageService.Metadata.get_blob_meta(hash)
+    end
+  end
 end
