@@ -13,6 +13,7 @@
 > 8. Phase 3 must preserve Range support for completed multipart objects (currently works because parts are concatenated into one blob).
 > 9. §17 reflects Concord 2.3.0's actual API; the atomic mixed batch is tracked upstream as gsmlg-dev/concord#36.
 > 10. Versioning is documented as mostly unwired today: `Versioning.put_version/3` and `delete_version/3` have no callers; Phase 2 is new behavior, and `ver:*` subsumes (migrates, does not parallel) the existing `obj_ver:*` / `obj_ver_list:*` schema.
+> 11. **Phase 2 implementation note (2026-07-09):** the existing `obj:{bucket}:{key}` record serves as the mutable ref (it is absent when the latest version is a delete marker), and the existing `obj_ver:*` / `obj_ver_list:*` keys serve as the version store — no `ref:*`/`ver:*` key rename or metadata migration was needed since the schema already matched. `bucket_versioning:{bucket}` is retained as a separate key. Version records gained `object_type` and `parent_version_id` fields. Phase 2 follow-ups (not yet implemented): `ListObjectVersions` API, `HeadObject` with `versionId`, `x-amz-copy-source` with `?versionId=`, and `x-amz-version-id` on the CompleteMultipartUpload response.
 
 ## 1. Overview
 
@@ -220,6 +221,8 @@ The mutable pointer for the latest visible object state.
 
 This is equivalent to a Git ref.
 
+**Implemented as:** the pre-existing `"obj:{bucket}:{key}"` record plays this role (with `version_id` instead of `latest_version_id`, and absence instead of `is_delete_marker: true`) — every existing reader across the three apps already consumes it.
+
 For non-versioned buckets, this ref still exists, but old versions become unreachable and GC-eligible.
 
 **Listing is served from `ref:*` keys directly.** There is no separate `idx:*` record (see §7.6).
@@ -250,7 +253,7 @@ Immutable commit-like metadata record.
 }
 ```
 
-`ver:*` **replaces** the existing `obj_ver:{bucket}:{key}:{version_id}` and `obj_ver_list:{bucket}:{key}` keys. Phase 2 migrates any existing `obj_ver:*` records; the two schemas must not run in parallel. Version IDs keep the current sortable `{microsecond_timestamp}-{random}` format so "latest" and version listing can be derived by scan without a separate ordered list key.
+**Implemented as:** the existing `obj_ver:{bucket}:{key}:{version_id}` and `obj_ver_list:{bucket}:{key}` keys serve as this store directly — the schema already matched, so no rename or migration was performed. Version records are stamped with `object_type` (`:blob` today, `:manifest` in Phase 3) and `parent_version_id` on write. Version IDs keep the sortable `{microsecond_timestamp}-{random}` format; the ordered `obj_ver_list` key is retained for newest-first listing.
 
 ### 7.4 Blob Metadata
 
@@ -751,13 +754,14 @@ ExStorageService.Storage.Migration    (mix task / admin-triggered)
 * Remove `Engine.delete_content` call from the web UI object browser.
 * Migration task for physical files (metadata schema unchanged in this phase).
 
-### Phase 2: Refs and Versions
+### Phase 2: Refs and Versions — ✅ done (2026-07-09)
 
-* Add `ref:*` and `ver:*` records; migrate `obj:*`, `obj_ver:*`, `obj_ver_list:*`, `bucket_versioning:*`.
-* Wire PutObject, GetObject, HeadObject, DeleteObject through refs/versions.
-* Implement versioning-enabled behavior (PUT versions, DELETE markers) — new behavior, currently unwired.
-* Listing scans `ref:{bucket}:` (no `idx:*`).
-* File nothing on refcounts; write ordering + repair notes per §17.1.
+* ~~Add `ref:*` and `ver:*` records~~ → existing `obj:*` / `obj_ver:*` / `obj_ver_list:*` keys serve these roles directly (revision note 11); no migration needed.
+* Wire PutObject, GetObject, HeadObject, DeleteObject through refs/versions. ✅ (PUT/copy/multipart-complete create versions with `x-amz-version-id`; DELETE creates markers, supports `?versionId=` permanent deletes incl. marker-delete undelete; GET/HEAD see markers as absent.)
+* Implement versioning-enabled behavior (PUT versions, DELETE markers). ✅ (delete-marker/repoint semantics fixed in `Storage.Versioning`.)
+* Listing scans the ref records (no `idx:*`). ✅ (delete markers absent from `obj:*` → excluded from listings for free.)
+* Write ordering per §17.1: version record → version list → ref last. ✅
+* Follow-ups deferred: `ListObjectVersions`, `HeadObject?versionId`, copy-source `?versionId`, version id on CompleteMultipartUpload response.
 
 ### Phase 3: Manifests for Multipart
 
