@@ -174,9 +174,20 @@ defmodule ExStorageServiceS3.Handlers.Object do
           :ok
       end
 
-      case Metadata.get_object_meta(bucket, key) do
-        {:ok, _meta} ->
-          Metadata.delete_object_meta(bucket, key)
+      version_id = conn.query_params["versionId"]
+
+      case Versioning.delete_version(bucket, key, version_id) do
+        {:ok, marker_id, :delete_marker} ->
+          Hooks.after_delete(bucket, key)
+          broadcast_bucket_change(bucket, :delete, key)
+
+          conn
+          |> put_s3_headers(request_id)
+          |> put_resp_header("x-amz-delete-marker", "true")
+          |> put_resp_header("x-amz-version-id", marker_id)
+          |> send_resp(204, "")
+
+        {:ok, "null", :deleted} when is_nil(version_id) ->
           Hooks.after_delete(bucket, key)
           broadcast_bucket_change(bucket, :delete, key)
 
@@ -184,9 +195,13 @@ defmodule ExStorageServiceS3.Handlers.Object do
           |> put_s3_headers(request_id)
           |> send_resp(204, "")
 
-        {:error, :not_found} ->
+        {:ok, deleted_vid, :deleted} ->
+          Hooks.after_delete(bucket, key)
+          broadcast_bucket_change(bucket, :delete, key)
+
           conn
           |> put_s3_headers(request_id)
+          |> put_resp_header("x-amz-version-id", deleted_vid)
           |> send_resp(204, "")
       end
     end)
@@ -225,11 +240,13 @@ defmodule ExStorageServiceS3.Handlers.Object do
                        cloud_cache_config(bucket)
                      ) do
                   :ok ->
-                    Metadata.put_object_meta(bucket, key, new_meta)
+                    {:ok, version_id} = Versioning.put_version(bucket, key, new_meta)
                     Hooks.after_put(bucket, key)
                     broadcast_bucket_change(bucket, :put, key)
                     # CopyObjectResult requires ISO 8601 (not HTTP date format)
                     body = XML.copy_object_response("\"#{source_meta.etag}\"", now)
+
+                    conn = maybe_put_version_header(conn, version_id)
                     xml_response(conn, 200, body, request_id)
 
                   {:error, :source_missing} ->
@@ -306,15 +323,9 @@ defmodule ExStorageServiceS3.Handlers.Object do
                     :ok
                 end
 
-                case Metadata.get_object_meta(bucket, key) do
-                  {:ok, _meta} ->
-                    Metadata.delete_object_meta(bucket, key)
-                    Hooks.after_delete(bucket, key)
-                    {:deleted, key}
-
-                  {:error, :not_found} ->
-                    {:deleted, key}
-                end
+                {:ok, _vid, _kind} = Versioning.delete_version(bucket, key)
+                Hooks.after_delete(bucket, key)
+                {:deleted, key}
               end)
 
             broadcast_bucket_change(bucket, :delete_objects, nil)
@@ -397,6 +408,11 @@ defmodule ExStorageServiceS3.Handlers.Object do
   defp cloud_cache_config(bucket) do
     CloudConfig.get_active_config(bucket)
   end
+
+  defp maybe_put_version_header(conn, "null"), do: conn
+
+  defp maybe_put_version_header(conn, version_id),
+    do: put_resp_header(conn, "x-amz-version-id", version_id)
 
   defp copy_destination_content(
          source_bucket,
