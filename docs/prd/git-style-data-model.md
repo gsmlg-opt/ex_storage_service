@@ -13,6 +13,7 @@
 > 8. Phase 3 must preserve Range support for completed multipart objects (currently works because parts are concatenated into one blob).
 > 9. §17 reflects Concord 2.3.0's actual API; the atomic mixed batch is tracked upstream as gsmlg-dev/concord#36.
 > 10. Versioning is documented as mostly unwired today: `Versioning.put_version/3` and `delete_version/3` have no callers; Phase 2 is new behavior, and `ver:*` subsumes (migrates, does not parallel) the existing `obj_ver:*` / `obj_ver_list:*` schema.
+> 11a. **Phase 3 implementation note (2026-07-09):** multipart parts are CAS blobs (part records carry the blob hash) and CompleteMultipartUpload streams the concatenation with constant memory into a whole-object CAS blob *and* records a content-addressed manifest (`manifest:sha256:{hash}` record + canonical JSON file under `cas/manifests/`, linked from version metadata via `manifest_hash`). **Serving stays whole-blob** — manifest-streaming GET was deliberately not implemented because chunked transfer-encoding drops `Content-Length` and complicates Range, regressing S3 client compatibility (§12.4). Manifest-based serving is deferred to Phase 6 (packs). Part blobs become unreferenced after completion and are reclaimed by Phase 4 GC.
 > 11. **Phase 2 implementation note (2026-07-09):** the existing `obj:{bucket}:{key}` record serves as the mutable ref (it is absent when the latest version is a delete marker), and the existing `obj_ver:*` / `obj_ver_list:*` keys serve as the version store — no `ref:*`/`ver:*` key rename or metadata migration was needed since the schema already matched. `bucket_versioning:{bucket}` is retained as a separate key. Version records gained `object_type` and `parent_version_id` fields. Phase 2 follow-ups (not yet implemented): `ListObjectVersions` API, `HeadObject` with `versionId`, `x-amz-copy-source` with `?versionId=`, and `x-amz-version-id` on the CompleteMultipartUpload response.
 
 ## 1. Overview
@@ -763,12 +764,12 @@ ExStorageService.Storage.Migration    (mix task / admin-triggered)
 * Write ordering per §17.1: version record → version list → ref last. ✅
 * Follow-ups deferred: `ListObjectVersions`, `HeadObject?versionId`, copy-source `?versionId`, version id on CompleteMultipartUpload response.
 
-### Phase 3: Manifests for Multipart
+### Phase 3: Manifests for Multipart — ✅ done (2026-07-09)
 
-* Store each multipart part as CAS blob.
-* CompleteMultipartUpload creates manifest (no concatenation).
-* GetObject supports manifest streaming; manifest Range per §12.4 compatibility guard.
-* Manifest metadata joins the GC root set.
+* Store each multipart part as CAS blob. ✅ (`mpu_part` records carry the blob hash; no bucket-local part files; part upload dedups via CAS.)
+* CompleteMultipartUpload creates manifest. ✅ (`Storage.Manifest`: deterministic canonical-JSON file under `cas/manifests/` + `manifest:sha256:{hash}` record, linked via `manifest_hash` on version metadata.) Completion additionally materializes the whole-object CAS blob by **streaming** part blobs (constant memory — replaces the old read-whole-parts-into-memory concatenation).
+* ~~GetObject supports manifest streaming~~ → deliberately deferred to Phase 6: chunked transfer-encoding would drop `Content-Length` and complicate Range, regressing S3 client compatibility (§12.4). GET/HEAD/Range serve the whole blob unchanged.
+* Manifest metadata joins the GC root set. → Phase 4 (active `mpu_part` records root part blobs during uploads; after completion part blobs are unreferenced and GC-eligible).
 
 ### Phase 4: GC
 
