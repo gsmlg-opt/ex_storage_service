@@ -16,6 +16,7 @@
 > 11a. **Phase 3 implementation note (2026-07-09):** multipart parts are CAS blobs (part records carry the blob hash) and CompleteMultipartUpload streams the concatenation with constant memory into a whole-object CAS blob *and* records a content-addressed manifest (`manifest:sha256:{hash}` record + canonical JSON file under `cas/manifests/`, linked from version metadata via `manifest_hash`). **Serving stays whole-blob** — manifest-streaming GET was deliberately not implemented because chunked transfer-encoding drops `Content-Length` and complicates Range, regressing S3 client compatibility (§12.4). Manifest-based serving is deferred to Phase 6 (packs). Part blobs become unreferenced after completion and are reclaimed by Phase 4 GC.
 > 11b. **Phase 4 implementation note (2026-07-09):** `Storage.CasGC` implements the candidate → quarantine → delete pipeline for `cas/objects` with per-stage reachability re-checks, restore-on-rereference for quarantined blobs, dry-run mode, `stats/0` for operator visibility, and audit logging. GC roots: `obj:*`/`obj_ver:*` `content_hash` plus active `mpu_part:*` `hash`. Manifest files/records are never swept. Admin *UI* for GC visibility is a follow-up; the legacy `ContentGC` continues to own the legacy tree until it is deleted.
 > 11c. **Phase 5 implementation note (2026-07-09):** replication jobs pin the replicated version at enqueue time (`payload.object`: version_id, content_hash, etag, size, content_type); the worker skips transfer when the destination already holds identical content (key-level HEAD etag+size comparison — targets are generic S3 endpoints, so there is no cross-node blob-hash endpoint) and skips superseded-and-collected versions as stale. Delete/delete-marker replication is body-less (plain DELETE, 404-idempotent). "Transfer manifests before refs" is N/A — multipart objects replicate as their materialized whole blob. Follow-ups: streaming PUT bodies (chunked enumerable bodies corrupt pooled HTTP/1.1 connections with Bandit targets; needs explicit content-length streaming) and SigV4 replica auth (still bearer-token v1).
+> 11d. **Phase 6 implementation note (2026-07-09):** packs are **uncompressed** concatenations of blob contents, content-addressed by the pack file's own SHA-256 (`cas/packs/pack-{hash}.pack` + JSON `.idx` sidecar + `pack:{hash}` Concord record). Uncompressed packs preserve all serving semantics: packed blobs are served with `send_file(path, offset, size)` — zero-copy, exact `Content-Length`, Range = pack_offset + range_offset. Blob lookup is O(1) via `state: :packed` + `pack: %{hash, offset}` on blob metadata. `Storage.Packer` applies a global age-based cold policy (only loose, **reachable** blobs are packed; unreachable ones belong to CasGC). Follow-ups: per-bucket S3 lifecycle `Transition` rules, repack/pack-GC of dead pack entries.
 > 11. **Phase 2 implementation note (2026-07-09):** the existing `obj:{bucket}:{key}` record serves as the mutable ref (it is absent when the latest version is a delete marker), and the existing `obj_ver:*` / `obj_ver_list:*` keys serve as the version store — no `ref:*`/`ver:*` key rename or metadata migration was needed since the schema already matched. `bucket_versioning:{bucket}` is retained as a separate key. Version records gained `object_type` and `parent_version_id` fields. Phase 2 follow-ups (not yet implemented): `ListObjectVersions` API, `HeadObject` with `versionId`, `x-amz-copy-source` with `?versionId=`, and `x-amz-version-id` on the CompleteMultipartUpload response.
 
 ## 1. Overview
@@ -786,15 +787,13 @@ ExStorageService.Storage.Migration    (mix task / admin-triggered)
 * Delete-marker replication without body transfer. ✅ (plain DELETE, 404-idempotent — unchanged.)
 * Make replication idempotent. ✅ (skip-if-present + stale skip + idempotent delete.)
 
-### Phase 6: Pack Storage
+### Phase 6: Pack Storage — ✅ done (2026-07-09)
 
-Future phase.
-
-* Add pack writer for cold/unmodified blobs.
-* Add pack index.
-* Support reading packed blobs.
-* Add lifecycle policy transition to packed storage.
-* Preserve CAS identity.
+* Add pack writer for cold/unmodified blobs. ✅ (`Storage.Pack.pack_blobs/1`: crash-safe write order — tmp pack → rename → sidecar → record → blob metadata → loose deletion last.)
+* Add pack index. ✅ (`pack:{hash}` Concord record + JSON `.idx` sidecar for repair; O(1) blob lookup via blob metadata `pack: %{hash, offset}`.)
+* Support reading packed blobs. ✅ (S3 GET/Range/versioned GET serve pack slices via `send_file` offsets — zero-copy, exact Content-Length; CopyObject and replication read packed content transparently.)
+* Add lifecycle policy transition to packed storage. ✅ as a global age-based cold policy (`Storage.Packer`, default 30 days / min 100 blobs); per-bucket S3 `Transition` rules are a follow-up (revision note 11d).
+* Preserve CAS identity. ✅ (blobs stay SHA-256-addressed; packs themselves are content-addressed by their own bytes.)
 
 ## 21. Acceptance Criteria
 
