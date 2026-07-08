@@ -2,6 +2,7 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
   use ExStorageServiceWeb, :live_view
 
   alias ExStorageService.Metadata
+  alias ExStorageService.Storage.Versioning
   alias ExStorageService.CloudCache.Config, as: CloudConfig
   alias ExStorageService.CloudCache.Client, as: CloudClient
 
@@ -89,7 +90,7 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
 
     case Metadata.get_object_meta(bucket, key) do
       {:ok, _meta} ->
-        Metadata.delete_object_meta(bucket, key)
+        Versioning.delete_version(bucket, key)
 
         {:noreply,
          socket
