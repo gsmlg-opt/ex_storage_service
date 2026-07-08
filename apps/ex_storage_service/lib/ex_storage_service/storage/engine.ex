@@ -20,6 +20,7 @@ defmodule ExStorageService.Storage.Engine do
 
   alias ExStorageService.Metadata
   alias ExStorageService.Storage.CAS
+  alias ExStorageService.Storage.Pack
 
   ## Client API
 
@@ -97,6 +98,39 @@ defmodule ExStorageService.Storage.Engine do
   end
 
   @doc """
+  Resolve a blob to a servable location: a whole file (loose CAS or legacy
+  layout) or a slice of a pack file. Serving code uses the offset/length
+  forms of `send_file` for pack slices, preserving zero-copy and Range.
+  """
+  def get_object_location(bucket, content_hash) do
+    legacy = legacy_content_path(CAS.data_root(), bucket, content_hash)
+
+    cond do
+      CAS.has_blob?(content_hash) ->
+        {:ok, {:file, CAS.blob_path(content_hash)}}
+
+      match?({:ok, _}, Pack.locate(content_hash)) ->
+        {:ok, {path, offset, size}} = Pack.locate(content_hash)
+        {:ok, {:pack, path, offset, size}}
+
+      File.exists?(legacy) ->
+        {:ok, {:file, legacy}}
+
+      true ->
+        {:error, :not_found}
+    end
+  end
+
+  @doc "Read a blob's bytes regardless of physical location."
+  def read_object(bucket, content_hash) do
+    case get_object_location(bucket, content_hash) do
+      {:ok, {:file, path}} -> File.read(path)
+      {:ok, {:pack, _path, _offset, _size}} -> Pack.read(content_hash)
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
   Ensures the given content hash is present in the global CAS, promoting
   it from the legacy bucket-local layout when necessary (used by
   metadata-only CopyObject and by the migration task).
@@ -105,7 +139,7 @@ defmodule ExStorageService.Storage.Engine do
   `get_object/2` checks the CAS first.
   """
   def promote_to_global(bucket, content_hash) do
-    if CAS.has_blob?(content_hash) do
+    if CAS.has_blob?(content_hash) or match?({:ok, _}, Pack.locate(content_hash)) do
       :ok
     else
       legacy = legacy_content_path(CAS.data_root(), bucket, content_hash)

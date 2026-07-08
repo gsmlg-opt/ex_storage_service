@@ -154,7 +154,8 @@ defmodule ExStorageService.Storage.CasGC do
 
   ## Roots
 
-  defp reachable_hashes(all) do
+  @doc false
+  def reachable_hashes(all) do
     all
     |> Enum.flat_map(fn
       {"obj:" <> _, %{content_hash: hash}} when is_binary(hash) -> [hash]
