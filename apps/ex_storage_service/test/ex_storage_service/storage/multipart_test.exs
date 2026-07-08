@@ -32,4 +32,23 @@ defmodule ExStorageService.Storage.MultipartTest do
     assert {:ok, [%{part_number: 1, size: 13, etag: ^expected_etag}]} =
              Multipart.list_parts(bucket, upload_id)
   end
+
+  test "completed multipart content lands in the global CAS" do
+    bucket = "mpu-cas-#{:erlang.unique_integer([:positive])}"
+    ExStorageService.Metadata.create_bucket(bucket)
+
+    {:ok, upload_id} = ExStorageService.Storage.Multipart.init_upload(bucket, "big-object")
+
+    part = String.duplicate("a", 5 * 1024 * 1024)
+    {:ok, _etag1} = ExStorageService.Storage.Multipart.store_part(bucket, upload_id, 1, part)
+    {:ok, etag2} = ExStorageService.Storage.Multipart.store_part(bucket, upload_id, 2, "tail")
+
+    parts = [{1, ""}, {2, etag2}]
+
+    assert {:ok, {content_hash, _etag, _size}} =
+             ExStorageService.Storage.Multipart.complete_upload(bucket, upload_id, parts)
+
+    assert File.exists?(ExStorageService.Storage.CAS.blob_path(content_hash))
+    assert {:ok, _} = ExStorageService.Metadata.get_blob_meta(content_hash)
+  end
 end

@@ -147,10 +147,9 @@ defmodule ExStorageService.Storage.Multipart do
             combined_md5 = :crypto.hash(:md5, IO.iodata_to_binary(md5_digests))
             etag = "#{Base.encode16(combined_md5, case: :lower)}-#{length(sorted_parts)}"
 
-            # Move to content-addressed storage
-            dest = ExStorageService.Storage.Engine.content_path(data_root, bucket, content_hash)
-            File.mkdir_p!(Path.dirname(dest))
-            File.rename!(tmp_path, dest)
+            # Commit to the global content-addressed store
+            :ok = ExStorageService.Storage.CAS.commit_blob(tmp_path, content_hash)
+            ExStorageService.Metadata.ensure_blob_meta(content_hash, total_size)
 
             {:ok, {content_hash, etag, total_size, upload_meta}}
           catch
