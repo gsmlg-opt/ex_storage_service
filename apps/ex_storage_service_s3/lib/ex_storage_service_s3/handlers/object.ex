@@ -364,8 +364,8 @@ defmodule ExStorageServiceS3.Handlers.Object do
         else
           content_hash = meta.content_hash
 
-          case Engine.get_object(bucket, content_hash) do
-            {:ok, file_path} ->
+          case Engine.get_object_location(bucket, content_hash) do
+            {:ok, location} ->
               content_type = Map.get(meta, :content_type, "application/octet-stream")
               etag = Map.get(meta, :etag, "")
               size = Map.get(meta, :size, 0)
@@ -381,7 +381,7 @@ defmodule ExStorageServiceS3.Handlers.Object do
               |> put_resp_header("content-length", to_string(size))
               |> put_resp_header("x-amz-version-id", version_id)
               |> put_custom_metadata_headers(meta)
-              |> send_file(200, file_path)
+              |> send_versioned_object(location)
 
             {:error, _} ->
               error_response(
@@ -463,9 +463,9 @@ defmodule ExStorageServiceS3.Handlers.Object do
   end
 
   defp read_uncached_source_object_data(source_bucket, source_key, content_hash) do
-    case Engine.get_object(source_bucket, content_hash) do
-      {:ok, path} ->
-        File.read(path)
+    case Engine.read_object(source_bucket, content_hash) do
+      {:ok, data} ->
+        {:ok, data}
 
       {:error, _} ->
         case cloud_cache_config(source_bucket) do
@@ -474,6 +474,11 @@ defmodule ExStorageServiceS3.Handlers.Object do
         end
     end
   end
+
+  defp send_versioned_object(conn, {:file, path}), do: send_file(conn, 200, path)
+
+  defp send_versioned_object(conn, {:pack, path, offset, size}),
+    do: send_file(conn, 200, path, offset, size)
 
   defp parse_max_keys(value) do
     case Integer.parse(value) do

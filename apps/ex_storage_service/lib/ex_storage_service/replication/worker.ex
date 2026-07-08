@@ -58,17 +58,24 @@ defmodule ExStorageService.Replication.Worker do
     url = build_url(replica.endpoint, remote_bucket, key)
     headers = auth_headers(replica)
 
-    case Engine.get_object(bucket, content_hash) do
-      {:ok, file_path} ->
+    case Engine.read_object(bucket, content_hash) do
+      {:ok, body} ->
         if destination_has_content?(url, headers, etag, size) do
           Logger.info("Replication PUT #{bucket}/#{key}: already present at #{replica.endpoint}")
           :ok
         else
-          push_object(bucket, key, url, headers, file_path, content_type, replica)
+          push_object(bucket, key, url, headers, body, content_type, replica)
         end
 
       {:error, :not_found} ->
         handle_missing_content(bucket, key, content_hash)
+
+      {:error, reason} ->
+        Logger.error(
+          "Replication PUT #{bucket}/#{key}: failed to read content #{inspect(content_hash)}: #{inspect(reason)}"
+        )
+
+        {:error, reason}
     end
   end
 
@@ -106,13 +113,11 @@ defmodule ExStorageService.Replication.Worker do
 
   ## Private
 
-  defp push_object(bucket, key, url, headers, file_path, content_type, replica) do
-    # Buffered read: an enumerable (chunked) body corrupts the pooled
+  defp push_object(bucket, key, url, headers, body, content_type, replica) do
+    # Buffered body: an enumerable (chunked) body corrupts the pooled
     # HTTP/1.1 connection with Bandit targets (subsequent requests on the
     # connection fail chunk parsing). Streaming with explicit
     # content-length is a follow-up.
-    body = File.read!(file_path)
-
     case Req.put(url, body: body, headers: [{"content-type", content_type} | headers]) do
       {:ok, %{status: status}} when status in 200..299 ->
         Logger.debug("Replicated PUT #{bucket}/#{key} to #{replica.endpoint}")

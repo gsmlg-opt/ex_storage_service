@@ -57,8 +57,8 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
         else
           content_hash = meta.content_hash
 
-          case Engine.get_object(bucket, content_hash) do
-            {:ok, file_path} ->
+          case Engine.get_object_location(bucket, content_hash) do
+            {:ok, location} ->
               content_type = Map.get(meta, :content_type, "application/octet-stream")
               etag = Map.get(meta, :etag, "")
               quoted_etag = "\"#{etag}\""
@@ -89,6 +89,7 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
                       case parse_range(range_header, size) do
                         {:ok, offset, length} ->
                           content_range = "bytes #{offset}-#{offset + length - 1}/#{size}"
+                          {send_path, base_offset} = location_file(location)
 
                           conn
                           |> put_s3_headers(request_id)
@@ -99,7 +100,7 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
                           |> put_resp_header("content-range", content_range)
                           |> put_resp_header("accept-ranges", "bytes")
                           |> put_custom_metadata_headers(meta)
-                          |> send_file(206, file_path, offset, length)
+                          |> send_file(206, send_path, base_offset + offset, length)
 
                         {:error, :invalid_range} ->
                           conn
@@ -117,7 +118,7 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
                       |> put_resp_header("content-length", to_string(size))
                       |> put_resp_header("accept-ranges", "bytes")
                       |> put_custom_metadata_headers(meta)
-                      |> send_file(200, file_path)
+                      |> send_object(location)
                   end
               end
 
@@ -329,4 +330,12 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
 
   defp maybe_put_version_header(conn, version_id),
     do: put_resp_header(conn, "x-amz-version-id", version_id)
+
+  defp location_file({:file, path}), do: {path, 0}
+  defp location_file({:pack, path, offset, _size}), do: {path, offset}
+
+  defp send_object(conn, {:file, path}), do: send_file(conn, 200, path)
+
+  defp send_object(conn, {:pack, path, offset, size}),
+    do: send_file(conn, 200, path, offset, size)
 end
