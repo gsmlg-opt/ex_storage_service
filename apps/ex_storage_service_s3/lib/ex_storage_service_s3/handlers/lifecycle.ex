@@ -125,12 +125,19 @@ defmodule ExStorageServiceS3.Handlers.Lifecycle do
           status = xpath_text(rule_elem, ~c"Status") || "Enabled"
           days_str = xpath_text(rule_elem, ~c"Expiration/Days") || "0"
           days = String.to_integer(days_str)
+          transition_days_str = xpath_text(rule_elem, ~c"Transition/Days") || "0"
+          transition_days = String.to_integer(transition_days_str)
+
+          transition_storage_class =
+            xpath_text(rule_elem, ~c"Transition/StorageClass") || "PACKED"
 
           %{
             id: id || "",
             prefix: prefix,
             status: status,
-            expiration_days: days
+            expiration_days: days,
+            transition_days: transition_days,
+            transition_storage_class: transition_storage_class
           }
         end)
 
@@ -149,13 +156,18 @@ defmodule ExStorageServiceS3.Handlers.Lifecycle do
         prefix = Map.get(rule, :prefix, "")
         status = Map.get(rule, :status, "Enabled")
         days = Map.get(rule, :expiration_days, 0)
+        transition_days = Map.get(rule, :transition_days, 0)
+        transition_storage_class = Map.get(rule, :transition_storage_class, "PACKED")
+        expiration_xml = lifecycle_expiration_xml(days)
+        transition_xml = lifecycle_transition_xml(transition_days, transition_storage_class)
 
         """
         <Rule>\
         <ID>#{XML.escape(id)}</ID>\
         <Filter><Prefix>#{XML.escape(prefix)}</Prefix></Filter>\
         <Status>#{XML.escape(status)}</Status>\
-        <Expiration><Days>#{days}</Days></Expiration>\
+        #{expiration_xml}\
+        #{transition_xml}\
         </Rule>\
         """
       end)
@@ -166,4 +178,15 @@ defmodule ExStorageServiceS3.Handlers.Lifecycle do
     <LifecycleConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">#{rule_elements}</LifecycleConfiguration>\
     """
   end
+
+  defp lifecycle_expiration_xml(days) when is_integer(days) and days > 0,
+    do: "<Expiration><Days>#{days}</Days></Expiration>"
+
+  defp lifecycle_expiration_xml(_days), do: ""
+
+  defp lifecycle_transition_xml(days, storage_class) when is_integer(days) and days > 0 do
+    "<Transition><Days>#{days}</Days><StorageClass>#{XML.escape(storage_class)}</StorageClass></Transition>"
+  end
+
+  defp lifecycle_transition_xml(_days, _storage_class), do: ""
 end

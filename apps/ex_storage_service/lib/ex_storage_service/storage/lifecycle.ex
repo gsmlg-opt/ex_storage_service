@@ -2,8 +2,8 @@ defmodule ExStorageService.Storage.Lifecycle do
   @moduledoc """
   GenServer that periodically evaluates lifecycle rules for buckets.
 
-  Lifecycle rules support object expiration: automatically delete objects
-  older than a configured number of days.
+  Lifecycle rules support object expiration and internal transition to
+  packed storage for cold objects.
 
   Rules are stored in Concord under "lifecycle:{bucket}" as a list of rule maps.
 
@@ -12,7 +12,9 @@ defmodule ExStorageService.Storage.Lifecycle do
       id: "rule-id",
       prefix: "logs/",          # optional prefix filter
       status: "Enabled",        # "Enabled" or "Disabled"
-      expiration_days: 30       # delete objects older than N days
+      expiration_days: 30,      # delete objects older than N days
+      transition_days: 7,       # pack objects older than N days
+      transition_storage_class: "PACKED"
     }
   """
 
@@ -21,6 +23,7 @@ defmodule ExStorageService.Storage.Lifecycle do
   require Logger
 
   alias ExStorageService.Metadata
+  alias ExStorageService.Storage.Pack
 
   @default_interval :timer.hours(1)
 
@@ -41,7 +44,14 @@ defmodule ExStorageService.Storage.Lifecycle do
           id: Map.get(rule, :id, Map.get(rule, "id", generate_rule_id())),
           prefix: Map.get(rule, :prefix, Map.get(rule, "prefix", "")),
           status: Map.get(rule, :status, Map.get(rule, "status", "Enabled")),
-          expiration_days: Map.get(rule, :expiration_days, Map.get(rule, "expiration_days", 0))
+          expiration_days: Map.get(rule, :expiration_days, Map.get(rule, "expiration_days", 0)),
+          transition_days: Map.get(rule, :transition_days, Map.get(rule, "transition_days", 0)),
+          transition_storage_class:
+            Map.get(
+              rule,
+              :transition_storage_class,
+              Map.get(rule, "transition_storage_class", "PACKED")
+            )
         }
       end)
 
@@ -138,7 +148,7 @@ defmodule ExStorageService.Storage.Lifecycle do
             acc + do_evaluate_bucket(bucket, rules)
           end)
 
-        Logger.info("Lifecycle evaluation complete: #{total} objects expired")
+        Logger.info("Lifecycle evaluation complete: #{total} objects changed")
         {:ok, total}
 
       {:error, reason} ->
@@ -158,20 +168,7 @@ defmodule ExStorageService.Storage.Lifecycle do
           now = DateTime.utc_now()
 
           Enum.reduce(objects, 0, fn {key, meta}, acc ->
-            if should_expire?(key, meta, enabled_rules, now) do
-              Metadata.delete_object_meta(bucket, key)
-
-              # NOTE: We deliberately do NOT call Engine.delete_content here.
-              # Content storage is content-addressed: multiple object keys may
-              # share the same content hash. Directly deleting the file would
-              # corrupt any other key that references the same hash.
-              # ContentGC will remove the file in its next pass once no
-              # metadata references remain.
-
-              acc + 1
-            else
-              acc
-            end
+            acc + apply_lifecycle_action(bucket, key, meta, enabled_rules, now)
           end)
 
         _ ->
@@ -198,6 +195,62 @@ defmodule ExStorageService.Storage.Lifecycle do
         object_expired?(meta, expiration_days, now)
     end)
   end
+
+  @doc """
+  Check if an object matches any lifecycle transition rule.
+  Exported for testing.
+  """
+  @spec should_transition?(String.t(), map(), [map()], DateTime.t()) :: boolean()
+  def should_transition?(key, meta, rules, now) do
+    Enum.any?(rules, fn rule ->
+      status = Map.get(rule, :status, "Enabled")
+      prefix = Map.get(rule, :prefix, "")
+      transition_days = Map.get(rule, :transition_days, 0)
+      storage_class = Map.get(rule, :transition_storage_class, "PACKED")
+
+      enabled = status == "Enabled"
+      prefix_matches = prefix == "" || String.starts_with?(key, prefix)
+
+      enabled && pack_storage_class?(storage_class) && transition_days > 0 && prefix_matches &&
+        object_expired?(meta, transition_days, now)
+    end)
+  end
+
+  defp apply_lifecycle_action(bucket, key, meta, rules, now) do
+    cond do
+      should_expire?(key, meta, rules, now) ->
+        Metadata.delete_object_meta(bucket, key)
+
+        # NOTE: We deliberately do NOT call Engine.delete_content here.
+        # Content storage is content-addressed: multiple object keys may
+        # share the same content hash. Directly deleting the file would
+        # corrupt any other key that references the same hash.
+        # ContentGC will remove the file in its next pass once no
+        # metadata references remain.
+        1
+
+      should_transition?(key, meta, rules, now) ->
+        transition_to_pack(meta)
+
+      true ->
+        0
+    end
+  end
+
+  defp transition_to_pack(%{content_hash: hash}) when is_binary(hash) do
+    case Pack.pack_blobs([hash]) do
+      {:ok, %{packed: count}} when count > 0 -> 1
+      _ -> 0
+    end
+  end
+
+  defp transition_to_pack(_meta), do: 0
+
+  defp pack_storage_class?(storage_class) when is_binary(storage_class) do
+    String.upcase(storage_class) == "PACKED"
+  end
+
+  defp pack_storage_class?(_storage_class), do: false
 
   defp object_expired?(meta, expiration_days, now) do
     created_at = Map.get(meta, :created_at) || Map.get(meta, :updated_at)
