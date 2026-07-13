@@ -9,6 +9,7 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
   alias ExStorageService.Metadata
   alias ExStorageService.Replication.Hooks
   alias ExStorageService.Storage.Engine
+  alias ExStorageService.Storage.Versioning
 
   @impl true
   def list_objects(conn, bucket, opts, request_id) do
@@ -48,80 +49,88 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
   def get_object(conn, bucket, key, request_id) do
     case Metadata.get_object_meta(bucket, key) do
       {:ok, meta} ->
-        content_hash = meta.content_hash
+        if Map.get(meta, :is_delete_marker) do
+          conn
+          |> put_s3_headers(request_id)
+          |> put_resp_header("x-amz-delete-marker", "true")
+          |> send_resp(404, "")
+        else
+          content_hash = meta.content_hash
 
-        case Engine.get_object(bucket, content_hash) do
-          {:ok, file_path} ->
-            content_type = Map.get(meta, :content_type, "application/octet-stream")
-            etag = Map.get(meta, :etag, "")
-            quoted_etag = "\"#{etag}\""
-            size = Map.get(meta, :size, 0)
-            last_modified_raw = Map.get(meta, :updated_at, Map.get(meta, :created_at))
-            last_modified = format_http_date(last_modified_raw)
+          case Engine.get_object_location(bucket, content_hash) do
+            {:ok, location} ->
+              content_type = Map.get(meta, :content_type, "application/octet-stream")
+              etag = Map.get(meta, :etag, "")
+              quoted_etag = "\"#{etag}\""
+              size = Map.get(meta, :size, 0)
+              last_modified_raw = Map.get(meta, :updated_at, Map.get(meta, :created_at))
+              last_modified = format_http_date(last_modified_raw)
 
-            # Conditional request checks
-            cond do
-              not_modified_etag?(conn, quoted_etag) ->
-                conn
-                |> put_s3_headers(request_id)
-                |> put_resp_header("etag", quoted_etag)
-                |> put_resp_header("last-modified", last_modified)
-                |> send_resp(304, "")
+              # Conditional request checks
+              cond do
+                not_modified_etag?(conn, quoted_etag) ->
+                  conn
+                  |> put_s3_headers(request_id)
+                  |> put_resp_header("etag", quoted_etag)
+                  |> put_resp_header("last-modified", last_modified)
+                  |> send_resp(304, "")
 
-              not_modified_since?(conn, last_modified_raw) ->
-                conn
-                |> put_s3_headers(request_id)
-                |> put_resp_header("etag", quoted_etag)
-                |> put_resp_header("last-modified", last_modified)
-                |> send_resp(304, "")
+                not_modified_since?(conn, last_modified_raw) ->
+                  conn
+                  |> put_s3_headers(request_id)
+                  |> put_resp_header("etag", quoted_etag)
+                  |> put_resp_header("last-modified", last_modified)
+                  |> send_resp(304, "")
 
-              true ->
-                # Check for Range header
-                case get_req_header(conn, "range") do
-                  [range_header | _] ->
-                    case parse_range(range_header, size) do
-                      {:ok, offset, length} ->
-                        content_range = "bytes #{offset}-#{offset + length - 1}/#{size}"
+                true ->
+                  # Check for Range header
+                  case get_req_header(conn, "range") do
+                    [range_header | _] ->
+                      case parse_range(range_header, size) do
+                        {:ok, offset, length} ->
+                          content_range = "bytes #{offset}-#{offset + length - 1}/#{size}"
+                          {send_path, base_offset} = location_file(location)
 
-                        conn
-                        |> put_s3_headers(request_id)
-                        |> put_resp_header("content-type", content_type)
-                        |> put_resp_header("etag", quoted_etag)
-                        |> put_resp_header("last-modified", last_modified)
-                        |> put_resp_header("content-length", to_string(length))
-                        |> put_resp_header("content-range", content_range)
-                        |> put_resp_header("accept-ranges", "bytes")
-                        |> put_custom_metadata_headers(meta)
-                        |> send_file(206, file_path, offset, length)
+                          conn
+                          |> put_s3_headers(request_id)
+                          |> put_resp_header("content-type", content_type)
+                          |> put_resp_header("etag", quoted_etag)
+                          |> put_resp_header("last-modified", last_modified)
+                          |> put_resp_header("content-length", to_string(length))
+                          |> put_resp_header("content-range", content_range)
+                          |> put_resp_header("accept-ranges", "bytes")
+                          |> put_custom_metadata_headers(meta)
+                          |> send_file(206, send_path, base_offset + offset, length)
 
-                      {:error, :invalid_range} ->
-                        conn
-                        |> put_s3_headers(request_id)
-                        |> put_resp_header("content-range", "bytes */#{size}")
-                        |> send_resp(416, "")
-                    end
+                        {:error, :invalid_range} ->
+                          conn
+                          |> put_s3_headers(request_id)
+                          |> put_resp_header("content-range", "bytes */#{size}")
+                          |> send_resp(416, "")
+                      end
 
-                  [] ->
-                    conn
-                    |> put_s3_headers(request_id)
-                    |> put_resp_header("content-type", content_type)
-                    |> put_resp_header("etag", quoted_etag)
-                    |> put_resp_header("last-modified", last_modified)
-                    |> put_resp_header("content-length", to_string(size))
-                    |> put_resp_header("accept-ranges", "bytes")
-                    |> put_custom_metadata_headers(meta)
-                    |> send_file(200, file_path)
-                end
-            end
+                    [] ->
+                      conn
+                      |> put_s3_headers(request_id)
+                      |> put_resp_header("content-type", content_type)
+                      |> put_resp_header("etag", quoted_etag)
+                      |> put_resp_header("last-modified", last_modified)
+                      |> put_resp_header("content-length", to_string(size))
+                      |> put_resp_header("accept-ranges", "bytes")
+                      |> put_custom_metadata_headers(meta)
+                      |> send_object(location)
+                  end
+              end
 
-          {:error, _} ->
-            error_response(
-              conn,
-              "InternalError",
-              "Content file missing",
-              "/#{bucket}/#{key}",
-              request_id
-            )
+            {:error, _} ->
+              error_response(
+                conn,
+                "InternalError",
+                "Content file missing",
+                "/#{bucket}/#{key}",
+                request_id
+              )
+          end
         end
 
       {:error, :not_found} ->
@@ -242,13 +251,14 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
           updated_at: now
         }
 
-        Metadata.put_object_meta(bucket, key, meta)
+        {:ok, version_id} = Versioning.put_version(bucket, key, meta)
         Hooks.after_put(bucket, key)
         broadcast_bucket_change(bucket, :put, key)
 
         conn
         |> put_s3_headers(request_id)
         |> put_resp_header("etag", "\"#{etag}\"")
+        |> maybe_put_version_header(version_id)
         |> send_resp(200, "")
 
       {:error, reason} ->
@@ -285,13 +295,14 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
             updated_at: now
           }
 
-          Metadata.put_object_meta(bucket, key, meta)
+          {:ok, version_id} = Versioning.put_version(bucket, key, meta)
           Hooks.after_put(bucket, key)
           broadcast_bucket_change(bucket, :put, key)
 
           conn
           |> put_s3_headers(request_id)
           |> put_resp_header("etag", "\"#{etag}\"")
+          |> maybe_put_version_header(version_id)
           |> send_resp(200, "")
 
         {:error, reason} ->
@@ -314,4 +325,17 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
         )
     end
   end
+
+  defp maybe_put_version_header(conn, "null"), do: conn
+
+  defp maybe_put_version_header(conn, version_id),
+    do: put_resp_header(conn, "x-amz-version-id", version_id)
+
+  defp location_file({:file, path}), do: {path, 0}
+  defp location_file({:pack, path, offset, _size}), do: {path, offset}
+
+  defp send_object(conn, {:file, path}), do: send_file(conn, 200, path)
+
+  defp send_object(conn, {:pack, path, offset, size}),
+    do: send_file(conn, 200, path, offset, size)
 end

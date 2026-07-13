@@ -1,14 +1,26 @@
 defmodule ExStorageService.Storage.Engine do
   @moduledoc """
-  Storage engine providing content-addressable file storage using SHA-256.
+  Storage engine facade over the global content-addressable store
+  (`ExStorageService.Storage.CAS`).
 
-  Files are stored under `data_root/bucket/objects/` organized by the first
-  two characters of their content hash for even directory distribution.
+  PUTs stream data to a CAS tmp file — computing SHA-256 and MD5 in a
+  single pass in the *calling* process — then commit with an atomic
+  rename. GETs resolve the global CAS path first and fall back to the
+  legacy bucket-local layout (`{data_root}/{bucket}/objects/...`) for
+  content written before the global-CAS migration
+  (see `ExStorageService.Storage.Migration`).
+
+  The GenServer exists only to create the storage directories at boot;
+  every read/write operation is a plain function.
   """
 
   use GenServer
 
   require Logger
+
+  alias ExStorageService.Metadata
+  alias ExStorageService.Storage.CAS
+  alias ExStorageService.Storage.Pack
 
   ## Client API
 
@@ -18,66 +30,33 @@ defmodule ExStorageService.Storage.Engine do
   end
 
   @doc """
-  Store object data, computing SHA-256 and MD5 in a single pass.
+  Returns the data_root path configured for the engine.
+  """
+  def data_root, do: CAS.data_root()
 
-  `data_or_stream` can be a binary (for small objects / multipart completion)
-  or an `Enumerable` of binary chunks.
-
-  **Important for streaming:** when passing a stream that wraps `Plug.Conn.read_body`,
-  the stream *must* be enumerated in the calling (request handler) process, not inside
-  the GenServer. Use `put_object_stream/5` for that case, which performs the write in
-  the caller's process and only calls the GenServer to commit the final file.
+  @doc """
+  Store object data in the global CAS, computing SHA-256 and MD5 in a
+  single pass. `data_or_stream` can be a binary or an `Enumerable` of
+  binary chunks; streams are enumerated in the calling process, so this
+  is safe for `Plug.Conn.read_body/2`-backed streams.
 
   Returns `{:ok, {content_hash, etag, size}}` on success.
   """
   def put_object(
-        bucket,
-        key,
-        data_or_stream,
-        content_type \\ "application/octet-stream",
-        metadata \\ %{}
-      ) do
-    GenServer.call(
-      __MODULE__,
-      {:put_object, bucket, key, data_or_stream, content_type, metadata},
-      :infinity
-    )
-  end
-
-  @doc """
-  Stream-aware PUT that performs the expensive write in the *calling process*.
-
-  This is the correct API to use when the source is a `Plug.Conn` body stream,
-  because `Plug.Conn.read_body/2` must be called from the process that owns the
-  connection socket — i.e., the request handler, not a GenServer.
-
-  Flow:
-    1. Caller obtains `data_root` from the GenServer.
-    2. Caller writes stream chunks to a temp file in the caller's process.
-    3. Caller calls `commit_object/4` to atomically move the temp file.
-
-  Returns `{:ok, {content_hash, etag, size}}` on success.
-  """
-  def put_object_stream(
-        bucket,
+        _bucket,
         _key,
-        stream,
+        data_or_stream,
         _content_type \\ "application/octet-stream",
         _metadata \\ %{}
       ) do
-    data_root = data_root()
-    ensure_bucket_dirs!(data_root, bucket)
+    tmp_path = CAS.tmp_upload_path()
 
-    tmp_dir = Path.join([data_root, bucket, "tmp"])
-    File.mkdir_p!(tmp_dir)
-    tmp_path = Path.join(tmp_dir, "upload_#{:erlang.unique_integer([:positive])}")
-
-    case stream_to_file(stream, tmp_path) do
-      {:ok, {sha256_hash, md5_hash, size}} ->
-        etag = Base.encode16(md5_hash, case: :lower)
-        # Atomically move the temp file into content-addressed storage.
-        commit_object(bucket, sha256_hash, tmp_path, data_root)
-        {:ok, {sha256_hash, etag, size}}
+    case stream_to_file(data_or_stream, tmp_path) do
+      {:ok, {content_hash, md5, size}} ->
+        :ok = CAS.commit_blob(tmp_path, content_hash)
+        Metadata.ensure_blob_meta(content_hash, size)
+        etag = Base.encode16(md5, case: :lower)
+        {:ok, {content_hash, etag, size}}
 
       {:error, reason} ->
         File.rm(tmp_path)
@@ -88,52 +67,113 @@ defmodule ExStorageService.Storage.Engine do
   end
 
   @doc """
-  Returns the data_root path configured for the engine.
+  Stream-aware PUT. Kept as a separate name for existing callers; the
+  write always happens in the calling process now, so this is equivalent
+  to `put_object/5`.
   """
-  def data_root do
-    GenServer.call(__MODULE__, :data_root)
-  end
-
-  @doc """
-  Atomically moves a completed temp file into content-addressed storage.
-  Safe to call from any process after `stream_to_file/2` completes.
-  """
-  def commit_object(bucket, content_hash, tmp_path, data_root) do
-    dest = content_path(data_root, bucket, content_hash)
-    dest_dir = Path.dirname(dest)
-    File.mkdir_p!(dest_dir)
-    # rename is atomic on the same filesystem (same data_root mount)
-    File.rename!(tmp_path, dest)
-    :ok
+  def put_object_stream(
+        bucket,
+        key,
+        stream,
+        content_type \\ "application/octet-stream",
+        metadata \\ %{}
+      ) do
+    put_object(bucket, key, stream, content_type, metadata)
   end
 
   @doc """
   Returns the file path for the given content hash, suitable for sendfile.
+
+  Resolves the global CAS first, then falls back to the legacy
+  bucket-local path for content that predates the CAS migration.
   """
   def get_object(bucket, content_hash) do
-    GenServer.call(__MODULE__, {:get_object, bucket, content_hash})
+    legacy = legacy_content_path(CAS.data_root(), bucket, content_hash)
+
+    cond do
+      CAS.has_blob?(content_hash) -> {:ok, CAS.blob_path(content_hash)}
+      File.exists?(legacy) -> {:ok, legacy}
+      true -> {:error, :not_found}
+    end
   end
 
   @doc """
-  Delete content file if it is no longer referenced.
+  Resolve a blob to a servable location: a whole file (loose CAS or legacy
+  layout) or a slice of a pack file. Serving code uses the offset/length
+  forms of `send_file` for pack slices, preserving zero-copy and Range.
   """
-  def delete_content(bucket, content_hash) do
-    GenServer.call(__MODULE__, {:delete_content, bucket, content_hash})
+  def get_object_location(bucket, content_hash) do
+    legacy = legacy_content_path(CAS.data_root(), bucket, content_hash)
+
+    cond do
+      CAS.has_blob?(content_hash) ->
+        {:ok, {:file, CAS.blob_path(content_hash)}}
+
+      match?({:ok, _}, Pack.locate(content_hash)) ->
+        {:ok, {path, offset, size}} = Pack.locate(content_hash)
+        {:ok, {:pack, path, offset, size}}
+
+      File.exists?(legacy) ->
+        {:ok, {:file, legacy}}
+
+      true ->
+        {:error, :not_found}
+    end
+  end
+
+  @doc "Read a blob's bytes regardless of physical location."
+  def read_object(bucket, content_hash) do
+    case get_object_location(bucket, content_hash) do
+      {:ok, {:file, path}} -> File.read(path)
+      {:ok, {:pack, _path, _offset, _size}} -> Pack.read(content_hash)
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   @doc """
-  Construct the filesystem path for a content-addressed object.
+  Ensures the given content hash is present in the global CAS, promoting
+  it from the legacy bucket-local layout when necessary (used by
+  metadata-only CopyObject and by the migration task).
+
+  Reads of the legacy source keep working after promotion because
+  `get_object/2` checks the CAS first.
   """
-  def content_path(data_root, bucket, content_hash) do
+  def promote_to_global(bucket, content_hash) do
+    if CAS.has_blob?(content_hash) or match?({:ok, _}, Pack.locate(content_hash)) do
+      :ok
+    else
+      legacy = legacy_content_path(CAS.data_root(), bucket, content_hash)
+
+      case File.stat(legacy) do
+        {:ok, %File.Stat{size: size}} ->
+          dest = CAS.blob_path(content_hash)
+          File.mkdir_p!(Path.dirname(dest))
+          File.rename!(legacy, dest)
+          Metadata.ensure_blob_meta(content_hash, size)
+          :ok
+
+        {:error, _} ->
+          {:error, :not_found}
+      end
+    end
+  end
+
+  @doc """
+  Construct the legacy bucket-local filesystem path for a content hash.
+  Only pre-migration content lives here; new writes go to the CAS.
+  """
+  def legacy_content_path(data_root, bucket, content_hash) do
     <<prefix::binary-size(2), rest::binary>> = content_hash
     Path.join([data_root, bucket, "objects", prefix, rest])
   end
 
   @doc """
-  Ensure the bucket directory structure exists.
+  Ensure the bucket directory structure exists (legacy layout; still used
+  for multipart part staging).
   """
   def ensure_bucket_dirs(bucket) do
-    GenServer.call(__MODULE__, {:ensure_bucket_dirs, bucket})
+    File.mkdir_p!(Path.join([CAS.data_root(), bucket, "objects"]))
+    :ok
   end
 
   ## Server Callbacks
@@ -142,80 +182,13 @@ defmodule ExStorageService.Storage.Engine do
   def init(data_root) do
     data_root = Path.expand(data_root)
     File.mkdir_p!(data_root)
+    File.mkdir_p!(Path.join([data_root, CAS.reserved_root(), "objects", "sha256"]))
+    File.mkdir_p!(Path.join([data_root, CAS.reserved_root(), "tmp", "uploads"]))
     Logger.info("Storage engine started with data root: #{data_root}")
     {:ok, %{data_root: data_root}}
   end
 
-  @impl true
-  def handle_call(
-        {:put_object, bucket, _key, data_or_stream, _content_type, _metadata},
-        _from,
-        state
-      ) do
-    %{data_root: data_root} = state
-
-    ensure_bucket_dirs!(data_root, bucket)
-
-    tmp_dir = Path.join([data_root, bucket, "tmp"])
-    File.mkdir_p!(tmp_dir)
-    tmp_path = Path.join(tmp_dir, "upload_#{:erlang.unique_integer([:positive])}")
-
-    result = stream_to_file(data_or_stream, tmp_path)
-
-    case result do
-      {:ok, {sha256_hash, md5_hash, size}} ->
-        dest = content_path(data_root, bucket, sha256_hash)
-        dest_dir = Path.dirname(dest)
-        File.mkdir_p!(dest_dir)
-        File.rename!(tmp_path, dest)
-
-        etag = Base.encode16(md5_hash, case: :lower)
-        {:reply, {:ok, {sha256_hash, etag, size}}, state}
-
-      {:error, reason} ->
-        File.rm(tmp_path)
-        {:reply, {:error, reason}, state}
-    end
-  end
-
-  def handle_call({:get_object, bucket, content_hash}, _from, state) do
-    %{data_root: data_root} = state
-    path = content_path(data_root, bucket, content_hash)
-
-    if File.exists?(path) do
-      {:reply, {:ok, path}, state}
-    else
-      {:reply, {:error, :not_found}, state}
-    end
-  end
-
-  def handle_call({:delete_content, bucket, content_hash}, _from, state) do
-    %{data_root: data_root} = state
-    path = content_path(data_root, bucket, content_hash)
-
-    case File.rm(path) do
-      :ok -> {:reply, :ok, state}
-      {:error, :enoent} -> {:reply, :ok, state}
-      {:error, reason} -> {:reply, {:error, reason}, state}
-    end
-  end
-
-  def handle_call({:ensure_bucket_dirs, bucket}, _from, state) do
-    %{data_root: data_root} = state
-    ensure_bucket_dirs!(data_root, bucket)
-    {:reply, :ok, state}
-  end
-
-  def handle_call(:data_root, _from, state) do
-    {:reply, state.data_root, state}
-  end
-
   ## Private
-
-  defp ensure_bucket_dirs!(data_root, bucket) do
-    objects_dir = Path.join([data_root, bucket, "objects"])
-    File.mkdir_p!(objects_dir)
-  end
 
   defp stream_to_file(data, tmp_path) when is_binary(data) do
     sha256 = :crypto.hash(:sha256, data)
@@ -256,6 +229,11 @@ defmodule ExStorageService.Storage.Engine do
       {:ok, {content_hash, md5, size}}
     rescue
       e -> {:error, Exception.message(e)}
+    catch
+      # Body streams throw tagged errors (e.g. {:error, :entity_too_large}
+      # from Shared.body_stream when a size limit is exceeded); surface them
+      # as return values so handlers can map them to S3 error responses.
+      {:error, reason} -> {:error, reason}
     end
   end
 end

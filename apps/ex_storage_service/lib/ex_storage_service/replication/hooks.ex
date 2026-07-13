@@ -25,6 +25,21 @@ defmodule ExStorageService.Replication.Hooks do
         :ok
 
       {:ok, replicas} ->
+        object_snapshot =
+          case ExStorageService.Metadata.get_object_meta(bucket, key) do
+            {:ok, meta} ->
+              %{
+                version_id: Map.get(meta, :version_id),
+                content_hash: Map.get(meta, :content_hash),
+                etag: Map.get(meta, :etag),
+                size: Map.get(meta, :size),
+                content_type: Map.get(meta, :content_type, "application/octet-stream")
+              }
+
+            {:error, _} ->
+              nil
+          end
+
         Enum.each(replicas, fn replica ->
           JobQueue.enqueue(
             queue: :replication,
@@ -32,6 +47,7 @@ defmodule ExStorageService.Replication.Hooks do
               action: :put,
               bucket: bucket,
               key: key,
+              object: object_snapshot,
               replica: %{
                 endpoint: replica.endpoint,
                 access_key: replica.access_key,

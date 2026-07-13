@@ -32,6 +32,8 @@ defmodule ExStorageService.Application do
       {Phoenix.PubSub, name: ExStorageService.PubSub},
       ExStorageService.Storage.MultipartGC,
       ExStorageService.Storage.ContentGC,
+      ExStorageService.Storage.CasGC,
+      ExStorageService.Storage.Packer,
       ExStorageService.Replication.JobQueue,
       ExStorageService.Replication.Sync,
       {Task.Supervisor, name: ExStorageService.NotificationTaskSupervisor},

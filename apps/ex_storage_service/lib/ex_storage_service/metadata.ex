@@ -147,6 +147,45 @@ defmodule ExStorageService.Metadata do
     end
   end
 
+  ## Blob metadata operations (global CAS)
+  # Key schema: "blob:sha256:{hash}" — see docs/prd/git-style-data-model.md §7.4
+
+  def put_blob_meta(content_hash, meta) do
+    Concord.put("blob:sha256:#{content_hash}", meta)
+  end
+
+  def get_blob_meta(content_hash) do
+    case Concord.get("blob:sha256:#{content_hash}") do
+      {:ok, nil} -> {:error, :not_found}
+      {:ok, value} -> {:ok, value}
+      error -> error
+    end
+  end
+
+  @doc """
+  Creates the blob metadata record if it does not exist yet. Dedup hits
+  (same content committed again) keep the original record.
+  """
+  def ensure_blob_meta(content_hash, size) do
+    case get_blob_meta(content_hash) do
+      {:ok, _meta} ->
+        :ok
+
+      {:error, :not_found} ->
+        <<prefix::binary-size(2), rest::binary>> = content_hash
+        now = DateTime.utc_now() |> DateTime.to_iso8601()
+
+        put_blob_meta(content_hash, %{
+          hash: "sha256:#{content_hash}",
+          size: size,
+          physical_path: Path.join(["cas", "objects", "sha256", prefix, rest]),
+          state: :active,
+          created_at: now,
+          last_seen_at: now
+        })
+    end
+  end
+
   ## Private
 
   # Builds a deduplicated list mixing object keys and the common prefixes that

@@ -35,7 +35,19 @@ defmodule ExStorageService.Umbrella.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "do --app ex_storage_service_web cmd mix setup"],
-      "assets.deploy": ["do --app ex_storage_service_web cmd mix assets.deploy"]
+      "assets.deploy": ["do --app ex_storage_service_web cmd mix assets.deploy"],
+      test: [&clean_test_data/1, "test"]
     ]
+  end
+
+  # Wipe test state (storage + Ra + Concord live under the test data root)
+  # BEFORE the apps boot. Cleaning inside a test_helper.exs is too late: mix
+  # starts the apps first, so stale Raft state from a previous run of another
+  # umbrella app breaks Concord recovery for the current one.
+  defp clean_test_data(_args) do
+    if Mix.env() == :test do
+      data_root = System.get_env("ESS_DATA_ROOT", "/tmp/ex_storage_service/test_data")
+      File.rm_rf!(data_root)
+    end
   end
 end

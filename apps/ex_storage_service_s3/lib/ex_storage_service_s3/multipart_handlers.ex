@@ -10,6 +10,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
   alias ExStorageService.Metadata
   alias ExStorageService.Replication.Hooks
   alias ExStorageService.Storage.Multipart
+  alias ExStorageService.Storage.Versioning
 
   # Cap for buffered XML request bodies (CompleteMultipartUpload). Generous
   # enough for the 10,000-part maximum while bounding memory use.
@@ -147,7 +148,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
             case parse_complete_multipart_xml(body) do
               {:ok, parts} ->
                 case Multipart.complete_upload(bucket, upload_id, parts) do
-                  {:ok, {content_hash, etag, size}} ->
+                  {:ok, {content_hash, etag, size, manifest_hash}} ->
                     # Store object metadata
                     now = DateTime.utc_now() |> DateTime.to_iso8601()
 
@@ -159,6 +160,8 @@ defmodule ExStorageServiceS3.MultipartHandlers do
 
                     meta = %{
                       content_hash: content_hash,
+                      manifest_hash: manifest_hash,
+                      object_type: :blob,
                       size: size,
                       etag: etag,
                       content_type: content_type,
@@ -167,7 +170,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
                       updated_at: now
                     }
 
-                    Metadata.put_object_meta(bucket, key, meta)
+                    {:ok, _version_id} = Versioning.put_version(bucket, key, meta)
                     Hooks.after_put(bucket, key)
                     broadcast_bucket_change(bucket, :put, key)
 

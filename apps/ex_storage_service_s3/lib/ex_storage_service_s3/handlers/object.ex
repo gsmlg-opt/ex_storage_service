@@ -174,9 +174,20 @@ defmodule ExStorageServiceS3.Handlers.Object do
           :ok
       end
 
-      case Metadata.get_object_meta(bucket, key) do
-        {:ok, _meta} ->
-          Metadata.delete_object_meta(bucket, key)
+      version_id = conn.query_params["versionId"]
+
+      case Versioning.delete_version(bucket, key, version_id) do
+        {:ok, marker_id, :delete_marker} ->
+          Hooks.after_delete(bucket, key)
+          broadcast_bucket_change(bucket, :delete, key)
+
+          conn
+          |> put_s3_headers(request_id)
+          |> put_resp_header("x-amz-delete-marker", "true")
+          |> put_resp_header("x-amz-version-id", marker_id)
+          |> send_resp(204, "")
+
+        {:ok, "null", :deleted} when is_nil(version_id) ->
           Hooks.after_delete(bucket, key)
           broadcast_bucket_change(bucket, :delete, key)
 
@@ -184,9 +195,13 @@ defmodule ExStorageServiceS3.Handlers.Object do
           |> put_s3_headers(request_id)
           |> send_resp(204, "")
 
-        {:error, :not_found} ->
+        {:ok, deleted_vid, :deleted} ->
+          Hooks.after_delete(bucket, key)
+          broadcast_bucket_change(bucket, :delete, key)
+
           conn
           |> put_s3_headers(request_id)
+          |> put_resp_header("x-amz-version-id", deleted_vid)
           |> send_resp(204, "")
       end
     end)
@@ -225,11 +240,13 @@ defmodule ExStorageServiceS3.Handlers.Object do
                        cloud_cache_config(bucket)
                      ) do
                   :ok ->
-                    Metadata.put_object_meta(bucket, key, new_meta)
+                    {:ok, version_id} = Versioning.put_version(bucket, key, new_meta)
                     Hooks.after_put(bucket, key)
                     broadcast_bucket_change(bucket, :put, key)
                     # CopyObjectResult requires ISO 8601 (not HTTP date format)
                     body = XML.copy_object_response("\"#{source_meta.etag}\"", now)
+
+                    conn = maybe_put_version_header(conn, version_id)
                     xml_response(conn, 200, body, request_id)
 
                   {:error, :source_missing} ->
@@ -306,15 +323,9 @@ defmodule ExStorageServiceS3.Handlers.Object do
                     :ok
                 end
 
-                case Metadata.get_object_meta(bucket, key) do
-                  {:ok, _meta} ->
-                    Metadata.delete_object_meta(bucket, key)
-                    Hooks.after_delete(bucket, key)
-                    {:deleted, key}
-
-                  {:error, :not_found} ->
-                    {:deleted, key}
-                end
+                {:ok, _vid, _kind} = Versioning.delete_version(bucket, key)
+                Hooks.after_delete(bucket, key)
+                {:deleted, key}
               end)
 
             broadcast_bucket_change(bucket, :delete_objects, nil)
@@ -353,8 +364,8 @@ defmodule ExStorageServiceS3.Handlers.Object do
         else
           content_hash = meta.content_hash
 
-          case Engine.get_object(bucket, content_hash) do
-            {:ok, file_path} ->
+          case Engine.get_object_location(bucket, content_hash) do
+            {:ok, location} ->
               content_type = Map.get(meta, :content_type, "application/octet-stream")
               etag = Map.get(meta, :etag, "")
               size = Map.get(meta, :size, 0)
@@ -370,7 +381,7 @@ defmodule ExStorageServiceS3.Handlers.Object do
               |> put_resp_header("content-length", to_string(size))
               |> put_resp_header("x-amz-version-id", version_id)
               |> put_custom_metadata_headers(meta)
-              |> send_file(200, file_path)
+              |> send_versioned_object(location)
 
             {:error, _} ->
               error_response(
@@ -398,15 +409,26 @@ defmodule ExStorageServiceS3.Handlers.Object do
     CloudConfig.get_active_config(bucket)
   end
 
+  defp maybe_put_version_header(conn, "null"), do: conn
+
+  defp maybe_put_version_header(conn, version_id),
+    do: put_resp_header(conn, "x-amz-version-id", version_id)
+
   defp copy_destination_content(
          source_bucket,
          _source_key,
-         dest_bucket,
+         _dest_bucket,
          _dest_key,
          source_meta,
          :disabled
        ) do
-    copy_local_destination_content(source_bucket, dest_bucket, source_meta.content_hash)
+    # Content is globally addressed: ensure the blob is in the CAS
+    # (promoting pre-migration legacy content), then the copy is
+    # metadata-only — no physical file duplication.
+    case Engine.promote_to_global(source_bucket, source_meta.content_hash) do
+      :ok -> :ok
+      {:error, :not_found} -> {:error, :source_missing}
+    end
   end
 
   defp copy_destination_content(
@@ -430,21 +452,6 @@ defmodule ExStorageServiceS3.Handlers.Object do
     end
   end
 
-  defp copy_local_destination_content(source_bucket, dest_bucket, content_hash)
-       when source_bucket == dest_bucket do
-    case Engine.get_object(source_bucket, content_hash) do
-      {:ok, _source_path} -> :ok
-      {:error, _} -> {:error, :source_missing}
-    end
-  end
-
-  defp copy_local_destination_content(source_bucket, dest_bucket, content_hash) do
-    case copy_local_content(source_bucket, dest_bucket, content_hash) do
-      :ok -> :ok
-      {:error, :not_found} -> {:error, :source_missing}
-    end
-  end
-
   defp read_source_object_data(source_bucket, source_key, source_meta) do
     case LocalStore.get(source_bucket, source_key) do
       {:ok, path} ->
@@ -456,9 +463,9 @@ defmodule ExStorageServiceS3.Handlers.Object do
   end
 
   defp read_uncached_source_object_data(source_bucket, source_key, content_hash) do
-    case Engine.get_object(source_bucket, content_hash) do
-      {:ok, path} ->
-        File.read(path)
+    case Engine.read_object(source_bucket, content_hash) do
+      {:ok, data} ->
+        {:ok, data}
 
       {:error, _} ->
         case cloud_cache_config(source_bucket) do
@@ -468,21 +475,10 @@ defmodule ExStorageServiceS3.Handlers.Object do
     end
   end
 
-  # Copies a content-addressed file from one local bucket to another.
-  # Returns {:error, :not_found} when the source content file is absent.
-  defp copy_local_content(source_bucket, dest_bucket, content_hash) do
-    case Engine.get_object(source_bucket, content_hash) do
-      {:ok, source_path} ->
-        data_root = Application.get_env(:ex_storage_service, :data_root)
-        dest_path = Engine.content_path(data_root, dest_bucket, content_hash)
-        File.mkdir_p!(Path.dirname(dest_path))
-        File.cp!(source_path, dest_path)
-        :ok
+  defp send_versioned_object(conn, {:file, path}), do: send_file(conn, 200, path)
 
-      {:error, _} ->
-        {:error, :not_found}
-    end
-  end
+  defp send_versioned_object(conn, {:pack, path, offset, size}),
+    do: send_file(conn, 200, path, offset, size)
 
   defp parse_max_keys(value) do
     case Integer.parse(value) do

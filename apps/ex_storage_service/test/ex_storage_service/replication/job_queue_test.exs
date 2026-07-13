@@ -1,6 +1,8 @@
 defmodule ExStorageService.Replication.JobQueueTest do
   use ExUnit.Case, async: false
 
+  alias ExStorageService.Metadata
+  alias ExStorageService.Replication.Config
   alias ExStorageService.Replication.JobQueue
 
   defp concord_ready? do
@@ -138,6 +140,46 @@ defmodule ExStorageService.Replication.JobQueueTest do
     end
   end
 
+  describe "replication hooks" do
+    @tag :integration
+    test "after_put enqueues jobs with a pinned object snapshot", context do
+      unless context[:skip] do
+        bucket = "hooks-#{:erlang.unique_integer([:positive])}"
+        key = "pinned.txt"
+
+        now = DateTime.utc_now() |> DateTime.to_iso8601()
+
+        Metadata.put_object_meta(bucket, key, %{
+          content_hash: "abc123",
+          etag: "etag123",
+          size: 7,
+          content_type: "text/plain",
+          version_id: "v-1",
+          created_at: now,
+          updated_at: now
+        })
+
+        :ok =
+          Config.set_bucket_replicas(bucket, [
+            %{
+              endpoint: "http://localhost:59999",
+              access_key: nil,
+              secret_key_enc: nil,
+              bucket: nil
+            }
+          ])
+
+        :ok = ExStorageService.Replication.Hooks.after_put(bucket, key)
+
+        assert Enum.any?(replication_jobs(), fn job ->
+                 job.payload[:bucket] == bucket and job.payload[:key] == key and
+                   job.payload[:object][:content_hash] == "abc123" and
+                   job.payload[:object][:version_id] == "v-1"
+               end)
+      end
+    end
+  end
+
   describe "Job struct" do
     test "has correct defaults" do
       job = %JobQueue.Job{}
@@ -145,6 +187,30 @@ defmodule ExStorageService.Replication.JobQueueTest do
       assert job.max_attempts == 3
       assert job.status == nil
       assert job.error == nil
+    end
+  end
+
+  defp replication_jobs do
+    case Concord.get_all() do
+      {:ok, all} ->
+        all
+        |> Enum.filter(fn {k, _v} -> String.starts_with?(k, "job:replication:") end)
+        |> Enum.map(fn {_k, v} ->
+          %JobQueue.Job{
+            id: v[:id],
+            queue: v[:queue],
+            status: v[:status],
+            payload: v[:payload],
+            attempts: v[:attempts],
+            max_attempts: v[:max_attempts],
+            created_at: v[:created_at],
+            updated_at: v[:updated_at],
+            error: v[:error]
+          }
+        end)
+
+      _ ->
+        []
     end
   end
 

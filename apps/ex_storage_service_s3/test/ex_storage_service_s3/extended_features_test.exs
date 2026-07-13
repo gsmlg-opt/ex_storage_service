@@ -531,6 +531,41 @@ defmodule ExStorageServiceS3.ExtendedFeaturesTest do
       cleanup_bucket(bucket)
     end
 
+    test "lifecycle API roundtrips transition rules" do
+      bucket = create_bucket(unique_bucket())
+
+      lifecycle_xml = """
+      <?xml version="1.0" encoding="UTF-8"?>
+      <LifecycleConfiguration>
+        <Rule>
+          <ID>pack-archive</ID>
+          <Filter><Prefix>archive/</Prefix></Filter>
+          <Status>Enabled</Status>
+          <Transition>
+            <Days>7</Days>
+            <StorageClass>PACKED</StorageClass>
+          </Transition>
+        </Rule>
+      </LifecycleConfiguration>
+      """
+
+      {:ok, put_resp} =
+        Req.put("#{@base_url}/#{bucket}?lifecycle",
+          body: lifecycle_xml,
+          headers: [{"content-type", "application/xml"}]
+        )
+
+      assert put_resp.status == 200
+
+      {:ok, get_resp} = Req.get("#{@base_url}/#{bucket}?lifecycle")
+      assert get_resp.status == 200
+      assert String.contains?(get_resp.body, "<ID>pack-archive</ID>")
+      assert String.contains?(get_resp.body, "<Transition><Days>7</Days>")
+      assert String.contains?(get_resp.body, "<StorageClass>PACKED</StorageClass>")
+
+      cleanup_bucket(bucket)
+    end
+
     test "lifecycle API rejects XML with a DOCTYPE declaration" do
       bucket = create_bucket(unique_bucket())
 

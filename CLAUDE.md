@@ -13,14 +13,17 @@ ExStorageService is an S3-compatible object storage server built with Elixir/Pho
 
 The `ess` release includes only the three server apps. The CLI's version in `apps/ex_storage_service_cli/mix.exs` is kept in sync with the umbrella version in root `mix.exs`.
 
+`docs/` holds deployment notes (`deploy.md`) and PRDs (`docs/prd/`). `AGENTS.md` holds equivalent instructions for other coding agents — keep it consistent when changing project conventions.
+
 ## Common Commands
 
 ```bash
 mix setup                          # Install deps + Duskmoon npm packages + DuskMoon bundle + build assets
 mix test                           # Run all tests (all apps)
-mix test --app ex_storage_service  # Run core app tests only
-mix test --app ex_storage_service_s3  # Run S3 app tests only
-mix test --app ex_storage_service_web # Run web app tests only
+mix test apps/ex_storage_service/test      # Run core app tests only
+mix test apps/ex_storage_service_s3/test   # Run S3 app tests only
+mix test apps/ex_storage_service_web/test  # Run web app tests only
+mix test apps/ex_storage_service_cli/test  # Run CLI tests only
 mix test path/to/test.exs          # Run one test file
 mix test path/to/test.exs:42       # Run one test
 mix format                         # Format code
@@ -30,7 +33,9 @@ mix phx.server                     # Start all apps (S3 API :9000 + admin portal
 mix duskmoon_bundler.build         # Build frontend assets manually
 ```
 
-Build the CLI escript: `mix escript.build` inside `apps/ex_storage_service_cli` (produces `./ess`).
+Build the CLI escript from the umbrella root: `mix do --app ex_storage_service_cli escript.build` (produces `apps/ex_storage_service_cli/ess`).
+
+Commit messages follow conventional commits with an app scope, e.g. `fix(s3): ...`, `feat(cli): ...`, `chore(release): ...`.
 
 ## Key Design Decisions
 

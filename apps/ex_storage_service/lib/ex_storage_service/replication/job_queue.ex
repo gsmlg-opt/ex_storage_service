@@ -404,7 +404,7 @@ defmodule ExStorageService.Replication.JobQueue do
 
     case job.payload do
       %{action: :put, bucket: bucket, key: key, replica: replica} ->
-        Worker.replicate_put(bucket, key, to_replica_struct(replica))
+        Worker.replicate_put(bucket, key, to_replica_struct(replica), job.payload[:object])
 
       %{action: :delete, bucket: bucket, key: key, replica: replica} ->
         Worker.replicate_delete(bucket, key, to_replica_struct(replica))
