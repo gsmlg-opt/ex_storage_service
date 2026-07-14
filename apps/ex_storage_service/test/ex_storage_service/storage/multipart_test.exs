@@ -1,7 +1,8 @@
 defmodule ExStorageService.Storage.MultipartTest do
   use ExUnit.Case, async: false
 
-  alias ExStorageService.Storage.Multipart
+  alias ExStorageService.Metadata
+  alias ExStorageService.Storage.{CAS, Engine, Multipart, Pack}
 
   setup do
     bucket = "multipart-core-#{:erlang.unique_integer([:positive])}"
@@ -94,6 +95,36 @@ defmodule ExStorageService.Storage.MultipartTest do
 
     # part records cleaned up after completion
     assert {:ok, []} = Multipart.list_parts(bucket, upload_id)
+  end
+
+  test "complete_upload streams a part that only exists in a pack" do
+    bucket = "mpu-packed-#{:erlang.unique_integer([:positive])}"
+    Metadata.create_bucket(bucket)
+    {:ok, upload_id} = Multipart.init_upload(bucket, "packed-part")
+
+    data = "packed-multipart-part-#{System.unique_integer()}"
+    {:ok, etag} = Multipart.store_part(bucket, upload_id, 1, data)
+    assert {:ok, [%{hash: part_hash}]} = Multipart.list_parts(bucket, upload_id)
+
+    {:ok, {filler_hash, _etag, _size}} =
+      Engine.put_object(bucket, "pack-filler", "pack-filler-#{System.unique_integer()}")
+
+    {:ok, {trailing_hash, _etag, _size}} =
+      Engine.put_object(bucket, "pack-trailing", "pack-trailing-#{System.unique_integer()}")
+
+    assert {:ok, %{packed: 3}} = Pack.pack_blobs([filler_hash, part_hash, trailing_hash])
+    assert :ok = File.rm(CAS.blob_path(part_hash))
+
+    assert {:ok, {:pack, pack_path, pack_offset, pack_size}} =
+             Engine.get_object_location(bucket, part_hash)
+
+    assert pack_offset > 0
+    assert pack_offset + pack_size < File.stat!(pack_path).size
+
+    assert {:ok, {content_hash, _etag, _size, _manifest_hash}} =
+             Multipart.complete_upload(bucket, upload_id, [{1, etag}])
+
+    assert {:ok, ^data} = Engine.read_object(bucket, content_hash)
   end
 
   test "complete_upload with a never-uploaded part returns missing_part" do

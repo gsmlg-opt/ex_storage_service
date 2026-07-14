@@ -13,6 +13,8 @@ defmodule ExStorageService.Storage.Packer do
   - `:pack_cold_after` — seconds since last modification (default 30 days)
   - `:pack_min_blobs` — skip packing below this count (default 100)
   - `:pack_max_blobs` / `:pack_max_bytes` — per-pack limits (default 1000 / 1 GiB)
+  - `:pack_loose_cleanup_after` — seconds to retain loose fallbacks after packing
+    (default 24 hours)
   """
 
   use GenServer
@@ -58,23 +60,38 @@ defmodule ExStorageService.Storage.Packer do
     min_blobs = conf(opts, :min_blobs, :pack_min_blobs, 100)
     max_blobs = conf(opts, :max_blobs, :pack_max_blobs, 1000)
     max_bytes = conf(opts, :max_bytes, :pack_max_bytes, 1024 * 1024 * 1024)
+    cleanup_after = conf(opts, :cleanup_after, :pack_loose_cleanup_after, 86_400)
 
     case Concord.get_all() do
       {:ok, all} ->
         reachable = CasGC.reachable_hashes(all)
+        packed_hashes = packed_hashes(all)
+        mpu_part_hashes = mpu_part_hashes(all)
+        gc_candidate_hashes = gc_candidate_hashes(all)
         now = System.os_time(:second)
+        loose_deleted = cleanup_packed_loose_blobs(all, now, cleanup_after)
 
         candidates =
           loose_blobs()
           |> Enum.filter(fn {hash, path} ->
-            MapSet.member?(reachable, hash) and cold?(path, now, cold_after)
+            MapSet.member?(reachable, hash) and
+              not MapSet.member?(packed_hashes, hash) and
+              not MapSet.member?(mpu_part_hashes, hash) and
+              not MapSet.member?(gc_candidate_hashes, hash) and
+              cold?(path, now, cold_after)
           end)
           |> take_batch(max_blobs, max_bytes)
 
-        if length(candidates) < min_blobs do
-          {:ok, %{pack_hash: nil, packed: 0}}
-        else
-          Pack.pack_blobs(Enum.map(candidates, fn {hash, _path} -> hash end))
+        pack_result =
+          if length(candidates) < min_blobs do
+            {:ok, %{pack_hash: nil, packed: 0}}
+          else
+            Pack.pack_blobs(Enum.map(candidates, fn {hash, _path} -> hash end))
+          end
+
+        case pack_result do
+          {:ok, report} -> {:ok, Map.put(report, :loose_deleted, loose_deleted)}
+          {:error, _reason} = error -> error
         end
 
       {:error, reason} ->
@@ -86,6 +103,92 @@ defmodule ExStorageService.Storage.Packer do
   defp conf(opts, key, env_key, default) do
     Keyword.get(opts, key, Application.get_env(:ex_storage_service, env_key, default))
   end
+
+  defp packed_hashes(all) do
+    all
+    |> Enum.reduce([], fn
+      {"blob:sha256:" <> hash, meta}, acc ->
+        if get_field(meta, :state) == :packed, do: [hash | acc], else: acc
+
+      _, acc ->
+        acc
+    end)
+    |> MapSet.new()
+  end
+
+  defp mpu_part_hashes(all) do
+    all
+    |> Enum.reduce([], fn
+      {"mpu_part:" <> _, meta}, acc ->
+        case get_field(meta, :hash) do
+          hash when is_binary(hash) -> [hash | acc]
+          _ -> acc
+        end
+
+      _, acc ->
+        acc
+    end)
+    |> MapSet.new()
+  end
+
+  defp gc_candidate_hashes(all) do
+    all
+    |> Enum.reduce([], fn
+      {"gc:candidate:" <> hash, _record}, acc -> [hash | acc]
+      _, acc -> acc
+    end)
+    |> MapSet.new()
+  end
+
+  # Only the Concord snapshot captured before this pass is eligible, so blobs
+  # packed below cannot be removed by the same pass even with a zero grace.
+  defp cleanup_packed_loose_blobs(all, now, cleanup_after) do
+    deleted =
+      Enum.reduce(all, 0, fn
+        {"blob:sha256:" <> hash, meta}, acc ->
+          if old_packed_blob?(meta, now, cleanup_after) do
+            cleanup_packed_loose_blob(hash, acc)
+          else
+            acc
+          end
+
+        _, acc ->
+          acc
+      end)
+
+    if deleted > 0, do: Logger.info("Packer: removed #{deleted} retained loose packed blobs")
+    deleted
+  end
+
+  defp old_packed_blob?(meta, now, cleanup_after) do
+    get_field(meta, :state) == :packed and
+      is_integer(get_field(meta, :packed_at)) and
+      now - get_field(meta, :packed_at) >= cleanup_after
+  end
+
+  defp cleanup_packed_loose_blob(hash, count) do
+    loose_path = CAS.blob_path(hash)
+
+    with true <- File.exists?(loose_path),
+         {:ok, _location} <- Pack.locate(hash) do
+      case File.rm(loose_path) do
+        :ok ->
+          count + 1
+
+        {:error, :enoent} ->
+          count
+
+        {:error, reason} ->
+          Logger.warning("Packer: failed to remove loose fallback #{hash}: #{inspect(reason)}")
+          count
+      end
+    else
+      _ -> count
+    end
+  end
+
+  defp get_field(map, key) when is_map(map), do: map[key] || map[to_string(key)]
+  defp get_field(_, _key), do: nil
 
   defp loose_blobs do
     objects_dir = Path.join([CAS.data_root(), CAS.reserved_root(), "objects", "sha256"])

@@ -1,7 +1,7 @@
 defmodule ExStorageServiceS3.PackedObjectsTest do
   use ExUnit.Case, async: false
 
-  alias ExStorageService.Storage.{CAS, Packer}
+  alias ExStorageService.Storage.{CAS, Engine, Packer}
 
   @s3_port Application.compile_env(:ex_storage_service, :s3_port, 9001)
   @base_url "http://localhost:#{@s3_port}"
@@ -20,7 +20,8 @@ defmodule ExStorageServiceS3.PackedObjectsTest do
     File.touch!(CAS.blob_path(hash), System.os_time(:second) - 90 * 86_400)
     {:ok, %{packed: packed}} = Packer.pack_now(cold_after: 0, min_blobs: 1)
     assert packed >= 1
-    refute File.exists?(CAS.blob_path(hash))
+    assert File.exists?(CAS.blob_path(hash))
+    assert {:ok, {:pack, _path, _offset, _size}} = Engine.get_object_location(bucket, hash)
     hash
   end
 

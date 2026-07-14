@@ -16,8 +16,8 @@
 > 11a. **Phase 3 implementation note (2026-07-09):** multipart parts are CAS blobs (part records carry the blob hash) and CompleteMultipartUpload streams the concatenation with constant memory into a whole-object CAS blob *and* records a content-addressed manifest (`manifest:sha256:{hash}` record + canonical JSON file under `cas/manifests/`, linked from version metadata via `manifest_hash`). **Serving stays whole-blob** — manifest-streaming GET was deliberately not implemented because chunked transfer-encoding drops `Content-Length` and complicates Range, regressing S3 client compatibility (§12.4). Manifest-based serving is deferred to Phase 6 (packs). Part blobs become unreferenced after completion and are reclaimed by Phase 4 GC.
 > 11b. **Phase 4 implementation note (2026-07-09):** `Storage.CasGC` implements the candidate → quarantine → delete pipeline for `cas/objects` with per-stage reachability re-checks, restore-on-rereference for quarantined blobs, dry-run mode, `stats/0` for operator visibility, and audit logging. GC roots: `obj:*`/`obj_ver:*` `content_hash` plus active `mpu_part:*` `hash`. Manifest files/records are never swept. Admin *UI* for GC visibility is a follow-up; the legacy `ContentGC` continues to own the legacy tree until it is deleted.
 > 11c. **Phase 5 implementation note (2026-07-09):** replication jobs pin the replicated version at enqueue time (`payload.object`: version_id, content_hash, etag, size, content_type); the worker skips transfer when the destination already holds identical content (key-level HEAD etag+size comparison — targets are generic S3 endpoints, so there is no cross-node blob-hash endpoint) and skips superseded-and-collected versions as stale. Delete/delete-marker replication is body-less (plain DELETE, 404-idempotent). "Transfer manifests before refs" is N/A — multipart objects replicate as their materialized whole blob. Follow-ups: streaming PUT bodies (chunked enumerable bodies corrupt pooled HTTP/1.1 connections with Bandit targets; needs explicit content-length streaming) and SigV4 replica auth (still bearer-token v1).
-> 11d. **Phase 6 implementation note (2026-07-09):** packs are **uncompressed** concatenations of blob contents, content-addressed by the pack file's own SHA-256 (`cas/packs/pack-{hash}.pack` + JSON `.idx` sidecar + `pack:{hash}` Concord record). Uncompressed packs preserve all serving semantics: packed blobs are served with `send_file(path, offset, size)` — zero-copy, exact `Content-Length`, Range = pack_offset + range_offset. Blob lookup is O(1) via `state: :packed` + `pack: %{hash, offset}` on blob metadata. `Storage.Packer` applies a global age-based cold policy (only loose, **reachable** blobs are packed; unreachable ones belong to CasGC), and per-bucket lifecycle `Transition` rules with `StorageClass` `PACKED` transition matching objects into pack storage. Follow-ups: repack/pack-GC of dead pack entries.
-> 11. **Phase 2 implementation note (2026-07-09):** the existing `obj:{bucket}:{key}` record serves as the mutable ref (it is absent when the latest version is a delete marker), and the existing `obj_ver:*` / `obj_ver_list:*` keys serve as the version store — no `ref:*`/`ver:*` key rename or metadata migration was needed since the schema already matched. `bucket_versioning:{bucket}` is retained as a separate key. Version records gained `object_type` and `parent_version_id` fields. Phase 2 follow-ups (not yet implemented): `ListObjectVersions` API, `HeadObject` with `versionId`, `x-amz-copy-source` with `?versionId=`, and `x-amz-version-id` on the CompleteMultipartUpload response.
+> 11d. **Phase 6 implementation note (2026-07-09, hardened 2026-07-14):** packs are **uncompressed** concatenations of blob contents, content-addressed by the pack file's own SHA-256 (`cas/packs/pack-{hash}.pack` + JSON `.idx` sidecar + `pack:{hash}` Concord record). Uncompressed packs preserve all serving semantics: packed blobs are served with `send_file(path, offset, size)` — zero-copy, exact `Content-Length`, Range = pack_offset + range_offset. Blob lookup is O(1) via `state: :packed` + `pack: %{hash, offset}` on blob metadata. Once metadata is marked packed, reads prefer the pack and retain the loose blob as a fallback for a grace period; a later Packer pass removes eligible loose fallbacks only while the pack is still available. `Storage.Packer` applies a global age-based cold policy (only loose, **reachable** blobs are packed; unreachable ones belong to CasGC), excludes active multipart-part hashes, and per-bucket lifecycle `Transition` rules with `StorageClass` `PACKED` transition matching objects into pack storage. Multipart completion resolves parts through the storage engine, so directly packed parts remain readable. Follow-ups: repack/pack-GC of dead pack entries.
+> 11. **Phase 2 implementation note (2026-07-09, updated 2026-07-14):** the existing `obj:{bucket}:{key}` record serves as the mutable ref (it is absent when the latest version is a delete marker), and the existing `obj_ver:*` / `obj_ver_list:*` keys serve as the version store — no `ref:*`/`ver:*` key rename or metadata migration was needed since the schema already matched. `bucket_versioning:{bucket}` is retained as a separate key. Version records gained `object_type` and `parent_version_id` fields, and CompleteMultipartUpload now returns `x-amz-version-id` when it creates a non-null version. Remaining Phase 2 follow-ups: `ListObjectVersions` API, `HeadObject` with `versionId`, and `x-amz-copy-source` with `?versionId=`.
 
 ## 1. Overview
 
@@ -266,7 +266,9 @@ Immutable commit-like metadata record.
   hash: "sha256:{hash}",
   size: integer,
   physical_path: "cas/objects/sha256/ab/cdef...",
-  state: :active | :quarantined | :deleted,
+  state: :active | :packed | :quarantined | :deleted,
+  pack: %{hash: pack_hash, offset: byte_offset} | nil,
+  packed_at: unix_seconds | nil,
   created_at: iso8601,
   last_seen_at: iso8601
 }
@@ -395,15 +397,17 @@ If a crash occurs before ref update, the blob may become an orphan and is handle
 
 ```text
 GET /{bucket}/{key}
-  -> read ref:{bucket}:{key}
-  -> reject if delete marker (404 NoSuchKey with x-amz-delete-marker)
+  -> confirm bucket exists
+  -> read obj:{bucket}:{key}; if absent, inspect the latest obj_ver entry
+  -> reject if the latest version is a delete marker
+     (404 NoSuchKey with x-amz-delete-marker and x-amz-version-id)
   -> read ver:{bucket}:{key}:{version_id}
   -> resolve root_hash
   -> if blob: send_file (zero-copy fast path, Range supported)
   -> if manifest: stream parts in order
 ```
 
-Cloud-cache buckets keep their existing `CloudBackend` read path untouched.
+Cloud-cache buckets keep their remote read path, but an existing local delete marker wins before any upstream fallback.
 
 ### 9.2 Requirements
 
@@ -428,7 +432,7 @@ DELETE /{bucket}/{key}
 ```text
 DELETE /{bucket}/{key}
   -> create delete-marker version
-  -> update ref:{bucket}:{key} to delete marker
+  -> remove obj:{bucket}:{key}; the latest marker remains in obj_ver_list:{bucket}:{key}
 ```
 
 Old versions remain addressable by `versionId`.
@@ -513,7 +517,7 @@ Completed multipart objects currently support Range requests and the `send_file`
 
 ## 13. Versioning Semantics
 
-**Current state (code review):** versioning is config-and-read only. `Storage.Versioning.put_version/3` and `delete_version/3` have no callers; the S3 PUT path never creates versions and DELETE never creates delete markers. Only GET-with-`versionId` reads version records. Phase 2 is therefore new write-path behavior, not a refactor of working behavior.
+**Current state:** Local S3 PUT, CopyObject, and CompleteMultipartUpload create versions through `Storage.Versioning.put_version/3`; DELETE creates markers or permanently deletes the requested `versionId`. Normal GET/HEAD return 404 with delete-marker and version headers when the latest version is a marker, while explicit `versionId` GET keeps older versions readable.
 
 ### 13.1 Disabled
 
@@ -765,7 +769,7 @@ ExStorageService.Storage.Migration    (mix task / admin-triggered)
 * Implement versioning-enabled behavior (PUT versions, DELETE markers). ✅ (delete-marker/repoint semantics fixed in `Storage.Versioning`.)
 * Listing scans the ref records (no `idx:*`). ✅ (delete markers absent from `obj:*` → excluded from listings for free.)
 * Write ordering per §17.1: version record → version list → ref last. ✅
-* Follow-ups deferred: `ListObjectVersions`, `HeadObject?versionId`, copy-source `?versionId`, version id on CompleteMultipartUpload response.
+* Remaining follow-ups deferred: `ListObjectVersions`, `HeadObject?versionId`, and copy-source `?versionId`. CompleteMultipartUpload now returns `x-amz-version-id` for non-null versions.
 
 ### Phase 3: Manifests for Multipart — ✅ done (2026-07-09)
 
@@ -789,7 +793,7 @@ ExStorageService.Storage.Migration    (mix task / admin-triggered)
 
 ### Phase 6: Pack Storage — ✅ done (2026-07-09)
 
-* Add pack writer for cold/unmodified blobs. ✅ (`Storage.Pack.pack_blobs/1`: crash-safe write order — tmp pack → rename → sidecar → record → blob metadata → loose deletion last.)
+* Add pack writer for cold/unmodified blobs. ✅ (`Storage.Pack.pack_blobs/1`: crash-safe write order — tmp pack → rename → sidecar → record → blob metadata; loose files remain as read fallbacks until a later cleanup pass validates the packed slice.)
 * Add pack index. ✅ (`pack:{hash}` Concord record + JSON `.idx` sidecar for repair; O(1) blob lookup via blob metadata `pack: %{hash, offset}`.)
 * Support reading packed blobs. ✅ (S3 GET/Range/versioned GET serve pack slices via `send_file` offsets — zero-copy, exact Content-Length; CopyObject and replication read packed content transparently.)
 * Add lifecycle policy transition to packed storage. ✅ (`Storage.Packer` provides the global age-based cold policy; per-bucket lifecycle `Transition` rules with `StorageClass` `PACKED` pack matching objects during lifecycle evaluation.)
@@ -806,7 +810,8 @@ ExStorageService.Storage.Migration    (mix task / admin-triggered)
 ### 21.2 Versioning
 
 * With versioning enabled, each PUT creates a new version.
-* GET without `versionId` returns latest non-delete-marker object.
+* GET without `versionId` returns the latest object, or 404 with `x-amz-delete-marker` and `x-amz-version-id` when the latest version is a delete marker.
+* HEAD without `versionId` follows the same latest-delete-marker status and header semantics.
 * GET with `versionId` returns the requested old version.
 * DELETE creates a delete marker.
 * Old versions remain readable after delete marker creation.

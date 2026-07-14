@@ -104,6 +104,53 @@ defmodule ExStorageServiceS3.MultipartTest do
 
       cleanup_bucket(bucket)
     end
+
+    test "complete returns a version ID for a versioned bucket" do
+      bucket = create_bucket(unique_bucket())
+      key = "versioned-multipart.bin"
+
+      versioning_xml = """
+      <?xml version="1.0" encoding="UTF-8"?>
+      <VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Enabled</Status></VersioningConfiguration>
+      """
+
+      {:ok, %{status: 200}} =
+        Req.put("#{@base_url}/#{bucket}?versioning", body: versioning_xml)
+
+      {:ok, initiate_resp} = Req.post("#{@base_url}/#{bucket}/#{key}?uploads", body: "")
+      [_, upload_id] = Regex.run(~r/<UploadId>([^<]+)<\/UploadId>/, initiate_resp.body)
+
+      part_data = "versioned multipart data"
+
+      {:ok, upload_resp} =
+        Req.put("#{@base_url}/#{bucket}/#{key}?partNumber=1&uploadId=#{upload_id}",
+          body: part_data
+        )
+
+      [etag] = upload_resp.headers["etag"]
+
+      complete_xml = """
+      <?xml version="1.0" encoding="UTF-8"?>
+      <CompleteMultipartUpload>
+        <Part><PartNumber>1</PartNumber><ETag>#{etag}</ETag></Part>
+      </CompleteMultipartUpload>
+      """
+
+      {:ok, complete_resp} =
+        Req.post("#{@base_url}/#{bucket}/#{key}?uploadId=#{upload_id}",
+          body: complete_xml,
+          headers: [{"content-type", "application/xml"}]
+        )
+
+      assert complete_resp.status == 200
+      assert [version_id] = Req.Response.get_header(complete_resp, "x-amz-version-id")
+      refute version_id == "null"
+
+      assert {:ok, %{status: 200, body: ^part_data}} =
+               Req.get("#{@base_url}/#{bucket}/#{key}?versionId=#{version_id}")
+
+      cleanup_bucket(bucket)
+    end
   end
 
   describe "multipart upload: abort" do

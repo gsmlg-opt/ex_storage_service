@@ -2,6 +2,8 @@ defmodule ExStorageServiceS3.Handlers.Shared do
   @moduledoc false
 
   import Plug.Conn
+  alias ExStorageService.Metadata
+  alias ExStorageService.Storage.Versioning
   alias ExStorageServiceS3.XML
 
   def request_id(conn) do
@@ -30,6 +32,32 @@ defmodule ExStorageServiceS3.Handlers.Shared do
     |> put_s3_headers(request_id)
     |> put_resp_header("content-type", "application/xml")
     |> send_resp(status, body)
+  end
+
+  def delete_marker_response(conn, version_id, request_id) do
+    conn
+    |> put_s3_headers(request_id)
+    |> put_resp_header("x-amz-delete-marker", "true")
+    |> put_resp_header("x-amz-version-id", version_id)
+    |> send_resp(404, "")
+  end
+
+  def latest_delete_marker(bucket, key) do
+    case Metadata.head_bucket(bucket) do
+      :ok ->
+        case Versioning.get_version(bucket, key, nil) do
+          {:ok, %{is_delete_marker: true, version_id: version_id}} -> {:ok, version_id}
+          {:ok, _meta} -> :not_found
+          {:error, :not_found} -> :not_found
+          {:error, reason} -> {:error, reason}
+        end
+
+      {:error, :not_found} ->
+        :no_such_bucket
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   # Returns true if the XML declares a DOCTYPE or custom ENTITY. xmerl expands

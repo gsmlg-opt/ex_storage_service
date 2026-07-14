@@ -255,6 +255,49 @@ defmodule ExStorageServiceS3.ApiTest do
       cleanup_bucket(bucket)
     end
 
+    test "cloud-backed GET and HEAD honor a local delete marker before upstream content" do
+      bucket = create_bucket(unique_bucket())
+      remote_bucket = create_bucket(unique_bucket())
+      key = "marker-shadow.txt"
+      upstream_body = "upstream content must stay hidden"
+
+      enable_cloud_cache(bucket, remote_bucket)
+
+      versioning_xml = """
+      <?xml version="1.0" encoding="UTF-8"?>
+      <VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Enabled</Status></VersioningConfiguration>
+      """
+
+      {:ok, %{status: 200}} =
+        Req.put("#{@base_url}/#{bucket}?versioning", body: versioning_xml)
+
+      {:ok, %{status: 200}} = Req.put("#{@base_url}/#{bucket}/#{key}", body: "local version")
+      {:ok, delete_resp} = Req.delete("#{@base_url}/#{bucket}/#{key}")
+      assert delete_resp.status == 204
+      assert Req.Response.get_header(delete_resp, "x-amz-delete-marker") == ["true"]
+      assert [marker_id] = Req.Response.get_header(delete_resp, "x-amz-version-id")
+
+      {:ok, %{status: 200}} =
+        Req.put("#{@base_url}/#{remote_bucket}/#{key}", body: upstream_body)
+
+      assert {:ok, %{status: 200, body: ^upstream_body}} =
+               Req.get("#{@base_url}/#{remote_bucket}/#{key}")
+
+      {:ok, get_resp} = Req.get("#{@base_url}/#{bucket}/#{key}")
+      assert get_resp.status == 404
+      assert Req.Response.get_header(get_resp, "x-amz-delete-marker") == ["true"]
+      assert Req.Response.get_header(get_resp, "x-amz-version-id") == [marker_id]
+
+      {:ok, head_resp} = Req.head("#{@base_url}/#{bucket}/#{key}")
+      assert head_resp.status == 404
+      assert Req.Response.get_header(head_resp, "x-amz-delete-marker") == ["true"]
+      assert Req.Response.get_header(head_resp, "x-amz-version-id") == [marker_id]
+
+      CloudCacheConfig.delete_config(bucket)
+      cleanup_bucket(bucket)
+      cleanup_bucket(remote_bucket)
+    end
+
     test "copy object to cloud-backed bucket fails when upstream write fails" do
       source_bucket = create_bucket(unique_bucket())
       dest_bucket = create_bucket(unique_bucket())

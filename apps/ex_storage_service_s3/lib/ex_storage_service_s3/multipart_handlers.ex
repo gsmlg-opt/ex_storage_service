@@ -170,7 +170,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
                       updated_at: now
                     }
 
-                    {:ok, _version_id} = Versioning.put_version(bucket, key, meta)
+                    {:ok, version_id} = Versioning.put_version(bucket, key, meta)
                     Hooks.after_put(bucket, key)
                     broadcast_bucket_change(bucket, :put, key)
 
@@ -179,7 +179,9 @@ defmodule ExStorageServiceS3.MultipartHandlers do
                     response_body =
                       XML.complete_multipart_upload_response(bucket, key, etag, location)
 
-                    xml_response(conn, 200, response_body, request_id)
+                    conn
+                    |> maybe_put_version_header(version_id)
+                    |> xml_response(200, response_body, request_id)
 
                   {:error, {:etag_mismatch, pn, _expected, _actual}} ->
                     error_response(
@@ -337,6 +339,11 @@ defmodule ExStorageServiceS3.MultipartHandlers do
     |> put_resp_header("x-amz-id-2", request_id)
     |> put_resp_header("server", "ExStorageService")
   end
+
+  defp maybe_put_version_header(conn, "null"), do: conn
+
+  defp maybe_put_version_header(conn, version_id),
+    do: put_resp_header(conn, "x-amz-version-id", version_id)
 
   defp xml_response(conn, status, body, request_id) do
     conn

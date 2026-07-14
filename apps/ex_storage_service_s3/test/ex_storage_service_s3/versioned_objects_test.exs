@@ -1,6 +1,7 @@
 defmodule ExStorageServiceS3.VersionedObjectsTest do
   use ExUnit.Case, async: false
 
+  alias ExStorageService.Metadata
   alias ExStorageService.Storage.CAS
 
   @s3_port Application.compile_env(:ex_storage_service, :s3_port, 9001)
@@ -89,6 +90,38 @@ defmodule ExStorageServiceS3.VersionedObjectsTest do
     assert body == "copy-src"
   end
 
+  test "CopyObject from a versioned bucket to an unversioned bucket drops source version IDs" do
+    src = create_versioned_bucket()
+    dst = unique_bucket()
+    {:ok, %{status: 201}} = Req.put("#{@base_url}/#{dst}", body: "")
+
+    {:ok, first_put} = Req.put("#{@base_url}/#{src}/a.txt", body: "version-one")
+    first_version_id = version_id(first_put)
+
+    {:ok, second_put} = Req.put("#{@base_url}/#{src}/a.txt", body: "version-two")
+    second_version_id = version_id(second_put)
+
+    assert {:ok, %{version_id: ^second_version_id, parent_version_id: ^first_version_id}} =
+             Metadata.get_object_meta(src, "a.txt")
+
+    {:ok, copy_resp} =
+      Req.put("#{@base_url}/#{dst}/b.txt",
+        headers: [{"x-amz-copy-source", "/#{src}/a.txt"}],
+        body: ""
+      )
+
+    assert copy_resp.status == 200
+    assert Req.Response.get_header(copy_resp, "x-amz-version-id") == []
+
+    assert {:ok, %{parent_version_id: nil} = dest_meta} =
+             Metadata.get_object_meta(dst, "b.txt")
+
+    refute Map.has_key?(dest_meta, :version_id)
+
+    assert {:ok, %{status: 200, body: "version-two"}} =
+             Req.get("#{@base_url}/#{dst}/b.txt")
+  end
+
   test "DELETE creates a marker; old version readable; PUT restores; versionId deletes repoint" do
     bucket = create_versioned_bucket()
 
@@ -102,8 +135,16 @@ defmodule ExStorageServiceS3.VersionedObjectsTest do
     assert Req.Response.get_header(del, "x-amz-delete-marker") == ["true"]
     [marker_id] = Req.Response.get_header(del, "x-amz-version-id")
 
-    # latest view gone, old versions remain readable
-    {:ok, %{status: 404}} = Req.get("#{@base_url}/#{bucket}/life.txt")
+    # latest view reports the delete marker for normal GET and HEAD
+    {:ok, latest_get} = Req.get("#{@base_url}/#{bucket}/life.txt")
+    assert latest_get.status == 404
+    assert Req.Response.get_header(latest_get, "x-amz-delete-marker") == ["true"]
+    assert Req.Response.get_header(latest_get, "x-amz-version-id") == [marker_id]
+
+    {:ok, latest_head} = Req.head("#{@base_url}/#{bucket}/life.txt")
+    assert latest_head.status == 404
+    assert Req.Response.get_header(latest_head, "x-amz-delete-marker") == ["true"]
+    assert Req.Response.get_header(latest_head, "x-amz-version-id") == [marker_id]
 
     {:ok, %{status: 200, body: "v-one"}} =
       Req.get("#{@base_url}/#{bucket}/life.txt?versionId=#{v1}")
@@ -127,6 +168,30 @@ defmodule ExStorageServiceS3.VersionedObjectsTest do
     {:ok, del_marker} = Req.delete("#{@base_url}/#{bucket}/life.txt?versionId=#{marker_id}")
     assert del_marker.status == 204
     {:ok, %{status: 200, body: "v-two"}} = Req.get("#{@base_url}/#{bucket}/life.txt")
+  end
+
+  test "a deleted marker-only bucket takes precedence over its stale marker metadata" do
+    bucket = create_versioned_bucket()
+    key = "stale-marker.txt"
+
+    {:ok, %{status: 200}} = Req.put("#{@base_url}/#{bucket}/#{key}", body: "value")
+    {:ok, delete_resp} = Req.delete("#{@base_url}/#{bucket}/#{key}")
+    assert delete_resp.status == 204
+    assert Req.Response.get_header(delete_resp, "x-amz-delete-marker") == ["true"]
+    assert [_marker_id] = Req.Response.get_header(delete_resp, "x-amz-version-id")
+
+    {:ok, %{status: 204}} = Req.delete("#{@base_url}/#{bucket}")
+
+    {:ok, get_resp} = Req.get("#{@base_url}/#{bucket}/#{key}")
+    assert get_resp.status == 404
+    assert String.contains?(get_resp.body, "NoSuchBucket")
+    assert Req.Response.get_header(get_resp, "x-amz-delete-marker") == []
+    assert Req.Response.get_header(get_resp, "x-amz-version-id") == []
+
+    {:ok, head_resp} = Req.head("#{@base_url}/#{bucket}/#{key}")
+    assert head_resp.status == 404
+    assert Req.Response.get_header(head_resp, "x-amz-delete-marker") == []
+    assert Req.Response.get_header(head_resp, "x-amz-version-id") == []
   end
 
   test "batch DeleteObjects creates markers on versioned buckets" do

@@ -2,7 +2,7 @@ defmodule ExStorageService.Storage.PackTest do
   use ExUnit.Case, async: false
 
   alias ExStorageService.Metadata
-  alias ExStorageService.Storage.{CAS, Pack}
+  alias ExStorageService.Storage.{CAS, Engine, Pack, Packer}
 
   defp seed_loose_blob(data) do
     hash = Base.encode16(:crypto.hash(:sha256, data), case: :lower)
@@ -27,9 +27,14 @@ defmodule ExStorageService.Storage.PackTest do
     assert Base.encode16(:crypto.hash(:sha256, File.read!(pack_path)), case: :lower) == pack_hash
     assert File.exists?(pack_path <> ".idx")
 
-    # loose files are gone; blob metadata points into the pack
-    refute File.exists?(CAS.blob_path(h1))
-    assert {:ok, %{state: :packed, pack: %{hash: ^pack_hash}}} = Metadata.get_blob_meta(h1)
+    # blob metadata points into the pack while the loose file remains as a
+    # fallback for readers that resolved it before the metadata changed
+    assert File.exists?(CAS.blob_path(h1))
+
+    assert {:ok, %{state: :packed, pack: %{hash: ^pack_hash}, packed_at: packed_at}} =
+             Metadata.get_blob_meta(h1)
+
+    assert is_integer(packed_at)
 
     # reads return the original bytes
     assert {:ok, ^d1} = Pack.read(h1)
@@ -38,6 +43,18 @@ defmodule ExStorageService.Storage.PackTest do
     assert {:ok, {^pack_path, offset, size}} = Pack.locate(h2)
     assert size == byte_size(d2)
     assert offset == byte_size(d1)
+
+    missing_path = pack_path <> ".temporarily-missing"
+    File.rename!(pack_path, missing_path)
+
+    try do
+      assert {:error, :not_found} = Pack.locate(h1)
+      assert {:ok, {:file, loose_path}} = Engine.get_object_location("unused", h1)
+      assert loose_path == CAS.blob_path(h1)
+      assert {:ok, ^d1} = Engine.read_object("unused", h1)
+    after
+      File.rename!(missing_path, pack_path)
+    end
   end
 
   test "pack_blobs skips missing and already-packed blobs" do
@@ -51,6 +68,25 @@ defmodule ExStorageService.Storage.PackTest do
     # re-packing the same blob is a no-op
     assert {:ok, %{packed: 0, pack_hash: nil}} = Pack.pack_blobs([h])
     assert {:ok, ^d} = Pack.read(h)
+  end
+
+  test "cleanup retains the loose fallback when the pack is truncated" do
+    data = "truncated-pack-fallback-#{System.unique_integer()}"
+    hash = seed_loose_blob(data)
+
+    assert {:ok, %{pack_hash: pack_hash, packed: 1}} = Pack.pack_blobs([hash])
+    pack_path = Pack.pack_path(pack_hash)
+    File.write!(pack_path, binary_part(data, 0, byte_size(data) - 1))
+
+    assert {:error, :not_found} = Pack.locate(hash)
+
+    assert {:ok, _report} =
+             Packer.pack_now(cold_after: 0, min_blobs: 1_000_000, cleanup_after: 0)
+
+    assert File.exists?(CAS.blob_path(hash))
+    assert {:ok, {:file, loose_path}} = Engine.get_object_location("unused", hash)
+    assert loose_path == CAS.blob_path(hash)
+    assert {:ok, ^data} = Engine.read_object("unused", hash)
   end
 
   test "locate on a loose or unknown blob returns not_found" do

@@ -134,8 +134,11 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
         end
 
       {:error, :not_found} ->
-        case Metadata.head_bucket(bucket) do
-          {:error, :not_found} ->
+        case latest_delete_marker(bucket, key) do
+          {:ok, version_id} ->
+            delete_marker_response(conn, version_id, request_id)
+
+          :no_such_bucket ->
             error_response(
               conn,
               "NoSuchBucket",
@@ -144,11 +147,20 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
               request_id
             )
 
-          :ok ->
+          :not_found ->
             error_response(
               conn,
               "NoSuchKey",
               "The specified key does not exist.",
+              "/#{bucket}/#{key}",
+              request_id
+            )
+
+          {:error, reason} ->
+            error_response(
+              conn,
+              "InternalError",
+              inspect(reason),
               "/#{bucket}/#{key}",
               request_id
             )

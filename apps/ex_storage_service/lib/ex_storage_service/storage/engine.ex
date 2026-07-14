@@ -5,9 +5,9 @@ defmodule ExStorageService.Storage.Engine do
 
   PUTs stream data to a CAS tmp file — computing SHA-256 and MD5 in a
   single pass in the *calling* process — then commit with an atomic
-  rename. GETs resolve the global CAS path first and fall back to the
-  legacy bucket-local layout (`{data_root}/{bucket}/objects/...`) for
-  content written before the global-CAS migration
+  rename. GETs resolve packed blobs first, then fall back to loose global
+  CAS and legacy bucket-local paths (`{data_root}/{bucket}/objects/...`)
+  for content written before the global-CAS migration
   (see `ExStorageService.Storage.Migration`).
 
   The GenServer exists only to create the storage directories at boot;
@@ -105,19 +105,16 @@ defmodule ExStorageService.Storage.Engine do
   def get_object_location(bucket, content_hash) do
     legacy = legacy_content_path(CAS.data_root(), bucket, content_hash)
 
-    cond do
-      CAS.has_blob?(content_hash) ->
-        {:ok, {:file, CAS.blob_path(content_hash)}}
-
-      match?({:ok, _}, Pack.locate(content_hash)) ->
-        {:ok, {path, offset, size}} = Pack.locate(content_hash)
+    case Pack.locate(content_hash) do
+      {:ok, {path, offset, size}} ->
         {:ok, {:pack, path, offset, size}}
 
-      File.exists?(legacy) ->
-        {:ok, {:file, legacy}}
-
-      true ->
-        {:error, :not_found}
+      {:error, :not_found} ->
+        cond do
+          CAS.has_blob?(content_hash) -> {:ok, {:file, CAS.blob_path(content_hash)}}
+          File.exists?(legacy) -> {:ok, {:file, legacy}}
+          true -> {:error, :not_found}
+        end
     end
   end
 

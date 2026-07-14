@@ -2,7 +2,7 @@ defmodule ExStorageService.Storage.CasGCTest do
   use ExUnit.Case, async: false
 
   alias ExStorageService.Metadata
-  alias ExStorageService.Storage.{CAS, CasGC}
+  alias ExStorageService.Storage.{CAS, CasGC, Pack, Packer}
 
   # Every stage immediate: orphan grace 0, candidate grace 0, quarantine grace 0.
   @instant [orphan_mtime_grace: 0, candidate_grace: 0, quarantine_grace: 0]
@@ -88,6 +88,73 @@ defmodule ExStorageService.Storage.CasGCTest do
     assert {:error, :not_found} = get_candidate(hash)
 
     Concord.delete("mpu_part:gcbucket:upload1:1")
+  end
+
+  test "retained loose fallbacks for packed blobs are never garbage collected" do
+    hash = seed_blob("gc-packed-fallback-#{System.unique_integer()}")
+
+    assert {:ok, %{packed: 1}} = Pack.pack_blobs([hash])
+    assert File.exists?(CAS.blob_path(hash))
+
+    {:ok, _} = CasGC.run_now(@instant)
+    {:ok, _} = CasGC.run_now(@instant)
+    {:ok, _} = CasGC.run_now(@instant)
+
+    assert File.exists?(CAS.blob_path(hash))
+    assert {:ok, %{state: :packed}} = Metadata.get_blob_meta(hash)
+    assert {:error, :not_found} = get_candidate(hash)
+  end
+
+  test "direct Pack calls skip blobs with a live GC candidate" do
+    hash = seed_blob("gc-direct-pack-candidate-#{System.unique_integer()}")
+
+    assert {:ok, _report} = CasGC.run_now(@instant)
+    assert {:ok, %{stage: :candidate}} = get_candidate(hash)
+
+    assert {:ok, %{pack_hash: nil, packed: 0}} = Pack.pack_blobs([hash])
+    assert File.exists?(CAS.blob_path(hash))
+    assert {:ok, %{state: :active}} = Metadata.get_blob_meta(hash)
+    assert {:error, :not_found} = Pack.locate(hash)
+  end
+
+  test "Packer skips reachable blobs that still have a GC candidate" do
+    hash = seed_blob("gc-packer-candidate-#{System.unique_integer()}")
+
+    assert {:ok, _report} = CasGC.run_now(@instant)
+    assert {:ok, %{stage: :candidate}} = get_candidate(hash)
+    reference(hash)
+
+    assert {:ok, _report} = Packer.pack_now(cold_after: 0, min_blobs: 1)
+    assert File.exists?(CAS.blob_path(hash))
+    assert {:ok, %{state: :active}} = Metadata.get_blob_meta(hash)
+    assert {:error, :not_found} = Pack.locate(hash)
+    assert {:ok, %{stage: :candidate}} = get_candidate(hash)
+  end
+
+  test "packed blobs with quarantined candidates restore their loose fallback" do
+    data = "gc-packed-quarantined-#{System.unique_integer()}"
+    hash = seed_blob(data)
+
+    assert {:ok, %{packed: 1}} = Pack.pack_blobs([hash])
+
+    qpath = quarantine_path(hash)
+    File.mkdir_p!(Path.dirname(qpath))
+    File.rename!(CAS.blob_path(hash), qpath)
+
+    Concord.put("gc:candidate:#{hash}", %{
+      hash: "sha256:#{hash}",
+      reason: :unreferenced,
+      stage: :quarantined,
+      first_seen_at: 0,
+      eligible_after: 0
+    })
+
+    assert {:ok, _report} = CasGC.run_now(@instant)
+    assert File.exists?(CAS.blob_path(hash))
+    refute File.exists?(qpath)
+    assert {:ok, %{state: :packed}} = Metadata.get_blob_meta(hash)
+    assert {:ok, ^data} = Pack.read(hash)
+    assert {:error, :not_found} = get_candidate(hash)
   end
 
   test "quarantined blob is restored when its hash becomes reachable again" do

@@ -8,7 +8,7 @@ defmodule ExStorageService.Storage.CasGC do
        object metadata (`content_hash`) and active multipart part records
        (`mpu_part:*` `hash`).
     2. Restore any quarantined blob whose hash became reachable again.
-    3. Unreachable blob files older than the mtime grace become
+    3. Unreachable active blob files older than the mtime grace become
        `gc:candidate:{hash}` records.
     4. Candidates past `eligible_after` and still unreachable move to
        `cas/gc/quarantine/sha256-{hash}` (blob metadata → `:quarantined`).
@@ -18,7 +18,8 @@ defmodule ExStorageService.Storage.CasGC do
   Reachability is re-checked at every stage, so a blob that regains a
   reference at any point is never deleted. The legacy `ContentGC` owns
   the legacy bucket-local tree; this module only touches `cas/objects`
-  and `cas/gc/quarantine`.
+  and `cas/gc/quarantine`. Loose fallbacks retained for packed blobs are
+  owned by `Packer` cleanup and are never GC candidates.
 
   Configuration (app env, overridable per `run_now/1` call):
   - `:cas_gc_interval` — sweep interval ms (default 30 min)
@@ -111,6 +112,7 @@ defmodule ExStorageService.Storage.CasGC do
       {:ok, all} ->
         reachable = reachable_hashes(all)
         candidates = existing_candidates(all)
+        packed = packed_hashes(all)
 
         report = %{
           reachable: MapSet.size(reachable),
@@ -123,12 +125,21 @@ defmodule ExStorageService.Storage.CasGC do
         report = restore_rereferenced(candidates, reachable, dry_run?, report)
 
         report =
-          advance_candidates(candidates, reachable, now, quarantine_grace, dry_run?, report)
+          advance_candidates(
+            candidates,
+            reachable,
+            packed,
+            now,
+            quarantine_grace,
+            dry_run?,
+            report
+          )
 
         report =
           create_candidates(
             candidates,
             reachable,
+            packed,
             now,
             orphan_grace,
             candidate_grace,
@@ -175,6 +186,15 @@ defmodule ExStorageService.Storage.CasGC do
     |> Map.new()
   end
 
+  defp packed_hashes(all) do
+    all
+    |> Enum.flat_map(fn
+      {"blob:sha256:" <> hash, %{state: :packed}} -> [hash]
+      _ -> []
+    end)
+    |> MapSet.new()
+  end
+
   ## Stage: restore quarantined blobs that regained references
 
   defp restore_rereferenced(candidates, reachable, dry_run?, report) do
@@ -183,42 +203,63 @@ defmodule ExStorageService.Storage.CasGC do
       record.stage == :quarantined and MapSet.member?(reachable, hash)
     end)
     |> Enum.reduce(report, fn {hash, _record}, acc ->
-      unless dry_run? do
-        qpath = quarantine_path(hash)
-        dest = CAS.blob_path(hash)
+      case fresh_blob_status(hash) do
+        {:ok, :packed} ->
+          protect_packed_blob(hash, dry_run?)
+          acc
 
-        if File.exists?(qpath) do
-          File.mkdir_p!(Path.dirname(dest))
-          File.rename!(qpath, dest)
-        end
+        {:ok, :reachable} ->
+          restore_referenced_blob(hash, dry_run?)
+          %{acc | restored: acc.restored + 1}
 
-        set_blob_state(hash, :active)
-        Concord.delete(candidate_key(hash))
-        Logger.info("CasGC: restored re-referenced blob #{hash}")
+        {:ok, :unreferenced} ->
+          acc
+
+        {:error, reason} ->
+          log_fresh_scan_failure(hash, :restore, reason)
+          acc
       end
-
-      %{acc | restored: acc.restored + 1}
     end)
   end
 
   ## Stage: advance existing candidates (quarantine / delete / drop)
 
-  defp advance_candidates(candidates, reachable, now, quarantine_grace, dry_run?, report) do
+  defp advance_candidates(
+         candidates,
+         reachable,
+         packed,
+         now,
+         quarantine_grace,
+         dry_run?,
+         report
+       ) do
     Enum.reduce(candidates, report, fn {hash, record}, acc ->
       cond do
+        # A retained loose file for a packed blob belongs to Packer cleanup,
+        # never to the unreachable-blob quarantine pipeline.
+        MapSet.member?(packed, hash) ->
+          protect_packed_blob(hash, dry_run?)
+          acc
+
         # regained a reference before quarantine — drop the candidate
         record.stage == :candidate and MapSet.member?(reachable, hash) ->
           unless dry_run?, do: Concord.delete(candidate_key(hash))
           acc
 
         record.stage == :candidate and now >= record.eligible_after ->
-          quarantine(hash, now, quarantine_grace, dry_run?)
-          %{acc | quarantined: acc.quarantined + 1}
+          if quarantine(hash, now, quarantine_grace, dry_run?) do
+            %{acc | quarantined: acc.quarantined + 1}
+          else
+            acc
+          end
 
         record.stage == :quarantined and now >= record.eligible_after and
             not MapSet.member?(reachable, hash) ->
-          delete_quarantined(hash, dry_run?)
-          %{acc | deleted: acc.deleted + 1}
+          case finalize_quarantined(hash, dry_run?) do
+            :deleted -> %{acc | deleted: acc.deleted + 1}
+            :restored -> %{acc | restored: acc.restored + 1}
+            :skipped -> acc
+          end
 
         true ->
           acc
@@ -227,6 +268,26 @@ defmodule ExStorageService.Storage.CasGC do
   end
 
   defp quarantine(hash, now, quarantine_grace, dry_run?) do
+    case fresh_blob_status(hash) do
+      {:ok, :packed} ->
+        protect_packed_blob(hash, dry_run?)
+        false
+
+      {:ok, :reachable} ->
+        unless dry_run?, do: Concord.delete(candidate_key(hash))
+        false
+
+      {:ok, :unreferenced} ->
+        do_quarantine(hash, now, quarantine_grace, dry_run?)
+        true
+
+      {:error, reason} ->
+        log_fresh_scan_failure(hash, :quarantine, reason)
+        false
+    end
+  end
+
+  defp do_quarantine(hash, now, quarantine_grace, dry_run?) do
     unless dry_run? do
       src = CAS.blob_path(hash)
       qpath = quarantine_path(hash)
@@ -250,6 +311,26 @@ defmodule ExStorageService.Storage.CasGC do
     end
   end
 
+  defp finalize_quarantined(hash, dry_run?) do
+    case fresh_blob_status(hash) do
+      {:ok, :packed} ->
+        protect_packed_blob(hash, dry_run?)
+        :skipped
+
+      {:ok, :reachable} ->
+        restore_referenced_blob(hash, dry_run?)
+        :restored
+
+      {:ok, :unreferenced} ->
+        delete_quarantined(hash, dry_run?)
+        :deleted
+
+      {:error, reason} ->
+        log_fresh_scan_failure(hash, :delete, reason)
+        :skipped
+    end
+  end
+
   defp delete_quarantined(hash, dry_run?) do
     unless dry_run? do
       File.rm(quarantine_path(hash))
@@ -259,11 +340,61 @@ defmodule ExStorageService.Storage.CasGC do
     end
   end
 
+  defp fresh_blob_status(hash) do
+    case Concord.get_all() do
+      {:ok, all} ->
+        cond do
+          MapSet.member?(packed_hashes(all), hash) -> {:ok, :packed}
+          MapSet.member?(reachable_hashes(all), hash) -> {:ok, :reachable}
+          true -> {:ok, :unreferenced}
+        end
+
+      {:error, reason} ->
+        {:error, reason}
+
+      other ->
+        {:error, other}
+    end
+  end
+
+  defp protect_packed_blob(hash, dry_run?) do
+    unless dry_run? do
+      restore_loose_fallback(hash)
+      Concord.delete(candidate_key(hash))
+    end
+  end
+
+  defp restore_referenced_blob(hash, dry_run?) do
+    unless dry_run? do
+      restore_loose_fallback(hash)
+      set_blob_state(hash, :active)
+      Concord.delete(candidate_key(hash))
+      Logger.info("CasGC: restored re-referenced blob #{hash}")
+    end
+  end
+
+  defp restore_loose_fallback(hash) do
+    qpath = quarantine_path(hash)
+    dest = CAS.blob_path(hash)
+
+    if File.exists?(qpath) and not File.exists?(dest) do
+      File.mkdir_p!(Path.dirname(dest))
+      File.rename!(qpath, dest)
+    end
+  end
+
+  defp log_fresh_scan_failure(hash, action, reason) do
+    Logger.warning(
+      "CasGC: skipped #{action} for #{hash}; fresh metadata scan failed: #{inspect(reason)}"
+    )
+  end
+
   ## Stage: create candidates for unreachable disk blobs
 
   defp create_candidates(
          candidates,
          reachable,
+         packed,
          now,
          orphan_grace,
          candidate_grace,
@@ -276,6 +407,9 @@ defmodule ExStorageService.Storage.CasGC do
         MapSet.member?(reachable, hash) ->
           acc
 
+        MapSet.member?(packed, hash) ->
+          acc
+
         Map.has_key?(candidates, hash) ->
           acc
 
@@ -283,19 +417,23 @@ defmodule ExStorageService.Storage.CasGC do
           acc
 
         true ->
-          unless dry_run? do
-            Concord.put(candidate_key(hash), %{
-              hash: "sha256:#{hash}",
-              reason: :unreferenced,
-              stage: :candidate,
-              first_seen_at: now,
-              eligible_after: now + candidate_grace
-            })
+          if packed_blob?(hash) do
+            acc
+          else
+            unless dry_run? do
+              Concord.put(candidate_key(hash), %{
+                hash: "sha256:#{hash}",
+                reason: :unreferenced,
+                stage: :candidate,
+                first_seen_at: now,
+                eligible_after: now + candidate_grace
+              })
 
-            Logger.info("CasGC: marked candidate #{hash}")
+              Logger.info("CasGC: marked candidate #{hash}")
+            end
+
+            %{acc | candidates_created: acc.candidates_created + 1}
           end
-
-          %{acc | candidates_created: acc.candidates_created + 1}
       end
     end)
   end
@@ -334,6 +472,10 @@ defmodule ExStorageService.Storage.CasGC do
       {:ok, meta} -> Metadata.put_blob_meta(hash, Map.put(meta, :state, state))
       {:error, :not_found} -> :ok
     end
+  end
+
+  defp packed_blob?(hash) do
+    match?({:ok, %{state: :packed}}, Metadata.get_blob_meta(hash))
   end
 
   defp candidate_key(hash), do: "gc:candidate:#{hash}"

@@ -43,7 +43,7 @@ defmodule ExStorageService.Storage.LifecycleTest do
 
     assert {:ok, 1} = Lifecycle.evaluate_bucket(bucket)
 
-    refute File.exists?(CAS.blob_path(hash))
+    assert File.exists?(CAS.blob_path(hash))
     assert {:ok, %{state: :packed}} = Metadata.get_blob_meta(hash)
     assert {:ok, %{content_hash: ^hash}} = Metadata.get_object_meta(bucket, key)
     assert {:ok, ^data} = Engine.read_object(bucket, hash)

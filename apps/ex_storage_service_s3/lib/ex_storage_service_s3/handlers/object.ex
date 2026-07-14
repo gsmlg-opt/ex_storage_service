@@ -93,36 +93,48 @@ defmodule ExStorageServiceS3.Handlers.Object do
           end
 
         {:error, :not_found} ->
-          # For cloud-cached buckets, fall back to HEAD on the remote
-          case cloud_cache_config(bucket) do
-            {:ok, cloud_config} ->
-              case CloudClient.head_object(cloud_config, key) do
-                {:ok, cloud_meta} ->
-                  last_mod =
-                    cloud_meta.last_modified ||
-                      format_http_date(DateTime.utc_now() |> DateTime.to_iso8601())
+          case latest_delete_marker(bucket, key) do
+            {:ok, version_id} ->
+              delete_marker_response(conn, version_id, request_id)
 
-                  conn
-                  |> put_s3_headers(request_id)
-                  |> put_resp_header(
-                    "content-type",
-                    cloud_meta.content_type || "application/octet-stream"
-                  )
-                  |> put_resp_header("etag", "\"#{cloud_meta.etag}\"")
-                  |> put_resp_header("content-length", to_string(cloud_meta.content_length))
-                  |> put_resp_header("last-modified", last_mod)
-                  |> put_resp_header("accept-ranges", "bytes")
-                  |> send_resp(200, "")
-
-                {:error, :not_found} ->
-                  conn |> put_s3_headers(request_id) |> send_resp(404, "")
-
-                {:error, _} ->
-                  conn |> put_s3_headers(request_id) |> send_resp(502, "")
-              end
-
-            :disabled ->
+            :no_such_bucket ->
               conn |> put_s3_headers(request_id) |> send_resp(404, "")
+
+            {:error, _reason} ->
+              conn |> put_s3_headers(request_id) |> send_resp(500, "")
+
+            :not_found ->
+              # For cloud-cached buckets, fall back to HEAD on the remote
+              case cloud_cache_config(bucket) do
+                {:ok, cloud_config} ->
+                  case CloudClient.head_object(cloud_config, key) do
+                    {:ok, cloud_meta} ->
+                      last_mod =
+                        cloud_meta.last_modified ||
+                          format_http_date(DateTime.utc_now() |> DateTime.to_iso8601())
+
+                      conn
+                      |> put_s3_headers(request_id)
+                      |> put_resp_header(
+                        "content-type",
+                        cloud_meta.content_type || "application/octet-stream"
+                      )
+                      |> put_resp_header("etag", "\"#{cloud_meta.etag}\"")
+                      |> put_resp_header("content-length", to_string(cloud_meta.content_length))
+                      |> put_resp_header("last-modified", last_mod)
+                      |> put_resp_header("accept-ranges", "bytes")
+                      |> send_resp(200, "")
+
+                    {:error, :not_found} ->
+                      conn |> put_s3_headers(request_id) |> send_resp(404, "")
+
+                    {:error, _} ->
+                      conn |> put_s3_headers(request_id) |> send_resp(502, "")
+                  end
+
+                :disabled ->
+                  conn |> put_s3_headers(request_id) |> send_resp(404, "")
+              end
           end
       end
     end)
@@ -229,7 +241,10 @@ defmodule ExStorageServiceS3.Handlers.Object do
               :ok ->
                 now = DateTime.utc_now() |> DateTime.to_iso8601()
 
-                new_meta = Map.merge(source_meta, %{created_at: now, updated_at: now})
+                new_meta =
+                  source_meta
+                  |> Map.drop([:version_id, :parent_version_id])
+                  |> Map.merge(%{created_at: now, updated_at: now})
 
                 case copy_destination_content(
                        source_bucket,

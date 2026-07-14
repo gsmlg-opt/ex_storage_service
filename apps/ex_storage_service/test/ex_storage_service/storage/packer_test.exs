@@ -2,7 +2,7 @@ defmodule ExStorageService.Storage.PackerTest do
   use ExUnit.Case, async: false
 
   alias ExStorageService.Metadata
-  alias ExStorageService.Storage.{CAS, CasGC, Engine, Packer}
+  alias ExStorageService.Storage.{CAS, CasGC, Engine, Pack, Packer}
 
   defp put_and_reference(data) do
     bucket = "packer-#{:erlang.unique_integer([:positive])}"
@@ -21,11 +21,17 @@ defmodule ExStorageService.Storage.PackerTest do
   end
 
   test "packs cold reachable blobs; reads keep working through the Engine" do
-    {bucket, hash, data} = put_and_reference("cold-data-#{System.unique_integer()}")
+    assert {:ok, _report} =
+             Packer.pack_now(cold_after: 0, min_blobs: 1_000_000, cleanup_after: 0)
 
-    assert {:ok, %{packed: packed}} = Packer.pack_now(cold_after: 0, min_blobs: 1)
+    {bucket, hash, data} = put_and_reference("cold-data-#{System.unique_integer()}")
+    loose_path = CAS.blob_path(hash)
+
+    assert {:ok, %{packed: packed, loose_deleted: 0}} =
+             Packer.pack_now(cold_after: 0, min_blobs: 1, cleanup_after: 0)
+
     assert packed >= 1
-    refute File.exists?(CAS.blob_path(hash))
+    assert File.read!(loose_path) == data
 
     assert {:ok, {:pack, pack_path, offset, size}} = Engine.get_object_location(bucket, hash)
     assert File.exists?(pack_path)
@@ -34,6 +40,38 @@ defmodule ExStorageService.Storage.PackerTest do
 
     assert {:ok, ^data} = Engine.read_object(bucket, hash)
     assert :ok = Engine.promote_to_global(bucket, hash)
+
+    assert {:ok, %{loose_deleted: loose_deleted}} =
+             Packer.pack_now(cold_after: 0, min_blobs: 1_000_000, cleanup_after: 0)
+
+    assert loose_deleted >= 1
+    refute File.exists?(loose_path)
+    assert {:ok, ^data} = Engine.read_object(bucket, hash)
+  end
+
+  test "does not pack active multipart part blobs" do
+    bucket = "packer-mpu-#{:erlang.unique_integer([:positive])}"
+    upload_id = "upload-#{:erlang.unique_integer([:positive])}"
+    part_key = "mpu_part:#{bucket}:#{upload_id}:1"
+    data = "active-part-#{System.unique_integer()}"
+
+    {:ok, {hash, etag, size}} = Engine.put_object(bucket, "mpu-part", data)
+    File.touch!(CAS.blob_path(hash), System.os_time(:second) - 90 * 86_400)
+
+    Concord.put(part_key, %{
+      part_number: 1,
+      hash: hash,
+      size: size,
+      etag: etag,
+      uploaded_at: DateTime.utc_now() |> DateTime.to_iso8601()
+    })
+
+    on_exit(fn -> Concord.delete(part_key) end)
+
+    assert {:ok, _report} = Packer.pack_now(cold_after: 0, min_blobs: 1)
+    assert File.exists?(CAS.blob_path(hash))
+    assert {:ok, %{state: :active}} = Metadata.get_blob_meta(hash)
+    assert {:error, :not_found} = Pack.locate(hash)
   end
 
   test "does not pack fresh, unreachable, or already-packed blobs" do

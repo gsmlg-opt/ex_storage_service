@@ -15,6 +15,10 @@ defmodule ExStorageService.Storage.Multipart do
 
   require Logger
 
+  alias ExStorageService.Storage.{CAS, Engine, Manifest}
+
+  @part_chunk_size 262_144
+
   @doc """
   Initiate a new multipart upload. Returns `{:ok, upload_id}`.
   """
@@ -45,7 +49,7 @@ defmodule ExStorageService.Storage.Multipart do
   Returns `{:ok, etag}` on success.
   """
   def store_part(bucket, upload_id, part_number, data) do
-    case ExStorageService.Storage.Engine.put_object(bucket, "mpu-part", data) do
+    case Engine.put_object(bucket, "mpu-part", data) do
       {:ok, {hash, etag, size}} ->
         part_meta = %{
           part_number: part_number,
@@ -90,7 +94,7 @@ defmodule ExStorageService.Storage.Multipart do
         result =
           with {:ok, part_records} <- resolve_part_records(bucket, upload_id, sorted_parts),
                :ok <- validate_parts(part_records, min_part_size, last_index) do
-            concatenate_parts(part_records)
+            concatenate_parts(bucket, part_records)
           end
 
         case result do
@@ -250,24 +254,14 @@ defmodule ExStorageService.Storage.Multipart do
   # Streams each CAS part blob into a tmp file (constant memory), computing
   # the whole-object SHA-256 on the way, then commits the result as a blob
   # and records the manifest.
-  defp concatenate_parts(part_records) do
-    alias ExStorageService.Storage.{CAS, Manifest}
-
+  defp concatenate_parts(bucket, part_records) do
     tmp_path = CAS.tmp_upload_path()
     out = File.open!(tmp_path, [:write, :raw, :binary])
 
     try do
       {sha_ctx, total_size} =
         Enum.reduce(part_records, {:crypto.hash_init(:sha256), 0}, fn record, {ctx, size} ->
-          part_blob = CAS.blob_path(record.hash)
-
-          ctx =
-            part_blob
-            |> File.stream!(262_144)
-            |> Enum.reduce(ctx, fn chunk, c ->
-              :ok = IO.binwrite(out, chunk)
-              :crypto.hash_update(c, chunk)
-            end)
+          ctx = append_part(bucket, record, out, ctx)
 
           {ctx, size + record.size}
         end)
@@ -298,6 +292,58 @@ defmodule ExStorageService.Storage.Multipart do
         File.close(out)
         File.rm(tmp_path)
         {:error, Exception.message(e)}
+    end
+  end
+
+  defp append_part(bucket, record, out, sha_ctx) do
+    case Engine.get_object_location(bucket, record.hash) do
+      {:ok, location} ->
+        location
+        |> location_stream()
+        |> Enum.reduce(sha_ctx, fn chunk, ctx ->
+          :ok = IO.binwrite(out, chunk)
+          :crypto.hash_update(ctx, chunk)
+        end)
+
+      {:error, reason} ->
+        raise "multipart part #{record.part_number} content unavailable: #{inspect(reason)}"
+    end
+  end
+
+  defp location_stream({:file, path}), do: File.stream!(path, [], @part_chunk_size)
+
+  defp location_stream({:pack, path, offset, size}) do
+    Stream.resource(
+      fn -> open_pack_slice!(path, offset, size) end,
+      &read_pack_chunk!/1,
+      fn {file, _offset, _remaining} -> File.close(file) end
+    )
+  end
+
+  defp open_pack_slice!(path, offset, size) do
+    case File.open(path, [:read, :raw, :binary]) do
+      {:ok, file} -> {file, offset, size}
+      {:error, reason} -> raise "could not open multipart pack #{path}: #{inspect(reason)}"
+    end
+  end
+
+  defp read_pack_chunk!({_file, _offset, 0} = state), do: {:halt, state}
+
+  defp read_pack_chunk!({file, offset, remaining}) do
+    bytes_to_read = min(remaining, @part_chunk_size)
+
+    case :file.pread(file, offset, bytes_to_read) do
+      {:ok, data} when byte_size(data) == bytes_to_read ->
+        {[data], {file, offset + bytes_to_read, remaining - bytes_to_read}}
+
+      {:ok, data} ->
+        raise "short multipart pack read: expected #{bytes_to_read} bytes, got #{byte_size(data)}"
+
+      :eof ->
+        raise "unexpected EOF while reading multipart pack"
+
+      {:error, reason} ->
+        raise "multipart pack read failed: #{inspect(reason)}"
     end
   end
 

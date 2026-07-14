@@ -14,8 +14,9 @@ defmodule ExStorageService.Storage.Pack do
   entries (repack) is a future follow-up.
 
   Crash-safe write order: tmp pack → rename → sidecar → pack record →
-  per-blob metadata → loose deletion last. A blob that is briefly both
-  loose and packed is harmless (loose wins on reads).
+  per-blob metadata. The loose blob is retained as a fallback until a later
+  Packer cleanup pass, after readers that resolved its old location have had
+  time to finish.
   """
 
   require Logger
@@ -47,11 +48,14 @@ defmodule ExStorageService.Storage.Pack do
 
   @doc "Location of a packed blob: `{:ok, {pack_path, offset, size}}`."
   def locate(hash) do
-    with {:ok, %{state: :packed, pack: pack_info}} <- Metadata.get_blob_meta(hash),
+    with {:ok, %{state: :packed, pack: pack_info} = meta} <- Metadata.get_blob_meta(hash),
          pack_hash when is_binary(pack_hash) <- get_field(pack_info, :hash),
-         offset when is_integer(offset) <- get_field(pack_info, :offset),
-         {:ok, %{size: size}} when is_integer(size) <- Metadata.get_blob_meta(hash) do
-      {:ok, {pack_path(pack_hash), offset, size}}
+         offset when is_integer(offset) and offset >= 0 <- get_field(pack_info, :offset),
+         size when is_integer(size) and size >= 0 <- get_field(meta, :size),
+         path = pack_path(pack_hash),
+         {:ok, %File.Stat{type: :regular, size: pack_size}} <- File.stat(path),
+         true <- offset + size <= pack_size do
+      {:ok, {path, offset, size}}
     else
       _ -> {:error, :not_found}
     end
@@ -63,7 +67,8 @@ defmodule ExStorageService.Storage.Pack do
          {:ok, fd} <- File.open(path, [:read, :raw, :binary]) do
       try do
         case :file.pread(fd, offset, size) do
-          {:ok, data} -> {:ok, data}
+          {:ok, data} when byte_size(data) == size -> {:ok, data}
+          {:ok, _short_data} -> {:error, :corrupt_pack}
           :eof -> {:error, :corrupt_pack}
           {:error, reason} -> {:error, reason}
         end
@@ -76,11 +81,21 @@ defmodule ExStorageService.Storage.Pack do
   ## Private
 
   defp packable?(hash) do
-    File.exists?(CAS.blob_path(hash)) and
+    File.exists?(CAS.blob_path(hash)) and no_gc_candidate?(hash) and
       case Metadata.get_blob_meta(hash) do
         {:ok, %{state: :packed}} -> false
         _ -> true
       end
+  end
+
+  # Fail closed: a metadata lookup failure must not let direct callers race
+  # an in-progress CasGC candidate through to packed state.
+  defp no_gc_candidate?(hash) do
+    case Concord.get("gc:candidate:#{hash}") do
+      {:ok, nil} -> true
+      {:error, :not_found} -> true
+      _candidate_or_error -> false
+    end
   end
 
   defp write_pack(hashes) do
@@ -122,7 +137,6 @@ defmodule ExStorageService.Storage.Pack do
 
       Enum.each(index, fn %{blob_hash: hash, offset: offset, size: size} ->
         mark_packed(hash, pack_hash, offset, size)
-        File.rm(CAS.blob_path(hash))
       end)
 
       Logger.info(
@@ -157,6 +171,7 @@ defmodule ExStorageService.Storage.Pack do
         |> Map.put(:pack, %{hash: pack_hash, offset: offset})
         |> Map.put(:physical_path, Path.join(["cas", "packs", "pack-#{pack_hash}.pack"]))
         |> Map.put(:size, size)
+        |> Map.put(:packed_at, System.os_time(:second))
         |> then(&Metadata.put_blob_meta(hash, &1))
 
       {:error, :not_found} ->
@@ -166,6 +181,7 @@ defmodule ExStorageService.Storage.Pack do
           physical_path: Path.join(["cas", "packs", "pack-#{pack_hash}.pack"]),
           state: :packed,
           pack: %{hash: pack_hash, offset: offset},
+          packed_at: System.os_time(:second),
           created_at: DateTime.utc_now() |> DateTime.to_iso8601(),
           last_seen_at: DateTime.utc_now() |> DateTime.to_iso8601()
         })

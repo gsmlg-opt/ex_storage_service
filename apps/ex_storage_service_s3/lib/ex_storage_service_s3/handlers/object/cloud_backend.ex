@@ -158,50 +158,92 @@ defmodule ExStorageServiceS3.Handlers.Object.CloudBackend do
         end
 
       {:error, :not_found} ->
-        # Not in local metadata — check cloud directly
-        case CloudClient.head_object(cloud_config, key) do
-          {:ok, cloud_meta} ->
-            # Object exists on cloud but not indexed locally — fetch and serve
-            case CloudClient.get_object(cloud_config, key) do
-              {:ok, body} ->
-                now = DateTime.utc_now() |> DateTime.to_iso8601()
-                content_hash = Base.encode16(:crypto.hash(:sha256, body), case: :lower)
-                size = byte_size(body)
-                etag = cloud_meta.etag || content_hash
-                content_type = cloud_meta.content_type || "application/octet-stream"
-                last_mod = cloud_meta.last_modified || format_http_date(now)
+        case latest_delete_marker(bucket, key) do
+          {:ok, version_id} ->
+            delete_marker_response(conn, version_id, request_id)
 
-                meta = %{
-                  content_hash: content_hash,
-                  size: size,
-                  etag: etag,
-                  content_type: content_type,
-                  metadata: %{},
-                  created_at: now,
-                  updated_at: now,
-                  cloud_backed: true
-                }
+          :no_such_bucket ->
+            error_response(
+              conn,
+              "NoSuchBucket",
+              "The specified bucket does not exist.",
+              "/#{bucket}/#{key}",
+              request_id
+            )
 
-                Metadata.put_object_meta(bucket, key, meta)
+          {:error, reason} ->
+            error_response(
+              conn,
+              "InternalError",
+              inspect(reason),
+              "/#{bucket}/#{key}",
+              request_id
+            )
 
-                case LocalStore.put(bucket, key, body, cloud_config) do
-                  {:ok, file_path} ->
-                    conn
-                    |> put_s3_headers(request_id)
-                    |> put_resp_header("content-type", content_type)
-                    |> put_resp_header("etag", "\"#{etag}\"")
-                    |> put_resp_header("last-modified", last_mod)
-                    |> put_resp_header("content-length", to_string(size))
-                    |> put_resp_header("accept-ranges", "bytes")
-                    |> send_file(200, file_path)
+          :not_found ->
+            # Not in local metadata — check cloud directly
+            case CloudClient.head_object(cloud_config, key) do
+              {:ok, cloud_meta} ->
+                # Object exists on cloud but not indexed locally — fetch and serve
+                case CloudClient.get_object(cloud_config, key) do
+                  {:ok, body} ->
+                    now = DateTime.utc_now() |> DateTime.to_iso8601()
+                    content_hash = Base.encode16(:crypto.hash(:sha256, body), case: :lower)
+                    size = byte_size(body)
+                    etag = cloud_meta.etag || content_hash
+                    content_type = cloud_meta.content_type || "application/octet-stream"
+                    last_mod = cloud_meta.last_modified || format_http_date(now)
 
-                  _ ->
-                    conn
-                    |> put_s3_headers(request_id)
-                    |> put_resp_header("content-type", content_type)
-                    |> put_resp_header("last-modified", last_mod)
-                    |> put_resp_header("content-length", to_string(size))
-                    |> send_resp(200, body)
+                    meta = %{
+                      content_hash: content_hash,
+                      size: size,
+                      etag: etag,
+                      content_type: content_type,
+                      metadata: %{},
+                      created_at: now,
+                      updated_at: now,
+                      cloud_backed: true
+                    }
+
+                    Metadata.put_object_meta(bucket, key, meta)
+
+                    case LocalStore.put(bucket, key, body, cloud_config) do
+                      {:ok, file_path} ->
+                        conn
+                        |> put_s3_headers(request_id)
+                        |> put_resp_header("content-type", content_type)
+                        |> put_resp_header("etag", "\"#{etag}\"")
+                        |> put_resp_header("last-modified", last_mod)
+                        |> put_resp_header("content-length", to_string(size))
+                        |> put_resp_header("accept-ranges", "bytes")
+                        |> send_file(200, file_path)
+
+                      _ ->
+                        conn
+                        |> put_s3_headers(request_id)
+                        |> put_resp_header("content-type", content_type)
+                        |> put_resp_header("last-modified", last_mod)
+                        |> put_resp_header("content-length", to_string(size))
+                        |> send_resp(200, body)
+                    end
+
+                  {:error, :not_found} ->
+                    error_response(
+                      conn,
+                      "NoSuchKey",
+                      "The specified key does not exist.",
+                      "/#{bucket}/#{key}",
+                      request_id
+                    )
+
+                  {:error, _reason} ->
+                    error_response(
+                      conn,
+                      "InternalError",
+                      "Failed to fetch object from cloud backend.",
+                      "/#{bucket}/#{key}",
+                      request_id
+                    )
                 end
 
               {:error, :not_found} ->
@@ -217,29 +259,11 @@ defmodule ExStorageServiceS3.Handlers.Object.CloudBackend do
                 error_response(
                   conn,
                   "InternalError",
-                  "Failed to fetch object from cloud backend.",
+                  "Failed to reach cloud backend.",
                   "/#{bucket}/#{key}",
                   request_id
                 )
             end
-
-          {:error, :not_found} ->
-            error_response(
-              conn,
-              "NoSuchKey",
-              "The specified key does not exist.",
-              "/#{bucket}/#{key}",
-              request_id
-            )
-
-          {:error, _reason} ->
-            error_response(
-              conn,
-              "InternalError",
-              "Failed to reach cloud backend.",
-              "/#{bucket}/#{key}",
-              request_id
-            )
         end
     end
   end
