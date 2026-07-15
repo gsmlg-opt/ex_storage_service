@@ -36,16 +36,12 @@ defmodule ExStorageServiceWeb.MixProject do
       {:phoenix, "~> 1.8"},
       {:phoenix_live_view, "~> 1.0"},
       {:phoenix_html, "~> 4.2"},
-      {:lazy_html, ">= 0.1.0", only: :test},
+      {:lazy_html, ">= 0.1.0"},
       {:phoenix_live_dashboard, "~> 0.8"},
       {:jason, "~> 1.4"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      # TODO(upstream): duskmoon-dev/phoenix-duskmoon-ui#61
-      # Duskmoon 9.6.x pulls duskmoon_oxc 9.6.2, whose precompiled NIF checksum fails.
-      # WORKAROUND(upstream): duskmoon-dev/phoenix-duskmoon-ui#50
-      # DuskmoonBundler currently requires OXC/Vize releases that declare Elixir 1.19.
-      {:duskmoon_bundler, "~> 9.5.4"},
-      {:phoenix_duskmoon, "~> 9.4.2"}
+      {:duskmoon_bundler, "~> 9.8"},
+      {:phoenix_duskmoon, "~> 9.8"}
     ]
   end
 
