@@ -2,10 +2,15 @@ defmodule ExStorageService.Metadata do
   @moduledoc """
   Metadata operations backed by Concord key-value store.
 
-  Keys are namespaced:
+  Legacy keys are namespaced:
   - Buckets: `"bucket:{name}"`
   - Objects: `"obj:{bucket}:{key}"`
+
+  Object reads prefer the atomic v2 schema and fall back to these v1 records.
   """
+
+  alias ExStorageService.Metadata.Keys
+  alias ExStorageService.Metadata.ObjectCommit
 
   ## Bucket operations
 
@@ -64,6 +69,16 @@ defmodule ExStorageService.Metadata do
   end
 
   def get_object_meta(bucket, key) do
+    case ObjectCommit.get_head(bucket, key) do
+      {:ok, %{is_delete_marker: true}} -> {:error, :not_found}
+      {:ok, value} -> {:ok, normalize_public_object_meta(bucket, value)}
+      {:error, :not_found} -> get_v1_object_meta(bucket, key)
+      error -> error
+    end
+  end
+
+  @doc false
+  def get_v1_object_meta(bucket, key) do
     case Concord.get("obj:#{bucket}:#{key}") do
       {:ok, nil} -> {:error, :not_found}
       {:ok, value} -> {:ok, value}
@@ -93,7 +108,7 @@ defmodule ExStorageService.Metadata do
     # TODO(upstream): gsmlg-dev/concord#27
     case Concord.get_all() do
       {:ok, all} ->
-        entries =
+        v1_entries =
           all
           |> Enum.filter(fn {k, _v} -> String.starts_with?(k, obj_prefix) end)
           |> Enum.map(fn {k, v} ->
@@ -101,6 +116,35 @@ defmodule ExStorageService.Metadata do
             {object_key, v}
           end)
           |> Enum.filter(fn {object_key, _v} -> String.starts_with?(object_key, prefix) end)
+
+        v2_entries =
+          all
+          |> Enum.filter(fn {metadata_key, _value} ->
+            String.starts_with?(metadata_key, "ess:v2:object_head:")
+          end)
+          |> Enum.reduce([], fn {metadata_key, head}, entries ->
+            case decode_v2_head_key(metadata_key) do
+              {:ok, ^bucket, object_key}
+              when not head.delete_marker and is_binary(object_key) ->
+                case find_v2_version(all, bucket, object_key, head.version_id) do
+                  {:ok, metadata} when is_map(metadata) ->
+                    [{object_key, metadata} | entries]
+
+                  _ ->
+                    entries
+                end
+
+              _ ->
+                entries
+            end
+          end)
+          |> Enum.filter(fn {object_key, _v} -> String.starts_with?(object_key, prefix) end)
+
+        entries =
+          v1_entries
+          |> Map.new()
+          |> Map.merge(Map.new(v2_entries))
+          |> Map.to_list()
 
         # Collapse keys under their common prefix when a delimiter is set, then
         # treat keys and common prefixes as one ordered, paginated result set so
@@ -217,4 +261,38 @@ defmodule ExStorageService.Metadata do
 
   defp item_sort_key({:key, key, _meta}), do: key
   defp item_sort_key({:prefix, prefix}), do: prefix
+
+  defp decode_v2_head_key("ess:v2:object_head:" <> encoded) do
+    case String.split(encoded, ":", parts: 2) do
+      [bucket64, key64] ->
+        with {:ok, bucket} <- Keys.decode_component(bucket64),
+             {:ok, key} <- Keys.decode_component(key64) do
+          {:ok, bucket, key}
+        end
+
+      _ ->
+        :error
+    end
+  end
+
+  defp decode_v2_head_key(_key), do: :error
+
+  defp find_v2_version(all, bucket, key, version_id) do
+    version_key = Keys.object_version(bucket, key, version_id)
+
+    case Enum.find(all, fn {key, _value} -> key == version_key end) do
+      {^version_key, metadata} -> {:ok, metadata}
+      nil -> {:error, :not_found}
+    end
+  end
+
+  defp normalize_public_object_meta(bucket, metadata) do
+    case Concord.get("bucket_versioning:#{bucket}") do
+      {:ok, state} when state in [:enabled, "enabled", "Enabled"] ->
+        metadata
+
+      _ ->
+        Map.delete(metadata, :version_id)
+    end
+  end
 end

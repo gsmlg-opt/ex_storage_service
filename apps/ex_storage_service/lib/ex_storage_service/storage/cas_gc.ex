@@ -171,6 +171,7 @@ defmodule ExStorageService.Storage.CasGC do
     |> Enum.flat_map(fn
       {"obj:" <> _, %{content_hash: hash}} when is_binary(hash) -> [hash]
       {"obj_ver:" <> _, %{content_hash: hash}} when is_binary(hash) -> [hash]
+      {"ess:v2:object_version:" <> _, %{content_hash: hash}} when is_binary(hash) -> [hash]
       {"mpu_part:" <> _, %{hash: hash}} when is_binary(hash) -> [hash]
       _ -> []
     end)
