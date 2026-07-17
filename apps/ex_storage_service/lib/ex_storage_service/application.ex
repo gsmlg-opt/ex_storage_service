@@ -6,6 +6,8 @@ defmodule ExStorageService.Application do
 
   @impl true
   def start(_type, _args) do
+    validate_instance_config!()
+
     data_root =
       Application.get_env(:ex_storage_service, :data_root, "/tmp/ex_storage_service/data")
 
@@ -48,6 +50,16 @@ defmodule ExStorageService.Application do
     end
 
     res
+  end
+
+  defp validate_instance_config! do
+    case ExStorageService.InstanceConfig.from_application_env() do
+      {:ok, _config} ->
+        :ok
+
+      {:error, message} ->
+        raise ArgumentError, "invalid ExStorageService configuration: #{message}"
+    end
   end
 
   defp seed_dev_keys do

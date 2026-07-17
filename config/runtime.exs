@@ -12,6 +12,47 @@ data_root =
 s3_auth_enabled_value = System.get_env("ESS_S3_AUTH_ENABLED", "false") |> String.downcase()
 s3_auth_enabled? = s3_auth_enabled_value in ["1", "true", "yes", "on"]
 
+parse_boolean = fn variable, default ->
+  case System.get_env(variable, default) |> String.downcase() do
+    value when value in ["1", "true", "yes", "on"] -> true
+    value when value in ["0", "false", "no", "off"] -> false
+    value -> raise "#{variable} must be a boolean, got: #{inspect(value)}"
+  end
+end
+
+parse_positive_integer = fn variable, default ->
+  value = System.get_env(variable, default)
+
+  case Integer.parse(value) do
+    {integer, ""} when integer > 0 -> integer
+    _ -> raise "#{variable} must be an integer greater than or equal to 1, got: #{inspect(value)}"
+  end
+end
+
+mode =
+  case System.get_env("ESS_MODE", "standalone") |> String.downcase() do
+    "standalone" -> :standalone
+    "cluster" -> :cluster
+    value -> raise "ESS_MODE must be standalone or cluster, got: #{inspect(value)}"
+  end
+
+metadata_schema =
+  case System.get_env("ESS_METADATA_SCHEMA", "v2") |> String.downcase() do
+    "v1" -> :v1
+    "v2" -> :v2
+    value -> raise "ESS_METADATA_SCHEMA must be v1 or v2, got: #{inspect(value)}"
+  end
+
+instance_config = [
+  mode: mode,
+  replication_factor: parse_positive_integer.("ESS_REPLICATION_FACTOR", "1"),
+  write_quorum: parse_positive_integer.("ESS_WRITE_QUORUM", "1"),
+  allow_degraded_writes: parse_boolean.("ESS_ALLOW_DEGRADED_WRITES", "false"),
+  cluster_data_plane_enabled: parse_boolean.("ESS_CLUSTER_DATA_PLANE_ENABLED", "false"),
+  public_s3_enabled: parse_boolean.("ESS_PUBLIC_S3_ENABLED", "true"),
+  metadata_schema: metadata_schema
+]
+
 # Compute the well-known default admin password hash once at the top so it can
 # be referenced both in the config block and in the prod guard below.
 default_admin_hash = Base.encode16(:crypto.hash(:sha256, "admin"), case: :lower)
@@ -25,6 +66,7 @@ config :libcluster, topologies: []
 
 config :ex_storage_service,
   data_root: data_root,
+  instance_config: instance_config,
   s3_port:
     String.to_integer(
       System.get_env("ESS_S3_PORT", if(config_env() == :test, do: "9001", else: "9000"))

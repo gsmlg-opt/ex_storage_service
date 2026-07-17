@@ -104,6 +104,16 @@ The codebase is structured as an umbrella project with four apps:
 - Keep documentation up-to-date.
 - Preserve existing docstrings (`@doc`) and module docs (`@moduledoc`) unless deliberately refactoring them.
 - Document any new environment variables in both `README.md` and `AGENTS.md`.
+- Storage mode variables are `ESS_MODE`, `ESS_REPLICATION_FACTOR`,
+  `ESS_WRITE_QUORUM`, `ESS_ALLOW_DEGRADED_WRITES`,
+  `ESS_CLUSTER_DATA_PLANE_ENABLED`, and `ESS_PUBLIC_S3_ENABLED`. Defaults must
+  preserve standalone RF=1/W=1 behavior, and cluster mode must not expose the
+  public S3 writer while its data plane is disabled.
+- `ESS_METADATA_SCHEMA` activates atomic metadata writes (`v2` by default).
+  `v1` is read-only compatibility mode: reject object mutations rather than
+  restoring the unsafe legacy multi-write sequence. Keep v1 reads, never
+  migrate destructively at startup, and document that rollback after v2 writes
+  requires a metadata restore for old binaries.
 
 ### When to Ask for Human Input
 - Act autonomously on bug fixes, refactorings, and standard feature implementations.

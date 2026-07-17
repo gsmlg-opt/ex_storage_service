@@ -261,6 +261,13 @@ Repository layout:
 | Variable | Default | Description |
 |---|---|---|
 | `ESS_DATA_ROOT` | `/tmp/ex_storage_service/data` | Storage, Ra, and Concord data root |
+| `ESS_MODE` | `standalone` | Storage mode. `cluster` is reserved for guarded future activation |
+| `ESS_REPLICATION_FACTOR` | `1` | Desired blob replica count; must be at least 1 |
+| `ESS_WRITE_QUORUM` | `1` | Required durable writes; must satisfy `1 <= W <= RF` |
+| `ESS_ALLOW_DEGRADED_WRITES` | `false` | Future availability-over-durability policy; inactive in standalone mode |
+| `ESS_CLUSTER_DATA_PLANE_ENABLED` | `false` | Future cluster data-plane activation guard; does not activate clustering in this release |
+| `ESS_PUBLIC_S3_ENABLED` | `true` | Whether the public S3 writer is expected to be exposed |
+| `ESS_METADATA_SCHEMA` | `v2` | Metadata activation decision; `v1` permits compatibility reads but rejects object mutations |
 | `ESS_S3_PORT` | `9000` | S3 API port |
 | `ESS_ADMIN_PORT` | `4900` | Admin portal port |
 | `ESS_S3_AUTH_ENABLED` | `false` | Require SigV4 authentication and IAM authorization for S3 requests |
@@ -269,6 +276,19 @@ Repository layout:
 | `ESS_MASTER_KEY` | fixed dev/test key | AES-256 secret encryption key; required in production |
 | `SECRET_KEY_BASE` | none | Phoenix session signing key; required in production |
 | `PHX_HOST` | `localhost` | Production URL host for the admin portal |
+
+The current supported runtime remains standalone local storage with RF=1/W=1.
+Selecting cluster mode while the public S3 writer is enabled fails startup
+unless the cluster data-plane guard is explicitly enabled. This is activation
+scaffolding only: clustering and remote blob replication remain disabled.
+
+`ESS_METADATA_SCHEMA=v2` enables the atomic metadata schema. Existing v1
+records remain readable and are not migrated automatically. Once v2 records
+have been written, an old binary cannot read them; rollback requires restoring
+metadata from a pre-v2 backup. Set `ESS_METADATA_SCHEMA=v1` only as a
+read-only compatibility decision before any v2 writes; object metadata
+mutations are rejected instead of falling back to the unsafe legacy
+multi-write sequence.
 
 Production startup refuses insecure defaults:
 
