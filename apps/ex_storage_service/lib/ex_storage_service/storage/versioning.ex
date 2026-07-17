@@ -31,8 +31,13 @@ defmodule ExStorageService.Storage.Versioning do
   def set_versioning(_bucket, :disabled), do: {:error, :invalid_state_transition}
 
   @spec put_version(String.t(), String.t(), map()) :: {:ok, String.t()} | {:error, term()}
-  def put_version(bucket, key, metadata) do
-    case ObjectCommit.put(bucket, key, metadata) do
+  def put_version(bucket, key, metadata), do: put_version(bucket, key, metadata, [])
+
+  @doc false
+  @spec put_version(String.t(), String.t(), map(), keyword()) ::
+          {:ok, String.t()} | {:error, term()}
+  def put_version(bucket, key, metadata, opts) do
+    case ObjectCommit.put(bucket, key, metadata, opts) do
       {:ok, %{version_id: version_id}} ->
         if get_versioning(bucket) == :enabled,
           do: {:ok, version_id},
@@ -63,12 +68,16 @@ defmodule ExStorageService.Storage.Versioning do
 
   @spec delete_version(String.t(), String.t(), String.t() | nil) ::
           {:ok, String.t(), :delete_marker | :deleted} | {:error, term()}
-  def delete_version(bucket, key, version_id \\ nil)
+  def delete_version(bucket, key), do: delete_version(bucket, key, nil, [])
+  def delete_version(bucket, key, version_id), do: delete_version(bucket, key, version_id, [])
 
-  def delete_version(bucket, key, nil) do
+  @doc false
+  @spec delete_version(String.t(), String.t(), String.t() | nil, keyword()) ::
+          {:ok, String.t(), :delete_marker | :deleted} | {:error, term()}
+  def delete_version(bucket, key, nil, opts) do
     state = get_versioning(bucket)
 
-    case ObjectCommit.delete_marker(bucket, key) do
+    case ObjectCommit.delete_marker(bucket, key, opts) do
       {:ok, %{version_id: version_id}} when state == :enabled ->
         {:ok, version_id, :delete_marker}
 
@@ -83,8 +92,8 @@ defmodule ExStorageService.Storage.Versioning do
     end
   end
 
-  def delete_version(bucket, key, version_id) do
-    case ObjectCommit.delete_version(bucket, key, version_id) do
+  def delete_version(bucket, key, version_id, opts) do
+    case ObjectCommit.delete_version(bucket, key, version_id, opts) do
       {:ok, _result} -> {:ok, version_id, :deleted}
       {:error, reason} -> {:error, reason}
     end

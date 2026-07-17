@@ -2,6 +2,7 @@ defmodule ExStorageService.Storage.MultipartTest do
   use ExUnit.Case, async: false
 
   alias ExStorageService.Metadata
+  alias ExStorageService.ObjectService
   alias ExStorageService.Storage.{CAS, Engine, Multipart, Pack}
 
   setup do
@@ -135,5 +136,35 @@ defmodule ExStorageService.Storage.MultipartTest do
 
     assert {:error, {:missing_part, 2, _reason}} =
              Multipart.complete_upload(bucket, upload_id, [{1, etag1}, {2, "bogus"}])
+  end
+
+  test "metadata failure leaves the prepared blob orphaned and upload retryable", %{
+    bucket: bucket,
+    upload_id: upload_id
+  } do
+    Metadata.create_bucket(bucket)
+    {:ok, etag} = Multipart.store_part(bucket, upload_id, 1, "retryable-part")
+
+    assert {:ok, prepared} =
+             Multipart.prepare_complete_upload(bucket, upload_id, [{1, etag}])
+
+    assert {:error, :injected_metadata_failure} =
+             ObjectService.commit_existing_blob(
+               bucket,
+               "streamed.bin",
+               %{
+                 hash: prepared.content_hash,
+                 etag: prepared.etag,
+                 size: prepared.size
+               },
+               %{content_type: "application/octet-stream"},
+               faults: [metadata_commit: fn _context -> {:error, :injected_metadata_failure} end],
+               side_effects: false
+             )
+
+    assert File.exists?(CAS.blob_path(prepared.content_hash))
+    assert {:ok, %{status: :initiated}} = Multipart.get_upload(bucket, upload_id)
+    assert {:ok, [%{part_number: 1, etag: ^etag}]} = Multipart.list_parts(bucket, upload_id)
+    assert {:error, :object_not_found} = ObjectService.head(bucket, "streamed.bin")
   end
 end

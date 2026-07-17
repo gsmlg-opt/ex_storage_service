@@ -5,8 +5,8 @@ defmodule ExStorageService.Storage.CAS do
   Layout: `{data_root}/cas/objects/sha256/{first_two_hex}/{rest}`.
 
   Blobs are immutable and shared across all buckets, keys, and versions.
-  Commit is an atomic `File.rename!/2` from a tmp file on the same
-  filesystem. All functions are plain path/filesystem operations executed
+  Commit is a synced atomic rename from a tmp file on the same filesystem.
+  All functions are plain path/filesystem operations executed
   in the caller's process — this module deliberately has no process.
 
   `cas` is a reserved name: `BucketValidator` rejects it as a bucket name
@@ -15,6 +15,8 @@ defmodule ExStorageService.Storage.CAS do
 
   @reserved_root "cas"
 
+  alias ExStorageService.BlobStore.{LocalCAS, StagedBlob}
+
   def reserved_root, do: @reserved_root
 
   def data_root do
@@ -22,8 +24,7 @@ defmodule ExStorageService.Storage.CAS do
   end
 
   def blob_path(content_hash) do
-    <<prefix::binary-size(2), rest::binary>> = content_hash
-    Path.join([data_root(), @reserved_root, "objects", "sha256", prefix, rest])
+    LocalCAS.blob_path(content_hash, root: cas_root())
   end
 
   def has_blob?(content_hash), do: File.exists?(blob_path(content_hash))
@@ -44,14 +45,12 @@ defmodule ExStorageService.Storage.CAS do
   (dedup hit), the tmp file is discarded and the existing blob is kept.
   """
   def commit_blob(tmp_path, content_hash) do
-    dest = blob_path(content_hash)
-
-    if File.exists?(dest) do
-      File.rm(tmp_path)
-      :ok
-    else
-      File.mkdir_p!(Path.dirname(dest))
-      File.rename!(tmp_path, dest)
+    with {:ok, %File.Stat{size: size}} <- File.stat(tmp_path),
+         {:ok, _ready} <-
+           LocalCAS.commit(
+             %StagedBlob{path: tmp_path, hash: content_hash, etag: nil, size: size},
+             root: cas_root()
+           ) do
       :ok
     end
   end
@@ -60,16 +59,13 @@ defmodule ExStorageService.Storage.CAS do
   Re-hashes the blob file and compares against its content hash.
   """
   def verify_blob(content_hash) do
-    case File.read(blob_path(content_hash)) do
-      {:ok, data} ->
-        actual = Base.encode16(:crypto.hash(:sha256, data), case: :lower)
-        if actual == content_hash, do: :ok, else: {:error, :corrupt}
-
-      {:error, :enoent} ->
-        {:error, :missing}
-
-      {:error, reason} ->
-        {:error, reason}
+    case LocalCAS.verify(content_hash, root: cas_root()) do
+      :ok -> :ok
+      {:error, :checksum_mismatch} -> {:error, :corrupt}
+      {:error, :not_found} -> {:error, :missing}
+      {:error, reason} -> {:error, reason}
     end
   end
+
+  defp cas_root, do: Path.join(data_root(), @reserved_root)
 end

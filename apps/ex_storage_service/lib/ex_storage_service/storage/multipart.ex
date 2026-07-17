@@ -15,6 +15,7 @@ defmodule ExStorageService.Storage.Multipart do
 
   require Logger
 
+  alias ExStorageService.BlobStore.LocalCAS
   alias ExStorageService.Storage.{CAS, Engine, Manifest}
 
   @part_chunk_size 262_144
@@ -79,54 +80,75 @@ defmodule ExStorageService.Storage.Multipart do
   Returns `{:ok, {content_hash, etag, size, manifest_hash}}`.
   """
   def complete_upload(bucket, upload_id, parts) do
-    # Verify upload exists
-    case get_upload(bucket, upload_id) do
-      {:ok, upload_meta} ->
-        # Sort parts by part number
-        sorted_parts = Enum.sort_by(parts, fn {pn, _etag} -> pn end)
+    with {:ok, prepared} <- prepare_complete_upload(bucket, upload_id, parts),
+         :ok <- finalize_complete_upload(bucket, upload_id, prepared) do
+      {:ok, {prepared.content_hash, prepared.etag, prepared.size, prepared.manifest_hash}}
+    end
+  end
 
-        # All parts except the last must meet the minimum part size (S3 rule).
-        min_part_size =
-          Application.get_env(:ex_storage_service, :min_part_size, 5 * 1024 * 1024)
+  @doc """
+  Builds and durably commits the final multipart blob without publishing object
+  metadata or cleaning the upload.
 
-        last_index = length(sorted_parts) - 1
+  The caller must publish the object through `ExStorageService.ObjectService`
+  and call `finalize_complete_upload/3` only after that metadata commit
+  succeeds. A failure therefore leaves a retryable upload and a recoverable CAS
+  orphan rather than a falsely completed upload.
+  """
+  def prepare_complete_upload(bucket, upload_id, parts) do
+    with {:ok, upload_meta} <- get_upload(bucket, upload_id) do
+      sorted_parts = Enum.sort_by(parts, fn {part_number, _etag} -> part_number end)
 
-        result =
-          with {:ok, part_records} <- resolve_part_records(bucket, upload_id, sorted_parts),
-               :ok <- validate_parts(part_records, min_part_size, last_index) do
-            concatenate_parts(bucket, part_records)
-          end
+      min_part_size =
+        Application.get_env(:ex_storage_service, :min_part_size, 5 * 1024 * 1024)
 
-        case result do
-          {:ok, {content_hash, etag, total_size, manifest_hash}} ->
-            # Clean up part files and metadata
-            cleanup_parts(bucket, upload_id)
+      last_index = length(sorted_parts) - 1
 
-            # Update upload metadata to completed
-            now = DateTime.utc_now() |> DateTime.to_iso8601()
+      with {:ok, part_records} <- resolve_part_records(bucket, upload_id, sorted_parts),
+           :ok <- validate_parts(part_records, min_part_size, last_index),
+           {:ok, {content_hash, etag, size, manifest_hash}} <-
+             concatenate_parts(bucket, part_records) do
+        {:ok,
+         %{
+           content_hash: content_hash,
+           etag: etag,
+           size: size,
+           manifest_hash: manifest_hash,
+           upload: upload_meta
+         }}
+      end
+    end
+  end
 
-            completed_meta = %{
-              bucket: bucket,
-              key: get_in_upload(upload_meta, :key),
-              upload_id: upload_id,
-              status: :completed,
-              content_hash: content_hash,
-              manifest_hash: manifest_hash,
-              etag: etag,
-              size: total_size,
-              created_at: get_in_upload(upload_meta, :created_at),
-              updated_at: now
-            }
+  @doc """
+  Marks a prepared multipart upload complete and removes its part records.
+  """
+  def finalize_complete_upload(bucket, upload_id, prepared) do
+    now = DateTime.utc_now() |> DateTime.to_iso8601()
 
-            Concord.put(mpu_key(bucket, upload_id), completed_meta)
+    completed_meta = %{
+      bucket: bucket,
+      key: get_in_upload(prepared.upload, :key),
+      upload_id: upload_id,
+      status: :completed,
+      content_hash: prepared.content_hash,
+      manifest_hash: prepared.manifest_hash,
+      etag: prepared.etag,
+      size: prepared.size,
+      created_at: get_in_upload(prepared.upload, :created_at),
+      updated_at: now
+    }
 
-            {:ok, {content_hash, etag, total_size, manifest_hash}}
+    case Concord.put(mpu_key(bucket, upload_id), completed_meta) do
+      result when result in [:ok, {:ok, nil}] ->
+        cleanup_parts(bucket, upload_id)
+        :ok
 
-          error ->
-            error
-        end
+      {:ok, _result} ->
+        cleanup_parts(bucket, upload_id)
+        :ok
 
-      {:error, _} = error ->
+      {:error, _reason} = error ->
         error
     end
   end
@@ -251,100 +273,130 @@ defmodule ExStorageService.Storage.Multipart do
     end
   end
 
-  # Streams each CAS part blob into a tmp file (constant memory), computing
-  # the whole-object SHA-256 on the way, then commits the result as a blob
-  # and records the manifest.
+  # Streams each CAS part blob through LocalCAS, then records the manifest.
   defp concatenate_parts(bucket, part_records) do
-    tmp_path = CAS.tmp_upload_path()
-    out = File.open!(tmp_path, [:write, :raw, :binary])
+    with {:ok, streams} <- part_streams(bucket, part_records),
+         {:ok, staged} <- LocalCAS.stage(Stream.concat(streams), blob_store_opts()) do
+      case LocalCAS.commit(staged, blob_store_opts()) do
+        {:ok, ready} ->
+          finish_concatenation(ready, part_records)
 
-    try do
-      {sha_ctx, total_size} =
-        Enum.reduce(part_records, {:crypto.hash_init(:sha256), 0}, fn record, {ctx, size} ->
-          ctx = append_part(bucket, record, out, ctx)
+        {:error, _reason} = error ->
+          _ = LocalCAS.discard(staged, blob_store_opts())
+          error
+      end
+    end
+  end
 
-          {ctx, size + record.size}
-        end)
+  defp part_streams(bucket, part_records) do
+    part_records
+    |> Enum.reduce_while({:ok, []}, fn record, {:ok, streams} ->
+      case Engine.get_object_location(bucket, record.hash) do
+        {:ok, {:file, path}} ->
+          {:cont, {:ok, [file_slice_stream(path, 0, record.size) | streams]}}
 
-      File.close(out)
+        {:ok, {:pack, path, offset, size}} when size == record.size ->
+          {:cont, {:ok, [file_slice_stream(path, offset, size) | streams]}}
 
-      content_hash = sha_ctx |> :crypto.hash_final() |> Base.encode16(case: :lower)
+        {:ok, {:pack, _path, _offset, size}} ->
+          {:halt,
+           {:error, {:multipart_part_size_mismatch, record.part_number, record.size, size}}}
 
-      # S3 multipart etag: MD5 of the concatenated raw part-MD5 digests,
-      # suffixed with the part count; part etags are the hex MD5s.
-      md5_digests = Enum.map(part_records, &Base.decode16!(&1.etag, case: :mixed))
-      combined_md5 = :crypto.hash(:md5, IO.iodata_to_binary(md5_digests))
-      etag = "#{Base.encode16(combined_md5, case: :lower)}-#{length(part_records)}"
+        {:error, reason} ->
+          {:halt, {:error, {:multipart_part_unavailable, record.part_number, reason}}}
+      end
+    end)
+    |> case do
+      {:ok, streams} -> {:ok, Enum.reverse(streams)}
+      {:error, _reason} = error -> error
+    end
+  end
 
-      :ok = CAS.commit_blob(tmp_path, content_hash)
-      ExStorageService.Metadata.ensure_blob_meta(content_hash, total_size)
+  defp finish_concatenation(ready, part_records) do
+    with {:ok, etag} <- multipart_etag(part_records) do
+      ExStorageService.Metadata.ensure_blob_meta(ready.hash, ready.size)
 
       manifest_parts =
-        Enum.map(part_records, fn r ->
-          %{number: r.part_number, hash: r.hash, size: r.size, etag: r.etag}
+        Enum.map(part_records, fn record ->
+          %{
+            number: record.part_number,
+            hash: record.hash,
+            size: record.size,
+            etag: record.etag
+          }
         end)
 
-      {:ok, manifest_hash} = Manifest.create_manifest(manifest_parts, total_size, etag)
+      case Manifest.create_manifest(manifest_parts, ready.size, etag) do
+        {:ok, manifest_hash} ->
+          {:ok, {ready.hash, etag, ready.size, manifest_hash}}
 
-      {:ok, {content_hash, etag, total_size, manifest_hash}}
-    rescue
-      e ->
-        File.close(out)
-        File.rm(tmp_path)
-        {:error, Exception.message(e)}
+        {:error, _reason} = error ->
+          error
+      end
     end
   end
 
-  defp append_part(bucket, record, out, sha_ctx) do
-    case Engine.get_object_location(bucket, record.hash) do
-      {:ok, location} ->
-        location
-        |> location_stream()
-        |> Enum.reduce(sha_ctx, fn chunk, ctx ->
-          :ok = IO.binwrite(out, chunk)
-          :crypto.hash_update(ctx, chunk)
-        end)
+  defp multipart_etag(part_records) do
+    part_records
+    |> Enum.reduce_while({:ok, []}, fn record, {:ok, digests} ->
+      case Base.decode16(record.etag, case: :mixed) do
+        {:ok, digest} -> {:cont, {:ok, [digest | digests]}}
+        :error -> {:halt, {:error, {:invalid_part_etag, record.part_number}}}
+      end
+    end)
+    |> case do
+      {:ok, digests} ->
+        combined_md5 = digests |> Enum.reverse() |> IO.iodata_to_binary() |> md5()
 
-      {:error, reason} ->
-        raise "multipart part #{record.part_number} content unavailable: #{inspect(reason)}"
+        {:ok, "#{Base.encode16(combined_md5, case: :lower)}-#{length(part_records)}"}
+
+      {:error, _reason} = error ->
+        error
     end
   end
 
-  defp location_stream({:file, path}), do: File.stream!(path, [], @part_chunk_size)
+  defp md5(data), do: :crypto.hash(:md5, data)
 
-  defp location_stream({:pack, path, offset, size}) do
+  defp file_slice_stream(path, offset, size) do
     Stream.resource(
-      fn -> open_pack_slice!(path, offset, size) end,
-      &read_pack_chunk!/1,
-      fn {file, _offset, _remaining} -> File.close(file) end
+      fn ->
+        case File.open(path, [:read, :raw, :binary]) do
+          {:ok, file} -> {:open, file, offset, size}
+          {:error, reason} -> {:error, {:open, reason}}
+        end
+      end,
+      &read_file_chunk/1,
+      &close_file_slice/1
     )
   end
 
-  defp open_pack_slice!(path, offset, size) do
-    case File.open(path, [:read, :raw, :binary]) do
-      {:ok, file} -> {file, offset, size}
-      {:error, reason} -> raise "could not open multipart pack #{path}: #{inspect(reason)}"
-    end
-  end
+  defp read_file_chunk({:error, reason}), do: throw({:error, {:multipart_read, reason}})
 
-  defp read_pack_chunk!({_file, _offset, 0} = state), do: {:halt, state}
+  defp read_file_chunk({:open, _file, _offset, 0} = state), do: {:halt, state}
 
-  defp read_pack_chunk!({file, offset, remaining}) do
+  defp read_file_chunk({:open, file, offset, remaining}) do
     bytes_to_read = min(remaining, @part_chunk_size)
 
     case :file.pread(file, offset, bytes_to_read) do
       {:ok, data} when byte_size(data) == bytes_to_read ->
-        {[data], {file, offset + bytes_to_read, remaining - bytes_to_read}}
+        {[data], {:open, file, offset + bytes_to_read, remaining - bytes_to_read}}
 
       {:ok, data} ->
-        raise "short multipart pack read: expected #{bytes_to_read} bytes, got #{byte_size(data)}"
+        throw({:error, {:multipart_read, {:short_read, bytes_to_read, byte_size(data)}}})
 
       :eof ->
-        raise "unexpected EOF while reading multipart pack"
+        throw({:error, {:multipart_read, :unexpected_eof}})
 
       {:error, reason} ->
-        raise "multipart pack read failed: #{inspect(reason)}"
+        throw({:error, {:multipart_read, reason}})
     end
+  end
+
+  defp close_file_slice({:open, file, _offset, _remaining}), do: File.close(file)
+  defp close_file_slice({:error, _reason}), do: :ok
+
+  defp blob_store_opts do
+    [root: Path.join(CAS.data_root(), CAS.reserved_root())]
   end
 
   defp cleanup_parts(bucket, upload_id) do
@@ -352,7 +404,7 @@ defmodule ExStorageService.Storage.Multipart do
     dir = Path.join([ExStorageService.Storage.CAS.data_root(), bucket, "multipart", upload_id])
 
     if File.dir?(dir) do
-      File.rm_rf!(dir)
+      _ = File.rm_rf(dir)
     end
 
     # Delete part metadata from Concord

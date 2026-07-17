@@ -18,6 +18,7 @@ defmodule ExStorageService.Storage.Engine do
 
   require Logger
 
+  alias ExStorageService.BlobStore.LocalCAS
   alias ExStorageService.Metadata
   alias ExStorageService.Storage.CAS
   alias ExStorageService.Storage.Pack
@@ -49,18 +50,20 @@ defmodule ExStorageService.Storage.Engine do
         _content_type \\ "application/octet-stream",
         _metadata \\ %{}
       ) do
-    tmp_path = CAS.tmp_upload_path()
+    case LocalCAS.stage(data_or_stream, blob_store_opts()) do
+      {:ok, staged} ->
+        case LocalCAS.commit(staged, blob_store_opts()) do
+          {:ok, ready} ->
+            Metadata.ensure_blob_meta(ready.hash, ready.size)
+            {:ok, {ready.hash, ready.etag, ready.size}}
 
-    case stream_to_file(data_or_stream, tmp_path) do
-      {:ok, {content_hash, md5, size}} ->
-        :ok = CAS.commit_blob(tmp_path, content_hash)
-        Metadata.ensure_blob_meta(content_hash, size)
-        etag = Base.encode16(md5, case: :lower)
-        {:ok, {content_hash, etag, size}}
+          {:error, _} = error ->
+            _ = LocalCAS.discard(staged, blob_store_opts())
+            error
+        end
 
-      {:error, reason} ->
-        File.rm(tmp_path)
-        {:error, reason}
+      {:error, _} = error ->
+        normalize_put_error(error)
     end
   rescue
     e -> {:error, Exception.message(e)}
@@ -88,12 +91,16 @@ defmodule ExStorageService.Storage.Engine do
   bucket-local path for content that predates the CAS migration.
   """
   def get_object(bucket, content_hash) do
-    legacy = legacy_content_path(CAS.data_root(), bucket, content_hash)
+    case LocalCAS.stat(content_hash, blob_store_opts(bucket: bucket, pack_module: nil)) do
+      {:ok, %{storage: storage, source: {:file, path, 0, _size}}}
+      when storage in [:loose, :legacy] ->
+        {:ok, path}
 
-    cond do
-      CAS.has_blob?(content_hash) -> {:ok, CAS.blob_path(content_hash)}
-      File.exists?(legacy) -> {:ok, legacy}
-      true -> {:error, :not_found}
+      {:ok, %{storage: :packed}} ->
+        {:error, :not_found}
+
+      {:error, _} = error ->
+        error
     end
   end
 
@@ -103,18 +110,15 @@ defmodule ExStorageService.Storage.Engine do
   forms of `send_file` for pack slices, preserving zero-copy and Range.
   """
   def get_object_location(bucket, content_hash) do
-    legacy = legacy_content_path(CAS.data_root(), bucket, content_hash)
-
-    case Pack.locate(content_hash) do
-      {:ok, {path, offset, size}} ->
+    case LocalCAS.stat(content_hash, blob_store_opts(bucket: bucket)) do
+      {:ok, %{storage: :packed, source: {:file, path, offset, size}}} ->
         {:ok, {:pack, path, offset, size}}
 
-      {:error, :not_found} ->
-        cond do
-          CAS.has_blob?(content_hash) -> {:ok, {:file, CAS.blob_path(content_hash)}}
-          File.exists?(legacy) -> {:ok, {:file, legacy}}
-          true -> {:error, :not_found}
-        end
+      {:ok, %{source: {:file, path, 0, _size}}} ->
+        {:ok, {:file, path}}
+
+      {:error, _} = error ->
+        error
     end
   end
 
@@ -136,22 +140,13 @@ defmodule ExStorageService.Storage.Engine do
   `get_object/2` checks the CAS first.
   """
   def promote_to_global(bucket, content_hash) do
-    if CAS.has_blob?(content_hash) or match?({:ok, _}, Pack.locate(content_hash)) do
-      :ok
-    else
-      legacy = legacy_content_path(CAS.data_root(), bucket, content_hash)
+    case LocalCAS.ensure_ready(content_hash, blob_store_opts(bucket: bucket)) do
+      {:ok, %{size: size}} ->
+        Metadata.ensure_blob_meta(content_hash, size)
+        :ok
 
-      case File.stat(legacy) do
-        {:ok, %File.Stat{size: size}} ->
-          dest = CAS.blob_path(content_hash)
-          File.mkdir_p!(Path.dirname(dest))
-          File.rename!(legacy, dest)
-          Metadata.ensure_blob_meta(content_hash, size)
-          :ok
-
-        {:error, _} ->
-          {:error, :not_found}
-      end
+      {:error, _} = error ->
+        error
     end
   end
 
@@ -187,50 +182,10 @@ defmodule ExStorageService.Storage.Engine do
 
   ## Private
 
-  defp stream_to_file(data, tmp_path) when is_binary(data) do
-    sha256 = :crypto.hash(:sha256, data)
-    md5 = :crypto.hash(:md5, data)
-    size = byte_size(data)
-
-    case File.write(tmp_path, data) do
-      :ok ->
-        content_hash = Base.encode16(sha256, case: :lower)
-        {:ok, {content_hash, md5, size}}
-
-      {:error, reason} ->
-        {:error, reason}
-    end
+  defp blob_store_opts(extra \\ []) do
+    Keyword.merge([root: Path.join(CAS.data_root(), CAS.reserved_root())], extra)
   end
 
-  defp stream_to_file(stream, tmp_path) do
-    try do
-      file = File.open!(tmp_path, [:write, :raw, :binary])
-      sha256_ctx = :crypto.hash_init(:sha256)
-      md5_ctx = :crypto.hash_init(:md5)
-
-      {sha256_ctx, md5_ctx, size} =
-        Enum.reduce(stream, {sha256_ctx, md5_ctx, 0}, fn chunk, {sha_ctx, md_ctx, acc_size} ->
-          :ok = IO.binwrite(file, chunk)
-
-          sha_ctx = :crypto.hash_update(sha_ctx, chunk)
-          md_ctx = :crypto.hash_update(md_ctx, chunk)
-          {sha_ctx, md_ctx, acc_size + byte_size(chunk)}
-        end)
-
-      File.close(file)
-
-      sha256 = :crypto.hash_final(sha256_ctx)
-      md5 = :crypto.hash_final(md5_ctx)
-      content_hash = Base.encode16(sha256, case: :lower)
-
-      {:ok, {content_hash, md5, size}}
-    rescue
-      e -> {:error, Exception.message(e)}
-    catch
-      # Body streams throw tagged errors (e.g. {:error, :entity_too_large}
-      # from Shared.body_stream when a size limit is exceeded); surface them
-      # as return values so handlers can map them to S3 error responses.
-      {:error, reason} -> {:error, reason}
-    end
-  end
+  defp normalize_put_error({:error, {:stage, reason}}), do: {:error, reason}
+  defp normalize_put_error(error), do: error
 end

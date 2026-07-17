@@ -8,9 +8,8 @@ defmodule ExStorageServiceS3.MultipartHandlers do
   alias ExStorageServiceS3.Handlers.Shared
   alias ExStorageServiceS3.XML
   alias ExStorageService.Metadata
-  alias ExStorageService.Replication.Hooks
+  alias ExStorageService.ObjectService
   alias ExStorageService.Storage.Multipart
-  alias ExStorageService.Storage.Versioning
 
   # Cap for buffered XML request bodies (CompleteMultipartUpload). Generous
   # enough for the 10,000-part maximum while bounding memory use.
@@ -147,9 +146,8 @@ defmodule ExStorageServiceS3.MultipartHandlers do
           {:ok, body, conn} ->
             case parse_complete_multipart_xml(body) do
               {:ok, parts} ->
-                case Multipart.complete_upload(bucket, upload_id, parts) do
-                  {:ok, {content_hash, etag, size, manifest_hash}} ->
-                    # Store object metadata
+                case Multipart.prepare_complete_upload(bucket, upload_id, parts) do
+                  {:ok, prepared} ->
                     now = DateTime.utc_now() |> DateTime.to_iso8601()
 
                     content_type =
@@ -158,30 +156,66 @@ defmodule ExStorageServiceS3.MultipartHandlers do
                         _ -> "application/octet-stream"
                       end
 
-                    meta = %{
-                      content_hash: content_hash,
-                      manifest_hash: manifest_hash,
-                      object_type: :blob,
-                      size: size,
-                      etag: etag,
-                      content_type: content_type,
-                      metadata: %{},
-                      created_at: now,
-                      updated_at: now
+                    ready = %{
+                      hash: prepared.content_hash,
+                      size: prepared.size,
+                      etag: prepared.etag
                     }
 
-                    {:ok, version_id} = Versioning.put_version(bucket, key, meta)
-                    Hooks.after_put(bucket, key)
-                    broadcast_bucket_change(bucket, :put, key)
+                    attributes = %{
+                      manifest_hash: prepared.manifest_hash,
+                      object_type: :blob,
+                      content_type: content_type,
+                      metadata: %{},
+                      created_at: now
+                    }
 
-                    location = "/#{bucket}/#{key}"
+                    case ObjectService.commit_existing_blob(
+                           bucket,
+                           key,
+                           ready,
+                           attributes,
+                           metadata_opts: [
+                             operation_id:
+                               "multipart-complete:#{upload_id}:#{prepared.content_hash}"
+                           ]
+                         ) do
+                      {:ok, %{version_id: version_id}} ->
+                        case Multipart.finalize_complete_upload(bucket, upload_id, prepared) do
+                          :ok ->
+                            location = "/#{bucket}/#{key}"
 
-                    response_body =
-                      XML.complete_multipart_upload_response(bucket, key, etag, location)
+                            response_body =
+                              XML.complete_multipart_upload_response(
+                                bucket,
+                                key,
+                                prepared.etag,
+                                location
+                              )
 
-                    conn
-                    |> maybe_put_version_header(version_id)
-                    |> xml_response(200, response_body, request_id)
+                            conn
+                            |> maybe_put_version_header(version_id)
+                            |> xml_response(200, response_body, request_id)
+
+                          {:error, reason} ->
+                            error_response(
+                              conn,
+                              "InternalError",
+                              inspect(reason),
+                              "/#{bucket}/#{key}",
+                              request_id
+                            )
+                        end
+
+                      {:error, reason} ->
+                        error_response(
+                          conn,
+                          "InternalError",
+                          inspect(reason),
+                          "/#{bucket}/#{key}",
+                          request_id
+                        )
+                    end
 
                   {:error, {:etag_mismatch, pn, _expected, _actual}} ->
                     error_response(
@@ -320,14 +354,6 @@ defmodule ExStorageServiceS3.MultipartHandlers do
   end
 
   # Private helpers
-
-  defp broadcast_bucket_change(bucket, action, key) do
-    Phoenix.PubSub.broadcast(
-      ExStorageService.PubSub,
-      "bucket:#{bucket}",
-      {:bucket_changed, %{action: action, key: key, bucket: bucket}}
-    )
-  end
 
   defp request_id(conn) do
     conn.assigns[:request_id] || :crypto.strong_rand_bytes(8) |> Base.encode16(case: :upper)

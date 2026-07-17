@@ -10,9 +10,8 @@ defmodule ExStorageServiceS3.Handlers.Object do
   alias ExStorageService.CloudCache.Config, as: CloudConfig
   alias ExStorageService.CloudCache.LocalStore
   alias ExStorageService.Metadata
-  alias ExStorageService.Replication.Hooks
+  alias ExStorageService.ObjectService
   alias ExStorageService.Storage.Engine
-  alias ExStorageService.Storage.Versioning
 
   def list_objects(conn, bucket) do
     request_id = request_id(conn)
@@ -56,86 +55,21 @@ defmodule ExStorageServiceS3.Handlers.Object do
     request_id = request_id(conn)
 
     ExStorageService.Telemetry.span(:head_object, %{bucket: bucket, key: key}, fn ->
-      case Metadata.get_object_meta(bucket, key) do
-        {:ok, meta} ->
-          content_type = Map.get(meta, :content_type, "application/octet-stream")
-          etag = Map.get(meta, :etag, "")
-          quoted_etag = "\"#{etag}\""
-          size = Map.get(meta, :size, 0)
-          last_modified_raw = Map.get(meta, :updated_at, Map.get(meta, :created_at))
-          last_modified = format_http_date(last_modified_raw)
+      case ObjectService.head(bucket, key) do
+        {:ok, %{delete_marker: true, version_id: version_id}} ->
+          delete_marker_response(conn, version_id, request_id)
 
-          cond do
-            not_modified_etag?(conn, quoted_etag) ->
-              conn
-              |> put_s3_headers(request_id)
-              |> put_resp_header("etag", quoted_etag)
-              |> put_resp_header("last-modified", last_modified)
-              |> send_resp(304, "")
+        {:ok, %{metadata: metadata}} ->
+          head_object_response(conn, metadata, request_id)
 
-            not_modified_since?(conn, last_modified_raw) ->
-              conn
-              |> put_s3_headers(request_id)
-              |> put_resp_header("etag", quoted_etag)
-              |> put_resp_header("last-modified", last_modified)
-              |> send_resp(304, "")
+        {:error, :object_not_found} ->
+          cloud_head_object_response(conn, bucket, key, request_id)
 
-            true ->
-              conn
-              |> put_s3_headers(request_id)
-              |> put_resp_header("content-type", content_type)
-              |> put_resp_header("etag", quoted_etag)
-              |> put_resp_header("last-modified", last_modified)
-              |> put_resp_header("content-length", to_string(size))
-              |> put_resp_header("accept-ranges", "bytes")
-              |> put_custom_metadata_headers(meta)
-              |> send_resp(200, "")
-          end
+        {:error, :bucket_not_found} ->
+          conn |> put_s3_headers(request_id) |> send_resp(404, "")
 
-        {:error, :not_found} ->
-          case latest_delete_marker(bucket, key) do
-            {:ok, version_id} ->
-              delete_marker_response(conn, version_id, request_id)
-
-            :no_such_bucket ->
-              conn |> put_s3_headers(request_id) |> send_resp(404, "")
-
-            {:error, _reason} ->
-              conn |> put_s3_headers(request_id) |> send_resp(500, "")
-
-            :not_found ->
-              # For cloud-cached buckets, fall back to HEAD on the remote
-              case cloud_cache_config(bucket) do
-                {:ok, cloud_config} ->
-                  case CloudClient.head_object(cloud_config, key) do
-                    {:ok, cloud_meta} ->
-                      last_mod =
-                        cloud_meta.last_modified ||
-                          format_http_date(DateTime.utc_now() |> DateTime.to_iso8601())
-
-                      conn
-                      |> put_s3_headers(request_id)
-                      |> put_resp_header(
-                        "content-type",
-                        cloud_meta.content_type || "application/octet-stream"
-                      )
-                      |> put_resp_header("etag", "\"#{cloud_meta.etag}\"")
-                      |> put_resp_header("content-length", to_string(cloud_meta.content_length))
-                      |> put_resp_header("last-modified", last_mod)
-                      |> put_resp_header("accept-ranges", "bytes")
-                      |> send_resp(200, "")
-
-                    {:error, :not_found} ->
-                      conn |> put_s3_headers(request_id) |> send_resp(404, "")
-
-                    {:error, _} ->
-                      conn |> put_s3_headers(request_id) |> send_resp(502, "")
-                  end
-
-                :disabled ->
-                  conn |> put_s3_headers(request_id) |> send_resp(404, "")
-              end
-          end
+        {:error, _reason} ->
+          conn |> put_s3_headers(request_id) |> send_resp(500, "")
       end
     end)
   end
@@ -188,33 +122,27 @@ defmodule ExStorageServiceS3.Handlers.Object do
 
       version_id = conn.query_params["versionId"]
 
-      case Versioning.delete_version(bucket, key, version_id) do
-        {:ok, marker_id, :delete_marker} ->
-          Hooks.after_delete(bucket, key)
-          broadcast_bucket_change(bucket, :delete, key)
-
+      case ObjectService.delete(bucket, key, version_id) do
+        {:ok, %{version_id: marker_id, kind: :delete_marker}} ->
           conn
           |> put_s3_headers(request_id)
           |> put_resp_header("x-amz-delete-marker", "true")
           |> put_resp_header("x-amz-version-id", marker_id)
           |> send_resp(204, "")
 
-        {:ok, "null", :deleted} when is_nil(version_id) ->
-          Hooks.after_delete(bucket, key)
-          broadcast_bucket_change(bucket, :delete, key)
-
+        {:ok, %{version_id: "null", kind: :deleted}} when is_nil(version_id) ->
           conn
           |> put_s3_headers(request_id)
           |> send_resp(204, "")
 
-        {:ok, deleted_vid, :deleted} ->
-          Hooks.after_delete(bucket, key)
-          broadcast_bucket_change(bucket, :delete, key)
-
+        {:ok, %{version_id: deleted_version_id, kind: :deleted}} ->
           conn
           |> put_s3_headers(request_id)
-          |> put_resp_header("x-amz-version-id", deleted_vid)
+          |> put_resp_header("x-amz-version-id", deleted_version_id)
           |> send_resp(204, "")
+
+        {:error, reason} ->
+          error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
       end
     end)
   end
@@ -226,10 +154,30 @@ defmodule ExStorageServiceS3.Handlers.Object do
       [copy_source | _] ->
         {source_bucket, source_key} = parse_copy_source(copy_source)
 
-        case Metadata.get_object_meta(source_bucket, source_key) do
-          {:ok, source_meta} ->
-            case Metadata.head_bucket(bucket) do
-              {:error, :not_found} ->
+        case ObjectService.head(source_bucket, source_key) do
+          {:ok, %{metadata: source_metadata, delete_marker: false}} ->
+            now = DateTime.utc_now() |> DateTime.to_iso8601()
+
+            case perform_copy(
+                   source_bucket,
+                   source_key,
+                   bucket,
+                   key,
+                   source_metadata,
+                   cloud_cache_config(bucket)
+                 ) do
+              {:ok, %{version_id: version_id, metadata: destination_metadata}} ->
+                body =
+                  XML.copy_object_response(
+                    "\"#{Map.get(destination_metadata, :etag, source_metadata.etag)}\"",
+                    now
+                  )
+
+                conn
+                |> maybe_put_version_header(version_id)
+                |> xml_response(200, body, request_id)
+
+              {:error, :bucket_not_found} ->
                 error_response(
                   conn,
                   "NoSuchBucket",
@@ -238,58 +186,49 @@ defmodule ExStorageServiceS3.Handlers.Object do
                   request_id
                 )
 
-              :ok ->
-                now = DateTime.utc_now() |> DateTime.to_iso8601()
+              {:error, reason} when reason in [:source_missing, :blob_not_found] ->
+                error_response(
+                  conn,
+                  "NoSuchKey",
+                  "The source object's content is missing.",
+                  copy_source,
+                  request_id
+                )
 
-                new_meta =
-                  source_meta
-                  |> Map.drop([:version_id, :parent_version_id])
-                  |> Map.merge(%{created_at: now, updated_at: now})
-
-                case copy_destination_content(
-                       source_bucket,
-                       source_key,
-                       bucket,
-                       key,
-                       source_meta,
-                       cloud_cache_config(bucket)
-                     ) do
-                  :ok ->
-                    {:ok, version_id} = Versioning.put_version(bucket, key, new_meta)
-                    Hooks.after_put(bucket, key)
-                    broadcast_bucket_change(bucket, :put, key)
-                    # CopyObjectResult requires ISO 8601 (not HTTP date format)
-                    body = XML.copy_object_response("\"#{source_meta.etag}\"", now)
-
-                    conn = maybe_put_version_header(conn, version_id)
-                    xml_response(conn, 200, body, request_id)
-
-                  {:error, :source_missing} ->
-                    error_response(
-                      conn,
-                      "NoSuchKey",
-                      "The source object's content is missing.",
-                      copy_source,
-                      request_id
-                    )
-
-                  {:error, reason} ->
-                    error_response(
-                      conn,
-                      "InternalError",
-                      inspect(reason),
-                      "/#{bucket}/#{key}",
-                      request_id
-                    )
-                end
+              {:error, reason} ->
+                error_response(
+                  conn,
+                  "InternalError",
+                  inspect(reason),
+                  "/#{bucket}/#{key}",
+                  request_id
+                )
             end
 
-          {:error, :not_found} ->
+          {:error, reason} when reason in [:object_not_found, :bucket_not_found] ->
             error_response(
               conn,
               "NoSuchKey",
               "The specified source key does not exist.",
               copy_source,
+              request_id
+            )
+
+          {:ok, %{delete_marker: true}} ->
+            error_response(
+              conn,
+              "NoSuchKey",
+              "The specified source key does not exist.",
+              copy_source,
+              request_id
+            )
+
+          {:error, reason} ->
+            error_response(
+              conn,
+              "InternalError",
+              inspect(reason),
+              "/#{bucket}/#{key}",
               request_id
             )
         end
@@ -338,12 +277,9 @@ defmodule ExStorageServiceS3.Handlers.Object do
                     :ok
                 end
 
-                {:ok, _vid, _kind} = Versioning.delete_version(bucket, key)
-                Hooks.after_delete(bucket, key)
+                {:ok, _result} = ObjectService.delete(bucket, key, nil)
                 {:deleted, key}
               end)
-
-            broadcast_bucket_change(bucket, :delete_objects, nil)
 
             body = XML.delete_objects_response(results)
             xml_response(conn, 200, body, request_id)
@@ -368,48 +304,33 @@ defmodule ExStorageServiceS3.Handlers.Object do
   def get_object_version(conn, bucket, key, version_id) do
     request_id = request_id(conn)
 
-    case Versioning.get_version(bucket, key, version_id) do
-      {:ok, meta} ->
-        if Map.get(meta, :is_delete_marker) do
-          conn
-          |> put_s3_headers(request_id)
-          |> put_resp_header("x-amz-delete-marker", "true")
-          |> put_resp_header("x-amz-version-id", version_id)
-          |> send_resp(404, "")
-        else
-          content_hash = meta.content_hash
+    case ObjectService.get(bucket, key, version_id, []) do
+      {:ok, %{delete_marker: true}} ->
+        conn
+        |> put_s3_headers(request_id)
+        |> put_resp_header("x-amz-delete-marker", "true")
+        |> put_resp_header("x-amz-version-id", version_id)
+        |> send_resp(404, "")
 
-          case Engine.get_object_location(bucket, content_hash) do
-            {:ok, location} ->
-              content_type = Map.get(meta, :content_type, "application/octet-stream")
-              etag = Map.get(meta, :etag, "")
-              size = Map.get(meta, :size, 0)
+      {:ok, %{metadata: metadata, source: {:file, path, offset, length}}} ->
+        content_type = Map.get(metadata, :content_type, "application/octet-stream")
+        etag = Map.get(metadata, :etag, "")
+        size = Map.get(metadata, :size, 0)
 
-              last_modified =
-                format_http_date(Map.get(meta, :updated_at, Map.get(meta, :created_at)))
+        last_modified =
+          format_http_date(Map.get(metadata, :updated_at, Map.get(metadata, :created_at)))
 
-              conn
-              |> put_s3_headers(request_id)
-              |> put_resp_header("content-type", content_type)
-              |> put_resp_header("etag", "\"#{etag}\"")
-              |> put_resp_header("last-modified", last_modified)
-              |> put_resp_header("content-length", to_string(size))
-              |> put_resp_header("x-amz-version-id", version_id)
-              |> put_custom_metadata_headers(meta)
-              |> send_versioned_object(location)
+        conn
+        |> put_s3_headers(request_id)
+        |> put_resp_header("content-type", content_type)
+        |> put_resp_header("etag", "\"#{etag}\"")
+        |> put_resp_header("last-modified", last_modified)
+        |> put_resp_header("content-length", to_string(size))
+        |> put_resp_header("x-amz-version-id", version_id)
+        |> put_custom_metadata_headers(metadata)
+        |> send_version_source(path, offset, length)
 
-            {:error, _} ->
-              error_response(
-                conn,
-                "InternalError",
-                "Content file missing",
-                "/#{bucket}/#{key}",
-                request_id
-              )
-          end
-        end
-
-      {:error, :not_found} ->
+      {:error, :version_not_found} ->
         error_response(
           conn,
           "NoSuchKey",
@@ -417,6 +338,18 @@ defmodule ExStorageServiceS3.Handlers.Object do
           "/#{bucket}/#{key}",
           request_id
         )
+
+      {:error, :blob_not_found} ->
+        error_response(
+          conn,
+          "InternalError",
+          "Content file missing",
+          "/#{bucket}/#{key}",
+          request_id
+        )
+
+      {:error, reason} ->
+        error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
     end
   end
 
@@ -424,35 +357,137 @@ defmodule ExStorageServiceS3.Handlers.Object do
     CloudConfig.get_active_config(bucket)
   end
 
+  defp head_object_response(conn, metadata, request_id) do
+    content_type = Map.get(metadata, :content_type, "application/octet-stream")
+    quoted_etag = "\"#{Map.get(metadata, :etag, "")}\""
+    size = Map.get(metadata, :size, 0)
+    last_modified_raw = Map.get(metadata, :updated_at, Map.get(metadata, :created_at))
+    last_modified = format_http_date(last_modified_raw)
+
+    cond do
+      not_modified_etag?(conn, quoted_etag) ->
+        conn
+        |> put_s3_headers(request_id)
+        |> put_resp_header("etag", quoted_etag)
+        |> put_resp_header("last-modified", last_modified)
+        |> send_resp(304, "")
+
+      not_modified_since?(conn, last_modified_raw) ->
+        conn
+        |> put_s3_headers(request_id)
+        |> put_resp_header("etag", quoted_etag)
+        |> put_resp_header("last-modified", last_modified)
+        |> send_resp(304, "")
+
+      true ->
+        conn
+        |> put_s3_headers(request_id)
+        |> put_resp_header("content-type", content_type)
+        |> put_resp_header("etag", quoted_etag)
+        |> put_resp_header("last-modified", last_modified)
+        |> put_resp_header("content-length", to_string(size))
+        |> put_resp_header("accept-ranges", "bytes")
+        |> put_custom_metadata_headers(metadata)
+        |> send_resp(200, "")
+    end
+  end
+
+  defp cloud_head_object_response(conn, bucket, key, request_id) do
+    case cloud_cache_config(bucket) do
+      {:ok, cloud_config} ->
+        case CloudClient.head_object(cloud_config, key) do
+          {:ok, cloud_meta} ->
+            last_modified =
+              cloud_meta.last_modified ||
+                format_http_date(DateTime.utc_now() |> DateTime.to_iso8601())
+
+            conn
+            |> put_s3_headers(request_id)
+            |> put_resp_header(
+              "content-type",
+              cloud_meta.content_type || "application/octet-stream"
+            )
+            |> put_resp_header("etag", "\"#{cloud_meta.etag}\"")
+            |> put_resp_header("content-length", to_string(cloud_meta.content_length))
+            |> put_resp_header("last-modified", last_modified)
+            |> put_resp_header("accept-ranges", "bytes")
+            |> send_resp(200, "")
+
+          {:error, :not_found} ->
+            conn |> put_s3_headers(request_id) |> send_resp(404, "")
+
+          {:error, _reason} ->
+            conn |> put_s3_headers(request_id) |> send_resp(502, "")
+        end
+
+      :disabled ->
+        conn |> put_s3_headers(request_id) |> send_resp(404, "")
+    end
+  end
+
   defp maybe_put_version_header(conn, "null"), do: conn
 
   defp maybe_put_version_header(conn, version_id),
     do: put_resp_header(conn, "x-amz-version-id", version_id)
 
-  defp copy_destination_content(
+  defp send_version_source(conn, _path, _offset, 0), do: send_resp(conn, 200, "")
+
+  defp send_version_source(conn, path, offset, length),
+    do: send_file(conn, 200, path, offset, length)
+
+  defp perform_copy(
          source_bucket,
-         _source_key,
-         _dest_bucket,
-         _dest_key,
-         source_meta,
+         source_key,
+         destination_bucket,
+         destination_key,
+         _source_metadata,
          :disabled
        ) do
-    # Content is globally addressed: ensure the blob is in the CAS
-    # (promoting pre-migration legacy content), then the copy is
-    # metadata-only — no physical file duplication.
-    case Engine.promote_to_global(source_bucket, source_meta.content_hash) do
-      :ok -> :ok
-      {:error, :not_found} -> {:error, :source_missing}
+    ObjectService.copy(source_bucket, source_key, destination_bucket, destination_key)
+  end
+
+  defp perform_copy(
+         source_bucket,
+         source_key,
+         destination_bucket,
+         destination_key,
+         source_metadata,
+         {:ok, cloud_config}
+       ) do
+    with :ok <-
+           copy_destination_content(
+             source_bucket,
+             source_key,
+             destination_key,
+             source_metadata,
+             cloud_config
+           ) do
+      attributes =
+        source_metadata
+        |> Map.drop([:version_id, :parent_version_id, :created_at, :updated_at])
+
+      ready = %{
+        hash: source_metadata.content_hash,
+        size: source_metadata.size,
+        etag: source_metadata.etag
+      }
+
+      ObjectService.commit_existing_blob(
+        destination_bucket,
+        destination_key,
+        ready,
+        attributes,
+        blob_bucket: source_bucket
+      )
     end
   end
 
   defp copy_destination_content(
          source_bucket,
          source_key,
-         _dest_bucket,
          dest_key,
          source_meta,
-         {:ok, cloud_config}
+         cloud_config
        ) do
     with {:ok, data} <- read_source_object_data(source_bucket, source_key, source_meta),
          content_type = Map.get(source_meta, :content_type, "application/octet-stream"),
@@ -489,11 +524,6 @@ defmodule ExStorageServiceS3.Handlers.Object do
         end
     end
   end
-
-  defp send_versioned_object(conn, {:file, path}), do: send_file(conn, 200, path)
-
-  defp send_versioned_object(conn, {:pack, path, offset, size}),
-    do: send_file(conn, 200, path, offset, size)
 
   defp parse_max_keys(value) do
     case Integer.parse(value) do
