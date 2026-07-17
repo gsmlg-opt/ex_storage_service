@@ -44,7 +44,8 @@ defmodule ExStorageService.Replication.JobQueue do
   ## Client API
 
   def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+    name = Keyword.get(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
   end
 
   @doc """
@@ -56,33 +57,38 @@ defmodule ExStorageService.Replication.JobQueue do
     - `:max_attempts` - max retry attempts (default: 3)
   """
   @spec enqueue(keyword()) :: {:ok, String.t()} | {:error, term()}
-  def enqueue(opts) do
-    GenServer.call(__MODULE__, {:enqueue, opts})
-  end
+  def enqueue(opts), do: enqueue(__MODULE__, opts)
+
+  @spec enqueue(GenServer.server(), keyword()) :: {:ok, String.t()} | {:error, term()}
+  def enqueue(server, opts), do: GenServer.call(server, {:enqueue, opts})
 
   @doc """
   Trigger immediate processing of pending jobs.
   """
   @spec process_jobs() :: :ok
-  def process_jobs do
-    GenServer.cast(__MODULE__, :process_jobs)
-  end
+  def process_jobs, do: process_jobs(__MODULE__)
+
+  @spec process_jobs(GenServer.server()) :: :ok
+  def process_jobs(server), do: GenServer.cast(server, :process_jobs)
 
   @doc """
   Get a job by ID and queue.
   """
   @spec get_job(atom(), String.t()) :: {:ok, Job.t()} | {:error, :not_found}
-  def get_job(queue, job_id) do
-    GenServer.call(__MODULE__, {:get_job, queue, job_id})
-  end
+  def get_job(queue, job_id), do: get_job(__MODULE__, queue, job_id)
+
+  @spec get_job(GenServer.server(), atom(), String.t()) ::
+          {:ok, Job.t()} | {:error, :not_found}
+  def get_job(server, queue, job_id), do: GenServer.call(server, {:get_job, queue, job_id})
 
   @doc """
   List all jobs in the dead letter queue.
   """
   @spec list_dead_letter_jobs() :: {:ok, [Job.t()]}
-  def list_dead_letter_jobs do
-    GenServer.call(__MODULE__, :list_dead_letter_jobs)
-  end
+  def list_dead_letter_jobs, do: list_dead_letter_jobs(__MODULE__)
+
+  @spec list_dead_letter_jobs(GenServer.server()) :: {:ok, [Job.t()]}
+  def list_dead_letter_jobs(server), do: GenServer.call(server, :list_dead_letter_jobs)
 
   ## Server Callbacks
 

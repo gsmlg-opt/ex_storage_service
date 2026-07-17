@@ -23,10 +23,15 @@ defmodule ExStorageService.Storage.Packer do
 
   alias ExStorageService.Storage.{CAS, CasGC, Pack}
 
-  def start_link(opts \\ []), do: GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  def start_link(opts \\ []) do
+    name = Keyword.get(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
+  end
 
   @doc "Run one packing pass now. See moduledoc for options."
-  def pack_now(opts \\ []), do: GenServer.call(__MODULE__, {:pack_now, opts}, :infinity)
+  def pack_now(opts \\ []), do: pack_now(__MODULE__, opts)
+
+  def pack_now(server, opts), do: GenServer.call(server, {:pack_now, opts}, :infinity)
 
   @impl true
   def init(opts) do
@@ -191,7 +196,7 @@ defmodule ExStorageService.Storage.Packer do
   defp get_field(_, _key), do: nil
 
   defp loose_blobs do
-    objects_dir = Path.join([CAS.data_root(), CAS.reserved_root(), "objects", "sha256"])
+    objects_dir = Path.join([CAS.blob_root(), "objects", "sha256"])
 
     case File.ls(objects_dir) do
       {:ok, prefixes} ->

@@ -396,7 +396,7 @@ defmodule ExStorageService.Storage.Multipart do
   defp close_file_slice({:error, _reason}), do: :ok
 
   defp blob_store_opts do
-    [root: Path.join(CAS.data_root(), CAS.reserved_root())]
+    [root: CAS.blob_root(), tmp_dir: Path.join(CAS.tmp_root(), "uploads")]
   end
 
   defp cleanup_parts(bucket, upload_id) do

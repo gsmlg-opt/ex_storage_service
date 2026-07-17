@@ -9,6 +9,7 @@ defmodule ExStorageService.ObjectService do
   """
 
   alias ExStorageService.BlobStore.LocalCAS
+  alias ExStorageService.Context
   alias ExStorageService.Metadata
   alias ExStorageService.Storage.Versioning
 
@@ -421,8 +422,17 @@ defmodule ExStorageService.ObjectService do
   defp attributes_option(opts), do: opts |> Keyword.get(:attributes, %{}) |> Map.new()
   defp metadata_opts(opts), do: Keyword.get(opts, :metadata_opts, [])
 
-  defp blob_opts(opts, extra \\ []),
-    do: Keyword.merge(Keyword.get(opts, :blob_store_opts, []), extra)
+  defp blob_opts(opts, extra \\ []) do
+    context_opts =
+      case Keyword.get(opts, :context) do
+        %Context{} = context -> Context.blob_store_options(context)
+        _ -> []
+      end
+
+    context_opts
+    |> Keyword.merge(Keyword.get(opts, :blob_store_opts, []))
+    |> Keyword.merge(extra)
+  end
 
   defp metadata(opts), do: Keyword.get(opts, :metadata, Metadata)
   defp blob_store(opts), do: Keyword.get(opts, :blob_store, LocalCAS)

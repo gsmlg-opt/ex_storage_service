@@ -23,8 +23,16 @@ defmodule ExStorageService.Storage.CAS do
     Application.get_env(:ex_storage_service, :data_root, "/tmp/ex_storage_service/data")
   end
 
+  def blob_root do
+    Application.get_env(:ex_storage_service, :blob_root, Path.join(data_root(), @reserved_root))
+  end
+
+  def tmp_root do
+    Application.get_env(:ex_storage_service, :tmp_root, Path.join(blob_root(), "tmp"))
+  end
+
   def blob_path(content_hash) do
-    LocalCAS.blob_path(content_hash, root: cas_root())
+    LocalCAS.blob_path(content_hash, root: blob_root())
   end
 
   def has_blob?(content_hash), do: File.exists?(blob_path(content_hash))
@@ -35,7 +43,7 @@ defmodule ExStorageService.Storage.CAS do
   can rename atomically.
   """
   def tmp_upload_path do
-    dir = Path.join([data_root(), @reserved_root, "tmp", "uploads"])
+    dir = Path.join(tmp_root(), "uploads")
     File.mkdir_p!(dir)
     Path.join(dir, "upload-#{:erlang.unique_integer([:positive])}")
   end
@@ -49,7 +57,7 @@ defmodule ExStorageService.Storage.CAS do
          {:ok, _ready} <-
            LocalCAS.commit(
              %StagedBlob{path: tmp_path, hash: content_hash, etag: nil, size: size},
-             root: cas_root()
+             root: blob_root()
            ) do
       :ok
     end
@@ -59,13 +67,11 @@ defmodule ExStorageService.Storage.CAS do
   Re-hashes the blob file and compares against its content hash.
   """
   def verify_blob(content_hash) do
-    case LocalCAS.verify(content_hash, root: cas_root()) do
+    case LocalCAS.verify(content_hash, root: blob_root()) do
       :ok -> :ok
       {:error, :checksum_mismatch} -> {:error, :corrupt}
       {:error, :not_found} -> {:error, :missing}
       {:error, reason} -> {:error, reason}
     end
   end
-
-  defp cas_root, do: Path.join(data_root(), @reserved_root)
 end

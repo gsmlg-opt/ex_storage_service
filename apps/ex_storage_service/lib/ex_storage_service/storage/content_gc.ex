@@ -18,14 +18,15 @@ defmodule ExStorageService.Storage.ContentGC do
   @orphan_grace_seconds 600
 
   def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+    name = Keyword.get(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
   end
 
   @doc """
   Trigger a GC run manually (useful for testing).
   """
-  def run_now do
-    GenServer.call(__MODULE__, :run_now, :infinity)
+  def run_now(server \\ __MODULE__) do
+    GenServer.call(server, :run_now, :infinity)
   end
 
   @impl true

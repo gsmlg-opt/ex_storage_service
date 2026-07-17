@@ -8,6 +8,21 @@ defmodule ExStorageService.InstanceConfigTest do
     assert config.mode == :standalone
     assert config.replication_factor == 1
     assert config.write_quorum == 1
+    assert config.instance == :default
+    assert config.auto_start
+    assert config.blob_root == Path.join(config.data_root, "cas")
+    assert config.tmp_root == Path.join(config.blob_root, "tmp")
+    assert config.ra_root == Path.join(config.data_root, "ra")
+    assert config.metadata_root == Path.join(config.data_root, "concord")
+    assert config.web_enabled
+
+    assert Enum.all?(Map.take(config.workers, [:multipart_gc, :cas_gc, :packer]), fn {
+                                                                                       _worker,
+                                                                                       enabled
+                                                                                     } ->
+             enabled
+           end)
+
     refute config.allow_degraded_writes
     refute config.cluster_data_plane_enabled
     assert config.public_s3_enabled
@@ -49,5 +64,48 @@ defmodule ExStorageService.InstanceConfigTest do
     assert config.mode == :cluster
     assert config.replication_factor == 2
     assert config.write_quorum == 2
+  end
+
+  test "split roots override independently while data_root remains the fallback" do
+    assert {:ok, config} =
+             InstanceConfig.new(
+               data_root: "/srv/ess",
+               blob_root: "/blob/ess",
+               tmp_root: "/staging/ess",
+               ra_root: "/raft/ess",
+               metadata_root: "/metadata/ess"
+             )
+
+    assert config.data_root == "/srv/ess"
+    assert config.blob_root == "/blob/ess"
+    assert config.tmp_root == "/staging/ess"
+    assert config.ra_root == "/raft/ess"
+    assert config.metadata_root == "/metadata/ess"
+  end
+
+  test "validates embedding and worker options" do
+    assert {:error, _message} = InstanceConfig.new(instance: "")
+    assert {:error, _message} = InstanceConfig.new(auto_start: :yes)
+    assert {:error, _message} = InstanceConfig.new(web_enabled: :yes)
+    assert {:error, _message} = InstanceConfig.new(workers: [packer: :yes])
+    assert {:error, _message} = InstanceConfig.new(workers: [unknown: true])
+
+    assert {:ok, config} =
+             InstanceConfig.new(
+               instance: "embedded-a",
+               auto_start: false,
+               workers: [
+                 multipart_gc: false,
+                 content_gc: false,
+                 cas_gc: false,
+                 packer: false,
+                 lifecycle: false,
+                 cross_cluster_replication: false
+               ]
+             )
+
+    refute config.auto_start
+    refute InstanceConfig.worker_enabled?(config, :packer)
+    refute InstanceConfig.worker_enabled?(config, :cross_cluster_replication)
   end
 end

@@ -27,7 +27,15 @@ defmodule ExStorageService.Storage.Engine do
 
   def start_link(opts) do
     data_root = Keyword.fetch!(opts, :data_root)
-    GenServer.start_link(__MODULE__, data_root, name: __MODULE__)
+    blob_root = Keyword.get(opts, :blob_root, CAS.blob_root())
+    tmp_root = Keyword.get(opts, :tmp_root, CAS.tmp_root())
+    name = Keyword.get(opts, :name, __MODULE__)
+
+    GenServer.start_link(
+      __MODULE__,
+      %{data_root: data_root, blob_root: blob_root, tmp_root: tmp_root},
+      name: name
+    )
   end
 
   @doc """
@@ -171,19 +179,30 @@ defmodule ExStorageService.Storage.Engine do
   ## Server Callbacks
 
   @impl true
-  def init(data_root) do
-    data_root = Path.expand(data_root)
-    File.mkdir_p!(data_root)
-    File.mkdir_p!(Path.join([data_root, CAS.reserved_root(), "objects", "sha256"]))
-    File.mkdir_p!(Path.join([data_root, CAS.reserved_root(), "tmp", "uploads"]))
-    Logger.info("Storage engine started with data root: #{data_root}")
-    {:ok, %{data_root: data_root}}
+  def init(settings) do
+    settings =
+      Map.new(settings, fn {key, root} -> {key, Path.expand(root)} end)
+
+    with :ok <- File.mkdir_p(settings.data_root),
+         :ok <- File.mkdir_p(Path.join([settings.blob_root, "objects", "sha256"])),
+         :ok <- File.mkdir_p(Path.join(settings.tmp_root, "uploads")) do
+      Logger.info(
+        "Storage engine started with data root #{settings.data_root} and blob root #{settings.blob_root}"
+      )
+
+      {:ok, settings}
+    else
+      {:error, reason} -> {:stop, {:storage_root_unavailable, reason}}
+    end
   end
 
   ## Private
 
   defp blob_store_opts(extra \\ []) do
-    Keyword.merge([root: Path.join(CAS.data_root(), CAS.reserved_root())], extra)
+    Keyword.merge(
+      [root: CAS.blob_root(), tmp_dir: Path.join(CAS.tmp_root(), "uploads")],
+      extra
+    )
   end
 
   defp normalize_put_error({:error, {:stage, reason}}), do: {:error, reason}

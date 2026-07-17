@@ -6,13 +6,7 @@ defmodule ExStorageService.Application do
 
   @impl true
   def start(_type, _args) do
-    validate_instance_config!()
-
-    data_root =
-      Application.get_env(:ex_storage_service, :data_root, "/tmp/ex_storage_service/data")
-
-    # Ensure data directories exist
-    File.mkdir_p!(data_root)
+    config = instance_config!()
 
     # Ensure Ra default system is started (needed for Concord)
     ensure_ra_system()
@@ -23,39 +17,41 @@ defmodule ExStorageService.Application do
     # Wait for Concord/Ra to be ready before starting services
     wait_for_concord()
 
-    # Single-node deployment: stop Concord's gossip discovery
+    # Clustering remains disabled until Phase 4.
     stop_unwanted_clustering()
 
     # Initialize metrics collection
     ExStorageService.Metrics.setup()
 
-    children = [
-      {ExStorageService.Storage.Engine, data_root: data_root},
-      {Phoenix.PubSub, name: ExStorageService.PubSub},
-      ExStorageService.Storage.MultipartGC,
-      ExStorageService.Storage.ContentGC,
-      ExStorageService.Storage.CasGC,
-      ExStorageService.Storage.Packer,
-      ExStorageService.Replication.JobQueue,
-      ExStorageService.Replication.Sync,
-      {Task.Supervisor, name: ExStorageService.NotificationTaskSupervisor},
-      ExStorageService.Storage.Lifecycle
-    ]
-
     opts = [strategy: :one_for_one, name: ExStorageService.Supervisor]
-    res = Supervisor.start_link(children, opts)
+    result = Supervisor.start_link(children(config), opts)
 
-    if Code.ensure_loaded?(Mix) and Mix.env() == :dev do
+    if config.auto_start and Code.ensure_loaded?(Mix) and Mix.env() == :dev do
       Task.start(fn -> seed_dev_keys() end)
     end
 
-    res
+    result
   end
 
-  defp validate_instance_config! do
+  @doc false
+  def children(config) do
+    infrastructure = [
+      {Registry, keys: :unique, name: ExStorageService.Names.registry()},
+      {Phoenix.PubSub, name: ExStorageService.PubSub},
+      {Task.Supervisor, name: ExStorageService.NotificationTaskSupervisor}
+    ]
+
+    if config.auto_start do
+      infrastructure ++ [{ExStorageService, config}]
+    else
+      infrastructure
+    end
+  end
+
+  defp instance_config! do
     case ExStorageService.InstanceConfig.from_application_env() do
-      {:ok, _config} ->
-        :ok
+      {:ok, config} ->
+        config
 
       {:error, message} ->
         raise ArgumentError, "invalid ExStorageService configuration: #{message}"

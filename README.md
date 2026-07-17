@@ -261,12 +261,19 @@ Repository layout:
 | Variable | Default | Description |
 |---|---|---|
 | `ESS_DATA_ROOT` | `/tmp/ex_storage_service/data` | Storage, Ra, and Concord data root |
+| `ESS_AUTO_START` | `true` | Start the default storage instance with the core application |
+| `ESS_INSTANCE` | `default` | Stable local storage instance name |
+| `ESS_BLOB_ROOT` | `${ESS_DATA_ROOT}/cas` | Ready content-addressed blob files |
+| `ESS_TMP_ROOT` | `${ESS_BLOB_ROOT}/tmp` | Staging files; must share a filesystem with the blob root for atomic publication |
+| `ESS_RA_ROOT` | `${ESS_DATA_ROOT}/ra` | Node-local Ra state |
+| `ESS_METADATA_ROOT` | `${ESS_DATA_ROOT}/concord` | Node-local Concord metadata state |
 | `ESS_MODE` | `standalone` | Storage mode. `cluster` is reserved for guarded future activation |
 | `ESS_REPLICATION_FACTOR` | `1` | Desired blob replica count; must be at least 1 |
 | `ESS_WRITE_QUORUM` | `1` | Required durable writes; must satisfy `1 <= W <= RF` |
 | `ESS_ALLOW_DEGRADED_WRITES` | `false` | Future availability-over-durability policy; inactive in standalone mode |
 | `ESS_CLUSTER_DATA_PLANE_ENABLED` | `false` | Future cluster data-plane activation guard; does not activate clustering in this release |
-| `ESS_PUBLIC_S3_ENABLED` | `true` | Whether the public S3 writer is expected to be exposed |
+| `ESS_PUBLIC_S3_ENABLED` | `true` | Start the public S3 Bandit listener |
+| `ESS_WEB_ENABLED` | `true` | Start the Phoenix admin listener |
 | `ESS_METADATA_SCHEMA` | `v2` | Metadata activation decision; `v1` permits compatibility reads but rejects object mutations |
 | `ESS_S3_PORT` | `9000` | S3 API port |
 | `ESS_ADMIN_PORT` | `4900` | Admin portal port |
@@ -282,6 +289,13 @@ Selecting cluster mode while the public S3 writer is enabled fails startup
 unless the cluster data-plane guard is explicitly enabled. This is activation
 scaffolding only: clustering and remote blob replication remain disabled.
 
+For embedding, set `ESS_AUTO_START=false`, `ESS_PUBLIC_S3_ENABLED=false`, and
+`ESS_WEB_ENABLED=false`, then add `ExStorageService.child_spec/1` to the host
+supervision tree. The host may stop and restart that local instance without
+stopping its own application. Concord and the default Ra system remain shared
+application infrastructure: Phase 3 supports one Concord metadata instance per
+BEAM, even though local worker names are instance-scoped.
+
 `ESS_METADATA_SCHEMA=v2` enables the atomic metadata schema. Existing v1
 records remain readable and are not migrated automatically. Once v2 records
 have been written, an old binary cannot read them; rollback requires restoring
@@ -290,11 +304,12 @@ read-only compatibility decision before any v2 writes; object metadata
 mutations are rejected instead of falling back to the unsafe legacy
 multi-write sequence.
 
-Production startup refuses insecure defaults:
+Production startup refuses insecure defaults for enabled listeners:
 
-- `ESS_S3_AUTH_ENABLED` must be true.
-- `ESS_ADMIN_PASSWORD_HASH` must not be the default `admin` hash.
-- `ESS_MASTER_KEY` and `SECRET_KEY_BASE` must be set.
+- `ESS_S3_AUTH_ENABLED` must be true when the S3 listener is enabled.
+- `ESS_ADMIN_PASSWORD_HASH` must not be the default `admin` hash when the web listener is enabled.
+- `SECRET_KEY_BASE` is required when the web listener is enabled.
+- `ESS_MASTER_KEY` is always required.
 
 Generate production secrets with:
 

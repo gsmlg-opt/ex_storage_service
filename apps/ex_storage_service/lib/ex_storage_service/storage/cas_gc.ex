@@ -39,16 +39,19 @@ defmodule ExStorageService.Storage.CasGC do
   alias ExStorageService.Storage.CAS
 
   def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+    name = Keyword.get(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
   end
 
   @doc "Run one sweep now. Options: :orphan_mtime_grace, :candidate_grace, :quarantine_grace, :dry_run."
-  def run_now(opts \\ []) do
-    GenServer.call(__MODULE__, {:run_now, opts}, :infinity)
+  def run_now(opts \\ []), do: run_now(__MODULE__, opts)
+
+  def run_now(server, opts) do
+    GenServer.call(server, {:run_now, opts}, :infinity)
   end
 
   @doc "Report what a sweep would do without modifying files or metadata."
-  def dry_run, do: run_now(dry_run: true)
+  def dry_run(server \\ __MODULE__), do: run_now(server, dry_run: true)
 
   @doc "Counts of current candidate and quarantined records."
   def stats do
@@ -440,7 +443,7 @@ defmodule ExStorageService.Storage.CasGC do
   end
 
   defp disk_blobs do
-    objects_dir = Path.join([CAS.data_root(), CAS.reserved_root(), "objects", "sha256"])
+    objects_dir = Path.join([CAS.blob_root(), "objects", "sha256"])
 
     case File.ls(objects_dir) do
       {:ok, prefixes} ->
@@ -482,6 +485,6 @@ defmodule ExStorageService.Storage.CasGC do
   defp candidate_key(hash), do: "gc:candidate:#{hash}"
 
   defp quarantine_path(hash) do
-    Path.join([CAS.data_root(), CAS.reserved_root(), "gc", "quarantine", "sha256-#{hash}"])
+    Path.join([CAS.blob_root(), "gc", "quarantine", "sha256-#{hash}"])
   end
 end

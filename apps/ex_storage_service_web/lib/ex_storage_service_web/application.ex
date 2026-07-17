@@ -5,12 +5,18 @@ defmodule ExStorageServiceWeb.Application do
 
   @impl true
   def start(_type, _args) do
-    children = [
-      ExStorageServiceWeb.Endpoint
-    ]
-
     opts = [strategy: :one_for_one, name: ExStorageServiceWeb.Supervisor]
-    Supervisor.start_link(children, opts)
+    Supervisor.start_link(children(), opts)
+  end
+
+  @doc false
+  def children(opts \\ []) do
+    enabled? =
+      Keyword.get_lazy(opts, :enabled, fn ->
+        Application.get_env(:ex_storage_service_web, :enabled, true)
+      end)
+
+    if enabled?, do: [ExStorageServiceWeb.Endpoint], else: []
   end
 
   @impl true

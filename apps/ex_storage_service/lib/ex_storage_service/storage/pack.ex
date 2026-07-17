@@ -25,7 +25,7 @@ defmodule ExStorageService.Storage.Pack do
   alias ExStorageService.Storage.CAS
 
   def pack_path(pack_hash) do
-    Path.join([CAS.data_root(), CAS.reserved_root(), "packs", "pack-#{pack_hash}.pack"])
+    Path.join([CAS.blob_root(), "packs", "pack-#{pack_hash}.pack"])
   end
 
   @doc """
@@ -99,7 +99,7 @@ defmodule ExStorageService.Storage.Pack do
   end
 
   defp write_pack(hashes) do
-    tmp_dir = Path.join([CAS.data_root(), CAS.reserved_root(), "tmp"])
+    tmp_dir = CAS.tmp_root()
     File.mkdir_p!(tmp_dir)
     tmp_path = Path.join(tmp_dir, "pack-#{:erlang.unique_integer([:positive])}.tmp")
 

@@ -24,7 +24,7 @@ defmodule ExStorageService.Storage.Manifest do
 
   def manifest_path(manifest_hash) do
     <<prefix::binary-size(2), rest::binary>> = manifest_hash
-    Path.join([CAS.data_root(), CAS.reserved_root(), "manifests", "sha256", prefix, rest])
+    Path.join([CAS.blob_root(), "manifests", "sha256", prefix, rest])
   end
 
   def create_manifest(parts, total_size, etag) do

@@ -161,7 +161,14 @@ defmodule ExStorageService.BlobStore.LocalCAS do
 
   @doc false
   def staging_path(opts \\ []) do
-    directory = Keyword.get(opts, :tmp_dir, Path.join([root(opts), "tmp", "uploads"]))
+    directory =
+      Keyword.get_lazy(opts, :tmp_dir, fn ->
+        tmp_root =
+          Application.get_env(:ex_storage_service, :tmp_root, Path.join(root(opts), "tmp"))
+
+        Path.join(tmp_root, "uploads")
+      end)
+
     Path.join(directory, "upload-#{System.unique_integer([:positive, :monotonic])}")
   end
 
@@ -301,7 +308,19 @@ defmodule ExStorageService.BlobStore.LocalCAS do
     case Keyword.get(opts, :bucket) do
       bucket when is_binary(bucket) ->
         <<prefix::binary-size(2), rest::binary>> = hash
-        path = Path.join([Path.dirname(root(opts)), bucket, "objects", prefix, rest])
+
+        data_root =
+          Keyword.get(
+            opts,
+            :data_root,
+            Application.get_env(
+              :ex_storage_service,
+              :data_root,
+              "/tmp/ex_storage_service/data"
+            )
+          )
+
+        path = Path.join([data_root, bucket, "objects", prefix, rest])
 
         case regular_file_source(path, opts) do
           {:ok, source} -> {:ok, {:legacy, source}}
@@ -392,10 +411,18 @@ defmodule ExStorageService.BlobStore.LocalCAS do
 
   defp root(opts) do
     Keyword.get_lazy(opts, :root, fn ->
-      data_root =
-        Application.get_env(:ex_storage_service, :data_root, "/tmp/ex_storage_service/data")
-
-      Path.join(data_root, "cas")
+      Application.get_env(
+        :ex_storage_service,
+        :blob_root,
+        Path.join(
+          Application.get_env(
+            :ex_storage_service,
+            :data_root,
+            "/tmp/ex_storage_service/data"
+          ),
+          "cas"
+        )
+      )
     end)
   end
 

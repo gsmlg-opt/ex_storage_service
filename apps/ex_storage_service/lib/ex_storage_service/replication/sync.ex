@@ -21,16 +21,18 @@ defmodule ExStorageService.Replication.Sync do
   ## Client API
 
   def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+    name = Keyword.get(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
   end
 
   @doc """
   Trigger an immediate sync cycle.
   """
   @spec sync_now() :: :ok
-  def sync_now do
-    GenServer.cast(__MODULE__, :sync_now)
-  end
+  def sync_now, do: sync_now(__MODULE__)
+
+  @spec sync_now(GenServer.server()) :: :ok
+  def sync_now(server), do: GenServer.cast(server, :sync_now)
 
   ## Server Callbacks
 

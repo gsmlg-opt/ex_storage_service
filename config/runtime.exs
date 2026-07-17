@@ -29,6 +29,15 @@ parse_positive_integer = fn variable, default ->
   end
 end
 
+auto_start? = parse_boolean.("ESS_AUTO_START", "true")
+instance = System.get_env("ESS_INSTANCE", "default")
+blob_root = System.get_env("ESS_BLOB_ROOT", Path.join(data_root, "cas"))
+tmp_root = System.get_env("ESS_TMP_ROOT", Path.join(blob_root, "tmp"))
+ra_root = System.get_env("ESS_RA_ROOT", Path.join(data_root, "ra"))
+metadata_root = System.get_env("ESS_METADATA_ROOT", Path.join(data_root, "concord"))
+public_s3_enabled? = parse_boolean.("ESS_PUBLIC_S3_ENABLED", "true")
+web_enabled? = parse_boolean.("ESS_WEB_ENABLED", "true")
+
 mode =
   case System.get_env("ESS_MODE", "standalone") |> String.downcase() do
     "standalone" -> :standalone
@@ -44,12 +53,20 @@ metadata_schema =
   end
 
 instance_config = [
+  auto_start: auto_start?,
+  instance: instance,
   mode: mode,
+  data_root: data_root,
+  blob_root: blob_root,
+  tmp_root: tmp_root,
+  ra_root: ra_root,
+  metadata_root: metadata_root,
+  web_enabled: web_enabled?,
   replication_factor: parse_positive_integer.("ESS_REPLICATION_FACTOR", "1"),
   write_quorum: parse_positive_integer.("ESS_WRITE_QUORUM", "1"),
   allow_degraded_writes: parse_boolean.("ESS_ALLOW_DEGRADED_WRITES", "false"),
   cluster_data_plane_enabled: parse_boolean.("ESS_CLUSTER_DATA_PLANE_ENABLED", "false"),
-  public_s3_enabled: parse_boolean.("ESS_PUBLIC_S3_ENABLED", "true"),
+  public_s3_enabled: public_s3_enabled?,
   metadata_schema: metadata_schema
 ]
 
@@ -58,14 +75,19 @@ instance_config = [
 default_admin_hash = Base.encode16(:crypto.hash(:sha256, "admin"), case: :lower)
 
 # Configure Ra and Concord data directories
-config :ra, data_dir: ~c"#{Path.join(data_root, "ra")}"
-config :concord, data_dir: Path.join(data_root, "concord")
+config :ra, data_dir: String.to_charlist(ra_root)
+config :concord, data_dir: metadata_root
 
 # Disable libcluster
 config :libcluster, topologies: []
 
 config :ex_storage_service,
+  auto_start: auto_start?,
   data_root: data_root,
+  blob_root: blob_root,
+  tmp_root: tmp_root,
+  ra_root: ra_root,
+  metadata_root: metadata_root,
   instance_config: instance_config,
   s3_port:
     String.to_integer(
@@ -95,9 +117,12 @@ config :ex_storage_service,
   # disabled in the test env so multipart mechanics tests can use tiny parts.
   min_part_size: if(config_env() == :test, do: 0, else: 5 * 1024 * 1024)
 
+config :ex_storage_service_s3, enabled: public_s3_enabled?
+config :ex_storage_service_web, enabled: web_enabled?
+
 if config_env() == :prod do
   # ── Security guardrail 1: S3 auth must be explicitly enabled ───────────────
-  unless s3_auth_enabled? do
+  if public_s3_enabled? and not s3_auth_enabled? do
     raise """
     ESS_S3_AUTH_ENABLED must be set to "true" in production.
 
@@ -109,7 +134,7 @@ if config_env() == :prod do
   # ── Security guardrail 2: reject the well-known default admin password ──────
   configured_admin_hash = System.get_env("ESS_ADMIN_PASSWORD_HASH", default_admin_hash)
 
-  if configured_admin_hash == default_admin_hash do
+  if web_enabled? and configured_admin_hash == default_admin_hash do
     raise """
     ESS_ADMIN_PASSWORD_HASH must be explicitly set in production.
 
@@ -130,22 +155,24 @@ if config_env() == :prod do
 
   config :ex_storage_service, master_key: master_key
 
-  secret_key_base =
-    System.get_env("SECRET_KEY_BASE") ||
-      raise """
-      environment variable SECRET_KEY_BASE is missing.
-      You can generate one by calling: mix phx.gen.secret
-      """
+  if web_enabled? do
+    secret_key_base =
+      System.get_env("SECRET_KEY_BASE") ||
+        raise """
+        environment variable SECRET_KEY_BASE is missing.
+        You can generate one by calling: mix phx.gen.secret
+        """
 
-  host = System.get_env("PHX_HOST", "localhost")
-  port = String.to_integer(System.get_env("ESS_ADMIN_PORT", "4900"))
+    host = System.get_env("PHX_HOST", "localhost")
+    port = String.to_integer(System.get_env("ESS_ADMIN_PORT", "4900"))
 
-  config :ex_storage_service_web, ExStorageServiceWeb.Endpoint,
-    url: [host: host, port: 443, scheme: "https"],
-    http: [
-      ip: {0, 0, 0, 0, 0, 0, 0, 0},
-      port: port
-    ],
-    secret_key_base: secret_key_base,
-    server: true
+    config :ex_storage_service_web, ExStorageServiceWeb.Endpoint,
+      url: [host: host, port: 443, scheme: "https"],
+      http: [
+        ip: {0, 0, 0, 0, 0, 0, 0, 0},
+        port: port
+      ],
+      secret_key_base: secret_key_base,
+      server: true
+  end
 end

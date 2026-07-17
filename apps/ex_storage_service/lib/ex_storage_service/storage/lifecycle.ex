@@ -30,7 +30,8 @@ defmodule ExStorageService.Storage.Lifecycle do
   ## Client API
 
   def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+    name = Keyword.get(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
   end
 
   @doc """
@@ -81,8 +82,8 @@ defmodule ExStorageService.Storage.Lifecycle do
   @doc """
   Evaluate lifecycle rules now (for testing or manual trigger).
   """
-  def evaluate_now do
-    GenServer.call(__MODULE__, :evaluate_now, :infinity)
+  def evaluate_now(server \\ __MODULE__) do
+    GenServer.call(server, :evaluate_now, :infinity)
   end
 
   @doc """

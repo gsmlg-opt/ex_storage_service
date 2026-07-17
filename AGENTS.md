@@ -109,6 +109,13 @@ The codebase is structured as an umbrella project with four apps:
   `ESS_CLUSTER_DATA_PLANE_ENABLED`, and `ESS_PUBLIC_S3_ENABLED`. Defaults must
   preserve standalone RF=1/W=1 behavior, and cluster mode must not expose the
   public S3 writer while its data plane is disabled.
+- Embedding variables are `ESS_AUTO_START`, `ESS_INSTANCE`, `ESS_BLOB_ROOT`,
+  `ESS_TMP_ROOT`, `ESS_RA_ROOT`, `ESS_METADATA_ROOT`, and `ESS_WEB_ENABLED`.
+  Defaults must start the existing standalone instance and both listeners.
+  `ESS_DATA_ROOT` remains the compatibility fallback for split roots.
+  Concord and the default Ra system are shared application infrastructure;
+  support only one Concord metadata instance per BEAM until the cluster phases
+  replace this constraint.
 - `ESS_METADATA_SCHEMA` activates atomic metadata writes (`v2` by default).
   `v1` is read-only compatibility mode: reject object mutations rather than
   restoring the unsafe legacy multi-write sequence. Keep v1 reads, never
