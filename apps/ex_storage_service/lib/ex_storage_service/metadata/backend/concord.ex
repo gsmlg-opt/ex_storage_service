@@ -30,6 +30,12 @@ defmodule ExStorageService.Metadata.Backend.Concord do
   end
 
   @impl true
+  def put(key, value, opts \\ []), do: Concord.put(key, value, opts)
+
+  @impl true
+  def delete(key, opts \\ []), do: Concord.delete(key, opts)
+
+  @impl true
   def get_all(opts \\ []) do
     Concord.get_all(opts)
   end

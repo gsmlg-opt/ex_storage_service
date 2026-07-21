@@ -195,8 +195,9 @@ defmodule ExStorageService.Metadata.ObjectCommit do
        ) do
     head_key = Keys.object_head(bucket, key)
 
-    with {:ok, observed_head} <- backend.get(head_key, read_opts(opts)) do
-      parent_version_id = value_field(observed_head, :version_id)
+    with {:ok, observed_head} <- backend.get(head_key, read_opts(opts)),
+         {:ok, parent_version_id} <-
+           observed_parent_version_id(backend, bucket, key, observed_head, opts) do
       now = Map.get(metadata, :created_at, timestamp())
       delete_marker? = kind == :delete_marker
 
@@ -326,22 +327,29 @@ defmodule ExStorageService.Metadata.ObjectCommit do
         {:ok, %{operation_id: operation_id, version_id: version_id, kind: :deleted}}
       else
         remaining = Enum.reject(versions, &(&1.version_id == version_id))
-        replacement = List.first(remaining)
+        deleting_head? = value_field(observed_head, :version_id) == version_id
+
+        replacement =
+          if deleting_head?,
+            do: replacement_version(observed_version, remaining),
+            else: nil
+
         result = %{operation_id: operation_id, version_id: version_id, kind: :deleted}
 
         head_ops =
-          if value_field(observed_head, :version_id) == version_id do
+          if deleting_head? do
             replacement_head_operation(head_key, bucket, key, replacement)
           else
             []
           end
 
         spec = %{
-          compare: [
-            head_compare(head_key, observed_head),
-            {:mod_revision, version_key, :==, observed_version.mod_revision},
-            {:exists, operation_key, :==, false}
-          ],
+          compare:
+            [
+              head_compare(head_key, observed_head),
+              {:mod_revision, version_key, :==, observed_version.mod_revision},
+              {:exists, operation_key, :==, false}
+            ] ++ replacement_compare(bucket, key, replacement),
           success:
             [{:delete, {:key, version_key}, %{}}] ++
               head_ops ++ [{:put, operation_key, result, %{}}],
@@ -404,6 +412,16 @@ defmodule ExStorageService.Metadata.ObjectCommit do
     [{:put, head_key, head, %{}}]
   end
 
+  defp replacement_compare(_bucket, _key, nil), do: []
+
+  defp replacement_compare(bucket, key, version),
+    do: [{:exists, Keys.object_version(bucket, key, version.version_id), :==, true}]
+
+  defp replacement_version(observed_version, remaining) do
+    parent_version_id = value_field(observed_version, :parent_version_id)
+    Enum.find(remaining, &(&1.version_id == parent_version_id)) || List.first(remaining)
+  end
+
   defp blob_operation(%{content_hash: hash, size: size}, now)
        when is_binary(hash) and is_integer(size) do
     blob = %{
@@ -427,6 +445,31 @@ defmodule ExStorageService.Metadata.ObjectCommit do
 
   defp value_field(nil, _field), do: nil
   defp value_field(%{value: value}, field), do: Map.get(value, field)
+
+  defp observed_parent_version_id(_backend, _bucket, _key, observed_head, _opts)
+       when not is_nil(observed_head),
+       do: {:ok, value_field(observed_head, :version_id)}
+
+  defp observed_parent_version_id(backend, bucket, key, nil, opts) do
+    case backend.get("obj_ver_list:#{bucket}:#{key}", read_opts(opts)) do
+      {:ok, %{value: [version_id | _]}} when is_binary(version_id) ->
+        {:ok, version_id}
+
+      {:ok, _missing_or_invalid_list} ->
+        legacy_object_parent_version_id(backend, bucket, key, opts)
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp legacy_object_parent_version_id(backend, bucket, key, opts) do
+    case backend.get("obj:#{bucket}:#{key}", read_opts(opts)) do
+      {:ok, %{value: metadata}} when is_map(metadata) -> {:ok, Map.get(metadata, :version_id)}
+      {:ok, _missing_or_invalid_metadata} -> {:ok, nil}
+      {:error, reason} -> {:error, reason}
+    end
+  end
 
   defp retry_or_resolve(backend, operation_key, opts, retry) do
     case resolve(backend, operation_key, opts) do

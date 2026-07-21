@@ -23,6 +23,18 @@ defmodule ExStorageService.Metadata.ObjectCommitTest do
     def get(key, opts), do: Agent.get(engine(opts), &read(&1, key))
 
     @impl true
+    def put(key, value, opts) do
+      Agent.update(engine(opts), fn state -> apply_operation({:put, key, value, %{}}, state) end)
+    end
+
+    @impl true
+    def delete(key, opts) do
+      Agent.update(engine(opts), fn state ->
+        apply_operation({:delete, {:key, key}, %{}}, state)
+      end)
+    end
+
+    @impl true
     def get_all(opts) do
       {:ok,
        Agent.get(engine(opts), fn state ->
@@ -66,6 +78,10 @@ defmodule ExStorageService.Metadata.ObjectCommitTest do
 
     def transactions(engine) do
       Agent.get(engine, &Enum.reverse(&1.transactions))
+    end
+
+    def seed(engine, key, value) do
+      Agent.update(engine, fn state -> apply_operation({:put, key, value, %{}}, state) end)
     end
 
     defp engine(opts), do: Keyword.fetch!(opts, :engine)
@@ -136,6 +152,12 @@ defmodule ExStorageService.Metadata.ObjectCommitTest do
     defdelegate get_all(opts), to: TestBackend
 
     @impl true
+    defdelegate put(key, value, opts), to: TestBackend
+
+    @impl true
+    defdelegate delete(key, opts), to: TestBackend
+
+    @impl true
     defdelegate scan(prefix, opts), to: TestBackend
 
     @impl true
@@ -166,6 +188,21 @@ defmodule ExStorageService.Metadata.ObjectCommitTest do
 
     assert {:ok, %{version_id: "v1"}} = put(backend, "op1", "v1")
     assert length(TestBackend.transactions(backend)) == 2
+  end
+
+  test "uses the latest v1 version as migration context for the first v2 write" do
+    {:ok, backend} = TestBackend.start_link()
+    TestBackend.seed(backend, "obj_ver_list:bucket:key", ["legacy-v1"])
+
+    assert {:ok, %{version_id: "v2"}} = put(backend, "op1", "v2")
+
+    assert {:ok, %{value: version}} =
+             TestBackend.get(Keys.object_version("bucket", "key", "v2"), engine: backend)
+
+    assert version.parent_version_id == "legacy-v1"
+
+    assert {:ok, %{value: ["legacy-v1"]}} =
+             TestBackend.get("obj_ver_list:bucket:key", engine: backend)
   end
 
   test "resolves an ambiguous timeout by operation id without a second version" do
@@ -204,6 +241,9 @@ defmodule ExStorageService.Metadata.ObjectCommitTest do
     assert {:ok, versions} = list(backend)
     assert length(versions) == 100
     assert 100 == versions |> Enum.map(& &1.version_id) |> Enum.uniq() |> length()
+
+    assert {:ok, heads} = TestBackend.scan(Keys.object_head_prefix(), engine: backend)
+    assert length(heads) == 1
 
     assert {:ok, head} =
              ObjectCommit.get_head("bucket", "key", backend: TestBackend, engine: backend)
@@ -265,6 +305,27 @@ defmodule ExStorageService.Metadata.ObjectCommitTest do
       |> Enum.map(&operation_key/1)
 
     refute Enum.any?(keys, &String.contains?(&1, "object_version_list"))
+  end
+
+  test "deleting the head protects its replacement from a concurrent delete" do
+    {:ok, backend} = TestBackend.start_link()
+    assert {:ok, _} = put(backend, "op1", "v1")
+    assert {:ok, _} = put(backend, "op2", "v2")
+
+    assert {:ok, %{kind: :deleted}} =
+             ObjectCommit.delete_version(
+               "bucket",
+               "key",
+               "v2",
+               commit_opts(backend, "op3", "ignored")
+             )
+
+    delete_transaction = backend |> TestBackend.transactions() |> List.last()
+
+    assert {:exists, Keys.object_version("bucket", "key", "v1"), :==, true} in delete_transaction.compare
+
+    assert {:ok, %{version_id: "v1"}} =
+             ObjectCommit.get_head("bucket", "key", backend: TestBackend, engine: backend)
   end
 
   test "v1 compatibility mode rejects mutations instead of using sequential writes" do

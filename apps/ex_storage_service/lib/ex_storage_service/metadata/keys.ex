@@ -20,8 +20,11 @@ defmodule ExStorageService.Metadata.Keys do
 
   @spec object_head(binary(), binary()) :: binary()
   def object_head(bucket, key) do
-    Enum.join([@prefix, "object_head", encode_component(bucket), encode_component(key)], ":")
+    object_head_prefix() <> Enum.join([encode_component(bucket), encode_component(key)], ":")
   end
+
+  @spec object_head_prefix() :: binary()
+  def object_head_prefix, do: "#{@prefix}:object_head:"
 
   @spec object_version(binary(), binary(), binary()) :: binary()
   def object_version(bucket, key, version_id) do

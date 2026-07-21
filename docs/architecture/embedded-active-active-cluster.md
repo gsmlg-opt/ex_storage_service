@@ -18,6 +18,10 @@ request. Metadata is not multi-primary. Concord 3 uses Viewstamped Replication
 with one primary to serialize metadata changes and reject writes on a metadata
 minority.
 
+The architectural shorthand "single-leader Raft metadata" means this
+single-writer replicated-log property; the locked implementation is VSR with a
+primary, not the Raft protocol.
+
 Metadata and object bytes use separate planes:
 
 - Concord/VSR stores object heads, immutable versions, blob descriptors,
@@ -36,6 +40,36 @@ node-c: metadata-only Concord replica
 
 The metadata-only replica stores the full VSR metadata log, stores no object
 bytes, and exposes no public S3 endpoint.
+
+## Locked Concord capability record
+
+Phase 0 was verified against Concord `3.0.0-beta.5` in `mix.lock` and the
+checked-out source under `deps/concord`, not against online documentation.
+`Concord.Txn.commit/2` accepts a map with `compare`, `success`, and `failure`
+lists and returns `{:ok, %Concord.Txn.Result{succeeded: boolean, revision:
+revision, responses: responses}}`. A failed comparison runs the failure branch
+and returns `succeeded: false`; it is not a transaction error.
+
+The supported compare fields are `exists`, `value`, nested `field`, `version`,
+`create_revision`, `mod_revision`, `lease`, and `ttl`. The supported operators
+are `==`, `!=`, `>`, `>=`, `<`, and `<=`. Transaction branches support key or
+bounded prefix/range reads, puts, deletes by key/prefix/range selector, and TTL
+touches. All mutations selected by one transaction share one committed
+revision.
+
+`Concord.Txn.commit/2` accepts `idempotency_key:` and `timeout:` options.
+However, beta.5 only copies the idempotency key into the command spec; its
+state machine does not cache or replay a prior result. Object commits therefore
+write and resolve an `ess:v2:outbox:<operation_id>` record in the same
+transaction. This is the tracked `gsmlg-dev/concord#37` workaround.
+
+Read compatibility names `eventual`, `leader`, and `strong` all use the same
+linearizable VSR query barrier in this release. `Concord.prefix_scan/2` scans
+the authoritative replicated state and no longer uses the unsafe external ETS
+lookup reported in `gsmlg-dev/concord#27`, so the prior crash class is fixed.
+It is still an O(N) full-store operation and does not provide the pagination
+and deterministic ordering required here. The metadata backend retains
+`get_all/1` plus local prefix filtering and sorting for this phase.
 
 ## Durability policy
 
