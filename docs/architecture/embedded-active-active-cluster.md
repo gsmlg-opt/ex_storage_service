@@ -14,12 +14,13 @@ replication or disaster recovery.
 ## API and metadata semantics
 
 The target API tier is active-active: either data node may accept an S3
-request. Metadata is not multi-leader. Concord uses a single-leader Raft log
-to serialize metadata changes and reject writes on a metadata minority.
+request. Metadata is not multi-primary. Concord 3 uses Viewstamped Replication
+with one primary to serialize metadata changes and reject writes on a metadata
+minority.
 
 Metadata and object bytes use separate planes:
 
-- Concord/Raft stores object heads, immutable versions, blob descriptors,
+- Concord/VSR stores object heads, immutable versions, blob descriptors,
   locations, and durable work records.
 - Filesystem-backed content-addressed storage stores object bytes by SHA-256.
 - A metadata commit may reference only checksum-verified durable blob
@@ -28,12 +29,12 @@ Metadata and object bytes use separate planes:
 The minimum production topology is:
 
 ```text
-node-a: data + public API + Concord voter + local CAS
-node-b: data + public API + Concord voter + local CAS
-node-c: metadata-only Concord voter
+node-a: data + public API + Concord replica + local CAS
+node-b: data + public API + Concord replica + local CAS
+node-c: metadata-only Concord replica
 ```
 
-The metadata-only voter stores the full Raft metadata log, stores no object
+The metadata-only replica stores the full VSR metadata log, stores no object
 bytes, and exposes no public S3 endpoint.
 
 ## Durability policy

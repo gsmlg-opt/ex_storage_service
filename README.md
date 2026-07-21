@@ -7,7 +7,7 @@
 ExStorageService is an S3-compatible object storage server built with Elixir/OTP.
 It runs a Plug/Bandit S3 API, a Phoenix LiveView admin portal, and an optional
 `ess` command-line client from one umbrella repository. Metadata is stored in
-Concord/Raft KV, and object bytes are stored directly on a content-addressed
+Concord/Viewstamped Replication KV, and object bytes are stored directly on a content-addressed
 disk backend; the service does not use Ecto or an external database.
 
 ## Features
@@ -231,7 +231,7 @@ Repository layout:
 
 ### Metadata and Storage
 
-- **Metadata**: [Concord](https://hex.pm/packages/concord), a Ra/Raft-backed distributed key-value store. No Ecto database, migrations, or Repo are used.
+- **Metadata**: [Concord](https://hex.pm/packages/concord), a Viewstamped Replication-backed distributed key-value store. No Ecto database, migrations, or Repo are used.
 - **Objects**: Content-addressable files on disk under `ESS_DATA_ROOT`, addressed by SHA-256 and deduplicated across object keys.
 - **Secrets**: IAM and cloud-cache secrets are encrypted with `ESS_MASTER_KEY`.
 
@@ -260,13 +260,13 @@ Repository layout:
 
 | Variable | Default | Description |
 |---|---|---|
-| `ESS_DATA_ROOT` | `/tmp/ex_storage_service/data` | Storage, Ra, and Concord data root |
+| `ESS_DATA_ROOT` | `/tmp/ex_storage_service/data` | Storage and Concord data root |
 | `ESS_AUTO_START` | `true` | Start the default storage instance with the core application |
 | `ESS_INSTANCE` | `default` | Stable local storage instance name |
 | `ESS_BLOB_ROOT` | `${ESS_DATA_ROOT}/cas` | Ready content-addressed blob files |
 | `ESS_TMP_ROOT` | `${ESS_BLOB_ROOT}/tmp` | Staging files; must share a filesystem with the blob root for atomic publication |
-| `ESS_RA_ROOT` | `${ESS_DATA_ROOT}/ra` | Node-local Ra state |
-| `ESS_METADATA_ROOT` | `${ESS_DATA_ROOT}/concord` | Node-local Concord metadata state |
+| `ESS_RA_ROOT` | `${ESS_DATA_ROOT}/ra` | Legacy embedding compatibility value; Concord 3 does not use Ra storage |
+| `ESS_METADATA_ROOT` | `${ESS_DATA_ROOT}/concord` | Node-local Concord/VSR metadata state |
 | `ESS_MODE` | `standalone` | Storage mode. `cluster` is reserved for guarded future activation |
 | `ESS_REPLICATION_FACTOR` | `1` | Desired blob replica count; must be at least 1 |
 | `ESS_WRITE_QUORUM` | `1` | Required durable writes; must satisfy `1 <= W <= RF` |
@@ -292,9 +292,9 @@ scaffolding only: clustering and remote blob replication remain disabled.
 For embedding, set `ESS_AUTO_START=false`, `ESS_PUBLIC_S3_ENABLED=false`, and
 `ESS_WEB_ENABLED=false`, then add `ExStorageService.child_spec/1` to the host
 supervision tree. The host may stop and restart that local instance without
-stopping its own application. Concord and the default Ra system remain shared
-application infrastructure: Phase 3 supports one Concord metadata instance per
-BEAM, even though local worker names are instance-scoped.
+stopping its own application. Concord/VSR remains shared application
+infrastructure: Phase 3 supports one Concord metadata instance per BEAM, even
+though local worker names are instance-scoped.
 
 `ESS_METADATA_SCHEMA=v2` enables the atomic metadata schema. Existing v1
 records remain readable and are not migrated automatically. Once v2 records
@@ -303,6 +303,13 @@ metadata from a pre-v2 backup. Set `ESS_METADATA_SCHEMA=v1` only as a
 read-only compatibility decision before any v2 writes; object metadata
 mutations are rejected instead of falling back to the unsafe legacy
 multi-write sequence.
+
+Concord 3.0 replaces Ra with Viewstamped Replication and does not read or
+migrate Concord 2.x Ra storage. This application performs no destructive or
+automatic metadata migration. Before upgrading an installation with existing
+metadata, retain a complete backup of the old metadata state and plan an
+explicit export/restore boundary; starting the new binary creates or recovers
+only the VSR state under `ESS_METADATA_ROOT`.
 
 Production startup refuses insecure defaults for enabled listeners:
 

@@ -6,7 +6,7 @@ defmodule ExStorageService do
   applications shipped by this umbrella.
 
   A host can configure `auto_start: false` and supervise
-  `ExStorageService.child_spec/1` itself. Concord and Ra remain shared,
+  `ExStorageService.child_spec/1` itself. Concord/VSR remains shared,
   one-per-BEAM infrastructure in this phase.
   """
 

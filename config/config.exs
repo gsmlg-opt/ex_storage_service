@@ -33,13 +33,15 @@ config :duskmoon_bundler,
     ]
   ]
 
-# Ra configuration (Raft consensus used by Concord)
-config :ra,
-  data_dir: ~c"/tmp/ex_storage_service/ra"
-
 # Concord configuration
 config :concord,
   data_dir: "/tmp/ex_storage_service/concord",
+  vsr: [
+    group_id: :ex_storage_service_metadata,
+    replica_id: node(),
+    members: [%{id: node(), endpoint: node()}],
+    bootstrap: false
+  ],
   http: [enabled: false],
   prometheus_enabled: false
 

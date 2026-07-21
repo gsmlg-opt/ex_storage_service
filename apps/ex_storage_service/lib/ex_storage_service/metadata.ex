@@ -44,10 +44,6 @@ defmodule ExStorageService.Metadata do
   end
 
   def list_buckets do
-    # WORKAROUND(upstream): gsmlg-dev/concord#27 — Concord.prefix_scan/2 would be
-    # O(log N + K) here, but it intermittently crashes the Ra state machine
-    # (:ets badarg → :cluster_not_ready). Use get_all/0 + filter until that is fixed.
-    # TODO(upstream): gsmlg-dev/concord#27
     case Concord.get_all() do
       {:ok, all} ->
         buckets =
@@ -102,10 +98,8 @@ defmodule ExStorageService.Metadata do
 
     obj_prefix = "obj:#{bucket}:"
 
-    # WORKAROUND(upstream): gsmlg-dev/concord#27 — see list_buckets/0. Concord.prefix_scan/2
-    # (server-side, O(log N + K)) intermittently crashes the Ra state machine, so we
-    # fall back to a full get_all/0 scan + in-Elixir filtering. Acceptable for < 50K keys.
-    # TODO(upstream): gsmlg-dev/concord#27
+    # Retain one full get_all/0 scan so v1 records and v2 heads/versions share a
+    # consistent snapshot for the compatibility merge. Acceptable for < 50K keys.
     case Concord.get_all() do
       {:ok, all} ->
         v1_entries =

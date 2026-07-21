@@ -2,7 +2,7 @@ defmodule ExStorageService.Context do
   @moduledoc """
   Immutable runtime context for one locally supervised storage instance.
 
-  Concord and Ra remain shared application infrastructure in Phase 3, so one
+  Concord/VSR remains shared application infrastructure in Phase 3, so one
   BEAM may supervise only contexts that use the already configured metadata
   roots.
   """

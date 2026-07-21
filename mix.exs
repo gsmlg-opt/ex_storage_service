@@ -40,9 +40,9 @@ defmodule ExStorageService.Umbrella.MixProject do
     ]
   end
 
-  # Wipe test state (storage + Ra + Concord live under the test data root)
+  # Wipe test state (storage + Concord/VSR live under the test data root)
   # BEFORE the apps boot. Cleaning inside a test_helper.exs is too late: mix
-  # starts the apps first, so stale Raft state from a previous run of another
+  # starts the apps first, so stale VSR state from a previous run of another
   # umbrella app breaks Concord recovery for the current one.
   defp clean_test_data(_args) do
     if Mix.env() == :test do

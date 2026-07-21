@@ -2,8 +2,8 @@ defmodule ExStorageService.Metadata.Backend.Concord do
   @moduledoc """
   Concord implementation of the object metadata backend.
 
-  Prefix reads use `Concord.get_all/1` plus local filtering until the checked-in
-  Concord prefix-scan issue is fixed. Transactions remain native Concord
+  Prefix reads use `Concord.get_all/1` plus local filtering to keep the current
+  compatibility behavior. Transactions remain native Concord
   compare/success/failure transactions and are never emulated with sequential
   writes.
   """
@@ -50,7 +50,7 @@ defmodule ExStorageService.Metadata.Backend.Concord do
 
   @impl true
   def transaction(spec, opts \\ []) do
-    # WORKAROUND(upstream): gsmlg-dev/concord#37 — Concord 2.4 accepts an
+    # WORKAROUND(upstream): gsmlg-dev/concord#37 — Concord 3.0.0-beta.5 accepts an
     # idempotency key but does not cache or replay the result. ObjectCommit
     # resolves ambiguous outcomes from its immutable operation record.
     Concord.Txn.commit(spec, opts)

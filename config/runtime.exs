@@ -74,12 +74,20 @@ instance_config = [
 # be referenced both in the config block and in the prod guard below.
 default_admin_hash = Base.encode16(:crypto.hash(:sha256, "admin"), case: :lower)
 
-# Configure Ra and Concord data directories
-config :ra, data_dir: String.to_charlist(ra_root)
-config :concord, data_dir: metadata_root
+# Concord 3 uses an explicit singleton Viewstamped Replication configuration
+# for standalone mode. A singleton can initialize empty storage and recover
+# durable storage with bootstrap disabled.
+concord_replica_id = node()
 
-# Disable libcluster
-config :libcluster, topologies: []
+config :concord,
+  data_dir: metadata_root,
+  vsr: [
+    group_id: :ex_storage_service_metadata,
+    replica_id: concord_replica_id,
+    members: [%{id: concord_replica_id, endpoint: concord_replica_id}],
+    storage: :file,
+    bootstrap: false
+  ]
 
 config :ex_storage_service,
   auto_start: auto_start?,

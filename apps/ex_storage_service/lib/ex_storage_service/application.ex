@@ -8,17 +8,8 @@ defmodule ExStorageService.Application do
   def start(_type, _args) do
     config = instance_config!()
 
-    # Ensure Ra default system is started (needed for Concord)
-    ensure_ra_system()
-
-    # Handle stale Ra state from prior runs (e.g., :not_new error)
-    maybe_recover_concord()
-
-    # Wait for Concord/Ra to be ready before starting services
+    # Wait for Concord/VSR to be ready before starting services.
     wait_for_concord()
-
-    # Clustering remains disabled until Phase 4.
-    stop_unwanted_clustering()
 
     # Initialize metrics collection
     ExStorageService.Metrics.setup()
@@ -92,67 +83,13 @@ defmodule ExStorageService.Application do
     end
   end
 
-  # If Concord failed to start (e.g., :not_new from stale Ra state),
-  # attempt recovery by restarting the existing Ra server.
-  defp maybe_recover_concord do
-    case Concord.get("__health_check__") do
-      {:ok, _} ->
-        :ok
-
-      {:error, :cluster_not_ready} ->
-        cluster_name = Application.get_env(:concord, :cluster_name, :concord_cluster)
-        node_id = {cluster_name, node()}
-
-        case :ra.restart_server(:default, node_id) do
-          :ok ->
-            Logger.info("Recovered Concord cluster via Ra restart")
-            :ra.trigger_election(node_id)
-
-          {:ok, _} ->
-            Logger.info("Recovered Concord cluster via Ra restart")
-            :ra.trigger_election(node_id)
-
-          {:error, reason} ->
-            Logger.warning("Concord recovery attempt failed: #{inspect(reason)}")
-        end
-
-      _ ->
-        :ok
-    end
-  end
-
-  # WORKAROUND(upstream): gsmlg-dev/concord#11
-  # Concord hardcodes a libcluster Gossip topology (no secret, default multicast
-  # group) and exposes no config to disable it, so it discovers unrelated nodes
-  # on the LAN and logs repeated "not part of network" warnings — with a latent
-  # risk of joining a foreign cluster. This is a single-node deployment, so we
-  # shut the discovery supervisor down once Concord is up. Remove when concord#11
-  # ships a config knob to disable/isolate clustering.
-  defp stop_unwanted_clustering do
-    with pid when is_pid(pid) <- Process.whereis(Concord.ClusterSupervisor),
-         :ok <- Supervisor.terminate_child(Concord.Supervisor, Cluster.Supervisor) do
-      _ = Supervisor.delete_child(Concord.Supervisor, Cluster.Supervisor)
-      Logger.info("Stopped Concord libcluster gossip discovery (single-node deployment)")
-    else
-      _ -> :ok
-    end
-  end
-
-  defp ensure_ra_system do
-    case :ra_system.fetch(:default) do
-      {:ok, _} ->
-        Logger.info("Ra default system already running")
-
-      _ ->
-        Logger.info("Starting Ra default system")
-        :ra_system.start_default()
-    end
-  end
-
   defp wait_for_concord(attempts \\ 50) do
     case Concord.get("__health_check__") do
       {:ok, _} ->
-        Logger.info("Concord cluster ready")
+        Logger.info("Concord VSR metadata store ready")
+
+      {:error, :not_found} ->
+        Logger.info("Concord VSR metadata store ready")
 
       {:error, :cluster_not_ready} when attempts > 0 ->
         Process.sleep(100)

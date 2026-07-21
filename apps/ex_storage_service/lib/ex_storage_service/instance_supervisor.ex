@@ -2,7 +2,7 @@ defmodule ExStorageService.InstanceSupervisor do
   @moduledoc """
   Supervises the local data-plane services for one storage instance.
 
-  Concord/Ra and PubSub are application infrastructure and intentionally live
+  Concord/VSR and PubSub are application infrastructure and intentionally live
   outside this supervisor. Stopping this supervisor therefore restarts local
   storage lifecycle without terminating the host application or metadata
   system.

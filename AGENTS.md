@@ -11,7 +11,7 @@ ExStorageService is a high-performance, S3-compatible, umbrella-structured objec
 ### Key Principles
 - **Minimalism & Simplicity**: Keep solutions Elixir-native and idiomatic. Avoid adding new dependencies unless absolutely necessary.
 - **Safety First**: Never execute commands or perform destructive operations that risk data loss without verification or testing. Preserve existing documentations and comments.
-- **Strict Database-Free Constraint**: Remember that there is **no database/Ecto**. All metadata goes to Concord/Raft KV, and files go directly to the content-addressed disk storage engine.
+- **Strict Database-Free Constraint**: Remember that there is **no database/Ecto**. All metadata goes to Concord/VSR KV, and files go directly to the content-addressed disk storage engine.
 - **Separation of Concerns**: Respect the boundary between the umbrella applications: Core is pure business logic, S3 is a pure Plug.Router, Web is Phoenix LiveView using DuskMoon UI components.
 - **Duskmoon Bundler UI Asset Pipeline**: Do not use DaisyUI or Tailwind CLI. Use Duskmoon Bundler and DuskMoon UI library components.
 
@@ -82,7 +82,7 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
 
 ### File Organization
 The codebase is structured as an umbrella project with four apps:
-- **`apps/ex_storage_service/`**: Core domain logic, storage engine, metadata via Concord/Raft KV, replication, background processes.
+- **`apps/ex_storage_service/`**: Core domain logic, storage engine, metadata via Concord/VSR KV, replication, background processes.
 - **`apps/ex_storage_service_s3/`**: S3 API server (Plug.Router served by Bandit on port 9000).
 - **`apps/ex_storage_service_web/`**: Admin portal web interface (Phoenix LiveView on port 4900).
 - **`apps/ex_storage_service_cli/`**: Standalone `ess` command-line client packaged as an escript.
@@ -113,7 +113,8 @@ The codebase is structured as an umbrella project with four apps:
   `ESS_TMP_ROOT`, `ESS_RA_ROOT`, `ESS_METADATA_ROOT`, and `ESS_WEB_ENABLED`.
   Defaults must start the existing standalone instance and both listeners.
   `ESS_DATA_ROOT` remains the compatibility fallback for split roots.
-  Concord and the default Ra system are shared application infrastructure;
+  `ESS_RA_ROOT` is retained as a legacy embedding compatibility value but is
+  not used by Concord 3. Concord/VSR is shared application infrastructure;
   support only one Concord metadata instance per BEAM until the cluster phases
   replace this constraint.
 - `ESS_METADATA_SCHEMA` activates atomic metadata writes (`v2` by default).
@@ -159,7 +160,7 @@ graph TD
     Admin[Admin Browser] -->|Port 4900| WebApp[ex_storage_service_web]
     S3App -->|Call Engine/Metadata| CoreApp[ex_storage_service]
     WebApp -->|Call Engine/Metadata| CoreApp
-    CoreApp -->|Metadata Cache & State| Concord[Concord / Raft KV]
+    CoreApp -->|Metadata Cache & State| Concord[Concord / VSR KV]
     CoreApp -->|Objects storage| Disk[Disk Storage Engine]
 ```
 
