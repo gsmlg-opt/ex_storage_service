@@ -390,6 +390,31 @@ defmodule ExStorageServiceS3.ApiTest do
       cleanup_bucket(remote_bucket)
     end
 
+    test "local put streams aws-chunked framing into decoded object bytes" do
+      bucket = create_bucket(unique_bucket())
+
+      encoded_body =
+        "5;chunk-signature=abc\r\nhello\r\n" <>
+          "6;chunk-signature=def\r\n world\r\n" <>
+          "0;chunk-signature=ghi\r\n\r\n"
+
+      {:ok, put_response} =
+        Req.put("#{@base_url}/#{bucket}/streamed-chunked.txt",
+          body: encoded_body,
+          headers: [
+            {"content-encoding", "aws-chunked"},
+            {"x-amz-content-sha256", "STREAMING-AWS4-HMAC-SHA256-PAYLOAD"}
+          ]
+        )
+
+      assert put_response.status == 200
+
+      assert {:ok, %{status: 200, body: "hello world"}} =
+               Req.get("#{@base_url}/#{bucket}/streamed-chunked.txt")
+
+      cleanup_bucket(bucket)
+    end
+
     test "delete multiple objects" do
       bucket = create_bucket(unique_bucket())
 

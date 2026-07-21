@@ -26,6 +26,63 @@ defmodule ExStorageService.BlobStore.LocalCASTest do
     def pread(_io, _offset, length), do: {:error, {:unbounded_read, length}}
   end
 
+  defmodule CrossDeviceFileSystem do
+    defdelegate mkdir_p(path), to: LocalCAS.FileSystem
+    defdelegate open(path, modes), to: LocalCAS.FileSystem
+    defdelegate write(io, data), to: LocalCAS.FileSystem
+    defdelegate sync(io), to: LocalCAS.FileSystem
+    defdelegate close(io), to: LocalCAS.FileSystem
+    defdelegate rm(path), to: LocalCAS.FileSystem
+    defdelegate stat(path), to: LocalCAS.FileSystem
+    defdelegate pread(io, offset, length), to: LocalCAS.FileSystem
+    defdelegate open_directory(path), to: LocalCAS.FileSystem
+
+    def rename(_source, _destination), do: {:error, :exdev}
+  end
+
+  defmodule UnsupportedDirectorySyncFileSystem do
+    defdelegate mkdir_p(path), to: LocalCAS.FileSystem
+    defdelegate open(path, modes), to: LocalCAS.FileSystem
+    defdelegate write(io, data), to: LocalCAS.FileSystem
+    defdelegate sync(io), to: LocalCAS.FileSystem
+    defdelegate close(io), to: LocalCAS.FileSystem
+    defdelegate rename(source, destination), to: LocalCAS.FileSystem
+    defdelegate rm(path), to: LocalCAS.FileSystem
+    defdelegate stat(path), to: LocalCAS.FileSystem
+    defdelegate pread(io, offset, length), to: LocalCAS.FileSystem
+
+    def open_directory(_path), do: {:error, :enotsup}
+  end
+
+  defmodule RecordingFileSystem do
+    defdelegate mkdir_p(path), to: LocalCAS.FileSystem
+    defdelegate open(path, modes), to: LocalCAS.FileSystem
+    defdelegate write(io, data), to: LocalCAS.FileSystem
+    defdelegate rm(path), to: LocalCAS.FileSystem
+    defdelegate stat(path), to: LocalCAS.FileSystem
+    defdelegate pread(io, offset, length), to: LocalCAS.FileSystem
+
+    def sync(io) do
+      send(self(), :fs_sync)
+      LocalCAS.FileSystem.sync(io)
+    end
+
+    def close(io) do
+      send(self(), :fs_close)
+      LocalCAS.FileSystem.close(io)
+    end
+
+    def rename(source, destination) do
+      send(self(), :fs_rename)
+      LocalCAS.FileSystem.rename(source, destination)
+    end
+
+    def open_directory(path) do
+      send(self(), {:fs_open_directory, path})
+      LocalCAS.FileSystem.open_directory(path)
+    end
+  end
+
   @tag :tmp_dir
   test "stage, commit, stat, open, discard, and delete preserve source shapes", %{
     tmp_dir: tmp_dir
@@ -93,6 +150,40 @@ defmodule ExStorageService.BlobStore.LocalCASTest do
     assert_received {:boundary, :sync}
     assert_received {:boundary, :rename}
     assert_received {:boundary, :directory_sync}
+    assert_received {:boundary, :directory_sync}
+    assert_received {:boundary, :directory_sync}
+    refute_received {:boundary, :directory_sync}
+  end
+
+  @tag :tmp_dir
+  test "commit performs file sync and close before rename, then syncs affected directories", %{
+    tmp_dir: tmp_dir
+  } do
+    opts = blob_opts(tmp_dir, fs_module: RecordingFileSystem)
+    assert {:ok, staged} = LocalCAS.stage("record-order", opts)
+    assert [:fs_close] = drain_messages()
+
+    destination = LocalCAS.blob_path(staged.hash, opts)
+    destination_dir = Path.dirname(destination)
+    destination_parent = Path.dirname(destination_dir)
+    staging_dir = Path.dirname(staged.path)
+
+    assert {:ok, %ReadyBlob{}} = LocalCAS.commit(staged, opts)
+
+    assert [
+             :fs_sync,
+             :fs_close,
+             :fs_rename,
+             {:fs_open_directory, ^destination_dir},
+             :fs_sync,
+             :fs_close,
+             {:fs_open_directory, ^destination_parent},
+             :fs_sync,
+             :fs_close,
+             {:fs_open_directory, ^staging_dir},
+             :fs_sync,
+             :fs_close
+           ] = drain_messages()
   end
 
   @tag :tmp_dir
@@ -101,6 +192,21 @@ defmodule ExStorageService.BlobStore.LocalCASTest do
 
     assert {:error, {:stage, :injected}} = LocalCAS.stage("never-written", opts)
     assert Path.wildcard(Path.join([Keyword.fetch!(opts, :root), "**", "*"])) == []
+  end
+
+  @tag :tmp_dir
+  test "enumeration failure removes the partially written staging file", %{tmp_dir: tmp_dir} do
+    opts = blob_opts(tmp_dir)
+
+    stream =
+      Stream.concat([
+        ["partial"],
+        Stream.map([:fail], fn _ -> raise "injected enumeration failure" end)
+      ])
+
+    assert {:error, {:stage, "injected enumeration failure"}} = LocalCAS.stage(stream, opts)
+    assert Path.wildcard(Path.join([Keyword.fetch!(opts, :tmp_dir), "upload-*"])) == []
+    assert Path.wildcard(Path.join([Keyword.fetch!(opts, :root), "objects", "**", "*"])) == []
   end
 
   @tag :tmp_dir
@@ -119,6 +225,35 @@ defmodule ExStorageService.BlobStore.LocalCASTest do
       refute File.exists?(LocalCAS.blob_path(staged.hash, base_opts))
       assert :ok = LocalCAS.discard(staged, base_opts)
     end
+  end
+
+  @tag :tmp_dir
+  test "cross-device rename is rejected without copying or publishing", %{tmp_dir: tmp_dir} do
+    base_opts = blob_opts(tmp_dir)
+    assert {:ok, staged} = LocalCAS.stage("same-filesystem-required", base_opts)
+
+    assert {:error, {:rename, :cross_device}} =
+             LocalCAS.commit(staged, Keyword.put(base_opts, :fs_module, CrossDeviceFileSystem))
+
+    assert File.exists?(staged.path)
+    refute File.exists?(LocalCAS.blob_path(staged.hash, base_opts))
+  end
+
+  @tag :tmp_dir
+  test "unsupported directory fsync retains the atomically published blob", %{tmp_dir: tmp_dir} do
+    opts = blob_opts(tmp_dir, fs_module: UnsupportedDirectorySyncFileSystem)
+    assert {:ok, staged} = LocalCAS.stage("directory-sync-unsupported", opts)
+
+    assert {:ok, %ReadyBlob{path: path}} = LocalCAS.commit(staged, opts)
+    assert File.read!(path) == "directory-sync-unsupported"
+  end
+
+  @tag :tmp_dir
+  test "invalid staged blob returns a structured error before path construction", %{
+    tmp_dir: tmp_dir
+  } do
+    staged = %StagedBlob{path: "unused", hash: "short", etag: nil, size: 0}
+    assert {:error, :invalid_hash} = LocalCAS.commit(staged, blob_opts(tmp_dir))
   end
 
   @tag :tmp_dir
@@ -179,4 +314,12 @@ defmodule ExStorageService.BlobStore.LocalCASTest do
 
   defp md5(data),
     do: :md5 |> :crypto.hash(data) |> Base.encode16(case: :lower)
+
+  defp drain_messages(messages \\ []) do
+    receive do
+      message -> drain_messages([message | messages])
+    after
+      0 -> Enum.reverse(messages)
+    end
+  end
 end

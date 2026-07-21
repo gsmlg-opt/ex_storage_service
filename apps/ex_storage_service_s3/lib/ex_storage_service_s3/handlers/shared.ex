@@ -145,7 +145,7 @@ defmodule ExStorageServiceS3.Handlers.Shared do
             {:ok, chunk, _conn} ->
               new_size = acc_size + byte_size(chunk)
 
-              if new_size > max do
+              if exceeds_limit?(new_size, max) do
                 throw({:error, :entity_too_large})
               end
 
@@ -154,7 +154,7 @@ defmodule ExStorageServiceS3.Handlers.Shared do
             {:more, chunk, conn} ->
               new_size = acc_size + byte_size(chunk)
 
-              if new_size > max do
+              if exceeds_limit?(new_size, max) do
                 throw({:error, :entity_too_large})
               end
 
@@ -166,6 +166,21 @@ defmodule ExStorageServiceS3.Handlers.Shared do
       end,
       fn _ -> :ok end
     )
+  end
+
+  @doc false
+  def decoded_body_stream(conn, max_size \\ nil) do
+    max =
+      max_size ||
+        Application.get_env(:ex_storage_service, :max_object_size, 5 * 1024 * 1024 * 1024)
+
+    if aws_chunked?(conn) do
+      conn
+      |> body_stream(:infinity)
+      |> decode_aws_chunked_stream(max)
+    else
+      body_stream(conn, max)
+    end
   end
 
   # Returns true if the request uses S3 aws-chunked content encoding.
@@ -225,41 +240,122 @@ defmodule ExStorageServiceS3.Handlers.Shared do
   # cannot be parsed. Callers must treat the error tuple as a client error
   # rather than storing partially-decoded data.
   def decode_aws_chunked(body) do
-    decode_aws_chunks(body, <<>>)
-  end
-
-  def decode_aws_chunks(<<>>, acc), do: acc
-
-  def decode_aws_chunks(data, acc) do
-    case :binary.split(data, "\r\n") do
-      [header, rest] ->
-        # The chunk header is "<hex-size>" optionally followed by
-        # ";chunk-signature=<sig>". Parse only the size portion.
-        size_str = header |> :binary.split(";") |> hd()
-
-        case Integer.parse(size_str, 16) do
-          {0, _} ->
-            # Terminal chunk — ignore any trailing headers/signatures.
-            acc
-
-          {chunk_size, _} ->
-            case rest do
-              <<chunk::binary-size(chunk_size), "\r\n", remaining::binary>> ->
-                decode_aws_chunks(remaining, acc <> chunk)
-
-              _ ->
-                # Declared size does not match available data — malformed framing.
-                {:error, :malformed_chunked}
-            end
-
-          :error ->
-            {:error, :malformed_chunked}
-        end
-
-      [_no_crlf] ->
-        {:error, :malformed_chunked}
+    try do
+      [body]
+      |> decode_aws_chunked_stream(byte_size(body))
+      |> Enum.to_list()
+      |> IO.iodata_to_binary()
+    catch
+      {:error, :malformed_chunked} -> {:error, :malformed_chunked}
+      {:error, :entity_too_large} -> {:error, :entity_too_large}
     end
   end
+
+  @doc false
+  def decode_aws_chunked_stream(chunks, max_size) do
+    initial = %{mode: :header, buffer: <<>>, decoded_size: 0, max_size: max_size}
+
+    Stream.transform(
+      chunks,
+      fn -> initial end,
+      fn
+        _chunk, %{mode: :done} = state ->
+          {:halt, state}
+
+        chunk, state when is_binary(chunk) ->
+          try do
+            decode_aws_input(chunk, state, [])
+          catch
+            {:error, reason} -> {:halt, %{state | mode: {:error, reason}}}
+          end
+
+        _chunk, _state ->
+          throw({:error, :malformed_chunked})
+      end,
+      fn
+        %{mode: :done} -> []
+        %{mode: {:error, reason}} -> throw({:error, reason})
+        _incomplete -> throw({:error, :malformed_chunked})
+      end
+    )
+  end
+
+  defp decode_aws_input(data, %{mode: :header} = state, output) do
+    buffered = state.buffer <> data
+
+    case :binary.match(buffered, "\r\n") do
+      {header_size, 2} when header_size <= 8_192 ->
+        <<header::binary-size(header_size), "\r\n", rest::binary>> = buffered
+
+        case aws_chunk_size(header) do
+          {:ok, 0} ->
+            decode_aws_input(rest, %{state | mode: :terminal_crlf, buffer: <<>>}, output)
+
+          {:ok, size} ->
+            decode_aws_input(rest, %{state | mode: {:data, size}, buffer: <<>>}, output)
+
+          :error ->
+            throw({:error, :malformed_chunked})
+        end
+
+      {header_size, 2} when header_size > 8_192 ->
+        throw({:error, :malformed_chunked})
+
+      :nomatch when byte_size(buffered) <= 8_192 ->
+        {Enum.reverse(output), %{state | buffer: buffered}}
+
+      :nomatch ->
+        throw({:error, :malformed_chunked})
+    end
+  end
+
+  defp decode_aws_input(<<>>, %{mode: {:data, _remaining}} = state, output),
+    do: {Enum.reverse(output), state}
+
+  defp decode_aws_input(data, %{mode: {:data, remaining}} = state, output) do
+    take = min(byte_size(data), remaining)
+    <<decoded::binary-size(take), rest::binary>> = data
+    decoded_size = state.decoded_size + take
+
+    if exceeds_limit?(decoded_size, state.max_size),
+      do: throw({:error, :entity_too_large})
+
+    next_mode = if take == remaining, do: :chunk_crlf, else: {:data, remaining - take}
+    next_output = if take == 0, do: output, else: [decoded | output]
+    decode_aws_input(rest, %{state | mode: next_mode, decoded_size: decoded_size}, next_output)
+  end
+
+  defp decode_aws_input(data, %{mode: mode} = state, output)
+       when mode in [:chunk_crlf, :terminal_crlf] do
+    buffered = state.buffer <> data
+
+    case buffered do
+      <<"\r\n", rest::binary>> ->
+        next_mode = if mode == :terminal_crlf, do: :done, else: :header
+        decode_aws_input(rest, %{state | mode: next_mode, buffer: <<>>}, output)
+
+      _ when byte_size(buffered) < 2 ->
+        {Enum.reverse(output), %{state | buffer: buffered}}
+
+      _ ->
+        throw({:error, :malformed_chunked})
+    end
+  end
+
+  defp decode_aws_input(_data, %{mode: :done} = state, output),
+    do: {Enum.reverse(output), state}
+
+  defp aws_chunk_size(header) do
+    size = header |> :binary.split(";") |> hd()
+
+    case Integer.parse(size, 16) do
+      {chunk_size, ""} when chunk_size >= 0 -> {:ok, chunk_size}
+      _ -> :error
+    end
+  end
+
+  defp exceeds_limit?(_size, :infinity), do: false
+  defp exceeds_limit?(size, limit), do: size > limit
 
   def extract_custom_metadata(conn) do
     conn.req_headers

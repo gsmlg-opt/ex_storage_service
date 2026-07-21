@@ -165,75 +165,7 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
 
     custom_metadata = extract_custom_metadata(conn)
 
-    # If the client uses aws-chunked (STREAMING-AWS4-HMAC-SHA256-PAYLOAD), we
-    # must buffer and decode the body before writing. Otherwise, stream directly
-    # to the storage engine for better memory efficiency.
-    if aws_chunked?(conn) do
-      put_object_local_buffered(conn, bucket, key, content_type, custom_metadata, request_id)
-    else
-      put_object_local_streamed(conn, bucket, key, content_type, custom_metadata, request_id)
-    end
-  end
-
-  defp put_object_local_buffered(conn, bucket, key, content_type, custom_metadata, request_id) do
-    try do
-      case read_full_body(conn) do
-        {:ok, raw_body, _conn} ->
-          case decode_aws_chunked(raw_body) do
-            {:error, :malformed_chunked} ->
-              throw(:malformed_chunked)
-
-            body ->
-              put_decoded_object(
-                conn,
-                bucket,
-                key,
-                body,
-                content_type,
-                custom_metadata,
-                request_id
-              )
-          end
-
-        {:error, :entity_too_large} ->
-          error_response(
-            conn,
-            "EntityTooLarge",
-            "Your proposed upload exceeds the maximum allowed object size.",
-            "/#{bucket}/#{key}",
-            request_id
-          )
-
-        {:error, reason} ->
-          error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
-      end
-    catch
-      :malformed_chunked ->
-        error_response(
-          conn,
-          "InvalidRequest",
-          "The aws-chunked request body is malformed.",
-          "/#{bucket}/#{key}",
-          request_id
-        )
-
-      {:error, :entity_too_large} ->
-        error_response(
-          conn,
-          "EntityTooLarge",
-          "Your proposed upload exceeds the maximum allowed object size.",
-          "/#{bucket}/#{key}",
-          request_id
-        )
-    end
-  end
-
-  defp put_decoded_object(conn, bucket, key, body, content_type, custom_metadata, request_id) do
-    put_object_data(conn, bucket, key, body, content_type, custom_metadata, request_id)
-  end
-
-  defp put_object_local_streamed(conn, bucket, key, content_type, custom_metadata, request_id) do
-    stream = body_stream(conn)
+    stream = decoded_body_stream(conn)
 
     try do
       put_object_data(conn, bucket, key, stream, content_type, custom_metadata, request_id)
@@ -244,7 +176,9 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
   end
 
   defp put_object_data(conn, bucket, key, data, content_type, custom_metadata, request_id) do
-    case ObjectService.put(bucket, key, data, content_type, custom_metadata) do
+    case ObjectService.put(bucket, key, data, content_type, custom_metadata,
+           metadata_opts: [operation_id: request_id]
+         ) do
       {:ok, %{version_id: version_id, metadata: %{etag: etag}}} ->
         conn
         |> put_s3_headers(request_id)
@@ -254,6 +188,15 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
 
       {:error, {:stage, :entity_too_large}} ->
         entity_too_large_response(conn, bucket, key, request_id)
+
+      {:error, {:stage, :malformed_chunked}} ->
+        error_response(
+          conn,
+          "InvalidRequest",
+          "The aws-chunked request body is malformed.",
+          "/#{bucket}/#{key}",
+          request_id
+        )
 
       {:error, reason} ->
         error_response(

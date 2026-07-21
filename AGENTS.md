@@ -111,6 +111,8 @@ The codebase is structured as an umbrella project with four apps:
   public S3 writer while its data plane is disabled.
 - Embedding variables are `ESS_AUTO_START`, `ESS_INSTANCE`, `ESS_BLOB_ROOT`,
   `ESS_TMP_ROOT`, `ESS_RA_ROOT`, `ESS_METADATA_ROOT`, and `ESS_WEB_ENABLED`.
+  `ESS_TMP_ROOT` must share a filesystem with `ESS_BLOB_ROOT`; startup rejects
+  cross-device roots because ready blobs require an atomic rename.
   Defaults must start the existing standalone instance and both listeners.
   `ESS_DATA_ROOT` remains the compatibility fallback for split roots.
   `ESS_RA_ROOT` is retained as a legacy embedding compatibility value but is

@@ -71,7 +71,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
              bucket,
              upload_id,
              part_number,
-             Shared.body_stream(conn, max_part_size)
+             Shared.decoded_body_stream(conn, max_part_size)
            ) do
         {:ok, etag} ->
           conn
@@ -84,6 +84,15 @@ defmodule ExStorageServiceS3.MultipartHandlers do
             conn,
             "EntityTooLarge",
             "Your proposed upload exceeds the maximum allowed part size.",
+            "/#{bucket}/#{key}",
+            request_id
+          )
+
+        {:error, :malformed_chunked} ->
+          error_response(
+            conn,
+            "InvalidRequest",
+            "The aws-chunked request body is malformed.",
             "/#{bucket}/#{key}",
             request_id
           )

@@ -13,26 +13,39 @@ defmodule ExStorageService.ObjectServiceTest do
   end
 
   defmodule VersioningStub do
-    def child_spec(_opts) do
-      %{id: __MODULE__, start: {__MODULE__, :start_link, []}}
+    def child_spec(opts) do
+      %{id: __MODULE__, start: {__MODULE__, :start_link, [opts]}}
     end
 
-    def start_link do
-      Agent.start_link(fn -> %{next_version: 1, current: %{}, versions: %{}, calls: []} end)
+    def start_link(opts \\ []) do
+      Agent.start_link(fn ->
+        %{
+          next_version: 1,
+          current: %{},
+          versions: %{},
+          calls: [],
+          put_failures: Keyword.get(opts, :put_failures, 0)
+        }
+      end)
     end
 
     def put_version(bucket, key, metadata, opts) do
       Agent.get_and_update(engine(opts), fn state ->
-        {version_id, state} = next_version(state)
-        version = Map.put(metadata, :version_id, version_id)
+        if state.put_failures > 0 do
+          {{:error, :injected_versioning_failure},
+           %{state | put_failures: state.put_failures - 1}}
+        else
+          {version_id, state} = next_version(state)
+          version = Map.put(metadata, :version_id, version_id)
 
-        state =
-          state
-          |> put_in([:current, {bucket, key}], version)
-          |> put_in([:versions, {bucket, key, version_id}], version)
-          |> Map.update!(:calls, &[{:put, bucket, key, metadata, opts} | &1])
+          state =
+            state
+            |> put_in([:current, {bucket, key}], version)
+            |> put_in([:versions, {bucket, key, version_id}], version)
+            |> Map.update!(:calls, &[{:put, bucket, key, metadata, opts} | &1])
 
-        {{:ok, version_id}, state}
+          {{:ok, version_id}, state}
+        end
       end)
     end
 
@@ -139,6 +152,9 @@ defmodule ExStorageService.ObjectServiceTest do
               source: {:file, ^path, 0, 18}
             }} = ObjectService.get("bucket", "key", nil, opts)
 
+    assert {:ok, %{source: {:file, ^path, 7, 7}}} =
+             ObjectService.get("bucket", "key", nil, Keyword.put(opts, :range, {7, 7}))
+
     assert [{:put, "bucket", "key", %{content_hash: ^hash}, metadata_opts}] =
              VersioningStub.calls(engine)
 
@@ -177,6 +193,112 @@ defmodule ExStorageService.ObjectServiceTest do
     assert File.read!(path) == "durable orphan"
     assert VersioningStub.calls(engine) == []
     assert {:error, :object_not_found} = ObjectService.get("bucket", "orphan", nil, opts)
+  end
+
+  @tag :tmp_dir
+  test "versioning failure leaves a reusable orphan and retry publishes one version", %{
+    tmp_dir: tmp_dir
+  } do
+    engine = start_supervised!({VersioningStub, put_failures: 1})
+    opts = service_opts(tmp_dir, engine, operation_id: "retry-op")
+    body = "retryable orphan"
+    hash = sha256(body)
+
+    assert {:error, :injected_versioning_failure} =
+             ObjectService.put("bucket", "retry", body, "text/plain", %{}, opts)
+
+    ready_path = LocalCAS.blob_path(hash, opts[:blob_store_opts])
+    assert File.read!(ready_path) == body
+    assert {:error, :object_not_found} = ObjectService.head("bucket", "retry", opts)
+
+    assert {:ok, %{version_id: "v1", ready_blob: %{path: ^ready_path}}} =
+             ObjectService.put("bucket", "retry", body, "text/plain", %{}, opts)
+
+    assert [{:put, "bucket", "retry", %{content_hash: ^hash}, _metadata_opts}] =
+             VersioningStub.calls(engine)
+
+    assert [^ready_path] =
+             Path.wildcard(
+               Path.join([opts[:blob_store_opts][:root], "objects", "sha256", "*", "*"])
+             )
+  end
+
+  @tag :tmp_dir
+  test "stage and publish boundary failures never expose metadata", %{tmp_dir: tmp_dir} do
+    engine = start_supervised!(VersioningStub)
+    base_opts = service_opts(tmp_dir, engine)
+
+    assert {:error, :after_stage_failure} =
+             ObjectService.put(
+               "bucket",
+               "stage",
+               "stage",
+               "text/plain",
+               %{},
+               Keyword.put(base_opts, :faults, after_stage: {:error, :after_stage_failure})
+             )
+
+    assert {:error, :object_not_found} = ObjectService.head("bucket", "stage", base_opts)
+    assert Path.wildcard(Path.join([base_opts[:blob_store_opts][:root], "**", "upload-*"])) == []
+
+    for phase <- [:sync, :rename] do
+      opts =
+        Keyword.update!(base_opts, :blob_store_opts, fn blob_opts ->
+          Keyword.put(blob_opts, :faults, %{phase => {:error, :injected}})
+        end)
+
+      assert {:error, {^phase, :injected}} =
+               ObjectService.put("bucket", "failed-#{phase}", "failed", "text/plain", %{}, opts)
+
+      assert {:error, :object_not_found} =
+               ObjectService.head("bucket", "failed-#{phase}", base_opts)
+    end
+  end
+
+  @tag :tmp_dir
+  test "after-blob-commit failure leaves one ready orphan and no metadata", %{tmp_dir: tmp_dir} do
+    engine = start_supervised!(VersioningStub)
+
+    opts =
+      service_opts(tmp_dir, engine,
+        faults: [after_blob_commit: {:error, :after_blob_commit_failure}]
+      )
+
+    assert {:error, :after_blob_commit_failure} =
+             ObjectService.put("bucket", "ready-orphan", "ready", "text/plain", %{}, opts)
+
+    ready_path = LocalCAS.blob_path(sha256("ready"), opts[:blob_store_opts])
+    assert File.read!(ready_path) == "ready"
+    assert {:error, :object_not_found} = ObjectService.head("bucket", "ready-orphan", opts)
+    assert VersioningStub.calls(engine) == []
+  end
+
+  test "invalid ready blobs and object metadata return structured errors" do
+    engine = start_supervised!(VersioningStub)
+
+    opts = [
+      metadata: MetadataStub,
+      versioning: VersioningStub,
+      metadata_opts: [engine: engine],
+      side_effects: false
+    ]
+
+    assert {:error, :invalid_ready_blob} =
+             ObjectService.commit_existing_blob("bucket", "key", :invalid, %{}, opts)
+
+    assert {:error, :invalid_ready_blob} =
+             ObjectService.commit_existing_blob(
+               "bucket",
+               "key",
+               %{hash: sha256("negative"), size: -1},
+               %{},
+               opts
+             )
+
+    assert {:ok, _version_id} =
+             VersioningStub.put_version("bucket", "broken", %{}, engine: engine)
+
+    assert {:error, :invalid_object_metadata} = ObjectService.get("bucket", "broken", nil, opts)
   end
 
   @tag :tmp_dir

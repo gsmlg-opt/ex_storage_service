@@ -37,15 +37,13 @@ defmodule ExStorageServiceS3.Handlers.Bucket do
           )
 
         {:error, :not_found} ->
-          Engine.ensure_bucket_dirs(bucket)
-
-          case Metadata.create_bucket(bucket) do
-            :ok ->
-              conn
-              |> put_s3_headers(request_id)
-              |> put_resp_header("location", "/#{bucket}")
-              |> send_resp(201, "")
-
+          with :ok <- Engine.ensure_bucket_dirs(bucket),
+               :ok <- Metadata.create_bucket(bucket) do
+            conn
+            |> put_s3_headers(request_id)
+            |> put_resp_header("location", "/#{bucket}")
+            |> send_resp(201, "")
+          else
             {:error, reason} ->
               error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
           end

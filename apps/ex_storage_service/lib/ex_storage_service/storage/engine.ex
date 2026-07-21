@@ -172,8 +172,7 @@ defmodule ExStorageService.Storage.Engine do
   for multipart part staging).
   """
   def ensure_bucket_dirs(bucket) do
-    File.mkdir_p!(Path.join([CAS.data_root(), bucket, "objects"]))
-    :ok
+    File.mkdir_p(Path.join([CAS.data_root(), bucket, "objects"]))
   end
 
   ## Server Callbacks
@@ -183,9 +182,13 @@ defmodule ExStorageService.Storage.Engine do
     settings =
       Map.new(settings, fn {key, root} -> {key, Path.expand(root)} end)
 
+    ready_dir = Path.join([settings.blob_root, "objects", "sha256"])
+    staging_dir = Path.join(settings.tmp_root, "uploads")
+
     with :ok <- File.mkdir_p(settings.data_root),
-         :ok <- File.mkdir_p(Path.join([settings.blob_root, "objects", "sha256"])),
-         :ok <- File.mkdir_p(Path.join(settings.tmp_root, "uploads")) do
+         :ok <- File.mkdir_p(ready_dir),
+         :ok <- File.mkdir_p(staging_dir),
+         :ok <- ensure_same_filesystem(staging_dir, ready_dir) do
       Logger.info(
         "Storage engine started with data root #{settings.data_root} and blob root #{settings.blob_root}"
       )
@@ -207,4 +210,14 @@ defmodule ExStorageService.Storage.Engine do
 
   defp normalize_put_error({:error, {:stage, reason}}), do: {:error, reason}
   defp normalize_put_error(error), do: error
+
+  defp ensure_same_filesystem(staging_dir, ready_dir) do
+    with {:ok, staging_stat} <- File.stat(staging_dir),
+         {:ok, ready_stat} <- File.stat(ready_dir) do
+      if {staging_stat.major_device, staging_stat.minor_device} ==
+           {ready_stat.major_device, ready_stat.minor_device},
+         do: :ok,
+         else: {:error, {:cross_device_storage_roots, staging_dir, ready_dir}}
+    end
+  end
 end

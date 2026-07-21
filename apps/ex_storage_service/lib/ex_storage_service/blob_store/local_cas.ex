@@ -4,7 +4,10 @@ defmodule ExStorageService.BlobStore.LocalCAS do
 
   Staging and ready files default to directories below the same `cas` root.
   Commit syncs staged bytes, closes the file, atomically renames it, and syncs
-  the destination directory where the platform supports directory handles.
+  both directories affected by the rename where the platform supports
+  directory handles. The configured staging and ready roots must share a
+  filesystem; a cross-device rename is rejected without copying or publishing
+  partial content.
 
   Filesystem operations and boundary faults are injectable per call through
   `:fs_module` and `:faults`; no mutable global test state is used.
@@ -68,9 +71,10 @@ defmodule ExStorageService.BlobStore.LocalCAS do
   @impl true
   def commit(%StagedBlob{} = staged, opts \\ []) do
     fs = fs(opts)
-    destination = blob_path(staged.hash, opts)
 
-    with :ok <- tagged(:rename, fs.mkdir_p(Path.dirname(destination))) do
+    with :ok <- validate_staged(staged),
+         destination = blob_path(staged.hash, opts),
+         :ok <- tagged(:rename, fs.mkdir_p(Path.dirname(destination))) do
       case fs.stat(destination) do
         {:ok, %File.Stat{type: :regular, size: size}} when size == staged.size ->
           with :ok <- verify_source(Source.file(destination, 0, size), staged.hash, opts),
@@ -117,10 +121,12 @@ defmodule ExStorageService.BlobStore.LocalCAS do
 
   @impl true
   def delete(hash, opts \\ []) do
-    case fs(opts).rm(blob_path(hash, opts)) do
-      :ok -> :ok
-      {:error, :enoent} -> :ok
-      {:error, reason} -> {:error, {:delete, reason}}
+    with :ok <- validate_hash(hash) do
+      case fs(opts).rm(blob_path(hash, opts)) do
+        :ok -> :ok
+        {:error, :enoent} -> :ok
+        {:error, reason} -> {:error, {:delete, reason}}
+      end
     end
   end
 
@@ -179,7 +185,16 @@ defmodule ExStorageService.BlobStore.LocalCAS do
          :ok <- sync_and_close(io, fs, opts),
          :ok <- phase(:rename, opts),
          :ok <- rename(fs, staged.path, destination),
-         :ok <- sync_directory(fs, Path.dirname(destination), opts) do
+         :ok <-
+           sync_directories(
+             fs,
+             [
+               Path.dirname(destination),
+               destination |> Path.dirname() |> Path.dirname(),
+               Path.dirname(staged.path)
+             ],
+             opts
+           ) do
       {:ok, ready(staged, destination)}
     end
   end
@@ -212,12 +227,31 @@ defmodule ExStorageService.BlobStore.LocalCAS do
     end
   end
 
+  defp sync_directories(fs, directories, opts) do
+    directories
+    |> Enum.uniq()
+    |> Enum.reduce_while(:ok, fn directory, :ok ->
+      case sync_directory(fs, directory, opts) do
+        :ok -> {:cont, :ok}
+        {:error, _reason} = error -> {:halt, error}
+      end
+    end)
+  end
+
   defp sync_directory(fs, directory, opts) do
-    with :ok <- phase(:directory_sync, opts),
-         {:ok, io} <- tagged(:directory_sync, fs.open_directory(directory)) do
-      result = tagged(:directory_sync, fs.sync(io))
-      close_result = tagged(:directory_sync, fs.close(io))
-      if result == :ok, do: close_result, else: result
+    with :ok <- phase(:directory_sync, opts) do
+      case fs.open_directory(directory) do
+        {:ok, io} ->
+          result = tagged(:directory_sync, fs.sync(io))
+          close_result = tagged(:directory_sync, fs.close(io))
+          if result == :ok, do: close_result, else: result
+
+        {:error, reason} when reason in [:enotsup, :eisdir] ->
+          :ok
+
+        {:error, reason} ->
+          {:error, {:directory_sync, reason}}
+      end
     end
   end
 
@@ -271,21 +305,23 @@ defmodule ExStorageService.BlobStore.LocalCAS do
   end
 
   defp resolve(hash, opts) do
-    case Keyword.get(opts, :pack_module, Pack) do
-      nil ->
-        resolve_file(hash, opts)
+    with :ok <- validate_hash(hash) do
+      case Keyword.get(opts, :pack_module, Pack) do
+        nil ->
+          resolve_file(hash, opts)
 
-      pack_module ->
-        case pack_module.locate(hash) do
-          {:ok, {path, offset, size}} ->
-            {:ok, {:packed, Source.file(path, offset, size)}}
+        pack_module ->
+          case pack_module.locate(hash) do
+            {:ok, {path, offset, size}} ->
+              {:ok, {:packed, Source.file(path, offset, size)}}
 
-          {:error, :not_found} ->
-            resolve_file(hash, opts)
+            {:error, :not_found} ->
+              resolve_file(hash, opts)
 
-          {:error, reason} ->
-            {:error, reason}
-        end
+            {:error, reason} ->
+              {:error, reason}
+          end
+      end
     end
   end
 
@@ -427,6 +463,21 @@ defmodule ExStorageService.BlobStore.LocalCAS do
   end
 
   defp fs(opts), do: Keyword.get(opts, :fs_module, FileSystem)
+
+  defp validate_hash(hash) when is_binary(hash) and byte_size(hash) == 64 do
+    case Base.decode16(hash, case: :mixed) do
+      {:ok, decoded} when byte_size(decoded) == 32 -> :ok
+      _ -> {:error, :invalid_hash}
+    end
+  end
+
+  defp validate_hash(_hash), do: {:error, :invalid_hash}
+
+  defp validate_staged(%StagedBlob{path: path, hash: hash, size: size})
+       when is_binary(path) and is_integer(size) and size >= 0,
+       do: validate_hash(hash)
+
+  defp validate_staged(%StagedBlob{}), do: {:error, :invalid_staged_blob}
 
   defp phase(name, opts) do
     faults = Keyword.get(opts, :faults, %{})

@@ -26,6 +26,30 @@ defmodule ExStorageServiceS3.Handlers.SharedTest do
     test "fails closed when there is no CRLF terminator" do
       assert Shared.decode_aws_chunked("garbage") == {:error, :malformed_chunked}
     end
+
+    test "decodes framing split across every input boundary" do
+      body =
+        "5;chunk-signature=abc\r\nhello\r\n" <>
+          "6;chunk-signature=def\r\n world\r\n" <>
+          "0;chunk-signature=ghi\r\n\r\n"
+
+      chunks = for <<byte <- body>>, do: <<byte>>
+
+      assert chunks
+             |> Shared.decode_aws_chunked_stream(11)
+             |> Enum.to_list()
+             |> IO.iodata_to_binary() == "hello world"
+    end
+
+    test "enforces the decoded payload limit while streaming" do
+      stream = Shared.decode_aws_chunked_stream(["5\r\nhello\r\n0\r\n\r\n"], 4)
+      assert catch_throw(Enum.to_list(stream)) == {:error, :entity_too_large}
+    end
+
+    test "rejects a stream that ends before the terminal chunk" do
+      stream = Shared.decode_aws_chunked_stream(["5\r\nhello\r\n"], 5)
+      assert catch_throw(Enum.to_list(stream)) == {:error, :malformed_chunked}
+    end
   end
 
   describe "xml_has_doctype?/1" do

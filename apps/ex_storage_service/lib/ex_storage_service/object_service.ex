@@ -57,13 +57,18 @@ defmodule ExStorageService.ObjectService do
       if result.delete_marker do
         {:ok, Map.put(result, :source, nil)}
       else
-        hash = Map.fetch!(result.metadata, :content_hash)
-        range = Keyword.get(opts, :range)
+        case Map.fetch(result.metadata, :content_hash) do
+          {:ok, hash} when is_binary(hash) ->
+            range = Keyword.get(opts, :range)
 
-        case blob_store(opts).open(hash, range, blob_opts(opts, bucket: bucket)) do
-          {:ok, source} -> {:ok, Map.put(result, :source, source)}
-          {:error, :not_found} -> {:error, :blob_not_found}
-          {:error, reason} -> {:error, reason}
+            case blob_store(opts).open(hash, range, blob_opts(opts, bucket: bucket)) do
+              {:ok, source} -> {:ok, Map.put(result, :source, source)}
+              {:error, :not_found} -> {:error, :blob_not_found}
+              {:error, reason} -> {:error, reason}
+            end
+
+          _missing_or_invalid_hash ->
+            {:error, :invalid_object_metadata}
         end
       end
     end
@@ -247,8 +252,9 @@ defmodule ExStorageService.ObjectService do
     end
   end
 
-  defp blob_identity(ready) do
-    ready = to_plain_map(ready)
+  defp blob_identity(%_{} = ready), do: ready |> Map.from_struct() |> blob_identity()
+
+  defp blob_identity(ready) when is_map(ready) do
     hash = Map.get(ready, :hash, Map.get(ready, :content_hash))
     size = Map.get(ready, :size)
     etag = Map.get(ready, :etag)
@@ -257,7 +263,7 @@ defmodule ExStorageService.ObjectService do
       not is_binary(hash) ->
         {:error, :invalid_ready_blob}
 
-      not is_integer(size) ->
+      not is_integer(size) or size < 0 ->
         {:error, :invalid_ready_blob}
 
       true ->
@@ -265,6 +271,8 @@ defmodule ExStorageService.ObjectService do
         {:ok, if(is_binary(etag), do: Map.put(identity, :etag, etag), else: identity)}
     end
   end
+
+  defp blob_identity(_ready), do: {:error, :invalid_ready_blob}
 
   defp public_metadata(metadata, "null"), do: Map.delete(metadata, :version_id)
   defp public_metadata(metadata, version_id), do: Map.put(metadata, :version_id, version_id)
@@ -287,7 +295,7 @@ defmodule ExStorageService.ObjectService do
   defp ensure_copy_ready(hash, bucket, opts) do
     store = blob_store(opts)
 
-    if function_exported?(store, :ensure_ready, 2) do
+    if Code.ensure_loaded?(store) and function_exported?(store, :ensure_ready, 2) do
       case store.ensure_ready(hash, blob_opts(opts, bucket: bucket)) do
         :ok -> :ok
         {:ok, _ready} -> :ok
@@ -359,12 +367,16 @@ defmodule ExStorageService.ObjectService do
   end
 
   defp invoke_fault(nil, _context), do: :ok
+  defp invoke_fault(:ok, _context), do: :ok
+  defp invoke_fault({:error, _reason} = error, _context), do: error
 
   defp invoke_fault(callback, context) when is_function(callback, 1),
     do: callback.(context) |> normalize_fault_result()
 
   defp invoke_fault(callback, _context) when is_function(callback, 0),
     do: callback.() |> normalize_fault_result()
+
+  defp invoke_fault(other, _context), do: {:error, {:invalid_fault, other}}
 
   defp normalize_fault_result(:ok), do: :ok
   defp normalize_fault_result({:error, _reason} = error), do: error
