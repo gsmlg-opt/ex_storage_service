@@ -27,7 +27,7 @@ defmodule ExStorageService.Metadata.Backend.ConcordTest do
       failure: []
     }
 
-    assert {:ok, %Result{succeeded: true}} =
+    assert {:ok, %Result{succeeded: true} = committed} =
              ConcordBackend.transaction(spec, idempotency_key: "op1")
 
     assert {:ok, %{value: %{version_id: "v1"}}} = ConcordBackend.get(head_key)
@@ -39,8 +39,10 @@ defmodule ExStorageService.Metadata.Backend.ConcordTest do
               {^version_key, %{version_id: "v1"}}
             ]} = ConcordBackend.scan(prefix)
 
+    assert {:ok, ^committed} = ConcordBackend.transaction(spec, idempotency_key: "op1")
+
     assert {:ok, %Result{succeeded: false}} =
-             ConcordBackend.transaction(spec, idempotency_key: "op1")
+             ConcordBackend.transaction(spec, idempotency_key: "op2")
   end
 
   test "commits encoded v2 metadata for a 1024-byte S3 object key" do

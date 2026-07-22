@@ -43,7 +43,7 @@ bytes, and exposes no public S3 endpoint.
 
 ## Locked Concord capability record
 
-Phase 0 was verified against Concord `3.0.0-beta.5` in `mix.lock` and the
+Phase 0 was verified against Concord `3.0.0` in `mix.lock` and the
 checked-out source under `deps/concord`, not against online documentation.
 `Concord.Txn.commit/2` accepts a map with `compare`, `success`, and `failure`
 lists and returns `{:ok, %Concord.Txn.Result{succeeded: boolean, revision:
@@ -57,11 +57,12 @@ bounded prefix/range reads, puts, deletes by key/prefix/range selector, and TTL
 touches. All mutations selected by one transaction share one committed
 revision.
 
-`Concord.Txn.commit/2` accepts `idempotency_key:` and `timeout:` options.
-However, beta.5 only copies the idempotency key into the command spec; its
-state machine does not cache or replay a prior result. Object commits therefore
-write and resolve an `ess:v2:outbox:<operation_id>` record in the same
-transaction. This is the tracked `gsmlg-dev/concord#37` workaround.
+`Concord.Txn.commit/2` accepts `idempotency_key:` and `timeout:` options. The
+stable release caches and replays the original transaction result for an exact
+same-key retry and rejects a conflicting request using the same key. Object
+commits retain the `ess:v2:outbox:<operation_id>` record in the same transaction
+as the durable application-level result and future dispatch schema; this also
+provides resolution beyond Concord's bounded idempotency-result retention.
 
 Read compatibility names `eventual`, `leader`, and `strong` all use the same
 linearizable VSR query barrier in this release. `Concord.prefix_scan/2` scans

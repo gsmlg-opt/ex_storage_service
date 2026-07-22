@@ -56,9 +56,6 @@ defmodule ExStorageService.Metadata.Backend.Concord do
 
   @impl true
   def transaction(spec, opts \\ []) do
-    # WORKAROUND(upstream): gsmlg-dev/concord#37 — Concord 3.0.0-beta.5 accepts an
-    # idempotency key but does not cache or replay the result. ObjectCommit
-    # resolves ambiguous outcomes from its immutable operation record.
     Concord.Txn.commit(spec, opts)
   end
 

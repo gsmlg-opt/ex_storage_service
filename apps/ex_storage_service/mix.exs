@@ -28,7 +28,7 @@ defmodule ExStorageService.MixProject do
 
   defp deps do
     [
-      {:concord, "~> 3.0.0-beta.5"},
+      {:concord, "~> 3.0"},
       {:req, "~> 0.5"},
       {:jason, "~> 1.4"},
       {:telemetry_metrics, "~> 1.0"},
