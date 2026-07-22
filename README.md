@@ -296,6 +296,13 @@ stopping its own application. Concord/VSR remains shared application
 infrastructure: Phase 3 supports one Concord metadata instance per BEAM, even
 though local worker names are instance-scoped.
 
+Embedded object operations should pass the validated `ExStorageService.Context`
+as the `:context` option to `ExStorageService.ObjectService`. Filesystem workers
+still use the application-level roots in this phase, so startup rejects a child
+that combines per-child root overrides with any filesystem worker left enabled.
+Configure split roots at the application/environment level to run those workers,
+or disable them for a child whose roots differ.
+
 `ESS_METADATA_SCHEMA=v2` enables the atomic metadata schema. Existing v1
 records remain readable and are not migrated automatically. Once v2 records
 have been written, an old binary cannot read them; rollback requires restoring

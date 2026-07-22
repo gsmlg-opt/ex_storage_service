@@ -21,8 +21,16 @@ defmodule ExStorageService.InstanceSupervisorTest do
   } do
     instance = "embedded-#{System.unique_integer([:positive])}"
     opts = instance_opts(instance, tmp_dir)
+    child_id = {ExStorageService, instance}
 
-    assert {:ok, pid} = ExStorageService.start_link(opts)
+    assert {:ok, host} = Supervisor.start_link([{ExStorageService, opts}], strategy: :one_for_one)
+    Process.unlink(host)
+
+    on_exit(fn ->
+      if Process.alive?(host), do: Supervisor.stop(host)
+    end)
+
+    assert [{^child_id, pid, :supervisor, [ExStorageService]}] = Supervisor.which_children(host)
     assert Process.alive?(pid)
     assert [{engine, _value}] = Registry.lookup(Names.registry(), {instance, :engine})
     assert Process.alive?(engine)
@@ -43,13 +51,15 @@ defmodule ExStorageService.InstanceSupervisorTest do
     assert File.dir?(Path.join([tmp_dir, "blobs", "objects", "sha256"]))
     assert File.dir?(Path.join([tmp_dir, "staging", "uploads"]))
 
-    :ok = Supervisor.stop(pid)
+    :ok = Supervisor.terminate_child(host, child_id)
     refute Process.alive?(pid)
-    assert Process.alive?(self())
+    assert Process.alive?(host)
+    assert eventually(fn -> Registry.lookup(Names.registry(), {instance, :engine}) == [] end)
 
-    assert {:ok, restarted} = ExStorageService.start_link(opts)
+    assert {:ok, restarted} = Supervisor.restart_child(host, child_id)
     assert Process.alive?(restarted)
-    :ok = Supervisor.stop(restarted)
+    assert restarted != pid
+    assert Process.alive?(host)
   end
 
   @tag :tmp_dir
@@ -78,6 +88,54 @@ defmodule ExStorageService.InstanceSupervisorTest do
              )
 
     assert message =~ "cannot differ per child"
+
+    assert {:error, context_message} =
+             ExStorageService.context(
+               instance: "bad-context-roots",
+               auto_start: false,
+               metadata_root: "/different/concord",
+               workers: @disabled_workers
+             )
+
+    assert context_message =~ "cannot differ per child"
+  end
+
+  @tag :tmp_dir
+  test "custom roots reject root-sensitive workers that still use application infrastructure", %{
+    tmp_dir: tmp_dir
+  } do
+    workers = Keyword.put(@disabled_workers, :content_gc, true)
+
+    assert {:error, {:invalid_instance_config, message}} =
+             ExStorageService.start_link(
+               instance_opts("unsafe-workers", tmp_dir)
+               |> Keyword.put(:workers, workers)
+             )
+
+    assert message =~ "filesystem workers"
+    assert message =~ ":content_gc"
+  end
+
+  @tag :tmp_dir
+  test "replication sync receives its instance-specific job queue", %{tmp_dir: tmp_dir} do
+    workers = Keyword.put(@disabled_workers, :cross_cluster_replication, true)
+
+    {:ok, config} =
+      InstanceConfig.new(
+        instance_opts("replication-instance", tmp_dir)
+        |> Keyword.put(:workers, workers)
+      )
+
+    children = config |> Context.new() |> ExStorageService.InstanceSupervisor.children()
+
+    assert [
+             {ExStorageService.Storage.Engine, _engine_opts},
+             {ExStorageService.Replication.JobQueue, queue_opts},
+             {ExStorageService.Replication.Sync, sync_opts}
+           ] = children
+
+    assert sync_opts[:job_queue] == queue_opts[:name]
+    assert match?({:via, Registry, _}, sync_opts[:job_queue])
   end
 
   test "application child list omits only the default instance when auto_start is false" do
@@ -118,5 +176,17 @@ defmodule ExStorageService.InstanceSupervisorTest do
       metadata_root: Application.fetch_env!(:ex_storage_service, :metadata_root),
       workers: @disabled_workers
     ]
+  end
+
+  defp eventually(fun, attempts \\ 20)
+  defp eventually(fun, 0), do: fun.()
+
+  defp eventually(fun, attempts) do
+    if fun.() do
+      true
+    else
+      Process.sleep(10)
+      eventually(fun, attempts - 1)
+    end
   end
 end

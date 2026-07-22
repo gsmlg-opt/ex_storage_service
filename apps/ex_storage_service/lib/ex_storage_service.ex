@@ -32,9 +32,8 @@ defmodule ExStorageService do
 
   @spec start_link(keyword() | map() | InstanceConfig.t()) :: Supervisor.on_start()
   def start_link(opts) do
-    with {:ok, config} <- InstanceConfig.new(opts),
-         context = Context.new(config),
-         :ok <- Context.validate_shared_metadata_roots(context) do
+    with {:ok, context} <- context(opts),
+         :ok <- Context.validate_worker_roots(context) do
       InstanceSupervisor.start_link(context)
     else
       {:error, reason} -> {:error, {:invalid_instance_config, reason}}
@@ -44,8 +43,10 @@ defmodule ExStorageService do
   @spec context(keyword() | map() | InstanceConfig.t()) ::
           {:ok, Context.t()} | {:error, String.t()}
   def context(opts) do
-    with {:ok, config} <- InstanceConfig.new(opts) do
-      {:ok, Context.new(config)}
+    with {:ok, config} <- InstanceConfig.new(opts),
+         context = Context.new(config),
+         :ok <- Context.validate_shared_metadata_roots(context) do
+      {:ok, context}
     end
   end
 end

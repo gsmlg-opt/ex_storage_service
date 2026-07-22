@@ -9,6 +9,15 @@ defmodule ExStorageService.Context do
 
   alias ExStorageService.InstanceConfig
 
+  @filesystem_workers [
+    :multipart_gc,
+    :content_gc,
+    :cas_gc,
+    :packer,
+    :lifecycle,
+    :cross_cluster_replication
+  ]
+
   @enforce_keys [
     :instance,
     :config,
@@ -48,8 +57,10 @@ defmodule ExStorageService.Context do
 
   @spec default() :: {:ok, t()} | {:error, String.t()}
   def default do
-    with {:ok, config} <- InstanceConfig.from_application_env() do
-      {:ok, new(config)}
+    with {:ok, config} <- InstanceConfig.from_application_env(),
+         context = new(config),
+         :ok <- validate_shared_metadata_roots(context) do
+      {:ok, context}
     end
   end
 
@@ -70,9 +81,35 @@ defmodule ExStorageService.Context do
     end
   end
 
+  @doc false
+  @spec validate_worker_roots(t()) :: :ok | {:error, String.t()}
+  def validate_worker_roots(%__MODULE__{} = context) do
+    enabled =
+      Enum.filter(@filesystem_workers, &InstanceConfig.worker_enabled?(context.config, &1))
+
+    with :ok <- compare_worker_root(:data_root, context.data_root, enabled),
+         :ok <- compare_worker_root(:blob_root, context.blob_root, enabled),
+         :ok <- compare_worker_root(:tmp_root, context.tmp_root, enabled) do
+      :ok
+    end
+  end
+
   defp compare_root(key, requested) do
+    configured_root =
+      case key do
+        :metadata_root ->
+          Application.get_env(
+            :concord,
+            :data_dir,
+            Application.get_env(:ex_storage_service, key, requested)
+          )
+
+        _ ->
+          Application.get_env(:ex_storage_service, key, requested)
+      end
+
     configured =
-      Application.get_env(:ex_storage_service, key, requested)
+      configured_root
       |> to_string()
       |> Path.expand()
 
@@ -82,6 +119,23 @@ defmodule ExStorageService.Context do
       {:error,
        "#{key} is application infrastructure and cannot differ per child " <>
          "(configured #{configured}, requested #{requested})"}
+    end
+  end
+
+  defp compare_worker_root(_key, _requested, []), do: :ok
+
+  defp compare_worker_root(key, requested, enabled) do
+    configured =
+      Application.get_env(:ex_storage_service, key, requested)
+      |> to_string()
+      |> Path.expand()
+
+    if configured == requested do
+      :ok
+    else
+      {:error,
+       "#{key} cannot differ from application infrastructure while filesystem workers " <>
+         "are enabled (#{inspect(enabled)}); configure the application root or disable those workers"}
     end
   end
 end

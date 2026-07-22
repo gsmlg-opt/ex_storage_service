@@ -54,7 +54,8 @@ defmodule ExStorageService.Replication.Sync do
 
     state = %{
       sync_interval: sync_interval,
-      delete_orphans: delete_orphans
+      delete_orphans: delete_orphans,
+      job_queue: Keyword.get(opts, :job_queue, JobQueue)
     }
 
     schedule_sync(sync_interval)
@@ -138,6 +139,7 @@ defmodule ExStorageService.Replication.Sync do
     # Enqueue replication jobs for missing/changed objects
     Enum.each(missing_or_changed, fn {key, _etag} ->
       JobQueue.enqueue(
+        state.job_queue,
         queue: :sync,
         payload: %{
           action: :put,
@@ -162,6 +164,7 @@ defmodule ExStorageService.Replication.Sync do
 
       Enum.each(orphans, fn key ->
         JobQueue.enqueue(
+          state.job_queue,
           queue: :sync,
           payload: %{
             action: :delete,

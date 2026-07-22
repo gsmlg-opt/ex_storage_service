@@ -2,7 +2,7 @@ defmodule ExStorageService.ObjectServiceTest do
   use ExUnit.Case, async: true
 
   alias ExStorageService.BlobStore.LocalCAS
-  alias ExStorageService.ObjectService
+  alias ExStorageService.{Context, InstanceConfig, ObjectService}
 
   defmodule MetadataStub do
     def head_bucket(_bucket), do: :ok
@@ -159,6 +159,41 @@ defmodule ExStorageService.ObjectServiceTest do
              VersioningStub.calls(engine)
 
     assert metadata_opts[:operation_id] == "put-op"
+  end
+
+  @tag :tmp_dir
+  test "context routes real object operations through embedded split roots", %{tmp_dir: tmp_dir} do
+    engine = start_supervised!(VersioningStub)
+
+    {:ok, config} =
+      InstanceConfig.new(
+        data_root: Path.join(tmp_dir, "data"),
+        blob_root: Path.join(tmp_dir, "blobs"),
+        tmp_root: Path.join(tmp_dir, "staging")
+      )
+
+    context = Context.new(config)
+
+    opts = [
+      context: context,
+      metadata: MetadataStub,
+      versioning: VersioningStub,
+      metadata_opts: [engine: engine],
+      blob_store: LocalCAS,
+      blob_store_opts: [pack_module: NoPack],
+      side_effects: false,
+      timestamp: "2026-07-18T00:00:00Z"
+    ]
+
+    assert {:ok, %{ready_blob: %{path: path}}} =
+             ObjectService.put("bucket", "key", "split-root", "text/plain", %{}, opts)
+
+    assert String.starts_with?(path, Path.join(tmp_dir, "blobs"))
+    assert File.read!(path) == "split-root"
+    assert Path.wildcard(Path.join([tmp_dir, "staging", "uploads", "upload-*"])) == []
+
+    assert {:ok, %{source: {:file, ^path, 0, 10}}} =
+             ObjectService.get("bucket", "key", nil, opts)
   end
 
   @tag :tmp_dir

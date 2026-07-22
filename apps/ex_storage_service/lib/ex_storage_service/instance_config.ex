@@ -100,49 +100,52 @@ defmodule ExStorageService.InstanceConfig do
         application_root(:blob_root, Path.join(data_root, "cas"), use_application_roots?)
       )
 
-    workers =
-      @worker_defaults
-      |> Map.merge(opts |> Keyword.get(:workers, %{}) |> Map.new())
+    use_application_tmp_root? =
+      not Keyword.has_key?(opts, :data_root) and not Keyword.has_key?(opts, :blob_root)
 
-    config = %__MODULE__{
-      instance: Keyword.get(opts, :instance, :default),
-      auto_start: Keyword.get(opts, :auto_start, true),
-      data_root: data_root,
-      blob_root: blob_root,
-      tmp_root:
-        Keyword.get(
-          opts,
-          :tmp_root,
-          application_root(:tmp_root, Path.join(blob_root, "tmp"), use_application_roots?)
-        ),
-      ra_root:
-        Keyword.get(
-          opts,
-          :ra_root,
-          application_root(:ra_root, Path.join(data_root, "ra"), use_application_roots?)
-        ),
-      metadata_root:
-        Keyword.get(
-          opts,
-          :metadata_root,
-          application_root(
+    with {:ok, worker_overrides} <- normalize_workers(Keyword.get(opts, :workers, %{})) do
+      workers = Map.merge(@worker_defaults, worker_overrides)
+
+      config = %__MODULE__{
+        instance: Keyword.get(opts, :instance, :default),
+        auto_start: Keyword.get(opts, :auto_start, true),
+        data_root: data_root,
+        blob_root: blob_root,
+        tmp_root:
+          Keyword.get(
+            opts,
+            :tmp_root,
+            application_root(:tmp_root, Path.join(blob_root, "tmp"), use_application_tmp_root?)
+          ),
+        ra_root:
+          Keyword.get(
+            opts,
+            :ra_root,
+            application_root(:ra_root, Path.join(data_root, "ra"), use_application_roots?)
+          ),
+        metadata_root:
+          Keyword.get(
+            opts,
             :metadata_root,
-            Path.join(data_root, "concord"),
-            use_application_roots?
-          )
-        ),
-      web_enabled: Keyword.get(opts, :web_enabled, true),
-      workers: workers,
-      mode: Keyword.get(opts, :mode, :standalone),
-      replication_factor: Keyword.get(opts, :replication_factor, 1),
-      write_quorum: Keyword.get(opts, :write_quorum, 1),
-      allow_degraded_writes: Keyword.get(opts, :allow_degraded_writes, false),
-      cluster_data_plane_enabled: Keyword.get(opts, :cluster_data_plane_enabled, false),
-      public_s3_enabled: Keyword.get(opts, :public_s3_enabled, true),
-      metadata_schema: Keyword.get(opts, :metadata_schema, :v2)
-    }
+            application_root(
+              :metadata_root,
+              Path.join(data_root, "concord"),
+              use_application_roots?
+            )
+          ),
+        web_enabled: Keyword.get(opts, :web_enabled, true),
+        workers: workers,
+        mode: Keyword.get(opts, :mode, :standalone),
+        replication_factor: Keyword.get(opts, :replication_factor, 1),
+        write_quorum: Keyword.get(opts, :write_quorum, 1),
+        allow_degraded_writes: Keyword.get(opts, :allow_degraded_writes, false),
+        cluster_data_plane_enabled: Keyword.get(opts, :cluster_data_plane_enabled, false),
+        public_s3_enabled: Keyword.get(opts, :public_s3_enabled, true),
+        metadata_schema: Keyword.get(opts, :metadata_schema, :v2)
+      }
 
-    validate(config)
+      validate(config)
+    end
   end
 
   @spec worker_enabled?(t(), atom()) :: boolean()
@@ -200,6 +203,16 @@ defmodule ExStorageService.InstanceConfig do
   end
 
   defp validate_workers(_workers), do: {:error, "workers must be a map or keyword list"}
+
+  defp normalize_workers(workers) when is_map(workers), do: {:ok, workers}
+
+  defp normalize_workers(workers) when is_list(workers) do
+    if Keyword.keyword?(workers),
+      do: {:ok, Map.new(workers)},
+      else: {:error, "workers must be a map or keyword list"}
+  end
+
+  defp normalize_workers(_workers), do: {:error, "workers must be a map or keyword list"}
 
   defp application_root(key, fallback, true),
     do: Application.get_env(:ex_storage_service, key, fallback)

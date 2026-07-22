@@ -67,6 +67,15 @@ defmodule ExStorageService.InstanceConfigTest do
   end
 
   test "split roots override independently while data_root remains the fallback" do
+    assert {:ok, fallback} = InstanceConfig.new(data_root: "/srv/ess")
+    assert fallback.blob_root == "/srv/ess/cas"
+    assert fallback.tmp_root == "/srv/ess/cas/tmp"
+    assert fallback.ra_root == "/srv/ess/ra"
+    assert fallback.metadata_root == "/srv/ess/concord"
+
+    assert {:ok, blob_override} = InstanceConfig.new(blob_root: "/blob/ess")
+    assert blob_override.tmp_root == "/blob/ess/tmp"
+
     assert {:ok, config} =
              InstanceConfig.new(
                data_root: "/srv/ess",
@@ -89,6 +98,8 @@ defmodule ExStorageService.InstanceConfigTest do
     assert {:error, _message} = InstanceConfig.new(web_enabled: :yes)
     assert {:error, _message} = InstanceConfig.new(workers: [packer: :yes])
     assert {:error, _message} = InstanceConfig.new(workers: [unknown: true])
+    assert {:error, _message} = InstanceConfig.new(workers: :invalid)
+    assert {:error, _message} = InstanceConfig.new(workers: [:invalid])
 
     assert {:ok, config} =
              InstanceConfig.new(

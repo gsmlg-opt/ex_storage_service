@@ -75,9 +75,11 @@ defmodule ExStorageService.InstanceSupervisor do
 
   defp replication_children(%Context{config: config} = context) do
     if InstanceConfig.worker_enabled?(config, :cross_cluster_replication) do
+      job_queue = name(context, :replication_job_queue, JobQueue)
+
       [
-        {JobQueue, [name: name(context, :replication_job_queue, JobQueue)]},
-        {Sync, [name: name(context, :replication_sync, Sync)]}
+        {JobQueue, [name: job_queue]},
+        {Sync, [name: name(context, :replication_sync, Sync), job_queue: job_queue]}
       ]
     else
       []
