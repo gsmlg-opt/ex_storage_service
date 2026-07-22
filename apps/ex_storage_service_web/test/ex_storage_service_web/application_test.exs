@@ -11,6 +11,10 @@ defmodule ExStorageServiceWeb.ApplicationTest do
     assert Application.children(enabled: false) == []
   end
 
+  test "metadata role cannot start the web endpoint" do
+    assert Application.children(enabled: true, node_role: :metadata) == []
+  end
+
   @tag :tmp_dir
   test "a host can supervise core while both listeners are disabled", %{tmp_dir: tmp_dir} do
     instance = "listener-free-#{System.unique_integer([:positive])}"

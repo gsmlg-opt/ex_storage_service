@@ -18,6 +18,15 @@ defmodule ExStorageService.InstanceConfig do
     :web_enabled,
     :workers,
     :mode,
+    :node_role,
+    :node_id,
+    :cluster_name,
+    :cluster_topology,
+    :cluster_members,
+    :cluster_seeds,
+    :cluster_bootstrap,
+    :erlang_node,
+    :erlang_cookie,
     :replication_factor,
     :write_quorum,
     :allow_degraded_writes,
@@ -39,6 +48,9 @@ defmodule ExStorageService.InstanceConfig do
   }
 
   @type mode :: :standalone | :cluster
+  @type node_role :: :data | :metadata
+  @type cluster_topology :: :none | :static | :dns
+  @type cluster_member :: %{required(:id) => String.t(), required(:endpoint) => node()}
   @type metadata_schema :: :v1 | :v2
 
   @type t :: %__MODULE__{
@@ -52,6 +64,15 @@ defmodule ExStorageService.InstanceConfig do
           web_enabled: boolean(),
           workers: %{required(atom()) => boolean()},
           mode: mode(),
+          node_role: node_role(),
+          node_id: String.t(),
+          cluster_name: String.t(),
+          cluster_topology: cluster_topology(),
+          cluster_members: [cluster_member()],
+          cluster_seeds: [node() | String.t()],
+          cluster_bootstrap: boolean(),
+          erlang_node: node(),
+          erlang_cookie: atom(),
           replication_factor: pos_integer(),
           write_quorum: pos_integer(),
           allow_degraded_writes: boolean(),
@@ -84,6 +105,9 @@ defmodule ExStorageService.InstanceConfig do
   def new(opts) when is_map(opts), do: opts |> Map.to_list() |> new()
 
   def new(opts) when is_list(opts) do
+    mode = Keyword.get(opts, :mode, :standalone)
+    node_role = Keyword.get(opts, :node_role, :data)
+
     data_root =
       Keyword.get(
         opts,
@@ -104,7 +128,12 @@ defmodule ExStorageService.InstanceConfig do
       not Keyword.has_key?(opts, :data_root) and not Keyword.has_key?(opts, :blob_root)
 
     with {:ok, worker_overrides} <- normalize_workers(Keyword.get(opts, :workers, %{})) do
-      workers = Map.merge(@worker_defaults, worker_overrides)
+      worker_defaults =
+        if node_role == :metadata,
+          do: Map.new(@worker_defaults, fn {worker, _enabled} -> {worker, false} end),
+          else: @worker_defaults
+
+      workers = Map.merge(worker_defaults, worker_overrides)
 
       config = %__MODULE__{
         instance: Keyword.get(opts, :instance, :default),
@@ -135,9 +164,18 @@ defmodule ExStorageService.InstanceConfig do
           ),
         web_enabled: Keyword.get(opts, :web_enabled, true),
         workers: workers,
-        mode: Keyword.get(opts, :mode, :standalone),
-        replication_factor: Keyword.get(opts, :replication_factor, 1),
-        write_quorum: Keyword.get(opts, :write_quorum, 1),
+        mode: mode,
+        node_role: node_role,
+        node_id: Keyword.get(opts, :node_id, "default"),
+        cluster_name: Keyword.get(opts, :cluster_name, "ex_storage_service"),
+        cluster_topology: Keyword.get(opts, :cluster_topology, :none),
+        cluster_members: Keyword.get(opts, :cluster_members, []),
+        cluster_seeds: Keyword.get(opts, :cluster_seeds, []),
+        cluster_bootstrap: Keyword.get(opts, :cluster_bootstrap, false),
+        erlang_node: Keyword.get(opts, :erlang_node, node()),
+        erlang_cookie: Keyword.get(opts, :erlang_cookie, Node.get_cookie()),
+        replication_factor: Keyword.get(opts, :replication_factor, cluster_default(mode, 2, 1)),
+        write_quorum: Keyword.get(opts, :write_quorum, cluster_default(mode, 2, 1)),
         allow_degraded_writes: Keyword.get(opts, :allow_degraded_writes, false),
         cluster_data_plane_enabled: Keyword.get(opts, :cluster_data_plane_enabled, false),
         public_s3_enabled: Keyword.get(opts, :public_s3_enabled, true),
@@ -219,8 +257,21 @@ defmodule ExStorageService.InstanceConfig do
 
   defp application_root(_key, fallback, false), do: fallback
 
+  defp cluster_default(:cluster, cluster_value, _standalone_value), do: cluster_value
+  defp cluster_default(_mode, _cluster_value, standalone_value), do: standalone_value
+
   defp validate_storage(%__MODULE__{mode: mode}) when mode not in [:standalone, :cluster],
     do: {:error, "mode must be :standalone or :cluster, got: #{inspect(mode)}"}
+
+  defp validate_storage(%__MODULE__{node_role: role}) when role not in [:data, :metadata],
+    do: {:error, "node role must be :data or :metadata, got: #{inspect(role)}"}
+
+  defp validate_storage(%__MODULE__{cluster_topology: topology})
+       when topology not in [:none, :static, :dns],
+       do: {:error, "cluster topology must be :none, :static, or :dns, got: #{inspect(topology)}"}
+
+  defp validate_storage(%__MODULE__{cluster_bootstrap: value}) when not is_boolean(value),
+    do: {:error, "cluster bootstrap must be a boolean"}
 
   defp validate_storage(%__MODULE__{metadata_schema: schema}) when schema not in [:v1, :v2],
     do: {:error, "metadata schema must be :v1 or :v2, got: #{inspect(schema)}"}
@@ -246,14 +297,109 @@ defmodule ExStorageService.InstanceConfig do
        when quorum > rf,
        do: {:error, "write quorum must satisfy 1 <= W <= RF (got W=#{quorum}, RF=#{rf})"}
 
-  defp validate_storage(%__MODULE__{
-         mode: :cluster,
-         public_s3_enabled: true,
-         cluster_data_plane_enabled: false
-       }),
-       do:
-         {:error,
-          "cluster mode cannot expose the public S3 writer while the cluster data plane is disabled"}
+  defp validate_storage(%__MODULE__{mode: :standalone, node_role: :metadata}),
+    do: {:error, "metadata role requires cluster mode"}
+
+  defp validate_storage(%__MODULE__{mode: :cluster} = config), do: validate_cluster(config)
 
   defp validate_storage(config), do: {:ok, config}
+
+  defp validate_cluster(config) do
+    with :ok <- require_disabled(config.public_s3_enabled, "public S3 listener"),
+         :ok <- require_disabled(config.web_enabled, "web listener"),
+         :ok <- require_disabled(config.cluster_data_plane_enabled, "cluster data plane"),
+         :ok <- validate_cluster_identity(config),
+         :ok <- validate_cluster_members(config),
+         :ok <- validate_cluster_seeds(config),
+         :ok <- validate_metadata_role(config) do
+      {:ok, config}
+    end
+  end
+
+  defp require_disabled(false, _feature), do: :ok
+
+  defp require_disabled(true, feature),
+    do: {:error, "cluster mode keeps the #{feature} disabled until the data plane is complete"}
+
+  defp validate_cluster_identity(config) do
+    cond do
+      not is_binary(config.node_id) or config.node_id == "" ->
+        {:error, "cluster mode requires a non-empty stable node id"}
+
+      not is_binary(config.cluster_name) or config.cluster_name == "" ->
+        {:error, "cluster mode requires a non-empty cluster name"}
+
+      config.cluster_topology not in [:static, :dns] ->
+        {:error, "cluster mode requires :static or :dns topology"}
+
+      not is_atom(config.erlang_node) or config.erlang_node == :nonode@nohost ->
+        {:error, "cluster mode requires a distributed Erlang node name"}
+
+      not is_atom(config.erlang_cookie) or config.erlang_cookie == :nocookie ->
+        {:error, "cluster mode requires a non-default Erlang cookie"}
+
+      true ->
+        :ok
+    end
+  end
+
+  defp validate_cluster_members(%__MODULE__{cluster_members: members} = config)
+       when is_list(members) do
+    ids = Enum.map(members, fn member -> if is_map(member), do: Map.get(member, :id) end)
+
+    endpoints =
+      Enum.map(members, fn member -> if is_map(member), do: Map.get(member, :endpoint) end)
+
+    cond do
+      length(members) != 3 ->
+        {:error, "Phase 4 cluster mode requires exactly three ordered metadata voters"}
+
+      not Enum.all?(members, &valid_cluster_member?/1) ->
+        {:error,
+         "cluster members must contain non-empty string ids and distributed node endpoints"}
+
+      MapSet.size(MapSet.new(ids)) != length(ids) ->
+        {:error, "cluster member ids must be unique"}
+
+      MapSet.size(MapSet.new(endpoints)) != length(endpoints) ->
+        {:error, "cluster member endpoints must be unique"}
+
+      not Enum.any?(members, fn member ->
+        member.id == config.node_id and member.endpoint == config.erlang_node
+      end) ->
+        {:error, "local node id and Erlang endpoint must match one configured cluster member"}
+
+      true ->
+        :ok
+    end
+  end
+
+  defp validate_cluster_members(_config), do: {:error, "cluster members must be a list"}
+
+  defp valid_cluster_member?(%{id: id, endpoint: endpoint}) do
+    is_binary(id) and id != "" and is_atom(endpoint) and endpoint != :nonode@nohost and
+      String.contains?(Atom.to_string(endpoint), "@")
+  end
+
+  defp valid_cluster_member?(_member), do: false
+
+  defp validate_cluster_seeds(%__MODULE__{cluster_topology: :static, cluster_seeds: seeds}) do
+    if is_list(seeds) and seeds != [] and Enum.all?(seeds, &is_atom/1),
+      do: :ok,
+      else: {:error, "static cluster topology requires Erlang node seeds"}
+  end
+
+  defp validate_cluster_seeds(%__MODULE__{cluster_topology: :dns, cluster_seeds: seeds}) do
+    if is_list(seeds) and seeds != [] and Enum.all?(seeds, &(is_binary(&1) and &1 != "")),
+      do: :ok,
+      else: {:error, "DNS cluster topology requires one or more DNS queries"}
+  end
+
+  defp validate_metadata_role(%__MODULE__{node_role: :metadata, workers: workers}) do
+    if Enum.any?(workers, fn {_worker, enabled} -> enabled end),
+      do: {:error, "metadata role cannot enable data-plane workers"},
+      else: :ok
+  end
+
+  defp validate_metadata_role(_config), do: :ok
 end

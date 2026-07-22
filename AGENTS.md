@@ -109,6 +109,15 @@ The codebase is structured as an umbrella project with four apps:
   `ESS_CLUSTER_DATA_PLANE_ENABLED`, and `ESS_PUBLIC_S3_ENABLED`. Defaults must
   preserve standalone RF=1/W=1 behavior, and cluster mode must not expose the
   public S3 writer while its data plane is disabled.
+- Cluster metadata variables are `ESS_NODE_ROLE`, `ESS_NODE_ID`,
+  `ESS_CLUSTER_NAME`, `ESS_CLUSTER_TOPOLOGY`, `ESS_CLUSTER_MEMBERS`,
+  `ESS_CLUSTER_SEEDS`, and `ESS_CLUSTER_BOOTSTRAP`. Cluster mode is a fixed,
+  ordered three-voter Concord configuration and requires a distributed Erlang
+  node name and non-default shared cookie. Set bootstrap true on all voters
+  only for the first start of an entirely empty cluster; use false for every
+  restart. Metadata-role nodes start only Concord and discovery, with no CAS,
+  workers, S3 listener, or admin listener. Keep the public cluster write guard
+  closed until the blob quorum phase is complete.
 - Embedding variables are `ESS_AUTO_START`, `ESS_INSTANCE`, `ESS_BLOB_ROOT`,
   `ESS_TMP_ROOT`, `ESS_RA_ROOT`, `ESS_METADATA_ROOT`, and `ESS_WEB_ENABLED`.
   `ESS_TMP_ROOT` must share a filesystem with `ESS_BLOB_ROOT`; startup rejects

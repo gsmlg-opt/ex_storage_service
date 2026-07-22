@@ -41,6 +41,12 @@ defmodule ExStorageService.InstanceSupervisor do
   def children(%Context{} = context) do
     config = context.config
 
+    if config.node_role == :metadata, do: [], else: data_children(context)
+  end
+
+  defp data_children(%Context{} = context) do
+    config = context.config
+
     [
       {Engine,
        [
@@ -94,12 +100,16 @@ defmodule ExStorageService.InstanceSupervisor do
     do: Names.process(context.instance, component, legacy)
 
   defp prepare_roots(context) do
-    [context.data_root, context.blob_root, context.tmp_root]
-    |> Enum.reduce_while(:ok, fn root, :ok ->
-      case File.mkdir_p(root) do
-        :ok -> {:cont, :ok}
-        {:error, reason} -> {:halt, {:error, {root, reason}}}
-      end
-    end)
+    if context.config.node_role == :metadata do
+      :ok
+    else
+      [context.data_root, context.blob_root, context.tmp_root]
+      |> Enum.reduce_while(:ok, fn root, :ok ->
+        case File.mkdir_p(root) do
+          :ok -> {:cont, :ok}
+          {:error, reason} -> {:halt, {:error, {root, reason}}}
+        end
+      end)
+    end
   end
 end

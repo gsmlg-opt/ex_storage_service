@@ -3,9 +3,35 @@ defmodule ExStorageService.InstanceConfigTest do
 
   alias ExStorageService.InstanceConfig
 
+  @cluster_members [
+    %{id: "node-a", endpoint: :"ess-a@127.0.0.1"},
+    %{id: "node-b", endpoint: :"ess-b@127.0.0.1"},
+    %{id: "node-c", endpoint: :"ess-c@127.0.0.1"}
+  ]
+
+  @cluster_opts [
+    mode: :cluster,
+    node_role: :data,
+    node_id: "node-a",
+    cluster_name: "ess-test",
+    cluster_topology: :static,
+    cluster_members: @cluster_members,
+    cluster_seeds: [:"ess-b@127.0.0.1", :"ess-c@127.0.0.1"],
+    cluster_bootstrap: true,
+    erlang_node: :"ess-a@127.0.0.1",
+    erlang_cookie: :ess_test_cookie,
+    public_s3_enabled: false,
+    web_enabled: false,
+    cluster_data_plane_enabled: false
+  ]
+
   test "current standalone defaults are valid" do
     assert {:ok, config} = InstanceConfig.new([])
     assert config.mode == :standalone
+    assert config.node_role == :data
+    assert config.node_id == "default"
+    assert config.cluster_topology == :none
+    assert config.cluster_members == []
     assert config.replication_factor == 1
     assert config.write_quorum == 1
     assert config.instance == :default
@@ -40,30 +66,83 @@ defmodule ExStorageService.InstanceConfigTest do
 
   test "cluster mode fails fast while the cluster data plane is disabled" do
     assert {:error, message} =
-             InstanceConfig.new(
-               mode: :cluster,
-               replication_factor: 2,
-               write_quorum: 2,
-               public_s3_enabled: true,
-               cluster_data_plane_enabled: false
-             )
+             @cluster_opts
+             |> Keyword.put(:public_s3_enabled, true)
+             |> Keyword.put(:cluster_data_plane_enabled, true)
+             |> InstanceConfig.new()
 
-    assert message =~ "cannot expose the public S3 writer"
+    assert message =~ "public S3 listener"
   end
 
   test "metadata-only cluster scaffolding accepts strict RF=2/W=2" do
+    workers = Map.new(InstanceConfig.worker_defaults(), fn {worker, _} -> {worker, false} end)
+
     assert {:ok, config} =
-             InstanceConfig.new(
-               mode: :cluster,
-               replication_factor: 2,
-               write_quorum: 2,
-               public_s3_enabled: false,
-               cluster_data_plane_enabled: false
-             )
+             @cluster_opts
+             |> Keyword.put(:node_role, :metadata)
+             |> Keyword.put(:node_id, "node-c")
+             |> Keyword.put(:erlang_node, :"ess-c@127.0.0.1")
+             |> Keyword.put(:workers, workers)
+             |> Keyword.put(:replication_factor, 2)
+             |> Keyword.put(:write_quorum, 2)
+             |> InstanceConfig.new()
 
     assert config.mode == :cluster
+    assert config.node_role == :metadata
     assert config.replication_factor == 2
     assert config.write_quorum == 2
+    refute Enum.any?(config.workers, fn {_worker, enabled} -> enabled end)
+  end
+
+  test "cluster identity, membership, topology, and role fail fast" do
+    assert {:error, message} = InstanceConfig.new(mode: :cluster)
+    assert message =~ "public S3 listener"
+
+    assert {:error, message} =
+             InstanceConfig.new(mode: :cluster, public_s3_enabled: false)
+
+    assert message =~ "web listener"
+
+    assert {:error, message} =
+             @cluster_opts
+             |> Keyword.put(:cluster_members, tl(@cluster_members))
+             |> InstanceConfig.new()
+
+    assert message =~ "exactly three"
+
+    duplicate = [
+      Enum.at(@cluster_members, 0),
+      Enum.at(@cluster_members, 0),
+      Enum.at(@cluster_members, 2)
+    ]
+
+    assert {:error, message} =
+             @cluster_opts |> Keyword.put(:cluster_members, duplicate) |> InstanceConfig.new()
+
+    assert message =~ "unique"
+
+    assert {:error, message} =
+             @cluster_opts |> Keyword.put(:erlang_node, :nonode@nohost) |> InstanceConfig.new()
+
+    assert message =~ "distributed Erlang"
+
+    assert {:error, message} =
+             @cluster_opts |> Keyword.put(:erlang_cookie, :nocookie) |> InstanceConfig.new()
+
+    assert message =~ "cookie"
+
+    assert {:error, message} =
+             @cluster_opts |> Keyword.put(:cluster_topology, :dns) |> InstanceConfig.new()
+
+    assert message =~ "DNS"
+
+    assert {:error, message} =
+             @cluster_opts
+             |> Keyword.put(:node_role, :metadata)
+             |> Keyword.put(:workers, %{cas_gc: true})
+             |> InstanceConfig.new()
+
+    assert message =~ "data-plane workers"
   end
 
   test "split roots override independently while data_root remains the fallback" do

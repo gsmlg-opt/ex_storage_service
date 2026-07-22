@@ -154,6 +154,70 @@ defmodule ExStorageService.InstanceSupervisorTest do
              ExStorageService.Application.children(enabled)
   end
 
+  test "metadata role application starts only cluster discovery" do
+    members = [
+      %{id: "node-a", endpoint: :"ess-a@127.0.0.1"},
+      %{id: "node-b", endpoint: :"ess-b@127.0.0.1"},
+      %{id: "node-c", endpoint: :"ess-c@127.0.0.1"}
+    ]
+
+    assert {:ok, config} =
+             InstanceConfig.new(
+               mode: :cluster,
+               node_role: :metadata,
+               node_id: "node-c",
+               cluster_name: "ess-test",
+               cluster_topology: :static,
+               cluster_members: members,
+               cluster_seeds: [:"ess-a@127.0.0.1", :"ess-b@127.0.0.1"],
+               erlang_node: :"ess-c@127.0.0.1",
+               erlang_cookie: :ess_test_cookie,
+               public_s3_enabled: false,
+               web_enabled: false
+             )
+
+    assert [{ExStorageService.Cluster.StaticDiscovery, _opts}] =
+             ExStorageService.Application.children(config)
+  end
+
+  @tag :tmp_dir
+  test "metadata role starts no data-plane children or roots", %{tmp_dir: tmp_dir} do
+    instance = "metadata-#{System.unique_integer([:positive])}"
+
+    members = [
+      %{id: "node-a", endpoint: :"ess-a@127.0.0.1"},
+      %{id: "node-b", endpoint: :"ess-b@127.0.0.1"},
+      %{id: "node-c", endpoint: :"ess-c@127.0.0.1"}
+    ]
+
+    {:ok, config} =
+      instance_opts(instance, tmp_dir)
+      |> Keyword.merge(
+        mode: :cluster,
+        node_role: :metadata,
+        node_id: "node-c",
+        cluster_name: "ess-test",
+        cluster_topology: :static,
+        cluster_members: members,
+        cluster_seeds: [:"ess-a@127.0.0.1", :"ess-b@127.0.0.1"],
+        erlang_node: :"ess-c@127.0.0.1",
+        erlang_cookie: :ess_test_cookie,
+        public_s3_enabled: false,
+        web_enabled: false
+      )
+      |> InstanceConfig.new()
+
+    context = Context.new(config)
+    assert ExStorageService.InstanceSupervisor.children(context) == []
+
+    assert {:ok, supervisor} = ExStorageService.start_link(config)
+    assert Supervisor.which_children(supervisor) == []
+    refute File.exists?(context.data_root)
+    refute File.exists?(context.blob_root)
+    refute File.exists?(context.tmp_root)
+    Supervisor.stop(supervisor)
+  end
+
   test "names use Registry keys without creating dynamic atoms" do
     assert {:via, Registry, {ExStorageService.Registry, {"tenant-a", :engine}}} =
              Names.via("tenant-a", :engine)

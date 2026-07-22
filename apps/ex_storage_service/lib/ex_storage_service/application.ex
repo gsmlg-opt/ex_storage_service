@@ -4,12 +4,13 @@ defmodule ExStorageService.Application do
   use Application
   require Logger
 
+  alias ExStorageService.Cluster.{Readiness, Topology}
+
   @impl true
   def start(_type, _args) do
     config = instance_config!()
 
-    # Wait for Concord/VSR to be ready before starting services.
-    wait_for_concord()
+    if config.mode == :standalone, do: wait_for_concord()
 
     # Initialize metrics collection
     ExStorageService.Metrics.setup()
@@ -17,7 +18,10 @@ defmodule ExStorageService.Application do
     opts = [strategy: :one_for_one, name: ExStorageService.Supervisor]
     result = Supervisor.start_link(children(config), opts)
 
-    if config.auto_start and Code.ensure_loaded?(Mix) and Mix.env() == :dev do
+    if config.mode == :cluster, do: log_cluster_readiness()
+
+    if config.mode == :standalone and config.auto_start and Code.ensure_loaded?(Mix) and
+         Mix.env() == :dev do
       Task.start(fn -> seed_dev_keys() end)
     end
 
@@ -25,14 +29,19 @@ defmodule ExStorageService.Application do
   end
 
   @doc false
-  def children(config) do
-    infrastructure = [
-      {Registry, keys: :unique, name: ExStorageService.Names.registry()},
-      {Phoenix.PubSub, name: ExStorageService.PubSub},
-      {Task.Supervisor, name: ExStorageService.NotificationTaskSupervisor}
-    ]
+  def children(%{node_role: :metadata} = config), do: Topology.children(config)
 
-    if config.auto_start do
+  def children(config) do
+    infrastructure =
+      [
+        {Registry, keys: :unique, name: ExStorageService.Names.registry()},
+        Topology.children(config),
+        {Phoenix.PubSub, name: ExStorageService.PubSub},
+        {Task.Supervisor, name: ExStorageService.NotificationTaskSupervisor}
+      ]
+      |> List.flatten()
+
+    if config.auto_start and config.node_role == :data do
       infrastructure ++ [{ExStorageService, config}]
     else
       infrastructure
@@ -97,6 +106,13 @@ defmodule ExStorageService.Application do
 
       other ->
         Logger.warning("Concord readiness check result: #{inspect(other)}, proceeding anyway")
+    end
+  end
+
+  defp log_cluster_readiness do
+    case Readiness.check(timeout: 250) do
+      {:ok, _status} -> Logger.info("Concord VSR metadata quorum ready")
+      {:error, reason} -> Logger.info("Concord VSR metadata quorum pending: #{inspect(reason)}")
     end
   end
 end

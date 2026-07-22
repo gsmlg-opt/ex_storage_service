@@ -13,4 +13,8 @@ defmodule ExStorageServiceS3.ApplicationTest do
   test "omits the Bandit listener when public S3 is disabled" do
     assert Application.children(enabled: false) == []
   end
+
+  test "metadata role cannot start the Bandit listener" do
+    assert Application.children(enabled: true, node_role: :metadata) == []
+  end
 end

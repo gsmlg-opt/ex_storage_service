@@ -16,7 +16,12 @@ defmodule ExStorageServiceS3.Application do
         Application.get_env(:ex_storage_service_s3, :enabled, true)
       end)
 
-    if enabled? do
+    node_role =
+      Keyword.get_lazy(opts, :node_role, fn ->
+        Application.get_env(:ex_storage_service, :node_role, :data)
+      end)
+
+    if enabled? and node_role == :data do
       s3_port =
         Keyword.get_lazy(opts, :port, fn ->
           Application.get_env(:ex_storage_service, :s3_port, 9000)

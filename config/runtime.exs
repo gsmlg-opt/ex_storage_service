@@ -45,6 +45,75 @@ mode =
     value -> raise "ESS_MODE must be standalone or cluster, got: #{inspect(value)}"
   end
 
+node_role =
+  case System.get_env("ESS_NODE_ROLE", "data") |> String.downcase() do
+    "data" -> :data
+    "metadata" -> :metadata
+    value -> raise "ESS_NODE_ROLE must be data or metadata, got: #{inspect(value)}"
+  end
+
+cluster_topology =
+  case System.get_env("ESS_CLUSTER_TOPOLOGY", if(mode == :cluster, do: "static", else: "none"))
+       |> String.downcase() do
+    "none" -> :none
+    "static" -> :static
+    "dns" -> :dns
+    value -> raise "ESS_CLUSTER_TOPOLOGY must be none, static, or dns, got: #{inspect(value)}"
+  end
+
+node_id = System.get_env("ESS_NODE_ID", if(mode == :cluster, do: "", else: "default"))
+
+cluster_name =
+  System.get_env("ESS_CLUSTER_NAME", if(mode == :cluster, do: "", else: "ex_storage_service"))
+
+parse_cluster_members = fn value ->
+  value
+  |> String.split(",", trim: true)
+  |> Enum.map(fn entry ->
+    case String.split(entry, "=", parts: 2) do
+      [id, endpoint] when id != "" and endpoint != "" ->
+        %{id: id, endpoint: String.to_atom(endpoint)}
+
+      _ ->
+        raise "ESS_CLUSTER_MEMBERS must use ordered id=node@host entries, got: #{inspect(entry)}"
+    end
+  end)
+end
+
+cluster_members =
+  case {mode, System.get_env("ESS_CLUSTER_MEMBERS")} do
+    {:standalone, _value} -> []
+    {:cluster, nil} -> []
+    {:cluster, value} -> parse_cluster_members.(value)
+  end
+
+cluster_seeds =
+  case {mode, cluster_topology, System.get_env("ESS_CLUSTER_SEEDS")} do
+    {:standalone, _topology, _value} ->
+      []
+
+    {:cluster, :static, nil} ->
+      cluster_members
+      |> Enum.map(& &1.endpoint)
+      |> Enum.reject(&(&1 == node()))
+
+    {:cluster, :static, value} ->
+      value
+      |> String.split(",", trim: true)
+      |> Enum.map(&String.to_atom/1)
+
+    {:cluster, :dns, nil} ->
+      []
+
+    {:cluster, :dns, value} ->
+      String.split(value, ",", trim: true)
+
+    {:cluster, :none, _value} ->
+      []
+  end
+
+cluster_bootstrap? = parse_boolean.("ESS_CLUSTER_BOOTSTRAP", "false")
+
 metadata_schema =
   case System.get_env("ESS_METADATA_SCHEMA", "v2") |> String.downcase() do
     "v1" -> :v1
@@ -56,14 +125,25 @@ instance_config = [
   auto_start: auto_start?,
   instance: instance,
   mode: mode,
+  node_role: node_role,
+  node_id: node_id,
+  cluster_name: cluster_name,
+  cluster_topology: cluster_topology,
+  cluster_members: cluster_members,
+  cluster_seeds: cluster_seeds,
+  cluster_bootstrap: cluster_bootstrap?,
+  erlang_node: node(),
+  erlang_cookie: Node.get_cookie(),
   data_root: data_root,
   blob_root: blob_root,
   tmp_root: tmp_root,
   ra_root: ra_root,
   metadata_root: metadata_root,
   web_enabled: web_enabled?,
-  replication_factor: parse_positive_integer.("ESS_REPLICATION_FACTOR", "1"),
-  write_quorum: parse_positive_integer.("ESS_WRITE_QUORUM", "1"),
+  replication_factor:
+    parse_positive_integer.("ESS_REPLICATION_FACTOR", if(mode == :cluster, do: "2", else: "1")),
+  write_quorum:
+    parse_positive_integer.("ESS_WRITE_QUORUM", if(mode == :cluster, do: "2", else: "1")),
   allow_degraded_writes: parse_boolean.("ESS_ALLOW_DEGRADED_WRITES", "false"),
   cluster_data_plane_enabled: parse_boolean.("ESS_CLUSTER_DATA_PLANE_ENABLED", "false"),
   public_s3_enabled: public_s3_enabled?,
@@ -77,17 +157,30 @@ default_admin_hash = Base.encode16(:crypto.hash(:sha256, "admin"), case: :lower)
 # Concord 3 uses an explicit singleton Viewstamped Replication configuration
 # for standalone mode. A singleton can initialize empty storage and recover
 # durable storage with bootstrap disabled.
-concord_replica_id = node()
+concord_vsr =
+  case mode do
+    :standalone ->
+      [
+        group_id: :ex_storage_service_metadata,
+        replica_id: node(),
+        members: [%{id: node(), endpoint: node()}],
+        storage: :file,
+        bootstrap: false
+      ]
 
-config :concord,
-  data_dir: metadata_root,
-  vsr: [
-    group_id: :ex_storage_service_metadata,
-    replica_id: concord_replica_id,
-    members: [%{id: concord_replica_id, endpoint: concord_replica_id}],
-    storage: :file,
-    bootstrap: false
-  ]
+    :cluster ->
+      [
+        group_id: cluster_name,
+        replica_id: node_id,
+        members: cluster_members,
+        transport: :distribution,
+        storage: :file,
+        storage_path: Path.join(metadata_root, "vsr"),
+        bootstrap: cluster_bootstrap?
+      ]
+  end
+
+config :concord, data_dir: metadata_root, vsr: concord_vsr
 
 config :ex_storage_service,
   auto_start: auto_start?,
@@ -96,6 +189,7 @@ config :ex_storage_service,
   tmp_root: tmp_root,
   ra_root: ra_root,
   metadata_root: metadata_root,
+  node_role: node_role,
   instance_config: instance_config,
   s3_port:
     String.to_integer(
@@ -125,8 +219,8 @@ config :ex_storage_service,
   # disabled in the test env so multipart mechanics tests can use tiny parts.
   min_part_size: if(config_env() == :test, do: 0, else: 5 * 1024 * 1024)
 
-config :ex_storage_service_s3, enabled: public_s3_enabled?
-config :ex_storage_service_web, enabled: web_enabled?
+config :ex_storage_service_s3, enabled: public_s3_enabled? and node_role == :data
+config :ex_storage_service_web, enabled: web_enabled? and node_role == :data
 
 if config_env() == :prod do
   # ── Security guardrail 1: S3 auth must be explicitly enabled ───────────────

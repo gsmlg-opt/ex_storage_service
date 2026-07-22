@@ -267,9 +267,16 @@ Repository layout:
 | `ESS_TMP_ROOT` | `${ESS_BLOB_ROOT}/tmp` | Staging files; must share a filesystem with the blob root for atomic publication |
 | `ESS_RA_ROOT` | `${ESS_DATA_ROOT}/ra` | Legacy embedding compatibility value; Concord 3 does not use Ra storage |
 | `ESS_METADATA_ROOT` | `${ESS_DATA_ROOT}/concord` | Node-local Concord/VSR metadata state |
-| `ESS_MODE` | `standalone` | Storage mode. `cluster` is reserved for guarded future activation |
-| `ESS_REPLICATION_FACTOR` | `1` | Desired blob replica count; must be at least 1 |
-| `ESS_WRITE_QUORUM` | `1` | Required durable writes; must satisfy `1 <= W <= RF` |
+| `ESS_MODE` | `standalone` | `standalone` for the local service or `cluster` for the guarded three-voter metadata mode |
+| `ESS_NODE_ROLE` | `data` | Node role: `data` or, in cluster mode, `metadata` |
+| `ESS_NODE_ID` | `default` | Stable voter identity; required in cluster mode and must match one member entry |
+| `ESS_CLUSTER_NAME` | `ex_storage_service` | Stable Concord/VSR group identity; required and identical on every cluster voter |
+| `ESS_CLUSTER_TOPOLOGY` | `none` | Discovery strategy: `static` or `dns` in cluster mode |
+| `ESS_CLUSTER_MEMBERS` | empty | Ordered fixed membership as exactly three `id=node@host` entries |
+| `ESS_CLUSTER_SEEDS` | other members | Comma-separated Erlang nodes for static discovery or DNS queries for DNS discovery |
+| `ESS_CLUSTER_BOOTSTRAP` | `false` | Set `true` on all three voters only for the first start of an entirely empty cluster |
+| `ESS_REPLICATION_FACTOR` | `1` standalone, `2` cluster | Desired blob replica count; must be at least 1 |
+| `ESS_WRITE_QUORUM` | `1` standalone, `2` cluster | Required durable writes; must satisfy `1 <= W <= RF` |
 | `ESS_ALLOW_DEGRADED_WRITES` | `false` | Future availability-over-durability policy; inactive in standalone mode |
 | `ESS_CLUSTER_DATA_PLANE_ENABLED` | `false` | Future cluster data-plane activation guard; does not activate clustering in this release |
 | `ESS_PUBLIC_S3_ENABLED` | `true` | Start the public S3 Bandit listener |
@@ -284,10 +291,30 @@ Repository layout:
 | `SECRET_KEY_BASE` | none | Phoenix session signing key; required in production |
 | `PHX_HOST` | `localhost` | Production URL host for the admin portal |
 
-The current supported runtime remains standalone local storage with RF=1/W=1.
-Selecting cluster mode while the public S3 writer is enabled fails startup
-unless the cluster data-plane guard is explicitly enabled. This is activation
-scaffolding only: clustering and remote blob replication remain disabled.
+Standalone local storage remains the default with RF=1/W=1. Phase 4 also
+supports a fixed, ordered three-voter Concord metadata cluster with static or
+DNS discovery. Start every cluster BEAM with a distributed Erlang node name
+and a non-default shared cookie. `ESS_NODE_ID` is the stable storage identity;
+the transient Erlang process and PID are not used as voter identity.
+
+On the first start of a completely empty cluster, set
+`ESS_CLUSTER_BOOTSTRAP=true` on all three voters. After durable VSR state
+exists, restart every voter with the flag false. Concord validates the stored
+cluster configuration, replica identity, and ordered membership against the
+runtime configuration. Membership reconfiguration is not supported in this
+phase.
+
+Cluster mode rejects the public S3 listener, admin listener, and cluster data
+plane unconditionally. It proves metadata quorum only: remote blob transport,
+blob replication, and public multi-node object writes remain disabled until
+later phases. A metadata-role node starts only its Concord voter and discovery;
+it creates no CAS/blob roots and starts no public listener.
+
+Run the isolated three-voter acceptance harness explicitly with:
+
+```sh
+PAGER=cat mix test apps/ex_storage_service/test/ex_storage_service/cluster/three_voter_cluster_test.exs --include cluster
+```
 
 For embedding, set `ESS_AUTO_START=false`, `ESS_PUBLIC_S3_ENABLED=false`, and
 `ESS_WEB_ENABLED=false`, then add `ExStorageService.child_spec/1` to the host

@@ -2,9 +2,10 @@
 
 ## Status and scope
 
-Phase 0 records the target architecture and adds configuration guards. The
-only supported behavior in this branch is the existing standalone local
-storage service. Concord clustering, public multi-node writes, an internal
+Phases 0 through 4 establish atomic metadata, durable streaming local blobs,
+embeddable supervision, and a fixed three-voter Concord metadata cluster. The
+default remains the standalone local storage service. Phase 4 enables only the
+metadata control plane: public multi-node object writes, the internal blob
 transport, and blob replication remain disabled.
 
 The cluster design is scoped to one datacenter or low-latency availability
@@ -40,6 +41,31 @@ node-c: metadata-only Concord replica
 
 The metadata-only replica stores the full VSR metadata log, stores no object
 bytes, and exposes no public S3 endpoint.
+
+## Phase 4 membership and discovery
+
+Concord 3 uses fixed, ordered membership. Every voter must receive the same
+three `{id, endpoint}` entries and cluster name. `ESS_NODE_ID` is a stable
+storage identity independent of a transient process, PID, or connection. Each
+voter has its own `ESS_METADATA_ROOT`; Concord's file storage persists and
+validates the replica identity, group, and membership configuration there.
+
+Discovery and membership are deliberately separate. Static discovery retries
+connections to explicit Erlang node seeds. DNS discovery uses the existing
+`dns_cluster` dependency. Neither path adds or removes voters from Concord.
+Dynamic membership and reconfiguration are outside Phase 4.
+
+A new, entirely empty three-voter cluster requires
+`ESS_CLUSTER_BOOTSTRAP=true` on all voters. Once any voter has durable VSR
+state, all restarts use `ESS_CLUSTER_BOOTSTRAP=false`; bootstrapping non-empty
+storage is rejected. Readiness is based on `Concord.status/1`, whose
+quorum-confirmed read barrier proves a primary and majority are available.
+
+The tagged `:peer` acceptance harness uses three independent VSR directories
+and proves cross-node strong reads, minority write rejection, majority writes
+with one voter unavailable, catch-up, and restart with the same stable voter
+identity. It is excluded from the ordinary unit suite and must be selected
+with `--include cluster`.
 
 ## Locked Concord capability record
 
@@ -79,8 +105,8 @@ The strict cluster target is replication factor 2 and write quorum 2
 two selected data nodes durably store and verify the blob and the metadata
 transaction commits. Standalone mode retains RF=1/W=1.
 
-Cluster writes remain disabled in this branch because atomic metadata alone
-does not provide blob durability. The internal authenticated transport,
+Public object writes in cluster mode remain disabled because atomic metadata
+alone does not provide blob durability. The internal authenticated transport,
 replica acknowledgements, placement, quorum coordinator, remote reads, repair,
 and orphan cleanup must exist before public multi-node writes are safe.
 
@@ -105,8 +131,9 @@ blob replica count before active-active traffic is enabled.
 
 ## Activation guards
 
-Configuration validates `1 <= write_quorum <= replication_factor`. Cluster
-mode cannot expose the public S3 writer while
-`ESS_CLUSTER_DATA_PLANE_ENABLED=false`. The flag is a guard, not a data-plane
-implementation, and setting it in this branch does not enable Concord
-discovery, remote blob transfer, or clustered writes.
+Configuration validates `1 <= write_quorum <= replication_factor`, stable
+identity, exactly three unique voter IDs/endpoints, discovery inputs, and the
+local voter/member match. Cluster mode rejects the public S3 listener, admin
+listener, and `ESS_CLUSTER_DATA_PLANE_ENABLED=true` in Phase 4. Concord
+metadata discovery and quorum are active, but the closed guard prevents remote
+blob transfer or clustered object writes.

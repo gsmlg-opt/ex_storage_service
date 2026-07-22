@@ -16,7 +16,12 @@ defmodule ExStorageServiceWeb.Application do
         Application.get_env(:ex_storage_service_web, :enabled, true)
       end)
 
-    if enabled?, do: [ExStorageServiceWeb.Endpoint], else: []
+    node_role =
+      Keyword.get_lazy(opts, :node_role, fn ->
+        Application.get_env(:ex_storage_service, :node_role, :data)
+      end)
+
+    if enabled? and node_role == :data, do: [ExStorageServiceWeb.Endpoint], else: []
   end
 
   @impl true
