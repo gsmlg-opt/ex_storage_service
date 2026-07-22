@@ -145,6 +145,7 @@ defmodule ExStorageService.Cluster.ThreeVoterClusterTest do
       cluster_bootstrap: bootstrap?,
       erlang_node: peer.node,
       erlang_cookie: @cookie,
+      internal_advertised_url: "http://#{peer.id}.internal:9100",
       data_root: Path.join(peer.root, "data"),
       blob_root: Path.join(peer.root, "blob-should-not-exist"),
       tmp_root: Path.join(peer.root, "tmp-should-not-exist"),

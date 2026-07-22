@@ -2,9 +2,9 @@ defmodule ExStorageService.InstanceConfig do
   @moduledoc """
   Validated configuration for one storage instance.
 
-  Phase 0 keeps the application in standalone mode. Cluster values are parsed
-  now so an unsafe public cluster writer cannot be enabled accidentally before
-  the data plane is implemented.
+  Standalone remains the default. Cluster metadata and private transport values
+  are typed and validated while the public cluster writer stays disabled until
+  replica quorum semantics are complete.
   """
 
   @enforce_keys [
@@ -27,6 +27,14 @@ defmodule ExStorageService.InstanceConfig do
     :cluster_bootstrap,
     :erlang_node,
     :erlang_cookie,
+    :internal_transport_enabled,
+    :internal_bind,
+    :internal_port,
+    :internal_advertised_url,
+    :internal_secret,
+    :internal_tls_certfile,
+    :internal_tls_keyfile,
+    :internal_auth_skew_seconds,
     :replication_factor,
     :write_quorum,
     :allow_degraded_writes,
@@ -34,6 +42,7 @@ defmodule ExStorageService.InstanceConfig do
     :public_s3_enabled,
     :metadata_schema
   ]
+  @derive {Inspect, except: [:internal_secret]}
   defstruct @enforce_keys
 
   @worker_defaults %{
@@ -73,6 +82,14 @@ defmodule ExStorageService.InstanceConfig do
           cluster_bootstrap: boolean(),
           erlang_node: node(),
           erlang_cookie: atom(),
+          internal_transport_enabled: boolean(),
+          internal_bind: :inet.ip_address(),
+          internal_port: :inet.port_number(),
+          internal_advertised_url: String.t() | nil,
+          internal_secret: String.t() | nil,
+          internal_tls_certfile: String.t() | nil,
+          internal_tls_keyfile: String.t() | nil,
+          internal_auth_skew_seconds: pos_integer(),
           replication_factor: pos_integer(),
           write_quorum: pos_integer(),
           allow_degraded_writes: boolean(),
@@ -174,6 +191,14 @@ defmodule ExStorageService.InstanceConfig do
         cluster_bootstrap: Keyword.get(opts, :cluster_bootstrap, false),
         erlang_node: Keyword.get(opts, :erlang_node, node()),
         erlang_cookie: Keyword.get(opts, :erlang_cookie, Node.get_cookie()),
+        internal_transport_enabled: mode == :cluster and node_role == :data,
+        internal_bind: Keyword.get(opts, :internal_bind, {127, 0, 0, 1}),
+        internal_port: Keyword.get(opts, :internal_port, 9100),
+        internal_advertised_url: Keyword.get(opts, :internal_advertised_url),
+        internal_secret: Keyword.get(opts, :internal_secret),
+        internal_tls_certfile: Keyword.get(opts, :internal_tls_certfile),
+        internal_tls_keyfile: Keyword.get(opts, :internal_tls_keyfile),
+        internal_auth_skew_seconds: Keyword.get(opts, :internal_auth_skew_seconds, 300),
         replication_factor: Keyword.get(opts, :replication_factor, cluster_default(mode, 2, 1)),
         write_quorum: Keyword.get(opts, :write_quorum, cluster_default(mode, 2, 1)),
         allow_degraded_writes: Keyword.get(opts, :allow_degraded_writes, false),
@@ -293,16 +318,42 @@ defmodule ExStorageService.InstanceConfig do
   defp validate_storage(%__MODULE__{public_s3_enabled: value}) when not is_boolean(value),
     do: {:error, "public S3 enabled must be a boolean"}
 
-  defp validate_storage(%__MODULE__{replication_factor: rf, write_quorum: quorum})
+  defp validate_storage(%__MODULE__{internal_transport_enabled: value})
+       when not is_boolean(value),
+       do: {:error, "internal transport enabled must be a boolean"}
+
+  defp validate_storage(%__MODULE__{internal_port: port})
+       when not is_integer(port) or port < 1 or port > 65_535,
+       do: {:error, "internal port must be an integer between 1 and 65535"}
+
+  defp validate_storage(%__MODULE__{internal_secret: secret})
+       when not is_nil(secret) and (not is_binary(secret) or secret == ""),
+       do: {:error, "internal secret must be nil or a non-empty binary"}
+
+  defp validate_storage(%__MODULE__{internal_auth_skew_seconds: skew})
+       when not is_integer(skew) or skew < 1,
+       do: {:error, "internal auth skew must be an integer greater than or equal to 1"}
+
+  defp validate_storage(%__MODULE__{} = config) do
+    with :ok <- validate_internal_bind(config.internal_bind),
+         :ok <- validate_tls_pair(config),
+         :ok <- validate_internal_transport_derivation(config) do
+      validate_storage_mode(config)
+    end
+  end
+
+  defp validate_storage_mode(%__MODULE__{replication_factor: rf, write_quorum: quorum})
        when quorum > rf,
        do: {:error, "write quorum must satisfy 1 <= W <= RF (got W=#{quorum}, RF=#{rf})"}
 
-  defp validate_storage(%__MODULE__{mode: :standalone, node_role: :metadata}),
+  defp validate_storage_mode(%__MODULE__{mode: :standalone, node_role: :metadata}),
     do: {:error, "metadata role requires cluster mode"}
 
-  defp validate_storage(%__MODULE__{mode: :cluster} = config), do: validate_cluster(config)
+  defp validate_storage_mode(%__MODULE__{mode: :cluster} = config), do: validate_cluster(config)
 
-  defp validate_storage(config), do: {:ok, config}
+  defp validate_storage_mode(config) do
+    with :ok <- validate_internal_advertised_url(config), do: {:ok, config}
+  end
 
   defp validate_cluster(config) do
     with :ok <- require_disabled(config.public_s3_enabled, "public S3 listener"),
@@ -311,6 +362,7 @@ defmodule ExStorageService.InstanceConfig do
          :ok <- validate_cluster_identity(config),
          :ok <- validate_cluster_members(config),
          :ok <- validate_cluster_seeds(config),
+         :ok <- validate_internal_advertised_url(config),
          :ok <- validate_metadata_role(config) do
       {:ok, config}
     end
@@ -352,7 +404,7 @@ defmodule ExStorageService.InstanceConfig do
 
     cond do
       length(members) != 3 ->
-        {:error, "Phase 4 cluster mode requires exactly three ordered metadata voters"}
+        {:error, "cluster mode requires exactly three ordered metadata voters"}
 
       not Enum.all?(members, &valid_cluster_member?/1) ->
         {:error,
@@ -402,4 +454,65 @@ defmodule ExStorageService.InstanceConfig do
   end
 
   defp validate_metadata_role(_config), do: :ok
+
+  defp validate_internal_bind(bind) do
+    case :inet.ntoa(bind) do
+      address when is_list(address) -> :ok
+      {:error, :einval} -> {:error, "internal bind must be a parsed IPv4 or IPv6 address"}
+    end
+  rescue
+    _error in [ArgumentError, FunctionClauseError] ->
+      {:error, "internal bind must be a parsed IPv4 or IPv6 address"}
+  end
+
+  defp validate_tls_pair(%__MODULE__{
+         internal_tls_certfile: certfile,
+         internal_tls_keyfile: keyfile
+       }) do
+    case {certfile, keyfile} do
+      {nil, nil} ->
+        :ok
+
+      {certfile, keyfile}
+      when is_binary(certfile) and certfile != "" and is_binary(keyfile) and keyfile != "" ->
+        :ok
+
+      _other ->
+        {:error, "internal TLS certificate and key paths must be configured together"}
+    end
+  end
+
+  defp validate_internal_transport_derivation(%__MODULE__{} = config) do
+    expected = config.mode == :cluster and config.node_role == :data
+
+    if config.internal_transport_enabled == expected,
+      do: :ok,
+      else: {:error, "internal transport enablement must be derived from cluster data-node role"}
+  end
+
+  defp validate_internal_advertised_url(%__MODULE__{mode: :standalone}), do: :ok
+  defp validate_internal_advertised_url(%__MODULE__{node_role: :metadata}), do: :ok
+
+  defp validate_internal_advertised_url(%__MODULE__{internal_advertised_url: url}) do
+    with true <- is_binary(url),
+         {:ok,
+          %URI{
+            scheme: scheme,
+            host: host,
+            port: port,
+            userinfo: nil,
+            query: nil,
+            fragment: nil,
+            path: path
+          }} <- URI.new(url),
+         true <- scheme in ["http", "https"],
+         true <- is_binary(host) and host != "",
+         true <- is_nil(port) or port in 1..65_535,
+         true <- path in [nil, "", "/"] do
+      :ok
+    else
+      _invalid ->
+        {:error, "cluster data nodes require a valid HTTP(S) internal advertised URL"}
+    end
+  end
 end

@@ -29,6 +29,35 @@ parse_positive_integer = fn variable, default ->
   end
 end
 
+parse_port = fn variable, default ->
+  value = System.get_env(variable, default)
+
+  case Integer.parse(value) do
+    {port, ""} when port >= 1 and port <= 65_535 ->
+      port
+
+    _other ->
+      raise "#{variable} must be an integer between 1 and 65535, got: #{inspect(value)}"
+  end
+end
+
+parse_ip_address = fn variable, default ->
+  value = System.get_env(variable, default)
+
+  case :inet.parse_address(String.to_charlist(value)) do
+    {:ok, address} -> address
+    {:error, :einval} -> raise "#{variable} must be an IPv4 or IPv6 address"
+  end
+end
+
+optional_env = fn variable ->
+  case System.get_env(variable) do
+    nil -> nil
+    "" -> nil
+    value -> value
+  end
+end
+
 auto_start? = parse_boolean.("ESS_AUTO_START", "true")
 instance = System.get_env("ESS_INSTANCE", "default")
 blob_root = System.get_env("ESS_BLOB_ROOT", Path.join(data_root, "cas"))
@@ -114,6 +143,29 @@ cluster_seeds =
 
 cluster_bootstrap? = parse_boolean.("ESS_CLUSTER_BOOTSTRAP", "false")
 
+internal_transport_enabled? = mode == :cluster and node_role == :data
+internal_bind = parse_ip_address.("ESS_INTERNAL_BIND", "127.0.0.1")
+internal_port = parse_port.("ESS_INTERNAL_PORT", "9100")
+internal_advertised_url = optional_env.("ESS_INTERNAL_ADVERTISED_URL")
+internal_secret = optional_env.("ESS_INTERNAL_SECRET")
+internal_tls_certfile = optional_env.("ESS_INTERNAL_TLS_CERTFILE")
+internal_tls_keyfile = optional_env.("ESS_INTERNAL_TLS_KEYFILE")
+internal_auth_skew_seconds = parse_positive_integer.("ESS_INTERNAL_AUTH_SKEW_SECONDS", "300")
+
+internal_tls =
+  case {internal_tls_certfile, internal_tls_keyfile} do
+    {nil, nil} ->
+      nil
+
+    {certfile, keyfile} when is_binary(certfile) and is_binary(keyfile) ->
+      %{certfile: certfile, keyfile: keyfile}
+
+    _partial ->
+      raise "ESS_INTERNAL_TLS_CERTFILE and ESS_INTERNAL_TLS_KEYFILE must be configured together"
+  end
+
+max_object_size = 5 * 1024 * 1024 * 1024
+
 metadata_schema =
   case System.get_env("ESS_METADATA_SCHEMA", "v2") |> String.downcase() do
     "v1" -> :v1
@@ -134,6 +186,13 @@ instance_config = [
   cluster_bootstrap: cluster_bootstrap?,
   erlang_node: node(),
   erlang_cookie: Node.get_cookie(),
+  internal_bind: internal_bind,
+  internal_port: internal_port,
+  internal_advertised_url: internal_advertised_url,
+  internal_secret: internal_secret,
+  internal_tls_certfile: internal_tls_certfile,
+  internal_tls_keyfile: internal_tls_keyfile,
+  internal_auth_skew_seconds: internal_auth_skew_seconds,
   data_root: data_root,
   blob_root: blob_root,
   tmp_root: tmp_root,
@@ -190,6 +249,7 @@ config :ex_storage_service,
   ra_root: ra_root,
   metadata_root: metadata_root,
   node_role: node_role,
+  cluster_transport: ExStorageServiceCluster.Transport.HTTP,
   instance_config: instance_config,
   s3_port:
     String.to_integer(
@@ -213,8 +273,8 @@ config :ex_storage_service,
   multipart_gc_interval: :timer.hours(1),
   multipart_max_age: :timer.hours(24),
   sync_interval: :timer.seconds(30),
-  max_object_size: 5 * 1024 * 1024 * 1024,
-  max_part_size: 5 * 1024 * 1024 * 1024,
+  max_object_size: max_object_size,
+  max_part_size: max_object_size,
   # The S3 minimum part size (5 MiB) applies to every part but the last. It is
   # disabled in the test env so multipart mechanics tests can use tiny parts.
   min_part_size: if(config_env() == :test, do: 0, else: 5 * 1024 * 1024)
@@ -222,7 +282,27 @@ config :ex_storage_service,
 config :ex_storage_service_s3, enabled: public_s3_enabled? and node_role == :data
 config :ex_storage_service_web, enabled: web_enabled? and node_role == :data
 
+config :ex_storage_service_cluster,
+  enabled: internal_transport_enabled?,
+  bind: internal_bind,
+  port: internal_port,
+  advertised_url: internal_advertised_url,
+  secret: internal_secret,
+  auth_skew_seconds: internal_auth_skew_seconds,
+  tls: internal_tls,
+  node_id: node_id,
+  blob_store_opts: [root: blob_root, tmp_dir: Path.join(tmp_root, "uploads")],
+  max_blob_size: max_object_size
+
 if config_env() == :prod do
+  if mode == :cluster and (is_nil(internal_secret) or byte_size(internal_secret) < 32) do
+    raise """
+    ESS_INTERNAL_SECRET must contain at least 32 bytes in production cluster mode.
+
+    Configure the same high-entropy shared secret on every cluster node.
+    """
+  end
+
   # ── Security guardrail 1: S3 auth must be explicitly enabled ───────────────
   if public_s3_enabled? and not s3_auth_enabled? do
     raise """

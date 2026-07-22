@@ -19,6 +19,14 @@ defmodule ExStorageService.BlobStore.LocalCAS do
   alias ExStorageService.Storage.Pack
 
   @chunk_size 262_144
+  @default_max_size 5 * 1024 * 1024 * 1024
+
+  @type reader_result(state) ::
+          {:more, binary(), state}
+          | {:ok, binary(), state}
+          | {:done, state}
+          | {:error, term()}
+          | {:error, term(), state}
 
   defmodule FileSystem do
     @moduledoc false
@@ -65,6 +73,39 @@ defmodule ExStorageService.BlobStore.LocalCAS do
       {:error, _} = error ->
         _ = fs.rm(path)
         error
+    end
+  end
+
+  @doc """
+  Stages bytes from a state-threaded reader without buffering the full body.
+
+  The reader receives its current state and must return `{:more, chunk, state}`
+  while data remains, or `{:ok, final_chunk, state}` / `{:done, state}` when
+  complete. The final reader state is returned to callers so adapters retain
+  updates such as a consumed `Plug.Conn`.
+
+  `:max_size` defaults to the configured maximum object size. Reader, write,
+  and size-limit failures close and remove the partial staging file.
+  """
+  @spec stage_from_reader((state -> reader_result(state)), state, keyword()) ::
+          {:ok, StagedBlob.t(), state} | {:error, term(), state}
+        when state: term()
+  def stage_from_reader(reader, initial_state, opts \\ []) when is_function(reader, 1) do
+    fs = fs(opts)
+    path = staging_path(opts)
+    max_size = Keyword.get(opts, :max_size, configured_max_size())
+
+    with :ok <- validate_max_size(max_size),
+         :ok <- phase(:stage, opts),
+         :ok <- tagged(:stage, fs.mkdir_p(Path.dirname(path))),
+         {:ok, io} <- tagged(:stage, fs.open(path, [:write, :raw, :binary])) do
+      result = read_staged(io, reader, initial_state, initial_digests(), max_size, fs)
+      close_result = tagged(:stage, fs.close(io))
+      finish_reader_stage(result, close_result, path, fs)
+    else
+      {:error, reason} ->
+        _ = fs.rm(path)
+        {:error, reason, initial_state}
     end
   end
 
@@ -296,6 +337,97 @@ defmodule ExStorageService.BlobStore.LocalCAS do
     end
   end
 
+  defp read_staged(io, reader, state, digests, max_size, fs) do
+    case invoke_reader(reader, state) do
+      {:more, chunk, next_state} ->
+        continue_reader(io, reader, chunk, next_state, digests, max_size, fs)
+
+      {:ok, chunk, final_state} ->
+        finish_reader(io, chunk, final_state, digests, max_size, fs)
+
+      {:done, final_state} ->
+        {:ok, digest_result_from_contexts(digests), final_state}
+
+      {:error, reason, final_state} ->
+        {:error, reason, final_state}
+
+      {:error, reason} ->
+        {:error, reason, state}
+
+      other ->
+        {:error, {:invalid_reader_result, other}, state}
+    end
+  end
+
+  defp continue_reader(io, reader, chunk, state, digests, max_size, fs) do
+    with {:ok, next_digests} <- write_reader_chunk(io, chunk, digests, max_size, fs) do
+      read_staged(io, reader, state, next_digests, max_size, fs)
+    else
+      {:error, reason} -> {:error, reason, state}
+    end
+  end
+
+  defp finish_reader(io, chunk, state, digests, max_size, fs) do
+    with {:ok, final_digests} <- write_reader_chunk(io, chunk, digests, max_size, fs) do
+      {:ok, digest_result_from_contexts(final_digests), state}
+    else
+      {:error, reason} -> {:error, reason, state}
+    end
+  end
+
+  defp write_reader_chunk(io, chunk, {sha, md5, size}, max_size, fs)
+       when is_binary(chunk) do
+    next_size = size + byte_size(chunk)
+
+    cond do
+      next_size > max_size ->
+        {:error, :entity_too_large}
+
+      true ->
+        case fs.write(io, chunk) do
+          :ok ->
+            {:ok, {:crypto.hash_update(sha, chunk), :crypto.hash_update(md5, chunk), next_size}}
+
+          {:error, reason} ->
+            {:error, {:stage, reason}}
+        end
+    end
+  end
+
+  defp write_reader_chunk(_io, _chunk, _digests, _max_size, _fs),
+    do: {:error, {:stage, :invalid_chunk}}
+
+  defp invoke_reader(reader, state) do
+    try do
+      reader.(state)
+    rescue
+      error -> {:error, {:reader, Exception.message(error)}, state}
+    catch
+      kind, reason -> {:error, {:reader, {kind, reason}}, state}
+    end
+  end
+
+  defp finish_reader_stage({:ok, {hash, etag, size}, state}, :ok, path, _fs) do
+    {:ok, %StagedBlob{path: path, hash: hash, etag: etag, size: size}, state}
+  end
+
+  defp finish_reader_stage({:error, reason, state}, _close_result, path, fs) do
+    _ = fs.rm(path)
+    {:error, reason, state}
+  end
+
+  defp finish_reader_stage({:ok, _digest, state}, {:error, reason}, path, fs) do
+    _ = fs.rm(path)
+    {:error, reason, state}
+  end
+
+  defp initial_digests,
+    do: {:crypto.hash_init(:sha256), :crypto.hash_init(:md5), 0}
+
+  defp digest_result_from_contexts({sha, md5, size}) do
+    digest_result(:crypto.hash_final(sha), :crypto.hash_final(md5), size)
+  end
+
   defp digest_result(sha, md5, size) do
     {
       Base.encode16(sha, case: :lower),
@@ -464,14 +596,25 @@ defmodule ExStorageService.BlobStore.LocalCAS do
 
   defp fs(opts), do: Keyword.get(opts, :fs_module, FileSystem)
 
-  defp validate_hash(hash) when is_binary(hash) and byte_size(hash) == 64 do
+  @doc """
+  Validates a bare hexadecimal SHA-256 digest without raising.
+  """
+  @spec validate_hash(term()) :: :ok | {:error, :invalid_hash}
+  def validate_hash(hash) when is_binary(hash) and byte_size(hash) == 64 do
     case Base.decode16(hash, case: :mixed) do
       {:ok, decoded} when byte_size(decoded) == 32 -> :ok
       _ -> {:error, :invalid_hash}
     end
   end
 
-  defp validate_hash(_hash), do: {:error, :invalid_hash}
+  def validate_hash(_hash), do: {:error, :invalid_hash}
+
+  defp validate_max_size(max_size) when is_integer(max_size) and max_size >= 0, do: :ok
+  defp validate_max_size(_max_size), do: {:error, :invalid_max_size}
+
+  defp configured_max_size do
+    Application.get_env(:ex_storage_service, :max_object_size, @default_max_size)
+  end
 
   defp validate_staged(%StagedBlob{path: path, hash: hash, size: size})
        when is_binary(path) and is_integer(size) and size >= 0,

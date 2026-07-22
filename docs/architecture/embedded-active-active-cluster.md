@@ -2,11 +2,11 @@
 
 ## Status and scope
 
-Phases 0 through 4 establish atomic metadata, durable streaming local blobs,
-embeddable supervision, and a fixed three-voter Concord metadata cluster. The
-default remains the standalone local storage service. Phase 4 enables only the
-metadata control plane: public multi-node object writes, the internal blob
-transport, and blob replication remain disabled.
+Phases 0 through 5 establish atomic metadata, durable streaming local blobs,
+embeddable supervision, a fixed three-voter Concord metadata cluster, and a
+private authenticated streaming blob transport. The default remains the
+standalone local storage service. Phase 5 does not enable blob placement,
+replication quorum commits, or public multi-node object writes.
 
 The cluster design is scoped to one datacenter or low-latency availability
 zones. Cross-region operation uses separate clusters and asynchronous
@@ -105,10 +105,53 @@ The strict cluster target is replication factor 2 and write quorum 2
 two selected data nodes durably store and verify the blob and the metadata
 transaction commits. Standalone mode retains RF=1/W=1.
 
-Public object writes in cluster mode remain disabled because atomic metadata
-alone does not provide blob durability. The internal authenticated transport,
-replica acknowledgements, placement, quorum coordinator, remote reads, repair,
-and orphan cleanup must exist before public multi-node writes are safe.
+Public object writes in cluster mode remain disabled because an authenticated
+transport alone does not provide blob durability. Replica acknowledgements,
+placement, quorum coordination, remote reads, repair, and orphan cleanup must
+exist before public multi-node writes are safe.
+
+## Phase 5 private blob transport
+
+The `ex_storage_service_cluster` umbrella app is an adapter over the core
+content-hash interfaces. Its dependency points toward `ex_storage_service`;
+the core app refers only to its own transport behaviour and a configured module
+atom, so the dependency graph remains acyclic.
+
+Cluster data nodes expose only these private endpoints:
+
+```text
+PUT  /internal/v1/blobs/:sha256
+HEAD /internal/v1/blobs/:sha256
+GET  /internal/v1/blobs/:sha256
+```
+
+Requests use a shared-secret HMAC over the method, path, timestamp, request ID,
+content hash, and declared size. Verification has bounded timestamp skew,
+constant-time signature comparison, and replay rejection within the skew
+window. Blob uploads and downloads stream with bounded memory; the receiver
+publishes a blob only after validating size and SHA-256, syncing it, and using
+the local CAS atomic rename. A repeated upload of identical content is safe.
+
+The excluded large-stream acceptance harness sends a synthetic 2 GiB body
+through the real Req/Bandit HTTP path and records the peak memory of both the
+upload enumerator and request receiver. Run it explicitly with:
+
+```sh
+PAGER=cat mix test apps/ex_storage_service_cluster/test/ex_storage_service_cluster/large_stream_test.exs --include large_stream
+```
+
+`ESS_INTERNAL_BIND` and `ESS_INTERNAL_PORT` select the listener, while each
+data node publishes its peer-reachable `ESS_INTERNAL_ADVERTISED_URL`. Listener
+enablement is derived from `ESS_MODE=cluster` and `ESS_NODE_ROLE=data`; it is
+false for standalone and metadata-only nodes. The metadata-only voter therefore
+continues to expose no HTTP listener and store no object bytes.
+
+The internal port belongs on a private network and must never be exposed to the
+public Internet. TLS or mTLS is the preferred deployment boundary. Direct TLS
+termination is configured only when both `ESS_INTERNAL_TLS_CERTFILE` and
+`ESS_INTERNAL_TLS_KEYFILE` are present. Every production cluster node must set
+the same high-entropy `ESS_INTERNAL_SECRET` containing at least 32 bytes; errors
+and configuration inspection do not reveal its value.
 
 ## Metadata schema and rollback boundary
 
@@ -132,8 +175,9 @@ blob replica count before active-active traffic is enabled.
 ## Activation guards
 
 Configuration validates `1 <= write_quorum <= replication_factor`, stable
-identity, exactly three unique voter IDs/endpoints, discovery inputs, and the
-local voter/member match. Cluster mode rejects the public S3 listener, admin
-listener, and `ESS_CLUSTER_DATA_PLANE_ENABLED=true` in Phase 4. Concord
-metadata discovery and quorum are active, but the closed guard prevents remote
-blob transfer or clustered object writes.
+identity, exactly three unique voter IDs/endpoints, discovery inputs, the local
+voter/member match, and typed internal bind, port, URL, TLS pair, and auth-skew
+settings. Cluster mode still rejects the public S3 listener, admin listener,
+and `ESS_CLUSTER_DATA_PLANE_ENABLED=true`. Concord metadata quorum and the
+private data-node transport are active, but the closed guard prevents clustered
+object writes until replica quorum semantics are complete.

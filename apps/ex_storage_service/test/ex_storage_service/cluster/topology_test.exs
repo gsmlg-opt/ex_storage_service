@@ -52,6 +52,7 @@ defmodule ExStorageService.Cluster.TopologyTest do
         cluster_seeds: seeds,
         erlang_node: :"ess-a@127.0.0.1",
         erlang_cookie: :ess_test_cookie,
+        internal_advertised_url: "http://ess-a.internal:9100",
         public_s3_enabled: false,
         web_enabled: false
       )

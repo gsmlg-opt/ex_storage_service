@@ -25,6 +25,7 @@ defmodule ExStorageService.Umbrella.MixProject do
       ess: [
         applications: [
           ex_storage_service: :permanent,
+          ex_storage_service_cluster: :permanent,
           ex_storage_service_s3: :permanent,
           ex_storage_service_web: :permanent
         ]

@@ -223,6 +223,7 @@ Repository layout:
 | Path | Contents |
 |---|---|
 | `apps/ex_storage_service/` | Core domain logic, Concord metadata, IAM, storage, replication, lifecycle, notifications, metrics |
+| `apps/ex_storage_service_cluster/` | Private authenticated streaming transport for content-addressed blobs between data nodes |
 | `apps/ex_storage_service_s3/` | Plug.Router S3 API, SigV4 auth, authorization plugs, XML responses, multipart handlers |
 | `apps/ex_storage_service_web/` | Phoenix LiveView admin portal, DuskMoon UI components, Duskmoon Bundler asset pipeline |
 | `apps/ex_storage_service_cli/` | Standalone `ess` escript client |
@@ -275,6 +276,13 @@ Repository layout:
 | `ESS_CLUSTER_MEMBERS` | empty | Ordered fixed membership as exactly three `id=node@host` entries |
 | `ESS_CLUSTER_SEEDS` | other members | Comma-separated Erlang nodes for static discovery or DNS queries for DNS discovery |
 | `ESS_CLUSTER_BOOTSTRAP` | `false` | Set `true` on all three voters only for the first start of an entirely empty cluster |
+| `ESS_INTERNAL_BIND` | `127.0.0.1` | Numeric IPv4 or IPv6 address for the private blob transport listener |
+| `ESS_INTERNAL_PORT` | `9100` | Private blob transport port, from 1 through 65535 |
+| `ESS_INTERNAL_ADVERTISED_URL` | none | Peer-reachable HTTP(S) base URL; required on cluster data nodes |
+| `ESS_INTERNAL_SECRET` | none | Shared HMAC secret; at least 32 bytes on every production cluster node |
+| `ESS_INTERNAL_TLS_CERTFILE` | none | Internal listener TLS certificate path; configure with the key path |
+| `ESS_INTERNAL_TLS_KEYFILE` | none | Internal listener TLS private-key path; configure with the certificate path |
+| `ESS_INTERNAL_AUTH_SKEW_SECONDS` | `300` | Positive timestamp-skew and replay-window bound for internal requests |
 | `ESS_REPLICATION_FACTOR` | `1` standalone, `2` cluster | Desired blob replica count; must be at least 1 |
 | `ESS_WRITE_QUORUM` | `1` standalone, `2` cluster | Required durable writes; must satisfy `1 <= W <= RF` |
 | `ESS_ALLOW_DEGRADED_WRITES` | `false` | Future availability-over-durability policy; inactive in standalone mode |
@@ -304,11 +312,25 @@ cluster configuration, replica identity, and ordered membership against the
 runtime configuration. Membership reconfiguration is not supported in this
 phase.
 
-Cluster mode rejects the public S3 listener, admin listener, and cluster data
-plane unconditionally. It proves metadata quorum only: remote blob transport,
-blob replication, and public multi-node object writes remain disabled until
-later phases. A metadata-role node starts only its Concord voter and discovery;
-it creates no CAS/blob roots and starts no public listener.
+Cluster mode still rejects the public S3 listener, admin listener, and
+`ESS_CLUSTER_DATA_PLANE_ENABLED=true`. Phase 5 adds only the private blob
+transport: its listener is derived from the runtime mode and role, so it starts
+on cluster data nodes and cannot start on standalone or metadata-only nodes.
+Blob placement, replica quorum commits, and public multi-node object writes
+remain disabled until the blob-quorum phase. A metadata-role node starts only
+its Concord voter and discovery; it creates no CAS/blob roots and starts no
+HTTP listener.
+
+Set `ESS_INTERNAL_ADVERTISED_URL` on each cluster data node to the private
+HTTP(S) base URL peers can reach. The URL must not contain credentials, query,
+fragment, or a non-root path. The bind address is numeric; when using the
+loopback default, only local peers can connect. Never expose the internal port
+to the public Internet. Use TLS or mTLS at the private deployment boundary;
+when this release terminates TLS directly, both `ESS_INTERNAL_TLS_CERTFILE` and
+`ESS_INTERNAL_TLS_KEYFILE` are required. HMAC remains mandatory in production
+cluster mode: configure the same high-entropy `ESS_INTERNAL_SECRET` of at least
+32 bytes on all three voters. Secret values are never included in configuration
+errors or structured configuration inspection.
 
 Run the isolated three-voter acceptance harness explicitly with:
 

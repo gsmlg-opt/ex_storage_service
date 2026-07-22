@@ -20,6 +20,7 @@ defmodule ExStorageService.InstanceConfigTest do
     cluster_bootstrap: true,
     erlang_node: :"ess-a@127.0.0.1",
     erlang_cookie: :ess_test_cookie,
+    internal_advertised_url: "http://ess-a.internal:9100",
     public_s3_enabled: false,
     web_enabled: false,
     cluster_data_plane_enabled: false
@@ -52,6 +53,14 @@ defmodule ExStorageService.InstanceConfigTest do
     refute config.allow_degraded_writes
     refute config.cluster_data_plane_enabled
     assert config.public_s3_enabled
+    refute config.internal_transport_enabled
+    assert config.internal_bind == {127, 0, 0, 1}
+    assert config.internal_port == 9100
+    assert is_nil(config.internal_advertised_url)
+    assert is_nil(config.internal_secret)
+    assert is_nil(config.internal_tls_certfile)
+    assert is_nil(config.internal_tls_keyfile)
+    assert config.internal_auth_skew_seconds == 300
   end
 
   test "rejects invalid replication factor and write quorum" do
@@ -91,7 +100,81 @@ defmodule ExStorageService.InstanceConfigTest do
     assert config.node_role == :metadata
     assert config.replication_factor == 2
     assert config.write_quorum == 2
+    refute config.internal_transport_enabled
     refute Enum.any?(config.workers, fn {_worker, enabled} -> enabled end)
+  end
+
+  test "cluster data nodes enable a validated internal transport" do
+    assert {:ok, config} =
+             @cluster_opts
+             |> Keyword.put(:internal_bind, {10, 0, 0, 10})
+             |> Keyword.put(:internal_port, 9443)
+             |> Keyword.put(:internal_secret, "development-secret")
+             |> Keyword.put(:internal_tls_certfile, "/run/secrets/internal.crt")
+             |> Keyword.put(:internal_tls_keyfile, "/run/secrets/internal.key")
+             |> Keyword.put(:internal_auth_skew_seconds, 60)
+             |> InstanceConfig.new()
+
+    assert config.internal_transport_enabled
+    assert config.internal_bind == {10, 0, 0, 10}
+    assert config.internal_port == 9443
+    assert config.internal_advertised_url == "http://ess-a.internal:9100"
+    assert config.internal_secret == "development-secret"
+    assert config.internal_tls_certfile == "/run/secrets/internal.crt"
+    assert config.internal_tls_keyfile == "/run/secrets/internal.key"
+    assert config.internal_auth_skew_seconds == 60
+    refute inspect(config) =~ "development-secret"
+  end
+
+  test "internal transport settings fail fast" do
+    assert {:error, message} =
+             @cluster_opts
+             |> Keyword.delete(:internal_advertised_url)
+             |> InstanceConfig.new()
+
+    assert message =~ "advertised URL"
+
+    for advertised_url <- [
+          "",
+          "ess-a.internal:9100",
+          "ftp://ess-a.internal",
+          "http:///missing",
+          "http://ess-a.internal:invalid"
+        ] do
+      assert {:error, message} =
+               @cluster_opts
+               |> Keyword.put(:internal_advertised_url, advertised_url)
+               |> InstanceConfig.new()
+
+      assert message =~ "advertised URL"
+    end
+
+    assert {:error, message} =
+             @cluster_opts |> Keyword.put(:internal_bind, "127.0.0.1") |> InstanceConfig.new()
+
+    assert message =~ "bind"
+
+    assert {:error, message} =
+             @cluster_opts |> Keyword.put(:internal_port, 65_536) |> InstanceConfig.new()
+
+    assert message =~ "port"
+
+    assert {:error, message} =
+             @cluster_opts |> Keyword.put(:internal_secret, "") |> InstanceConfig.new()
+
+    assert message =~ "secret"
+
+    assert {:error, message} =
+             @cluster_opts
+             |> Keyword.put(:internal_tls_certfile, "/run/secrets/internal.crt")
+             |> InstanceConfig.new()
+
+    assert message =~ "TLS certificate and key"
+
+    assert {:error, message} =
+             @cluster_opts |> Keyword.put(:internal_auth_skew_seconds, 0) |> InstanceConfig.new()
+
+    assert message =~ "auth skew"
   end
 
   test "cluster identity, membership, topology, and role fail fast" do

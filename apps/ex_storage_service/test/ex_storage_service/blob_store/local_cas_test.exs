@@ -210,6 +210,65 @@ defmodule ExStorageService.BlobStore.LocalCASTest do
   end
 
   @tag :tmp_dir
+  test "state-threaded reader returns its final state and stages incrementally", %{
+    tmp_dir: tmp_dir
+  } do
+    opts = blob_opts(tmp_dir)
+    chunks = ["state-", "threaded-", "reader"]
+
+    reader = fn
+      {[final], reads} -> {:ok, final, {[], reads + 1}}
+      {[chunk | rest], reads} -> {:more, chunk, {rest, reads + 1}}
+    end
+
+    assert {:ok, %StagedBlob{hash: hash, etag: etag, size: 21, path: path}, {[], 3}} =
+             LocalCAS.stage_from_reader(reader, {chunks, 0}, opts)
+
+    assert hash == sha256("state-threaded-reader")
+    assert etag == md5("state-threaded-reader")
+    assert File.read!(path) == "state-threaded-reader"
+  end
+
+  @tag :tmp_dir
+  test "state-threaded reader bounds size and removes the partial file", %{tmp_dir: tmp_dir} do
+    opts = blob_opts(tmp_dir, max_size: 5)
+
+    reader = fn
+      {0, state} -> {:more, "1234", {1, state + 1}}
+      {1, state} -> {:ok, "56", {2, state + 1}}
+    end
+
+    assert {:error, :entity_too_large, {2, 2}} =
+             LocalCAS.stage_from_reader(reader, {0, 0}, opts)
+
+    assert Path.wildcard(Path.join([Keyword.fetch!(opts, :tmp_dir), "upload-*"])) == []
+  end
+
+  @tag :tmp_dir
+  test "state-threaded reader preserves error state and removes the partial file", %{
+    tmp_dir: tmp_dir
+  } do
+    opts = blob_opts(tmp_dir)
+
+    reader = fn
+      :initial -> {:more, "partial", :after_chunk}
+      :after_chunk -> {:error, :disconnected, :after_error}
+    end
+
+    assert {:error, :disconnected, :after_error} =
+             LocalCAS.stage_from_reader(reader, :initial, opts)
+
+    assert Path.wildcard(Path.join([Keyword.fetch!(opts, :tmp_dir), "upload-*"])) == []
+    assert Path.wildcard(Path.join([Keyword.fetch!(opts, :root), "objects", "**", "*"])) == []
+  end
+
+  test "hash validation is public and nonraising" do
+    assert :ok = LocalCAS.validate_hash(String.duplicate("aF", 32))
+    assert {:error, :invalid_hash} = LocalCAS.validate_hash("short")
+    assert {:error, :invalid_hash} = LocalCAS.validate_hash(nil)
+  end
+
+  @tag :tmp_dir
   test "sync and rename failures leave a discardable staged blob and no ready blob", %{
     tmp_dir: tmp_dir
   } do

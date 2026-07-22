@@ -81,8 +81,9 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
 - Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
 
 ### File Organization
-The codebase is structured as an umbrella project with four apps:
+The codebase is structured as an umbrella project with five apps:
 - **`apps/ex_storage_service/`**: Core domain logic, storage engine, metadata via Concord/VSR KV, replication, background processes.
+- **`apps/ex_storage_service_cluster/`**: Private authenticated streaming blob transport; depends on core, never the reverse.
 - **`apps/ex_storage_service_s3/`**: S3 API server (Plug.Router served by Bandit on port 9000).
 - **`apps/ex_storage_service_web/`**: Admin portal web interface (Phoenix LiveView on port 4900).
 - **`apps/ex_storage_service_cli/`**: Standalone `ess` command-line client packaged as an escript.
@@ -118,6 +119,16 @@ The codebase is structured as an umbrella project with four apps:
   restart. Metadata-role nodes start only Concord and discovery, with no CAS,
   workers, S3 listener, or admin listener. Keep the public cluster write guard
   closed until the blob quorum phase is complete.
+- Internal transport variables are `ESS_INTERNAL_BIND`, `ESS_INTERNAL_PORT`,
+  `ESS_INTERNAL_ADVERTISED_URL`, `ESS_INTERNAL_SECRET`,
+  `ESS_INTERNAL_TLS_CERTFILE`, `ESS_INTERNAL_TLS_KEYFILE`, and
+  `ESS_INTERNAL_AUTH_SKEW_SECONDS`. The listener is derived from cluster mode
+  plus the data-node role and must never start on standalone or metadata-only
+  nodes. Cluster data nodes require a peer-reachable HTTP(S) advertised URL.
+  Production cluster startup requires the shared secret to contain at least 32
+  bytes. Configure TLS certificate and key paths together, do not log or inspect
+  the secret, and never expose the internal port publicly. Phase 5 transport
+  availability does not open the public cluster write/data-plane guard.
 - Embedding variables are `ESS_AUTO_START`, `ESS_INSTANCE`, `ESS_BLOB_ROOT`,
   `ESS_TMP_ROOT`, `ESS_RA_ROOT`, `ESS_METADATA_ROOT`, and `ESS_WEB_ENABLED`.
   `ESS_TMP_ROOT` must share a filesystem with `ESS_BLOB_ROOT`; startup rejects
