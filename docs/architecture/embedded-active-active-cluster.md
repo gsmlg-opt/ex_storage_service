@@ -108,10 +108,11 @@ transaction commits. Standalone mode retains RF=1/W=1.
 Public object writes remain disabled by default. Phase 6 can open them
 explicitly after persistent node registration, deterministic placement,
 validated replica acknowledgements, strict quorum enforcement, and atomic
-version/head/blob/location/outbox publication. Phase 7 remote fallback reads,
-Phase 8 repair dispatch, and grace-period orphan collection remain separate
-work; RF=2/W=2 ensures a successful object or multipart part is already local
-to both data/API nodes in the fixed target topology.
+version/head/blob/location/outbox publication. Phase 7 adds remote fallback
+reads and request-path read-repair staging. Phase 8 repair dispatch and
+grace-period orphan collection remain separate work; RF=2/W=2 ensures a
+successful object or multipart part is already local to both data/API nodes in
+the fixed target topology.
 
 ## Phase 5 private blob transport
 
@@ -196,7 +197,40 @@ Pre-commit replicas are retained as grace-protected orphans after an ambiguous
 or failed metadata transaction. Multipart parts use the same durability path;
 Phase 6 requires acknowledgements from the full part RF even if object writes
 use a lower W, so parts uploaded through alternating API nodes can be completed
-on either fixed data node without sticky routing or Phase 7 remote reads.
+on either fixed data node without sticky routing.
+
+## Phase 7 remote reads and request-path repair
+
+Object HEAD/version metadata and blob locations are read with strong
+consistency. A data node first checks the local CAS and expected size, trusting
+current-generation ready-location checksum evidence so file sources retain the
+`send_file` fast path. Suspect, stale-generation, or untracked compatibility
+content is checksum-verified before use. When a local copy is absent or
+corrupt, the read coordinator marks that location unavailable or suspect and
+creates a pending repair event in the same Concord transaction. Transient
+remote timeouts do not poison a location record.
+
+Remote ready locations are joined to the current node generation and tried in
+a deterministic, bounded order. The private transport performs an eager,
+checksum-verifying HEAD and fetches one bounded prefix before the S3 response
+starts, then streams the remaining exact full or Range GET lazily. This
+source-start handshake lets a zero-byte GET failure fall through to another
+ready replica and lets all such failures return `ServiceUnavailable` (503)
+before headers are committed. Object metadata still exists, so this path never
+returns `NoSuchKey`.
+
+Remote stream producers thread the response adapter state explicitly. A client
+disconnect halts the upstream HTTP/1 request. Once any response bytes have been
+sent, the request is not restarted from another replica because that could
+splice or duplicate the object body.
+
+Full-object remote reads may tee one bounded transport chunk at a time into a
+staged local file when the local node remains an eligible desired placement
+and capacity policy permits. After the client stream finishes, the instance
+replica task supervisor verifies the staged size/hash, publishes it through
+the normal CAS commit, and conditionally marks the location ready. Range reads,
+incomplete streams, checksum mismatches, and disconnected clients never
+publish partial repairs. Durable event dispatch remains Phase 8.
 
 ## Activation guards
 

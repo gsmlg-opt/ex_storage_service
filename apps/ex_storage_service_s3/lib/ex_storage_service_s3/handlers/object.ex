@@ -271,7 +271,7 @@ defmodule ExStorageServiceS3.Handlers.Object do
   def get_object_version(conn, bucket, key, version_id) do
     request_id = request_id(conn)
 
-    case ObjectService.get(bucket, key, version_id, []) do
+    case ObjectService.head(bucket, key, version_id, []) do
       {:ok, %{delete_marker: true}} ->
         conn
         |> put_s3_headers(request_id)
@@ -279,23 +279,30 @@ defmodule ExStorageServiceS3.Handlers.Object do
         |> put_resp_header("x-amz-version-id", version_id)
         |> send_resp(404, "")
 
-      {:ok, %{metadata: metadata, source: {:file, path, offset, length}}} ->
-        content_type = Map.get(metadata, :content_type, "application/octet-stream")
-        etag = Map.get(metadata, :etag, "")
-        size = Map.get(metadata, :size, 0)
+      {:ok, %{metadata: metadata}} ->
+        etag = "\"#{Map.get(metadata, :etag, "")}\""
+        last_modified_raw = Map.get(metadata, :updated_at, Map.get(metadata, :created_at))
+        last_modified = format_http_date(last_modified_raw)
 
-        last_modified =
-          format_http_date(Map.get(metadata, :updated_at, Map.get(metadata, :created_at)))
-
-        conn
-        |> put_s3_headers(request_id)
-        |> put_resp_header("content-type", content_type)
-        |> put_resp_header("etag", "\"#{etag}\"")
-        |> put_resp_header("last-modified", last_modified)
-        |> put_resp_header("content-length", to_string(size))
-        |> put_resp_header("x-amz-version-id", version_id)
-        |> put_custom_metadata_headers(metadata)
-        |> send_version_source(path, offset, length)
+        if conditional_not_modified?(conn, etag, last_modified_raw) do
+          conn
+          |> put_s3_headers(request_id)
+          |> put_resp_header("etag", etag)
+          |> put_resp_header("last-modified", last_modified)
+          |> put_resp_header("x-amz-version-id", version_id)
+          |> send_resp(304, "")
+        else
+          send_object_version(
+            conn,
+            bucket,
+            key,
+            version_id,
+            metadata,
+            etag,
+            last_modified,
+            request_id
+          )
+        end
 
       {:error, :version_not_found} ->
         error_response(
@@ -317,6 +324,61 @@ defmodule ExStorageServiceS3.Handlers.Object do
 
       {:error, reason} ->
         storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
+    end
+  end
+
+  defp send_object_version(
+         conn,
+         bucket,
+         key,
+         version_id,
+         metadata,
+         etag,
+         last_modified,
+         request_id
+       ) do
+    size = Map.get(metadata, :size, 0)
+
+    case version_range(conn, size) do
+      {:ok, range, status, headers} ->
+        case ObjectService.open_source(metadata,
+               bucket: bucket,
+               range: range,
+               request_id: request_id
+             ) do
+          {:ok, source} ->
+            content_type = Map.get(metadata, :content_type, "application/octet-stream")
+
+            conn
+            |> put_s3_headers(request_id)
+            |> put_resp_header("content-type", content_type)
+            |> put_resp_header("etag", etag)
+            |> put_resp_header("last-modified", last_modified)
+            |> put_resp_header("content-length", to_string(source_length(source)))
+            |> put_resp_header("accept-ranges", "bytes")
+            |> put_resp_header("x-amz-version-id", version_id)
+            |> put_custom_metadata_headers(metadata)
+            |> put_version_range_headers(headers)
+            |> send_blob_source(status, source, request_id: request_id)
+
+          {:error, :blob_not_found} ->
+            error_response(
+              conn,
+              "InternalError",
+              "Content file missing",
+              "/#{bucket}/#{key}",
+              request_id
+            )
+
+          {:error, reason} ->
+            storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
+        end
+
+      {:error, :invalid_range} ->
+        conn
+        |> put_s3_headers(request_id)
+        |> put_resp_header("content-range", "bytes */#{size}")
+        |> send_resp(416, "")
     end
   end
 
@@ -429,10 +491,34 @@ defmodule ExStorageServiceS3.Handlers.Object do
   defp maybe_put_version_header(conn, version_id),
     do: put_resp_header(conn, "x-amz-version-id", version_id)
 
-  defp send_version_source(conn, _path, _offset, 0), do: send_resp(conn, 200, "")
+  defp version_range(conn, size) do
+    case get_req_header(conn, "range") do
+      [] ->
+        {:ok, nil, 200, []}
 
-  defp send_version_source(conn, path, offset, length),
-    do: send_file(conn, 200, path, offset, length)
+      [range_header] ->
+        case parse_range(range_header, size) do
+          {:ok, offset, length} ->
+            {:ok, {offset, length}, 206,
+             [{"content-range", "bytes #{offset}-#{offset + length - 1}/#{size}"}]}
+
+          {:error, :invalid_range} = error ->
+            error
+        end
+
+      _duplicate ->
+        {:error, :invalid_range}
+    end
+  end
+
+  defp put_version_range_headers(conn, headers) do
+    Enum.reduce(headers, conn, fn {name, value}, current ->
+      put_resp_header(current, name, value)
+    end)
+  end
+
+  defp source_length({:file, _path, _offset, length}), do: length
+  defp source_length({:stream, _producer, length}), do: length
 
   defp perform_copy(
          source_bucket,

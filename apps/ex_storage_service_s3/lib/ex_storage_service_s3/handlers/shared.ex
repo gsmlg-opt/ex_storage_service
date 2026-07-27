@@ -2,6 +2,8 @@ defmodule ExStorageServiceS3.Handlers.Shared do
   @moduledoc false
 
   import Plug.Conn
+  require Logger
+  alias ExStorageService.BlobStore.Source
   alias ExStorageService.Metadata
   alias ExStorageService.Storage.Versioning
   alias ExStorageServiceS3.XML
@@ -48,6 +50,47 @@ defmodule ExStorageServiceS3.Handlers.Shared do
     end
   end
 
+  @doc false
+  def send_blob_source(conn, status, {:file, _path, _offset, 0}, _opts),
+    do: send_resp(conn, status, "")
+
+  def send_blob_source(conn, status, {:file, path, offset, length}, _opts),
+    do: send_file(conn, status, path, offset, length)
+
+  def send_blob_source(conn, status, {:stream, _producer, 0}, _opts),
+    do: send_resp(conn, status, "")
+
+  def send_blob_source(conn, status, {:stream, _producer, length} = source, opts) do
+    conn =
+      conn
+      |> put_resp_header("content-length", Integer.to_string(length))
+      |> send_chunked(status)
+
+    case Source.reduce(source, conn, fn data, current_conn ->
+           case chunk(current_conn, data) do
+             {:ok, next_conn} -> {:cont, next_conn}
+             {:error, reason} -> {:halt, reason, current_conn}
+           end
+         end) do
+      {:ok, final_conn} ->
+        final_conn
+
+      {:error, :closed, final_conn} ->
+        final_conn
+
+      {:error, {:sink, :closed}, final_conn} ->
+        final_conn
+
+      {:error, reason, _final_conn} ->
+        Logger.warning("blob response stream terminated",
+          request_id: Keyword.get(opts, :request_id),
+          reason: inspect(reason)
+        )
+
+        raise "blob response stream terminated after response headers"
+    end
+  end
+
   defp availability_error?(reason)
        when reason in [
               :blob_write_quorum_unavailable,
@@ -56,6 +99,7 @@ defmodule ExStorageServiceS3.Handlers.Shared do
               :cluster_data_plane_disabled,
               :no_leader,
               :cluster_not_ready,
+              :all_blob_replicas_unavailable,
               :timeout,
               :unknown
             ],
@@ -419,12 +463,12 @@ defmodule ExStorageServiceS3.Handlers.Shared do
           {:error, :invalid_range}
         end
 
-      [_, "", end_str] when end_str != "" ->
+      [_, "", end_str] when end_str != "" and total_size > 0 ->
         suffix_length = String.to_integer(end_str)
 
-        if suffix_length > 0 and suffix_length <= total_size do
-          offset = total_size - suffix_length
-          {:ok, offset, suffix_length}
+        if suffix_length > 0 do
+          length = min(suffix_length, total_size)
+          {:ok, total_size - length, length}
         else
           {:error, :invalid_range}
         end
@@ -453,6 +497,13 @@ defmodule ExStorageServiceS3.Handlers.Shared do
 
       [] ->
         false
+    end
+  end
+
+  def conditional_not_modified?(conn, quoted_etag, last_modified_raw) do
+    case get_req_header(conn, "if-none-match") do
+      [] -> not_modified_since?(conn, last_modified_raw)
+      _present -> not_modified_etag?(conn, quoted_etag)
     end
   end
 

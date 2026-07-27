@@ -135,6 +135,48 @@ defmodule ExStorageService.BlobStore.LocalCAS do
     end
   end
 
+  @doc """
+  Publishes a checksum-verified repair, atomically replacing a corrupt path.
+
+  The staged source is independently verified before the final same-filesystem
+  rename. POSIX rename replacement keeps readers on either the old inode or the
+  complete repaired inode; no partial destination is exposed.
+  """
+  @spec commit_repair(StagedBlob.t(), keyword()) ::
+          {:ok, ReadyBlob.t()} | {:error, term()}
+  def commit_repair(%StagedBlob{} = staged, opts \\ []) do
+    fs = fs(opts)
+    source = Source.file(staged.path, 0, staged.size)
+
+    with :ok <- validate_staged(staged),
+         :ok <- verify_source(source, staged.hash, opts),
+         destination = blob_path(staged.hash, opts),
+         :ok <- tagged(:rename, fs.mkdir_p(Path.dirname(destination))) do
+      case fs.stat(destination) do
+        {:ok, %File.Stat{type: :regular, size: size}} when size == staged.size ->
+          case verify_source(Source.file(destination, 0, size), staged.hash, opts) do
+            :ok ->
+              with :ok <- discard(staged, opts), do: {:ok, ready(staged, destination)}
+
+            {:error, _corrupt_or_unreadable} ->
+              publish(staged, destination, opts)
+          end
+
+        {:ok, %File.Stat{type: :regular}} ->
+          publish(staged, destination, opts)
+
+        {:ok, %File.Stat{}} ->
+          {:error, {:commit, :existing_blob_mismatch}}
+
+        {:error, :enoent} ->
+          publish(staged, destination, opts)
+
+        {:error, reason} ->
+          {:error, {:stat, reason}}
+      end
+    end
+  end
+
   @impl true
   def discard(%StagedBlob{path: path}, opts \\ []) do
     case fs(opts).rm(path) do

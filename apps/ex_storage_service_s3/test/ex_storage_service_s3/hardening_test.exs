@@ -135,6 +135,10 @@ defmodule ExStorageServiceS3.HardeningTest do
       assert Shared.parse_range("bytes=-10", 100) == {:ok, 90, 10}
     end
 
+    test "clamps an oversized suffix range to the full object" do
+      assert Shared.parse_range("bytes=-1000", 100) == {:ok, 0, 100}
+    end
+
     test "clamps range end to file size" do
       assert Shared.parse_range("bytes=0-999", 50) == {:ok, 0, 50}
     end
@@ -176,6 +180,24 @@ defmodule ExStorageServiceS3.HardeningTest do
 
       assert resp.status == 304
 
+      cleanup_bucket(bucket)
+    end
+
+    test "If-None-Match takes precedence over If-Modified-Since" do
+      bucket = create_bucket(unique_bucket())
+      put_object(bucket, "conditional-precedence.txt", "current content")
+
+      {:ok, resp} =
+        Req.get("#{@base_url}/#{bucket}/conditional-precedence.txt",
+          headers: [
+            {"if-none-match", "\"different-etag\""},
+            {"if-modified-since", "Thu, 01 Jan 2099 00:00:00 GMT"}
+          ],
+          raw: true
+        )
+
+      assert resp.status == 200
+      assert resp.body == "current content"
       cleanup_bucket(bucket)
     end
 

@@ -92,6 +92,7 @@ defmodule ExStorageServiceCluster.BlobHandler do
       |> send_resp(200, "")
     else
       {:error, :not_found} -> error(conn, 404, "blob not found", request_id)
+      {:error, :checksum_mismatch} -> error(conn, 422, "blob checksum mismatch", request_id)
       {:error, _reason} -> error(conn, 500, "blob lookup failed", request_id)
     end
   end

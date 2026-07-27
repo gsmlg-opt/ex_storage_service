@@ -43,6 +43,36 @@ defmodule ExStorageServiceS3.VersionedObjectsTest do
     assert old == "version-one"
   end
 
+  test "explicit-version GET supports ranges and conditional 304 responses" do
+    bucket = create_versioned_bucket()
+    body = "versioned-range-body"
+    {:ok, put_response} = Req.put("#{@base_url}/#{bucket}/range.txt", body: body)
+    version = version_id(put_response)
+    [etag] = Req.Response.get_header(put_response, "etag")
+
+    assert {:ok, range_response} =
+             Req.get("#{@base_url}/#{bucket}/range.txt?versionId=#{version}",
+               headers: [{"range", "bytes=3-8"}],
+               raw: true
+             )
+
+    assert range_response.status == 206
+    assert range_response.body == binary_part(body, 3, 6)
+
+    assert Req.Response.get_header(range_response, "content-range") == [
+             "bytes 3-8/#{byte_size(body)}"
+           ]
+
+    assert {:ok, conditional_response} =
+             Req.get("#{@base_url}/#{bucket}/range.txt?versionId=#{version}",
+               headers: [{"if-none-match", etag}],
+               raw: true
+             )
+
+    assert conditional_response.status == 304
+    assert Req.Response.get_header(conditional_response, "x-amz-version-id") == [version]
+  end
+
   test "PUT on unversioned bucket returns no x-amz-version-id header" do
     bucket = unique_bucket()
     {:ok, %{status: 201}} = Req.put("#{@base_url}/#{bucket}", body: "")

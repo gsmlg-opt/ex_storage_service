@@ -125,7 +125,7 @@ defmodule ExStorageServiceCluster.BlobHandlerTest do
     File.write!(ready_path, String.duplicate("x", byte_size(data)))
 
     head = request(:head, hash, "", "-", opts)
-    assert head.status == 500
+    assert head.status == 422
     assert get_resp_header(head, "x-ess-node-id") == []
     assert get_resp_header(head, "x-ess-verified-at") == []
   end

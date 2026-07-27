@@ -9,7 +9,7 @@ defmodule ExStorageService.ObjectService do
   """
 
   alias ExStorageService.BlobStore.LocalCAS
-  alias ExStorageService.Cluster.WriteCoordinator
+  alias ExStorageService.Cluster.{ReadCoordinator, WriteCoordinator}
   alias ExStorageService.Context
   alias ExStorageService.Metadata
   alias ExStorageService.Storage.Versioning
@@ -64,20 +64,45 @@ defmodule ExStorageService.ObjectService do
       if result.delete_marker do
         {:ok, Map.put(result, :source, nil)}
       else
-        case Map.fetch(result.metadata, :content_hash) do
-          {:ok, hash} when is_binary(hash) ->
-            range = Keyword.get(opts, :range)
-
-            case blob_store(opts).open(hash, range, blob_opts(opts, bucket: bucket)) do
-              {:ok, source} -> {:ok, Map.put(result, :source, source)}
-              {:error, :not_found} -> {:error, :blob_not_found}
-              {:error, reason} -> {:error, reason}
-            end
-
-          _missing_or_invalid_hash ->
-            {:error, :invalid_object_metadata}
+        case open_source(result.metadata, Keyword.put(opts, :bucket, bucket)) do
+          {:ok, source} -> {:ok, Map.put(result, :source, source)}
+          {:error, reason} -> {:error, reason}
         end
       end
+    end
+  end
+
+  @doc """
+  Opens a servable source for metadata already pinned by `head/4`.
+
+  Protocol adapters use this after evaluating conditional and Range headers so
+  the immutable version is not looked up a second time.
+  """
+  @spec open_source(map(), keyword()) :: {:ok, term()} | {:error, term()}
+  def open_source(metadata, opts \\ []) when is_map(metadata) do
+    with hash when is_binary(hash) <- Map.get(metadata, :content_hash),
+         size when is_integer(size) and size >= 0 <- Map.get(metadata, :size),
+         {:ok, context} <- context(opts) do
+      case read_coordinator(opts).open(
+             context,
+             hash,
+             size,
+             Keyword.get(opts, :range),
+             read_coordinator_opts(opts)
+           ) do
+        {:ok, source} ->
+          {:ok, source}
+
+        {:error, :not_found} ->
+          if context.config.mode == :cluster,
+            do: {:error, :all_blob_replicas_unavailable},
+            else: {:error, :blob_not_found}
+
+        {:error, reason} ->
+          {:error, reason}
+      end
+    else
+      _missing_or_invalid_identity -> {:error, :invalid_object_metadata}
     end
   end
 
@@ -92,7 +117,7 @@ defmodule ExStorageService.ObjectService do
           {:ok, result()} | {:error, term()}
   def head(bucket, key, version_id, opts) do
     with :ok <- ensure_bucket(bucket, opts),
-         {:ok, metadata} <- get_version(bucket, key, version_id, opts) do
+         {:ok, metadata} <- get_version(bucket, key, version_id, strong_read_opts(opts)) do
       delete_marker = Map.get(metadata, :is_delete_marker, false)
 
       {:ok,
@@ -586,6 +611,56 @@ defmodule ExStorageService.ObjectService do
     )
   end
 
+  defp read_coordinator_opts(opts) do
+    opts
+    |> Keyword.take([
+      :backend,
+      :consistency,
+      :timeout,
+      :engine,
+      :barrier,
+      :timestamp,
+      :bucket,
+      :placement_records,
+      :membership,
+      :placement,
+      :transport,
+      :transport_opts,
+      :source_order,
+      :max_remote_attempts,
+      :prefetch_bytes,
+      :request_id,
+      :replication_factor,
+      :blob_store,
+      :blob_store_opts,
+      :verify_local,
+      :locations,
+      :read_repair,
+      :read_repair_module,
+      :capacity_policy,
+      :repair_task_supervisor,
+      :repair_finalizer
+    ])
+    |> Keyword.merge(
+      Keyword.take(metadata_opts(opts), [:backend, :consistency, :timeout, :engine, :barrier])
+    )
+  end
+
+  defp strong_read_opts(opts) do
+    case context(opts) do
+      {:ok, %Context{config: %{mode: :cluster}}} ->
+        metadata_opts =
+          opts
+          |> metadata_opts()
+          |> Keyword.put_new(:consistency, :strong)
+
+        Keyword.put(opts, :metadata_opts, metadata_opts)
+
+      _ ->
+        opts
+    end
+  end
+
   defp ensure_cluster_write_enabled(opts) do
     case context(opts) do
       {:ok, %Context{config: %{mode: :cluster, cluster_data_plane_enabled: false}}} ->
@@ -629,6 +704,7 @@ defmodule ExStorageService.ObjectService do
   defp blob_store(opts), do: Keyword.get(opts, :blob_store, LocalCAS)
   defp versioning(opts), do: Keyword.get(opts, :versioning, Versioning)
   defp write_coordinator(opts), do: Keyword.get(opts, :write_coordinator, WriteCoordinator)
+  defp read_coordinator(opts), do: Keyword.get(opts, :read_coordinator, ReadCoordinator)
 
   defmodule DefaultSideEffects do
     @moduledoc false

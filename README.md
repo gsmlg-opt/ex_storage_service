@@ -325,6 +325,14 @@ when both `ESS_CLUSTER_DATA_PLANE_ENABLED=true` and
 once, placed by deterministic rendezvous hashing, and becomes visible only
 after the configured number of checksum-verified durable acknowledgements and
 one atomic metadata transaction. RF=2/W=2 remains the strict cluster default.
+
+Phase 7 lets either active API/data node serve a committed object. Reads prefer
+a checksum-valid local CAS file, then preflight and lazily stream a ready remote
+replica, including exact byte ranges. Missing object metadata remains a 404;
+present metadata with no available replica is a 503. Full remote reads can tee
+one bounded chunk at a time into local CAS for read repair. Partial ranges and
+disconnected/incomplete streams do not publish repairs, and durable repair-job
+dispatch remains disabled until Phase 8.
 The admin listener remains disabled in cluster mode, and metadata-role nodes
 start no CAS, transfer tasks, S3 listener, or admin listener.
 

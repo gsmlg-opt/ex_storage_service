@@ -37,6 +37,62 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
     end
   end
 
+  defmodule SlowDownloadPlug do
+    import Plug.Conn
+
+    @chunk_size 262_144
+    @chunk_count 64
+    @content_length @chunk_size * @chunk_count
+
+    def init(opts), do: opts
+
+    def call(%Plug.Conn{method: "HEAD"} = conn, opts) do
+      hash = opts[:hash]
+
+      conn
+      |> put_resp_header("content-length", Integer.to_string(@content_length))
+      |> put_resp_header("x-ess-node-id", "slow-target")
+      |> put_resp_header("x-ess-node-generation", "3")
+      |> put_resp_header("x-ess-blob-sha256", hash)
+      |> put_resp_header("x-ess-blob-size", Integer.to_string(@content_length))
+      |> put_resp_header("x-ess-verified-at", "1")
+      |> put_resp_header("x-ess-request-id", request_id(conn))
+      |> send_resp(200, "")
+    end
+
+    def call(%Plug.Conn{method: "GET"} = conn, opts) do
+      conn =
+        conn
+        |> put_resp_header("content-length", Integer.to_string(@content_length))
+        |> send_chunked(200)
+
+      stream_chunks(conn, opts[:owner], :binary.copy(<<0>>, @chunk_size), @chunk_count, 1)
+    end
+
+    defp request_id(conn) do
+      conn
+      |> get_req_header("x-ess-request-id")
+      |> List.first()
+    end
+
+    defp stream_chunks(conn, owner, chunk_data, remaining, attempt) do
+      case chunk(conn, chunk_data) do
+        {:ok, next_conn} when remaining > 1 ->
+          if attempt == 1, do: send(owner, {:slow_download, :first_chunk})
+          Process.sleep(10)
+          stream_chunks(next_conn, owner, chunk_data, remaining - 1, attempt + 1)
+
+        {:ok, next_conn} ->
+          send(owner, {:slow_download, :completed})
+          next_conn
+
+        {:error, reason} ->
+          send(owner, {:slow_download, :closed, attempt, reason})
+          conn
+      end
+    end
+  end
+
   @tag :tmp_dir
   test "HTTP adapter streams PUT, HEAD, full GET, and Range GET", %{tmp_dir: tmp_dir} do
     %{url: url, context: context} = start_transport(tmp_dir)
@@ -176,18 +232,97 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
     context = Context.new(config)
     hash = sha256("12345678")
 
-    assert {:ok, {:stream, stream, 8}} =
+    assert {:ok, {:stream, _producer, 8} = source} =
              HTTP.open_blob(context, "http://127.0.0.1:#{port}", hash, nil, secret: @secret)
 
     parent = self()
 
-    assert {:error, :not_found} =
-             stream.(fn chunk ->
+    assert {:error, :not_found, :consumer} =
+             Source.reduce(source, :consumer, fn chunk, consumer ->
                send(parent, {:sink_chunk, chunk})
-               :ok
+               {:cont, consumer}
              end)
 
     refute_receive {:sink_chunk, _chunk}
+  end
+
+  @tag :tmp_dir
+  test "open rejects replica identity or size mismatches before returning a source", %{
+    tmp_dir: tmp_dir
+  } do
+    %{url: url, context: context} = start_transport(tmp_dir)
+    data = "identity-checked"
+    hash = sha256(data)
+    source_path = Path.join(tmp_dir, "identity-source.bin")
+    File.write!(source_path, data)
+
+    assert {:ok, %ReplicaAck{}} =
+             HTTP.put_blob(
+               context,
+               url,
+               Source.file(source_path, 0, byte_size(data)),
+               descriptor(hash, byte_size(data)),
+               secret: @secret
+             )
+
+    for expected <- [
+          [expected_size: byte_size(data) + 1],
+          [expected_node_id: "other-node"],
+          [expected_node_generation: 12]
+        ] do
+      assert {:error, :replica_identity_mismatch} =
+               HTTP.open_blob(context, url, hash, nil, [secret: @secret] ++ expected)
+    end
+
+    assert {:ok, {:stream, _producer, length}} =
+             HTTP.open_blob(context, url, hash, nil,
+               secret: @secret,
+               expected_size: byte_size(data),
+               expected_node_id: "data-target",
+               expected_node_generation: 11
+             )
+
+    assert length == byte_size(data)
+  end
+
+  test "downstream halt preserves reducer state and closes the upstream HTTP/1 request" do
+    hash = sha256("slow-download")
+    content_length = 262_144 * 64
+
+    server =
+      start_supervised!(
+        {Bandit,
+         plug: {SlowDownloadPlug, owner: self(), hash: hash},
+         ip: {127, 0, 0, 1},
+         port: 0,
+         startup_log: false}
+      )
+
+    assert {:ok, {_address, port}} = ThousandIsland.listener_info(server)
+    {:ok, config} = InstanceConfig.new(internal_secret: @secret)
+    context = Context.new(config)
+    url = "http://127.0.0.1:#{port}"
+
+    assert {:ok, {:stream, _producer, ^content_length} = source} =
+             HTTP.open_blob(context, url, hash, nil,
+               secret: @secret,
+               expected_node_id: "slow-target",
+               expected_node_generation: 3,
+               expected_size: content_length
+             )
+
+    assert {:error, {:sink, :client_closed}, [received]} =
+             Source.reduce(source, [], fn chunk, received ->
+               {:halt, :client_closed, [chunk | received]}
+             end)
+
+    assert is_binary(received)
+    assert byte_size(received) > 0
+    assert byte_size(received) < content_length
+    assert_receive {:slow_download, :first_chunk}
+    assert_receive {:slow_download, :closed, attempt, _reason}, 2_000
+    assert attempt < 64
+    refute_receive {:slow_download, :completed}
   end
 
   defp start_transport(tmp_dir) do
@@ -236,16 +371,20 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
     }
   end
 
-  defp collect(stream_fun) do
+  defp collect({:stateful, _producer} = stream) do
     {:ok, io} = StringIO.open("")
+    source = {:stream, stream, 0}
 
-    case stream_fun.(fn chunk -> IO.binwrite(io, chunk) end) do
-      :ok ->
+    case Source.reduce(source, io, fn chunk, current ->
+           :ok = IO.binwrite(current, chunk)
+           {:cont, current}
+         end) do
+      {:ok, _io} ->
         {_input, output} = StringIO.contents(io)
         {:ok, output}
 
-      {:error, _reason} = error ->
-        error
+      {:error, reason, _io} ->
+        {:error, reason}
     end
   end
 

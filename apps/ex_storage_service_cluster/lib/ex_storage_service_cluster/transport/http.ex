@@ -72,12 +72,13 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
 
   @impl true
   def open_blob(context, node, hash, range, opts \\ []) do
-    with {:ok, %{size: total_size}} <-
-           head_blob(context, node, hash, scoped_request_opts(opts, "head")),
+    with {:ok, info} <- verified_head(context, node, hash, opts),
+         :ok <- validate_expected_head(info, opts),
+         total_size = info.size,
          {:ok, {offset, length}} <- normalize_range(range, total_size) do
       source =
-        Source.stream(
-          fn sink ->
+        Source.stateful_stream(
+          fn initial, reducer ->
             download(
               context,
               node,
@@ -85,7 +86,8 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
               offset,
               length,
               total_size,
-              sink,
+              initial,
+              reducer,
               scoped_request_opts(opts, "get")
             )
           end,
@@ -96,15 +98,44 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
     end
   end
 
+  defp verified_head(context, node, hash, opts) do
+    if Keyword.get(opts, :verified_head, false) do
+      with {:ok, size} <- Keyword.fetch(opts, :expected_size),
+           {:ok, node_id} <- Keyword.fetch(opts, :expected_node_id),
+           {:ok, node_generation} <- Keyword.fetch(opts, :expected_node_generation) do
+        {:ok,
+         %{
+           hash: hash,
+           size: size,
+           node_id: node_id,
+           node_generation: node_generation
+         }}
+      end
+    else
+      head_blob(context, node, hash, scoped_request_opts(opts, "head"))
+    end
+  end
+
   @impl true
   def delete_blob(_context, _node, _hash, _opts \\ []), do: {:error, :unsupported}
 
   @impl true
   def health(_context, _node, _opts \\ []), do: {:error, :unsupported}
 
-  defp download(_context, _node, _hash, _offset, 0, _total_size, _sink, _opts), do: :ok
+  defp download(
+         _context,
+         _node,
+         _hash,
+         _offset,
+         0,
+         _total_size,
+         initial,
+         _reducer,
+         _opts
+       ),
+       do: {:ok, initial}
 
-  defp download(context, node, hash, offset, length, total_size, sink, opts) do
+  defp download(context, node, hash, offset, length, total_size, initial, reducer, opts) do
     started_at = System.monotonic_time()
     path = blob_path(hash)
     request_id = Keyword.get_lazy(opts, :request_id, &request_id/0)
@@ -123,28 +154,44 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
                [
                  method: :get,
                  headers: headers,
-                 into: stream_into(sink, range, offset, length, total_size)
+                 into: stream_into(reducer, initial, range, offset, length, total_size)
                ]
            ),
-         :ok <- validate_download(response, range, offset, length, total_size) do
+         {:ok, final} <-
+           validate_download(response, initial, range, offset, length, total_size) do
       emit_stop(:open_blob, started_at, length, node, hash, :ok)
-      :ok
+      {:ok, final}
     else
-      {:error, reason} = error ->
+      {:error, reason, _final} = error ->
         emit_stop(:open_blob, started_at, 0, node, hash, reason)
         error
+
+      {:error, reason} ->
+        emit_stop(:open_blob, started_at, 0, node, hash, reason)
+        {:error, reason, initial}
     end
   end
 
-  defp stream_into(sink, range, offset, length, total_size) do
+  defp stream_into(reducer, initial, range, offset, length, total_size) do
     fn {:data, data}, {request, response} ->
       case validate_response_headers(response, range, offset, length, total_size) do
         :ok ->
-          case sink.(data) do
-            :ok ->
+          current =
+            Req.Response.get_private(
+              response,
+              :ex_storage_service_cluster_consumer_state,
+              initial
+            )
+
+          case reducer.(data, current) do
+            {:cont, next} ->
               response =
-                Req.Response.put_private(
-                  response,
+                response
+                |> Req.Response.put_private(
+                  :ex_storage_service_cluster_consumer_state,
+                  next
+                )
+                |> Req.Response.put_private(
                   :ex_storage_service_cluster_bytes,
                   Req.Response.get_private(response, :ex_storage_service_cluster_bytes, 0) +
                     byte_size(data)
@@ -152,9 +199,14 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
 
               {:cont, {request, response}}
 
-            {:error, reason} ->
+            {:halt, reason, next} ->
               response =
-                Req.Response.put_private(response, :ex_storage_service_cluster_sink_error, reason)
+                response
+                |> Req.Response.put_private(
+                  :ex_storage_service_cluster_consumer_state,
+                  next
+                )
+                |> Req.Response.put_private(:ex_storage_service_cluster_sink_error, reason)
 
               {:halt, {request, response}}
           end
@@ -168,27 +220,30 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
     end
   end
 
-  defp validate_download(response, range, offset, length, total_size) do
+  defp validate_download(response, initial, range, offset, length, total_size) do
     received = Req.Response.get_private(response, :ex_storage_service_cluster_bytes, 0)
     sink_error = Req.Response.get_private(response, :ex_storage_service_cluster_sink_error)
     stream_error = Req.Response.get_private(response, :ex_storage_service_cluster_stream_error)
 
+    final =
+      Req.Response.get_private(response, :ex_storage_service_cluster_consumer_state, initial)
+
     cond do
       stream_error ->
-        stream_error
+        {:error, elem(stream_error, 1), final}
 
       sink_error ->
-        {:error, {:sink, sink_error}}
+        {:error, {:sink, sink_error}, final}
 
       (header_error = validate_response_headers(response, range, offset, length, total_size)) !=
           :ok ->
-        header_error
+        {:error, elem(header_error, 1), final}
 
       received != length ->
-        {:error, :incomplete_response}
+        {:error, :incomplete_response, final}
 
       true ->
-        :ok
+        {:ok, final}
     end
   end
 
@@ -217,6 +272,9 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
 
   defp source_enumerable({:file, path, offset, length}),
     do: {:ok, file_slice_stream(path, offset, length)}
+
+  defp source_enumerable({:stream, {:stateful, _producer}, _length}),
+    do: {:error, :unsupported_source}
 
   defp source_enumerable({:stream, enumerable, _length}) when not is_function(enumerable),
     do: {:ok, enumerable}
@@ -329,6 +387,18 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
 
   defp decode_head(%Req.Response{status: 404}, _hash, _request_id), do: {:error, :not_found}
   defp decode_head(response, _hash, _request_id), do: response_error(response)
+
+  defp validate_expected_head(info, opts) do
+    expected = %{
+      size: Keyword.get(opts, :expected_size, info.size),
+      node_id: Keyword.get(opts, :expected_node_id, info.node_id),
+      node_generation: Keyword.get(opts, :expected_node_generation, info.node_generation)
+    }
+
+    if Map.take(info, Map.keys(expected)) == expected,
+      do: :ok,
+      else: {:error, :replica_identity_mismatch}
+  end
 
   defp response_error(%Req.Response{status: 401}), do: {:error, :unauthorized}
   defp response_error(%Req.Response{status: 404}), do: {:error, :not_found}
