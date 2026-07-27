@@ -40,6 +40,7 @@ defmodule ExStorageService.Metadata.Backend.ConcordTest do
             ]} = ConcordBackend.scan(prefix)
 
     assert {:ok, ^committed} = ConcordBackend.transaction(spec, idempotency_key: "op1")
+    assert {:ok, ^committed} = ConcordBackend.resolve_transaction("op1")
 
     assert {:ok, %Result{succeeded: false}} =
              ConcordBackend.transaction(spec, idempotency_key: "op2")

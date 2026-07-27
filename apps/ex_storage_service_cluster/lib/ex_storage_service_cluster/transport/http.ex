@@ -29,8 +29,13 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
              request_id: request_id
            ),
          {:ok, response} <-
-           Req.request(request_options(node, path, opts) ++
-             [method: :put, headers: [{"content-length", descriptor.size} | headers], body: body]
+           Req.request(
+             request_options(node, path, opts) ++
+               [
+                 method: :put,
+                 headers: [{"content-length", descriptor.size} | headers],
+                 body: body
+               ]
            ),
          {:ok, ack} <- decode_ack(response, descriptor, request_id) do
       emit_stop(:put_blob, started_at, descriptor.size, node, descriptor.hash, :ok)
@@ -55,7 +60,7 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
            ),
          {:ok, response} <-
            Req.request(request_options(node, path, opts) ++ [method: :head, headers: headers]),
-         {:ok, info} <- decode_head(response, hash) do
+         {:ok, info} <- decode_head(response, hash, request_id) do
       emit_stop(:head_blob, started_at, 0, node, hash, :ok)
       {:ok, info}
     else
@@ -300,17 +305,30 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
 
   defp decode_ack(response, _descriptor, _request_id), do: response_error(response)
 
-  defp decode_head(%Req.Response{status: 200} = response, hash) do
-    with {:ok, size} <- header_integer(response, "content-length"),
-         {:ok, ^hash} <- header(response, "x-ess-blob-sha256") do
-      {:ok, %{hash: hash, size: size}}
+  defp decode_head(%Req.Response{status: 200} = response, hash, request_id) do
+    with {:ok, node_id} <- header(response, "x-ess-node-id"),
+         {:ok, node_generation} <- header_integer(response, "x-ess-node-generation"),
+         {:ok, ^hash} <- header(response, "x-ess-blob-sha256"),
+         {:ok, size} <- header_integer(response, "x-ess-blob-size"),
+         {:ok, ^size} <- header_integer(response, "content-length"),
+         {:ok, verified_at} <- header_integer(response, "x-ess-verified-at"),
+         {:ok, ^request_id} <- header(response, "x-ess-request-id") do
+      {:ok,
+       %{
+         hash: hash,
+         size: size,
+         node_id: node_id,
+         node_generation: node_generation,
+         verified_at: verified_at,
+         fencing_or_request_id: request_id
+       }}
     else
       _ -> {:error, :invalid_blob_head}
     end
   end
 
-  defp decode_head(%Req.Response{status: 404}, _hash), do: {:error, :not_found}
-  defp decode_head(response, _hash), do: response_error(response)
+  defp decode_head(%Req.Response{status: 404}, _hash, _request_id), do: {:error, :not_found}
+  defp decode_head(response, _hash, _request_id), do: response_error(response)
 
   defp response_error(%Req.Response{status: 401}), do: {:error, :unauthorized}
   defp response_error(%Req.Response{status: 404}), do: {:error, :not_found}
@@ -352,6 +370,7 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
   defp blob_path(hash), do: "/internal/v1/blobs/#{hash}"
 
   defp node_url(url) when is_binary(url), do: String.trim_trailing(url, "/")
+  defp node_url(%{internal_endpoint: url}), do: node_url(url)
   defp node_url(%{internal_advertised_url: url}), do: node_url(url)
   defp node_url(%{advertised_url: url}), do: node_url(url)
 

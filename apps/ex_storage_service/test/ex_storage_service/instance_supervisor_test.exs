@@ -154,7 +154,7 @@ defmodule ExStorageService.InstanceSupervisorTest do
              ExStorageService.Application.children(enabled)
   end
 
-  test "metadata role application starts only cluster discovery" do
+  test "metadata role application starts only discovery and persistent node registration" do
     members = [
       %{id: "node-a", endpoint: :"ess-a@127.0.0.1"},
       %{id: "node-b", endpoint: :"ess-b@127.0.0.1"},
@@ -176,8 +176,13 @@ defmodule ExStorageService.InstanceSupervisorTest do
                web_enabled: false
              )
 
-    assert [{ExStorageService.Cluster.StaticDiscovery, _opts}] =
+    assert [
+             {ExStorageService.Cluster.StaticDiscovery, _opts},
+             {ExStorageService.Cluster.NodeRegistrar, registrar_opts}
+           ] =
              ExStorageService.Application.children(config)
+
+    assert registrar_opts[:config] == config
   end
 
   @tag :tmp_dir

@@ -26,7 +26,8 @@ defmodule ExStorageService.Context do
     :tmp_root,
     :ra_root,
     :metadata_root,
-    :notification_task_supervisor
+    :notification_task_supervisor,
+    :replica_task_supervisor
   ]
   defstruct @enforce_keys
 
@@ -38,7 +39,8 @@ defmodule ExStorageService.Context do
           tmp_root: String.t(),
           ra_root: String.t(),
           metadata_root: String.t(),
-          notification_task_supervisor: atom() | tuple()
+          notification_task_supervisor: atom() | tuple(),
+          replica_task_supervisor: atom() | tuple()
         }
 
   @spec new(InstanceConfig.t()) :: t()
@@ -51,7 +53,13 @@ defmodule ExStorageService.Context do
       tmp_root: Path.expand(config.tmp_root),
       ra_root: Path.expand(config.ra_root),
       metadata_root: Path.expand(config.metadata_root),
-      notification_task_supervisor: ExStorageService.NotificationTaskSupervisor
+      notification_task_supervisor: ExStorageService.NotificationTaskSupervisor,
+      replica_task_supervisor:
+        ExStorageService.Names.process(
+          config.instance,
+          :replica_tasks,
+          ExStorageService.ReplicaTaskSupervisor
+        )
     }
   end
 

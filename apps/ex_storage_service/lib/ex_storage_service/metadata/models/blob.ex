@@ -3,24 +3,22 @@ defmodule ExStorageService.Metadata.Models.Blob do
   Metadata descriptor for content-addressed object bytes.
   """
 
-  @enforce_keys [:sha256, :size]
+  @enforce_keys [:hash, :size]
   defstruct [
-    :sha256,
+    :hash,
     :size,
-    :physical_path,
     :created_at,
-    :last_seen_at,
-    :locations,
-    state: :active
+    schema: 2,
+    algorithm: :sha256,
+    desired_replication_factor: 1
   ]
 
   @type t :: %__MODULE__{
-          sha256: binary(),
+          schema: 2,
+          hash: binary(),
+          algorithm: :sha256,
           size: non_neg_integer(),
-          physical_path: binary() | nil,
           created_at: binary() | nil,
-          last_seen_at: binary() | nil,
-          locations: [term()] | nil,
-          state: atom()
+          desired_replication_factor: pos_integer()
         }
 end

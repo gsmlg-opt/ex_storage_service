@@ -4,7 +4,7 @@ defmodule ExStorageService.Application do
   use Application
   require Logger
 
-  alias ExStorageService.Cluster.{Readiness, Topology}
+  alias ExStorageService.Cluster.{NodeRegistrar, Readiness, Topology}
 
   @impl true
   def start(_type, _args) do
@@ -29,13 +29,13 @@ defmodule ExStorageService.Application do
   end
 
   @doc false
-  def children(%{node_role: :metadata} = config), do: Topology.children(config)
+  def children(%{node_role: :metadata} = config), do: cluster_infrastructure(config)
 
   def children(config) do
     infrastructure =
       [
         {Registry, keys: :unique, name: ExStorageService.Names.registry()},
-        Topology.children(config),
+        cluster_infrastructure(config),
         {Phoenix.PubSub, name: ExStorageService.PubSub},
         {Task.Supervisor, name: ExStorageService.NotificationTaskSupervisor}
       ]
@@ -46,6 +46,11 @@ defmodule ExStorageService.Application do
     else
       infrastructure
     end
+  end
+
+  defp cluster_infrastructure(config) do
+    Topology.children(config) ++
+      if(config.mode == :cluster, do: [{NodeRegistrar, config: config}], else: [])
   end
 
   defp instance_config! do

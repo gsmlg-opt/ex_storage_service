@@ -34,6 +34,41 @@ defmodule ExStorageServiceS3.Handlers.Shared do
     |> send_resp(status, body)
   end
 
+  def storage_error_response(conn, reason, resource, request_id) do
+    if availability_error?(reason) do
+      error_response(
+        conn,
+        "ServiceUnavailable",
+        "The storage service cannot currently satisfy the requested quorum.",
+        resource,
+        request_id
+      )
+    else
+      error_response(conn, "InternalError", inspect(reason), resource, request_id)
+    end
+  end
+
+  defp availability_error?(reason)
+       when reason in [
+              :blob_write_quorum_unavailable,
+              :metadata_quorum_unavailable,
+              :insufficient_eligible_nodes,
+              :cluster_data_plane_disabled,
+              :no_leader,
+              :cluster_not_ready,
+              :timeout,
+              :unknown
+            ],
+       do: true
+
+  defp availability_error?(reason) when is_tuple(reason) do
+    reason
+    |> Tuple.to_list()
+    |> Enum.any?(&availability_error?/1)
+  end
+
+  defp availability_error?(_reason), do: false
+
   def delete_marker_response(conn, version_id, request_id) do
     conn
     |> put_s3_headers(request_id)

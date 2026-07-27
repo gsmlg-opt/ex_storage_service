@@ -1,6 +1,8 @@
 defmodule ExStorageServiceS3.Handlers.SharedTest do
   use ExUnit.Case, async: true
 
+  import Plug.Test
+
   alias ExStorageServiceS3.Handlers.Shared
 
   describe "decode_aws_chunked/1" do
@@ -66,6 +68,42 @@ defmodule ExStorageServiceS3.Handlers.SharedTest do
       refute Shared.xml_has_doctype?(
                ~s(<?xml version="1.0"?><Delete><Object><Key>k</Key></Object></Delete>)
              )
+    end
+  end
+
+  describe "storage_error_response/4" do
+    test "maps cluster write availability failures to S3 ServiceUnavailable" do
+      for reason <- [
+            :blob_write_quorum_unavailable,
+            :metadata_quorum_unavailable,
+            :insufficient_eligible_nodes,
+            :cluster_data_plane_disabled,
+            :no_leader,
+            :cluster_not_ready,
+            :timeout,
+            :unknown,
+            {:commit, :timeout}
+          ] do
+        response =
+          :put
+          |> conn("/bucket/key")
+          |> Shared.storage_error_response(reason, "/bucket/key", "request-phase6")
+
+        assert response.status == 503
+        assert Plug.Conn.get_resp_header(response, "x-amz-request-id") == ["request-phase6"]
+        assert response.resp_body =~ "<Code>ServiceUnavailable</Code>"
+        assert response.resp_body =~ "<RequestId>request-phase6</RequestId>"
+      end
+    end
+
+    test "keeps unrelated failures as InternalError" do
+      response =
+        :put
+        |> conn("/bucket/key")
+        |> Shared.storage_error_response(:eio, "/bucket/key", "request-phase6")
+
+      assert response.status == 500
+      assert response.resp_body =~ "<Code>InternalError</Code>"
     end
   end
 end

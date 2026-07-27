@@ -27,7 +27,7 @@ defmodule ExStorageServiceS3.Handlers.Object do
         )
 
       {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
+        storage_error_response(conn, reason, "/#{bucket}", request_id)
 
       :ok ->
         params = conn.query_params
@@ -68,8 +68,8 @@ defmodule ExStorageServiceS3.Handlers.Object do
         {:error, :bucket_not_found} ->
           conn |> put_s3_headers(request_id) |> send_resp(404, "")
 
-        {:error, _reason} ->
-          conn |> put_s3_headers(request_id) |> send_resp(500, "")
+        {:error, reason} ->
+          storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
       end
     end)
   end
@@ -89,7 +89,7 @@ defmodule ExStorageServiceS3.Handlers.Object do
           )
 
         {:error, reason} ->
-          error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
+          storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
 
         :ok ->
           Backend.for_bucket(bucket).put_object(conn, bucket, key, request_id)
@@ -142,7 +142,7 @@ defmodule ExStorageServiceS3.Handlers.Object do
           |> send_resp(204, "")
 
         {:error, reason} ->
-          error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
+          storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
       end
     end)
   end
@@ -196,13 +196,7 @@ defmodule ExStorageServiceS3.Handlers.Object do
                 )
 
               {:error, reason} ->
-                error_response(
-                  conn,
-                  "InternalError",
-                  inspect(reason),
-                  "/#{bucket}/#{key}",
-                  request_id
-                )
+                storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
             end
 
           {:error, reason} when reason in [:object_not_found, :bucket_not_found] ->
@@ -224,13 +218,7 @@ defmodule ExStorageServiceS3.Handlers.Object do
             )
 
           {:error, reason} ->
-            error_response(
-              conn,
-              "InternalError",
-              inspect(reason),
-              "/#{bucket}/#{key}",
-              request_id
-            )
+            storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
         end
 
       [] ->
@@ -254,35 +242,14 @@ defmodule ExStorageServiceS3.Handlers.Object do
             # Resolve cloud cache config once for the batch
             cloud_cfg = cloud_cache_config(bucket)
 
-            results =
-              Enum.map(keys, fn key ->
-                # Delete from upstream cloud and clear local cache
-                case cloud_cfg do
-                  {:ok, cloud_config} ->
-                    case CloudClient.delete_object(cloud_config, key) do
-                      :ok ->
-                        Logger.info(
-                          "CloudCache DELETE upstream OK: #{cloud_config.bucket}/#{key}"
-                        )
+            case delete_objects(keys, bucket, cloud_cfg) do
+              {:ok, results} ->
+                body = XML.delete_objects_response(results)
+                xml_response(conn, 200, body, request_id)
 
-                      {:error, reason} ->
-                        Logger.error(
-                          "CloudCache DELETE upstream FAILED: #{cloud_config.bucket}/#{key} — #{inspect(reason)}"
-                        )
-                    end
-
-                    LocalStore.delete(bucket, key)
-
-                  :disabled ->
-                    :ok
-                end
-
-                {:ok, _result} = ObjectService.delete(bucket, key, nil)
-                {:deleted, key}
-              end)
-
-            body = XML.delete_objects_response(results)
-            xml_response(conn, 200, body, request_id)
+              {:error, reason} ->
+                storage_error_response(conn, reason, "/#{bucket}?delete", request_id)
+            end
 
           {:error, _reason} ->
             error_response(
@@ -295,7 +262,7 @@ defmodule ExStorageServiceS3.Handlers.Object do
         end
 
       {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}?delete", request_id)
+        storage_error_response(conn, reason, "/#{bucket}?delete", request_id)
     end
   end
 
@@ -349,13 +316,45 @@ defmodule ExStorageServiceS3.Handlers.Object do
         )
 
       {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
+        storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
     end
   end
 
   defp cloud_cache_config(bucket) do
     CloudConfig.get_active_config(bucket)
   end
+
+  defp delete_objects(keys, bucket, cloud_config) do
+    keys
+    |> Enum.reduce_while({:ok, []}, fn key, {:ok, deleted} ->
+      delete_cloud_object(cloud_config, bucket, key)
+
+      case ObjectService.delete(bucket, key, nil) do
+        {:ok, _result} -> {:cont, {:ok, [{:deleted, key} | deleted]}}
+        {:error, reason} -> {:halt, {:error, reason}}
+      end
+    end)
+    |> case do
+      {:ok, deleted} -> {:ok, Enum.reverse(deleted)}
+      {:error, _reason} = error -> error
+    end
+  end
+
+  defp delete_cloud_object({:ok, cloud_config}, bucket, key) do
+    case CloudClient.delete_object(cloud_config, key) do
+      :ok ->
+        Logger.info("CloudCache DELETE upstream OK: #{cloud_config.bucket}/#{key}")
+
+      {:error, reason} ->
+        Logger.error(
+          "CloudCache DELETE upstream FAILED: #{cloud_config.bucket}/#{key} — #{inspect(reason)}"
+        )
+    end
+
+    LocalStore.delete(bucket, key)
+  end
+
+  defp delete_cloud_object(:disabled, _bucket, _key), do: :ok
 
   defp head_object_response(conn, metadata, request_id) do
     content_type = Map.get(metadata, :content_type, "application/octet-stream")

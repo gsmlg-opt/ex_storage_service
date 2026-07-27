@@ -390,6 +390,34 @@ defmodule ExStorageServiceS3.ApiTest do
       cleanup_bucket(remote_bucket)
     end
 
+    test "cloud-backed put is unavailable while cluster mode is active" do
+      bucket = create_bucket(unique_bucket())
+      remote_bucket = create_bucket(unique_bucket())
+      enable_cloud_cache(bucket, remote_bucket)
+
+      previous = Application.get_env(:ex_storage_service, :instance_config)
+      Application.put_env(:ex_storage_service, :instance_config, mode: :cluster)
+
+      on_exit(fn ->
+        if previous,
+          do: Application.put_env(:ex_storage_service, :instance_config, previous),
+          else: Application.delete_env(:ex_storage_service, :instance_config)
+      end)
+
+      {:ok, response} = Req.put("#{@base_url}/#{bucket}/blocked.txt", body: "must not buffer")
+
+      assert response.status == 503
+      assert String.contains?(response.body, "ServiceUnavailable")
+      assert Map.has_key?(response.headers, "x-amz-request-id")
+
+      if previous,
+        do: Application.put_env(:ex_storage_service, :instance_config, previous),
+        else: Application.delete_env(:ex_storage_service, :instance_config)
+
+      cleanup_bucket(bucket)
+      cleanup_bucket(remote_bucket)
+    end
+
     test "local put streams aws-chunked framing into decoded object bytes" do
       bucket = create_bucket(unique_bucket())
 

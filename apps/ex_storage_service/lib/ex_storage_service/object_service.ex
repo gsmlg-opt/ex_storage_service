@@ -9,6 +9,7 @@ defmodule ExStorageService.ObjectService do
   """
 
   alias ExStorageService.BlobStore.LocalCAS
+  alias ExStorageService.Cluster.WriteCoordinator
   alias ExStorageService.Context
   alias ExStorageService.Metadata
   alias ExStorageService.Storage.Versioning
@@ -32,14 +33,20 @@ defmodule ExStorageService.ObjectService do
           {:ok, result()} | {:error, term()}
   def put(bucket, key, data, content_type, user_metadata, opts \\ []) do
     with :ok <- ensure_bucket(bucket, opts),
-         {:ok, ready} <- store_blob(data, opts) do
+         :ok <- ensure_cluster_write_enabled(opts) do
       attributes = %{
         content_type: content_type,
         metadata: user_metadata,
         user_metadata: user_metadata
       }
 
-      commit_ready_blob(bucket, key, ready, attributes, opts)
+      if cluster_write?(opts) do
+        put_cluster(bucket, key, data, attributes, opts)
+      else
+        with {:ok, ready} <- store_blob(data, opts) do
+          commit_ready_blob(bucket, key, ready, attributes, opts)
+        end
+      end
     end
   end
 
@@ -110,6 +117,7 @@ defmodule ExStorageService.ObjectService do
           {:ok, %{version_id: String.t(), kind: :delete_marker | :deleted}} | {:error, term()}
   def delete(bucket, key, version_id, opts \\ []) do
     with :ok <- ensure_bucket(bucket, opts),
+         :ok <- ensure_cluster_write_enabled(opts),
          {:ok, deleted_version_id, kind} <-
            delete_version(bucket, key, version_id, opts) do
       run_side_effects(:delete, bucket, key, opts)
@@ -130,6 +138,7 @@ defmodule ExStorageService.ObjectService do
 
     with :ok <- ensure_bucket(source_bucket, opts),
          :ok <- ensure_bucket(destination_bucket, opts),
+         :ok <- ensure_cluster_write_enabled(opts),
          {:ok, source} <- head(source_bucket, source_key, source_version_id, opts),
          false <- source.delete_marker,
          hash when is_binary(hash) <- Map.get(source.metadata, :content_hash),
@@ -158,7 +167,7 @@ defmodule ExStorageService.ObjectService do
         |> Map.put_new(:hash, hash)
         |> Map.put_new(:content_hash, hash)
 
-      commit_ready_blob(destination_bucket, destination_key, ready, attributes, opts)
+      commit_existing_ready(destination_bucket, destination_key, ready, attributes, opts)
     else
       true -> {:error, :object_not_found}
       nil -> {:error, :blob_not_found}
@@ -179,14 +188,57 @@ defmodule ExStorageService.ObjectService do
     blob_bucket = Keyword.get(opts, :blob_bucket, bucket)
 
     with :ok <- ensure_bucket(bucket, opts),
+         :ok <- ensure_cluster_write_enabled(opts),
          {:ok, %{content_hash: hash}} <- blob_identity(ready),
          :ok <- ensure_copy_ready(hash, blob_bucket, opts),
-         :ok <- verify_copy_blob(hash, blob_bucket, opts) do
+         :ok <- verify_copy_blob(hash, blob_bucket, opts),
+         {:ok, blob_info} <-
+           blob_store(opts).stat(hash, blob_opts(opts, bucket: blob_bucket)) do
+      coordinated_ready =
+        blob_info
+        |> to_plain_map()
+        |> Map.merge(to_plain_map(ready))
+        |> Map.put_new(:hash, hash)
+
+      commit_existing_ready(bucket, key, coordinated_ready, attributes, opts)
+    end
+  end
+
+  defp put_cluster(bucket, key, data, attributes, opts) do
+    opts = ensure_operation_id(opts)
+
+    with {:ok, context} <- context(opts),
+         {:ok, staged} <- stage_blob(data, opts) do
+      case write_coordinator(opts).ensure_blob(context, staged, coordinator_opts(opts)) do
+        {:ok, evidence} ->
+          commit_quorum_blob(bucket, key, staged, evidence, attributes, opts)
+
+        {:error, _reason} = error ->
+          _ = discard_staged(blob_store(opts), staged, blob_opts(opts))
+          error
+      end
+    end
+  end
+
+  defp commit_existing_ready(bucket, key, ready, attributes, opts) do
+    if cluster_write?(opts) do
+      opts = ensure_operation_id(opts)
+
+      with {:ok, context} <- context(opts),
+           {:ok, evidence} <-
+             write_coordinator(opts).ensure_blob(
+               context,
+               ready,
+               coordinator_opts(opts)
+             ) do
+        commit_quorum_blob(bucket, key, ready, evidence, attributes, opts)
+      end
+    else
       commit_ready_blob(bucket, key, ready, attributes, opts)
     end
   end
 
-  defp store_blob(data, opts) do
+  defp stage_blob(data, opts) do
     store = blob_store(opts)
     blob_opts = blob_opts(opts)
 
@@ -194,12 +246,22 @@ defmodule ExStorageService.ObjectService do
       {:ok, staged} ->
         case run_fault(opts, :after_stage, %{staged_blob: staged}) do
           :ok ->
-            commit_staged_blob(store, staged, blob_opts, opts)
+            {:ok, staged}
 
           {:error, _reason} = error ->
             discard_staged(store, staged, blob_opts)
             error
         end
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp store_blob(data, opts) do
+    case stage_blob(data, opts) do
+      {:ok, staged} ->
+        commit_staged_blob(blob_store(opts), staged, blob_opts(opts), opts)
 
       {:error, reason} ->
         {:error, reason}
@@ -249,6 +311,50 @@ defmodule ExStorageService.ObjectService do
          metadata: public_metadata(metadata, version_id),
          ready_blob: ready
        }}
+    end
+  end
+
+  defp commit_quorum_blob(bucket, key, source, evidence, attributes, opts) do
+    now =
+      Keyword.get_lazy(opts, :timestamp, fn -> DateTime.utc_now() |> DateTime.to_iso8601() end)
+
+    with {:ok, identity} <- blob_identity(source),
+         metadata <-
+           attributes
+           |> Map.new()
+           |> Map.merge(identity)
+           |> Map.put_new(:object_type, :blob)
+           |> Map.put_new(:created_at, now)
+           |> Map.put(:updated_at, now),
+         :ok <-
+           run_fault(opts, :metadata_commit, %{
+             bucket: bucket,
+             key: key,
+             metadata: metadata,
+             ready_blob: evidence.ready_blob,
+             operation_id: Keyword.get(metadata_opts(opts), :operation_id),
+             durability: evidence
+           }),
+         opts <- put_durability(opts, evidence),
+         {:ok, version_id} <- put_version(bucket, key, metadata, opts) do
+      run_side_effects(:put, bucket, key, opts)
+
+      result = %{
+        version_id: version_id,
+        metadata: public_metadata(metadata, version_id)
+      }
+
+      {:ok,
+       if(evidence.ready_blob,
+         do: Map.put(result, :ready_blob, evidence.ready_blob),
+         else: result
+       )}
+    else
+      {:error, reason} when reason in [:cluster_not_ready, :no_leader, :timeout, :unknown] ->
+        {:error, :metadata_quorum_unavailable}
+
+      error ->
+        error
     end
   end
 
@@ -434,6 +540,79 @@ defmodule ExStorageService.ObjectService do
   defp attributes_option(opts), do: opts |> Keyword.get(:attributes, %{}) |> Map.new()
   defp metadata_opts(opts), do: Keyword.get(opts, :metadata_opts, [])
 
+  defp put_durability(opts, evidence) do
+    Keyword.update(opts, :metadata_opts, [durability: evidence], fn metadata_opts ->
+      Keyword.put(metadata_opts, :durability, evidence)
+    end)
+  end
+
+  defp ensure_operation_id(opts) do
+    metadata_opts =
+      opts
+      |> metadata_opts()
+      |> Keyword.put_new_lazy(:operation_id, &generated_operation_id/0)
+
+    Keyword.put(opts, :metadata_opts, metadata_opts)
+  end
+
+  defp generated_operation_id do
+    "object-service-" <>
+      (:crypto.strong_rand_bytes(12) |> Base.url_encode64(padding: false))
+  end
+
+  defp coordinator_opts(opts) do
+    operation_id = Keyword.get(metadata_opts(opts), :operation_id)
+
+    opts
+    |> Keyword.take([
+      :placement_records,
+      :membership,
+      :placement,
+      :transport,
+      :transport_opts,
+      :task_supervisor,
+      :replica_concurrency,
+      :transfer_timeout,
+      :replication_factor,
+      :write_quorum,
+      :allow_degraded_writes,
+      :blob_store,
+      :blob_store_opts,
+      :timestamp
+    ])
+    |> Keyword.put(:operation_id, operation_id)
+    |> Keyword.merge(
+      Keyword.take(metadata_opts(opts), [:backend, :consistency, :timeout, :engine, :barrier])
+    )
+  end
+
+  defp ensure_cluster_write_enabled(opts) do
+    case context(opts) do
+      {:ok, %Context{config: %{mode: :cluster, cluster_data_plane_enabled: false}}} ->
+        {:error, :cluster_data_plane_disabled}
+
+      {:ok, _context} ->
+        :ok
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp cluster_write?(opts) do
+    match?(
+      {:ok, %Context{config: %{mode: :cluster, cluster_data_plane_enabled: true}}},
+      context(opts)
+    )
+  end
+
+  defp context(opts) do
+    case Keyword.get(opts, :context) do
+      %Context{} = context -> {:ok, context}
+      nil -> Context.default()
+    end
+  end
+
   defp blob_opts(opts, extra \\ []) do
     context_opts =
       case Keyword.get(opts, :context) do
@@ -449,6 +628,7 @@ defmodule ExStorageService.ObjectService do
   defp metadata(opts), do: Keyword.get(opts, :metadata, Metadata)
   defp blob_store(opts), do: Keyword.get(opts, :blob_store, LocalCAS)
   defp versioning(opts), do: Keyword.get(opts, :versioning, Versioning)
+  defp write_coordinator(opts), do: Keyword.get(opts, :write_coordinator, WriteCoordinator)
 
   defmodule DefaultSideEffects do
     @moduledoc false

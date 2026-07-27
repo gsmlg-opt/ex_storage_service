@@ -24,7 +24,7 @@ defmodule ExStorageServiceCluster.Application do
         replay_table: replay_table,
         auth_skew_seconds: skew_seconds,
         node_id: Keyword.fetch!(opts, :node_id),
-        node_generation: Keyword.get(opts, :node_generation, 0),
+        node_generation: Keyword.get(opts, :node_generation, 1),
         blob_store_opts: Keyword.fetch!(opts, :blob_store_opts),
         max_blob_size: Keyword.fetch!(opts, :max_blob_size),
         read_timeout: Keyword.get(opts, :read_timeout, 60_000)

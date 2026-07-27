@@ -40,7 +40,40 @@ defmodule ExStorageService.Metadata.Keys do
   @spec blob(binary()) :: binary()
   def blob(sha256) when is_binary(sha256), do: "#{@prefix}:blob:#{sha256}"
 
+  @spec blob_location(binary(), binary()) :: binary()
+  def blob_location(sha256, node_id) when is_binary(sha256) and is_binary(node_id) do
+    blob_location_prefix(sha256) <> encode_component(node_id)
+  end
+
+  @spec blob_location_prefix(binary()) :: binary()
+  def blob_location_prefix(sha256) when is_binary(sha256),
+    do: "#{@prefix}:blob_location:#{sha256}:"
+
+  @spec cluster_node(binary()) :: binary()
+  def cluster_node(node_id) when is_binary(node_id),
+    do: cluster_node_prefix() <> encode_component(node_id)
+
+  @spec cluster_node_prefix() :: binary()
+  def cluster_node_prefix, do: "#{@prefix}:cluster_node:"
+
   @spec outbox(binary()) :: binary()
   def outbox(operation_id) when is_binary(operation_id),
     do: "#{@prefix}:outbox:#{operation_id}"
+
+  @spec multipart_upload(binary()) :: binary()
+  def multipart_upload(upload_id) when is_binary(upload_id),
+    do: multipart_upload_prefix() <> encode_component(upload_id)
+
+  @spec multipart_upload_prefix() :: binary()
+  def multipart_upload_prefix, do: "#{@prefix}:multipart_upload:"
+
+  @spec multipart_part(binary(), pos_integer()) :: binary()
+  def multipart_part(upload_id, part_number)
+      when is_binary(upload_id) and is_integer(part_number) and part_number > 0 do
+    multipart_part_prefix(upload_id) <> Integer.to_string(part_number)
+  end
+
+  @spec multipart_part_prefix(binary()) :: binary()
+  def multipart_part_prefix(upload_id) when is_binary(upload_id),
+    do: "#{@prefix}:multipart_part:#{encode_component(upload_id)}:"
 end

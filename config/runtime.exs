@@ -64,7 +64,6 @@ blob_root = System.get_env("ESS_BLOB_ROOT", Path.join(data_root, "cas"))
 tmp_root = System.get_env("ESS_TMP_ROOT", Path.join(blob_root, "tmp"))
 ra_root = System.get_env("ESS_RA_ROOT", Path.join(data_root, "ra"))
 metadata_root = System.get_env("ESS_METADATA_ROOT", Path.join(data_root, "concord"))
-public_s3_enabled? = parse_boolean.("ESS_PUBLIC_S3_ENABLED", "true")
 web_enabled? = parse_boolean.("ESS_WEB_ENABLED", "true")
 
 mode =
@@ -73,6 +72,9 @@ mode =
     "cluster" -> :cluster
     value -> raise "ESS_MODE must be standalone or cluster, got: #{inspect(value)}"
   end
+
+public_s3_enabled? =
+  parse_boolean.("ESS_PUBLIC_S3_ENABLED", if(mode == :cluster, do: "false", else: "true"))
 
 node_role =
   case System.get_env("ESS_NODE_ROLE", "data") |> String.downcase() do
@@ -91,6 +93,16 @@ cluster_topology =
   end
 
 node_id = System.get_env("ESS_NODE_ID", if(mode == :cluster, do: "", else: "default"))
+node_generation = parse_positive_integer.("ESS_NODE_GENERATION", "1")
+node_enabled? = parse_boolean.("ESS_NODE_ENABLED", "true")
+node_draining? = parse_boolean.("ESS_NODE_DRAINING", "false")
+node_zone = optional_env.("ESS_NODE_ZONE")
+
+node_capacity =
+  case optional_env.("ESS_NODE_CAPACITY") do
+    nil -> nil
+    _value -> parse_positive_integer.("ESS_NODE_CAPACITY", "1")
+  end
 
 cluster_name =
   System.get_env("ESS_CLUSTER_NAME", if(mode == :cluster, do: "", else: "ex_storage_service"))
@@ -179,6 +191,11 @@ instance_config = [
   mode: mode,
   node_role: node_role,
   node_id: node_id,
+  node_generation: node_generation,
+  node_enabled: node_enabled?,
+  node_draining: node_draining?,
+  node_zone: node_zone,
+  node_capacity: node_capacity,
   cluster_name: cluster_name,
   cluster_topology: cluster_topology,
   cluster_members: cluster_members,
@@ -204,6 +221,8 @@ instance_config = [
   write_quorum:
     parse_positive_integer.("ESS_WRITE_QUORUM", if(mode == :cluster, do: "2", else: "1")),
   allow_degraded_writes: parse_boolean.("ESS_ALLOW_DEGRADED_WRITES", "false"),
+  replica_concurrency: parse_positive_integer.("ESS_REPLICA_CONCURRENCY", "4"),
+  orphan_grace_seconds: parse_positive_integer.("ESS_ORPHAN_GRACE_SECONDS", "86400"),
   cluster_data_plane_enabled: parse_boolean.("ESS_CLUSTER_DATA_PLANE_ENABLED", "false"),
   public_s3_enabled: public_s3_enabled?,
   metadata_schema: metadata_schema
@@ -279,7 +298,14 @@ config :ex_storage_service,
   # disabled in the test env so multipart mechanics tests can use tiny parts.
   min_part_size: if(config_env() == :test, do: 0, else: 5 * 1024 * 1024)
 
-config :ex_storage_service_s3, enabled: public_s3_enabled? and node_role == :data
+cluster_data_plane_enabled? =
+  Keyword.fetch!(instance_config, :cluster_data_plane_enabled)
+
+config :ex_storage_service_s3,
+  enabled:
+    public_s3_enabled? and node_role == :data and
+      (mode == :standalone or cluster_data_plane_enabled?)
+
 config :ex_storage_service_web, enabled: web_enabled? and node_role == :data
 
 config :ex_storage_service_cluster,
@@ -291,6 +317,7 @@ config :ex_storage_service_cluster,
   auth_skew_seconds: internal_auth_skew_seconds,
   tls: internal_tls,
   node_id: node_id,
+  node_generation: node_generation,
   blob_store_opts: [root: blob_root, tmp_dir: Path.join(tmp_root, "uploads")],
   max_blob_size: max_object_size
 

@@ -111,14 +111,24 @@ The codebase is structured as an umbrella project with five apps:
   preserve standalone RF=1/W=1 behavior, and cluster mode must not expose the
   public S3 writer while its data plane is disabled.
 - Cluster metadata variables are `ESS_NODE_ROLE`, `ESS_NODE_ID`,
+  `ESS_NODE_GENERATION`, `ESS_NODE_ENABLED`, `ESS_NODE_DRAINING`,
+  `ESS_NODE_ZONE`, `ESS_NODE_CAPACITY`,
   `ESS_CLUSTER_NAME`, `ESS_CLUSTER_TOPOLOGY`, `ESS_CLUSTER_MEMBERS`,
   `ESS_CLUSTER_SEEDS`, and `ESS_CLUSTER_BOOTSTRAP`. Cluster mode is a fixed,
   ordered three-voter Concord configuration and requires a distributed Erlang
   node name and non-default shared cookie. Set bootstrap true on all voters
   only for the first start of an entirely empty cluster; use false for every
-  restart. Metadata-role nodes start only Concord and discovery, with no CAS,
-  workers, S3 listener, or admin listener. Keep the public cluster write guard
-  closed until the blob quorum phase is complete.
+  restart. Metadata-role nodes start only Concord, discovery, and persistent
+  node registration, with no CAS, workers, S3 listener, or admin listener.
+- Quorum-write variables are `ESS_REPLICA_CONCURRENCY` and
+  `ESS_ORPHAN_GRACE_SECONDS`. Cluster data nodes may expose public S3 only when
+  both `ESS_CLUSTER_DATA_PLANE_ENABLED` and `ESS_PUBLIC_S3_ENABLED` are true.
+  RF=2/W=2 remains the strict default; degraded writes require
+  `ESS_ALLOW_DEGRADED_WRITES` and must atomically record achieved durability
+  plus repair intent. Persist node control state only on startup or explicit
+  changes; never write high-frequency heartbeat records through Concord.
+  Increment the node generation when local storage is replaced. Cloud-cache
+  PUT remains disabled in cluster mode until it uses the streaming quorum path.
 - Internal transport variables are `ESS_INTERNAL_BIND`, `ESS_INTERNAL_PORT`,
   `ESS_INTERNAL_ADVERTISED_URL`, `ESS_INTERNAL_SECRET`,
   `ESS_INTERNAL_TLS_CERTFILE`, `ESS_INTERNAL_TLS_KEYFILE`, and
@@ -128,7 +138,7 @@ The codebase is structured as an umbrella project with five apps:
   Production cluster startup requires the shared secret to contain at least 32
   bytes. Configure TLS certificate and key paths together, do not log or inspect
   the secret, and never expose the internal port publicly. Phase 5 transport
-  availability does not open the public cluster write/data-plane guard.
+  availability alone does not open the public cluster write/data-plane guard.
 - Embedding variables are `ESS_AUTO_START`, `ESS_INSTANCE`, `ESS_BLOB_ROOT`,
   `ESS_TMP_ROOT`, `ESS_RA_ROOT`, `ESS_METADATA_ROOT`, and `ESS_WEB_ENABLED`.
   `ESS_TMP_ROOT` must share a filesystem with `ESS_BLOB_ROOT`; startup rejects

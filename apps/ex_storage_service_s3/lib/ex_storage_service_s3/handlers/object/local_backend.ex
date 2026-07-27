@@ -39,7 +39,7 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
         xml_response(conn, 200, body, request_id)
 
       {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
+        storage_error_response(conn, reason, "/#{bucket}", request_id)
     end
   end
 
@@ -145,13 +145,7 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
         )
 
       {:error, reason} ->
-        error_response(
-          conn,
-          "InternalError",
-          inspect(reason),
-          "/#{bucket}/#{key}",
-          request_id
-        )
+        storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
     end
   end
 
@@ -199,13 +193,7 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
         )
 
       {:error, reason} ->
-        error_response(
-          conn,
-          "InternalError",
-          inspect(reason),
-          "/#{bucket}/#{key}",
-          request_id
-        )
+        storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
     end
   end
 

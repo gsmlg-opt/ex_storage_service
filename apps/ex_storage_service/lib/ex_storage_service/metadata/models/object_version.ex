@@ -16,6 +16,7 @@ defmodule ExStorageService.Metadata.Models.ObjectVersion do
     :content_type,
     :created_at,
     :metadata,
+    :durability,
     object_type: :blob,
     is_delete_marker: false
   ]
@@ -32,6 +33,7 @@ defmodule ExStorageService.Metadata.Models.ObjectVersion do
           content_type: binary() | nil,
           created_at: binary() | nil,
           metadata: map() | nil,
+          durability: map() | nil,
           object_type: atom(),
           is_delete_marker: boolean()
         }

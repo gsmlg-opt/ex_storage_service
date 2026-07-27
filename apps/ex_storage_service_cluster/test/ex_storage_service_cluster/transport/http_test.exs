@@ -20,7 +20,15 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
     head "/internal/v1/blobs/:sha256" do
       conn
       |> put_resp_header("content-length", "8")
+      |> put_resp_header("x-ess-node-id", "error-router")
+      |> put_resp_header("x-ess-node-generation", "1")
       |> put_resp_header("x-ess-blob-sha256", sha256)
+      |> put_resp_header("x-ess-blob-size", "8")
+      |> put_resp_header("x-ess-verified-at", "1")
+      |> put_resp_header(
+        "x-ess-request-id",
+        conn |> Plug.Conn.get_req_header("x-ess-request-id") |> List.first()
+      )
       |> send_resp(200, "")
     end
 
@@ -54,8 +62,26 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
     assert size == byte_size(data)
     assert is_binary(request_id)
 
-    assert {:ok, %{hash: ^hash, size: ^size}} =
-             HTTP.head_blob(context, url, hash, secret: @secret)
+    head_request_id = "head-request-phase6"
+
+    assert {:ok,
+            %{
+              hash: ^hash,
+              size: ^size,
+              node_id: "data-target",
+              node_generation: 11,
+              verified_at: verified_at,
+              fencing_or_request_id: ^head_request_id
+            }} =
+             HTTP.head_blob(
+               context,
+               %{internal_endpoint: url},
+               hash,
+               secret: @secret,
+               request_id: head_request_id
+             )
+
+    assert is_integer(verified_at) and verified_at > 0
 
     assert {:ok, {:stream, full_stream, ^size}} =
              HTTP.open_blob(context, url, hash, nil, secret: @secret)
@@ -142,11 +168,7 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
   test "download error bodies are not forwarded to the caller sink" do
     server =
       start_supervised!(
-        {Bandit,
-         plug: ErrorBodyRouter,
-         ip: {127, 0, 0, 1},
-         port: 0,
-         startup_log: false}
+        {Bandit, plug: ErrorBodyRouter, ip: {127, 0, 0, 1}, port: 0, startup_log: false}
       )
 
     assert {:ok, {_address, port}} = ThousandIsland.listener_info(server)

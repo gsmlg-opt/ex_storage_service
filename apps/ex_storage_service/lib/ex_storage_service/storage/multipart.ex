@@ -6,16 +6,19 @@ defmodule ExStorageService.Storage.Multipart do
   storing individual parts, completing (concatenating) uploads, and
   aborting/cleaning up.
 
-  Metadata is stored in Concord KV:
-  - Upload record: `"mpu:{bucket}:{upload_id}"` — key, status, timestamps
-  - Part record:   `"mpu_part:{bucket}:{upload_id}:{part_number}"` — hash, etag, size
+  Cluster metadata uses encoded v2 upload and part keys. Standalone reads and
+  writes retain the legacy `"mpu:"` / `"mpu_part:"` records for compatibility.
 
-  Part data is stored as global CAS blobs; the part record stores the blob hash.
+  Part data is stored as global CAS blobs; cluster parts require their full
+  desired replica count before the part record becomes visible.
   """
 
   require Logger
 
   alias ExStorageService.BlobStore.LocalCAS
+  alias ExStorageService.Cluster.WriteCoordinator
+  alias ExStorageService.Context
+  alias ExStorageService.Metadata.{Keys, MultipartCommit}
   alias ExStorageService.Storage.{CAS, Engine, Manifest}
 
   @part_chunk_size 262_144
@@ -36,7 +39,7 @@ defmodule ExStorageService.Storage.Multipart do
       updated_at: now
     }
 
-    case Concord.put(mpu_key(bucket, upload_id), meta) do
+    case Concord.put(upload_key(bucket, upload_id), meta) do
       :ok -> {:ok, upload_id}
       {:ok, _} -> {:ok, upload_id}
       error -> error
@@ -49,7 +52,19 @@ defmodule ExStorageService.Storage.Multipart do
   Writes the part data to the global CAS and records metadata in Concord.
   Returns `{:ok, etag}` on success.
   """
-  def store_part(bucket, upload_id, part_number, data) do
+  def store_part(bucket, upload_id, part_number, data),
+    do: store_part(bucket, upload_id, part_number, data, [])
+
+  @doc false
+  def store_part(bucket, upload_id, part_number, data, opts) do
+    if cluster_data_plane?() do
+      store_cluster_part(bucket, upload_id, part_number, data, opts)
+    else
+      store_local_part(bucket, upload_id, part_number, data)
+    end
+  end
+
+  defp store_local_part(bucket, upload_id, part_number, data) do
     case Engine.put_object(bucket, "mpu-part", data) do
       {:ok, {hash, etag, size}} ->
         part_meta = %{
@@ -65,6 +80,57 @@ defmodule ExStorageService.Storage.Multipart do
 
       {:error, reason} ->
         {:error, reason}
+    end
+  end
+
+  defp store_cluster_part(bucket, upload_id, part_number, data, opts) do
+    with {:ok, context} <- Context.default(),
+         {:ok, staged} <- LocalCAS.stage(data, Context.blob_store_options(context)) do
+      timestamp =
+        Keyword.get_lazy(opts, :timestamp, fn ->
+          DateTime.utc_now() |> DateTime.to_iso8601()
+        end)
+
+      operation_id =
+        Keyword.get(
+          opts,
+          :operation_id,
+          "multipart-part:#{upload_id}:#{part_number}:#{staged.hash}"
+        )
+
+      case WriteCoordinator.ensure_blob(
+             context,
+             staged,
+             operation_id: operation_id,
+             timestamp: timestamp,
+             write_quorum: context.config.replication_factor,
+             allow_degraded_writes: false
+           ) do
+        {:ok, durability} ->
+          part = %{
+            part_number: part_number,
+            etag: staged.etag,
+            size: staged.size,
+            hash: staged.hash
+          }
+
+          case MultipartCommit.put_part(
+                 bucket,
+                 upload_id,
+                 part_number,
+                 part,
+                 durability,
+                 operation_id: operation_id,
+                 timestamp: timestamp
+               ) do
+            {:ok, _result} -> {:ok, staged.etag}
+            {:error, _reason} = error -> error
+          end
+
+        {:error, _reason} = error ->
+          _ = LocalCAS.discard(staged, Context.blob_store_options(context))
+          error
+      end
     end
   end
 
@@ -97,31 +163,50 @@ defmodule ExStorageService.Storage.Multipart do
   """
   def prepare_complete_upload(bucket, upload_id, parts) do
     with {:ok, upload_meta} <- get_upload(bucket, upload_id) do
-      sorted_parts = Enum.sort_by(parts, fn {part_number, _etag} -> part_number end)
-
-      min_part_size =
-        Application.get_env(:ex_storage_service, :min_part_size, 5 * 1024 * 1024)
-
-      last_index = length(sorted_parts) - 1
-
-      with {:ok, part_records} <- resolve_part_records(bucket, upload_id, sorted_parts),
-           :ok <- validate_parts(part_records, min_part_size, last_index),
-           {:ok, {content_hash, etag, size, manifest_hash}} <-
-             concatenate_parts(bucket, part_records) do
+      if Map.get(upload_meta, :status) == :completed do
         {:ok,
          %{
-           content_hash: content_hash,
-           etag: etag,
-           size: size,
-           manifest_hash: manifest_hash,
+           content_hash: Map.fetch!(upload_meta, :content_hash),
+           etag: Map.fetch!(upload_meta, :etag),
+           size: Map.fetch!(upload_meta, :size),
+           manifest_hash: Map.fetch!(upload_meta, :manifest_hash),
            upload: upload_meta
          }}
+      else
+        prepare_initiated_upload(bucket, upload_id, parts, upload_meta)
       end
     end
   end
 
+  defp prepare_initiated_upload(bucket, upload_id, parts, upload_meta) do
+    sorted_parts = Enum.sort_by(parts, fn {part_number, _etag} -> part_number end)
+
+    min_part_size =
+      Application.get_env(:ex_storage_service, :min_part_size, 5 * 1024 * 1024)
+
+    last_index = length(sorted_parts) - 1
+
+    with {:ok, part_records} <- resolve_part_records(bucket, upload_id, sorted_parts),
+         :ok <- validate_parts(part_records, min_part_size, last_index),
+         {:ok, {content_hash, etag, size, manifest_hash}} <-
+           concatenate_parts(bucket, part_records) do
+      {:ok,
+       %{
+         content_hash: content_hash,
+         etag: etag,
+         size: size,
+         manifest_hash: manifest_hash,
+         upload: upload_meta
+       }}
+    end
+  end
+
   @doc """
-  Marks a prepared multipart upload complete and removes its part records.
+  Marks a prepared multipart upload complete.
+
+  Standalone preserves its historical immediate metadata cleanup. Cluster mode
+  retains part records through the orphan grace boundary so a lost completion
+  response remains retryable; a later GC phase removes them asynchronously.
   """
   def finalize_complete_upload(bucket, upload_id, prepared) do
     now = DateTime.utc_now() |> DateTime.to_iso8601()
@@ -139,13 +224,13 @@ defmodule ExStorageService.Storage.Multipart do
       updated_at: now
     }
 
-    case Concord.put(mpu_key(bucket, upload_id), completed_meta) do
+    case Concord.put(upload_key(bucket, upload_id), completed_meta) do
       result when result in [:ok, {:ok, nil}] ->
-        cleanup_parts(bucket, upload_id)
+        maybe_cleanup_completed_parts(bucket, upload_id)
         :ok
 
       {:ok, _result} ->
-        cleanup_parts(bucket, upload_id)
+        maybe_cleanup_completed_parts(bucket, upload_id)
         :ok
 
       {:error, _reason} = error ->
@@ -153,12 +238,17 @@ defmodule ExStorageService.Storage.Multipart do
     end
   end
 
+  defp maybe_cleanup_completed_parts(bucket, upload_id) do
+    if cluster_data_plane?(), do: :ok, else: cleanup_parts(bucket, upload_id)
+  end
+
   @doc """
-  Abort a multipart upload. Deletes all part files and metadata.
+  Abort a multipart upload. Deletes upload and part metadata without deleting
+  shared content-addressed blob bytes.
   """
   def abort_upload(bucket, upload_id) do
     cleanup_parts(bucket, upload_id)
-    Concord.delete(mpu_key(bucket, upload_id))
+    Concord.delete(upload_key(bucket, upload_id))
     :ok
   end
 
@@ -170,21 +260,7 @@ defmodule ExStorageService.Storage.Multipart do
   def list_parts(bucket, upload_id) do
     case get_upload(bucket, upload_id) do
       {:ok, _upload_meta} ->
-        prefix = "mpu_part:#{bucket}:#{upload_id}:"
-
-        case Concord.get_all() do
-          {:ok, all} ->
-            parts =
-              all
-              |> Enum.filter(fn {k, _v} -> String.starts_with?(k, prefix) end)
-              |> Enum.map(fn {_k, v} -> v end)
-              |> Enum.sort_by(fn p -> p.part_number end)
-
-            {:ok, parts}
-
-          error ->
-            error
-        end
+        list_part_records(bucket, upload_id)
 
       {:error, _} = error ->
         error
@@ -195,9 +271,10 @@ defmodule ExStorageService.Storage.Multipart do
   Get upload metadata from Concord.
   """
   def get_upload(bucket, upload_id) do
-    case Concord.get(mpu_key(bucket, upload_id)) do
-      {:ok, nil} -> {:error, :not_found}
+    case Concord.get(Keys.multipart_upload(upload_id)) do
+      {:ok, nil} -> get_legacy_upload(bucket, upload_id)
       {:ok, value} -> {:ok, value}
+      {:error, :not_found} -> get_legacy_upload(bucket, upload_id)
       error -> error
     end
   end
@@ -210,7 +287,10 @@ defmodule ExStorageService.Storage.Multipart do
       {:ok, all} ->
         uploads =
           all
-          |> Enum.filter(fn {k, _v} -> String.starts_with?(k, "mpu:") end)
+          |> Enum.filter(fn {k, _v} ->
+            String.starts_with?(k, "mpu:") or
+              String.starts_with?(k, Keys.multipart_upload_prefix())
+          end)
           |> Enum.map(fn {_k, v} -> v end)
           |> Enum.filter(fn v -> v.status == :initiated end)
 
@@ -232,6 +312,47 @@ defmodule ExStorageService.Storage.Multipart do
   defp mpu_part_key(bucket, upload_id, part_number),
     do: "mpu_part:#{bucket}:#{upload_id}:#{part_number}"
 
+  defp upload_key(bucket, upload_id) do
+    if cluster_data_plane?(),
+      do: Keys.multipart_upload(upload_id),
+      else: mpu_key(bucket, upload_id)
+  end
+
+  defp get_legacy_upload(bucket, upload_id) do
+    case Concord.get(mpu_key(bucket, upload_id)) do
+      {:ok, nil} -> {:error, :not_found}
+      {:ok, value} -> {:ok, value}
+      {:error, :not_found} -> {:error, :not_found}
+      error -> error
+    end
+  end
+
+  defp list_part_records(bucket, upload_id) do
+    with {:ok, v2} <- Concord.prefix_scan(Keys.multipart_part_prefix(upload_id)) do
+      if v2 == [] do
+        list_legacy_part_records(bucket, upload_id)
+      else
+        {:ok, v2 |> Enum.map(&elem(&1, 1)) |> Enum.sort_by(& &1.part_number)}
+      end
+    end
+  end
+
+  defp list_legacy_part_records(bucket, upload_id) do
+    prefix = "mpu_part:#{bucket}:#{upload_id}:"
+
+    case Concord.get_all() do
+      {:ok, all} ->
+        {:ok,
+         all
+         |> Enum.filter(fn {key, _value} -> String.starts_with?(key, prefix) end)
+         |> Enum.map(&elem(&1, 1))
+         |> Enum.sort_by(& &1.part_number)}
+
+      error ->
+        error
+    end
+  end
+
   defp get_in_upload(meta, key) when is_map(meta), do: Map.get(meta, key)
 
   # Look up the Concord part record for each client-requested part and
@@ -239,7 +360,7 @@ defmodule ExStorageService.Storage.Multipart do
   defp resolve_part_records(bucket, upload_id, sorted_parts) do
     sorted_parts
     |> Enum.reduce_while({:ok, []}, fn {pn, client_etag}, {:ok, acc} ->
-      case Concord.get(mpu_part_key(bucket, upload_id, pn)) do
+      case get_part_record(bucket, upload_id, pn) do
         {:ok, nil} ->
           {:halt, {:error, {:missing_part, pn, :not_found}}}
 
@@ -257,6 +378,14 @@ defmodule ExStorageService.Storage.Multipart do
     |> case do
       {:ok, acc} -> {:ok, Enum.reverse(acc)}
       error -> error
+    end
+  end
+
+  defp get_part_record(bucket, upload_id, part_number) do
+    case Concord.get(Keys.multipart_part(upload_id, part_number)) do
+      {:ok, nil} -> Concord.get(mpu_part_key(bucket, upload_id, part_number))
+      {:error, :not_found} -> Concord.get(mpu_part_key(bucket, upload_id, part_number))
+      result -> result
     end
   end
 
@@ -314,7 +443,9 @@ defmodule ExStorageService.Storage.Multipart do
 
   defp finish_concatenation(ready, part_records) do
     with {:ok, etag} <- multipart_etag(part_records) do
-      ExStorageService.Metadata.ensure_blob_meta(ready.hash, ready.size)
+      unless cluster_data_plane?() do
+        ExStorageService.Metadata.ensure_blob_meta(ready.hash, ready.size)
+      end
 
       manifest_parts =
         Enum.map(part_records, fn record ->
@@ -408,16 +539,28 @@ defmodule ExStorageService.Storage.Multipart do
     end
 
     # Delete part metadata from Concord
-    prefix = "mpu_part:#{bucket}:#{upload_id}:"
+    prefixes = [
+      Keys.multipart_part_prefix(upload_id),
+      "mpu_part:#{bucket}:#{upload_id}:"
+    ]
 
     case Concord.get_all() do
       {:ok, all} ->
         all
-        |> Enum.filter(fn {k, _v} -> String.starts_with?(k, prefix) end)
+        |> Enum.filter(fn {key, _value} ->
+          Enum.any?(prefixes, &String.starts_with?(key, &1))
+        end)
         |> Enum.each(fn {k, _v} -> Concord.delete(k) end)
 
       _ ->
         :ok
     end
+  end
+
+  defp cluster_data_plane? do
+    match?(
+      {:ok, %Context{config: %{mode: :cluster, cluster_data_plane_enabled: true}}},
+      Context.default()
+    )
   end
 end

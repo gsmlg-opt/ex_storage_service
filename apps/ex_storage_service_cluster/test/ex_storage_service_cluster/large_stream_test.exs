@@ -174,6 +174,7 @@ defmodule ExStorageServiceCluster.LargeStreamTest do
       replay_table: replay_table,
       auth_skew_seconds: 600,
       node_id: "large-stream-target",
+      node_generation: 1,
       blob_store: ProbeStore,
       blob_store_opts: [memory_probe: {probe, 4}],
       max_blob_size: maximum,

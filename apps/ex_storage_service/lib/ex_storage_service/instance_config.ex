@@ -2,9 +2,9 @@ defmodule ExStorageService.InstanceConfig do
   @moduledoc """
   Validated configuration for one storage instance.
 
-  Standalone remains the default. Cluster metadata and private transport values
-  are typed and validated while the public cluster writer stays disabled until
-  replica quorum semantics are complete.
+  Standalone remains the default. Cluster metadata, private transport, node
+  control state, and replica-quorum values are typed and validated. Public
+  cluster S3 remains off by default and requires explicit data-plane activation.
   """
 
   @enforce_keys [
@@ -20,6 +20,11 @@ defmodule ExStorageService.InstanceConfig do
     :mode,
     :node_role,
     :node_id,
+    :node_generation,
+    :node_enabled,
+    :node_draining,
+    :node_zone,
+    :node_capacity,
     :cluster_name,
     :cluster_topology,
     :cluster_members,
@@ -38,6 +43,8 @@ defmodule ExStorageService.InstanceConfig do
     :replication_factor,
     :write_quorum,
     :allow_degraded_writes,
+    :replica_concurrency,
+    :orphan_grace_seconds,
     :cluster_data_plane_enabled,
     :public_s3_enabled,
     :metadata_schema
@@ -75,6 +82,11 @@ defmodule ExStorageService.InstanceConfig do
           mode: mode(),
           node_role: node_role(),
           node_id: String.t(),
+          node_generation: pos_integer(),
+          node_enabled: boolean(),
+          node_draining: boolean(),
+          node_zone: String.t() | nil,
+          node_capacity: pos_integer() | nil,
           cluster_name: String.t(),
           cluster_topology: cluster_topology(),
           cluster_members: [cluster_member()],
@@ -93,6 +105,8 @@ defmodule ExStorageService.InstanceConfig do
           replication_factor: pos_integer(),
           write_quorum: pos_integer(),
           allow_degraded_writes: boolean(),
+          replica_concurrency: pos_integer(),
+          orphan_grace_seconds: pos_integer(),
           cluster_data_plane_enabled: boolean(),
           public_s3_enabled: boolean(),
           metadata_schema: metadata_schema()
@@ -184,6 +198,11 @@ defmodule ExStorageService.InstanceConfig do
         mode: mode,
         node_role: node_role,
         node_id: Keyword.get(opts, :node_id, "default"),
+        node_generation: Keyword.get(opts, :node_generation, 1),
+        node_enabled: Keyword.get(opts, :node_enabled, true),
+        node_draining: Keyword.get(opts, :node_draining, false),
+        node_zone: Keyword.get(opts, :node_zone),
+        node_capacity: Keyword.get(opts, :node_capacity),
         cluster_name: Keyword.get(opts, :cluster_name, "ex_storage_service"),
         cluster_topology: Keyword.get(opts, :cluster_topology, :none),
         cluster_members: Keyword.get(opts, :cluster_members, []),
@@ -202,6 +221,8 @@ defmodule ExStorageService.InstanceConfig do
         replication_factor: Keyword.get(opts, :replication_factor, cluster_default(mode, 2, 1)),
         write_quorum: Keyword.get(opts, :write_quorum, cluster_default(mode, 2, 1)),
         allow_degraded_writes: Keyword.get(opts, :allow_degraded_writes, false),
+        replica_concurrency: Keyword.get(opts, :replica_concurrency, 4),
+        orphan_grace_seconds: Keyword.get(opts, :orphan_grace_seconds, 86_400),
         cluster_data_plane_enabled: Keyword.get(opts, :cluster_data_plane_enabled, false),
         public_s3_enabled: Keyword.get(opts, :public_s3_enabled, true),
         metadata_schema: Keyword.get(opts, :metadata_schema, :v2)
@@ -311,6 +332,32 @@ defmodule ExStorageService.InstanceConfig do
   defp validate_storage(%__MODULE__{allow_degraded_writes: value}) when not is_boolean(value),
     do: {:error, "allow degraded writes must be a boolean"}
 
+  defp validate_storage(%__MODULE__{node_generation: generation})
+       when not is_integer(generation) or generation < 1,
+       do: {:error, "node generation must be an integer greater than or equal to 1"}
+
+  defp validate_storage(%__MODULE__{node_enabled: value}) when not is_boolean(value),
+    do: {:error, "node enabled must be a boolean"}
+
+  defp validate_storage(%__MODULE__{node_draining: value}) when not is_boolean(value),
+    do: {:error, "node draining must be a boolean"}
+
+  defp validate_storage(%__MODULE__{node_zone: zone})
+       when not is_nil(zone) and (not is_binary(zone) or zone == ""),
+       do: {:error, "node zone must be nil or a non-empty string"}
+
+  defp validate_storage(%__MODULE__{node_capacity: capacity})
+       when not is_nil(capacity) and (not is_integer(capacity) or capacity < 1),
+       do: {:error, "node capacity must be nil or an integer greater than or equal to 1"}
+
+  defp validate_storage(%__MODULE__{replica_concurrency: concurrency})
+       when not is_integer(concurrency) or concurrency < 1,
+       do: {:error, "replica concurrency must be an integer greater than or equal to 1"}
+
+  defp validate_storage(%__MODULE__{orphan_grace_seconds: seconds})
+       when not is_integer(seconds) or seconds < 1,
+       do: {:error, "orphan grace seconds must be an integer greater than or equal to 1"}
+
   defp validate_storage(%__MODULE__{cluster_data_plane_enabled: value})
        when not is_boolean(value),
        do: {:error, "cluster data plane enabled must be a boolean"}
@@ -356,9 +403,8 @@ defmodule ExStorageService.InstanceConfig do
   end
 
   defp validate_cluster(config) do
-    with :ok <- require_disabled(config.public_s3_enabled, "public S3 listener"),
-         :ok <- require_disabled(config.web_enabled, "web listener"),
-         :ok <- require_disabled(config.cluster_data_plane_enabled, "cluster data plane"),
+    with :ok <- require_disabled(config.web_enabled, "web listener"),
+         :ok <- validate_cluster_data_plane(config),
          :ok <- validate_cluster_identity(config),
          :ok <- validate_cluster_members(config),
          :ok <- validate_cluster_seeds(config),
@@ -372,6 +418,20 @@ defmodule ExStorageService.InstanceConfig do
 
   defp require_disabled(true, feature),
     do: {:error, "cluster mode keeps the #{feature} disabled until the data plane is complete"}
+
+  defp validate_cluster_data_plane(%__MODULE__{node_role: :metadata} = config) do
+    if config.public_s3_enabled or config.cluster_data_plane_enabled,
+      do: {:error, "metadata role cannot enable the cluster data plane or public S3 listener"},
+      else: :ok
+  end
+
+  defp validate_cluster_data_plane(%__MODULE__{node_role: :data} = config) do
+    if config.public_s3_enabled and not config.cluster_data_plane_enabled,
+      do:
+        {:error,
+         "cluster data nodes must enable ESS_CLUSTER_DATA_PLANE_ENABLED before ESS_PUBLIC_S3_ENABLED"},
+      else: :ok
+  end
 
   defp validate_cluster_identity(config) do
     cond do

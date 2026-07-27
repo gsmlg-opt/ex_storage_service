@@ -43,4 +43,23 @@ defmodule ExStorageService.Metadata.KeysTest do
     assert Keys.blob("abc123") == "ess:v2:blob:abc123"
     assert Keys.outbox("operation-1") == "ess:v2:outbox:operation-1"
   end
+
+  test "cluster, location, and multipart keys encode variable components" do
+    node_id = "data:東京/1"
+    upload_id = "upload:one/two"
+    node64 = Keys.encode_component(node_id)
+    upload64 = Keys.encode_component(upload_id)
+
+    assert Keys.cluster_node(node_id) == "ess:v2:cluster_node:#{node64}"
+    assert Keys.cluster_node_prefix() == "ess:v2:cluster_node:"
+
+    assert Keys.blob_location("abc123", node_id) ==
+             "ess:v2:blob_location:abc123:#{node64}"
+
+    assert Keys.blob_location_prefix("abc123") == "ess:v2:blob_location:abc123:"
+    assert Keys.multipart_upload(upload_id) == "ess:v2:multipart_upload:#{upload64}"
+    assert Keys.multipart_upload_prefix() == "ess:v2:multipart_upload:"
+    assert Keys.multipart_part(upload_id, 42) == "ess:v2:multipart_part:#{upload64}:42"
+    assert Keys.multipart_part_prefix(upload_id) == "ess:v2:multipart_part:#{upload64}:"
+  end
 end

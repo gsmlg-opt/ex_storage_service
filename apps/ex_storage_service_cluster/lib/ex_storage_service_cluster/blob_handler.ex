@@ -74,20 +74,25 @@ defmodule ExStorageServiceCluster.BlobHandler do
   def parse_range(_range, _total_size), do: {:error, :invalid_range}
 
   defp serve_head(conn, hash, request_id, opts) do
-    case blob_store(opts).stat(hash, blob_store_opts(opts)) do
-      {:ok, %{size: size}} ->
-        conn
-        |> ack_request(request_id)
-        |> put_resp_header("accept-ranges", "bytes")
-        |> put_resp_header("content-length", Integer.to_string(size))
-        |> put_resp_header("x-ess-blob-sha256", hash)
-        |> send_resp(200, "")
+    with :ok <- blob_store(opts).verify(hash, blob_store_opts(opts)),
+         {:ok, %{size: size}} <- blob_store(opts).stat(hash, blob_store_opts(opts)) do
+      ack = %ReplicaAck{
+        node_id: Keyword.fetch!(opts, :node_id),
+        node_generation: Keyword.get(opts, :node_generation, 1),
+        hash: hash,
+        size: size,
+        verified_at: System.system_time(:second),
+        fencing_or_request_id: request_id
+      }
 
-      {:error, :not_found} ->
-        error(conn, 404, "blob not found", request_id)
-
-      {:error, _reason} ->
-        error(conn, 500, "blob lookup failed", request_id)
+      conn
+      |> put_ack_headers(ack)
+      |> put_resp_header("accept-ranges", "bytes")
+      |> put_resp_header("content-length", Integer.to_string(size))
+      |> send_resp(200, "")
+    else
+      {:error, :not_found} -> error(conn, 404, "blob not found", request_id)
+      {:error, _reason} -> error(conn, 500, "blob lookup failed", request_id)
     end
   end
 
@@ -164,7 +169,7 @@ defmodule ExStorageServiceCluster.BlobHandler do
       {:ok, ready} ->
         ack = %ReplicaAck{
           node_id: Keyword.fetch!(opts, :node_id),
-          node_generation: Keyword.get(opts, :node_generation, 0),
+          node_generation: Keyword.get(opts, :node_generation, 1),
           hash: ready.hash,
           size: ready.size,
           verified_at: System.system_time(:second),

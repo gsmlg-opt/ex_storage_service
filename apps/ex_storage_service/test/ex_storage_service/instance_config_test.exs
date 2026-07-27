@@ -31,6 +31,11 @@ defmodule ExStorageService.InstanceConfigTest do
     assert config.mode == :standalone
     assert config.node_role == :data
     assert config.node_id == "default"
+    assert config.node_generation == 1
+    assert config.node_enabled
+    refute config.node_draining
+    assert is_nil(config.node_zone)
+    assert is_nil(config.node_capacity)
     assert config.cluster_topology == :none
     assert config.cluster_members == []
     assert config.replication_factor == 1
@@ -51,6 +56,8 @@ defmodule ExStorageService.InstanceConfigTest do
            end)
 
     refute config.allow_degraded_writes
+    assert config.replica_concurrency == 4
+    assert config.orphan_grace_seconds == 86_400
     refute config.cluster_data_plane_enabled
     assert config.public_s3_enabled
     refute config.internal_transport_enabled
@@ -73,14 +80,30 @@ defmodule ExStorageService.InstanceConfigTest do
     assert message =~ "1 <= W <= RF"
   end
 
-  test "cluster mode fails fast while the cluster data plane is disabled" do
-    assert {:error, message} =
+  test "cluster public S3 requires explicit data-plane activation" do
+    assert {:ok, config} =
              @cluster_opts
              |> Keyword.put(:public_s3_enabled, true)
              |> Keyword.put(:cluster_data_plane_enabled, true)
              |> InstanceConfig.new()
 
-    assert message =~ "public S3 listener"
+    assert config.cluster_data_plane_enabled
+    assert config.public_s3_enabled
+
+    assert {:ok, private_data_plane} =
+             @cluster_opts
+             |> Keyword.put(:cluster_data_plane_enabled, true)
+             |> InstanceConfig.new()
+
+    assert private_data_plane.cluster_data_plane_enabled
+    refute private_data_plane.public_s3_enabled
+
+    assert {:error, message} =
+             @cluster_opts
+             |> Keyword.put(:public_s3_enabled, true)
+             |> InstanceConfig.new()
+
+    assert message =~ "enable ESS_CLUSTER_DATA_PLANE_ENABLED before ESS_PUBLIC_S3_ENABLED"
   end
 
   test "metadata-only cluster scaffolding accepts strict RF=2/W=2" do
@@ -179,7 +202,7 @@ defmodule ExStorageService.InstanceConfigTest do
 
   test "cluster identity, membership, topology, and role fail fast" do
     assert {:error, message} = InstanceConfig.new(mode: :cluster)
-    assert message =~ "public S3 listener"
+    assert message =~ "web listener"
 
     assert {:error, message} =
              InstanceConfig.new(mode: :cluster, public_s3_enabled: false)
@@ -226,6 +249,29 @@ defmodule ExStorageService.InstanceConfigTest do
              |> InstanceConfig.new()
 
     assert message =~ "data-plane workers"
+  end
+
+  test "node control and transfer policy values fail fast" do
+    assert {:error, message} = InstanceConfig.new(node_generation: 0)
+    assert message =~ "node generation"
+
+    assert {:error, message} = InstanceConfig.new(node_enabled: :yes)
+    assert message =~ "node enabled"
+
+    assert {:error, message} = InstanceConfig.new(node_draining: :yes)
+    assert message =~ "node draining"
+
+    assert {:error, message} = InstanceConfig.new(node_zone: "")
+    assert message =~ "node zone"
+
+    assert {:error, message} = InstanceConfig.new(node_capacity: 0)
+    assert message =~ "node capacity"
+
+    assert {:error, message} = InstanceConfig.new(replica_concurrency: 0)
+    assert message =~ "replica concurrency"
+
+    assert {:error, message} = InstanceConfig.new(orphan_grace_seconds: 0)
+    assert message =~ "orphan grace"
   end
 
   test "split roots override independently while data_root remains the fallback" do

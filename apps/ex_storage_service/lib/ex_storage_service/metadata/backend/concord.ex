@@ -2,10 +2,9 @@ defmodule ExStorageService.Metadata.Backend.Concord do
   @moduledoc """
   Concord implementation of the object metadata backend.
 
-  Prefix reads use `Concord.get_all/1` plus local filtering to keep the current
-  compatibility behavior. Transactions remain native Concord
-  compare/success/failure transactions and are never emulated with sequential
-  writes.
+  Prefix reads and transaction outcome resolution use Concord's native APIs.
+  Transactions remain native Concord compare/success/failure transactions and
+  are never emulated with sequential writes.
   """
 
   @behaviour ExStorageService.Metadata.Backend
@@ -41,22 +40,23 @@ defmodule ExStorageService.Metadata.Backend.Concord do
   end
 
   @impl true
-  def scan(prefix, opts \\ []) when is_binary(prefix) do
-    with {:ok, entries} <- get_all(opts) do
-      entries =
-        entries
-        |> Enum.filter(fn {key, _value} ->
-          is_binary(key) and :binary.match(key, prefix) == {0, byte_size(prefix)}
-        end)
-        |> Enum.sort_by(&elem(&1, 0))
-
-      {:ok, entries}
+  def prefix_scan(prefix, opts \\ []) when is_binary(prefix) do
+    with {:ok, entries} <- Concord.prefix_scan(prefix, opts) do
+      {:ok, Enum.sort_by(entries, &elem(&1, 0))}
     end
   end
 
   @impl true
+  def scan(prefix, opts \\ []) when is_binary(prefix), do: prefix_scan(prefix, opts)
+
+  @impl true
   def transaction(spec, opts \\ []) do
     Concord.Txn.commit(spec, opts)
+  end
+
+  @impl true
+  def resolve_transaction(idempotency_key, opts \\ []) do
+    Concord.Txn.resolve(idempotency_key, opts)
   end
 
   @impl true

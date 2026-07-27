@@ -7,6 +7,7 @@ defmodule ExStorageServiceCluster.ApplicationTest do
     enabled: true,
     secret: "phase5-test-secret-at-least-32-bytes",
     node_id: "data-a",
+    node_generation: 1,
     blob_store_opts: [root: "/tmp/unused", tmp_dir: "/tmp/unused-stage"],
     max_blob_size: 1_024,
     bind: {127, 0, 0, 1},

@@ -271,6 +271,11 @@ Repository layout:
 | `ESS_MODE` | `standalone` | `standalone` for the local service or `cluster` for the guarded three-voter metadata mode |
 | `ESS_NODE_ROLE` | `data` | Node role: `data` or, in cluster mode, `metadata` |
 | `ESS_NODE_ID` | `default` | Stable voter identity; required in cluster mode and must match one member entry |
+| `ESS_NODE_GENERATION` | `1` | Positive storage-node incarnation used to fence stale replica acknowledgements; increment after replacing local storage |
+| `ESS_NODE_ENABLED` | `true` | Persistent placement eligibility control for this node |
+| `ESS_NODE_DRAINING` | `false` | Exclude this node from new placement while retaining existing replicas |
+| `ESS_NODE_ZONE` | none | Optional single-datacenter zone label recorded with node metadata |
+| `ESS_NODE_CAPACITY` | none | Optional positive capacity value recorded for control-plane policy |
 | `ESS_CLUSTER_NAME` | `ex_storage_service` | Stable Concord/VSR group identity; required and identical on every cluster voter |
 | `ESS_CLUSTER_TOPOLOGY` | `none` | Discovery strategy: `static` or `dns` in cluster mode |
 | `ESS_CLUSTER_MEMBERS` | empty | Ordered fixed membership as exactly three `id=node@host` entries |
@@ -285,9 +290,11 @@ Repository layout:
 | `ESS_INTERNAL_AUTH_SKEW_SECONDS` | `300` | Positive timestamp-skew and replay-window bound for internal requests |
 | `ESS_REPLICATION_FACTOR` | `1` standalone, `2` cluster | Desired blob replica count; must be at least 1 |
 | `ESS_WRITE_QUORUM` | `1` standalone, `2` cluster | Required durable writes; must satisfy `1 <= W <= RF` |
-| `ESS_ALLOW_DEGRADED_WRITES` | `false` | Future availability-over-durability policy; inactive in standalone mode |
-| `ESS_CLUSTER_DATA_PLANE_ENABLED` | `false` | Future cluster data-plane activation guard; does not activate clustering in this release |
-| `ESS_PUBLIC_S3_ENABLED` | `true` | Start the public S3 Bandit listener |
+| `ESS_ALLOW_DEGRADED_WRITES` | `false` | Explicitly permit a cluster commit with at least one durable replica; records degraded durability and mandatory repair |
+| `ESS_REPLICA_CONCURRENCY` | `4` | Instance-wide maximum number of concurrent remote blob transfers |
+| `ESS_ORPHAN_GRACE_SECONDS` | `86400` | Minimum grace period before later GC may consider unreferenced pre-commit blobs |
+| `ESS_CLUSTER_DATA_PLANE_ENABLED` | `false` | Explicitly activate quorum blob writes on cluster data nodes |
+| `ESS_PUBLIC_S3_ENABLED` | `true` standalone, `false` cluster | Start public S3; cluster data nodes must enable the data plane first |
 | `ESS_WEB_ENABLED` | `true` | Start the Phoenix admin listener |
 | `ESS_METADATA_SCHEMA` | `v2` | Metadata activation decision; `v1` permits compatibility reads but rejects object mutations |
 | `ESS_S3_PORT` | `9000` | S3 API port |
@@ -312,14 +319,22 @@ cluster configuration, replica identity, and ordered membership against the
 runtime configuration. Membership reconfiguration is not supported in this
 phase.
 
-Cluster mode still rejects the public S3 listener, admin listener, and
-`ESS_CLUSTER_DATA_PLANE_ENABLED=true`. Phase 5 adds only the private blob
-transport: its listener is derived from the runtime mode and role, so it starts
-on cluster data nodes and cannot start on standalone or metadata-only nodes.
-Blob placement, replica quorum commits, and public multi-node object writes
-remain disabled until the blob-quorum phase. A metadata-role node starts only
-its Concord voter and discovery; it creates no CAS/blob roots and starts no
-HTTP listener.
+Phase 6 permits active-active public object writes only on cluster data nodes
+when both `ESS_CLUSTER_DATA_PLANE_ENABLED=true` and
+`ESS_PUBLIC_S3_ENABLED=true`. The default remains closed. Each PUT is staged
+once, placed by deterministic rendezvous hashing, and becomes visible only
+after the configured number of checksum-verified durable acknowledgements and
+one atomic metadata transaction. RF=2/W=2 remains the strict cluster default.
+The admin listener remains disabled in cluster mode, and metadata-role nodes
+start no CAS, transfer tasks, S3 listener, or admin listener.
+
+Increment `ESS_NODE_GENERATION` whenever a node's local storage is replaced so
+stale acknowledgements cannot satisfy a new write. Node enabled/draining state,
+zone, and capacity are persistent control-plane metadata; no high-frequency
+heartbeat is written through Concord. Request-time transport attempts determine
+availability. Cloud-cache bucket PUTs remain unavailable in cluster mode
+because that legacy backend does not yet use the streaming quorum transaction
+path.
 
 Set `ESS_INTERNAL_ADVERTISED_URL` on each cluster data node to the private
 HTTP(S) base URL peers can reach. The URL must not contain credentials, query,

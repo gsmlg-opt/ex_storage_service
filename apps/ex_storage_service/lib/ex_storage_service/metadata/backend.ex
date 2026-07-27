@@ -20,8 +20,11 @@ defmodule ExStorageService.Metadata.Backend do
   @callback put(key(), term(), keyword()) :: :ok | {:error, term()}
   @callback delete(key(), keyword()) :: :ok | {:error, term()}
   @callback get_all(keyword()) :: {:ok, [{key(), term()}]} | {:error, term()}
+  @callback prefix_scan(binary(), keyword()) ::
+              {:ok, [{key(), term()}]} | {:error, term()}
   @callback scan(binary(), keyword()) :: {:ok, [{key(), term()}]} | {:error, term()}
   @callback transaction(transaction_spec(), keyword()) :: {:ok, term()} | {:error, term()}
+  @callback resolve_transaction(binary(), keyword()) :: {:ok, term()} | {:error, term()}
   @callback resolve_operation(key(), keyword()) ::
               {:ok, read_result() | nil} | {:error, term()}
 end

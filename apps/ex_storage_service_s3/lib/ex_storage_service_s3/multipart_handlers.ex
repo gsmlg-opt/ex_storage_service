@@ -38,17 +38,11 @@ defmodule ExStorageServiceS3.MultipartHandlers do
             xml_response(conn, 200, body, request_id)
 
           {:error, reason} ->
-            error_response(
-              conn,
-              "InternalError",
-              inspect(reason),
-              "/#{bucket}/#{key}",
-              request_id
-            )
+            storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
         end
 
       {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
+        storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
     end
   end
 
@@ -71,7 +65,8 @@ defmodule ExStorageServiceS3.MultipartHandlers do
              bucket,
              upload_id,
              part_number,
-             Shared.decoded_body_stream(conn, max_part_size)
+             Shared.decoded_body_stream(conn, max_part_size),
+             operation_id: request_id
            ) do
         {:ok, etag} ->
           conn
@@ -98,7 +93,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
           )
 
         {:error, reason} ->
-          error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
+          storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
       end
     else
       :error ->
@@ -138,7 +133,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
         )
 
       {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
+        storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
     end
   end
 
@@ -207,23 +202,11 @@ defmodule ExStorageServiceS3.MultipartHandlers do
                             |> xml_response(200, response_body, request_id)
 
                           {:error, reason} ->
-                            error_response(
-                              conn,
-                              "InternalError",
-                              inspect(reason),
-                              "/#{bucket}/#{key}",
-                              request_id
-                            )
+                            storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
                         end
 
                       {:error, reason} ->
-                        error_response(
-                          conn,
-                          "InternalError",
-                          inspect(reason),
-                          "/#{bucket}/#{key}",
-                          request_id
-                        )
+                        storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
                     end
 
                   {:error, {:etag_mismatch, pn, _expected, _actual}} ->
@@ -255,13 +238,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
                     )
 
                   {:error, reason} ->
-                    error_response(
-                      conn,
-                      "InternalError",
-                      inspect(reason),
-                      "/#{bucket}/#{key}",
-                      request_id
-                    )
+                    storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
                 end
 
               {:error, _reason} ->
@@ -284,13 +261,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
             )
 
           {:error, reason} ->
-            error_response(
-              conn,
-              "InternalError",
-              inspect(reason),
-              "/#{bucket}/#{key}",
-              request_id
-            )
+            storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
         end
 
       {:error, :not_found} ->
@@ -303,7 +274,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
         )
 
       {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
+        storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
     end
   end
 
@@ -332,7 +303,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
         )
 
       {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
+        storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
     end
   end
 
@@ -358,7 +329,7 @@ defmodule ExStorageServiceS3.MultipartHandlers do
         )
 
       {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}/#{key}", request_id)
+        storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
     end
   end
 
@@ -396,6 +367,9 @@ defmodule ExStorageServiceS3.MultipartHandlers do
     |> put_resp_header("content-type", "application/xml")
     |> send_resp(status, body)
   end
+
+  defp storage_error_response(conn, reason, resource, request_id),
+    do: Shared.storage_error_response(conn, reason, resource, request_id)
 
   defp parse_complete_multipart_xml(xml_body) do
     if Shared.xml_has_doctype?(xml_body) do

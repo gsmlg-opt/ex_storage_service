@@ -272,6 +272,20 @@ defmodule ExStorageServiceS3.Handlers.Object.CloudBackend do
 
   @impl true
   def put_object(conn, bucket, key, request_id) do
+    if cluster_mode?() do
+      error_response(
+        conn,
+        "ServiceUnavailable",
+        "Cloud-backed writes are unavailable in active cluster mode.",
+        "/#{bucket}/#{key}",
+        request_id
+      )
+    else
+      put_standalone_object(conn, bucket, key, request_id)
+    end
+  end
+
+  defp put_standalone_object(conn, bucket, key, request_id) do
     {:ok, cloud_config} = CloudConfig.get_active_config(bucket)
 
     content_type =
@@ -330,6 +344,14 @@ defmodule ExStorageServiceS3.Handlers.Object.CloudBackend do
           "/#{bucket}/#{key}",
           request_id
         )
+    end
+  end
+
+  defp cluster_mode? do
+    case Application.get_env(:ex_storage_service, :instance_config, []) do
+      %{mode: :cluster} -> true
+      config when is_list(config) -> Keyword.get(config, :mode, :standalone) == :cluster
+      _other -> false
     end
   end
 

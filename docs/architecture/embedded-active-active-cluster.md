@@ -2,11 +2,11 @@
 
 ## Status and scope
 
-Phases 0 through 5 establish atomic metadata, durable streaming local blobs,
+Phases 0 through 6 establish atomic metadata, durable streaming local blobs,
 embeddable supervision, a fixed three-voter Concord metadata cluster, and a
-private authenticated streaming blob transport. The default remains the
-standalone local storage service. Phase 5 does not enable blob placement,
-replication quorum commits, or public multi-node object writes.
+private authenticated streaming blob transport plus quorum-coordinated object
+writes. The default remains the standalone local storage service. Cluster
+public writes require an explicit two-flag activation.
 
 The cluster design is scoped to one datacenter or low-latency availability
 zones. Cross-region operation uses separate clusters and asynchronous
@@ -94,9 +94,9 @@ Read compatibility names `eventual`, `leader`, and `strong` all use the same
 linearizable VSR query barrier in this release. `Concord.prefix_scan/2` scans
 the authoritative replicated state and no longer uses the unsafe external ETS
 lookup reported in `gsmlg-dev/concord#27`, so the prior crash class is fixed.
-It is still an O(N) full-store operation and does not provide the pagination
-and deterministic ordering required here. The metadata backend retains
-`get_all/1` plus local prefix filtering and sorting for this phase.
+It is still an O(N) full-store operation and does not provide pagination. The
+metadata backend uses it for compatibility scans and applies deterministic key
+ordering; request-time placement reads fixed node keys directly.
 
 ## Durability policy
 
@@ -105,10 +105,13 @@ The strict cluster target is replication factor 2 and write quorum 2
 two selected data nodes durably store and verify the blob and the metadata
 transaction commits. Standalone mode retains RF=1/W=1.
 
-Public object writes in cluster mode remain disabled because an authenticated
-transport alone does not provide blob durability. Replica acknowledgements,
-placement, quorum coordination, remote reads, repair, and orphan cleanup must
-exist before public multi-node writes are safe.
+Public object writes remain disabled by default. Phase 6 can open them
+explicitly after persistent node registration, deterministic placement,
+validated replica acknowledgements, strict quorum enforcement, and atomic
+version/head/blob/location/outbox publication. Phase 7 remote fallback reads,
+Phase 8 repair dispatch, and grace-period orphan collection remain separate
+work; RF=2/W=2 ensures a successful object or multipart part is already local
+to both data/API nodes in the fixed target topology.
 
 ## Phase 5 private blob transport
 
@@ -172,12 +175,39 @@ in that mode instead of using the unsafe legacy multi-write sequence. A future
 explicit migration tool must preserve version IDs and establish the required
 blob replica count before active-active traffic is enabled.
 
+## Phase 6 placement and quorum commits
+
+Cluster nodes persist stable identity, generation, role, internal endpoint,
+enabled/draining state, and optional zone/capacity metadata. These records are
+written on startup or explicit control changes, not as a VSR heartbeat.
+Rendezvous hashing scores the final SHA-256 against eligible stable data-node
+IDs, so process restarts and transient connectivity do not remap placement.
+
+The write coordinator streams a request once into local staging, probes
+selected replicas for verified deduplication, transfers missing content with
+bounded concurrency, and validates hash, size, node ID, and node generation on
+every acknowledgement. Strict mode publishes no metadata below W. Explicit
+degraded mode still requires a durable replica and atomically records achieved
+durability plus repair intents for every missing desired replica.
+
+Confirmed blob locations, the immutable object version, object head, blob
+descriptor, and operation/repair envelope share one Concord transaction.
+Pre-commit replicas are retained as grace-protected orphans after an ambiguous
+or failed metadata transaction. Multipart parts use the same durability path;
+Phase 6 requires acknowledgements from the full part RF even if object writes
+use a lower W, so parts uploaded through alternating API nodes can be completed
+on either fixed data node without sticky routing or Phase 7 remote reads.
+
 ## Activation guards
 
 Configuration validates `1 <= write_quorum <= replication_factor`, stable
 identity, exactly three unique voter IDs/endpoints, discovery inputs, the local
 voter/member match, and typed internal bind, port, URL, TLS pair, and auth-skew
-settings. Cluster mode still rejects the public S3 listener, admin listener,
-and `ESS_CLUSTER_DATA_PLANE_ENABLED=true`. Concord metadata quorum and the
-private data-node transport are active, but the closed guard prevents clustered
-object writes until replica quorum semantics are complete.
+settings. Cluster metadata nodes reject all data-plane and public listeners.
+Cluster data nodes may enable the private quorum data plane without a public
+listener, but public S3 requires `ESS_CLUSTER_DATA_PLANE_ENABLED=true`. Both
+flags default to false in cluster mode, so activation is deliberate;
+`ObjectService` also checks the data-plane flag independently of listener
+configuration. The admin listener remains disabled in cluster mode. Cloud-cache
+PUT is rejected in cluster mode until that backend is converted to the
+streaming atomic quorum path.

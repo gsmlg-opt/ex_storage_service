@@ -47,15 +47,26 @@ defmodule ExStorageService.InstanceSupervisor do
   defp data_children(%Context{} = context) do
     config = context.config
 
-    [
-      {Engine,
-       [
-         data_root: context.data_root,
-         blob_root: context.blob_root,
-         tmp_root: context.tmp_root,
-         name: name(context, :engine, Engine)
-       ]}
-    ] ++
+    replica_children =
+      if config.mode == :cluster and config.cluster_data_plane_enabled do
+        [
+          {Task.Supervisor,
+           name: context.replica_task_supervisor, max_children: config.replica_concurrency}
+        ]
+      else
+        []
+      end
+
+    replica_children ++
+      [
+        {Engine,
+         [
+           data_root: context.data_root,
+           blob_root: context.blob_root,
+           tmp_root: context.tmp_root,
+           name: name(context, :engine, Engine)
+         ]}
+      ] ++
       optional(config, :multipart_gc, {
         MultipartGC,
         [name: name(context, :multipart_gc, MultipartGC)]

@@ -12,6 +12,7 @@ defmodule ExStorageServiceCluster.BlobHandlerTest do
 
   defmodule SliceStore do
     def stat(_hash, opts), do: {:ok, %{size: opts[:logical_size]}}
+    def verify(_hash, _opts), do: :ok
 
     def open(_hash, nil, opts),
       do: {:ok, {:file, opts[:path], opts[:base_offset], opts[:logical_size]}}
@@ -21,6 +22,7 @@ defmodule ExStorageServiceCluster.BlobHandlerTest do
   end
 
   defmodule FailingStore do
+    def verify(_hash, _opts), do: {:error, :eio}
     def stat(_hash, _opts), do: {:error, :eio}
   end
 
@@ -84,9 +86,18 @@ defmodule ExStorageServiceCluster.BlobHandlerTest do
     hash = sha256(data)
     assert request(:put, hash, data, byte_size(data), opts).status == 200
 
-    head = request(:head, hash, "", "-", opts)
+    head_request_id = request_id()
+    head = request(:head, hash, "", "-", opts, request_id: head_request_id)
     assert head.status == 200
     assert get_resp_header(head, "content-length") == ["10"]
+    assert get_resp_header(head, "x-ess-node-id") == ["data-a"]
+    assert get_resp_header(head, "x-ess-node-generation") == ["7"]
+    assert get_resp_header(head, "x-ess-blob-sha256") == [hash]
+    assert get_resp_header(head, "x-ess-blob-size") == ["10"]
+    assert get_resp_header(head, "x-ess-request-id") == [head_request_id]
+    assert [verified_at] = get_resp_header(head, "x-ess-verified-at")
+    assert {timestamp, ""} = Integer.parse(verified_at)
+    assert timestamp > 0
 
     get = request(:get, hash, "", "-", opts)
     assert get.status == 200
@@ -102,6 +113,21 @@ defmodule ExStorageServiceCluster.BlobHandlerTest do
     invalid_range = request(:get, hash, "", "-", opts, range: "bytes=10-11")
     assert invalid_range.status == 416
     assert get_resp_header(invalid_range, "content-range") == ["bytes */10"]
+  end
+
+  @tag :tmp_dir
+  test "HEAD verifies the checksum before acknowledging a ready replica", %{opts: opts} do
+    data = "same-length-content"
+    hash = sha256(data)
+    assert request(:put, hash, data, byte_size(data), opts).status == 200
+
+    ready_path = LocalCAS.blob_path(hash, opts[:blob_store_opts])
+    File.write!(ready_path, String.duplicate("x", byte_size(data)))
+
+    head = request(:head, hash, "", "-", opts)
+    assert head.status == 500
+    assert get_resp_header(head, "x-ess-node-id") == []
+    assert get_resp_header(head, "x-ess-verified-at") == []
   end
 
   @tag :tmp_dir

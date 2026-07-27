@@ -260,6 +260,7 @@ defmodule ExStorageServiceS3.XML do
       "EntityTooSmall" -> 400
       "InvalidRequest" -> 400
       "InvalidRange" -> 416
+      "ServiceUnavailable" -> 503
       "InternalError" -> 500
       _ -> 500
     end
