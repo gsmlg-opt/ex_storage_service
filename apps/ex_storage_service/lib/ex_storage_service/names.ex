@@ -19,6 +19,10 @@ defmodule ExStorageService.Names do
   @spec instance_supervisor(atom() | String.t()) :: {:via, Registry, {atom(), term()}}
   def instance_supervisor(instance), do: via(instance, :instance_supervisor)
 
+  @spec outbox_task_supervisor(atom() | String.t()) :: atom() | tuple()
+  def outbox_task_supervisor(instance),
+    do: process(instance, :outbox_tasks, ExStorageService.OutboxTaskSupervisor)
+
   @spec process(atom() | String.t(), atom(), atom()) :: atom() | tuple()
   def process(instance, component, legacy_name) do
     if default_instance?(instance), do: legacy_name, else: via(instance, component)

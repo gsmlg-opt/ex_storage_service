@@ -12,6 +12,32 @@ defmodule ExStorageService.ObjectServiceTest do
     def locate(_hash), do: {:error, :not_found}
   end
 
+  defmodule CrossClusterHooksStub do
+    def events_for_put(bucket, key, object, _opts) do
+      {:ok,
+       [
+         %{
+           id: "external-put",
+           kind: :cross_cluster_put,
+           state: :pending,
+           payload: %{bucket: bucket, key: key, object: object}
+         }
+       ]}
+    end
+
+    def events_for_delete(bucket, key, _opts) do
+      {:ok,
+       [
+         %{
+           id: "external-delete",
+           kind: :cross_cluster_delete,
+           state: :pending,
+           payload: %{bucket: bucket, key: key}
+         }
+       ]}
+    end
+  end
+
   defmodule VersioningStub do
     def child_spec(opts) do
       %{id: __MODULE__, start: {__MODULE__, :start_link, [opts]}}
@@ -159,6 +185,34 @@ defmodule ExStorageService.ObjectServiceTest do
              VersioningStub.calls(engine)
 
     assert metadata_opts[:operation_id] == "put-op"
+  end
+
+  @tag :tmp_dir
+  test "attaches cross-cluster events before the object metadata commit", %{tmp_dir: tmp_dir} do
+    engine = start_supervised!(VersioningStub)
+
+    opts =
+      service_opts(tmp_dir, engine,
+        side_effects: %{},
+        cross_cluster_hooks: CrossClusterHooksStub,
+        operation_id: "external-op"
+      )
+
+    assert {:ok, %{version_id: "v1"}} =
+             ObjectService.put("bucket", "key", "external", "text/plain", %{}, opts)
+
+    assert [{:put, "bucket", "key", _metadata, metadata_opts}] =
+             VersioningStub.calls(engine)
+
+    assert [
+             %{
+               id: "external-put",
+               kind: :cross_cluster_put,
+               payload: %{bucket: "bucket", key: "key", object: %{content_hash: hash}}
+             }
+           ] = metadata_opts[:events]
+
+    assert is_binary(hash)
   end
 
   @tag :tmp_dir

@@ -57,6 +57,7 @@ defmodule ExStorageService.InstanceConfigTest do
 
     refute config.allow_degraded_writes
     assert config.replica_concurrency == 4
+    assert config.repair_concurrency == 2
     assert config.orphan_grace_seconds == 86_400
     refute config.cluster_data_plane_enabled
     assert config.public_s3_enabled
@@ -269,6 +270,9 @@ defmodule ExStorageService.InstanceConfigTest do
 
     assert {:error, message} = InstanceConfig.new(replica_concurrency: 0)
     assert message =~ "replica concurrency"
+
+    assert {:error, message} = InstanceConfig.new(repair_concurrency: 0)
+    assert message =~ "repair concurrency"
 
     assert {:error, message} = InstanceConfig.new(orphan_grace_seconds: 0)
     assert message =~ "orphan grace"

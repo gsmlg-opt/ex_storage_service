@@ -222,6 +222,7 @@ instance_config = [
     parse_positive_integer.("ESS_WRITE_QUORUM", if(mode == :cluster, do: "2", else: "1")),
   allow_degraded_writes: parse_boolean.("ESS_ALLOW_DEGRADED_WRITES", "false"),
   replica_concurrency: parse_positive_integer.("ESS_REPLICA_CONCURRENCY", "4"),
+  repair_concurrency: parse_positive_integer.("ESS_REPAIR_CONCURRENCY", "2"),
   orphan_grace_seconds: parse_positive_integer.("ESS_ORPHAN_GRACE_SECONDS", "86400"),
   cluster_data_plane_enabled: parse_boolean.("ESS_CLUSTER_DATA_PLANE_ENABLED", "false"),
   public_s3_enabled: public_s3_enabled?,

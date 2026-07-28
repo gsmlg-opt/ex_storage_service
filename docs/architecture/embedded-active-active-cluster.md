@@ -94,9 +94,13 @@ Read compatibility names `eventual`, `leader`, and `strong` all use the same
 linearizable VSR query barrier in this release. `Concord.prefix_scan/2` scans
 the authoritative replicated state and no longer uses the unsafe external ETS
 lookup reported in `gsmlg-dev/concord#27`, so the prior crash class is fixed.
-It is still an O(N) full-store operation and does not provide pagination. The
-metadata backend uses it for compatibility scans and applies deterministic key
-ordering; request-time placement reads fixed node keys directly.
+It is still an O(N) full-store operation. Durable background work instead uses
+bounded `Concord.KV.list/1` prefix/range pages through the metadata backend.
+Concord 3.0.0 currently ignores the documented snapshot revision for these
+pages; `gsmlg-dev/concord#55` tracks that upstream bug. Phase 8 therefore treats
+pages as a live view and relies on per-job transaction comparisons for
+correctness. Compatibility scans retain deterministic key ordering, and
+request-time placement reads fixed node keys directly.
 
 ## Durability policy
 
@@ -109,10 +113,11 @@ Public object writes remain disabled by default. Phase 6 can open them
 explicitly after persistent node registration, deterministic placement,
 validated replica acknowledgements, strict quorum enforcement, and atomic
 version/head/blob/location/outbox publication. Phase 7 adds remote fallback
-reads and request-path read-repair staging. Phase 8 repair dispatch and
-grace-period orphan collection remain separate work; RF=2/W=2 ensures a
-successful object or multipart part is already local to both data/API nodes in
-the fixed target topology.
+reads and request-path read-repair staging. Phase 8 adds durable leased work and
+eventual external S3 replication; external copies never satisfy RF/W. Repair
+execution and grace-period orphan collection remain Phase 9 work. RF=2/W=2
+ensures a successful object or multipart part is already local to both data/API
+nodes in the fixed target topology.
 
 ## Phase 5 private blob transport
 
@@ -230,7 +235,42 @@ and capacity policy permits. After the client stream finishes, the instance
 replica task supervisor verifies the staged size/hash, publishes it through
 the normal CAS commit, and conditionally marks the location ready. Range reads,
 incomplete streams, checksum mismatches, and disconnected clients never
-publish partial repairs. Durable event dispatch remains Phase 8.
+publish partial repairs.
+
+## Phase 8 durable outbox and eventual disaster recovery
+
+Object and multipart metadata transactions retain their operation record under
+`ess:v2:outbox:<operation_id>`. Required cross-cluster PUT/DELETE and degraded
+durability repair events are included before that transaction commits, rather
+than being appended by a post-commit process. The schema also accepts scrub
+follow-up and cleanup events. Materialization atomically creates one immutable
+identity under `ess:v2:job:<event_id>` and marks the source event dispatched.
+Repeating either step returns the same visible job.
+
+Each job is at-least-once. A worker reads the current record, then atomically
+compares its revision and either the pending retry time or an expired running
+lease. A successful claim records the stable owner node, owner generation,
+lease deadline, and a monotonically increasing fencing token. Renewal,
+completion, and failure compare all of those ownership fields, so a stale
+worker cannot publish state after takeover. Ambiguous transaction timeouts are
+resolved by idempotency key and the persisted job value.
+
+Data-role instances start one dispatcher and a bounded task supervisor.
+Metadata-role instances start neither and cannot claim blob work. External S3
+PUT requests stream from the object service's selected local, packed, or remote
+source in bounded chunks; workers do not assume that the executing node owns
+the blob. PUT handlers compare the pinned source version with the current head.
+DELETE handlers reconcile the destination to the current head, including an
+older version revealed by explicit version deletion. Delayed duplicate work
+therefore cannot remove or resurrect newer data.
+
+Only `cross_cluster_put` and `cross_cluster_delete` handlers are enabled in this
+phase. Repair, scrub, and cleanup jobs remain durable and pending until Phase 9
+adds topology-aware planners and handlers. The former periodic replication
+full scan is not supervised because it could independently recreate stale
+work; safe planning must use bounded pages and durable event identities.
+Cross-cluster replication is eventual external disaster recovery, never part of
+the single-datacenter RF/W acknowledgement path.
 
 ## Activation guards
 

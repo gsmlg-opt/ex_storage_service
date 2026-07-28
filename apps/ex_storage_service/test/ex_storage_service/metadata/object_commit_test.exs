@@ -432,6 +432,31 @@ defmodule ExStorageService.Metadata.ObjectCommitTest do
     assert backend |> TestBackend.transaction_results() |> Map.keys() |> length() == 2
   end
 
+  test "commits supplied durable events in the object transaction" do
+    {:ok, backend} = TestBackend.start_link()
+
+    event = %{
+      id: "external-put-1",
+      kind: :cross_cluster_put,
+      state: :pending,
+      payload: %{bucket: "bucket", key: "key", replica: %{endpoint: "https://dr.example"}}
+    }
+
+    assert {:ok, %{version_id: "v1"}} =
+             ObjectCommit.put(
+               "bucket",
+               "key",
+               metadata("external"),
+               commit_opts(backend, "op1", "v1") ++ [events: [event]]
+             )
+
+    assert {:ok, %{value: %{events: [^event]}}} =
+             TestBackend.get(Keys.outbox("op1"), engine: backend)
+
+    [transaction] = TestBackend.transactions(backend)
+    assert Keys.outbox("op1") in Enum.map(transaction.success, &operation_key/1)
+  end
+
   test "uses the latest v1 version as migration context for the first v2 write" do
     {:ok, backend} = TestBackend.start_link()
     TestBackend.seed(backend, "obj_ver_list:bucket:key", ["legacy-v1"])

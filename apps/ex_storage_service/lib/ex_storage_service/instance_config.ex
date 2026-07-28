@@ -44,6 +44,7 @@ defmodule ExStorageService.InstanceConfig do
     :write_quorum,
     :allow_degraded_writes,
     :replica_concurrency,
+    :repair_concurrency,
     :orphan_grace_seconds,
     :cluster_data_plane_enabled,
     :public_s3_enabled,
@@ -106,6 +107,7 @@ defmodule ExStorageService.InstanceConfig do
           write_quorum: pos_integer(),
           allow_degraded_writes: boolean(),
           replica_concurrency: pos_integer(),
+          repair_concurrency: pos_integer(),
           orphan_grace_seconds: pos_integer(),
           cluster_data_plane_enabled: boolean(),
           public_s3_enabled: boolean(),
@@ -222,6 +224,7 @@ defmodule ExStorageService.InstanceConfig do
         write_quorum: Keyword.get(opts, :write_quorum, cluster_default(mode, 2, 1)),
         allow_degraded_writes: Keyword.get(opts, :allow_degraded_writes, false),
         replica_concurrency: Keyword.get(opts, :replica_concurrency, 4),
+        repair_concurrency: Keyword.get(opts, :repair_concurrency, 2),
         orphan_grace_seconds: Keyword.get(opts, :orphan_grace_seconds, 86_400),
         cluster_data_plane_enabled: Keyword.get(opts, :cluster_data_plane_enabled, false),
         public_s3_enabled: Keyword.get(opts, :public_s3_enabled, true),
@@ -353,6 +356,10 @@ defmodule ExStorageService.InstanceConfig do
   defp validate_storage(%__MODULE__{replica_concurrency: concurrency})
        when not is_integer(concurrency) or concurrency < 1,
        do: {:error, "replica concurrency must be an integer greater than or equal to 1"}
+
+  defp validate_storage(%__MODULE__{repair_concurrency: concurrency})
+       when not is_integer(concurrency) or concurrency < 1,
+       do: {:error, "repair concurrency must be an integer greater than or equal to 1"}
 
   defp validate_storage(%__MODULE__{orphan_grace_seconds: seconds})
        when not is_integer(seconds) or seconds < 1,

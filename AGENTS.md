@@ -120,8 +120,9 @@ The codebase is structured as an umbrella project with five apps:
   only for the first start of an entirely empty cluster; use false for every
   restart. Metadata-role nodes start only Concord, discovery, and persistent
   node registration, with no CAS, workers, S3 listener, or admin listener.
-- Quorum-write variables are `ESS_REPLICA_CONCURRENCY` and
-  `ESS_ORPHAN_GRACE_SECONDS`. Cluster data nodes may expose public S3 only when
+- Quorum-write variables are `ESS_REPLICA_CONCURRENCY`,
+  `ESS_REPAIR_CONCURRENCY`, and `ESS_ORPHAN_GRACE_SECONDS`. Cluster data nodes
+  may expose public S3 only when
   both `ESS_CLUSTER_DATA_PLANE_ENABLED` and `ESS_PUBLIC_S3_ENABLED` are true.
   RF=2/W=2 remains the strict default; degraded writes require
   `ESS_ALLOW_DEGRADED_WRITES` and must atomically record achieved durability
@@ -129,6 +130,12 @@ The codebase is structured as an umbrella project with five apps:
   changes; never write high-frequency heartbeat records through Concord.
   Increment the node generation when local storage is replaced. Cloud-cache
   PUT remains disabled in cluster mode until it uses the streaming quorum path.
+- Durable background work is stored under `ess:v2:job:` and is claimed,
+  renewed, completed, or failed only through Concord transactions fenced by
+  owner node, owner generation, and fencing token. Cross-cluster S3
+  replication is eventual disaster recovery and never satisfies RF/W.
+  Metadata-only nodes must not claim blob jobs. Repair/scrub/cleanup job
+  handlers remain disabled until Phase 9.
 - Internal transport variables are `ESS_INTERNAL_BIND`, `ESS_INTERNAL_PORT`,
   `ESS_INTERNAL_ADVERTISED_URL`, `ESS_INTERNAL_SECRET`,
   `ESS_INTERNAL_TLS_CERTFILE`, `ESS_INTERNAL_TLS_KEYFILE`, and

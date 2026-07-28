@@ -11,7 +11,7 @@ defmodule ExStorageService.InstanceSupervisor do
   use Supervisor
 
   alias ExStorageService.{Context, InstanceConfig, Names}
-  alias ExStorageService.Replication.{JobQueue, Sync}
+  alias ExStorageService.Cluster.Outbox.Supervisor, as: OutboxSupervisor
 
   alias ExStorageService.Storage.{
     CasGC,
@@ -83,21 +83,19 @@ defmodule ExStorageService.InstanceSupervisor do
         Packer,
         [name: name(context, :packer, Packer)]
       }) ++
-      replication_children(context) ++
+      outbox_children(context) ++
       optional(config, :lifecycle, {
         Lifecycle,
         [name: name(context, :lifecycle, Lifecycle)]
       })
   end
 
-  defp replication_children(%Context{config: config} = context) do
-    if InstanceConfig.worker_enabled?(config, :cross_cluster_replication) do
-      job_queue = name(context, :replication_job_queue, JobQueue)
-
-      [
-        {JobQueue, [name: job_queue]},
-        {Sync, [name: name(context, :replication_sync, Sync), job_queue: job_queue]}
-      ]
+  defp outbox_children(%Context{config: config} = context) do
+    if Enum.any?(
+         [:cross_cluster_replication, :repair, :scrub],
+         &InstanceConfig.worker_enabled?(config, &1)
+       ) do
+      [{OutboxSupervisor, [context: context]}]
     else
       []
     end

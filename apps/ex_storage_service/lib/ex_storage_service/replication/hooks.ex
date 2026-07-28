@@ -1,114 +1,46 @@
 defmodule ExStorageService.Replication.Hooks do
   @moduledoc """
-  Integration hooks for S3 handlers.
+  Compatibility facade for eventual cross-cluster replication hooks.
 
-  These functions should be called from the S3 PutObject and DeleteObject handlers
-  after a successful operation. They enqueue replication jobs for all configured
-  replicas of the bucket.
+  New object-service writes create events inside the object metadata
+  transaction through `ExStorageService.CrossClusterReplication.Hooks`.
+  These post-commit functions remain for legacy callers such as the cloud
+  backend and create a standalone durable outbox operation.
   """
 
-  require Logger
-
-  alias ExStorageService.Replication.Config
-  alias ExStorageService.Replication.JobQueue
+  alias ExStorageService.CrossClusterReplication.Hooks
+  alias ExStorageService.Metadata.Outbox
 
   @doc """
   Called after a successful PutObject operation.
 
-  Looks up replica configurations for the bucket and enqueues a replication PUT
-  job for each replica.
+  Legacy compatibility entry point. Prefer transactionally attaching
+  `events_for_put/4` to the object commit.
   """
   @spec after_put(String.t(), String.t()) :: :ok
   def after_put(bucket, key) do
-    case Config.get_bucket_replicas(bucket) do
-      {:ok, []} ->
-        :ok
-
-      {:ok, replicas} ->
-        object_snapshot =
-          case ExStorageService.Metadata.get_object_meta(bucket, key) do
-            {:ok, meta} ->
-              %{
-                version_id: Map.get(meta, :version_id),
-                content_hash: Map.get(meta, :content_hash),
-                etag: Map.get(meta, :etag),
-                size: Map.get(meta, :size),
-                content_type: Map.get(meta, :content_type, "application/octet-stream")
-              }
-
-            {:error, _} ->
-              nil
-          end
-
-        Enum.each(replicas, fn replica ->
-          JobQueue.enqueue(
-            queue: :replication,
-            payload: %{
-              action: :put,
-              bucket: bucket,
-              key: key,
-              object: object_snapshot,
-              replica: %{
-                endpoint: replica.endpoint,
-                access_key: replica.access_key,
-                secret_key_enc: replica.secret_key_enc,
-                bucket: replica.bucket
-              }
-            }
-          )
-        end)
-
-        Logger.debug("Enqueued #{length(replicas)} replication PUT jobs for #{bucket}/#{key}")
-        :ok
-
-      {:error, reason} ->
-        Logger.error(
-          "Failed to get replicas for after_put hook on #{bucket}/#{key}: #{inspect(reason)}"
-        )
-
-        :ok
+    with {:ok, object} <- ExStorageService.Metadata.get_object_meta(bucket, key),
+         {:ok, events} <- Hooks.events_for_put(bucket, key, object),
+         :ok <- Outbox.enqueue_legacy(events) do
+      :ok
+    else
+      _error -> :ok
     end
   end
 
   @doc """
   Called after a successful DeleteObject operation.
 
-  Looks up replica configurations for the bucket and enqueues a replication DELETE
-  job for each replica.
+  Legacy compatibility entry point. Prefer transactionally attaching
+  `events_for_delete/3` to the object commit.
   """
   @spec after_delete(String.t(), String.t()) :: :ok
   def after_delete(bucket, key) do
-    case Config.get_bucket_replicas(bucket) do
-      {:ok, []} ->
-        :ok
-
-      {:ok, replicas} ->
-        Enum.each(replicas, fn replica ->
-          JobQueue.enqueue(
-            queue: :replication,
-            payload: %{
-              action: :delete,
-              bucket: bucket,
-              key: key,
-              replica: %{
-                endpoint: replica.endpoint,
-                access_key: replica.access_key,
-                secret_key_enc: replica.secret_key_enc,
-                bucket: replica.bucket
-              }
-            }
-          )
-        end)
-
-        Logger.debug("Enqueued #{length(replicas)} replication DELETE jobs for #{bucket}/#{key}")
-        :ok
-
-      {:error, reason} ->
-        Logger.error(
-          "Failed to get replicas for after_delete hook on #{bucket}/#{key}: #{inspect(reason)}"
-        )
-
-        :ok
+    with {:ok, events} <- Hooks.events_for_delete(bucket, key),
+         :ok <- Outbox.enqueue_legacy(events) do
+      :ok
+    else
+      _error -> :ok
     end
   end
 end

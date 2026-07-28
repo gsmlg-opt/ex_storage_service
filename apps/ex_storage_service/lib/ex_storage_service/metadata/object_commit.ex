@@ -218,7 +218,8 @@ defmodule ExStorageService.Metadata.ObjectCommit do
          {:ok, parent_version_id} <-
            observed_parent_version_id(backend, bucket, key, observed_head, opts),
          {:ok, cluster_metadata} <-
-           cluster_metadata_operations(backend, metadata, opts) do
+           cluster_metadata_operations(backend, metadata, opts),
+         {:ok, events} <- operation_events(cluster_metadata.repair_events, opts) do
       now = Map.get(metadata, :created_at, timestamp())
       delete_marker? = kind == :delete_marker
 
@@ -256,7 +257,7 @@ defmodule ExStorageService.Metadata.ObjectCommit do
         operation_id: operation_id,
         request_fingerprint: request_fingerprint,
         result: result,
-        events: cluster_metadata.repair_events,
+        events: events,
         committed_at: now
       }
 
@@ -367,7 +368,8 @@ defmodule ExStorageService.Metadata.ObjectCommit do
 
     with {:ok, observed_head} <- backend.get(head_key, read_opts(opts)),
          {:ok, observed_version} <- backend.get(version_key, read_opts(opts)),
-         {:ok, versions} <- list_versions(bucket, key, Keyword.put(opts, :backend, backend)) do
+         {:ok, versions} <- list_versions(bucket, key, Keyword.put(opts, :backend, backend)),
+         {:ok, events} <- operation_events([], opts) do
       if observed_version == nil do
         {:ok, %{operation_id: operation_id, version_id: version_id, kind: :deleted}}
       else
@@ -386,7 +388,7 @@ defmodule ExStorageService.Metadata.ObjectCommit do
           operation_id: operation_id,
           request_fingerprint: request_fingerprint,
           result: result,
-          events: [],
+          events: events,
           committed_at: timestamp()
         }
 
@@ -529,6 +531,22 @@ defmodule ExStorageService.Metadata.ObjectCommit do
        repair_events: []
      }}
   end
+
+  defp operation_events(repair_events, opts) do
+    events = repair_events ++ Keyword.get(opts, :events, [])
+
+    if Enum.all?(events, &valid_event?/1),
+      do: {:ok, Enum.uniq_by(events, &Map.fetch!(&1, :id))},
+      else: {:error, :invalid_outbox_event}
+  end
+
+  defp valid_event?(event) when is_map(event) do
+    is_binary(Map.get(event, :id)) and Map.get(event, :id) != "" and
+      is_atom(Map.get(event, :kind)) and Map.get(event, :state) == :pending and
+      is_map(Map.get(event, :payload))
+  end
+
+  defp valid_event?(_event), do: false
 
   defp do_cluster_metadata_operations(backend, metadata, durability, opts) do
     with {:ok, evidence} <- validate_durability(metadata, durability),

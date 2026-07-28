@@ -41,8 +41,7 @@ defmodule ExStorageService.InstanceSupervisorTest do
           :cas_gc,
           :packer,
           :lifecycle,
-          :replication_job_queue,
-          :replication_sync
+          :outbox_tasks
         ] do
       assert Registry.lookup(Names.registry(), {instance, worker}) == []
     end
@@ -117,7 +116,7 @@ defmodule ExStorageService.InstanceSupervisorTest do
   end
 
   @tag :tmp_dir
-  test "replication sync receives its instance-specific job queue", %{tmp_dir: tmp_dir} do
+  test "durable outbox work receives its instance context", %{tmp_dir: tmp_dir} do
     workers = Keyword.put(@disabled_workers, :cross_cluster_replication, true)
 
     {:ok, config} =
@@ -126,16 +125,29 @@ defmodule ExStorageService.InstanceSupervisorTest do
         |> Keyword.put(:workers, workers)
       )
 
-    children = config |> Context.new() |> ExStorageService.InstanceSupervisor.children()
+    context = Context.new(config)
+    children = ExStorageService.InstanceSupervisor.children(context)
 
     assert [
              {ExStorageService.Storage.Engine, _engine_opts},
-             {ExStorageService.Replication.JobQueue, queue_opts},
-             {ExStorageService.Replication.Sync, sync_opts}
+             {ExStorageService.Cluster.Outbox.Supervisor, [context: ^context]}
            ] = children
 
-    assert sync_opts[:job_queue] == queue_opts[:name]
-    assert match?({:via, Registry, _}, sync_opts[:job_queue])
+    assert context.outbox_task_supervisor ==
+             Names.via("replication-instance", :outbox_tasks)
+  end
+
+  test "repair and scrub capabilities independently enable the durable outbox subtree" do
+    for worker <- [:repair, :scrub] do
+      workers = Keyword.put(@disabled_workers, worker, true)
+      assert {:ok, config} = InstanceConfig.new(auto_start: false, workers: workers)
+      context = Context.new(config)
+
+      assert [
+               {ExStorageService.Storage.Engine, _engine_opts},
+               {ExStorageService.Cluster.Outbox.Supervisor, [context: ^context]}
+             ] = ExStorageService.InstanceSupervisor.children(context)
+    end
   end
 
   test "application child list omits only the default instance when auto_start is false" do
@@ -232,6 +244,11 @@ defmodule ExStorageService.InstanceSupervisorTest do
 
     assert Names.process("tenant-a", :engine, ExStorageService.Storage.Engine) ==
              Names.via("tenant-a", :engine)
+
+    assert Names.outbox_task_supervisor("tenant-a") ==
+             Names.via("tenant-a", :outbox_tasks)
+
+    assert Names.outbox_task_supervisor(:default) == ExStorageService.OutboxTaskSupervisor
   end
 
   defp instance_opts(instance, tmp_dir) do

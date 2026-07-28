@@ -60,6 +60,16 @@ defmodule ExStorageService.Metadata.Keys do
   def outbox(operation_id) when is_binary(operation_id),
     do: "#{@prefix}:outbox:#{operation_id}"
 
+  @spec outbox_prefix() :: binary()
+  def outbox_prefix, do: "#{@prefix}:outbox:"
+
+  @spec job(binary()) :: binary()
+  def job(job_id) when is_binary(job_id),
+    do: job_prefix() <> encode_component(job_id)
+
+  @spec job_prefix() :: binary()
+  def job_prefix, do: "#{@prefix}:job:"
+
   @spec multipart_upload(binary()) :: binary()
   def multipart_upload(upload_id) when is_binary(upload_id),
     do: multipart_upload_prefix() <> encode_component(upload_id)

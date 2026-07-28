@@ -17,7 +17,7 @@ disk backend; the service does not use Ecto or an external database.
 - **Multipart uploads** - Create, upload parts, complete, abort, list parts, and garbage collect abandoned uploads
 - **Bucket versioning** - Enable or suspend object versioning per bucket
 - **Object lifecycle** - Configure expiration rules for objects
-- **Replication** - Asynchronous cross-node replication with retry and dead-letter handling
+- **Cross-cluster replication** - Eventual S3 disaster-recovery copies through a durable, leased outbox; separate from RF/W cluster durability
 - **Cloud cache** - Per-bucket upstream cache support for AWS S3, Cloudflare R2, MinIO, and S3-compatible providers
 - **Webhook notifications** - S3-style bucket event notifications for object changes
 - **Presigned URLs** - Time-limited object access with policy checks at generation time
@@ -292,6 +292,7 @@ Repository layout:
 | `ESS_WRITE_QUORUM` | `1` standalone, `2` cluster | Required durable writes; must satisfy `1 <= W <= RF` |
 | `ESS_ALLOW_DEGRADED_WRITES` | `false` | Explicitly permit a cluster commit with at least one durable replica; records degraded durability and mandatory repair |
 | `ESS_REPLICA_CONCURRENCY` | `4` | Instance-wide maximum number of concurrent remote blob transfers |
+| `ESS_REPAIR_CONCURRENCY` | `2` | Reserved concurrency bound for durable repair/scrub/cleanup jobs; their handlers remain disabled until Phase 9 |
 | `ESS_ORPHAN_GRACE_SECONDS` | `86400` | Minimum grace period before later GC may consider unreferenced pre-commit blobs |
 | `ESS_CLUSTER_DATA_PLANE_ENABLED` | `false` | Explicitly activate quorum blob writes on cluster data nodes |
 | `ESS_PUBLIC_S3_ENABLED` | `true` standalone, `false` cluster | Start public S3; cluster data nodes must enable the data plane first |
@@ -331,8 +332,17 @@ a checksum-valid local CAS file, then preflight and lazily stream a ready remote
 replica, including exact byte ranges. Missing object metadata remains a 404;
 present metadata with no available replica is a 503. Full remote reads can tee
 one bounded chunk at a time into local CAS for read repair. Partial ranges and
-disconnected/incomplete streams do not publish repairs, and durable repair-job
-dispatch remains disabled until Phase 8.
+disconnected/incomplete streams do not publish repairs.
+
+Phase 8 persists cross-cluster replication, repair, scrub, and cleanup work as
+v2 outbox events and materializes them into independently leased jobs. Claim,
+renewal, completion, and failure use Concord compare-and-swap transactions with
+owner generation and fencing tokens. Data nodes dispatch eventual external S3
+PUT/DELETE jobs with bounded concurrency and streaming request bodies;
+metadata-only nodes do not start the dispatcher. Repair/scrub/cleanup handlers
+remain disabled until Phase 9, so those durable jobs stay pending. External S3
+replication is disaster recovery only and never counts toward cluster RF/W.
+
 The admin listener remains disabled in cluster mode, and metadata-role nodes
 start no CAS, transfer tasks, S3 listener, or admin listener.
 

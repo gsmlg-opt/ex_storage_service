@@ -32,6 +32,8 @@ defmodule ExStorageService.ObjectService do
   @spec put(String.t(), String.t(), Enumerable.t() | binary(), String.t(), map(), keyword()) ::
           {:ok, result()} | {:error, term()}
   def put(bucket, key, data, content_type, user_metadata, opts \\ []) do
+    opts = ensure_operation_id(opts)
+
     with :ok <- ensure_bucket(bucket, opts),
          :ok <- ensure_cluster_write_enabled(opts) do
       attributes = %{
@@ -141,8 +143,11 @@ defmodule ExStorageService.ObjectService do
   @spec delete(String.t(), String.t(), String.t() | nil, keyword()) ::
           {:ok, %{version_id: String.t(), kind: :delete_marker | :deleted}} | {:error, term()}
   def delete(bucket, key, version_id, opts \\ []) do
+    opts = ensure_operation_id(opts)
+
     with :ok <- ensure_bucket(bucket, opts),
          :ok <- ensure_cluster_write_enabled(opts),
+         {:ok, opts} <- attach_cross_cluster_events(:delete, bucket, key, nil, opts),
          {:ok, deleted_version_id, kind} <-
            delete_version(bucket, key, version_id, opts) do
       run_side_effects(:delete, bucket, key, opts)
@@ -159,6 +164,7 @@ defmodule ExStorageService.ObjectService do
   @spec copy(String.t(), String.t(), String.t(), String.t(), keyword()) ::
           {:ok, result()} | {:error, term()}
   def copy(source_bucket, source_key, destination_bucket, destination_key, opts \\ []) do
+    opts = ensure_operation_id(opts)
     source_version_id = Keyword.get(opts, :source_version_id)
 
     with :ok <- ensure_bucket(source_bucket, opts),
@@ -327,6 +333,7 @@ defmodule ExStorageService.ObjectService do
              ready_blob: ready,
              operation_id: Keyword.get(metadata_opts(opts), :operation_id)
            }),
+         {:ok, opts} <- attach_cross_cluster_events(:put, bucket, key, metadata, opts),
          {:ok, version_id} <- put_version(bucket, key, metadata, opts) do
       run_side_effects(:put, bucket, key, opts)
 
@@ -361,6 +368,7 @@ defmodule ExStorageService.ObjectService do
              durability: evidence
            }),
          opts <- put_durability(opts, evidence),
+         {:ok, opts} <- attach_cross_cluster_events(:put, bucket, key, metadata, opts),
          {:ok, version_id} <- put_version(bucket, key, metadata, opts) do
       run_side_effects(:put, bucket, key, opts)
 
@@ -571,6 +579,46 @@ defmodule ExStorageService.ObjectService do
     end)
   end
 
+  defp attach_cross_cluster_events(:put, bucket, key, object, opts) do
+    if Keyword.get(opts, :side_effects) == false do
+      {:ok, opts}
+    else
+      event_opts = [operation_id: Keyword.fetch!(metadata_opts(opts), :operation_id)]
+
+      with {:ok, events} <-
+             cross_cluster_hooks(opts).events_for_put(bucket, key, object, event_opts) do
+        {:ok, put_metadata_events(opts, events)}
+      end
+    end
+  end
+
+  defp attach_cross_cluster_events(:delete, bucket, key, _object, opts) do
+    if Keyword.get(opts, :side_effects) == false do
+      {:ok, opts}
+    else
+      event_opts = [operation_id: Keyword.fetch!(metadata_opts(opts), :operation_id)]
+
+      with {:ok, events} <-
+             cross_cluster_hooks(opts).events_for_delete(bucket, key, event_opts) do
+        {:ok, put_metadata_events(opts, events)}
+      end
+    end
+  end
+
+  defp put_metadata_events(opts, events) do
+    Keyword.update(opts, :metadata_opts, [events: events], fn metadata_opts ->
+      Keyword.put(metadata_opts, :events, events)
+    end)
+  end
+
+  defp cross_cluster_hooks(opts) do
+    Keyword.get(
+      opts,
+      :cross_cluster_hooks,
+      ExStorageService.CrossClusterReplication.Hooks
+    )
+  end
+
   defp ensure_operation_id(opts) do
     metadata_opts =
       opts
@@ -709,10 +757,8 @@ defmodule ExStorageService.ObjectService do
   defmodule DefaultSideEffects do
     @moduledoc false
 
-    alias ExStorageService.Replication.Hooks
-
-    def after_put(bucket, key), do: Hooks.after_put(bucket, key)
-    def after_delete(bucket, key), do: Hooks.after_delete(bucket, key)
+    def after_put(_bucket, _key), do: :ok
+    def after_delete(_bucket, _key), do: :ok
 
     def broadcast(bucket, action, key) do
       Phoenix.PubSub.broadcast(

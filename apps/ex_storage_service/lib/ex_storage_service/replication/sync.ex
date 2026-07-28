@@ -1,4 +1,4 @@
-defmodule ExStorageService.Replication.Sync do
+defmodule ExStorageService.CrossClusterReplication.Sync do
   @moduledoc """
   Anti-entropy sync GenServer that periodically compares local objects with
   remote replicas and reconciles differences.
@@ -12,8 +12,8 @@ defmodule ExStorageService.Replication.Sync do
   require Logger
 
   alias ExStorageService.Metadata
-  alias ExStorageService.Replication.Config
-  alias ExStorageService.Replication.Config.Replica
+  alias ExStorageService.CrossClusterReplication.Config
+  alias ExStorageService.CrossClusterReplication.Config.Replica
   alias ExStorageService.Replication.JobQueue
 
   @default_sync_interval 300_000
@@ -273,4 +273,18 @@ defmodule ExStorageService.Replication.Sync do
   end
 
   defp auth_headers(_), do: []
+end
+
+defmodule ExStorageService.Replication.Sync do
+  @moduledoc """
+  Compatibility facade for `ExStorageService.CrossClusterReplication.Sync`.
+  """
+
+  alias ExStorageService.CrossClusterReplication.Sync
+
+  defdelegate start_link(opts), to: Sync
+  def start_link, do: Sync.start_link([])
+
+  defdelegate sync_now(), to: Sync
+  defdelegate sync_now(server), to: Sync
 end
