@@ -38,7 +38,20 @@ defmodule ExStorageService.Metadata.Keys do
   end
 
   @spec blob(binary()) :: binary()
-  def blob(sha256) when is_binary(sha256), do: "#{@prefix}:blob:#{sha256}"
+  def blob(sha256) when is_binary(sha256), do: blob_prefix() <> sha256
+
+  @spec blob_prefix() :: binary()
+  def blob_prefix, do: "#{@prefix}:blob:"
+
+  @spec blob_shard_prefix(binary()) :: binary()
+  def blob_shard_prefix(<<first, second>> = shard)
+      when first in ?0..?9 or first in ?a..?f or first in ?A..?F do
+    if second in ?0..?9 or second in ?a..?f or second in ?A..?F do
+      blob_prefix() <> String.downcase(shard)
+    else
+      raise ArgumentError, "blob shard must be two hexadecimal characters"
+    end
+  end
 
   @spec blob_location(binary(), binary()) :: binary()
   def blob_location(sha256, node_id) when is_binary(sha256) and is_binary(node_id) do
@@ -56,6 +69,13 @@ defmodule ExStorageService.Metadata.Keys do
   @spec cluster_node_prefix() :: binary()
   def cluster_node_prefix, do: "#{@prefix}:cluster_node:"
 
+  @spec cluster_status_owner(binary()) :: binary()
+  def cluster_status_owner(node_id) when is_binary(node_id),
+    do: cluster_status_owner_prefix() <> encode_component(node_id)
+
+  @spec cluster_status_owner_prefix() :: binary()
+  def cluster_status_owner_prefix, do: "#{@prefix}:cluster_status_owner:"
+
   @spec outbox(binary()) :: binary()
   def outbox(operation_id) when is_binary(operation_id),
     do: "#{@prefix}:outbox:#{operation_id}"
@@ -69,6 +89,19 @@ defmodule ExStorageService.Metadata.Keys do
 
   @spec job_prefix() :: binary()
   def job_prefix, do: "#{@prefix}:job:"
+
+  @spec operation_intent(binary()) :: binary()
+  def operation_intent(operation_id) when is_binary(operation_id),
+    do: operation_intent_prefix() <> encode_component(operation_id)
+
+  @spec operation_intent_prefix() :: binary()
+  def operation_intent_prefix, do: "#{@prefix}:operation_intent:"
+
+  @spec gc_guard(binary()) :: binary()
+  def gc_guard(hash) when is_binary(hash), do: "#{@prefix}:gc_guard:#{hash}"
+
+  @spec gc_lock(binary()) :: binary()
+  def gc_lock(hash) when is_binary(hash), do: "#{@prefix}:gc_lock:#{hash}"
 
   @spec multipart_upload(binary()) :: binary()
   def multipart_upload(upload_id) when is_binary(upload_id),

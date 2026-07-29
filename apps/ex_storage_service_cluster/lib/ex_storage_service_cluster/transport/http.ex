@@ -13,8 +13,8 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
   alias ExStorageService.Cluster.{BlobDescriptor, ReplicaAck}
   alias ExStorageServiceCluster.InternalAuth
 
-  @chunk_size 262_144
   @telemetry_prefix [:ex_storage_service, :cluster, :blob_transport]
+  @health_hash String.duplicate("0", 64)
 
   @impl true
   def put_blob(context, node, source, %BlobDescriptor{} = descriptor, opts \\ []) do
@@ -117,10 +117,48 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
   end
 
   @impl true
-  def delete_blob(_context, _node, _hash, _opts \\ []), do: {:error, :unsupported}
+  def delete_blob(context, node, hash, opts \\ []) do
+    started_at = System.monotonic_time()
+    path = blob_path(hash)
+    request_id = Keyword.get_lazy(opts, :request_id, &request_id/0)
+
+    with {:ok, cleanup_headers} <- cleanup_headers(opts),
+         {:ok, headers} <-
+           signed_headers(:delete, hash, "-", context, opts,
+             path: path,
+             request_id: request_id
+           ),
+         {:ok, response} <-
+           Req.request(
+             request_options(node, path, opts) ++
+               [method: :delete, headers: cleanup_headers ++ headers]
+           ),
+         :ok <- decode_delete(response) do
+      emit_stop(:delete_blob, started_at, 0, node, hash, :ok)
+      :ok
+    else
+      {:error, reason} = error ->
+        emit_stop(:delete_blob, started_at, 0, node, hash, reason)
+        error
+    end
+  end
 
   @impl true
-  def health(_context, _node, _opts \\ []), do: {:error, :unsupported}
+  def health(context, node, opts \\ []) do
+    path = "/internal/v1/health"
+    request_id = Keyword.get_lazy(opts, :request_id, &request_id/0)
+
+    with {:ok, headers} <-
+           signed_headers(:head, @health_hash, "-", context, opts,
+             path: path,
+             request_id: request_id
+           ),
+         {:ok, response} <-
+           Req.request(request_options(node, path, opts) ++ [method: :head, headers: headers]),
+         :ok <- decode_health(response, request_id, node) do
+      :ok
+    end
+  end
 
   defp download(
          _context,
@@ -268,50 +306,16 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
   end
 
   defp source_enumerable(%StagedBlob{path: path, size: size}),
-    do: {:ok, file_slice_stream(path, 0, size)}
+    do: {:ok, Source.request_body(Source.file(path, 0, size))}
 
-  defp source_enumerable({:file, path, offset, length}),
-    do: {:ok, file_slice_stream(path, offset, length)}
+  defp source_enumerable({:file, _path, _offset, _length} = source),
+    do: {:ok, Source.request_body(source)}
 
-  defp source_enumerable({:stream, {:stateful, _producer}, _length}),
-    do: {:error, :unsupported_source}
-
-  defp source_enumerable({:stream, enumerable, _length}) when not is_function(enumerable),
-    do: {:ok, enumerable}
+  defp source_enumerable({:stream, _producer, _length} = source),
+    do: {:ok, Source.request_body(source)}
 
   defp source_enumerable(enumerable) when not is_binary(enumerable), do: {:ok, enumerable}
   defp source_enumerable(_source), do: {:error, :unsupported_source}
-
-  defp file_slice_stream(path, offset, length) do
-    Stream.resource(
-      fn ->
-        with {:ok, io} <- :file.open(String.to_charlist(path), [:read, :raw, :binary]),
-             {:ok, ^offset} <- :file.position(io, offset) do
-          {:ok, io, length}
-        end
-      end,
-      fn
-        {:ok, io, 0} ->
-          {:halt, {:ok, io, 0}}
-
-        {:ok, io, remaining} ->
-          read_length = min(remaining, @chunk_size)
-
-          case :file.read(io, read_length) do
-            {:ok, data} -> {[data], {:ok, io, remaining - byte_size(data)}}
-            :eof -> raise "unexpected end of staged blob"
-            {:error, reason} -> raise File.Error, reason: reason, action: "read", path: path
-          end
-
-        {:error, reason} ->
-          raise File.Error, reason: reason, action: "open", path: path
-      end,
-      fn
-        {:ok, io, _remaining} -> :file.close(io)
-        {:error, _reason} -> :ok
-      end
-    )
-  end
 
   defp signed_headers(method, hash, size, context, opts, auth_opts) do
     case secret(context, opts) do
@@ -388,6 +392,23 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
   defp decode_head(%Req.Response{status: 404}, _hash, _request_id), do: {:error, :not_found}
   defp decode_head(response, _hash, _request_id), do: response_error(response)
 
+  defp decode_delete(%Req.Response{status: status}) when status in [200, 204, 404], do: :ok
+  defp decode_delete(response), do: response_error(response)
+
+  defp decode_health(%Req.Response{status: 200} = response, request_id, node) do
+    with {:ok, ^request_id} <- header(response, "x-ess-request-id"),
+         {:ok, node_id} <- header(response, "x-ess-node-id"),
+         true <- node_id == Map.fetch!(node, :node_id),
+         {:ok, generation} <- header_integer(response, "x-ess-node-generation"),
+         true <- generation == Map.fetch!(node, :generation) do
+      :ok
+    else
+      _other -> {:error, :invalid_health_response}
+    end
+  end
+
+  defp decode_health(response, _request_id, _node), do: response_error(response)
+
   defp validate_expected_head(info, opts) do
     expected = %{
       size: Keyword.get(opts, :expected_size, info.size),
@@ -398,6 +419,30 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
     if Map.take(info, Map.keys(expected)) == expected,
       do: :ok,
       else: {:error, :replica_identity_mismatch}
+  end
+
+  defp cleanup_headers(opts) do
+    with {:ok, job_id} <- Keyword.fetch(opts, :cleanup_job_id),
+         {:ok, target_generation} <- Keyword.fetch(opts, :cleanup_target_generation),
+         {:ok, owner_node} <- Keyword.fetch(opts, :cleanup_owner_node),
+         {:ok, owner_generation} <- Keyword.fetch(opts, :cleanup_owner_generation),
+         {:ok, fencing_token} <- Keyword.fetch(opts, :cleanup_fencing_token),
+         true <- is_binary(job_id) and job_id != "",
+         true <- is_integer(target_generation) and target_generation > 0,
+         true <- is_binary(owner_node) and owner_node != "",
+         true <- is_integer(owner_generation) and owner_generation > 0,
+         true <- is_integer(fencing_token) and fencing_token >= 0 do
+      {:ok,
+       [
+         {"x-ess-cleanup-job-id", job_id},
+         {"x-ess-cleanup-target-generation", Integer.to_string(target_generation)},
+         {"x-ess-cleanup-owner-node", owner_node},
+         {"x-ess-cleanup-owner-generation", Integer.to_string(owner_generation)},
+         {"x-ess-cleanup-fencing-token", Integer.to_string(fencing_token)}
+       ]}
+    else
+      _other -> {:error, :missing_cleanup_fence}
+    end
   end
 
   defp response_error(%Req.Response{status: 401}), do: {:error, :unauthorized}

@@ -9,6 +9,7 @@ defmodule ExStorageServiceCluster.BlobHandler do
 
   @read_length 262_144
   @telemetry_prefix [:ex_storage_service, :cluster, :blob_transport]
+  @health_hash String.duplicate("0", 64)
 
   def put(conn, hash, opts) do
     started_at = System.monotonic_time()
@@ -57,6 +58,65 @@ defmodule ExStorageServiceCluster.BlobHandler do
       end
 
     emit_stop(:open_blob, started_at, conn, response_bytes(conn), hash)
+  end
+
+  def delete(conn, hash, opts) do
+    started_at = System.monotonic_time()
+
+    conn =
+      with :ok <- LocalCAS.validate_hash(hash),
+           {:ok, claims} <- authenticate(conn, hash, "-", opts),
+           {:ok, fence} <- cleanup_fence(conn),
+           :ok <- authorize_cleanup(hash, fence, opts) do
+        case blob_store(opts).delete(hash, blob_store_opts(opts)) do
+          :ok ->
+            conn
+            |> ack_request(claims.request_id)
+            |> send_resp(204, "")
+
+          {:error, _reason} ->
+            error(conn, 500, "blob delete failed", claims.request_id)
+        end
+      else
+        {:error, :invalid_hash} ->
+          error(conn, 400, "invalid blob hash")
+
+        {:error, {:cleanup, :invalid_cleanup_fence}} ->
+          error(conn, 400, "invalid cleanup fence")
+
+        {:error, {:cleanup, reason}}
+        when reason in [:timeout, :unknown, :cluster_not_ready, :no_leader] ->
+          error(conn, 503, "cleanup authorization unavailable")
+
+        {:error, {:cleanup, _reason}} ->
+          error(conn, 409, "stale cleanup fence")
+
+        {:error, _auth_reason} ->
+          error(conn, 401, "unauthorized")
+      end
+
+    emit_stop(:delete_blob, started_at, conn, 0, hash)
+  end
+
+  def health(conn, opts) do
+    with {:ok, claims} <- authenticate(conn, @health_hash, "-", opts) do
+      case storage_ready(opts, claims.request_id) do
+        :ok ->
+          conn
+          |> ack_request(claims.request_id)
+          |> put_resp_header("x-ess-node-id", to_string(Keyword.fetch!(opts, :node_id)))
+          |> put_resp_header(
+            "x-ess-node-generation",
+            Integer.to_string(Keyword.get(opts, :node_generation, 1))
+          )
+          |> send_resp(200, "")
+
+        {:error, _reason} ->
+          error(conn, 503, "storage unavailable", claims.request_id)
+      end
+    else
+      {:error, _auth_reason} -> error(conn, 401, "unauthorized")
+    end
   end
 
   @doc false
@@ -315,8 +375,114 @@ defmodule ExStorageServiceCluster.BlobHandler do
     send_resp(conn, status, message)
   end
 
+  defp cleanup_fence(conn) do
+    with {:ok, job_id} <- request_header(conn, "x-ess-cleanup-job-id"),
+         {:ok, target_generation} <-
+           request_integer_header(conn, "x-ess-cleanup-target-generation"),
+         {:ok, owner_node} <- request_header(conn, "x-ess-cleanup-owner-node"),
+         {:ok, owner_generation} <-
+           request_integer_header(conn, "x-ess-cleanup-owner-generation"),
+         {:ok, fencing_token} <- request_integer_header(conn, "x-ess-cleanup-fencing-token") do
+      {:ok,
+       %{
+         job_id: job_id,
+         target_generation: target_generation,
+         owner_node: owner_node,
+         owner_generation: owner_generation,
+         fencing_token: fencing_token
+       }}
+    else
+      _other -> {:error, {:cleanup, :invalid_cleanup_fence}}
+    end
+  end
+
+  defp authorize_cleanup(hash, fence, opts) do
+    authorizer =
+      Keyword.get(
+        opts,
+        :cleanup_authorizer,
+        &ExStorageService.Metadata.BlobLocations.authorize_cleanup/8
+      )
+
+    with true <- fence.target_generation == Keyword.get(opts, :node_generation, 1),
+         :ok <-
+           authorizer.(
+             hash,
+             to_string(Keyword.fetch!(opts, :node_id)),
+             fence.target_generation,
+             fence.job_id,
+             fence.owner_node,
+             fence.owner_generation,
+             fence.fencing_token,
+             now_ms: System.system_time(:millisecond)
+           ) do
+      :ok
+    else
+      false -> {:error, {:cleanup, :stale_target_generation}}
+      {:error, reason} -> {:error, {:cleanup, reason}}
+    end
+  end
+
+  defp request_header(conn, name) do
+    case get_req_header(conn, name) do
+      [value] when value != "" -> {:ok, value}
+      _other -> {:error, :invalid_cleanup_fence}
+    end
+  end
+
+  defp request_integer_header(conn, name) do
+    with {:ok, value} <- request_header(conn, name),
+         {integer, ""} when integer >= 0 <- Integer.parse(value) do
+      {:ok, integer}
+    else
+      _other -> {:error, :invalid_cleanup_fence}
+    end
+  end
+
   defp blob_store(opts), do: Keyword.get(opts, :blob_store, LocalCAS)
   defp blob_store_opts(opts), do: Keyword.get(opts, :blob_store_opts, [])
+
+  defp storage_ready(opts, request_id) do
+    blob_opts = blob_store_opts(opts)
+    root = Keyword.get(blob_opts, :root)
+    tmp_dir = Keyword.get(blob_opts, :tmp_dir)
+
+    with true <- is_binary(root) and File.dir?(root),
+         true <- is_binary(tmp_dir),
+         :ok <- File.mkdir_p(tmp_dir),
+         :ok <- writable_probe(tmp_dir, request_id) do
+      :ok
+    else
+      false -> {:error, :invalid_storage_root}
+      {:error, _reason} = error -> error
+    end
+  end
+
+  defp writable_probe(tmp_dir, request_id) do
+    path = Path.join(tmp_dir, ".health-#{request_id}")
+
+    try do
+      case File.open(path, [:write, :exclusive, :binary]) do
+        {:ok, io} ->
+          result =
+            with :ok <- IO.binwrite(io, :binary.copy(<<0>>, 4_096)),
+                 :ok <- :file.sync(io) do
+              :ok
+            end
+
+          _ = File.close(io)
+          _ = File.rm(path)
+          result
+
+        {:error, reason} ->
+          {:error, reason}
+      end
+    rescue
+      _error ->
+        _ = File.rm(path)
+        {:error, :storage_probe_failed}
+    end
+  end
 
   defp response_bytes(%Plug.Conn{status: status} = conn) when status in [200, 206] do
     case get_resp_header(conn, "content-length") do

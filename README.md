@@ -292,7 +292,9 @@ Repository layout:
 | `ESS_WRITE_QUORUM` | `1` standalone, `2` cluster | Required durable writes; must satisfy `1 <= W <= RF` |
 | `ESS_ALLOW_DEGRADED_WRITES` | `false` | Explicitly permit a cluster commit with at least one durable replica; records degraded durability and mandatory repair |
 | `ESS_REPLICA_CONCURRENCY` | `4` | Instance-wide maximum number of concurrent remote blob transfers |
-| `ESS_REPAIR_CONCURRENCY` | `2` | Reserved concurrency bound for durable repair/scrub/cleanup jobs; their handlers remain disabled until Phase 9 |
+| `ESS_REPAIR_CONCURRENCY` | `2` | Concurrency bound shared by durable repair, scrub, and cleanup jobs |
+| `ESS_REPAIR_ENABLED` | `true` on cluster data nodes | Enable deterministic repair/rebalance/drain cleanup planning and handlers |
+| `ESS_SCRUB_ENABLED` | `true` on cluster data nodes | Enable rate-limited checksum scrub planning and handlers |
 | `ESS_ORPHAN_GRACE_SECONDS` | `86400` | Minimum grace period before later GC may consider unreferenced pre-commit blobs |
 | `ESS_CLUSTER_DATA_PLANE_ENABLED` | `false` | Explicitly activate quorum blob writes on cluster data nodes |
 | `ESS_PUBLIC_S3_ENABLED` | `true` standalone, `false` cluster | Start public S3; cluster data nodes must enable the data plane first |
@@ -339,9 +341,19 @@ v2 outbox events and materializes them into independently leased jobs. Claim,
 renewal, completion, and failure use Concord compare-and-swap transactions with
 owner generation and fencing tokens. Data nodes dispatch eventual external S3
 PUT/DELETE jobs with bounded concurrency and streaming request bodies;
-metadata-only nodes do not start the dispatcher. Repair/scrub/cleanup handlers
-remain disabled until Phase 9, so those durable jobs stay pending. External S3
-replication is disaster recovery only and never counts toward cluster RF/W.
+metadata-only nodes do not start the dispatcher. Phase 9 assigns bounded
+descriptor shards deterministically, repairs missing replicas, rate-limits
+scrubs and rebalance, and retires draining/excess replicas only after Concord
+still confirms RF. External S3 replication is disaster recovery only and never
+counts toward cluster RF/W.
+
+`GET /health` is liveness-only. `GET /health/ready` requires both a
+quorum-confirmed metadata read and enough authenticated, healthy eligible data
+nodes to satisfy W. `GET /health/status` returns a sanitized desired-versus-
+actual replica summary and repair backlog. Local GC uses operation intents and
+per-hash transactional locks so a writer and physical deletion cannot win the
+same race; pending or unknown commits remain protected through the orphan
+grace window.
 
 The admin listener remains disabled in cluster mode, and metadata-role nodes
 start no CAS, transfer tasks, S3 listener, or admin listener.

@@ -187,6 +187,52 @@ defmodule ExStorageServiceCluster.BlobHandlerTest do
   end
 
   @tag :tmp_dir
+  test "DELETE requires and revalidates the durable cleanup fence", %{opts: opts} do
+    data = "cleanup-fenced"
+    hash = sha256(data)
+    assert request(:put, hash, data, byte_size(data), opts).status == 200
+
+    assert :delete
+           |> signed_conn(hash, "", "-", opts)
+           |> Router.call(opts)
+           |> Map.fetch!(:status) == 400
+
+    stale_opts =
+      Keyword.put(opts, :cleanup_authorizer, fn
+        ^hash, "data-a", 7, "cleanup-job", "worker-a", 2, 9, _metadata_opts ->
+          {:error, :stale_cleanup_fence}
+      end)
+
+    assert cleanup_request(hash, stale_opts).status == 409
+    assert {:ok, %{size: size}} = LocalCAS.stat(hash, opts[:blob_store_opts])
+    assert size == byte_size(data)
+
+    wrong_generation_opts =
+      Keyword.put(opts, :cleanup_authorizer, fn
+        _hash,
+        _node_id,
+        _target_generation,
+        _job_id,
+        _owner_node,
+        _owner_generation,
+        _fencing_token,
+        _metadata_opts ->
+          flunk("wrong target generation must fail before metadata authorization")
+      end)
+
+    assert cleanup_request(hash, wrong_generation_opts, 6).status == 409
+    assert {:ok, %{size: ^size}} = LocalCAS.stat(hash, opts[:blob_store_opts])
+
+    valid_opts =
+      Keyword.put(opts, :cleanup_authorizer, fn
+        ^hash, "data-a", 7, "cleanup-job", "worker-a", 2, 9, _metadata_opts -> :ok
+      end)
+
+    assert cleanup_request(hash, valid_opts).status == 204
+    assert {:error, :not_found} = LocalCAS.stat(hash, opts[:blob_store_opts])
+  end
+
+  @tag :tmp_dir
   test "checksum failure emits bounded telemetry without filesystem paths", %{opts: opts} do
     handler_id = "phase5-checksum-#{System.unique_integer([:positive])}"
     parent = self()
@@ -250,6 +296,17 @@ defmodule ExStorageServiceCluster.BlobHandlerTest do
   defp request(method, hash, body, size, opts, auth_opts \\ []) do
     method
     |> signed_conn(hash, body, size, opts, auth_opts)
+    |> Router.call(opts)
+  end
+
+  defp cleanup_request(hash, opts, target_generation \\ 7) do
+    :delete
+    |> signed_conn(hash, "", "-", opts)
+    |> put_req_header("x-ess-cleanup-job-id", "cleanup-job")
+    |> put_req_header("x-ess-cleanup-target-generation", Integer.to_string(target_generation))
+    |> put_req_header("x-ess-cleanup-owner-node", "worker-a")
+    |> put_req_header("x-ess-cleanup-owner-generation", "2")
+    |> put_req_header("x-ess-cleanup-fencing-token", "9")
     |> Router.call(opts)
   end
 

@@ -2,6 +2,8 @@ defmodule ExStorageService.Storage.MultipartTest do
   use ExUnit.Case, async: false
 
   alias ExStorageService.Metadata
+  alias ExStorageService.Metadata.Backend.Concord, as: Backend
+  alias ExStorageService.Metadata.{Keys, Models.OperationIntent}
   alias ExStorageService.ObjectService
   alias ExStorageService.Storage.{CAS, Engine, Multipart, Pack}
 
@@ -71,6 +73,30 @@ defmodule ExStorageService.Storage.MultipartTest do
     refute File.dir?(
              Path.join([ExStorageService.Storage.CAS.data_root(), bucket, "multipart", upload_id])
            )
+  end
+
+  test "standalone store_part protects bytes before publishing part metadata", %{
+    bucket: bucket,
+    upload_id: upload_id
+  } do
+    data = "intent-protected-part"
+    hash = Base.encode16(:crypto.hash(:sha256, data), case: :lower)
+    operation_id = "multipart-part:#{upload_id}:1:#{hash}"
+
+    on_exit(fn ->
+      Concord.delete(Keys.operation_intent(operation_id))
+      Concord.delete(Keys.gc_guard(hash))
+    end)
+
+    assert {:ok, _etag} = Multipart.store_part(bucket, upload_id, 1, data)
+
+    assert {:ok, %{value: intent_value}} =
+             Backend.get(Keys.operation_intent(operation_id))
+
+    assert {:ok, %OperationIntent{hash: ^hash, state: :committed}} =
+             OperationIntent.cast(intent_value)
+
+    assert {:ok, [%{hash: ^hash}]} = Multipart.list_parts(bucket, upload_id)
   end
 
   test "complete_upload creates a manifest describing the parts" do

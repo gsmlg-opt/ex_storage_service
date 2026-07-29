@@ -38,6 +38,58 @@ defmodule ExStorageService.ObjectServiceTest do
     end
   end
 
+  defmodule OperationIntentsStub do
+    def open(operation_id, hash, size, node_id, node_generation, _opts) do
+      {:ok,
+       %{
+         operation_id: operation_id,
+         hash: hash,
+         size: size,
+         node_id: node_id,
+         node_generation: node_generation,
+         state: :pending
+       }}
+    end
+
+    def transition(operation_id, state, _opts),
+      do: {:ok, %{operation_id: operation_id, state: state}}
+  end
+
+  defmodule OperationIntentsFail do
+    def open(_operation_id, _hash, _size, _node_id, _node_generation, _opts),
+      do: {:error, :gc_lock_active}
+  end
+
+  defmodule VanishingBlobStore do
+    def verify(_hash, _opts) do
+      if Process.get(:object_service_intent_opened),
+        do: {:error, :not_found},
+        else: :ok
+    end
+
+    def stat(hash, _opts),
+      do: {:ok, %{hash: hash, size: 4, source: {:file, "/unused", 0, 4}}}
+  end
+
+  defmodule DeleteOnOpenIntents do
+    def open(operation_id, hash, size, node_id, node_generation, _opts) do
+      Process.put(:object_service_intent_opened, true)
+
+      {:ok,
+       %{
+         operation_id: operation_id,
+         hash: hash,
+         size: size,
+         node_id: node_id,
+         node_generation: node_generation,
+         state: :pending
+       }}
+    end
+
+    def transition(operation_id, state, _opts),
+      do: {:ok, %{operation_id: operation_id, state: state}}
+  end
+
   defmodule VersioningStub do
     def child_spec(opts) do
       %{id: __MODULE__, start: {__MODULE__, :start_link, [opts]}}
@@ -235,6 +287,7 @@ defmodule ExStorageService.ObjectServiceTest do
       metadata_opts: [engine: engine],
       blob_store: LocalCAS,
       blob_store_opts: [pack_module: NoPack],
+      operation_intents: OperationIntentsStub,
       side_effects: false,
       timestamp: "2026-07-18T00:00:00Z"
     ]
@@ -345,6 +398,24 @@ defmodule ExStorageService.ObjectServiceTest do
   end
 
   @tag :tmp_dir
+  test "an operation-intent conflict discards staged bytes", %{tmp_dir: tmp_dir} do
+    engine = start_supervised!(VersioningStub)
+
+    opts =
+      service_opts(tmp_dir, engine,
+        operation_intents: OperationIntentsFail,
+        operation_id: "intent-conflict"
+      )
+
+    assert {:error, :gc_lock_active} =
+             ObjectService.put("bucket", "conflict", "discard-me", "text/plain", %{}, opts)
+
+    assert VersioningStub.calls(engine) == []
+    assert Path.wildcard(Path.join([opts[:blob_store_opts][:root], "**", "upload-*"])) == []
+    refute File.exists?(LocalCAS.blob_path(sha256("discard-me"), opts[:blob_store_opts]))
+  end
+
+  @tag :tmp_dir
   test "after-blob-commit failure leaves one ready orphan and no metadata", %{tmp_dir: tmp_dir} do
     engine = start_supervised!(VersioningStub)
 
@@ -388,6 +459,31 @@ defmodule ExStorageService.ObjectServiceTest do
              VersioningStub.put_version("bucket", "broken", %{}, engine: engine)
 
     assert {:error, :invalid_object_metadata} = ObjectService.get("bucket", "broken", nil, opts)
+  end
+
+  test "commit_existing_blob revalidates the blob after opening its GC intent" do
+    engine = start_supervised!(VersioningStub)
+    hash = sha256("gone")
+
+    opts = [
+      metadata: MetadataStub,
+      versioning: VersioningStub,
+      metadata_opts: [engine: engine, operation_id: "revalidate-after-intent"],
+      blob_store: VanishingBlobStore,
+      operation_intents: DeleteOnOpenIntents,
+      side_effects: false
+    ]
+
+    assert {:error, :blob_not_found} =
+             ObjectService.commit_existing_blob(
+               "bucket",
+               "key",
+               %{hash: hash, size: 4},
+               %{},
+               opts
+             )
+
+    assert VersioningStub.calls(engine) == []
   end
 
   @tag :tmp_dir
@@ -458,6 +554,7 @@ defmodule ExStorageService.ObjectServiceTest do
         tmp_dir: Path.join([root, "tmp", "uploads"]),
         pack_module: NoPack
       ],
+      operation_intents: OperationIntentsStub,
       side_effects: false,
       timestamp: "2026-07-18T00:00:00Z"
     ]

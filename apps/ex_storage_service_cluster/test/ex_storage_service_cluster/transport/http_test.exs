@@ -189,6 +189,61 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
   end
 
   @tag :tmp_dir
+  test "stateful remote source streams into PUT and authenticated DELETE is idempotent", %{
+    tmp_dir: tmp_dir
+  } do
+    %{url: url, context: context, router_opts: router_opts} = start_transport(tmp_dir)
+    chunks = Enum.map(1..32, &String.duplicate(Integer.to_string(&1), 4_096))
+    data = IO.iodata_to_binary(chunks)
+    hash = sha256(data)
+
+    source =
+      Source.stateful_stream(
+        fn initial, reducer ->
+          Enum.reduce_while(chunks, {:ok, initial}, fn chunk, {:ok, state} ->
+            case reducer.(chunk, state) do
+              {:cont, next} -> {:cont, {:ok, next}}
+              {:halt, reason, next} -> {:halt, {:error, reason, next}}
+            end
+          end)
+        end,
+        byte_size(data)
+      )
+
+    assert {:ok, %ReplicaAck{hash: ^hash, size: size}} =
+             HTTP.put_blob(context, url, source, descriptor(hash, byte_size(data)),
+               secret: @secret
+             )
+
+    assert size == byte_size(data)
+
+    assert {:ok, %{size: ^size}} =
+             ExStorageService.BlobStore.LocalCAS.stat(hash, router_opts[:blob_store_opts])
+
+    node = %{internal_endpoint: url, node_id: "data-target", generation: 11}
+
+    assert :ok = HTTP.health(context, node, secret: @secret)
+
+    assert {:error, :invalid_health_response} =
+             HTTP.health(context, %{node | generation: 12}, secret: @secret)
+
+    cleanup_opts = [
+      secret: @secret,
+      cleanup_job_id: "cleanup-job",
+      cleanup_target_generation: 11,
+      cleanup_owner_node: "data-owner",
+      cleanup_owner_generation: 7,
+      cleanup_fencing_token: 3
+    ]
+
+    assert :ok = HTTP.delete_blob(context, node, hash, cleanup_opts)
+    assert :ok = HTTP.delete_blob(context, node, hash, cleanup_opts)
+
+    assert {:error, :not_found} =
+             ExStorageService.BlobStore.LocalCAS.stat(hash, router_opts[:blob_store_opts])
+  end
+
+  @tag :tmp_dir
   test "an interrupted raw PUT leaves neither staged nor ready content", %{tmp_dir: tmp_dir} do
     %{port: port, router_opts: router_opts} = start_transport(tmp_dir)
     expected = String.duplicate("z", 1_024)
@@ -334,6 +389,17 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
       auth_skew_seconds: 60,
       node_id: "data-target",
       node_generation: 11,
+      cleanup_authorizer: fn
+        _hash,
+        _node_id,
+        _target_generation,
+        _job_id,
+        _owner_node,
+        _owner_generation,
+        _fencing_token,
+        _opts ->
+          :ok
+      end,
       blob_store_opts: [
         root: Path.join(tmp_dir, "cas"),
         tmp_dir: Path.join(tmp_dir, "stage"),

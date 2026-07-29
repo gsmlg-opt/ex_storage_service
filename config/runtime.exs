@@ -216,6 +216,18 @@ instance_config = [
   ra_root: ra_root,
   metadata_root: metadata_root,
   web_enabled: web_enabled?,
+  workers: %{
+    repair:
+      parse_boolean.(
+        "ESS_REPAIR_ENABLED",
+        if(mode == :cluster and node_role == :data, do: "true", else: "false")
+      ),
+    scrub:
+      parse_boolean.(
+        "ESS_SCRUB_ENABLED",
+        if(mode == :cluster and node_role == :data, do: "true", else: "false")
+      )
+  },
   replication_factor:
     parse_positive_integer.("ESS_REPLICATION_FACTOR", if(mode == :cluster, do: "2", else: "1")),
   write_quorum:

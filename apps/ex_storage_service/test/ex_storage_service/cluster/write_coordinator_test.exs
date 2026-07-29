@@ -88,6 +88,44 @@ defmodule ExStorageService.Cluster.WriteCoordinatorTest do
   end
 
   @tag :tmp_dir
+  test "emits one low-cardinality quorum result event", %{tmp_dir: tmp_dir} do
+    context = context(tmp_dir)
+    body = "quorum-telemetry"
+    {:ok, staged} = LocalCAS.stage(body, Context.blob_store_options(context))
+    handler_id = "write-coordinator-test-#{System.unique_integer([:positive])}"
+
+    :ok =
+      :telemetry.attach(
+        handler_id,
+        [:ex_storage_service, :cluster, :quorum, :stop],
+        fn event, measurements, metadata, test_pid ->
+          send(test_pid, {event, measurements, metadata})
+        end,
+        self()
+      )
+
+    on_exit(fn -> :telemetry.detach(handler_id) end)
+
+    assert {:ok, _evidence} =
+             WriteCoordinator.ensure_blob(context, staged,
+               placement_records: records(),
+               transport: Transport,
+               operation_id: "telemetry-op",
+               transport_opts: [test_pid: self(), size: byte_size(body)]
+             )
+
+    assert_received {[:ex_storage_service, :cluster, :quorum, :stop],
+                     %{
+                       duration: duration,
+                       configured_write_quorum: 2,
+                       achieved_replica_count: 2
+                     }, %{result: :ok}}
+
+    assert is_integer(duration)
+    assert duration >= 0
+  end
+
+  @tag :tmp_dir
   test "strict W=2 never succeeds with one durable replica", %{tmp_dir: tmp_dir} do
     context = context(tmp_dir)
     body = "strict-failure"

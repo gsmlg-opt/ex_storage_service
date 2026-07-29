@@ -12,6 +12,14 @@ defmodule ExStorageService.Metadata.Models.BlobLocation do
     :verified_at,
     :updated_at,
     :last_error,
+    :cleanup_job_id,
+    :cleanup_owner_node,
+    :cleanup_owner_generation,
+    :cleanup_fencing_token,
+    :cleanup_retained,
+    :cleanup_desired,
+    :cleanup_descriptor_revision,
+    :cleanup_replication_factor,
     schema: 2,
     state: :ready
   ]
@@ -21,11 +29,19 @@ defmodule ExStorageService.Metadata.Models.BlobLocation do
           hash: binary(),
           node_id: binary(),
           node_generation: pos_integer(),
-          state: :ready | :suspect | :unavailable | :draining,
+          state: :ready | :suspect | :unavailable | :draining | :deleting,
           size: non_neg_integer(),
           verified_at: binary() | integer(),
           updated_at: binary() | integer() | nil,
-          last_error: term()
+          last_error: term(),
+          cleanup_job_id: binary() | nil,
+          cleanup_owner_node: binary() | nil,
+          cleanup_owner_generation: pos_integer() | nil,
+          cleanup_fencing_token: non_neg_integer() | nil,
+          cleanup_retained: [map()] | nil,
+          cleanup_desired: [map()] | nil,
+          cleanup_descriptor_revision: non_neg_integer() | nil,
+          cleanup_replication_factor: pos_integer() | nil
         }
 
   @spec cast(term()) :: {:ok, t()} | {:error, :invalid_blob_location}
@@ -45,7 +61,15 @@ defmodule ExStorageService.Metadata.Models.BlobLocation do
         :size,
         :verified_at,
         :updated_at,
-        :last_error
+        :last_error,
+        :cleanup_job_id,
+        :cleanup_owner_node,
+        :cleanup_owner_generation,
+        :cleanup_fencing_token,
+        :cleanup_retained,
+        :cleanup_desired,
+        :cleanup_descriptor_revision,
+        :cleanup_replication_factor
       ])
       |> then(&struct(__MODULE__, &1))
       |> validate()
@@ -60,7 +84,7 @@ defmodule ExStorageService.Metadata.Models.BlobLocation do
     if location.schema == 2 and is_binary(location.hash) and location.hash != "" and
          is_binary(location.node_id) and location.node_id != "" and
          is_integer(location.node_generation) and location.node_generation >= 1 and
-         location.state in [:ready, :suspect, :unavailable, :draining] and
+         location.state in [:ready, :suspect, :unavailable, :draining, :deleting] and
          is_integer(location.size) and location.size >= 0 do
       {:ok, location}
     else

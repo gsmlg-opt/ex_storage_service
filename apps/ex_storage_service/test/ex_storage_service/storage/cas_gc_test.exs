@@ -2,6 +2,7 @@ defmodule ExStorageService.Storage.CasGCTest do
   use ExUnit.Case, async: false
 
   alias ExStorageService.Metadata
+  alias ExStorageService.Metadata.Keys
   alias ExStorageService.Storage.{CAS, CasGC, Pack, Packer}
 
   # Every stage immediate: orphan grace 0, candidate grace 0, quarantine grace 0.
@@ -90,6 +91,49 @@ defmodule ExStorageService.Storage.CasGCTest do
     Concord.delete("mpu_part:gcbucket:upload1:1")
   end
 
+  test "v2 multipart part blobs are rooted" do
+    hash = seed_blob("gc-v2-part-#{System.unique_integer()}")
+    key = Keys.multipart_part("gc-v2-upload-#{System.unique_integer()}", 1)
+
+    Concord.put(key, %{
+      schema: 2,
+      part_number: 1,
+      hash: hash,
+      size: 1,
+      etag: "e",
+      uploaded_at: DateTime.utc_now() |> DateTime.to_iso8601()
+    })
+
+    on_exit(fn -> Concord.delete(key) end)
+
+    {:ok, _} = CasGC.run_now(@instant)
+    assert File.exists?(CAS.blob_path(hash))
+    assert {:error, :not_found} = get_candidate(hash)
+  end
+
+  test "outbox operations protect hashes while follow-up work is pending" do
+    hash = seed_blob("gc-outbox-root-#{System.unique_integer()}")
+    operation_id = "gc-protection-#{System.unique_integer([:positive])}"
+    operation_key = Keys.outbox(operation_id)
+
+    Concord.put(operation_key, %{
+      schema: 2,
+      operation_id: operation_id,
+      request_fingerprint: "fingerprint",
+      result: %{kind: :pending_blob_publication},
+      events: [
+        %{id: "event", kind: :cleanup, state: :pending, payload: %{content_hash: hash}}
+      ],
+      committed_at: nil
+    })
+
+    on_exit(fn -> Concord.delete(operation_key) end)
+
+    {:ok, _} = CasGC.run_now(@instant)
+    assert File.exists?(CAS.blob_path(hash))
+    assert {:error, :not_found} = get_candidate(hash)
+  end
+
   test "retained loose fallbacks for packed blobs are never garbage collected" do
     hash = seed_blob("gc-packed-fallback-#{System.unique_integer()}")
 
@@ -172,6 +216,43 @@ defmodule ExStorageService.Storage.CasGCTest do
     assert File.exists?(CAS.blob_path(hash))
     refute File.exists?(quarantine_path(hash))
     assert {:ok, %{state: :active}} = Metadata.get_blob_meta(hash)
+    assert {:error, :not_found} = get_candidate(hash)
+  end
+
+  test "physical deletion failure retains candidate and blob metadata" do
+    hash = seed_blob("gc-delete-failure-#{System.unique_integer()}")
+
+    {:ok, _} = CasGC.run_now(@instant)
+    {:ok, _} = CasGC.run_now(@instant)
+
+    path = quarantine_path(hash)
+    File.rm!(path)
+    File.mkdir_p!(path)
+
+    on_exit(fn ->
+      File.rm_rf(path)
+      Concord.delete("gc:candidate:#{hash}")
+      Concord.delete("blob:sha256:#{hash}")
+    end)
+
+    assert {:ok, _report} = CasGC.run_now(@instant)
+    assert File.dir?(path)
+    assert {:ok, %{stage: :quarantined}} = get_candidate(hash)
+    assert {:ok, %{state: :quarantined}} = Metadata.get_blob_meta(hash)
+  end
+
+  test "a restarted sweep reconciles a quarantined candidate whose file moved back to loose" do
+    hash = seed_blob("gc-restart-reconcile-#{System.unique_integer()}")
+
+    {:ok, _} = CasGC.run_now(@instant)
+    {:ok, _} = CasGC.run_now(@instant)
+
+    File.rename!(quarantine_path(hash), CAS.blob_path(hash))
+
+    assert {:ok, report} = CasGC.run_now(@instant)
+    assert report.deleted >= 1
+    refute File.exists?(CAS.blob_path(hash))
+    refute File.exists?(quarantine_path(hash))
     assert {:error, :not_found} = get_candidate(hash)
   end
 

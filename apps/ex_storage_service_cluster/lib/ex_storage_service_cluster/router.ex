@@ -32,6 +32,14 @@ defmodule ExStorageServiceCluster.Router do
     BlobHandler.get(conn, sha256, router_options(conn))
   end
 
+  delete "/internal/v1/blobs/:sha256" do
+    BlobHandler.delete(conn, sha256, router_options(conn))
+  end
+
+  head "/internal/v1/health" do
+    BlobHandler.health(conn, router_options(conn))
+  end
+
   match _ do
     Plug.Conn.send_resp(conn, 404, "not found")
   end

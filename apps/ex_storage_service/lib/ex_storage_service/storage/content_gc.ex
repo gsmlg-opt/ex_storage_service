@@ -11,11 +11,7 @@ defmodule ExStorageService.Storage.ContentGC do
   require Logger
 
   @default_interval :timer.minutes(30)
-
-  # Content files are written to disk before their metadata is committed to
-  # Concord. Skip files modified within this window so a sweep that races an
-  # in-flight PUT cannot delete its freshly-written content as an "orphan".
-  @orphan_grace_seconds 600
+  @default_orphan_grace_seconds 86_400
 
   def start_link(opts \\ []) do
     name = Keyword.get(opts, :name, __MODULE__)
@@ -32,34 +28,50 @@ defmodule ExStorageService.Storage.ContentGC do
   @impl true
   def init(opts) do
     interval = Keyword.get(opts, :interval, @default_interval)
+    orphan_grace_seconds = configured_orphan_grace_seconds(opts)
     schedule_gc(interval)
-    {:ok, %{interval: interval}}
+    {:ok, %{interval: interval, orphan_grace_seconds: orphan_grace_seconds}}
   end
 
   @impl true
   def handle_info(:run_gc, state) do
-    do_gc()
+    run_once(orphan_grace_seconds: state.orphan_grace_seconds)
     schedule_gc(state.interval)
     {:noreply, state}
   end
 
   @impl true
   def handle_call(:run_now, _from, state) do
-    result = do_gc()
+    result = run_once(orphan_grace_seconds: state.orphan_grace_seconds)
     {:reply, result, state}
+  end
+
+  @doc false
+  def run_once(opts \\ []) do
+    data_root =
+      Keyword.get(
+        opts,
+        :data_root,
+        Application.get_env(:ex_storage_service, :data_root, "/tmp/ex_storage_service/data")
+      )
+
+    orphan_grace_seconds = configured_orphan_grace_seconds(opts)
+    backend = Keyword.get(opts, :backend, Concord)
+
+    with {:ok, referenced_hashes} <- get_referenced_hashes(backend) do
+      delete_orphans(data_root, referenced_hashes, orphan_grace_seconds)
+    else
+      {:error, reason} ->
+        Logger.warning("ContentGC: metadata scan failed; sweep aborted: #{inspect(reason)}")
+        {:error, reason}
+    end
   end
 
   defp schedule_gc(interval) do
     Process.send_after(self(), :run_gc, interval)
   end
 
-  defp do_gc do
-    data_root =
-      Application.get_env(:ex_storage_service, :data_root, "/tmp/ex_storage_service/data")
-
-    # Get all buckets from metadata
-    referenced_hashes = get_referenced_hashes()
-
+  defp delete_orphans(data_root, referenced_hashes, orphan_grace_seconds) do
     # Get all content files on disk
     disk_hashes = get_disk_content_hashes(data_root)
 
@@ -69,7 +81,7 @@ defmodule ExStorageService.Storage.ContentGC do
     orphans =
       Enum.filter(disk_hashes, fn {bucket, hash, path} ->
         not MapSet.member?(referenced_hashes, {bucket, hash}) and
-          older_than_grace?(path, now)
+          older_than_grace?(path, now, orphan_grace_seconds)
       end)
 
     # Delete orphans
@@ -98,61 +110,82 @@ defmodule ExStorageService.Storage.ContentGC do
 
   # Returns true when the file's last-modified time is older than the grace
   # window (or when it cannot be stat'd, in which case it is safe to reclaim).
-  defp older_than_grace?(path, now) do
+  defp older_than_grace?(path, now, orphan_grace_seconds) do
     case File.stat(path, time: :posix) do
-      {:ok, %File.Stat{mtime: mtime}} -> now - mtime > @orphan_grace_seconds
-      {:error, _} -> true
+      {:ok, %File.Stat{mtime: mtime}} -> now - mtime > orphan_grace_seconds
+      {:error, _} -> false
     end
   end
 
-  defp get_referenced_hashes do
-    case Concord.get_all() do
+  defp get_referenced_hashes(backend) do
+    case backend.get_all() do
       {:ok, all} ->
-        all
-        |> Enum.filter(fn {k, _v} ->
-          # Include both current object metadata and versioned object metadata.
-          # Content is content-addressed: a file is referenced if ANY metadata
-          # key (obj: or obj_ver:) points to its hash. If we only check obj:
-          # we would GC content that versioned objects still need.
-          String.starts_with?(k, "obj:") or String.starts_with?(k, "obj_ver:")
-        end)
-        |> Enum.flat_map(fn {k, v} ->
-          case k do
-            "obj:" <> rest ->
-              # key format: "obj:{bucket}:{object_key}"
-              case String.split(rest, ":", parts: 2) do
-                [bucket, _key] ->
-                  case Map.get(v, :content_hash) do
-                    nil -> []
-                    hash -> [{bucket, hash}]
-                  end
+        {:ok,
+         all
+         |> Enum.filter(fn {k, _v} ->
+           # Include both current object metadata and versioned object metadata.
+           # Content is content-addressed: a file is referenced if ANY metadata
+           # key (obj: or obj_ver:) points to its hash. If we only check obj:
+           # we would GC content that versioned objects still need.
+           String.starts_with?(k, "obj:") or String.starts_with?(k, "obj_ver:")
+         end)
+         |> Enum.flat_map(fn {k, v} ->
+           case k do
+             "obj:" <> rest ->
+               # key format: "obj:{bucket}:{object_key}"
+               case String.split(rest, ":", parts: 2) do
+                 [bucket, _key] ->
+                   case Map.get(v, :content_hash) do
+                     nil -> []
+                     hash -> [{bucket, hash}]
+                   end
 
-                _ ->
-                  []
-              end
+                 _ ->
+                   []
+               end
 
-            "obj_ver:" <> rest ->
-              # key format: "obj_ver:{bucket}:{key}:{version_id}"
-              case String.split(rest, ":", parts: 2) do
-                [bucket, _rest] ->
-                  case Map.get(v, :content_hash) do
-                    nil -> []
-                    hash -> [{bucket, hash}]
-                  end
+             "obj_ver:" <> rest ->
+               # key format: "obj_ver:{bucket}:{key}:{version_id}"
+               case String.split(rest, ":", parts: 2) do
+                 [bucket, _rest] ->
+                   case Map.get(v, :content_hash) do
+                     nil -> []
+                     hash -> [{bucket, hash}]
+                   end
 
-                _ ->
-                  []
-              end
+                 _ ->
+                   []
+               end
 
-            _ ->
-              []
-          end
-        end)
-        |> MapSet.new()
+             _ ->
+               []
+           end
+         end)
+         |> MapSet.new()}
 
-      {:error, _} ->
-        MapSet.new()
+      {:error, _} = error ->
+        error
+
+      other ->
+        {:error, other}
     end
+  end
+
+  defp configured_orphan_grace_seconds(opts) do
+    Keyword.get_lazy(opts, :orphan_grace_seconds, fn ->
+      fallback =
+        Application.get_env(
+          :ex_storage_service,
+          :orphan_grace_seconds,
+          @default_orphan_grace_seconds
+        )
+
+      case Application.get_env(:ex_storage_service, :instance_config, []) do
+        config when is_list(config) -> Keyword.get(config, :orphan_grace_seconds, fallback)
+        config when is_map(config) -> Map.get(config, :orphan_grace_seconds, fallback)
+        _other -> fallback
+      end
+    end)
   end
 
   defp get_disk_content_hashes(data_root) do

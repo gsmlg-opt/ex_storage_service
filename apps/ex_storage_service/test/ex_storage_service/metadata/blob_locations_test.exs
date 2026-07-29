@@ -85,6 +85,8 @@ defmodule ExStorageService.Metadata.BlobLocationsTest do
     defp apply_operation({:delete, key, _opts}, state),
       do: update_in(state.entries, &Map.delete(&1, key))
 
+    defp apply_operation({:get, _range, _opts}, state), do: state
+
     defp put_entry(state, key, value) do
       revision = state.revision + 1
 
@@ -232,6 +234,140 @@ defmodule ExStorageService.Metadata.BlobLocationsTest do
 
     [spec] = snapshot.transactions
     assert {:mod_revision, key, :==, 0} in spec.compare
+  end
+
+  test "cleanup preparation and authorization persist and revalidate the durable job fence" do
+    hash = String.duplicate("f", 64)
+    key = Keys.blob_location(hash, "node-old")
+    retained_key = Keys.blob_location(hash, "node-b")
+
+    engine =
+      start_supervised!(
+        {Backend,
+         entries: [
+           {key, location(hash, "node-old")},
+           {retained_key, location(hash, "node-b")},
+           {Keys.job("cleanup-job"),
+            %{
+              state: :running,
+              owner_node: "worker-a",
+              owner_generation: 4,
+              fencing_token: 9,
+              lease_until_ms: 1_000
+            }}
+         ]}
+      )
+
+    job = %{
+      job_id: "cleanup-job",
+      owner_node: "worker-a",
+      owner_generation: 4,
+      fencing_token: 9
+    }
+
+    retained = [
+      %{
+        key: retained_key,
+        mod_revision: 2,
+        location:
+          struct!(
+            ExStorageService.Metadata.Models.BlobLocation,
+            location(hash, "node-b")
+          )
+      }
+    ]
+
+    desired = [
+      %{
+        mod_revision: 17,
+        node: %{
+          node_id: "node-b",
+          generation: 1,
+          role: :data,
+          enabled: true,
+          draining: false
+        }
+      }
+    ]
+
+    descriptor_record = %{
+      mod_revision: 23,
+      descriptor: %{desired_replication_factor: 1}
+    }
+
+    assert :ok =
+             BlobLocations.mark_draining(hash, "node-old",
+               backend: Backend,
+               engine: engine,
+               retained_locations: retained,
+               desired_members: desired,
+               descriptor_record: descriptor_record,
+               job_fence: job,
+               now_ms: 100
+             )
+
+    prepared = Backend.snapshot(engine).entries[key].value
+    assert prepared.state == :draining
+    assert prepared.cleanup_job_id == "cleanup-job"
+    assert prepared.cleanup_owner_node == "worker-a"
+    assert prepared.cleanup_owner_generation == 4
+    assert prepared.cleanup_fencing_token == 9
+    assert prepared.cleanup_descriptor_revision == 23
+    assert prepared.cleanup_replication_factor == 1
+
+    assert :ok =
+             BlobLocations.authorize_cleanup(
+               hash,
+               "node-old",
+               1,
+               "cleanup-job",
+               "worker-a",
+               4,
+               9,
+               backend: Backend,
+               engine: engine,
+               now_ms: 100
+             )
+
+    [authorize_spec, prepare_spec] = Backend.snapshot(engine).transactions
+
+    assert [
+             {:put, job_key, %{lease_until_ms: 30_100}, %{}},
+             {:put, ^key, %{state: :deleting}, %{}}
+           ] = authorize_spec.success
+
+    assert job_key == Keys.job("cleanup-job")
+    assert {:field, key, [:cleanup_fencing_token], :==, 9} in authorize_spec.compare
+    assert {:field, retained_key, [:state], :==, :ready} in authorize_spec.compare
+    assert {:field, Keys.cluster_node("node-b"), [:generation], :==, 1} in authorize_spec.compare
+    assert {:mod_revision, Keys.blob(hash), :==, 23} in authorize_spec.compare
+
+    assert {:field, Keys.blob(hash), [:desired_replication_factor], :==, 1} in authorize_spec.compare
+
+    assert {:field, Keys.job("cleanup-job"), [:lease_until_ms], :>, 100} in authorize_spec.compare
+    assert {:field, Keys.job("cleanup-job"), [:fencing_token], :==, 9} in prepare_spec.compare
+    assert {:mod_revision, Keys.blob(hash), :==, 23} in prepare_spec.compare
+
+    assert {:error, :cleanup_in_progress} =
+             BlobLocations.mark_ready(hash, "node-old", 1, 42,
+               backend: Backend,
+               engine: engine,
+               timestamp: "2026-07-28T00:00:01Z"
+             )
+
+    assert {:error, :stale_cleanup_fence} =
+             BlobLocations.authorize_cleanup(
+               hash,
+               "node-old",
+               1,
+               "cleanup-job",
+               "worker-a",
+               4,
+               9,
+               backend: Backend,
+               engine: engine,
+               now_ms: 30_100
+             )
   end
 
   defp location(hash, node_id) do

@@ -424,6 +424,76 @@ defmodule ExStorageService.Metadata.ObjectCommitTest do
     assert [_one_transaction] = TestBackend.transactions(backend)
   end
 
+  test "does not publish a ready location over an authorized cleanup reservation" do
+    {:ok, backend} = TestBackend.start_link()
+    hash = "cleanup-hash"
+
+    node = %{
+      node_id: "data-a",
+      generation: 1,
+      role: :data,
+      enabled: true,
+      draining: false
+    }
+
+    TestBackend.seed(backend, Keys.cluster_node("data-a"), node)
+
+    {:ok, %{mod_revision: revision}} =
+      TestBackend.get(Keys.cluster_node("data-a"), engine: backend)
+
+    TestBackend.seed(backend, Keys.blob_location(hash, "data-a"), %{
+      schema: 2,
+      hash: hash,
+      node_id: "data-a",
+      node_generation: 1,
+      state: :deleting,
+      size: 42,
+      verified_at: "2026-07-27T00:00:00Z",
+      cleanup_job_id: "cleanup-job"
+    })
+
+    acknowledgement = %{
+      node_id: "data-a",
+      node_generation: 1,
+      hash: hash,
+      size: 42,
+      verified_at: "2026-07-27T00:00:00Z"
+    }
+
+    durability = %{
+      descriptor: %{
+        schema: 2,
+        hash: hash,
+        algorithm: :sha256,
+        size: 42,
+        desired_replication_factor: 1,
+        created_at: "2026-07-27T00:00:00Z"
+      },
+      placement: [%{node: node, mod_revision: revision}],
+      acknowledgements: [acknowledgement],
+      missing_node_ids: [],
+      configured_write_quorum: 1,
+      required_write_quorum: 1,
+      achieved_replica_count: 1,
+      durability: :strict
+    }
+
+    assert {:error, :blob_cleanup_in_progress} =
+             ObjectCommit.put(
+               "bucket",
+               "key",
+               %{
+                 content_hash: hash,
+                 size: 42,
+                 etag: "cleanup-etag",
+                 created_at: "2026-07-27T00:00:00Z"
+               },
+               commit_opts(backend, "cleanup-op", "cleanup-v1") ++ [durability: durability]
+             )
+
+    assert TestBackend.transactions(backend) == []
+  end
+
   test "rebuilds and retries after a compare failure" do
     {:ok, backend} = TestBackend.start_link(compare_failures: 1)
 

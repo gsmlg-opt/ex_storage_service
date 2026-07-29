@@ -40,6 +40,20 @@ defmodule ExStorageService.BlobStore.LocalCASTest do
     def rename(_source, _destination), do: {:error, :exdev}
   end
 
+  defmodule DiskFullFileSystem do
+    defdelegate mkdir_p(path), to: LocalCAS.FileSystem
+    defdelegate open(path, modes), to: LocalCAS.FileSystem
+    defdelegate sync(io), to: LocalCAS.FileSystem
+    defdelegate close(io), to: LocalCAS.FileSystem
+    defdelegate rename(source, destination), to: LocalCAS.FileSystem
+    defdelegate rm(path), to: LocalCAS.FileSystem
+    defdelegate stat(path), to: LocalCAS.FileSystem
+    defdelegate pread(io, offset, length), to: LocalCAS.FileSystem
+    defdelegate open_directory(path), to: LocalCAS.FileSystem
+
+    def write(_io, _data), do: {:error, :enospc}
+  end
+
   defmodule UnsupportedDirectorySyncFileSystem do
     defdelegate mkdir_p(path), to: LocalCAS.FileSystem
     defdelegate open(path, modes), to: LocalCAS.FileSystem
@@ -192,6 +206,18 @@ defmodule ExStorageService.BlobStore.LocalCASTest do
 
     assert {:error, {:stage, :injected}} = LocalCAS.stage("never-written", opts)
     assert Path.wildcard(Path.join([Keyword.fetch!(opts, :root), "**", "*"])) == []
+  end
+
+  @tag :tmp_dir
+  test "disk-full staging removes the partial file and publishes no ready blob", %{
+    tmp_dir: tmp_dir
+  } do
+    opts = blob_opts(tmp_dir, fs_module: DiskFullFileSystem)
+    hash = sha256("does-not-fit")
+
+    assert {:error, {:stage, :enospc}} = LocalCAS.stage(["does-", "not-fit"], opts)
+    assert Path.wildcard(Path.join([Keyword.fetch!(opts, :tmp_dir), "upload-*"])) == []
+    refute File.exists?(LocalCAS.blob_path(hash, opts))
   end
 
   @tag :tmp_dir

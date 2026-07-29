@@ -1,6 +1,6 @@
 defmodule ExStorageService.Telemetry do
   @moduledoc """
-  Telemetry event definitions and helpers for S3 operations.
+  Telemetry event definitions and helpers for S3 and cluster operations.
 
   Events emitted:
     - [:ex_storage_service, :s3, :request, :start]
@@ -57,5 +57,41 @@ defmodule ExStorageService.Telemetry do
 
         :erlang.raise(kind, reason, __STACKTRACE__)
     end
+  end
+
+  @doc false
+  def quorum_stop(duration, measurements, metadata) do
+    :telemetry.execute(
+      [:ex_storage_service, :cluster, :quorum, :stop],
+      Map.put(measurements, :duration, duration),
+      metadata
+    )
+  end
+
+  @doc false
+  def repair_backlog(measurements) do
+    :telemetry.execute(
+      [:ex_storage_service, :cluster, :repair, :backlog],
+      measurements,
+      %{}
+    )
+  end
+
+  @doc false
+  def lease_contention(kind, reason) do
+    :telemetry.execute(
+      [:ex_storage_service, :cluster, :lease, :contention],
+      %{count: 1},
+      %{kind: kind, reason: reason}
+    )
+  end
+
+  @doc false
+  def orphan_counts(measurements) do
+    :telemetry.execute(
+      [:ex_storage_service, :storage, :gc, :stop],
+      measurements,
+      %{}
+    )
   end
 end

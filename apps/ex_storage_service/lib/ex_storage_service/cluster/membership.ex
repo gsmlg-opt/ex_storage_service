@@ -53,6 +53,108 @@ defmodule ExStorageService.Cluster.Membership do
     end
   end
 
+  @spec member(InstanceConfig.t(), binary(), keyword()) ::
+          {:ok, member_record()} | {:error, :not_found | term()}
+  def member(%InstanceConfig{} = config, node_id, opts \\ []) when is_binary(node_id) do
+    case Enum.find(config.cluster_members, &(&1.id == node_id)) do
+      nil ->
+        {:error, :not_found}
+
+      configured ->
+        case read_member(configured, opts) do
+          {:ok, nil} -> {:error, :not_found}
+          other -> other
+        end
+    end
+  end
+
+  @spec set_draining(InstanceConfig.t(), binary(), boolean(), keyword()) ::
+          {:ok, member_record()} | {:error, term()}
+  def set_draining(%InstanceConfig{} = config, node_id, draining, opts \\ [])
+      when is_binary(node_id) and is_boolean(draining) do
+    update_control(config, node_id, %{draining: draining}, opts, @max_register_attempts)
+  end
+
+  defp update_control(_config, _node_id, _changes, _opts, 0),
+    do: {:error, :control_compare_failed}
+
+  defp update_control(config, node_id, changes, opts, attempts_left) do
+    with {:ok, %{node: current, mod_revision: revision}} <- member(config, node_id, opts),
+         :ok <- validate_control_changes(current, changes) do
+      if Map.take(Map.from_struct(current), Map.keys(changes)) == changes do
+        {:ok, %{node: current, mod_revision: revision}}
+      else
+        updated =
+          current
+          |> struct!(Map.merge(changes, %{updated_at: timestamp(opts)}))
+
+        key = Keys.cluster_node(node_id)
+
+        spec = %{
+          compare: [
+            {:mod_revision, key, :==, revision},
+            {:field, key, [:generation], :==, current.generation}
+          ],
+          success: [{:put, key, Map.from_struct(updated), %{}}],
+          failure: []
+        }
+
+        transaction_opts =
+          write_opts(opts)
+          |> Keyword.put(
+            :idempotency_key,
+            "cluster-control:" <> registration_attempt_key(node_id, spec)
+          )
+
+        case backend(opts).transaction(spec, transaction_opts) do
+          {:ok, %{succeeded: true, revision: new_revision}} ->
+            {:ok, %{node: updated, mod_revision: new_revision}}
+
+          {:ok, %{succeeded: true}} ->
+            member(config, node_id, opts)
+
+          {:ok, %{succeeded: false}} ->
+            update_control(config, node_id, changes, opts, attempts_left - 1)
+
+          {:error, reason} when reason in [:timeout, :unknown, :cluster_not_ready, :no_leader] ->
+            resolve_control(
+              config,
+              node_id,
+              changes,
+              transaction_opts[:idempotency_key],
+              opts,
+              attempts_left
+            )
+
+          {:error, reason} ->
+            {:error, reason}
+        end
+      end
+    end
+  end
+
+  defp validate_control_changes(%Node{role: :data}, %{draining: draining})
+       when is_boolean(draining),
+       do: :ok
+
+  defp validate_control_changes(%Node{role: :metadata}, %{draining: _draining}),
+    do: {:error, :metadata_node_cannot_drain}
+
+  defp validate_control_changes(_node, _changes), do: :ok
+
+  defp resolve_control(config, node_id, changes, attempt_key, opts, attempts_left) do
+    case backend(opts).resolve_transaction(attempt_key, write_opts(opts)) do
+      {:ok, %{succeeded: true}} ->
+        member(config, node_id, opts)
+
+      {:ok, _result} ->
+        update_control(config, node_id, changes, opts, attempts_left - 1)
+
+      {:error, _reason} ->
+        update_control(config, node_id, changes, opts, attempts_left - 1)
+    end
+  end
+
   defp do_register(_config, _opts, 0), do: {:error, :registration_compare_failed}
 
   defp do_register(config, opts, attempts_left) do
@@ -191,6 +293,12 @@ defmodule ExStorageService.Cluster.Membership do
       |> Base.url_encode64(padding: false)
 
     "cluster-node:#{node_id}:#{fingerprint}"
+  end
+
+  defp timestamp(opts) do
+    Keyword.get_lazy(opts, :timestamp, fn ->
+      DateTime.utc_now() |> DateTime.to_iso8601()
+    end)
   end
 
   defp read_opts(opts),

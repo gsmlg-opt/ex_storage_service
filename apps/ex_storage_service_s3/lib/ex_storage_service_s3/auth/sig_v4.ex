@@ -33,8 +33,8 @@ defmodule ExStorageServiceS3.Auth.SigV4 do
   """
   def call(conn, opts) do
     cond do
-      # Health endpoint must be accessible without authentication
-      conn.request_path == "/health" ->
+      # Read-only health endpoints must be accessible without authentication.
+      public_health?(conn) ->
         conn
 
       # Presigned requests already verified by router — skip SigV4
@@ -75,6 +75,11 @@ defmodule ExStorageServiceS3.Auth.SigV4 do
         conn
     end
   end
+
+  defp public_health?(%Plug.Conn{method: "GET", request_path: path}),
+    do: path in ["/health", "/health/ready", "/health/status"]
+
+  defp public_health?(_conn), do: false
 
   @doc """
   Verifies the AWS Signature V4 on a request.

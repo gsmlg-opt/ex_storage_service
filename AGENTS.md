@@ -121,7 +121,8 @@ The codebase is structured as an umbrella project with five apps:
   restart. Metadata-role nodes start only Concord, discovery, and persistent
   node registration, with no CAS, workers, S3 listener, or admin listener.
 - Quorum-write variables are `ESS_REPLICA_CONCURRENCY`,
-  `ESS_REPAIR_CONCURRENCY`, and `ESS_ORPHAN_GRACE_SECONDS`. Cluster data nodes
+  `ESS_REPAIR_CONCURRENCY`, `ESS_REPAIR_ENABLED`, `ESS_SCRUB_ENABLED`, and
+  `ESS_ORPHAN_GRACE_SECONDS`. Cluster data nodes
   may expose public S3 only when
   both `ESS_CLUSTER_DATA_PLANE_ENABLED` and `ESS_PUBLIC_S3_ENABLED` are true.
   RF=2/W=2 remains the strict default; degraded writes require
@@ -134,8 +135,17 @@ The codebase is structured as an umbrella project with five apps:
   renewed, completed, or failed only through Concord transactions fenced by
   owner node, owner generation, and fencing token. Cross-cluster S3
   replication is eventual disaster recovery and never satisfies RF/W.
-  Metadata-only nodes must not claim blob jobs. Repair/scrub/cleanup job
-  handlers remain disabled until Phase 9.
+  Metadata-only nodes must not claim blob jobs. Repair, scrub, and cleanup use
+  the maintenance concurrency bound and must revalidate topology plus the
+  durable job fence before changing blob-location metadata.
+- Phase 9 maintenance scans v2 blob descriptors in bounded, deterministically
+  owned hash shards. Drain excludes a node from placement before copying and
+  removes its old location only after metadata-confirmed RF. GC must open an
+  operation intent before blob publication, acquire the inverse per-hash GC
+  lock before physical deletion, and remove location metadata only after the
+  file is gone. Packed entries are never directly reclaimed. Cluster
+  configuration rejects the legacy packer and lifecycle workers until packed
+  indexes and lifecycle mutations are node-scoped and transaction-safe.
 - Internal transport variables are `ESS_INTERNAL_BIND`, `ESS_INTERNAL_PORT`,
   `ESS_INTERNAL_ADVERTISED_URL`, `ESS_INTERNAL_SECRET`,
   `ESS_INTERNAL_TLS_CERTFILE`, `ESS_INTERNAL_TLS_KEYFILE`, and
