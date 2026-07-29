@@ -143,6 +143,33 @@ defmodule ExStorageService.Cluster.Repair.PlannerTest do
     assert Enum.map(plan.excess, & &1.location.node_id) == ["node-a"]
   end
 
+  test "an absent tombstone remains repairable but is never planned for cleanup" do
+    hash = sha256("absent-tombstone")
+    data_a = member("node-a")
+    data_b = member("node-b")
+
+    absent = %{
+      key: "location:node-a",
+      mod_revision: 11,
+      location: %BlobLocation{
+        hash: hash,
+        node_id: "node-a",
+        node_generation: 1,
+        state: :absent,
+        size: 12,
+        verified_at: 1,
+        retired_at_ms: 100
+      }
+    }
+
+    assert {:ok, plan} =
+             Planner.plan_blob(blob(hash, 1), [data_a, data_b], [absent])
+
+    assert length(plan.missing) == 1
+    assert plan.excess == []
+    assert plan.sources == []
+  end
+
   test "repeated drain topology revisions create a new repair occurrence" do
     hash = sha256("repeated-drain")
     shard = String.slice(hash, 0, 2)

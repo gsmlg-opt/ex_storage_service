@@ -40,7 +40,7 @@ defmodule ExStorageService.Cluster.Repair.Handler do
     hash = payload(job, :hash)
     target_id = payload(job, :target_node_id)
 
-    with {:ok, record, members, _location_records, plan} <- current_plan(context, hash, opts),
+    with {:ok, record, members, location_records, plan} <- current_plan(context, hash, opts),
          {:ok, target} <- desired_target(plan, target_id),
          :continue <- repair_needed(plan, target),
          {:ok, source, source_member} <-
@@ -54,7 +54,7 @@ defmodule ExStorageService.Cluster.Repair.Handler do
              target.node.node_id,
              target.node.generation,
              record.descriptor.size,
-             mark_opts(job, target, opts, true)
+             repair_mark_opts(job, target, location_records, opts)
            ) do
       :ok
     else
@@ -331,6 +331,22 @@ defmodule ExStorageService.Cluster.Repair.Handler do
     |> Keyword.put(:require_eligible_node, require_eligible_node)
     |> Keyword.put(:job_fence, job)
     |> Keyword.put(:now_ms, System.system_time(:millisecond))
+  end
+
+  defp repair_mark_opts(job, target, location_records, opts) do
+    base = mark_opts(job, target, opts, true)
+
+    case Enum.find(location_records, fn record ->
+           record.location.node_id == target.node.node_id
+         end) do
+      %{location: %{state: :absent}, mod_revision: revision} ->
+        base
+        |> Keyword.put(:resurrect_absent, true)
+        |> Keyword.put(:expected_location_revision, revision)
+
+      _other ->
+        base
+    end
   end
 
   defp retire_opts(job, desired, opts) do

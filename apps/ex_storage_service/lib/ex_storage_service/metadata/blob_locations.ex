@@ -315,6 +315,17 @@ defmodule ExStorageService.Metadata.BlobLocations do
     do: {:error, :blob_location_not_found}
 
   defp updated_location(
+         %BlobLocation{state: :absent},
+         {:unhealthy, _state, _reason},
+         _observed,
+         _opts
+       ),
+       do: {:error, :blob_location_absent}
+
+  defp updated_location(%BlobLocation{state: :absent}, :draining, _observed, _opts),
+    do: {:error, :blob_location_absent}
+
+  defp updated_location(
          %BlobLocation{state: :deleting},
          {:unhealthy, _state, _reason},
          _observed,
@@ -348,7 +359,8 @@ defmodule ExStorageService.Metadata.BlobLocations do
           cleanup_retained: nil,
           cleanup_desired: nil,
           cleanup_descriptor_revision: nil,
-          cleanup_replication_factor: nil
+          cleanup_replication_factor: nil,
+          retired_at_ms: nil
       }
 
       operation_id =
@@ -401,26 +413,22 @@ defmodule ExStorageService.Metadata.BlobLocations do
      }, nil}
   end
 
-  defp updated_location(current, {:ready, generation, size}, _observed, opts) do
-    updated = %{
-      current
-      | state: :ready,
-        node_generation: generation,
-        size: size,
-        verified_at: timestamp(opts),
-        updated_at: timestamp(opts),
-        last_error: nil,
-        cleanup_job_id: nil,
-        cleanup_owner_node: nil,
-        cleanup_owner_generation: nil,
-        cleanup_fencing_token: nil,
-        cleanup_retained: nil,
-        cleanup_desired: nil,
-        cleanup_descriptor_revision: nil,
-        cleanup_replication_factor: nil
-    }
+  defp updated_location(
+         %BlobLocation{state: :absent} = current,
+         {:ready, generation, size},
+         %{mod_revision: revision},
+         opts
+       ) do
+    if Keyword.get(opts, :resurrect_absent, false) and
+         Keyword.get(opts, :expected_location_revision) == revision do
+      {:ok, ready_location(current, generation, size, opts), nil}
+    else
+      {:error, :blob_location_absent}
+    end
+  end
 
-    {:ok, updated, nil}
+  defp updated_location(current, {:ready, generation, size}, _observed, opts) do
+    {:ok, ready_location(current, generation, size, opts), nil}
   end
 
   defp updated_location(current, :draining, _observed, opts) do
@@ -457,6 +465,23 @@ defmodule ExStorageService.Metadata.BlobLocations do
 
       {:ok, %{value: value} = observed} ->
         with {:ok, %BlobLocation{state: :deleting} = location} <- BlobLocation.cast(value) do
+          retired_at_ms = Keyword.get(opts, :now_ms, System.system_time(:millisecond))
+
+          tombstone = %{
+            location
+            | state: :absent,
+              updated_at: timestamp(opts),
+              cleanup_job_id: nil,
+              cleanup_owner_node: nil,
+              cleanup_owner_generation: nil,
+              cleanup_fencing_token: nil,
+              cleanup_retained: nil,
+              cleanup_desired: nil,
+              cleanup_descriptor_revision: nil,
+              cleanup_replication_factor: nil,
+              retired_at_ms: retired_at_ms
+          }
+
           spec = %{
             compare:
               [revision_compare(key, observed)] ++
@@ -468,7 +493,7 @@ defmodule ExStorageService.Metadata.BlobLocations do
                   location.cleanup_descriptor_revision,
                   location.cleanup_replication_factor
                 ) ++ job_compares(opts),
-            success: [{:delete, {:key, key}, %{}}],
+            success: [{:put, key, Map.from_struct(tombstone), %{}}],
             failure: []
           }
 
@@ -496,6 +521,7 @@ defmodule ExStorageService.Metadata.BlobLocations do
               {:error, reason}
           end
         else
+          {:ok, %BlobLocation{state: :absent}} -> :ok
           {:ok, _location} -> {:error, :location_not_deleting}
           {:error, reason} -> {:error, reason}
         end
@@ -503,6 +529,27 @@ defmodule ExStorageService.Metadata.BlobLocations do
       {:error, reason} ->
         {:error, reason}
     end
+  end
+
+  defp ready_location(current, generation, size, opts) do
+    %{
+      current
+      | state: :ready,
+        node_generation: generation,
+        size: size,
+        verified_at: timestamp(opts),
+        updated_at: timestamp(opts),
+        last_error: nil,
+        cleanup_job_id: nil,
+        cleanup_owner_node: nil,
+        cleanup_owner_generation: nil,
+        cleanup_fencing_token: nil,
+        cleanup_retained: nil,
+        cleanup_desired: nil,
+        cleanup_descriptor_revision: nil,
+        cleanup_replication_factor: nil,
+        retired_at_ms: nil
+    }
   end
 
   defp operation_compare(nil), do: []

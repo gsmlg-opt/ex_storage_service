@@ -67,7 +67,8 @@ defmodule ExStorageService.Metadata.OperationIntents do
 
     with {:ok, %{value: value, mod_revision: revision}} <-
            required_record(backend(opts), key, opts),
-         {:ok, %OperationIntent{hash: ^hash} = intent} <- OperationIntent.cast(value) do
+         {:ok, %OperationIntent{hash: ^hash} = intent} <- OperationIntent.cast(value),
+         :ok <- validate_created_after(intent, opts) do
       updated = %{intent | state: :committed, updated_at_ms: now_ms(opts)}
 
       {:ok,
@@ -202,6 +203,22 @@ defmodule ExStorageService.Metadata.OperationIntents do
       {:ok, nil} -> {:error, :operation_intent_not_found}
       {:ok, record} -> {:ok, record}
       {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp validate_created_after(intent, opts) do
+    case Keyword.get(opts, :created_after_ms) do
+      nil ->
+        :ok
+
+      cutoff when is_integer(cutoff) and intent.created_at_ms > cutoff ->
+        :ok
+
+      cutoff when is_integer(cutoff) ->
+        {:error, :operation_intent_before_blob_retirement}
+
+      _other ->
+        {:error, :invalid_blob_retirement_fence}
     end
   end
 

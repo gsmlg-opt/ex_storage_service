@@ -492,6 +492,74 @@ defmodule ExStorageService.Metadata.ObjectCommitTest do
              )
 
     assert TestBackend.transactions(backend) == []
+
+    TestBackend.seed(backend, Keys.blob_location(hash, "data-a"), %{
+      schema: 2,
+      hash: hash,
+      node_id: "data-a",
+      node_generation: 1,
+      state: :absent,
+      size: 42,
+      verified_at: "2026-07-27T00:00:00Z",
+      retired_at_ms: 200
+    })
+
+    TestBackend.seed(backend, Keys.operation_intent("cleanup-op"), %{
+      schema: 2,
+      operation_id: "cleanup-op",
+      hash: hash,
+      size: 42,
+      node_id: "data-a",
+      node_generation: 1,
+      state: :pending,
+      protected_until_ms: 10_000,
+      created_at_ms: 100,
+      updated_at_ms: 100
+    })
+
+    assert {:error, :operation_intent_before_blob_retirement} =
+             ObjectCommit.put(
+               "bucket",
+               "key",
+               %{
+                 content_hash: hash,
+                 size: 42,
+                 etag: "cleanup-etag",
+                 created_at: "2026-07-27T00:00:00Z"
+               },
+               commit_opts(backend, "cleanup-op", "cleanup-v1") ++
+                 [durability: durability, operation_intent: true, now_ms: 300]
+             )
+
+    TestBackend.seed(backend, Keys.operation_intent("fresh-op"), %{
+      schema: 2,
+      operation_id: "fresh-op",
+      hash: hash,
+      size: 42,
+      node_id: "data-a",
+      node_generation: 1,
+      state: :pending,
+      protected_until_ms: 10_000,
+      created_at_ms: 201,
+      updated_at_ms: 201
+    })
+
+    assert {:ok, %{version_id: "fresh-v1"}} =
+             ObjectCommit.put(
+               "bucket",
+               "key",
+               %{
+                 content_hash: hash,
+                 size: 42,
+                 etag: "cleanup-etag",
+                 created_at: "2026-07-27T00:00:00Z"
+               },
+               commit_opts(backend, "fresh-op", "fresh-v1") ++
+                 [durability: durability, operation_intent: true, now_ms: 300]
+             )
+
+    assert {:ok, %{value: %{state: :ready}}} =
+             TestBackend.get(Keys.blob_location(hash, "data-a"), engine: backend)
   end
 
   test "rebuilds and retries after a compare failure" do

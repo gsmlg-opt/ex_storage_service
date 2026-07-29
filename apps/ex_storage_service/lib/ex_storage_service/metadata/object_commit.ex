@@ -222,7 +222,7 @@ defmodule ExStorageService.Metadata.ObjectCommit do
            cluster_metadata_operations(backend, metadata, opts),
          {:ok, events} <- operation_events(cluster_metadata.repair_events, opts),
          {:ok, intent} <-
-           operation_intent_operations(operation_id, metadata, backend, opts) do
+           operation_intent_operations(operation_id, metadata, backend, cluster_metadata, opts) do
       now = Map.get(metadata, :created_at, timestamp())
       delete_marker? = kind == :delete_marker
 
@@ -552,13 +552,25 @@ defmodule ExStorageService.Metadata.ObjectCommit do
 
   defp valid_event?(_event), do: false
 
-  defp operation_intent_operations(operation_id, metadata, backend, opts) do
-    case {Keyword.get(opts, :operation_intent, false), Map.get(metadata, :content_hash)} do
-      {true, hash} when is_binary(hash) ->
+  defp operation_intent_operations(operation_id, metadata, backend, cluster_metadata, opts) do
+    cutoff = Map.get(cluster_metadata, :publication_after_ms)
+
+    case {Keyword.get(opts, :operation_intent, false), Map.get(metadata, :content_hash), cutoff} do
+      {false, _hash, cutoff} when is_integer(cutoff) ->
+        {:error, :blob_cleanup_in_progress}
+
+      {true, hash, cutoff} when is_binary(hash) ->
+        intent_opts = Keyword.put(opts, :backend, backend)
+
+        intent_opts =
+          if is_integer(cutoff),
+            do: Keyword.put(intent_opts, :created_after_ms, cutoff),
+            else: intent_opts
+
         operation_intents(opts).commit_operations(
           operation_id,
           hash,
-          Keyword.put(opts, :backend, backend)
+          intent_opts
         )
 
       _other ->
@@ -573,7 +585,7 @@ defmodule ExStorageService.Metadata.ObjectCommit do
          :ok <- validate_blob_descriptor(observed_descriptor, evidence.descriptor),
          {:ok, observed_locations} <-
            read_locations(backend, evidence.acknowledgements, opts),
-         :ok <- validate_publishable_locations(observed_locations) do
+         {:ok, publication_after_ms} <- publication_after_ms(observed_locations) do
       descriptor =
         merge_blob_descriptor(observed_descriptor, evidence.descriptor)
 
@@ -587,7 +599,8 @@ defmodule ExStorageService.Metadata.ObjectCommit do
              location_operations(evidence.acknowledgements),
          descriptor: descriptor,
          durability: durability_record(evidence),
-         repair_events: repair_events(evidence)
+         repair_events: repair_events(evidence),
+         publication_after_ms: publication_after_ms
        }}
     end
   end
@@ -749,16 +762,29 @@ defmodule ExStorageService.Metadata.ObjectCommit do
   defp location_compares(records),
     do: Enum.map(records, fn {key, record} -> revision_compare(key, record) end)
 
-  defp validate_publishable_locations(records) do
-    if Enum.any?(records, fn
-         {_key, %{value: value}} ->
-           Map.get(value, :state, Map.get(value, "state")) in [:deleting, "deleting"]
+  defp publication_after_ms(records) do
+    Enum.reduce_while(records, {:ok, nil}, fn
+      {_key, nil}, {:ok, cutoff} ->
+        {:cont, {:ok, cutoff}}
 
-         {_key, nil} ->
-           false
-       end),
-       do: {:error, :blob_cleanup_in_progress},
-       else: :ok
+      {_key, %{value: value}}, {:ok, cutoff} ->
+        case Map.get(value, :state, Map.get(value, "state")) do
+          state when state in [:deleting, "deleting"] ->
+            {:halt, {:error, :blob_cleanup_in_progress}}
+
+          state when state in [:absent, "absent"] ->
+            retired_at_ms = Map.get(value, :retired_at_ms, Map.get(value, "retired_at_ms"))
+
+            if is_integer(retired_at_ms) do
+              {:cont, {:ok, max(cutoff || 0, retired_at_ms)}}
+            else
+              {:halt, {:error, :invalid_blob_location}}
+            end
+
+          _state ->
+            {:cont, {:ok, cutoff}}
+        end
+    end)
   end
 
   defp location_operations(acknowledgements) do

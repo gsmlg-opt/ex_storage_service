@@ -163,7 +163,9 @@ defmodule ExStorageService.Cluster.Repair.Planner do
         Enum.reject(desired, &MapSet.member?(ready_ids, member_node(&1).node_id))
 
       excess =
-        Enum.reject(location_records, fn record ->
+        location_records
+        |> Enum.reject(&(location(&1).state == :absent))
+        |> Enum.reject(fn record ->
           location = location(record)
 
           case Map.get(member_by_id, location.node_id) do

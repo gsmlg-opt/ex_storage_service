@@ -355,6 +355,40 @@ defmodule ExStorageService.Metadata.BlobLocationsTest do
                timestamp: "2026-07-28T00:00:01Z"
              )
 
+    assert :ok =
+             BlobLocations.retire(hash, "node-old", retained,
+               backend: Backend,
+               engine: engine,
+               desired_members: desired,
+               job_fence: job,
+               now_ms: 100,
+               timestamp: "2026-07-28T00:00:02Z"
+             )
+
+    assert {:ok, %{value: tombstone, mod_revision: tombstone_revision}} =
+             Backend.get(key, engine: engine)
+
+    assert tombstone.state == :absent
+    assert tombstone.retired_at_ms == 100
+
+    assert {:error, :blob_location_absent} =
+             BlobLocations.mark_ready(hash, "node-old", 1, 42,
+               backend: Backend,
+               engine: engine,
+               timestamp: "2026-07-28T00:00:03Z"
+             )
+
+    assert :ok =
+             BlobLocations.mark_ready(hash, "node-old", 1, 42,
+               backend: Backend,
+               engine: engine,
+               resurrect_absent: true,
+               expected_location_revision: tombstone_revision,
+               timestamp: "2026-07-28T00:00:04Z"
+             )
+
+    assert Backend.snapshot(engine).entries[key].value.state == :ready
+
     assert {:error, :stale_cleanup_fence} =
              BlobLocations.authorize_cleanup(
                hash,

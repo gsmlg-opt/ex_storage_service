@@ -20,6 +20,7 @@ defmodule ExStorageService.Metadata.Models.BlobLocation do
     :cleanup_desired,
     :cleanup_descriptor_revision,
     :cleanup_replication_factor,
+    :retired_at_ms,
     schema: 2,
     state: :ready
   ]
@@ -29,7 +30,7 @@ defmodule ExStorageService.Metadata.Models.BlobLocation do
           hash: binary(),
           node_id: binary(),
           node_generation: pos_integer(),
-          state: :ready | :suspect | :unavailable | :draining | :deleting,
+          state: :ready | :suspect | :unavailable | :draining | :deleting | :absent,
           size: non_neg_integer(),
           verified_at: binary() | integer(),
           updated_at: binary() | integer() | nil,
@@ -41,7 +42,8 @@ defmodule ExStorageService.Metadata.Models.BlobLocation do
           cleanup_retained: [map()] | nil,
           cleanup_desired: [map()] | nil,
           cleanup_descriptor_revision: non_neg_integer() | nil,
-          cleanup_replication_factor: pos_integer() | nil
+          cleanup_replication_factor: pos_integer() | nil,
+          retired_at_ms: non_neg_integer() | nil
         }
 
   @spec cast(term()) :: {:ok, t()} | {:error, :invalid_blob_location}
@@ -69,7 +71,8 @@ defmodule ExStorageService.Metadata.Models.BlobLocation do
         :cleanup_retained,
         :cleanup_desired,
         :cleanup_descriptor_revision,
-        :cleanup_replication_factor
+        :cleanup_replication_factor,
+        :retired_at_ms
       ])
       |> then(&struct(__MODULE__, &1))
       |> validate()
@@ -84,8 +87,10 @@ defmodule ExStorageService.Metadata.Models.BlobLocation do
     if location.schema == 2 and is_binary(location.hash) and location.hash != "" and
          is_binary(location.node_id) and location.node_id != "" and
          is_integer(location.node_generation) and location.node_generation >= 1 and
-         location.state in [:ready, :suspect, :unavailable, :draining, :deleting] and
-         is_integer(location.size) and location.size >= 0 do
+         location.state in [:ready, :suspect, :unavailable, :draining, :deleting, :absent] and
+         is_integer(location.size) and location.size >= 0 and
+         (is_nil(location.retired_at_ms) or
+            (is_integer(location.retired_at_ms) and location.retired_at_ms >= 0)) do
       {:ok, location}
     else
       {:error, :invalid_blob_location}

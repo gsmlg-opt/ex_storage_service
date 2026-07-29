@@ -90,8 +90,9 @@ defmodule ExStorageService.Metadata.MultipartCommit do
          {:ok, observed_descriptor} <- backend.get(descriptor_key, read_opts(opts)),
          :ok <- validate_descriptor(observed_descriptor, durability.descriptor),
          {:ok, observed_locations} <- read_locations(backend, durability, opts),
-         :ok <- validate_publishable_locations(observed_locations),
-         {:ok, intent} <- intent_operations(operation_id, part.hash, backend, opts) do
+         {:ok, publication_after_ms} <- publication_after_ms(observed_locations),
+         {:ok, intent} <-
+           intent_operations(operation_id, part.hash, backend, publication_after_ms, opts) do
       now = Keyword.get_lazy(opts, :timestamp, &timestamp/0)
 
       part_record =
@@ -308,16 +309,29 @@ defmodule ExStorageService.Metadata.MultipartCommit do
   defp location_compares(records),
     do: Enum.map(records, fn {key, record} -> revision_compare(key, record) end)
 
-  defp validate_publishable_locations(records) do
-    if Enum.any?(records, fn
-         {_key, %{value: value}} ->
-           Map.get(value, :state, Map.get(value, "state")) in [:deleting, "deleting"]
+  defp publication_after_ms(records) do
+    Enum.reduce_while(records, {:ok, nil}, fn
+      {_key, nil}, {:ok, cutoff} ->
+        {:cont, {:ok, cutoff}}
 
-         {_key, nil} ->
-           false
-       end),
-       do: {:error, :blob_cleanup_in_progress},
-       else: :ok
+      {_key, %{value: value}}, {:ok, cutoff} ->
+        case Map.get(value, :state, Map.get(value, "state")) do
+          state when state in [:deleting, "deleting"] ->
+            {:halt, {:error, :blob_cleanup_in_progress}}
+
+          state when state in [:absent, "absent"] ->
+            retired_at_ms = Map.get(value, :retired_at_ms, Map.get(value, "retired_at_ms"))
+
+            if is_integer(retired_at_ms) do
+              {:cont, {:ok, max(cutoff || 0, retired_at_ms)}}
+            else
+              {:halt, {:error, :invalid_blob_location}}
+            end
+
+          _state ->
+            {:cont, {:ok, cutoff}}
+        end
+    end)
   end
 
   defp location_operations(durability) do
@@ -459,15 +473,23 @@ defmodule ExStorageService.Metadata.MultipartCommit do
   defp read_opts(opts),
     do: Keyword.take(opts, [:consistency, :timeout, :engine, :barrier])
 
-  defp intent_operations(operation_id, hash, backend, opts) do
-    if Keyword.get(opts, :operation_intent, false) do
-      operation_intents(opts).commit_operations(
-        operation_id,
-        hash,
-        Keyword.put(opts, :backend, backend)
-      )
-    else
-      {:ok, %{compare: [], success: []}}
+  defp intent_operations(operation_id, hash, backend, cutoff, opts) do
+    case {Keyword.get(opts, :operation_intent, false), cutoff} do
+      {false, cutoff} when is_integer(cutoff) ->
+        {:error, :blob_cleanup_in_progress}
+
+      {true, cutoff} ->
+        intent_opts = Keyword.put(opts, :backend, backend)
+
+        intent_opts =
+          if is_integer(cutoff),
+            do: Keyword.put(intent_opts, :created_after_ms, cutoff),
+            else: intent_opts
+
+        operation_intents(opts).commit_operations(operation_id, hash, intent_opts)
+
+      {false, nil} ->
+        {:ok, %{compare: [], success: []}}
     end
   end
 

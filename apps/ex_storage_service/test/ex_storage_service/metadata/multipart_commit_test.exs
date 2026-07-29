@@ -3,7 +3,7 @@ defmodule ExStorageService.Metadata.MultipartCommitTest do
 
   alias ExStorageService.Cluster.{BlobDescriptor, Node, ReplicaAck}
   alias ExStorageService.Metadata.Backend.Concord, as: Backend
-  alias ExStorageService.Metadata.{Keys, MultipartCommit}
+  alias ExStorageService.Metadata.{Keys, MultipartCommit, OperationIntents}
 
   test "part record, descriptor, locations, and operation outcome commit atomically" do
     suffix = System.unique_integer([:positive, :monotonic])
@@ -22,10 +22,16 @@ defmodule ExStorageService.Metadata.MultipartCommitTest do
       node_a_key,
       node_b_key,
       Keys.multipart_part(upload_id, 1),
+      Keys.multipart_part(upload_id, 2),
       Keys.blob(hash),
       Keys.blob_location(hash, "node-a"),
       Keys.blob_location(hash, "node-b"),
-      Keys.outbox(operation_id)
+      Keys.outbox(operation_id),
+      Keys.outbox("#{operation_id}-stale"),
+      Keys.outbox("#{operation_id}-fresh"),
+      Keys.operation_intent("#{operation_id}-stale"),
+      Keys.operation_intent("#{operation_id}-fresh"),
+      Keys.gc_guard(hash)
     ]
 
     on_exit(fn -> cleanup(cleanup_keys) end)
@@ -123,6 +129,52 @@ defmodule ExStorageService.Metadata.MultipartCommitTest do
                operation_id: operation_id,
                timestamp: timestamp
              )
+
+    :ok =
+      put(Keys.blob_location(hash, "node-a"), %{
+        schema: 2,
+        hash: hash,
+        node_id: "node-a",
+        node_generation: 7,
+        state: :absent,
+        size: 14,
+        verified_at: timestamp,
+        retired_at_ms: 200
+      })
+
+    stale_operation_id = "#{operation_id}-stale"
+
+    assert {:ok, _intent} =
+             OperationIntents.open(stale_operation_id, hash, 14, "node-a", 7,
+               now_ms: 100,
+               protection_ms: 10_000
+             )
+
+    assert {:error, :operation_intent_before_blob_retirement} =
+             MultipartCommit.put_part(bucket, upload_id, 2, part, durability,
+               operation_id: stale_operation_id,
+               operation_intent: true,
+               now_ms: 300,
+               timestamp: timestamp
+             )
+
+    fresh_operation_id = "#{operation_id}-fresh"
+
+    assert {:ok, _intent} =
+             OperationIntents.open(fresh_operation_id, hash, 14, "node-a", 7,
+               now_ms: 201,
+               protection_ms: 10_000
+             )
+
+    assert {:ok, %{part_number: 2}} =
+             MultipartCommit.put_part(bucket, upload_id, 2, part, durability,
+               operation_id: fresh_operation_id,
+               operation_intent: true,
+               now_ms: 300,
+               timestamp: timestamp
+             )
+
+    assert {:ok, %{state: :ready}} = Concord.get(Keys.blob_location(hash, "node-a"))
   end
 
   defp node(id, generation, timestamp) do
