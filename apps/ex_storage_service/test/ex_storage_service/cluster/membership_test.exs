@@ -67,6 +67,19 @@ defmodule ExStorageService.Cluster.MembershipTest do
       revision == expected
     end
 
+    defp compare?({:field, key, fields, :==, expected}, state) do
+      value =
+        state.records
+        |> Map.get(key, %{})
+        |> Map.get(:value, %{})
+        |> then(fn value -> Enum.reduce(fields, value, &Map.get(&2, &1)) end)
+
+      case value do
+        ^expected -> true
+        _other -> false
+      end
+    end
+
     defp apply_operation({:put, key, value, _opts}, state) do
       revision = state.revision + 1
 
@@ -167,6 +180,48 @@ defmodule ExStorageService.Cluster.MembershipTest do
 
     assert {:ok, %{value: %{enabled: true, draining: false}}} =
              TestBackend.get(Keys.cluster_node("node-a"), engine: backend)
+  end
+
+  test "drain control is an idempotent compare-and-swap update" do
+    {:ok, backend} = TestBackend.start_link()
+    config = cluster_config()
+    current = %{cluster_node("node-a") | generation: config.node_generation}
+
+    assert :ok = TestBackend.seed(backend, Keys.cluster_node("node-a"), current)
+
+    assert {:ok, %{node: %Node{draining: true}}} =
+             Membership.set_draining(config, "node-a", true,
+               backend: TestBackend,
+               engine: backend,
+               timestamp: "2026-07-29T00:00:00Z"
+             )
+
+    attempts = TestBackend.put_attempts(backend)
+
+    assert {:ok, %{node: %Node{draining: true}}} =
+             Membership.set_draining(config, "node-a", true,
+               backend: TestBackend,
+               engine: backend,
+               timestamp: "2026-07-29T00:00:01Z"
+             )
+
+    assert TestBackend.put_attempts(backend) == attempts
+  end
+
+  test "metadata-only voters cannot enter the data-node drain workflow" do
+    {:ok, backend} = TestBackend.start_link()
+    config = cluster_config()
+    metadata_node = %{cluster_node("node-c") | role: :metadata, internal_endpoint: nil}
+
+    assert :ok = TestBackend.seed(backend, Keys.cluster_node("node-c"), metadata_node)
+
+    assert {:error, :metadata_node_cannot_drain} =
+             Membership.set_draining(config, "node-c", true,
+               backend: TestBackend,
+               engine: backend
+             )
+
+    assert TestBackend.put_attempts(backend) == 0
   end
 
   test "membership rejects a configured ID with a different fixed Erlang endpoint" do

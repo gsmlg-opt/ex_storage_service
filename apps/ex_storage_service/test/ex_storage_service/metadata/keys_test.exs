@@ -52,6 +52,8 @@ defmodule ExStorageService.Metadata.KeysTest do
 
     assert Keys.cluster_node(node_id) == "ess:v2:cluster_node:#{node64}"
     assert Keys.cluster_node_prefix() == "ess:v2:cluster_node:"
+    assert Keys.cluster_status_owner(node_id) == "ess:v2:cluster_status_owner:#{node64}"
+    assert Keys.cluster_status_owner_prefix() == "ess:v2:cluster_status_owner:"
 
     assert Keys.blob_location("abc123", node_id) ==
              "ess:v2:blob_location:abc123:#{node64}"

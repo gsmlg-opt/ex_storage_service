@@ -70,6 +70,25 @@ defmodule ExStorageService.Storage.PackTest do
     assert {:ok, ^d} = Pack.read(h)
   end
 
+  test "direct pack calls are disabled in cluster mode" do
+    data = "cluster-pack-disabled-#{System.unique_integer()}"
+    hash = seed_loose_blob(data)
+
+    assert {:ok, %{packed: 0, pack_hash: nil, disabled: :cluster_mode}} =
+             Pack.pack_blobs([hash], mode: :cluster)
+
+    assert File.exists?(CAS.blob_path(hash))
+    assert {:ok, %{state: :active}} = Metadata.get_blob_meta(hash)
+  end
+
+  test "pack creation preserves content across multiple bounded copy chunks" do
+    data = :binary.copy(<<0, 1, 2, 3>>, 200_000)
+    hash = seed_loose_blob(data)
+
+    assert {:ok, %{packed: 1}} = Pack.pack_blobs([hash])
+    assert {:ok, ^data} = Pack.read(hash)
+  end
+
   test "cleanup retains the loose fallback when the pack is truncated" do
     data = "truncated-pack-fallback-#{System.unique_integer()}"
     hash = seed_loose_blob(data)

@@ -14,7 +14,7 @@ defmodule ExStorageServiceS3.Router do
   use Plug.Router
   use Plug.ErrorHandler
 
-  alias ExStorageServiceS3.Handlers.{Bucket, Lifecycle, Notification, Object, Versioning}
+  alias ExStorageServiceS3.Handlers.{Bucket, Health, Lifecycle, Notification, Object, Versioning}
   alias ExStorageServiceS3.MultipartHandlers
   alias ExStorageServiceS3.Presigned
 
@@ -29,9 +29,15 @@ defmodule ExStorageServiceS3.Router do
 
   # Health check endpoint
   get "/health" do
-    conn
-    |> put_resp_header("content-type", "application/json")
-    |> send_resp(200, ~s({"status":"ok"}))
+    Health.live(conn)
+  end
+
+  get "/health/ready" do
+    Health.ready(conn)
+  end
+
+  get "/health/status" do
+    Health.status(conn)
   end
 
   # Dev-only: POST /health/cloud_cache — configure cloud cache inline

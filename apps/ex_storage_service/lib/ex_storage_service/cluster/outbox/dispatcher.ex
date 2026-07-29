@@ -9,7 +9,8 @@ defmodule ExStorageService.Cluster.Outbox.Dispatcher do
   use GenServer
   require Logger
 
-  alias ExStorageService.CrossClusterReplication.Handler
+  alias ExStorageService.Cluster.Repair.Handler, as: RepairHandler
+  alias ExStorageService.CrossClusterReplication.Handler, as: CrossClusterHandler
   alias ExStorageService.Metadata.{JobStore, Outbox}
   alias ExStorageService.Metadata.Models.Job
   alias ExStorageService.{Context, InstanceConfig}
@@ -39,12 +40,12 @@ defmodule ExStorageService.Cluster.Outbox.Dispatcher do
       task_supervisor: Keyword.fetch!(opts, :task_supervisor),
       outbox: Keyword.get(opts, :outbox, Outbox),
       job_store: Keyword.get(opts, :job_store, JobStore),
-      processor: Keyword.get(opts, :processor, &Handler.perform/2),
+      processor: Keyword.get(opts, :processor, &perform/2),
       metadata_opts: Keyword.get(opts, :metadata_opts, []),
       owner_node: context.config.node_id,
       owner_generation: context.config.node_generation,
       kinds: eligible_kinds(context),
-      concurrency: context.config.replica_concurrency,
+      concurrency: concurrency(context),
       poll_interval: Keyword.get(opts, :poll_interval, @default_poll_interval),
       lease_ms: lease_ms,
       renew_interval: Keyword.get(opts, :renew_interval, max(div(lease_ms, 3), 100)),
@@ -121,7 +122,7 @@ defmodule ExStorageService.Cluster.Outbox.Dispatcher do
   defp claim_page(%{kinds: []} = state), do: state
 
   defp claim_page(state) do
-    available = state.concurrency - map_size(state.running)
+    available = total_concurrency(state) - map_size(state.running)
 
     if available <= 0 do
       state
@@ -130,10 +131,18 @@ defmodule ExStorageService.Cluster.Outbox.Dispatcher do
         {:ok, %{jobs: jobs, next_cursor: cursor}} ->
           jobs
           |> Enum.filter(&(&1.kind in state.kinds))
+          |> Enum.filter(&eligible_job?(&1, state))
           |> Enum.reduce_while(%{state | job_cursor: cursor}, fn job, acc ->
-            if map_size(acc.running) >= acc.concurrency,
-              do: {:halt, acc},
-              else: {:cont, claim_and_start(acc, job)}
+            cond do
+              map_size(acc.running) >= total_concurrency(acc) ->
+                {:halt, acc}
+
+              kind_capacity?(acc, job) ->
+                {:cont, claim_and_start(acc, job)}
+
+              true ->
+                {:cont, acc}
+            end
           end)
 
         {:error, reason} ->
@@ -156,7 +165,8 @@ defmodule ExStorageService.Cluster.Outbox.Dispatcher do
       {:ok, job} ->
         start_job(state, job)
 
-      {:error, {:not_claimable, _current}} ->
+      {:error, {:not_claimable, current}} ->
+        emit_lease_contention(current, candidate, state, now_ms)
         state
 
       {:error, reason} ->
@@ -240,14 +250,92 @@ defmodule ExStorageService.Cluster.Outbox.Dispatcher do
     do: finish_job(state, job, {:error, {:invalid_handler_result, other}})
 
   defp eligible_kinds(%Context{config: config}) do
-    if InstanceConfig.worker_enabled?(config, :cross_cluster_replication),
-      do: [:cross_cluster_put, :cross_cluster_delete],
-      else: []
+    []
+    |> maybe_add(
+      InstanceConfig.worker_enabled?(config, :cross_cluster_replication),
+      [:cross_cluster_put, :cross_cluster_delete]
+    )
+    |> maybe_add(InstanceConfig.worker_enabled?(config, :repair), [:repair_blob, :cleanup])
+    |> maybe_add(InstanceConfig.worker_enabled?(config, :scrub), [:scrub])
   end
+
+  defp concurrency(%Context{config: config}) do
+    %{
+      replica:
+        if(InstanceConfig.worker_enabled?(config, :cross_cluster_replication),
+          do: config.replica_concurrency,
+          else: 0
+        ),
+      maintenance:
+        if(
+          InstanceConfig.worker_enabled?(config, :repair) or
+            InstanceConfig.worker_enabled?(config, :scrub),
+          do: config.repair_concurrency,
+          else: 0
+        )
+    }
+  end
+
+  defp total_concurrency(state), do: state.concurrency.replica + state.concurrency.maintenance
+
+  defp kind_capacity?(state, job) do
+    group = kind_group(job.kind)
+
+    running =
+      Enum.count(state.running, fn {_ref, entry} -> kind_group(entry.job.kind) == group end)
+
+    running < Map.fetch!(state.concurrency, group)
+  end
+
+  defp kind_group(kind) when kind in [:cross_cluster_put, :cross_cluster_delete], do: :replica
+  defp kind_group(_kind), do: :maintenance
+
+  defp eligible_job?(%Job{kind: :scrub, payload: payload}, state) do
+    target_node_id = Map.get(payload, :target_node_id, Map.get(payload, "target_node_id"))
+
+    target_generation =
+      Map.get(payload, :target_node_generation, Map.get(payload, "target_node_generation"))
+
+    target_node_id == state.owner_node and target_generation == state.owner_generation
+  end
+
+  defp eligible_job?(%Job{}, _state), do: true
+
+  defp perform(%Job{kind: kind} = job, context)
+       when kind in [:cross_cluster_put, :cross_cluster_delete],
+       do: CrossClusterHandler.perform(job, context)
+
+  defp perform(%Job{} = job, context), do: RepairHandler.perform(job, context)
+
+  defp maybe_add(kinds, true, additions), do: kinds ++ additions
+  defp maybe_add(kinds, false, _additions), do: kinds
 
   defp metadata_opts(state) do
     Keyword.put(state.metadata_opts, :owner_generation, state.owner_generation)
   end
+
+  defp emit_lease_contention(
+         %Job{
+           state: :running,
+           lease_until_ms: lease_until_ms,
+           owner_node: owner_node,
+           owner_generation: owner_generation
+         },
+         candidate,
+         state,
+         now_ms
+       )
+       when is_integer(lease_until_ms) and lease_until_ms > now_ms do
+    if {owner_node, owner_generation} != {state.owner_node, state.owner_generation} do
+      :telemetry.execute(
+        [:ex_storage_service, :cluster, :lease, :contention],
+        %{count: 1},
+        %{kind: candidate.kind, reason: :leased_by_other_owner}
+      )
+    end
+  end
+
+  defp emit_lease_contention(_current, _candidate, _state, _now_ms), do: :ok
 
   defp schedule(message, delay), do: Process.send_after(self(), message, delay)
 end

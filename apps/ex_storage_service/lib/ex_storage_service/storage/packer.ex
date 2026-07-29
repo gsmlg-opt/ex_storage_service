@@ -21,6 +21,7 @@ defmodule ExStorageService.Storage.Packer do
 
   require Logger
 
+  alias ExStorageService.Context
   alias ExStorageService.Storage.{CAS, CasGC, Pack}
 
   def start_link(opts \\ []) do
@@ -61,6 +62,14 @@ defmodule ExStorageService.Storage.Packer do
   defp schedule(interval), do: Process.send_after(self(), :pack, interval)
 
   defp do_pack(opts) do
+    if cluster_mode?(opts) do
+      {:ok, %{pack_hash: nil, packed: 0, loose_deleted: 0, disabled: :cluster_mode}}
+    else
+      do_local_pack(opts)
+    end
+  end
+
+  defp do_local_pack(opts) do
     cold_after = conf(opts, :cold_after, :pack_cold_after, 30 * 86_400)
     min_blobs = conf(opts, :min_blobs, :pack_min_blobs, 100)
     max_blobs = conf(opts, :max_blobs, :pack_max_blobs, 1000)
@@ -102,6 +111,16 @@ defmodule ExStorageService.Storage.Packer do
       {:error, reason} ->
         Logger.warning("Packer: metadata scan failed: #{inspect(reason)}")
         {:error, reason}
+    end
+  end
+
+  defp cluster_mode?(opts) do
+    case Keyword.fetch(opts, :mode) do
+      {:ok, mode} ->
+        mode == :cluster
+
+      :error ->
+        match?({:ok, %{config: %{mode: :cluster}}}, Context.default())
     end
   end
 

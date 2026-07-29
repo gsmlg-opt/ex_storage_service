@@ -109,24 +109,69 @@ defmodule ExStorageService.Cluster.Outbox.DispatcherTest do
     assert eventually(fn -> completed_count(engine) == 3 end)
   end
 
+  test "routes repair jobs only when the maintenance capability is enabled" do
+    parent = self()
+    {:ok, job} = job("repair-1", :repair_blob)
+    {:ok, engine} = Agent.start_link(fn -> %{job.job_id => job} end)
+    {:ok, tasks} = Task.Supervisor.start_link()
+
+    workers =
+      InstanceConfig.worker_defaults()
+      |> Map.put(:cross_cluster_replication, false)
+      |> Map.put(:repair, true)
+
+    {:ok, config} =
+      InstanceConfig.new(
+        auto_start: false,
+        workers: workers,
+        repair_concurrency: 1
+      )
+
+    processor = fn claimed, _context ->
+      send(parent, {:repair_started, claimed.job_id})
+      :ok
+    end
+
+    {:ok, dispatcher} =
+      start_supervised(
+        {Dispatcher,
+         context: Context.new(config),
+         task_supervisor: tasks,
+         outbox: OutboxStub,
+         job_store: JobStoreStub,
+         processor: processor,
+         metadata_opts: [engine: engine],
+         poll_interval: 60_000,
+         renew_interval: 60_000}
+      )
+
+    assert_receive {:repair_started, "repair-1"}
+    assert eventually(fn -> completed_count(engine) == 1 end)
+    assert :ok = Dispatcher.process_jobs(dispatcher)
+    refute_receive {:repair_started, "repair-1"}, 50
+  end
+
   defp jobs(count) do
     Map.new(1..count, fn index ->
       id = "job-#{index}"
 
-      {:ok, job} =
-        Job.new(
-          "operation-#{index}",
-          %{
-            id: id,
-            kind: :cross_cluster_put,
-            state: :pending,
-            payload: %{bucket: "bucket", key: "key-#{index}"}
-          },
-          0
-        )
+      {:ok, job} = job(id, :cross_cluster_put)
 
       {id, job}
     end)
+  end
+
+  defp job(id, kind) do
+    Job.new(
+      "operation-#{id}",
+      %{
+        id: id,
+        kind: kind,
+        state: :pending,
+        payload: %{bucket: "bucket", key: "key-#{id}"}
+      },
+      0
+    )
   end
 
   defp completed_count(engine) do

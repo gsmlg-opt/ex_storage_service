@@ -23,6 +23,19 @@ defmodule ExStorageServiceS3.Plugs.RateLimiter do
   def call(conn, _opts) do
     config = rate_limit_config()
 
+    if public_health?(conn) do
+      conn
+    else
+      apply_limit(conn, config)
+    end
+  end
+
+  defp public_health?(%Plug.Conn{method: "GET", request_path: path}),
+    do: path in ["/health", "/health/ready", "/health/status"]
+
+  defp public_health?(_conn), do: false
+
+  defp apply_limit(conn, config) do
     if config.enabled do
       key = bucket_key(conn)
       now = System.monotonic_time(:millisecond)

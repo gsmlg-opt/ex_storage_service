@@ -9,6 +9,7 @@ defmodule ExStorageService.Metadata.MultipartCommit do
 
   alias ExStorageService.Metadata.Backend.Concord, as: ConcordBackend
   alias ExStorageService.Metadata.Keys
+  alias ExStorageService.Metadata.OperationIntents
 
   @max_attempts 8
 
@@ -88,7 +89,9 @@ defmodule ExStorageService.Metadata.MultipartCommit do
          descriptor_key = Keys.blob(part.hash),
          {:ok, observed_descriptor} <- backend.get(descriptor_key, read_opts(opts)),
          :ok <- validate_descriptor(observed_descriptor, durability.descriptor),
-         {:ok, observed_locations} <- read_locations(backend, durability, opts) do
+         {:ok, observed_locations} <- read_locations(backend, durability, opts),
+         :ok <- validate_publishable_locations(observed_locations),
+         {:ok, intent} <- intent_operations(operation_id, part.hash, backend, opts) do
       now = Keyword.get_lazy(opts, :timestamp, &timestamp/0)
 
       part_record =
@@ -122,14 +125,15 @@ defmodule ExStorageService.Metadata.MultipartCommit do
             revision_compare(descriptor_key, observed_descriptor),
             {:exists, operation_key, :==, false}
           ] ++
-            location_compares(observed_locations) ++ node_compares(durability),
+            location_compares(observed_locations) ++ node_compares(durability) ++ intent.compare,
         success:
           [
             {:put, part_key, part_record, %{}},
             {:put, descriptor_key, merged_descriptor(observed_descriptor, durability.descriptor),
              %{}}
           ] ++
-            location_operations(durability) ++ [{:put, operation_key, operation, %{}}],
+            location_operations(durability) ++
+            intent.success ++ [{:put, operation_key, operation, %{}}],
         failure: []
       }
 
@@ -304,6 +308,18 @@ defmodule ExStorageService.Metadata.MultipartCommit do
   defp location_compares(records),
     do: Enum.map(records, fn {key, record} -> revision_compare(key, record) end)
 
+  defp validate_publishable_locations(records) do
+    if Enum.any?(records, fn
+         {_key, %{value: value}} ->
+           Map.get(value, :state, Map.get(value, "state")) in [:deleting, "deleting"]
+
+         {_key, nil} ->
+           false
+       end),
+       do: {:error, :blob_cleanup_in_progress},
+       else: :ok
+  end
+
   defp location_operations(durability) do
     Enum.map(durability.acknowledgements, fn ack ->
       location = %{
@@ -337,9 +353,14 @@ defmodule ExStorageService.Metadata.MultipartCommit do
   defp repair_events(durability) do
     source_ids = Enum.map(durability.acknowledgements, & &1.node_id) |> Enum.sort()
 
+    repair_epoch =
+      durability.acknowledgements
+      |> Enum.map(&{&1.node_id, &1.node_generation, &1.verified_at, &1.fencing_or_request_id})
+      |> Enum.sort()
+
     Enum.map(durability.missing_node_ids, fn node_id ->
       %{
-        id: fingerprint({durability.descriptor.hash, node_id}),
+        id: fingerprint({durability.descriptor.hash, node_id, repair_epoch}),
         kind: :repair_blob,
         state: :pending,
         payload: %{
@@ -438,6 +459,19 @@ defmodule ExStorageService.Metadata.MultipartCommit do
   defp read_opts(opts),
     do: Keyword.take(opts, [:consistency, :timeout, :engine, :barrier])
 
+  defp intent_operations(operation_id, hash, backend, opts) do
+    if Keyword.get(opts, :operation_intent, false) do
+      operation_intents(opts).commit_operations(
+        operation_id,
+        hash,
+        Keyword.put(opts, :backend, backend)
+      )
+    else
+      {:ok, %{compare: [], success: []}}
+    end
+  end
+
   defp backend(opts), do: Keyword.get(opts, :backend, ConcordBackend)
+  defp operation_intents(opts), do: Keyword.get(opts, :operation_intents, OperationIntents)
   defp timestamp, do: DateTime.utc_now() |> DateTime.to_iso8601()
 end

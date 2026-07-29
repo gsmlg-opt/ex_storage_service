@@ -9,6 +9,7 @@ defmodule ExStorageService.Metadata.ObjectCommit do
 
   alias ExStorageService.Metadata.Backend.Concord, as: ConcordBackend
   alias ExStorageService.Metadata.Keys
+  alias ExStorageService.Metadata.OperationIntents
 
   @default_max_attempts 16
 
@@ -219,7 +220,9 @@ defmodule ExStorageService.Metadata.ObjectCommit do
            observed_parent_version_id(backend, bucket, key, observed_head, opts),
          {:ok, cluster_metadata} <-
            cluster_metadata_operations(backend, metadata, opts),
-         {:ok, events} <- operation_events(cluster_metadata.repair_events, opts) do
+         {:ok, events} <- operation_events(cluster_metadata.repair_events, opts),
+         {:ok, intent} <-
+           operation_intent_operations(operation_id, metadata, backend, opts) do
       now = Map.get(metadata, :created_at, timestamp())
       delete_marker? = kind == :delete_marker
 
@@ -267,14 +270,15 @@ defmodule ExStorageService.Metadata.ObjectCommit do
             head_compare(head_key, observed_head),
             {:exists, operation_key, :==, false},
             {:exists, Keys.object_version(bucket, key, version_id), :==, false}
-          ] ++ cluster_metadata.compare,
+          ] ++ cluster_metadata.compare ++ intent.compare,
         success:
           [
             {:put, Keys.object_version(bucket, key, version_id), version, %{}},
             {:put, head_key, head, %{}}
           ] ++
             blob_operations(version, now, cluster_metadata) ++
-            cluster_metadata.success ++ [{:put, operation_key, operation, %{}}],
+            cluster_metadata.success ++
+            intent.success ++ [{:put, operation_key, operation, %{}}],
         failure: []
       }
 
@@ -548,13 +552,28 @@ defmodule ExStorageService.Metadata.ObjectCommit do
 
   defp valid_event?(_event), do: false
 
+  defp operation_intent_operations(operation_id, metadata, backend, opts) do
+    case {Keyword.get(opts, :operation_intent, false), Map.get(metadata, :content_hash)} do
+      {true, hash} when is_binary(hash) ->
+        operation_intents(opts).commit_operations(
+          operation_id,
+          hash,
+          Keyword.put(opts, :backend, backend)
+        )
+
+      _other ->
+        {:ok, %{compare: [], success: []}}
+    end
+  end
+
   defp do_cluster_metadata_operations(backend, metadata, durability, opts) do
     with {:ok, evidence} <- validate_durability(metadata, durability),
          descriptor_key = Keys.blob(evidence.descriptor.hash),
          {:ok, observed_descriptor} <- backend.get(descriptor_key, read_opts(opts)),
          :ok <- validate_blob_descriptor(observed_descriptor, evidence.descriptor),
          {:ok, observed_locations} <-
-           read_locations(backend, evidence.acknowledgements, opts) do
+           read_locations(backend, evidence.acknowledgements, opts),
+         :ok <- validate_publishable_locations(observed_locations) do
       descriptor =
         merge_blob_descriptor(observed_descriptor, evidence.descriptor)
 
@@ -730,6 +749,18 @@ defmodule ExStorageService.Metadata.ObjectCommit do
   defp location_compares(records),
     do: Enum.map(records, fn {key, record} -> revision_compare(key, record) end)
 
+  defp validate_publishable_locations(records) do
+    if Enum.any?(records, fn
+         {_key, %{value: value}} ->
+           Map.get(value, :state, Map.get(value, "state")) in [:deleting, "deleting"]
+
+         {_key, nil} ->
+           false
+       end),
+       do: {:error, :blob_cleanup_in_progress},
+       else: :ok
+  end
+
   defp location_operations(acknowledgements) do
     Enum.map(acknowledgements, fn ack ->
       ack = plain_map(ack)
@@ -777,10 +808,11 @@ defmodule ExStorageService.Metadata.ObjectCommit do
 
   defp repair_events(evidence) do
     source_ids = evidence.acknowledgements |> Enum.map(&Map.get(&1, :node_id)) |> Enum.sort()
+    repair_epoch = repair_epoch(evidence.acknowledgements)
 
     Enum.map(evidence.missing_node_ids, fn node_id ->
       %{
-        id: fingerprint({evidence.descriptor.hash, node_id}),
+        id: fingerprint({evidence.descriptor.hash, node_id, repair_epoch}),
         kind: :repair_blob,
         state: :pending,
         payload: %{
@@ -790,6 +822,21 @@ defmodule ExStorageService.Metadata.ObjectCommit do
         }
       }
     end)
+  end
+
+  defp repair_epoch(acknowledgements) do
+    acknowledgements
+    |> Enum.map(fn ack ->
+      ack = plain_map(ack)
+
+      {
+        Map.get(ack, :node_id),
+        Map.get(ack, :node_generation),
+        Map.get(ack, :verified_at),
+        Map.get(ack, :fencing_or_request_id)
+      }
+    end)
+    |> Enum.sort()
   end
 
   defp revision_compare(key, nil), do: {:mod_revision, key, :==, 0}
@@ -987,6 +1034,7 @@ defmodule ExStorageService.Metadata.ObjectCommit do
   end
 
   defp backend(opts), do: Keyword.get(opts, :backend, ConcordBackend)
+  defp operation_intents(opts), do: Keyword.get(opts, :operation_intents, OperationIntents)
   defp max_attempts(opts), do: Keyword.get(opts, :max_attempts, @default_max_attempts)
 
   defp read_opts(opts),

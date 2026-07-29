@@ -201,6 +201,29 @@ defmodule ExStorageService.InstanceConfigTest do
     assert message =~ "auth skew"
   end
 
+  test "cluster data nodes enable repair and scrub workers by default" do
+    assert {:ok, config} = InstanceConfig.new(@cluster_opts)
+    assert InstanceConfig.worker_enabled?(config, :repair)
+    assert InstanceConfig.worker_enabled?(config, :scrub)
+    refute InstanceConfig.worker_enabled?(config, :packer)
+    refute InstanceConfig.worker_enabled?(config, :lifecycle)
+
+    assert {:ok, disabled} =
+             @cluster_opts
+             |> Keyword.put(:workers, repair: false, scrub: false)
+             |> InstanceConfig.new()
+
+    refute InstanceConfig.worker_enabled?(disabled, :repair)
+    refute InstanceConfig.worker_enabled?(disabled, :scrub)
+
+    assert {:error, message} =
+             @cluster_opts
+             |> Keyword.put(:workers, packer: true)
+             |> InstanceConfig.new()
+
+    assert message =~ "cluster mode does not support workers"
+  end
+
   test "cluster identity, membership, topology, and role fail fast" do
     assert {:error, message} = InstanceConfig.new(mode: :cluster)
     assert message =~ "web listener"

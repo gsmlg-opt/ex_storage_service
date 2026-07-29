@@ -12,6 +12,7 @@ defmodule ExStorageService.ObjectService do
   alias ExStorageService.Cluster.{ReadCoordinator, WriteCoordinator}
   alias ExStorageService.Context
   alias ExStorageService.Metadata
+  alias ExStorageService.Metadata.OperationIntents
   alias ExStorageService.Storage.Versioning
 
   @type result :: %{
@@ -45,9 +46,7 @@ defmodule ExStorageService.ObjectService do
       if cluster_write?(opts) do
         put_cluster(bucket, key, data, attributes, opts)
       else
-        with {:ok, ready} <- store_blob(data, opts) do
-          commit_ready_blob(bucket, key, ready, attributes, opts)
-        end
+        put_standalone(bucket, key, data, attributes, opts)
       end
     end
   end
@@ -198,7 +197,13 @@ defmodule ExStorageService.ObjectService do
         |> Map.put_new(:hash, hash)
         |> Map.put_new(:content_hash, hash)
 
-      commit_existing_ready(destination_bucket, destination_key, ready, attributes, opts)
+      commit_existing_ready(
+        destination_bucket,
+        destination_key,
+        ready,
+        attributes,
+        Keyword.put(opts, :blob_bucket, source_bucket)
+      )
     else
       true -> {:error, :object_not_found}
       nil -> {:error, :blob_not_found}
@@ -240,9 +245,19 @@ defmodule ExStorageService.ObjectService do
 
     with {:ok, context} <- context(opts),
          {:ok, staged} <- stage_blob(data, opts) do
-      case write_coordinator(opts).ensure_blob(context, staged, coordinator_opts(opts)) do
-        {:ok, evidence} ->
-          commit_quorum_blob(bucket, key, staged, evidence, attributes, opts)
+      case open_operation_intent(staged, context, opts) do
+        {:ok, opts} ->
+          result =
+            case write_coordinator(opts).ensure_blob(context, staged, coordinator_opts(opts)) do
+              {:ok, evidence} ->
+                commit_quorum_blob(bucket, key, staged, evidence, attributes, opts)
+
+              {:error, _reason} = error ->
+                _ = discard_staged(blob_store(opts), staged, blob_opts(opts))
+                error
+            end
+
+          finish_operation_intent(result, opts)
 
         {:error, _reason} = error ->
           _ = discard_staged(blob_store(opts), staged, blob_opts(opts))
@@ -251,21 +266,133 @@ defmodule ExStorageService.ObjectService do
     end
   end
 
-  defp commit_existing_ready(bucket, key, ready, attributes, opts) do
-    if cluster_write?(opts) do
-      opts = ensure_operation_id(opts)
+  defp put_standalone(bucket, key, data, attributes, opts) do
+    with {:ok, context} <- context(opts),
+         {:ok, staged} <- stage_blob(data, opts) do
+      case open_operation_intent(staged, context, opts) do
+        {:ok, opts} ->
+          result =
+            case commit_staged_blob(blob_store(opts), staged, blob_opts(opts), opts) do
+              {:ok, ready} -> commit_ready_blob(bucket, key, ready, attributes, opts)
+              {:error, _reason} = error -> error
+            end
 
-      with {:ok, context} <- context(opts),
-           {:ok, evidence} <-
-             write_coordinator(opts).ensure_blob(
-               context,
-               ready,
-               coordinator_opts(opts)
-             ) do
-        commit_quorum_blob(bucket, key, ready, evidence, attributes, opts)
+          finish_operation_intent(result, opts)
+
+        {:error, _reason} = error ->
+          _ = discard_staged(blob_store(opts), staged, blob_opts(opts))
+          error
       end
+    end
+  end
+
+  defp open_operation_intent(blob, context, opts) do
+    operation_id = Keyword.fetch!(metadata_opts(opts), :operation_id)
+
+    with {:ok, %{content_hash: hash, size: size}} <- blob_identity(blob),
+         {:ok, _intent} <-
+           operation_intents(opts).open(
+             operation_id,
+             hash,
+             size,
+             context.config.node_id,
+             context.config.node_generation,
+             operation_intent_opts(context, opts)
+           ) do
+      metadata_opts =
+        opts
+        |> metadata_opts()
+        |> Keyword.put(:operation_intent, true)
+        |> Keyword.put(:operation_intents, operation_intents(opts))
+
+      {:ok, Keyword.put(opts, :metadata_opts, metadata_opts)}
+    end
+  end
+
+  defp finish_operation_intent({:ok, _result} = result, _opts), do: result
+
+  defp finish_operation_intent({:error, reason} = error, opts) do
+    state =
+      if reason in [
+           :metadata_quorum_unavailable,
+           :unknown_transaction_outcome,
+           :timeout,
+           :unknown,
+           :cluster_not_ready,
+           :no_leader
+         ],
+         do: :unknown,
+         else: :aborted
+
+    operation_id = Keyword.fetch!(metadata_opts(opts), :operation_id)
+    _ = operation_intents(opts).transition(operation_id, state, operation_intent_opts(nil, opts))
+    error
+  end
+
+  defp operation_intent_opts(context, opts) do
+    protection_ms =
+      case context do
+        %Context{} -> context.config.orphan_grace_seconds * 1_000
+        nil -> Keyword.get(opts, :operation_intent_protection_ms, 86_400_000)
+      end
+
+    opts
+    |> metadata_opts()
+    |> Keyword.take([:backend, :consistency, :timeout, :engine, :barrier])
+    |> Keyword.put(:protection_ms, protection_ms)
+    |> then(fn intent_opts ->
+      case Keyword.fetch(opts, :now_ms) do
+        {:ok, now_ms} -> Keyword.put(intent_opts, :now_ms, now_ms)
+        :error -> intent_opts
+      end
+    end)
+  end
+
+  defp operation_intents(opts),
+    do: Keyword.get(opts, :operation_intents, OperationIntents)
+
+  defp commit_existing_ready(bucket, key, ready, attributes, opts) do
+    opts = ensure_operation_id(opts)
+
+    with {:ok, context} <- context(opts),
+         {:ok, opts} <- open_operation_intent(ready, context, opts) do
+      result =
+        with {:ok, ready} <- revalidate_existing_ready(ready, bucket, opts) do
+          if cluster_write?(opts) do
+            with {:ok, evidence} <-
+                   write_coordinator(opts).ensure_blob(
+                     context,
+                     ready,
+                     coordinator_opts(opts)
+                   ) do
+              commit_quorum_blob(bucket, key, ready, evidence, attributes, opts)
+            end
+          else
+            commit_ready_blob(bucket, key, ready, attributes, opts)
+          end
+        end
+
+      finish_operation_intent(result, opts)
+    end
+  end
+
+  defp revalidate_existing_ready(ready, bucket, opts) do
+    blob_bucket = Keyword.get(opts, :blob_bucket, bucket)
+
+    with {:ok, %{content_hash: hash, size: expected_size}} <- blob_identity(ready),
+         :ok <- verify_copy_blob(hash, blob_bucket, opts),
+         {:ok, %{size: actual_size} = blob_info} <-
+           blob_store(opts).stat(hash, blob_opts(opts, bucket: blob_bucket)),
+         true <- actual_size == expected_size do
+      {:ok,
+       ready
+       |> to_plain_map()
+       |> Map.merge(to_plain_map(blob_info))
+       |> Map.put_new(:hash, hash)}
     else
-      commit_ready_blob(bucket, key, ready, attributes, opts)
+      false -> {:error, :blob_size_mismatch}
+      {:error, :not_found} -> {:error, :blob_not_found}
+      {:error, _reason} = error -> error
     end
   end
 
@@ -283,16 +410,6 @@ defmodule ExStorageService.ObjectService do
             discard_staged(store, staged, blob_opts)
             error
         end
-
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
-
-  defp store_blob(data, opts) do
-    case stage_blob(data, opts) do
-      {:ok, staged} ->
-        commit_staged_blob(blob_store(opts), staged, blob_opts(opts), opts)
 
       {:error, reason} ->
         {:error, reason}

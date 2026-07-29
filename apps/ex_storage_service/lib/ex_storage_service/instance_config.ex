@@ -162,9 +162,24 @@ defmodule ExStorageService.InstanceConfig do
 
     with {:ok, worker_overrides} <- normalize_workers(Keyword.get(opts, :workers, %{})) do
       worker_defaults =
-        if node_role == :metadata,
-          do: Map.new(@worker_defaults, fn {worker, _enabled} -> {worker, false} end),
-          else: @worker_defaults
+        case {mode, node_role} do
+          {_mode, :metadata} ->
+            Map.new(@worker_defaults, fn {worker, _enabled} -> {worker, false} end)
+
+          {:cluster, :data} ->
+            Map.merge(@worker_defaults, %{
+              repair: true,
+              scrub: true,
+              packer: false,
+              lifecycle: false
+            })
+
+          {:standalone, :data} ->
+            @worker_defaults
+
+          {_mode, _node_role} ->
+            @worker_defaults
+        end
 
       workers = Map.merge(worker_defaults, worker_overrides)
 
@@ -416,7 +431,8 @@ defmodule ExStorageService.InstanceConfig do
          :ok <- validate_cluster_members(config),
          :ok <- validate_cluster_seeds(config),
          :ok <- validate_internal_advertised_url(config),
-         :ok <- validate_metadata_role(config) do
+         :ok <- validate_metadata_role(config),
+         :ok <- validate_cluster_workers(config) do
       {:ok, config}
     end
   end
@@ -521,6 +537,16 @@ defmodule ExStorageService.InstanceConfig do
   end
 
   defp validate_metadata_role(_config), do: :ok
+
+  defp validate_cluster_workers(%__MODULE__{node_role: :data, workers: workers}) do
+    unsupported = Enum.filter([:packer, :lifecycle], &Map.get(workers, &1, false))
+
+    if unsupported == [],
+      do: :ok,
+      else: {:error, "cluster mode does not support workers: #{inspect(unsupported)}"}
+  end
+
+  defp validate_cluster_workers(_config), do: :ok
 
   defp validate_internal_bind(bind) do
     case :inet.ntoa(bind) do

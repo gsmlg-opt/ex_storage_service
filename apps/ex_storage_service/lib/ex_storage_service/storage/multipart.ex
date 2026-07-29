@@ -18,7 +18,8 @@ defmodule ExStorageService.Storage.Multipart do
   alias ExStorageService.BlobStore.LocalCAS
   alias ExStorageService.Cluster.WriteCoordinator
   alias ExStorageService.Context
-  alias ExStorageService.Metadata.{Keys, MultipartCommit}
+  alias ExStorageService.Metadata
+  alias ExStorageService.Metadata.{Keys, MultipartCommit, OperationIntents}
   alias ExStorageService.Storage.{CAS, Engine, Manifest}
 
   @part_chunk_size 262_144
@@ -57,29 +58,65 @@ defmodule ExStorageService.Storage.Multipart do
 
   @doc false
   def store_part(bucket, upload_id, part_number, data, opts) do
-    if cluster_data_plane?() do
-      store_cluster_part(bucket, upload_id, part_number, data, opts)
-    else
-      store_local_part(bucket, upload_id, part_number, data)
+    result =
+      if cluster_data_plane?() do
+        store_cluster_part(bucket, upload_id, part_number, data, opts)
+      else
+        store_local_part(bucket, upload_id, part_number, data, opts)
+      end
+
+    normalize_stream_error(result)
+  end
+
+  defp store_local_part(bucket, upload_id, part_number, data, opts) do
+    with {:ok, context} <- Context.default(),
+         blob_opts = Context.blob_store_options(context),
+         {:ok, staged} <- LocalCAS.stage(data, blob_opts) do
+      operation_id =
+        Keyword.get(
+          opts,
+          :operation_id,
+          "multipart-part:#{upload_id}:#{part_number}:#{staged.hash}"
+        )
+
+      case operation_intents(opts).open(
+             operation_id,
+             staged.hash,
+             staged.size,
+             context.config.node_id,
+             context.config.node_generation,
+             protection_ms: context.config.orphan_grace_seconds * 1_000
+           ) do
+        {:ok, _intent} ->
+          result = commit_local_part(bucket, upload_id, part_number, staged, blob_opts)
+
+          if match?({:error, _reason}, result) do
+            _ = LocalCAS.discard(staged, blob_opts)
+          end
+
+          finish_part_intent(result, operation_id, opts)
+
+        {:error, _reason} = error ->
+          _ = LocalCAS.discard(staged, blob_opts)
+          error
+      end
     end
   end
 
-  defp store_local_part(bucket, upload_id, part_number, data) do
-    case Engine.put_object(bucket, "mpu-part", data) do
-      {:ok, {hash, etag, size}} ->
-        part_meta = %{
-          part_number: part_number,
-          etag: etag,
-          size: size,
-          hash: hash,
-          uploaded_at: DateTime.utc_now() |> DateTime.to_iso8601()
-        }
-
-        Concord.put(mpu_part_key(bucket, upload_id, part_number), part_meta)
-        {:ok, etag}
-
-      {:error, reason} ->
-        {:error, reason}
+  defp commit_local_part(bucket, upload_id, part_number, staged, blob_opts) do
+    with {:ok, ready} <- LocalCAS.commit(staged, blob_opts),
+         :ok <- Metadata.ensure_blob_meta(ready.hash, ready.size),
+         :ok <-
+           normalize_put_result(
+             Concord.put(mpu_part_key(bucket, upload_id, part_number), %{
+               part_number: part_number,
+               etag: ready.etag,
+               size: ready.size,
+               hash: ready.hash,
+               uploaded_at: DateTime.utc_now() |> DateTime.to_iso8601()
+             })
+           ) do
+      {:ok, ready.etag}
     end
   end
 
@@ -98,34 +135,52 @@ defmodule ExStorageService.Storage.Multipart do
           "multipart-part:#{upload_id}:#{part_number}:#{staged.hash}"
         )
 
-      case WriteCoordinator.ensure_blob(
-             context,
-             staged,
-             operation_id: operation_id,
-             timestamp: timestamp,
-             write_quorum: context.config.replication_factor,
-             allow_degraded_writes: false
+      case operation_intents(opts).open(
+             operation_id,
+             staged.hash,
+             staged.size,
+             context.config.node_id,
+             context.config.node_generation,
+             protection_ms: context.config.orphan_grace_seconds * 1_000
            ) do
-        {:ok, durability} ->
-          part = %{
-            part_number: part_number,
-            etag: staged.etag,
-            size: staged.size,
-            hash: staged.hash
-          }
+        {:ok, _intent} ->
+          result =
+            case WriteCoordinator.ensure_blob(
+                   context,
+                   staged,
+                   operation_id: operation_id,
+                   timestamp: timestamp,
+                   write_quorum: context.config.replication_factor,
+                   allow_degraded_writes: false
+                 ) do
+              {:ok, durability} ->
+                part = %{
+                  part_number: part_number,
+                  etag: staged.etag,
+                  size: staged.size,
+                  hash: staged.hash
+                }
 
-          case MultipartCommit.put_part(
-                 bucket,
-                 upload_id,
-                 part_number,
-                 part,
-                 durability,
-                 operation_id: operation_id,
-                 timestamp: timestamp
-               ) do
-            {:ok, _result} -> {:ok, staged.etag}
-            {:error, _reason} = error -> error
-          end
+                case MultipartCommit.put_part(
+                       bucket,
+                       upload_id,
+                       part_number,
+                       part,
+                       durability,
+                       operation_id: operation_id,
+                       operation_intent: true,
+                       timestamp: timestamp
+                     ) do
+                  {:ok, _result} -> {:ok, staged.etag}
+                  {:error, _reason} = error -> error
+                end
+
+              {:error, _reason} = error ->
+                _ = LocalCAS.discard(staged, Context.blob_store_options(context))
+                error
+            end
+
+          finish_part_intent(result, operation_id, opts)
 
         {:error, _reason} = error ->
           _ = LocalCAS.discard(staged, Context.blob_store_options(context))
@@ -133,6 +188,41 @@ defmodule ExStorageService.Storage.Multipart do
       end
     end
   end
+
+  defp finish_part_intent({:ok, _etag} = result, operation_id, opts) do
+    _ = operation_intents(opts).transition(operation_id, :committed)
+    result
+  end
+
+  defp finish_part_intent({:error, reason} = error, operation_id, opts) do
+    state =
+      if reason in [
+           :metadata_quorum_unavailable,
+           :unknown_transaction_outcome,
+           :timeout,
+           :unknown,
+           :cluster_not_ready,
+           :no_leader
+         ],
+         do: :unknown,
+         else: :aborted
+
+    _ = operation_intents(opts).transition(operation_id, state)
+    error
+  end
+
+  defp operation_intents(opts),
+    do: Keyword.get(opts, :operation_intents, OperationIntents)
+
+  defp normalize_put_result(result) when result in [:ok, {:ok, nil}], do: :ok
+  defp normalize_put_result({:ok, _result}), do: :ok
+  defp normalize_put_result({:error, _reason} = error), do: error
+
+  defp normalize_stream_error({:error, {:stage, reason}})
+       when reason in [:entity_too_large, :malformed_chunked],
+       do: {:error, reason}
+
+  defp normalize_stream_error(result), do: result
 
   @doc """
   Complete a multipart upload.

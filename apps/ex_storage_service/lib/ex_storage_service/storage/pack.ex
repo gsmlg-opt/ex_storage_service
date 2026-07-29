@@ -21,8 +21,11 @@ defmodule ExStorageService.Storage.Pack do
 
   require Logger
 
+  alias ExStorageService.Context
   alias ExStorageService.Metadata
   alias ExStorageService.Storage.CAS
+
+  @copy_chunk_size 262_144
 
   def pack_path(pack_hash) do
     Path.join([CAS.blob_root(), "packs", "pack-#{pack_hash}.pack"])
@@ -33,16 +36,20 @@ defmodule ExStorageService.Storage.Pack do
   whose metadata is already `:packed`. Returns the new pack's hash and the
   number of blobs packed.
   """
-  def pack_blobs(hashes) do
-    entries =
-      hashes
-      |> Enum.uniq()
-      |> Enum.filter(&packable?/1)
-
-    if entries == [] do
-      {:ok, %{pack_hash: nil, packed: 0}}
+  def pack_blobs(hashes, opts \\ []) do
+    if cluster_mode?(opts) do
+      {:ok, %{pack_hash: nil, packed: 0, disabled: :cluster_mode}}
     else
-      write_pack(entries)
+      entries =
+        hashes
+        |> Enum.uniq()
+        |> Enum.filter(&packable?/1)
+
+      if entries == [] do
+        {:ok, %{pack_hash: nil, packed: 0}}
+      else
+        write_pack(entries)
+      end
     end
   end
 
@@ -80,6 +87,16 @@ defmodule ExStorageService.Storage.Pack do
 
   ## Private
 
+  defp cluster_mode?(opts) do
+    case Keyword.fetch(opts, :mode) do
+      {:ok, mode} ->
+        mode == :cluster
+
+      :error ->
+        match?({:ok, %Context{config: %{mode: :cluster}}}, Context.default())
+    end
+  end
+
   defp packable?(hash) do
     File.exists?(CAS.blob_path(hash)) and no_gc_candidate?(hash) and
       case Metadata.get_blob_meta(hash) do
@@ -108,11 +125,19 @@ defmodule ExStorageService.Storage.Pack do
     try do
       {index, _offset, sha_ctx} =
         Enum.reduce(hashes, {[], 0, :crypto.hash_init(:sha256)}, fn hash, {idx, offset, ctx} ->
-          data = File.read!(CAS.blob_path(hash))
-          :ok = IO.binwrite(out, data)
-          size = byte_size(data)
+          path = CAS.blob_path(hash)
+          size = File.stat!(path).size
+
+          ctx =
+            path
+            |> File.stream!([], @copy_chunk_size)
+            |> Enum.reduce(ctx, fn chunk, digest ->
+              :ok = IO.binwrite(out, chunk)
+              :crypto.hash_update(digest, chunk)
+            end)
+
           entry = %{blob_hash: hash, offset: offset, size: size}
-          {[entry | idx], offset + size, :crypto.hash_update(ctx, data)}
+          {[entry | idx], offset + size, ctx}
         end)
 
       File.close(out)

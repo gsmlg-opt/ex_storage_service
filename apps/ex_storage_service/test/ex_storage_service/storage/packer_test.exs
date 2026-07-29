@@ -99,6 +99,22 @@ defmodule ExStorageService.Storage.PackerTest do
     assert File.exists?(CAS.blob_path(hash))
   end
 
+  test "cluster mode leaves local blobs unpacked until pack metadata is node scoped" do
+    {_bucket, hash, _} = put_and_reference("cluster-pack-guard-#{System.unique_integer()}")
+
+    assert {:ok,
+            %{
+              pack_hash: nil,
+              packed: 0,
+              loose_deleted: 0,
+              disabled: :cluster_mode
+            }} = Packer.pack_now(mode: :cluster, cold_after: 0, min_blobs: 1)
+
+    assert File.exists?(CAS.blob_path(hash))
+    assert {:ok, %{state: :active}} = Metadata.get_blob_meta(hash)
+    assert {:error, :not_found} = Pack.locate(hash)
+  end
+
   test "CasGC ignores packed blobs" do
     {_bucket, hash, _} = put_and_reference("gc-packed-#{System.unique_integer()}")
     {:ok, %{packed: p}} = Packer.pack_now(cold_after: 0, min_blobs: 1)

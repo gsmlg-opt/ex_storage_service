@@ -16,7 +16,7 @@ defmodule ExStorageService.Cluster.WriteCoordinator do
     ReplicaAck
   }
 
-  alias ExStorageService.Context
+  alias ExStorageService.{Context, Telemetry}
 
   @default_timeout 60_000
 
@@ -35,6 +35,13 @@ defmodule ExStorageService.Cluster.WriteCoordinator do
   @spec ensure_blob(Context.t(), StagedBlob.t() | ReadyBlob.t() | Source.t() | map(), keyword()) ::
           {:ok, evidence()} | {:error, term()}
   def ensure_blob(%Context{} = context, source, opts \\ []) do
+    started_at = System.monotonic_time()
+    result = do_ensure_blob(context, source, opts)
+    emit_quorum_telemetry(started_at, context, result, opts)
+    result
+  end
+
+  defp do_ensure_blob(context, source, opts) do
     with {:ok, descriptor} <- descriptor(source, context, opts),
          {:ok, records} <- member_records(context, opts),
          {:ok, selected_nodes} <-
@@ -71,6 +78,26 @@ defmodule ExStorageService.Cluster.WriteCoordinator do
         error
     end
   end
+
+  defp emit_quorum_telemetry(started_at, context, result, opts) do
+    {result_name, achieved} =
+      case result do
+        {:ok, evidence} -> {:ok, evidence.achieved_replica_count}
+        {:error, reason} -> {normalize_result(reason), 0}
+      end
+
+    Telemetry.quorum_stop(
+      System.monotonic_time() - started_at,
+      %{
+        configured_write_quorum: Keyword.get(opts, :write_quorum, context.config.write_quorum),
+        achieved_replica_count: achieved
+      },
+      %{result: result_name}
+    )
+  end
+
+  defp normalize_result(reason) when is_atom(reason), do: reason
+  defp normalize_result(_reason), do: :error
 
   @doc false
   @spec validate_acknowledgements([ReplicaAck.t()], [map()], BlobDescriptor.t(), keyword()) ::

@@ -2,11 +2,12 @@
 
 ## Status and scope
 
-Phases 0 through 6 establish atomic metadata, durable streaming local blobs,
-embeddable supervision, a fixed three-voter Concord metadata cluster, and a
-private authenticated streaming blob transport plus quorum-coordinated object
-writes. The default remains the standalone local storage service. Cluster
-public writes require an explicit two-flag activation.
+Phases 0 through 9 establish atomic metadata, durable streaming local blobs,
+embeddable supervision, a fixed three-voter Concord metadata cluster, private
+authenticated streaming transport, quorum-coordinated object writes, durable
+work, and topology-aware repair, scrub, drain, and safe local GC. The default
+remains the standalone local storage service. Cluster public writes require an
+explicit two-flag activation.
 
 The cluster design is scoped to one datacenter or low-latency availability
 zones. Cross-region operation uses separate clusters and asynchronous
@@ -114,8 +115,9 @@ explicitly after persistent node registration, deterministic placement,
 validated replica acknowledgements, strict quorum enforcement, and atomic
 version/head/blob/location/outbox publication. Phase 7 adds remote fallback
 reads and request-path read-repair staging. Phase 8 adds durable leased work and
-eventual external S3 replication; external copies never satisfy RF/W. Repair
-execution and grace-period orphan collection remain Phase 9 work. RF=2/W=2
+eventual external S3 replication; external copies never satisfy RF/W. Phase 9
+executes repair, scrub, cleanup, rebalance, drain, and guarded orphan
+collection. RF=2/W=2
 ensures a successful object or multipart part is already local to both data/API
 nodes in the fixed target topology.
 
@@ -132,6 +134,8 @@ Cluster data nodes expose only these private endpoints:
 PUT  /internal/v1/blobs/:sha256
 HEAD /internal/v1/blobs/:sha256
 GET  /internal/v1/blobs/:sha256
+DELETE /internal/v1/blobs/:sha256
+HEAD /internal/v1/health
 ```
 
 Requests use a shared-secret HMAC over the method, path, timestamp, request ID,
@@ -264,13 +268,56 @@ DELETE handlers reconcile the destination to the current head, including an
 older version revealed by explicit version deletion. Delayed duplicate work
 therefore cannot remove or resurrect newer data.
 
-Only `cross_cluster_put` and `cross_cluster_delete` handlers are enabled in this
-phase. Repair, scrub, and cleanup jobs remain durable and pending until Phase 9
-adds topology-aware planners and handlers. The former periodic replication
-full scan is not supervised because it could independently recreate stale
-work; safe planning must use bounded pages and durable event identities.
+Phase 9 enables `repair_blob`, `scrub`, and `cleanup` handlers when their worker
+capabilities are enabled. The former periodic replication full scan is not
+supervised because it could independently recreate stale work; safe planning
+uses bounded pages and durable event identities.
 Cross-cluster replication is eventual external disaster recovery, never part of
 the single-datacenter RF/W acknowledgement path.
+
+## Phase 9 repair, drain, health, and safe GC
+
+The v2 blob-descriptor keyspace is divided into 256 SHA-256 prefix shards.
+Rendezvous hashing assigns every shard to exactly one eligible data node, so
+there is no cluster-wide maintenance leader bottleneck and duplicate full
+scans do not run continuously. Each planner tick reads at most one bounded
+page. Repair and rebalance event identities include descriptor revision,
+topology, target generation, and current locations; handlers still strongly
+reload all of those inputs before copying or deleting.
+
+Repair streams from a current-generation ready or draining source. A target is
+marked ready only when its size and hash acknowledgement match and the target
+remains eligible under the live job fence. Cleanup first marks an excess
+location draining, confirms all desired ready locations still meet RF, removes
+the physical copy idempotently, and conditionally retires the metadata
+location. Setting a node draining excludes it from new rendezvous placement;
+bounded status pages report remaining blobs, repair waits, retirement-ready
+blobs, and blockers. This ordering preserves RF while draining either data
+node and bounds movement when a data node is added.
+
+Scrub reads loose or packed sources in bounded chunks, applies a byte rate
+limit, and verifies size plus SHA-256. Corruption marks the location suspect
+and atomically creates repair work; the immutable object version and head are
+unchanged. Cluster packing remains disabled until packed indexes become
+node-scoped, and GC never directly deletes an individual packed entry.
+
+Every object/blob publication opens
+`ess:v2:operation_intent:<operation_id>` and extends a per-hash GC guard before
+publishing bytes. The final object or multipart transaction marks the intent
+committed. Pending and unknown outcomes remain roots through the configured
+orphan grace. A collector must atomically acquire the inverse per-hash lock;
+an active writer and collector cannot both win. After physical deletion, the
+collector removes the matching current-generation location and lock in one
+transaction. Metadata scan, stat, rename, or delete failures fail closed, and
+quarantine state is reconciled after restart.
+
+`/health` remains a cheap liveness endpoint. `/health/ready` combines the
+Concord quorum/primary barrier with local root/engine validation and
+authenticated private health probes for enough eligible nodes to satisfy W.
+`/health/status` exposes only sanitized desired/actual replica totals,
+under-replication, unavailable blobs, and repair backlog. Telemetry covers
+quorum latency, replica and remote-read bytes, repair backlog, lease
+contention, checksum failures, and orphan/candidate gauges.
 
 ## Activation guards
 

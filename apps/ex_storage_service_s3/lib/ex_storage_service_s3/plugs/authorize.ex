@@ -22,7 +22,7 @@ defmodule ExStorageServiceS3.Plugs.Authorize do
   @impl Plug
   def call(conn, _opts) do
     cond do
-      conn.request_path == "/health" ->
+      public_health?(conn) ->
         conn
 
       auth_enabled?() ->
@@ -32,6 +32,11 @@ defmodule ExStorageServiceS3.Plugs.Authorize do
         conn
     end
   end
+
+  defp public_health?(%Plug.Conn{method: "GET", request_path: path}),
+    do: path in ["/health", "/health/ready", "/health/status"]
+
+  defp public_health?(_conn), do: false
 
   defp authorize_user(conn) do
     user_id = conn.assigns[:user_id]

@@ -10,7 +10,8 @@ defmodule ExStorageService.Cluster.Outbox.Supervisor do
   use Supervisor
 
   alias ExStorageService.Cluster.Outbox.Dispatcher
-  alias ExStorageService.Names
+  alias ExStorageService.Cluster.Repair.Planner
+  alias ExStorageService.{InstanceConfig, Names}
 
   @spec start_link(keyword()) :: Supervisor.on_start()
   def start_link(opts) do
@@ -23,18 +24,38 @@ defmodule ExStorageService.Cluster.Outbox.Supervisor do
   def init(opts) do
     context = Keyword.fetch!(opts, :context)
 
-    children = [
-      {Task.Supervisor,
-       name: context.outbox_task_supervisor,
-       max_children: context.config.replica_concurrency + context.config.repair_concurrency},
-      {Dispatcher,
-       [
-         context: context,
-         task_supervisor: context.outbox_task_supervisor,
-         name: Names.process(context.instance, :outbox_dispatcher, Dispatcher)
-       ]}
-    ]
+    children =
+      [
+        {Task.Supervisor,
+         name: context.outbox_task_supervisor,
+         max_children: context.config.replica_concurrency + context.config.repair_concurrency}
+      ] ++
+        planner_children(context) ++
+        [
+          {Dispatcher,
+           [
+             context: context,
+             task_supervisor: context.outbox_task_supervisor,
+             name: Names.process(context.instance, :outbox_dispatcher, Dispatcher)
+           ]}
+        ]
 
     Supervisor.init(children, strategy: :one_for_all)
+  end
+
+  defp planner_children(context) do
+    if context.config.mode == :cluster and
+         (InstanceConfig.worker_enabled?(context.config, :repair) or
+            InstanceConfig.worker_enabled?(context.config, :scrub)) do
+      [
+        {Planner,
+         [
+           context: context,
+           name: Names.process(context.instance, :repair_planner, Planner)
+         ]}
+      ]
+    else
+      []
+    end
   end
 end
