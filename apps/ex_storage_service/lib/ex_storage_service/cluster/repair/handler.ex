@@ -12,6 +12,7 @@ defmodule ExStorageService.Cluster.Repair.Handler do
     BlobDescriptor,
     Membership,
     ReplicaAck,
+    RequestId,
     Scrubber
   }
 
@@ -393,13 +394,7 @@ defmodule ExStorageService.Cluster.Repair.Handler do
     }
   end
 
-  defp request_id(job, node_id) do
-    {job.job_id, job.fencing_token, node_id}
-    |> :erlang.term_to_binary([:deterministic])
-    |> then(&:crypto.hash(:sha256, &1))
-    |> binary_part(0, 18)
-    |> Base.url_encode64(padding: false)
-  end
+  defp request_id(_job, _node_id), do: RequestId.generate()
 
   defp payload(%Job{payload: payload}, key),
     do: Map.get(payload, key, Map.get(payload, Atom.to_string(key)))

@@ -97,11 +97,9 @@ the authoritative replicated state and no longer uses the unsafe external ETS
 lookup reported in `gsmlg-dev/concord#27`, so the prior crash class is fixed.
 It is still an O(N) full-store operation. Durable background work instead uses
 bounded `Concord.KV.list/1` prefix/range pages through the metadata backend.
-Concord 3.0.0 currently ignores the documented snapshot revision for these
-pages; `gsmlg-dev/concord#55` tracks that upstream bug. Phase 8 therefore treats
-pages as a live view and relies on per-job transaction comparisons for
-correctness. Compatibility scans retain deterministic key ordering, and
-request-time placement reads fixed node keys directly.
+Concord 3.0.1 honors the documented snapshot revision for these pages.
+Compatibility scans retain deterministic key ordering, and request-time
+placement reads fixed node keys directly.
 
 ## Durability policy
 

@@ -202,11 +202,12 @@ CLI commands include:
 
 ## Architecture
 
-The umbrella contains four apps:
+The umbrella contains five apps:
 
 | App | Purpose |
 |---|---|
 | `ex_storage_service` | Core storage engine, Concord metadata, IAM, replication, lifecycle, cloud cache, notifications, and background processes |
+| `ex_storage_service_cluster` | Private authenticated streaming transport between cluster data nodes |
 | `ex_storage_service_s3` | S3-compatible Plug.Router served by Bandit on port 9000 |
 | `ex_storage_service_web` | Phoenix LiveView admin portal served on port 4900 |
 | `ex_storage_service_cli` | Standalone `ess` command-line client packaged as an escript |
@@ -383,6 +384,31 @@ Run the isolated three-voter acceptance harness explicitly with:
 PAGER=cat mix test apps/ex_storage_service/test/ex_storage_service/cluster/three_voter_cluster_test.exs --include cluster
 ```
 
+The server also exposes bounded operator Mix tasks for metadata inventory and
+migration, cluster status/bootstrap, blob locate/audit, repair planning and
+enqueueing, and node drain/status:
+
+```sh
+PAGER=cat MIX_ENV=prod mix ess.metadata.schema_status --replication-factor 2
+PAGER=cat MIX_ENV=prod mix ess.metadata.migrate_v2 --replication-factor 2
+PAGER=cat MIX_ENV=prod mix ess.cluster.bootstrap
+PAGER=cat MIX_ENV=prod mix ess.cluster.status
+PAGER=cat MIX_ENV=prod mix ess.blob.locate SHA256
+PAGER=cat MIX_ENV=prod mix ess.blob.audit --limit 100
+PAGER=cat MIX_ENV=prod mix ess.repair.plan --shard 00 --limit 100
+PAGER=cat MIX_ENV=prod mix ess.repair.run --shard 00 --limit 100
+PAGER=cat MIX_ENV=prod mix ess.node.drain NODE_ID
+PAGER=cat MIX_ENV=prod mix ess.node.status NODE_ID --limit 100
+```
+
+These tasks run inside a source checkout; they are not commands of the
+standalone S3 client escript. Release-container equivalents, Concord backup
+and restore steps, full-shard preflight requirements, and rollback boundaries
+are documented in
+[the standalone-to-cluster upgrade runbook](docs/operations/cluster-upgrade.md).
+The supported local A/B/C topology is in
+[the three-node Compose example](deploy/cluster/README.md).
+
 For embedding, set `ESS_AUTO_START=false`, `ESS_PUBLIC_S3_ENABLED=false`, and
 `ESS_WEB_ENABLED=false`, then add `ExStorageService.child_spec/1` to the host
 supervision tree. The host may stop and restart that local instance without
@@ -491,7 +517,8 @@ GitHub Actions workflows include:
 - **Test** (`test.yml`) - run the test suite
 - **Build** (`build.yml`) - build the release image
 - **Release** (`release.yml`) - manually dispatch a versioned GHCR image, GitHub release, and CLI publish
-- **E2E Test** (`e2e-test.yml`) - run S3 and admin integration checks
+- **E2E Test** (`e2e-test.yml`) - run the standalone signed-S3/admin exercise and restart persistence check
+- **Cluster Integration** (`cluster-e2e.yml`) - run the tagged three-voter test separately from the active-active Boto3 failure/restart harness and upload node logs
 - **Cloud Cache E2E** (`cloud-cache-e2e.yml`) - validate cloud cache against MinIO
 - **Publish CLI** (`publish-cli.yml`) - publish the `ex_storage_service_cli` package
 

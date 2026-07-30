@@ -6,11 +6,11 @@ defmodule ExStorageServiceCluster.InternalAuth do
   hash, declared size, and optional byte range to one HMAC-SHA256 signature.
   """
 
+  alias ExStorageService.Cluster.RequestId
   alias ExStorageServiceCluster.ReplayCache
 
   @algorithm "ESS-HMAC-SHA256"
   @hash_pattern ~r/\A[0-9a-f]{64}\z/
-  @request_id_pattern ~r/\A[A-Za-z0-9._~-]{16,128}\z/
   @authorization_pattern ~r/\AESS-HMAC-SHA256 ([0-9a-f]{64})\z/
   @range_pattern ~r/\Abytes\s*=\s*(\d*)\s*-\s*(\d*)\z/i
 
@@ -181,7 +181,7 @@ defmodule ExStorageServiceCluster.InternalAuth do
   end
 
   defp validate_request_id(request_id) when is_binary(request_id) do
-    if Regex.match?(@request_id_pattern, request_id),
+    if RequestId.valid?(request_id),
       do: {:ok, request_id},
       else: {:error, :invalid_request_id}
   end

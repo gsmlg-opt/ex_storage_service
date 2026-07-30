@@ -68,38 +68,70 @@ defmodule ExStorageService.Storage.Multipart do
     normalize_stream_error(result)
   end
 
+  @doc false
+  def store_part_from_reader(bucket, upload_id, part_number, reader, initial_state, opts \\ []) do
+    with {:ok, context} <- Context.default(),
+         stage_opts <-
+           context
+           |> Context.blob_store_options()
+           |> Keyword.put(:max_size, Keyword.fetch!(opts, :max_size)),
+         {:ok, staged, final_state} <-
+           LocalCAS.stage_from_reader(reader, initial_state, stage_opts) do
+      result =
+        if cluster_data_plane?() do
+          store_cluster_staged_part(context, bucket, upload_id, part_number, staged, opts)
+        else
+          store_local_staged_part(context, bucket, upload_id, part_number, staged, opts)
+        end
+
+      attach_reader_state(normalize_stream_error(result), final_state)
+    else
+      {:error, reason, final_state} ->
+        {:error, normalize_reader_error(reason), final_state}
+
+      {:error, reason} ->
+        {:error, normalize_reader_error(reason), initial_state}
+    end
+  end
+
   defp store_local_part(bucket, upload_id, part_number, data, opts) do
     with {:ok, context} <- Context.default(),
          blob_opts = Context.blob_store_options(context),
          {:ok, staged} <- LocalCAS.stage(data, blob_opts) do
-      operation_id =
-        Keyword.get(
-          opts,
-          :operation_id,
-          "multipart-part:#{upload_id}:#{part_number}:#{staged.hash}"
-        )
+      store_local_staged_part(context, bucket, upload_id, part_number, staged, opts)
+    end
+  end
 
-      case operation_intents(opts).open(
-             operation_id,
-             staged.hash,
-             staged.size,
-             context.config.node_id,
-             context.config.node_generation,
-             protection_ms: context.config.orphan_grace_seconds * 1_000
-           ) do
-        {:ok, _intent} ->
-          result = commit_local_part(bucket, upload_id, part_number, staged, blob_opts)
+  defp store_local_staged_part(context, bucket, upload_id, part_number, staged, opts) do
+    blob_opts = Context.blob_store_options(context)
 
-          if match?({:error, _reason}, result) do
-            _ = LocalCAS.discard(staged, blob_opts)
-          end
+    operation_id =
+      Keyword.get(
+        opts,
+        :operation_id,
+        "multipart-part:#{upload_id}:#{part_number}:#{staged.hash}"
+      )
 
-          finish_part_intent(result, operation_id, opts)
+    case operation_intents(opts).open(
+           operation_id,
+           staged.hash,
+           staged.size,
+           context.config.node_id,
+           context.config.node_generation,
+           protection_ms: context.config.orphan_grace_seconds * 1_000
+         ) do
+      {:ok, _intent} ->
+        result = commit_local_part(bucket, upload_id, part_number, staged, blob_opts)
 
-        {:error, _reason} = error ->
+        if match?({:error, _reason}, result) do
           _ = LocalCAS.discard(staged, blob_opts)
-          error
-      end
+        end
+
+        finish_part_intent(result, operation_id, opts)
+
+      {:error, _reason} = error ->
+        _ = LocalCAS.discard(staged, blob_opts)
+        error
     end
   end
 
@@ -123,69 +155,73 @@ defmodule ExStorageService.Storage.Multipart do
   defp store_cluster_part(bucket, upload_id, part_number, data, opts) do
     with {:ok, context} <- Context.default(),
          {:ok, staged} <- LocalCAS.stage(data, Context.blob_store_options(context)) do
-      timestamp =
-        Keyword.get_lazy(opts, :timestamp, fn ->
-          DateTime.utc_now() |> DateTime.to_iso8601()
-        end)
+      store_cluster_staged_part(context, bucket, upload_id, part_number, staged, opts)
+    end
+  end
 
-      operation_id =
-        Keyword.get(
-          opts,
-          :operation_id,
-          "multipart-part:#{upload_id}:#{part_number}:#{staged.hash}"
-        )
+  defp store_cluster_staged_part(context, bucket, upload_id, part_number, staged, opts) do
+    timestamp =
+      Keyword.get_lazy(opts, :timestamp, fn ->
+        DateTime.utc_now() |> DateTime.to_iso8601()
+      end)
 
-      case operation_intents(opts).open(
-             operation_id,
-             staged.hash,
-             staged.size,
-             context.config.node_id,
-             context.config.node_generation,
-             protection_ms: context.config.orphan_grace_seconds * 1_000
-           ) do
-        {:ok, _intent} ->
-          result =
-            case WriteCoordinator.ensure_blob(
-                   context,
-                   staged,
-                   operation_id: operation_id,
-                   timestamp: timestamp,
-                   write_quorum: context.config.replication_factor,
-                   allow_degraded_writes: false
-                 ) do
-              {:ok, durability} ->
-                part = %{
-                  part_number: part_number,
-                  etag: staged.etag,
-                  size: staged.size,
-                  hash: staged.hash
-                }
+    operation_id =
+      Keyword.get(
+        opts,
+        :operation_id,
+        "multipart-part:#{upload_id}:#{part_number}:#{staged.hash}"
+      )
 
-                case MultipartCommit.put_part(
-                       bucket,
-                       upload_id,
-                       part_number,
-                       part,
-                       durability,
-                       operation_id: operation_id,
-                       operation_intent: true,
-                       timestamp: timestamp
-                     ) do
-                  {:ok, _result} -> {:ok, staged.etag}
-                  {:error, _reason} = error -> error
-                end
+    case operation_intents(opts).open(
+           operation_id,
+           staged.hash,
+           staged.size,
+           context.config.node_id,
+           context.config.node_generation,
+           protection_ms: context.config.orphan_grace_seconds * 1_000
+         ) do
+      {:ok, _intent} ->
+        result =
+          case WriteCoordinator.ensure_blob(
+                 context,
+                 staged,
+                 operation_id: operation_id,
+                 timestamp: timestamp,
+                 write_quorum: context.config.replication_factor,
+                 allow_degraded_writes: false
+               ) do
+            {:ok, durability} ->
+              part = %{
+                part_number: part_number,
+                etag: staged.etag,
+                size: staged.size,
+                hash: staged.hash
+              }
 
-              {:error, _reason} = error ->
-                _ = LocalCAS.discard(staged, Context.blob_store_options(context))
-                error
-            end
+              case MultipartCommit.put_part(
+                     bucket,
+                     upload_id,
+                     part_number,
+                     part,
+                     durability,
+                     operation_id: operation_id,
+                     operation_intent: true,
+                     timestamp: timestamp
+                   ) do
+                {:ok, _result} -> {:ok, staged.etag}
+                {:error, _reason} = error -> error
+              end
 
-          finish_part_intent(result, operation_id, opts)
+            {:error, _reason} = error ->
+              _ = LocalCAS.discard(staged, Context.blob_store_options(context))
+              error
+          end
 
-        {:error, _reason} = error ->
-          _ = LocalCAS.discard(staged, Context.blob_store_options(context))
-          error
-      end
+        finish_part_intent(result, operation_id, opts)
+
+      {:error, _reason} = error ->
+        _ = LocalCAS.discard(staged, Context.blob_store_options(context))
+        error
     end
   end
 
@@ -223,6 +259,12 @@ defmodule ExStorageService.Storage.Multipart do
        do: {:error, reason}
 
   defp normalize_stream_error(result), do: result
+
+  defp normalize_reader_error({:stage, reason}), do: reason
+  defp normalize_reader_error(reason), do: reason
+
+  defp attach_reader_state({:ok, etag}, state), do: {:ok, etag, state}
+  defp attach_reader_state({:error, reason}, state), do: {:error, reason, state}
 
   @doc """
   Complete a multipart upload.

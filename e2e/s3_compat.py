@@ -145,7 +145,7 @@ def exercise(args):
 
     payload = b"hello from ex_storage_service e2e\n"
     persist_payload = b"this object must survive an application restart\n"
-    part_one = b"a" * 1024
+    part_one = b"a" * (5 * 1024 * 1024)
     part_two = b"b" * 2048
 
     try:

@@ -37,6 +37,31 @@ defmodule ExStorageService.Storage.MultipartTest do
              Multipart.list_parts(bucket, upload_id)
   end
 
+  test "store_part_from_reader returns the final reader state", %{
+    bucket: bucket,
+    upload_id: upload_id
+  } do
+    reader = fn
+      0 -> {:more, "reader-", 1}
+      1 -> {:ok, "part", 2}
+    end
+
+    expected_etag = :md5 |> :crypto.hash("reader-part") |> Base.encode16(case: :lower)
+
+    assert {:ok, ^expected_etag, 2} =
+             Multipart.store_part_from_reader(
+               bucket,
+               upload_id,
+               1,
+               reader,
+               0,
+               max_size: 64
+             )
+
+    assert {:ok, [%{part_number: 1, size: 11, etag: ^expected_etag}]} =
+             Multipart.list_parts(bucket, upload_id)
+  end
+
   test "completed multipart content lands in the global CAS" do
     bucket = "mpu-cas-#{:erlang.unique_integer([:positive])}"
     ExStorageService.Metadata.create_bucket(bucket)

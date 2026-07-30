@@ -1,4 +1,6 @@
 # Stage 1: Build Elixir release
+FROM rust:1.91.1-slim-trixie AS rust_toolchain
+
 FROM elixir:1.19.5-otp-28-slim AS builder
 
 # Install build tools, git, curl, openssl, node, npm
@@ -6,6 +8,13 @@ RUN apt-get update && apt-get install -y build-essential git curl openssl && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Concord's ex_turso NIF requires Rust 1.91 through Rustler 0.38.
+COPY --from=rust_toolchain /usr/local/cargo /usr/local/cargo
+COPY --from=rust_toolchain /usr/local/rustup /usr/local/rustup
+ENV CARGO_HOME=/usr/local/cargo \
+    RUSTUP_HOME=/usr/local/rustup \
+    PATH=/usr/local/cargo/bin:$PATH
 
 WORKDIR /app
 
@@ -17,6 +26,7 @@ RUN mix local.hex --force && mix local.rebar --force
 # Fetch Elixir deps
 COPY mix.exs mix.lock ./
 COPY apps/ex_storage_service/mix.exs ./apps/ex_storage_service/mix.exs
+COPY apps/ex_storage_service_cluster/mix.exs ./apps/ex_storage_service_cluster/mix.exs
 COPY apps/ex_storage_service_cli/mix.exs ./apps/ex_storage_service_cli/mix.exs
 COPY apps/ex_storage_service_s3/mix.exs ./apps/ex_storage_service_s3/mix.exs
 COPY apps/ex_storage_service_web/mix.exs ./apps/ex_storage_service_web/mix.exs
@@ -55,15 +65,21 @@ FROM debian:trixie-slim AS runtime
 
 RUN apt-get update && apt-get install -y openssl libncurses6 wget && rm -rf /var/lib/apt/lists/*
 
+ENV LANG=C.UTF-8
+
 WORKDIR /app
 
-RUN useradd -d /app appuser
+RUN useradd -d /app appuser && \
+    mkdir -p /data /var/lib/ess && \
+    chown -R appuser:appuser /data /var/lib/ess
 USER appuser
 
 COPY --from=builder --chown=appuser:appuser /app/_build/prod/rel/ess ./
 
 # S3 API port
 EXPOSE 9000
+# Private cluster data-plane port (publish only on a trusted network)
+EXPOSE 9100
 # Admin portal port
 EXPOSE 4900
 

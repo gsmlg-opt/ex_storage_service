@@ -9,7 +9,7 @@ defmodule ExStorageService.Cluster.ReadCoordinator do
   """
 
   alias ExStorageService.BlobStore.{LocalCAS, ReadRepair, Source}
-  alias ExStorageService.Cluster.{Membership, Node, Placement}
+  alias ExStorageService.Cluster.{Membership, Node, Placement, RequestId}
   alias ExStorageService.Context
   alias ExStorageService.Metadata.BlobLocations
 
@@ -582,9 +582,7 @@ defmodule ExStorageService.Cluster.ReadCoordinator do
   defp full_range?({0, size}, size), do: true
   defp full_range?(_range, _size), do: false
 
-  defp remote_request_id(opts, node_id, scope) do
-    "#{Keyword.get(opts, :request_id, "blob-read")}:replica:#{node_id}:#{scope}"
-  end
+  defp remote_request_id(_opts, _node_id, _scope), do: RequestId.generate()
 
   defp metadata_opts(opts),
     do:

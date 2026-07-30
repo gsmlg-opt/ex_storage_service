@@ -240,6 +240,39 @@ defmodule ExStorageService.ObjectServiceTest do
   end
 
   @tag :tmp_dir
+  test "put_from_reader returns the final reader state after publishing the object", %{
+    tmp_dir: tmp_dir
+  } do
+    engine = start_supervised!(VersioningStub)
+    opts = service_opts(tmp_dir, engine, operation_id: "reader-put-op")
+
+    reader = fn
+      0 -> {:more, "state-", 1}
+      1 -> {:ok, "threaded", 2}
+    end
+
+    assert {:ok,
+            %{
+              version_id: "v1",
+              metadata: %{size: 14, content_hash: hash},
+              ready_blob: %{path: path}
+            },
+            2} =
+             ObjectService.put_from_reader(
+               "bucket",
+               "reader-key",
+               reader,
+               0,
+               "application/octet-stream",
+               %{},
+               opts
+             )
+
+    assert File.read!(path) == "state-threaded"
+    assert hash == sha256("state-threaded")
+  end
+
+  @tag :tmp_dir
   test "attaches cross-cluster events before the object metadata commit", %{tmp_dir: tmp_dir} do
     engine = start_supervised!(VersioningStub)
 
