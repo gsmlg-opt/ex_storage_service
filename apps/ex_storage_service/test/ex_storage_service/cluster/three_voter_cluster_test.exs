@@ -78,7 +78,7 @@ defmodule ExStorageService.Cluster.ThreeVoterClusterTest do
     isolate(node_c, [node_a, node_b])
     await_partition!(node_c, [node_a, node_b])
 
-    assert {:error, :timeout} =
+    assert {:error, :quorum_unavailable} =
              call(node_c, Concord, :put, ["phase4:minority:#{suffix}", "rejected", [timeout: 500]])
 
     majority_key = "phase4:majority:#{suffix}"

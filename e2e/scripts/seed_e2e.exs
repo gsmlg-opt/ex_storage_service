@@ -77,7 +77,6 @@ defmodule E2ESeed do
   end
 
   defp stop_storage_apps do
-    # TODO(upstream): gsmlg-dev/concord#62
     Enum.each([:ex_storage_service, :concord, :ra], fn app ->
       Application.stop(app)
     end)

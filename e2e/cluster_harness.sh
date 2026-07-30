@@ -61,7 +61,6 @@ start_node() {
   printf '\n===== start %s bootstrap=%s at %s =====\n' \
     "$id" "$bootstrap" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >>"$root/logs/$id.log"
 
-  # TODO(upstream): gsmlg-dev/concord#61
   env \
     MIX_ENV=prod \
     ESS_MODE=cluster \

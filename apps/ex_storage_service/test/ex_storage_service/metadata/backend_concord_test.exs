@@ -5,6 +5,51 @@ defmodule ExStorageService.Metadata.Backend.ConcordTest do
   alias ExStorageService.Metadata.Backend.Concord, as: ConcordBackend
   alias ExStorageService.Metadata.Keys
 
+  defmodule QuorumUnavailableEngine do
+    @behaviour Concord.Engine
+
+    @impl true
+    def command(_command, _opts), do: {:error, :quorum_unavailable}
+
+    @impl true
+    def query(_query, _opts), do: {:error, :quorum_unavailable}
+
+    @impl true
+    def status(_opts), do: {:error, :quorum_unavailable}
+
+    @impl true
+    def members(_opts), do: {:error, :quorum_unavailable}
+  end
+
+  defmodule NotReadyEngine do
+    @behaviour Concord.Engine
+
+    @impl true
+    def command(_command, _opts), do: {:error, :not_ready}
+
+    @impl true
+    def query(_query, _opts), do: {:error, :not_ready}
+
+    @impl true
+    def status(_opts), do: {:error, :not_ready}
+
+    @impl true
+    def members(_opts), do: {:error, :not_ready}
+  end
+
+  test "normalizes Concord 3 availability errors for metadata retry handling" do
+    spec = %{compare: [], success: [], failure: []}
+
+    assert {:error, :timeout} =
+             ConcordBackend.transaction(spec, engine: QuorumUnavailableEngine)
+
+    assert {:error, :timeout} =
+             ConcordBackend.resolve_transaction("unavailable", engine: QuorumUnavailableEngine)
+
+    assert {:error, :cluster_not_ready} =
+             ConcordBackend.get("not-ready", engine: NotReadyEngine)
+  end
+
   test "Concord 3 commits and reads a compare-guarded multi-key transaction" do
     suffix = System.unique_integer([:positive, :monotonic])
     prefix = "test:concord-v3:#{suffix}:"

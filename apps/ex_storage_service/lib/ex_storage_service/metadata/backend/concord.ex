@@ -4,7 +4,8 @@ defmodule ExStorageService.Metadata.Backend.Concord do
 
   Prefix reads and transaction outcome resolution use Concord's native APIs.
   Transactions remain native Concord compare/success/failure transactions and
-  are never emulated with sequential writes.
+  are never emulated with sequential writes. Concord 3 availability errors are
+  translated to the stable retry vocabulary used by the metadata domain.
   """
 
   @behaviour ExStorageService.Metadata.Backend
@@ -13,7 +14,8 @@ defmodule ExStorageService.Metadata.Backend.Concord do
 
   @impl true
   def get(key, opts \\ []) do
-    case Concord.KV.get(key, Keyword.put(opts, :metadata, true)) do
+    Concord.KV.get(key, Keyword.put(opts, :metadata, true))
+    |> case do
       {:ok, %Record{value: value, mod_revision: revision}} ->
         {:ok, %{value: value, mod_revision: revision}}
 
@@ -26,17 +28,27 @@ defmodule ExStorageService.Metadata.Backend.Concord do
       {:error, reason} ->
         {:error, reason}
     end
+    |> normalize_availability_error()
   end
 
   @impl true
-  def put(key, value, opts \\ []), do: Concord.put(key, value, opts)
+  def put(key, value, opts \\ []) do
+    key
+    |> Concord.put(value, opts)
+    |> normalize_availability_error()
+  end
 
   @impl true
-  def delete(key, opts \\ []), do: Concord.delete(key, opts)
+  def delete(key, opts \\ []) do
+    key
+    |> Concord.delete(opts)
+    |> normalize_availability_error()
+  end
 
   @impl true
   def get_all(opts \\ []) do
     Concord.get_all(opts)
+    |> normalize_availability_error()
   end
 
   @impl true
@@ -44,6 +56,7 @@ defmodule ExStorageService.Metadata.Backend.Concord do
     with {:ok, entries} <- Concord.prefix_scan(prefix, opts) do
       {:ok, Enum.sort_by(entries, &elem(&1, 0))}
     end
+    |> normalize_availability_error()
   end
 
   @impl true
@@ -72,16 +85,19 @@ defmodule ExStorageService.Metadata.Backend.Concord do
       next_cursor = if page.has_more, do: page.last_key, else: nil
       {:ok, %{entries: entries, next_cursor: next_cursor}}
     end
+    |> normalize_availability_error()
   end
 
   @impl true
   def transaction(spec, opts \\ []) do
     Concord.Txn.commit(spec, opts)
+    |> normalize_availability_error()
   end
 
   @impl true
   def resolve_transaction(idempotency_key, opts \\ []) do
     Concord.Txn.resolve(idempotency_key, opts)
+    |> normalize_availability_error()
   end
 
   @impl true
@@ -94,4 +110,8 @@ defmodule ExStorageService.Metadata.Backend.Concord do
   defp page_selector(opts, prefix, cursor) do
     Keyword.put(opts, :range, {cursor <> <<0>>, Selector.prefix_end(prefix)})
   end
+
+  defp normalize_availability_error({:error, :quorum_unavailable}), do: {:error, :timeout}
+  defp normalize_availability_error({:error, :not_ready}), do: {:error, :cluster_not_ready}
+  defp normalize_availability_error(result), do: result
 end
