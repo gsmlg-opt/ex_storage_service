@@ -56,6 +56,13 @@ ess rb my-bucket
 | `ess info` | Show server health info |
 | `ess version` | Print CLI version |
 
+This escript is an S3 client. Server-operator commands such as metadata
+migration, cluster bootstrap/status, blob audit, repair, and node drain are
+provided by the server source tree as `mix ess.*` tasks and by release RPC.
+See the
+[cluster upgrade runbook](../../docs/operations/cluster-upgrade.md) for the
+exact commands and rollback boundary.
+
 ## Global Options
 
 ```

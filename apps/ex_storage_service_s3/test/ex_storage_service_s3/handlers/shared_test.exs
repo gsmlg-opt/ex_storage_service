@@ -60,6 +60,38 @@ defmodule ExStorageServiceS3.Handlers.SharedTest do
     end
   end
 
+  describe "decoded_body_reader/2" do
+    test "returns the final Plug connection after consuming a plain body" do
+      {reader, state} =
+        :put
+        |> conn("/bucket/key", "plain-reader-body")
+        |> Shared.decoded_body_reader(64)
+
+      assert {"plain-reader-body", final_state} = drain_reader(reader, state)
+
+      final_conn = Shared.decoded_body_reader_conn(final_state)
+      assert {:ok, "", _conn} = Plug.Conn.read_body(final_conn)
+    end
+
+    test "decodes aws-chunked framing while preserving the final connection" do
+      encoded =
+        "5;chunk-signature=abc\r\nhello\r\n" <>
+          "6;chunk-signature=def\r\n world\r\n" <>
+          "0;chunk-signature=ghi\r\n\r\n"
+
+      {reader, state} =
+        :put
+        |> conn("/bucket/key", encoded)
+        |> Plug.Conn.put_req_header("content-encoding", "aws-chunked")
+        |> Shared.decoded_body_reader(11)
+
+      assert {"hello world", final_state} = drain_reader(reader, state)
+
+      final_conn = Shared.decoded_body_reader_conn(final_state)
+      assert {:ok, "", _conn} = Plug.Conn.read_body(final_conn)
+    end
+  end
+
   describe "xml_has_doctype?/1" do
     test "flags DOCTYPE declarations regardless of case" do
       assert Shared.xml_has_doctype?(~s(<?xml version="1.0"?><!DOCTYPE foo [ ]><Delete/>))
@@ -205,6 +237,19 @@ defmodule ExStorageServiceS3.Handlers.SharedTest do
                        request_id: "request-phase7-incomplete"
                      )
                    end
+    end
+  end
+
+  defp drain_reader(reader, state, chunks \\ []) do
+    case reader.(state) do
+      {:more, chunk, next_state} ->
+        drain_reader(reader, next_state, [chunk | chunks])
+
+      {:ok, chunk, final_state} ->
+        {chunks |> Enum.reverse([chunk]) |> IO.iodata_to_binary(), final_state}
+
+      {:done, final_state} ->
+        {chunks |> Enum.reverse() |> IO.iodata_to_binary(), final_state}
     end
   end
 end

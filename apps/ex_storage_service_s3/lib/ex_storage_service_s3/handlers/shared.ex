@@ -262,6 +262,68 @@ defmodule ExStorageServiceS3.Handlers.Shared do
     end
   end
 
+  @doc false
+  def decoded_body_reader(conn, max_size \\ nil) do
+    max =
+      max_size ||
+        Application.get_env(:ex_storage_service, :max_object_size, 5 * 1024 * 1024 * 1024)
+
+    decoder =
+      if aws_chunked?(conn) do
+        %{mode: :header, buffer: <<>>, decoded_size: 0, max_size: max}
+      end
+
+    {&read_decoded_body/1, %{conn: conn, decoder: decoder}}
+  end
+
+  @doc false
+  def decoded_body_reader_conn(%{conn: %Plug.Conn{} = conn}), do: conn
+
+  defp read_decoded_body(%{conn: conn, decoder: nil} = state) do
+    case Plug.Conn.read_body(conn, body_read_opts()) do
+      {:more, chunk, next_conn} ->
+        {:more, chunk, %{state | conn: next_conn}}
+
+      {:ok, chunk, final_conn} ->
+        {:ok, chunk, %{state | conn: final_conn}}
+
+      {:error, reason} ->
+        {:error, reason, state}
+    end
+  end
+
+  defp read_decoded_body(%{conn: conn, decoder: decoder} = state) do
+    case Plug.Conn.read_body(conn, body_read_opts()) do
+      {:more, encoded, next_conn} ->
+        decode_reader_input(encoded, %{state | conn: next_conn}, decoder, :more)
+
+      {:ok, encoded, final_conn} ->
+        decode_reader_input(encoded, %{state | conn: final_conn}, decoder, :ok)
+
+      {:error, reason} ->
+        {:error, reason, state}
+    end
+  end
+
+  defp decode_reader_input(encoded, state, decoder, disposition) do
+    try do
+      {output, next_decoder} = decode_aws_input(encoded, decoder, [])
+      next_state = %{state | decoder: next_decoder}
+      decoded = IO.iodata_to_binary(output)
+
+      case {disposition, next_decoder.mode} do
+        {:ok, :done} -> {:ok, decoded, next_state}
+        {:ok, _incomplete} -> {:error, :malformed_chunked, next_state}
+        {:more, _mode} -> {:more, decoded, next_state}
+      end
+    catch
+      {:error, reason} -> {:error, reason, state}
+    end
+  end
+
+  defp body_read_opts,
+    do: [length: 1_048_576, read_timeout: 60_000]
+
   # Returns true if the request uses S3 aws-chunked content encoding.
   def aws_chunked?(conn) do
     payload_hash =

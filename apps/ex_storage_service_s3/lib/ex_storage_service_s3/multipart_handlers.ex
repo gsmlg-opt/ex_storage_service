@@ -61,20 +61,27 @@ defmodule ExStorageServiceS3.MultipartHandlers do
     with {part_number, _} <- Integer.parse(part_number_str || ""),
          true <- part_number >= 1 and part_number <= 10_000,
          {:ok, _upload} <- Multipart.get_upload(bucket, upload_id) do
-      case Multipart.store_part(
+      {reader, reader_state} = Shared.decoded_body_reader(conn, max_part_size)
+
+      case Multipart.store_part_from_reader(
              bucket,
              upload_id,
              part_number,
-             Shared.decoded_body_stream(conn, max_part_size),
-             operation_id: request_id
+             reader,
+             reader_state,
+             operation_id: request_id,
+             max_size: max_part_size
            ) do
-        {:ok, etag} ->
-          conn
+        {:ok, etag, final_state} ->
+          final_state
+          |> Shared.decoded_body_reader_conn()
           |> put_s3_headers(request_id)
           |> put_resp_header("etag", "\"#{etag}\"")
           |> send_resp(200, "")
 
-        {:error, :entity_too_large} ->
+        {:error, :entity_too_large, final_state} ->
+          conn = Shared.decoded_body_reader_conn(final_state)
+
           error_response(
             conn,
             "EntityTooLarge",
@@ -83,7 +90,9 @@ defmodule ExStorageServiceS3.MultipartHandlers do
             request_id
           )
 
-        {:error, :malformed_chunked} ->
+        {:error, :malformed_chunked, final_state} ->
+          conn = Shared.decoded_body_reader_conn(final_state)
+
           error_response(
             conn,
             "InvalidRequest",
@@ -91,6 +100,10 @@ defmodule ExStorageServiceS3.MultipartHandlers do
             "/#{bucket}/#{key}",
             request_id
           )
+
+        {:error, reason, final_state} ->
+          conn = Shared.decoded_body_reader_conn(final_state)
+          storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
 
         {:error, reason} ->
           storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)

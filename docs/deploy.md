@@ -20,12 +20,14 @@ ghcr.io/gsmlg-dev/ess:latest
 ### Minimal (auth disabled, data in named volume)
 
 ```bash
+ESS_MASTER_KEY=$(openssl rand -base64 32)
 docker run -d \
   --name ess \
   --restart unless-stopped \
   -p 9000:9000 \
   -p 4900:4900 \
   -v ess-data:/data \
+  -e ESS_MASTER_KEY="$ESS_MASTER_KEY" \
   ghcr.io/gsmlg-dev/ess:latest
 ```
 
@@ -116,6 +118,22 @@ docker compose logs -f ess
 
 ---
 
+## Three-node active-active cluster
+
+The supported local cluster layout uses two S3/data nodes and one
+metadata-only Concord voter with separate state volumes and strict RF=2/W=2.
+Start with public writes disabled, complete metadata migration and replica
+preflight, then enable the two data-node listeners.
+
+Use the checked-in
+[three-node Compose example](../deploy/cluster/README.md) for a clean topology.
+For an existing standalone dataset, follow the
+[standalone-to-cluster upgrade runbook](operations/cluster-upgrade.md);
+preserve `ESS_MASTER_KEY`, verify both metadata and blob backups, and observe
+the documented post-v2 rollback boundary.
+
+---
+
 ## Environment Variables
 
 | Variable | Default | Description |
@@ -129,6 +147,9 @@ docker compose logs -f ess
 | `ESS_MASTER_KEY` | — | **Required in prod.** AES-256 key (base64-encoded) for encrypting access key secrets |
 | `SECRET_KEY_BASE` | — | **Required in prod.** Phoenix session signing key |
 | `PHX_HOST` | `localhost` | Public hostname for URL generation in the admin portal |
+
+The complete standalone, embedding, and cluster configuration contract is in
+the root [README](../README.md#configuration).
 
 ---
 

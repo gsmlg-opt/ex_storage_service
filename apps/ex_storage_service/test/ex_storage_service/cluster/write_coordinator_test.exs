@@ -9,7 +9,10 @@ defmodule ExStorageService.Cluster.WriteCoordinatorTest do
     @behaviour ExStorageService.Cluster.Transport
 
     def head_blob(_context, node, hash, opts) do
-      send(Keyword.fetch!(opts, :test_pid), {:head, node.node_id, hash})
+      send(
+        Keyword.fetch!(opts, :test_pid),
+        {:head, node.node_id, hash, Keyword.fetch!(opts, :request_id)}
+      )
 
       case Keyword.get(opts, :head_result, :missing) do
         :missing ->
@@ -29,7 +32,10 @@ defmodule ExStorageService.Cluster.WriteCoordinatorTest do
     end
 
     def put_blob(_context, node, _source, descriptor, opts) do
-      send(Keyword.fetch!(opts, :test_pid), {:put, node.node_id, descriptor.hash})
+      send(
+        Keyword.fetch!(opts, :test_pid),
+        {:put, node.node_id, descriptor.hash, Keyword.fetch!(opts, :request_id)}
+      )
 
       case Keyword.get(opts, :put_result, :ok) do
         :fail ->
@@ -84,7 +90,7 @@ defmodule ExStorageService.Cluster.WriteCoordinatorTest do
 
     assert Enum.map(acknowledgements, & &1.node_id) == ["node-a", "node-b"]
     assert File.read!(LocalCAS.blob_path(hash, Context.blob_store_options(context))) == body
-    assert_received {:put, "node-b", ^hash}
+    assert_received {:put, "node-b", ^hash, _request_id}
   end
 
   @tag :tmp_dir
@@ -160,8 +166,29 @@ defmodule ExStorageService.Cluster.WriteCoordinatorTest do
                ]
              )
 
-    assert_received {:head, "node-b", _hash}
-    refute_received {:put, "node-b", _hash}
+    assert_received {:head, "node-b", _hash, _request_id}
+    refute_received {:put, "node-b", _hash, _request_id}
+  end
+
+  @tag :tmp_dir
+  test "probe and upload use distinct authentication-safe request ids", %{tmp_dir: tmp_dir} do
+    context = context(tmp_dir)
+    body = "request-id-contract"
+    {:ok, staged} = LocalCAS.stage(body, Context.blob_store_options(context))
+
+    assert {:ok, %{achieved_replica_count: 2}} =
+             WriteCoordinator.ensure_blob(context, staged,
+               placement_records: records(),
+               transport: Transport,
+               operation_id: "caller:id/with unsafe characters",
+               transport_opts: [test_pid: self(), size: byte_size(body)]
+             )
+
+    assert_received {:head, "node-b", _hash, head_request_id}
+    assert_received {:put, "node-b", _hash, put_request_id}
+    assert head_request_id != put_request_id
+    assert ExStorageService.Cluster.RequestId.valid?(head_request_id)
+    assert ExStorageService.Cluster.RequestId.valid?(put_request_id)
   end
 
   @tag :tmp_dir

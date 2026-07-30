@@ -150,31 +150,55 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
 
     custom_metadata = extract_custom_metadata(conn)
 
-    stream = decoded_body_stream(conn)
+    {reader, reader_state} = decoded_body_reader(conn)
 
-    try do
-      put_object_data(conn, bucket, key, stream, content_type, custom_metadata, request_id)
-    catch
-      {:error, :entity_too_large} ->
-        entity_too_large_response(conn, bucket, key, request_id)
-    end
+    put_object_from_reader(
+      conn,
+      bucket,
+      key,
+      reader,
+      reader_state,
+      content_type,
+      custom_metadata,
+      request_id
+    )
   end
 
-  defp put_object_data(conn, bucket, key, data, content_type, custom_metadata, request_id) do
-    case ObjectService.put(bucket, key, data, content_type, custom_metadata,
+  defp put_object_from_reader(
+         conn,
+         bucket,
+         key,
+         reader,
+         reader_state,
+         content_type,
+         custom_metadata,
+         request_id
+       ) do
+    case ObjectService.put_from_reader(
+           bucket,
+           key,
+           reader,
+           reader_state,
+           content_type,
+           custom_metadata,
            metadata_opts: [operation_id: request_id]
          ) do
-      {:ok, %{version_id: version_id, metadata: %{etag: etag}}} ->
-        conn
+      {:ok, %{version_id: version_id, metadata: %{etag: etag}}, final_state} ->
+        final_state
+        |> decoded_body_reader_conn()
         |> put_s3_headers(request_id)
         |> put_resp_header("etag", "\"#{etag}\"")
         |> maybe_put_version_header(version_id)
         |> send_resp(200, "")
 
-      {:error, {:stage, :entity_too_large}} ->
-        entity_too_large_response(conn, bucket, key, request_id)
+      {:error, {:stage, :entity_too_large}, final_state} ->
+        final_state
+        |> decoded_body_reader_conn()
+        |> entity_too_large_response(bucket, key, request_id)
 
-      {:error, {:stage, :malformed_chunked}} ->
+      {:error, {:stage, :malformed_chunked}, final_state} ->
+        conn = decoded_body_reader_conn(final_state)
+
         error_response(
           conn,
           "InvalidRequest",
@@ -182,6 +206,10 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
           "/#{bucket}/#{key}",
           request_id
         )
+
+      {:error, reason, final_state} ->
+        conn = decoded_body_reader_conn(final_state)
+        storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
 
       {:error, reason} ->
         storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)

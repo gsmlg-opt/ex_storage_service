@@ -146,6 +146,19 @@ The codebase is structured as an umbrella project with five apps:
   file is gone. Packed entries are never directly reclaimed. Cluster
   configuration rejects the legacy packer and lifecycle workers until packed
   indexes and lifecycle mutations are node-scoped and transaction-safe.
+- Phase 10 metadata inventory, migration, blob audit, repair, and node-control
+  commands must remain bounded or paginated. Run v1-to-v2 migration only with
+  object writers quiesced and after a verified Concord plus blob-root backup.
+  Never delete v1 records during migration, never silently omit an unindexed
+  `obj_ver:` record, and promote existing blob descriptors to the target RF
+  through revision-fenced Concord transactions before repair preflight.
+  Release deployments use `/app/bin/ess rpc` equivalents because the runtime
+  image does not contain Mix or source files.
+- Keep standalone integration, tagged three-voter integration, and active-active
+  Boto3 failure/restart validation in separate CI jobs. Multi-node jobs must use
+  isolated node names and roots, retain per-node lifecycle logs, verify a
+  stopped primary is re-elected, and prove a restarted voter rejoins before
+  claiming persistence success.
 - Internal transport variables are `ESS_INTERNAL_BIND`, `ESS_INTERNAL_PORT`,
   `ESS_INTERNAL_ADVERTISED_URL`, `ESS_INTERNAL_SECRET`,
   `ESS_INTERNAL_TLS_CERTFILE`, `ESS_INTERNAL_TLS_KEYFILE`, and

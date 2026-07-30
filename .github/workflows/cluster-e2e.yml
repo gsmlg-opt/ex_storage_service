@@ -1,0 +1,179 @@
+name: Cluster Integration
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ELIXIR_VERSION: "1.19"
+  OTP_VERSION: "28"
+
+jobs:
+  tagged-cluster:
+    name: Tagged Three-Voter Integration
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-cluster-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
+
+      - run: mix deps.get
+
+      - name: Run tagged three-voter test
+        run: |
+          mkdir -p /tmp/ex_storage_service/cluster-logs
+          set -o pipefail
+          mix test apps/ex_storage_service/test/ex_storage_service/cluster/three_voter_cluster_test.exs \
+            --include cluster --trace \
+            | tee /tmp/ex_storage_service/cluster-logs/tagged-cluster.log
+
+      - name: Upload tagged cluster log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tagged-cluster-log
+          path: /tmp/ex_storage_service/cluster-logs/tagged-cluster.log
+          if-no-files-found: warn
+
+  cluster-s3:
+    name: Tagged Multi-Node Active-Active Boto3 Integration
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: prod
+      AWS_DEFAULT_REGION: us-east-1
+      E2E_S3_ENDPOINTS: http://127.0.0.1:9001,http://127.0.0.1:9002
+      E2E_STATE_FILE: /tmp/ex_storage_service/cluster-e2e-state.json
+      ESS_CLUSTER_E2E_COOKIE: ess_cluster_e2e_cookie
+      ESS_CLUSTER_E2E_MASTER_KEY: cluster-e2e-master-key
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-prod-cluster-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
+
+      - name: Install dependencies
+        run: mix deps.get --only prod
+
+      - name: Install Boto3
+        run: python3 -m pip install -r e2e/requirements.txt
+
+      - name: Compile
+        run: mix compile --warnings-as-errors
+
+      - name: Start three-node cluster
+        run: |
+          chmod +x e2e/cluster_harness.sh
+          e2e/cluster_harness.sh start
+          e2e/cluster_harness.sh wait-ready
+
+      - name: Seed cluster IAM credentials
+        run: |
+          ESS_S3_AUTH_ENABLED=true \
+            ESS_PUBLIC_S3_ENABLED=false \
+            ESS_WEB_ENABLED=false \
+            ESS_MASTER_KEY="$ESS_CLUSTER_E2E_MASTER_KEY" \
+            E2E_GITHUB_ENV="$GITHUB_ENV" \
+            elixir --name ess_controller@127.0.0.1 \
+            --cookie "$ESS_CLUSTER_E2E_COOKIE" \
+            -S mix run --no-start e2e/scripts/seed_cluster_e2e.exs
+
+      - name: Exercise active-active writes and cross-node multipart
+        run: python3 e2e/cluster_e2e.py --phase exercise --state-file "$E2E_STATE_FILE"
+
+      - name: Fail one data node under strict W=2
+        run: |
+          e2e/cluster_harness.sh stop-data-b
+          python3 e2e/cluster_e2e.py --phase data-node-failure --state-file "$E2E_STATE_FILE"
+
+      - name: Restart the data node and recover writes
+        run: |
+          e2e/cluster_harness.sh restart-data-b
+          e2e/cluster_harness.sh wait-ready
+          python3 e2e/cluster_e2e.py --phase data-node-recovered --state-file "$E2E_STATE_FILE"
+
+      - name: Confirm and fail the metadata primary
+        run: |
+          elixir --name ess_primary_check@127.0.0.1 \
+            --cookie "$ESS_CLUSTER_E2E_COOKIE" \
+            -S mix run --no-start e2e/scripts/assert_cluster_primary.exs
+          e2e/cluster_harness.sh stop-meta
+          e2e/cluster_harness.sh wait-ready
+          python3 e2e/cluster_e2e.py --phase metadata-leader-failure --state-file "$E2E_STATE_FILE"
+        env:
+          ESS_S3_AUTH_ENABLED: "true"
+          ESS_PUBLIC_S3_ENABLED: "false"
+          ESS_WEB_ENABLED: "false"
+          ESS_MASTER_KEY: ${{ env.ESS_CLUSTER_E2E_MASTER_KEY }}
+
+      - name: Restart voter and verify persistence
+        run: |
+          e2e/cluster_harness.sh restart-meta
+          e2e/cluster_harness.sh wait-ready
+          elixir --name ess_rejoin_check@127.0.0.1 \
+            --cookie "$ESS_CLUSTER_E2E_COOKIE" \
+            -S mix run --no-start e2e/scripts/assert_cluster_rejoined.exs
+          python3 e2e/cluster_e2e.py --phase verify-persistence --state-file "$E2E_STATE_FILE"
+        env:
+          ESS_S3_AUTH_ENABLED: "true"
+          ESS_PUBLIC_S3_ENABLED: "false"
+          ESS_WEB_ENABLED: "false"
+          ESS_MASTER_KEY: ${{ env.ESS_CLUSTER_E2E_MASTER_KEY }}
+
+      - name: Stop cluster
+        if: always()
+        run: e2e/cluster_harness.sh stop-all
+
+      - name: Upload metadata voter log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: active-active-cluster-meta-log
+          path: /tmp/ex_storage_service/cluster-e2e/logs/meta.log
+          if-no-files-found: warn
+
+      - name: Upload data A log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: active-active-cluster-data-a-log
+          path: /tmp/ex_storage_service/cluster-e2e/logs/data-a.log
+          if-no-files-found: warn
+
+      - name: Upload data B log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: active-active-cluster-data-b-log
+          path: /tmp/ex_storage_service/cluster-e2e/logs/data-b.log
+          if-no-files-found: warn

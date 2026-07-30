@@ -52,6 +52,58 @@ defmodule ExStorageService.ObjectService do
   end
 
   @doc """
+  Stages a request body from a state-threaded reader and returns its final state.
+
+  Protocol adapters use this form when their body reader carries connection
+  state that must also be used to send the response.
+  """
+  @spec put_from_reader(
+          String.t(),
+          String.t(),
+          (state -> LocalCAS.reader_result(state)),
+          state,
+          String.t(),
+          map(),
+          keyword()
+        ) ::
+          {:ok, result(), state} | {:error, term(), state}
+        when state: term()
+  def put_from_reader(
+        bucket,
+        key,
+        reader,
+        initial_state,
+        content_type,
+        user_metadata,
+        opts \\ []
+      ) do
+    opts = ensure_operation_id(opts)
+
+    with :ok <- ensure_bucket(bucket, opts),
+         :ok <- ensure_cluster_write_enabled(opts),
+         {:ok, staged, final_state} <-
+           stage_blob_from_reader(reader, initial_state, opts) do
+      attributes = %{
+        content_type: content_type,
+        metadata: user_metadata,
+        user_metadata: user_metadata
+      }
+
+      result =
+        if cluster_write?(opts) do
+          put_cluster_staged(bucket, key, staged, attributes, opts)
+        else
+          put_standalone_staged(bucket, key, staged, attributes, opts)
+        end
+
+      attach_reader_state(result, final_state)
+    else
+      {:error, reason, final_state} -> {:error, reason, final_state}
+      {:error, reason} -> {:error, reason, initial_state}
+    end
+  end
+
+  @doc """
   Returns object metadata and an efficient blob source.
 
   Delete markers are returned with `source: nil`; the protocol adapter decides
@@ -243,8 +295,13 @@ defmodule ExStorageService.ObjectService do
   defp put_cluster(bucket, key, data, attributes, opts) do
     opts = ensure_operation_id(opts)
 
-    with {:ok, context} <- context(opts),
-         {:ok, staged} <- stage_blob(data, opts) do
+    with {:ok, staged} <- stage_blob(data, opts) do
+      put_cluster_staged(bucket, key, staged, attributes, opts)
+    end
+  end
+
+  defp put_cluster_staged(bucket, key, staged, attributes, opts) do
+    with {:ok, context} <- context(opts) do
       case open_operation_intent(staged, context, opts) do
         {:ok, opts} ->
           result =
@@ -267,8 +324,13 @@ defmodule ExStorageService.ObjectService do
   end
 
   defp put_standalone(bucket, key, data, attributes, opts) do
-    with {:ok, context} <- context(opts),
-         {:ok, staged} <- stage_blob(data, opts) do
+    with {:ok, staged} <- stage_blob(data, opts) do
+      put_standalone_staged(bucket, key, staged, attributes, opts)
+    end
+  end
+
+  defp put_standalone_staged(bucket, key, staged, attributes, opts) do
+    with {:ok, context} <- context(opts) do
       case open_operation_intent(staged, context, opts) do
         {:ok, opts} ->
           result =
@@ -415,6 +477,35 @@ defmodule ExStorageService.ObjectService do
         {:error, reason}
     end
   end
+
+  defp stage_blob_from_reader(reader, initial_state, opts) do
+    store = blob_store(opts)
+    blob_opts = blob_opts(opts)
+
+    case store.stage_from_reader(reader, initial_state, blob_opts) do
+      {:ok, staged, final_state} ->
+        case run_fault(opts, :after_stage, %{staged_blob: staged}) do
+          :ok ->
+            {:ok, staged, final_state}
+
+          {:error, reason} ->
+            discard_staged(store, staged, blob_opts)
+            {:error, reason, final_state}
+        end
+
+      {:error, reason, final_state} ->
+        {:error, normalize_reader_stage_error(reason), final_state}
+
+      {:error, reason} ->
+        {:error, normalize_reader_stage_error(reason), initial_state}
+    end
+  end
+
+  defp normalize_reader_stage_error({:stage, _reason} = error), do: error
+  defp normalize_reader_stage_error(reason), do: {:stage, reason}
+
+  defp attach_reader_state({:ok, result}, state), do: {:ok, result, state}
+  defp attach_reader_state({:error, reason}, state), do: {:error, reason, state}
 
   defp commit_staged_blob(store, staged, blob_opts, opts) do
     case store.commit(staged, blob_opts) do

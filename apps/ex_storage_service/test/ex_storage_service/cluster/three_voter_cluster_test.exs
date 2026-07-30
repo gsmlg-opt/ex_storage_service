@@ -42,6 +42,31 @@ defmodule ExStorageService.Cluster.ThreeVoterClusterTest do
     assert {:ok, "written-on-a"} =
              call(node_b, Concord, :get, [key, [consistency: :strong, timeout: 2_000]])
 
+    snapshot_prefix = "phase10:snapshot:#{suffix}:"
+    snapshot_keys = Enum.map(["a", "b"], &"#{snapshot_prefix}#{&1}")
+
+    Enum.each(snapshot_keys, fn snapshot_key ->
+      assert :ok = call(node_a, Concord, :put, [snapshot_key, snapshot_key, [timeout: 2_000]])
+    end)
+
+    assert {:ok, snapshot_revision} =
+             call(node_a, Concord.KV, :revision, [[consistency: :strong, timeout: 2_000]])
+
+    later_key = "#{snapshot_prefix}c"
+    assert :ok = call(node_a, Concord, :put, [later_key, later_key, [timeout: 2_000]])
+
+    assert {:ok, snapshot_records, %{has_more: false}} =
+             call(node_b, Concord.KV, :list, [
+               [
+                 prefix: snapshot_prefix,
+                 revision: snapshot_revision,
+                 consistency: :strong,
+                 timeout: 2_000
+               ]
+             ])
+
+    assert Enum.map(snapshot_records, & &1.key) == snapshot_keys
+
     refute File.exists?(Path.join(node_c.root, "blob-should-not-exist"))
     refute :ex_storage_service_s3 in started_applications(node_c)
     refute :ex_storage_service_web in started_applications(node_c)

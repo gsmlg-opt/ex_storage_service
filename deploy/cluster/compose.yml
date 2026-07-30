@@ -1,0 +1,140 @@
+x-ess-common: &ess-common
+  build:
+    context: ../..
+  image: ex-storage-service:cluster-local
+  restart: unless-stopped
+  networks:
+    - ess-cluster
+  environment: &ess-common-env
+    ESS_MODE: cluster
+    ESS_CLUSTER_NAME: ${ESS_CLUSTER_NAME:-ess-local}
+    ESS_CLUSTER_TOPOLOGY: static
+    ESS_CLUSTER_MEMBERS: data-a=ess_data_a@data-a,data-b=ess_data_b@data-b,metadata-c=ess_metadata_c@metadata-c
+    ESS_CLUSTER_BOOTSTRAP: ${ESS_CLUSTER_BOOTSTRAP:-true}
+    ESS_METADATA_SCHEMA: v2
+    ESS_REPLICATION_FACTOR: "2"
+    ESS_WRITE_QUORUM: "2"
+    ESS_ALLOW_DEGRADED_WRITES: "false"
+    ESS_WEB_ENABLED: "false"
+    ESS_S3_AUTH_ENABLED: "true"
+    ESS_INTERNAL_SECRET: ${ESS_INTERNAL_SECRET:?set ESS_INTERNAL_SECRET to at least 32 bytes}
+    ESS_MASTER_KEY: ${ESS_MASTER_KEY:?set ESS_MASTER_KEY}
+    RELEASE_COOKIE: ${RELEASE_COOKIE:?set a non-default RELEASE_COOKIE}
+    RELEASE_DISTRIBUTION: name
+
+x-data-common: &data-common
+  <<: *ess-common
+  depends_on:
+    metadata-c:
+      condition: service_started
+  environment: &data-common-env
+    <<: *ess-common-env
+    ESS_NODE_ROLE: data
+    ESS_CLUSTER_DATA_PLANE_ENABLED: ${ESS_CLUSTER_DATA_PLANE_ENABLED:-false}
+    ESS_PUBLIC_S3_ENABLED: ${ESS_PUBLIC_S3_ENABLED:-false}
+    ESS_REPAIR_ENABLED: ${ESS_REPAIR_ENABLED:-false}
+    ESS_SCRUB_ENABLED: ${ESS_SCRUB_ENABLED:-false}
+    ESS_INTERNAL_BIND: 0.0.0.0
+  healthcheck:
+    test:
+      [
+        "CMD-SHELL",
+        "/app/bin/ess rpc 'case ExStorageService.Context.default() do {:ok, context} -> case ExStorageService.Cluster.DataReadiness.check(context) do {:ok, _} -> :ok; other -> exit({:not_ready, other}) end; other -> exit({:not_ready, other}) end' >/dev/null",
+      ]
+    interval: 5s
+    timeout: 3s
+    retries: 30
+    start_period: 20s
+
+services:
+  data-a:
+    <<: *data-common
+    hostname: data-a
+    environment:
+      <<: *data-common-env
+      ESS_NODE_ID: data-a
+      ESS_NODE_GENERATION: "1"
+      ESS_NODE_ZONE: local-a
+      ESS_DATA_ROOT: /var/lib/ess
+      ESS_INTERNAL_PORT: "9100"
+      ESS_INTERNAL_ADVERTISED_URL: http://data-a:9100
+      ESS_S3_PORT: "9000"
+      RELEASE_NODE: ess_data_a@data-a
+    ports:
+      - "9000:9000"
+    volumes:
+      - data-a-state:/var/lib/ess
+      - ./backups:/var/lib/ess-backups:ro
+
+  data-b:
+    <<: *data-common
+    hostname: data-b
+    environment:
+      <<: *data-common-env
+      ESS_NODE_ID: data-b
+      ESS_NODE_GENERATION: "1"
+      ESS_NODE_ZONE: local-b
+      ESS_DATA_ROOT: /var/lib/ess
+      ESS_INTERNAL_PORT: "9100"
+      ESS_INTERNAL_ADVERTISED_URL: http://data-b:9100
+      ESS_S3_PORT: "9000"
+      RELEASE_NODE: ess_data_b@data-b
+    ports:
+      - "9001:9000"
+    volumes:
+      - data-b-state:/var/lib/ess
+      - ./backups:/var/lib/ess-backups:ro
+
+  metadata-c:
+    <<: *ess-common
+    hostname: metadata-c
+    environment:
+      <<: *ess-common-env
+      ESS_NODE_ROLE: metadata
+      ESS_NODE_ID: metadata-c
+      ESS_NODE_GENERATION: "1"
+      ESS_DATA_ROOT: /var/lib/ess
+      ESS_CLUSTER_DATA_PLANE_ENABLED: "false"
+      ESS_PUBLIC_S3_ENABLED: "false"
+      ESS_REPAIR_ENABLED: "false"
+      ESS_SCRUB_ENABLED: "false"
+      RELEASE_NODE: ess_metadata_c@metadata-c
+    volumes:
+      - metadata-c-state:/var/lib/ess
+      - ./backups:/var/lib/ess-backups:ro
+    # The image-level health check targets public S3, which metadata-only
+    # voters intentionally do not start. Check quorum-backed Concord readiness
+    # through the running release node instead.
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/app/bin/ess rpc 'case ExStorageService.Cluster.Readiness.check(timeout: 1000) do {:ok, _} -> :ok; other -> exit({:not_ready, other}) end' >/dev/null",
+        ]
+      interval: 5s
+      timeout: 4s
+      retries: 30
+      start_period: 20s
+
+  load-balancer:
+    image: haproxy:3.2-alpine
+    profiles: ["load-balancer"]
+    depends_on:
+      data-a:
+        condition: service_healthy
+      data-b:
+        condition: service_healthy
+    networks:
+      - ess-cluster
+    ports:
+      - "9002:9000"
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+
+networks:
+  ess-cluster:
+
+volumes:
+  data-a-state:
+  data-b-state:
+  metadata-c-state:

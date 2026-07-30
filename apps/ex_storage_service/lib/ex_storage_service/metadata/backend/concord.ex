@@ -53,10 +53,6 @@ defmodule ExStorageService.Metadata.Backend.Concord do
   def list_page(prefix, cursor, limit, opts \\ [])
       when is_binary(prefix) and (is_binary(cursor) or is_nil(cursor)) and is_integer(limit) and
              limit > 0 do
-    # TODO(upstream): gsmlg-dev/concord#55
-    # Concord.KV.list/1 currently ignores its documented snapshot revision.
-    # The durable worker treats pages as a live view and relies on job CAS for
-    # correctness until snapshot pagination is available upstream.
     list_opts =
       opts
       |> Keyword.take([:consistency, :timeout, :engine, :revision])

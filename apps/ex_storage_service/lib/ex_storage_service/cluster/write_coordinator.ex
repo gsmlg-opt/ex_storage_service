@@ -13,7 +13,8 @@ defmodule ExStorageService.Cluster.WriteCoordinator do
     BlobDescriptor,
     Membership,
     Placement,
-    ReplicaAck
+    ReplicaAck,
+    RequestId
   }
 
   alias ExStorageService.{Context, Telemetry}
@@ -51,17 +52,19 @@ defmodule ExStorageService.Cluster.WriteCoordinator do
              descriptor.desired_replication_factor
            ),
          selected_records <- select_records(records, selected_nodes),
-         {:ok, remote_acks} <-
+         {:ok, remote_ack_pairs} <-
            transfer_remote(context, source, descriptor, selected_records, opts),
-         {:ok, local_ack, ready_blob} <-
+         {:ok, local_ack, ready_blob, local_request_id} <-
            commit_local(context, source, descriptor, selected_records, opts),
-         acks <- Enum.reject([local_ack | remote_acks], &is_nil/1),
+         ack_pairs <-
+           maybe_add_local_ack(remote_ack_pairs, local_ack, local_request_id),
+         acks <- Enum.map(ack_pairs, &elem(&1, 0)),
          {:ok, valid_acks} <-
            validate_acknowledgements(
              acks,
              selected_records,
              descriptor,
-             expected_ack_opts(selected_records, opts)
+             expected_ack_opts(ack_pairs, opts)
            ),
          {:ok, policy} <- quorum_policy(valid_acks, selected_records, context, opts) do
       maybe_discard_unselected(context, source, selected_records, opts)
@@ -183,40 +186,49 @@ defmodule ExStorageService.Cluster.WriteCoordinator do
 
     {:ok,
      Enum.flat_map(results, fn
-       {:ok, {:ok, %ReplicaAck{} = ack}} -> [ack]
+       {:ok, {:ok, {%ReplicaAck{} = ack, request_id}}} -> [{ack, request_id}]
        _failed -> []
      end)}
   end
 
   defp ensure_remote(context, node, source, descriptor, opts) do
-    request_id = replica_request_id(opts, node.node_id)
-    transport_opts = transport_opts(opts, request_id)
+    request_id = RequestId.generate()
 
-    case transport(opts).head_blob(context, node, descriptor.hash, transport_opts) do
+    case transport(opts).head_blob(
+           context,
+           node,
+           descriptor.hash,
+           transport_opts(opts, request_id)
+         ) do
       {:ok, info} ->
-        head_ack(info, node, descriptor, request_id)
+        with {:ok, ack} <- head_ack(info, node, descriptor, request_id) do
+          {:ok, {ack, request_id}}
+        end
 
       {:error, reason} when reason in [:not_found, :blob_not_found] ->
-        transport(opts).put_blob(
-          context,
-          node,
-          source_for_transport(source),
-          descriptor,
-          transport_opts
-        )
+        put_remote(context, node, source, descriptor, opts)
 
       {:error, _reason} ->
-        transport(opts).put_blob(
-          context,
-          node,
-          source_for_transport(source),
-          descriptor,
-          transport_opts
-        )
+        put_remote(context, node, source, descriptor, opts)
     end
   end
 
-  defp head_ack(info, node, descriptor, request_id) do
+  defp put_remote(context, node, source, descriptor, opts) do
+    request_id = RequestId.generate()
+
+    with {:ok, %ReplicaAck{} = ack} <-
+           transport(opts).put_blob(
+             context,
+             node,
+             source_for_transport(source),
+             descriptor,
+             transport_opts(opts, request_id)
+           ) do
+      {:ok, {ack, request_id}}
+    end
+  end
+
+  defp head_ack(info, node, _descriptor, request_id) do
     ack = %ReplicaAck{
       node_id: Map.get(info, :node_id, node.node_id),
       node_generation: Map.get(info, :node_generation, node.generation),
@@ -226,21 +238,18 @@ defmodule ExStorageService.Cluster.WriteCoordinator do
       fencing_or_request_id: Map.get(info, :fencing_or_request_id, request_id)
     }
 
-    case validate_ack(ack, %{node.node_id => node}, descriptor, %{node.node_id => request_id}) do
-      :ok -> {:ok, ack}
-      {:error, _reason} -> {:error, :invalid_replica_ack}
-    end
+    {:ok, ack}
   end
 
   defp commit_local(context, source, descriptor, records, opts) do
     case Enum.find(records, &local_node?(&1.node, context)) do
       nil ->
-        {:ok, nil, nil}
+        {:ok, nil, nil, nil}
 
       %{node: node} ->
         with {:ok, ready} <- ensure_local_ready(context, source, descriptor, opts),
              :ok <- blob_store(opts).verify(descriptor.hash, blob_opts(context, opts)) do
-          request_id = replica_request_id(opts, node.node_id)
+          request_id = RequestId.generate()
 
           ack = %ReplicaAck{
             node_id: node.node_id,
@@ -251,10 +260,15 @@ defmodule ExStorageService.Cluster.WriteCoordinator do
             fencing_or_request_id: request_id
           }
 
-          {:ok, ack, ready}
+          {:ok, ack, ready, request_id}
         end
     end
   end
+
+  defp maybe_add_local_ack(ack_pairs, nil, nil), do: ack_pairs
+
+  defp maybe_add_local_ack(ack_pairs, %ReplicaAck{} = ack, request_id),
+    do: [{ack, request_id} | ack_pairs]
 
   defp ensure_local_ready(context, %StagedBlob{} = staged, _descriptor, opts),
     do: blob_store(opts).commit(staged, blob_opts(context, opts))
@@ -382,14 +396,10 @@ defmodule ExStorageService.Cluster.WriteCoordinator do
 
   defp local_node?(node, context), do: node.node_id == context.config.node_id
 
-  defp replica_request_id(opts, node_id) do
-    "#{Keyword.get(opts, :operation_id, "blob")}:replica:#{node_id}"
-  end
-
-  defp expected_ack_opts(records, opts) do
+  defp expected_ack_opts(ack_pairs, opts) do
     expected =
-      Map.new(records, fn %{node: node} ->
-        {node.node_id, replica_request_id(opts, node.node_id)}
+      Map.new(ack_pairs, fn {ack, request_id} ->
+        {ack.node_id, request_id}
       end)
 
     Keyword.put(opts, :expected_request_ids, expected)
