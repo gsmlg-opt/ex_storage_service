@@ -251,13 +251,7 @@ defmodule ExStorageService.ObjectServiceTest do
       1 -> {:ok, "threaded", 2}
     end
 
-    assert {:ok,
-            %{
-              version_id: "v1",
-              metadata: %{size: 14, content_hash: hash},
-              ready_blob: %{path: path}
-            },
-            2} =
+    assert {:ok, result, 2} =
              ObjectService.put_from_reader(
                "bucket",
                "reader-key",
@@ -267,6 +261,12 @@ defmodule ExStorageService.ObjectServiceTest do
                %{},
                opts
              )
+
+    assert %{
+             version_id: "v1",
+             metadata: %{size: 14, content_hash: hash},
+             ready_blob: %{path: path}
+           } = result
 
     assert File.read!(path) == "state-threaded"
     assert hash == sha256("state-threaded")
