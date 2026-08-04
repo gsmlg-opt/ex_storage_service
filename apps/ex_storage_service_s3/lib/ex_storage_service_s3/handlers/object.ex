@@ -539,7 +539,7 @@ defmodule ExStorageServiceS3.Handlers.Object do
          source_metadata,
          {:ok, cloud_config}
        ) do
-    with :ok <-
+    with {:ok, data, content_type, custom_metadata} <-
            copy_destination_content(
              source_bucket,
              source_key,
@@ -547,22 +547,12 @@ defmodule ExStorageServiceS3.Handlers.Object do
              source_metadata,
              cloud_config
            ) do
-      attributes =
-        source_metadata
-        |> Map.drop([:version_id, :parent_version_id, :created_at, :updated_at])
-
-      ready = %{
-        hash: source_metadata.content_hash,
-        size: source_metadata.size,
-        etag: source_metadata.etag
-      }
-
-      ObjectService.commit_existing_blob(
+      ObjectService.put(
         destination_bucket,
         destination_key,
-        ready,
-        attributes,
-        blob_bucket: source_bucket
+        data,
+        content_type,
+        custom_metadata
       )
     end
   end
@@ -579,7 +569,7 @@ defmodule ExStorageServiceS3.Handlers.Object do
          custom_metadata = Map.get(source_meta, :metadata, %{}),
          :ok <-
            CloudClient.put_object(cloud_config, dest_key, data, content_type, custom_metadata) do
-      :ok
+      {:ok, data, content_type, custom_metadata}
     else
       {:error, :not_found} -> {:error, :source_missing}
       {:error, :no_source} -> {:error, :source_missing}

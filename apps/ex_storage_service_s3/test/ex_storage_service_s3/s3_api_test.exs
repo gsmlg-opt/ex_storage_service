@@ -7,6 +7,25 @@ defmodule ExStorageServiceS3.ApiTest do
   @s3_port Application.compile_env(:ex_storage_service, :s3_port, 9001)
   @base_url "http://localhost:#{@s3_port}"
 
+  defmodule CloudStub do
+    import Plug.Conn
+
+    def init(agent), do: agent
+
+    def call(%{method: "PUT"} = conn, agent) do
+      {:ok, body, conn} = read_body(conn)
+      Agent.update(agent, &Map.put(&1, conn.request_path, body))
+      send_resp(conn, 200, "")
+    end
+
+    def call(%{method: "GET"} = conn, agent) do
+      case Agent.get(agent, &Map.fetch(&1, conn.request_path)) do
+        {:ok, body} -> send_resp(conn, 200, body)
+        :error -> send_resp(conn, 404, "")
+      end
+    end
+  end
+
   defp unique_bucket, do: "test-#{:erlang.unique_integer([:positive])}"
 
   defp create_bucket(bucket) do
@@ -31,17 +50,17 @@ defmodule ExStorageServiceS3.ApiTest do
     Req.delete("#{@base_url}/#{bucket}")
   end
 
-  defp enable_cloud_cache(bucket, remote_bucket) do
+  defp enable_cloud_cache(bucket, remote_bucket, opts \\ []) do
     :ok =
       CloudCacheConfig.set_config(bucket, %{
         enabled: true,
         provider: :s3_compat,
-        endpoint: @base_url,
+        endpoint: Keyword.get(opts, :endpoint, @base_url),
         region: "us-east-1",
         bucket: remote_bucket,
         access_key_id: "test-access-key",
         secret_access_key: "test-secret-key",
-        cache_enabled: false
+        cache_enabled: Keyword.get(opts, :cache_enabled, false)
       })
 
     on_exit(fn -> CloudCacheConfig.delete_config(bucket) end)
@@ -252,6 +271,41 @@ defmodule ExStorageServiceS3.ApiTest do
       assert resp.status == 200
       assert resp.body == "copy me"
 
+      cleanup_bucket(bucket)
+    end
+
+    test "copy object within a cloud-backed bucket" do
+      bucket = create_bucket(unique_bucket())
+      remote_bucket = unique_bucket()
+      body = "copy me #{System.unique_integer([:positive])}"
+
+      {:ok, cloud_agent} = Agent.start_link(fn -> %{} end)
+      {:ok, cloud_server} = Bandit.start_link(plug: {CloudStub, cloud_agent}, port: 0)
+      {:ok, {_address, cloud_port}} = ThousandIsland.listener_info(cloud_server)
+
+      enable_cloud_cache(bucket, remote_bucket,
+        endpoint: "http://localhost:#{cloud_port}",
+        cache_enabled: true
+      )
+
+      {:ok, %{status: 200}} =
+        Req.put("#{@base_url}/#{bucket}/source.txt",
+          body: body,
+          headers: [{"content-type", "text/plain"}]
+        )
+
+      {:ok, copy_resp} =
+        Req.put("#{@base_url}/#{bucket}/dest.txt",
+          body: "",
+          headers: [{"x-amz-copy-source", "/#{bucket}/source.txt"}]
+        )
+
+      assert copy_resp.status == 200
+      assert String.contains?(copy_resp.body, "CopyObjectResult")
+
+      assert {:ok, %{status: 200, body: ^body}} = Req.get("#{@base_url}/#{bucket}/dest.txt")
+
+      CloudCacheConfig.delete_config(bucket)
       cleanup_bucket(bucket)
     end
 
