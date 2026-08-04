@@ -2,6 +2,7 @@
 
 [![GitHub release](https://img.shields.io/github/v/release/gsmlg-opt/ex_storage_service)](https://github.com/gsmlg-opt/ex_storage_service/releases)
 [![Docker image](https://img.shields.io/badge/docker-ghcr.io%2Fgsmlg--dev%2Fess-blue)](https://github.com/orgs/gsmlg-dev/packages/container/package/ess)
+[![ex_storage_service on Hex.pm](https://img.shields.io/hexpm/v/ex_storage_service.svg)](https://hex.pm/packages/ex_storage_service)
 [![ex_storage_service_cli on Hex.pm](https://img.shields.io/hexpm/v/ex_storage_service_cli.svg)](https://hex.pm/packages/ex_storage_service_cli)
 
 ExStorageService is an S3-compatible object storage server built with Elixir/OTP.
@@ -409,12 +410,19 @@ are documented in
 The supported local A/B/C topology is in
 [the three-node Compose example](deploy/cluster/README.md).
 
-For embedding, set `ESS_AUTO_START=false`, `ESS_PUBLIC_S3_ENABLED=false`, and
+The versioned [`ex_storage_service`](https://hex.pm/packages/ex_storage_service)
+Hex package contains only the embeddable core application, not the S3 or admin
+applications. For embedding, set `ESS_AUTO_START=false`,
+`ESS_PUBLIC_S3_ENABLED=false`, and
 `ESS_WEB_ENABLED=false`, then add `ExStorageService.child_spec/1` to the host
 supervision tree. The host may stop and restart that local instance without
 stopping its own application. Concord/VSR remains shared application
 infrastructure: Phase 3 supports one Concord metadata instance per BEAM, even
 though local worker names are instance-scoped.
+
+The complete staged-write, deduplication, range-read, integrity-check, root
+layout, backup, and upgrade contract is documented in
+[`apps/ex_storage_service/README.md`](apps/ex_storage_service/README.md#embedding).
 
 Embedded object operations should pass the validated `ExStorageService.Context`
 as the `:context` option to `ExStorageService.ObjectService`. Filesystem workers
@@ -516,11 +524,12 @@ GitHub Actions workflows include:
 - **CI** (`ci.yml`) - compile with warnings as errors and check formatting
 - **Test** (`test.yml`) - run the test suite
 - **Build** (`build.yml`) - build the release image
-- **Release** (`release.yml`) - manually dispatch a versioned GHCR image, GitHub release, and CLI publish
+- **Release** (`release.yml`) - manually dispatch a versioned GHCR image, GitHub release, core package publish, and CLI publish
 - **E2E Test** (`e2e-test.yml`) - run the standalone signed-S3/admin exercise and restart persistence check
 - **Cluster Integration** (`cluster-e2e.yml`) - run the tagged three-voter test separately from the active-active Boto3 failure/restart harness and upload node logs
 - **Cloud Cache E2E** (`cloud-cache-e2e.yml`) - validate cloud cache against MinIO
 - **Publish CLI** (`publish-cli.yml`) - publish the `ex_storage_service_cli` package
+- **Publish core** (`publish-core.yml`) - publish the embeddable `ex_storage_service` package
 
 ## License
 

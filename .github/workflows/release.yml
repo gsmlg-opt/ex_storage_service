@@ -104,3 +104,13 @@ jobs:
       version: ${{ inputs.version }}
     secrets:
       HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+
+  publish-core:
+    name: Publish core to Hex.pm
+    needs: build-and-release
+    uses: ./.github/workflows/publish-core.yml
+    with:
+      git_ref: v${{ inputs.version }}
+      version: ${{ inputs.version }}
+    secrets:
+      HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
