@@ -436,6 +436,36 @@ config :concord,
   ]
 ```
 
+The S3 application is not currently published to Hex. A host that needs an
+in-process S3 listener can use sibling path dependencies from a checkout:
+
+```elixir
+def deps do
+  [
+    {:ex_storage_service, path: "../ex_storage_service/apps/ex_storage_service"},
+    {:ex_storage_service_s3, path: "../ex_storage_service/apps/ex_storage_service_s3"}
+  ]
+end
+```
+
+Configure the listener before the applications start. With core auto-start
+disabled, the host remains responsible for supervising
+`ExStorageService.child_spec/1`; the S3 application starts its own Bandit
+listener:
+
+```elixir
+config :ex_storage_service,
+  s3_port: 9000,
+  s3_auth_enabled: false
+
+config :ex_storage_service_s3,
+  enabled: true
+```
+
+Enable S3 authentication in production and configure the core credentials as
+described in the environment table above. Set `enabled: false` when the host
+will supervise its own `Bandit` child with `ExStorageServiceS3.Router`.
+
 The complete staged-write, deduplication, range-read, integrity-check, root
 layout, backup, and upgrade contract is documented in
 [`apps/ex_storage_service/README.md`](apps/ex_storage_service/README.md#embedding).
