@@ -104,9 +104,6 @@ defmodule ExStorageServiceS3.MultipartHandlers do
         {:error, reason, final_state} ->
           conn = Shared.decoded_body_reader_conn(final_state)
           storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
-
-        {:error, reason} ->
-          storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
       end
     else
       :error ->

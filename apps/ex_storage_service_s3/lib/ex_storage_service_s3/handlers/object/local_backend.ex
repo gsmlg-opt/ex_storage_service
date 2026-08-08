@@ -165,7 +165,7 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
   end
 
   defp put_object_from_reader(
-         conn,
+         _conn,
          bucket,
          key,
          reader,
@@ -209,9 +209,6 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
 
       {:error, reason, final_state} ->
         conn = decoded_body_reader_conn(final_state)
-        storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
-
-      {:error, reason} ->
         storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
     end
   end
