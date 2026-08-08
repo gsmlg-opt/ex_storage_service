@@ -420,6 +420,22 @@ stopping its own application. Concord/VSR remains shared application
 infrastructure: Phase 3 supports one Concord metadata instance per BEAM, even
 though local worker names are instance-scoped.
 
+Concord 3 requires an explicit ordered VSR membership, including for a
+standalone singleton. Configure the embedding host with the same singleton
+shape used by this umbrella's `config/runtime.exs`:
+
+```elixir
+config :concord,
+  data_dir: "/var/lib/my_app/ess/concord",
+  vsr: [
+    group_id: :ex_storage_service_metadata,
+    replica_id: node(),
+    members: [%{id: node(), endpoint: node()}],
+    storage: :file,
+    bootstrap: false
+  ]
+```
+
 The complete staged-write, deduplication, range-read, integrity-check, root
 layout, backup, and upgrade contract is documented in
 [`apps/ex_storage_service/README.md`](apps/ex_storage_service/README.md#embedding).
