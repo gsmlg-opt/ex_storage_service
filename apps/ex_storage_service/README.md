@@ -28,8 +28,19 @@ config :ex_storage_service,
   instance_config: [auto_start: false, web_enabled: false]
 
 config :concord,
-  data_dir: "/var/lib/singularity/ess/concord"
+  data_dir: "/var/lib/singularity/ess/concord",
+  vsr: [
+    group_id: :ex_storage_service_metadata,
+    replica_id: node(),
+    members: [%{id: node(), endpoint: node()}],
+    storage: :file,
+    bootstrap: false
+  ]
 ```
+
+Concord 3 requires the explicit ordered `:members` list even for a standalone
+singleton. The umbrella's `config/runtime.exs` derives this same VSR shape
+automatically; an embedding host must configure Concord itself.
 
 Then supervise an instance with stable roots. Staging and ready roots must be
 on the same filesystem so publication can use an atomic rename.
