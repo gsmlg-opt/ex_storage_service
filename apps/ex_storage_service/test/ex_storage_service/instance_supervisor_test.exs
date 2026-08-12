@@ -62,11 +62,14 @@ defmodule ExStorageService.InstanceSupervisorTest do
   end
 
   @tag :tmp_dir
-  test "context routes staging and committed blobs to independent roots", %{tmp_dir: tmp_dir} do
+  test "context exposes direct loose-CAS options with independent roots", %{tmp_dir: tmp_dir} do
     instance = "roots-#{System.unique_integer([:positive])}"
     {:ok, config} = InstanceConfig.new(instance_opts(instance, tmp_dir))
     context = Context.new(config)
-    blob_opts = Context.blob_store_options(context)
+    blob_opts = Context.direct_blob_store_options(context)
+
+    assert Keyword.fetch!(blob_opts, :pack_module) == nil
+    refute Keyword.has_key?(blob_opts, :bucket)
 
     assert {:ok, staged} = LocalCAS.stage(["split", "-", "roots"], blob_opts)
     assert String.starts_with?(staged.path, Path.join(tmp_dir, "staging"))
@@ -74,6 +77,9 @@ defmodule ExStorageService.InstanceSupervisorTest do
     assert {:ok, ready} = LocalCAS.commit(staged, blob_opts)
     assert String.starts_with?(ready.path, Path.join(tmp_dir, "blobs"))
     assert File.read!(ready.path) == "split-roots"
+    assert {:ok, %{storage: :loose, size: 11}} = LocalCAS.stat(ready.hash, blob_opts)
+    assert {:ok, {:file, ready.path, 0, 11}} == LocalCAS.open(ready.hash, nil, blob_opts)
+    assert :ok = LocalCAS.verify(ready.hash, blob_opts)
   end
 
   test "child metadata roots must match the running one-Concord infrastructure" do

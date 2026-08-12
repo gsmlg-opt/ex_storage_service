@@ -70,7 +70,7 @@ instance context and use `ExStorageService.BlobStore.LocalCAS`:
 
 ```elixir
 {:ok, context} = ExStorageService.context(instance_options)
-blob_options = ExStorageService.Context.blob_store_options(context)
+blob_options = ExStorageService.Context.direct_blob_store_options(context)
 
 {:ok, staged} = ExStorageService.BlobStore.LocalCAS.stage(data, blob_options)
 # staged.hash is the lowercase SHA-256 digest; staged.size is the byte count.
@@ -87,11 +87,41 @@ blob_options = ExStorageService.Context.blob_store_options(context)
 :ok = ExStorageService.BlobStore.LocalCAS.verify(ready.hash, blob_options)
 ```
 
+`Context.direct_blob_store_options/1` sets `pack_module: nil` and omits a
+legacy bucket, so these operations resolve loose CAS files without consulting
+pack metadata in Concord. This is the supported option set for hosts that use
+LocalCAS only for bytes while owning product metadata and garbage collection.
+
+To recover a completed caller-owned stage after losing its in-memory value,
+pass the durably recorded digest and size. Recovery verifies the existing file
+in place; the subsequent commit atomically renames the same inode without a
+second full disk copy.
+
+```elixir
+{:ok, recovered} =
+  ExStorageService.BlobStore.LocalCAS.recover_stage(
+    caller_stage_path,
+    expected_sha256,
+    expected_size,
+    blob_options
+  )
+
+{:ok, ready} = ExStorageService.BlobStore.LocalCAS.commit(recovered, blob_options)
+```
+
+The recovery path rejects symlinks, non-regular files, digest or size
+mismatches, files changed during verification, and cross-filesystem
+publication. The caller must exclusively own the stage path until commit or
+discard completes.
+
 Call `LocalCAS.discard/2` to abort a staged write. `LocalCAS.commit/2` is the
 finalization/pinning boundary: it syncs the staged file and atomically publishes
 the immutable SHA-256 path. A successful commit may be retried safely and never
 overwrites different content. `LocalCAS.open/3` returns a bounded file source;
 consumers should stream it rather than load object-sized data into memory.
+`LocalCAS.delete/2` unlinks a loose blob and syncs its containing directory
+where supported. A directory-sync error after unlink is ambiguous but safely
+retryable; an `:ok` return means the absence reached that durability boundary.
 
 Ready blobs live below `objects/sha256/<first-two-hex>/<remaining-hex>` under
 the configured blob root. Staging paths are private implementation details.

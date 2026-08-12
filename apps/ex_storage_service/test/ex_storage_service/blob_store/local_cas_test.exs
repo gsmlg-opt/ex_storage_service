@@ -72,9 +72,13 @@ defmodule ExStorageService.BlobStore.LocalCASTest do
     defdelegate mkdir_p(path), to: LocalCAS.FileSystem
     defdelegate open(path, modes), to: LocalCAS.FileSystem
     defdelegate write(io, data), to: LocalCAS.FileSystem
-    defdelegate rm(path), to: LocalCAS.FileSystem
     defdelegate stat(path), to: LocalCAS.FileSystem
     defdelegate pread(io, offset, length), to: LocalCAS.FileSystem
+
+    def rm(path) do
+      send(self(), :fs_rm)
+      LocalCAS.FileSystem.rm(path)
+    end
 
     def sync(io) do
       send(self(), :fs_sync)
@@ -94,6 +98,29 @@ defmodule ExStorageService.BlobStore.LocalCASTest do
     def open_directory(path) do
       send(self(), {:fs_open_directory, path})
       LocalCAS.FileSystem.open_directory(path)
+    end
+  end
+
+  defmodule DifferentDeviceFileSystem do
+    defdelegate mkdir_p(path), to: LocalCAS.FileSystem
+    defdelegate open(path, modes), to: LocalCAS.FileSystem
+    defdelegate write(io, data), to: LocalCAS.FileSystem
+    defdelegate sync(io), to: LocalCAS.FileSystem
+    defdelegate close(io), to: LocalCAS.FileSystem
+    defdelegate rename(source, destination), to: LocalCAS.FileSystem
+    defdelegate rm(path), to: LocalCAS.FileSystem
+    defdelegate lstat(path), to: LocalCAS.FileSystem
+    defdelegate pread(io, offset, length), to: LocalCAS.FileSystem
+    defdelegate open_directory(path), to: LocalCAS.FileSystem
+
+    def stat(path) do
+      with {:ok, stat} <- LocalCAS.FileSystem.stat(path) do
+        if String.contains?(path, Path.join(["objects", "sha256"])) do
+          {:ok, %{stat | major_device: stat.major_device + 1}}
+        else
+          {:ok, stat}
+        end
+      end
     end
   end
 
@@ -288,6 +315,66 @@ defmodule ExStorageService.BlobStore.LocalCASTest do
     assert Path.wildcard(Path.join([Keyword.fetch!(opts, :root), "objects", "**", "*"])) == []
   end
 
+  @tag :tmp_dir
+  test "completed caller stage is verified and committed without a second copy", %{
+    tmp_dir: tmp_dir
+  } do
+    opts = blob_opts(tmp_dir)
+    data = "completed-caller-stage"
+    hash = sha256(data)
+    path = Path.join(tmp_dir, "caller-owned-stage")
+    File.write!(path, data)
+    inode = File.stat!(path).inode
+
+    assert {:ok, %StagedBlob{path: ^path, hash: ^hash, etag: nil, size: 22} = staged} =
+             LocalCAS.recover_stage(path, hash, 22, opts)
+
+    assert {:ok, %ReadyBlob{path: ready_path, hash: ^hash, size: 22}} =
+             LocalCAS.commit(staged, opts)
+
+    refute File.exists?(path)
+    assert File.stat!(ready_path).inode == inode
+    assert File.read!(ready_path) == data
+  end
+
+  @tag :tmp_dir
+  test "stage recovery fails closed for unsafe files and expected metadata mismatches", %{
+    tmp_dir: tmp_dir
+  } do
+    opts = blob_opts(tmp_dir)
+    data = "recover-me"
+    hash = sha256(data)
+    path = Path.join(tmp_dir, "completed-stage")
+    File.write!(path, data)
+
+    assert {:error, {:recover, :injected}} =
+             LocalCAS.recover_stage(
+               path,
+               hash,
+               10,
+               Keyword.put(opts, :faults, %{recover: {:error, :injected}})
+             )
+
+    assert {:error, :size_mismatch} = LocalCAS.recover_stage(path, hash, 9, opts)
+    assert {:error, :checksum_mismatch} = LocalCAS.recover_stage(path, sha256("other"), 10, opts)
+
+    directory = Path.join(tmp_dir, "stage-directory")
+    File.mkdir_p!(directory)
+    assert {:error, :not_regular_file} = LocalCAS.recover_stage(directory, hash, 10, opts)
+
+    symlink = Path.join(tmp_dir, "stage-symlink")
+    File.ln_s!(path, symlink)
+    assert {:error, :not_regular_file} = LocalCAS.recover_stage(symlink, hash, 10, opts)
+
+    assert {:error, :cross_device} =
+             LocalCAS.recover_stage(
+               path,
+               hash,
+               10,
+               Keyword.put(opts, :fs_module, DifferentDeviceFileSystem)
+             )
+  end
+
   test "hash validation is public and nonraising" do
     assert :ok = LocalCAS.validate_hash(String.duplicate("aF", 32))
     assert {:error, :invalid_hash} = LocalCAS.validate_hash("short")
@@ -360,6 +447,46 @@ defmodule ExStorageService.BlobStore.LocalCASTest do
 
     assert {:ok, %ReadyBlob{path: ^ready_path, hash: hash}} = LocalCAS.commit(staged, opts)
     assert hash == staged.hash
+  end
+
+  @tag :tmp_dir
+  test "delete unlinks before syncing the affected directory and is retryable after sync failure",
+       %{
+         tmp_dir: tmp_dir
+       } do
+    opts = blob_opts(tmp_dir, fs_module: RecordingFileSystem)
+    assert {:ok, staged} = LocalCAS.stage("durable-delete", opts)
+    assert {:ok, ready} = LocalCAS.commit(staged, opts)
+    _ = drain_messages()
+
+    assert {:error, {:delete, :injected}} =
+             LocalCAS.delete(
+               ready.hash,
+               Keyword.put(opts, :faults, %{delete: {:error, :injected}})
+             )
+
+    assert File.exists?(ready.path)
+    assert [] = drain_messages()
+
+    assert {:error, {:directory_sync, :injected}} =
+             LocalCAS.delete(
+               ready.hash,
+               Keyword.put(opts, :faults, %{directory_sync: {:error, :injected}})
+             )
+
+    refute File.exists?(ready.path)
+    assert [:fs_rm] = drain_messages()
+
+    assert :ok = LocalCAS.delete(ready.hash, opts)
+
+    assert [
+             :fs_rm,
+             {:fs_open_directory, directory},
+             :fs_sync,
+             :fs_close
+           ] = drain_messages()
+
+    assert directory == Path.dirname(ready.path)
   end
 
   @tag :tmp_dir
