@@ -9,6 +9,10 @@ defmodule ExStorageService.BlobStore.LocalCAS do
   filesystem; a cross-device rename is rejected without copying or publishing
   partial content.
 
+  Delete unlinks a loose blob and syncs its containing directory where
+  supported. A directory-sync error after unlink is ambiguous but safely
+  retryable: deleting an already absent blob syncs the directory again.
+
   Filesystem operations and boundary faults are injectable per call through
   `:fs_module` and `:faults`; no mutable global test state is used.
   """
@@ -39,6 +43,7 @@ defmodule ExStorageService.BlobStore.LocalCAS do
     def rename(source, destination), do: File.rename(source, destination)
     def rm(path), do: File.rm(path)
     def stat(path), do: File.stat(path)
+    def lstat(path), do: File.lstat(path)
     def pread(io, offset, length), do: :file.pread(io, offset, length)
 
     def open_directory(path) do
@@ -108,6 +113,45 @@ defmodule ExStorageService.BlobStore.LocalCAS do
         {:error, reason, initial_state}
     end
   end
+
+  @doc """
+  Recovers a completed caller-owned staging file without copying it.
+
+  The path must name a regular file on the same filesystem as the destination
+  CAS root. Its size and SHA-256 digest are checked against the caller's durable
+  metadata before a `StagedBlob` is returned. Symlinks, non-regular files,
+  changed files, mismatches, and cross-filesystem publication fail closed.
+
+  The recovered value may be passed to `commit/2`, which performs the normal
+  file sync, atomic rename, and directory sync. The caller must retain exclusive
+  ownership of the path until commit or discard completes.
+  """
+  @spec recover_stage(Path.t(), String.t(), non_neg_integer(), keyword()) ::
+          {:ok, StagedBlob.t()} | {:error, term()}
+  def recover_stage(path, expected_hash, expected_size, opts \\ [])
+
+  def recover_stage(path, expected_hash, expected_size, opts) when is_binary(path) do
+    fs = fs(opts)
+    path = Path.expand(path)
+
+    with :ok <- validate_hash(expected_hash),
+         :ok <- validate_expected_size(expected_size),
+         :ok <- phase(:recover, opts),
+         destination = blob_path(expected_hash, opts),
+         :ok <- ensure_distinct_paths(path, destination),
+         {:ok, source_stat} <- recoverable_file_stat(path, expected_size, fs),
+         :ok <- tagged(:recover, fs.mkdir_p(Path.dirname(destination))),
+         {:ok, destination_stat} <- tagged(:recover, fs.stat(Path.dirname(destination))),
+         :ok <- ensure_same_filesystem(source_stat, destination_stat),
+         :ok <- verify_source(Source.file(path, 0, expected_size), expected_hash, opts),
+         {:ok, final_stat} <- recoverable_file_stat(path, expected_size, fs),
+         :ok <- ensure_same_file(source_stat, final_stat) do
+      {:ok, %StagedBlob{path: path, hash: expected_hash, etag: nil, size: expected_size}}
+    end
+  end
+
+  def recover_stage(_path, _expected_hash, _expected_size, _opts),
+    do: {:error, :invalid_stage_path}
 
   @impl true
   def commit(%StagedBlob{} = staged, opts \\ []) do
@@ -202,13 +246,25 @@ defmodule ExStorageService.BlobStore.LocalCAS do
     end
   end
 
+  @doc """
+  Durably deletes a loose CAS blob.
+
+  After unlinking, the containing directory is synced where supported. If that
+  sync fails, the blob is already absent but an error is returned; retrying is
+  safe and syncs the directory again. Packed content is not modified.
+  """
   @impl true
   def delete(hash, opts \\ []) do
-    with :ok <- validate_hash(hash) do
-      case fs(opts).rm(blob_path(hash, opts)) do
-        :ok -> :ok
-        {:error, :enoent} -> :ok
-        {:error, reason} -> {:error, {:delete, reason}}
+    fs = fs(opts)
+
+    with :ok <- validate_hash(hash),
+         :ok <- phase(:delete, opts) do
+      path = blob_path(hash, opts)
+
+      case tagged(:delete, fs.rm(path)) do
+        :ok -> sync_delete_directory(fs, Path.dirname(path), opts)
+        {:error, {:delete, :enoent}} -> sync_delete_directory(fs, Path.dirname(path), opts)
+        {:error, _} = error -> error
       end
     end
   end
@@ -335,6 +391,13 @@ defmodule ExStorageService.BlobStore.LocalCAS do
         {:error, reason} ->
           {:error, {:directory_sync, reason}}
       end
+    end
+  end
+
+  defp sync_delete_directory(fs, directory, opts) do
+    case sync_directory(fs, directory, opts) do
+      {:error, {:directory_sync, :enoent}} -> :ok
+      result -> result
     end
   end
 
@@ -638,6 +701,39 @@ defmodule ExStorageService.BlobStore.LocalCAS do
 
   defp fs(opts), do: Keyword.get(opts, :fs_module, FileSystem)
 
+  defp recoverable_file_stat(path, expected_size, fs) do
+    case fs.lstat(path) do
+      {:ok, %File.Stat{type: :regular, size: ^expected_size} = stat} -> {:ok, stat}
+      {:ok, %File.Stat{type: :regular}} -> {:error, :size_mismatch}
+      {:ok, %File.Stat{}} -> {:error, :not_regular_file}
+      {:error, :enoent} -> {:error, :not_found}
+      {:error, reason} -> {:error, {:recover, reason}}
+    end
+  end
+
+  defp ensure_distinct_paths(source, destination) do
+    if Path.expand(source) == Path.expand(destination),
+      do: {:error, :already_ready},
+      else: :ok
+  end
+
+  defp ensure_same_filesystem(
+         %File.Stat{major_device: major, minor_device: minor},
+         %File.Stat{major_device: major, minor_device: minor}
+       )
+       when is_integer(major) and is_integer(minor),
+       do: :ok
+
+  defp ensure_same_filesystem(%File.Stat{}, %File.Stat{}), do: {:error, :cross_device}
+
+  defp ensure_same_file(
+         %File.Stat{major_device: major, minor_device: minor, inode: inode},
+         %File.Stat{major_device: major, minor_device: minor, inode: inode}
+       ),
+       do: :ok
+
+  defp ensure_same_file(%File.Stat{}, %File.Stat{}), do: {:error, :stage_changed}
+
   @doc """
   Validates a bare hexadecimal SHA-256 digest without raising.
   """
@@ -653,6 +749,9 @@ defmodule ExStorageService.BlobStore.LocalCAS do
 
   defp validate_max_size(max_size) when is_integer(max_size) and max_size >= 0, do: :ok
   defp validate_max_size(_max_size), do: {:error, :invalid_max_size}
+
+  defp validate_expected_size(size) when is_integer(size) and size >= 0, do: :ok
+  defp validate_expected_size(_size), do: {:error, :invalid_size}
 
   defp configured_max_size do
     Application.get_env(:ex_storage_service, :max_object_size, @default_max_size)

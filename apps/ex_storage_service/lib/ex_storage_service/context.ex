@@ -84,6 +84,19 @@ defmodule ExStorageService.Context do
     ]
   end
 
+  @doc """
+  Returns options for using `ExStorageService.BlobStore.LocalCAS` as an
+  isolated loose content-addressed store.
+
+  These options disable packed-content lookup and omit legacy bucket lookup,
+  so `stat/2`, `open/3`, and `verify/2` require neither Concord metadata nor an
+  ESS bucket.
+  """
+  @spec direct_blob_store_options(t()) :: keyword()
+  def direct_blob_store_options(%__MODULE__{} = context) do
+    Keyword.put(blob_store_options(context), :pack_module, nil)
+  end
+
   @spec validate_shared_metadata_roots(t()) :: :ok | {:error, String.t()}
   def validate_shared_metadata_roots(%__MODULE__{} = context) do
     with :ok <- compare_root(:ra_root, context.ra_root),
