@@ -80,6 +80,10 @@ docker run -d \
   ghcr.io/gsmlg-dev/ess:latest
 ```
 
+The image also exposes port `9100` for the private cluster data-plane transport
+(HMAC-signed, optional TLS). **Never publish that port on a public network**;
+keep it reachable only between cluster data nodes on a trusted boundary.
+
 ### Running with Docker Compose
 
 Create a `docker-compose.yml` file:
@@ -219,6 +223,7 @@ Runtime services:
 |---|---:|---|---|
 | S3 API | 9000 | Plug.Router + Bandit | S3-compatible object operations |
 | Admin portal | 4900 | Phoenix + LiveView + Bandit | Web dashboard and management |
+| Internal cluster transport | 9100 | Bandit + HMAC + optional TLS | Private data-plane between cluster data nodes (never expose publicly) |
 
 Repository layout:
 
@@ -510,15 +515,18 @@ mix phx.gen.secret      # SECRET_KEY_BASE
 
 ### Requirements
 
-- Elixir `>= 1.18.0`
+- Elixir `>= 1.18.0` (Docker images pin Elixir `1.19.5`)
 - Erlang/OTP 28 for CI parity
-- No Node.js, npm CLI, Bun, or standalone Tailwind CLI is required for normal setup
+- Node.js 20+ and npm (or Bun) for the Duskmoon asset pipeline — installed automatically by `mix setup` via `duskmoon_npm`
+- No standalone Tailwind CLI is required
 
 ### Commands
 
 ```bash
-mix setup                             # Install deps, Duskmoon npm packages, DuskMoon bundle, and assets
+mix setup                             # Install deps, Duskmoon packages, DuskMoon bundle, and assets
 mix phx.server                        # Start S3 API and admin portal with dev watchers
+mix release ess                       # Build the production release (matches the Docker image)
+mix assets.deploy                     # Build and digest assets for production
 mix test                              # Run all tests
 mix test apps/ex_storage_service/test     # Run core tests only
 mix test apps/ex_storage_service_s3/test  # Run S3 API tests only
@@ -538,8 +546,9 @@ mix do --app ex_storage_service_cli escript.build # Build the local ess CLI
 The admin UI uses Duskmoon Bundler and DuskMoon:
 
 - `duskmoon_bundler` builds JavaScript and Tailwind CSS from Elixir tooling.
-- `duskmoon_npm` provides `mix npm.install` for packages such as `@duskmoon-dev/core`; no npm CLI is needed.
+- `duskmoon_npm` provides `mix npm.install` for packages such as `@duskmoon-dev/core`; it auto-discovers npm or Bun.
 - `phoenix_duskmoon` provides the Phoenix LiveView UI components.
+- Root `package.json` is an npm/Bun workspace and lists `@duskmoon-dev/core`, `@duskmoon-dev/css-art`, `@duskmoon-dev/art-elements`, and `@duskmoon-dev/elements`.
 - Assets live in `apps/ex_storage_service_web/assets/`.
 - Static output is written to `apps/ex_storage_service_web/priv/static/assets/`.
 
