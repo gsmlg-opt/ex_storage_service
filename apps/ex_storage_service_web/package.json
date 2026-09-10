@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@duskmoon-dev/core": "1.17.0"
+    "@duskmoon-dev/core": "^1.18.0"
   }
 }
