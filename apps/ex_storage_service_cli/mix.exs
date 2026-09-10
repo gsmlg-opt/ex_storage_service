@@ -36,7 +36,7 @@ defmodule ExStorageServiceCli.MixProject do
 
   defp deps do
     [
-      {:req, "~> 0.5"},
+      {:req, "~> 0.6"},
       {:jason, "~> 1.4"},
       {:gsmlg_toml, "~> 1.0"},
       {:ex_doc, "~> 0.40", only: :dev, runtime: false}

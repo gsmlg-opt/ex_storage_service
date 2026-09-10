@@ -37,7 +37,7 @@ defmodule ExStorageServiceWeb.MixProject do
       {:phoenix_live_view, "~> 1.0"},
       {:phoenix_html, "~> 4.2"},
       {:lazy_html, ">= 0.1.0"},
-      {:phoenix_live_dashboard, "~> 0.8"},
+      {:phoenix_live_dashboard, "~> 0.9"},
       {:jason, "~> 1.4"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:duskmoon_bundler, "~> 9.8"},
