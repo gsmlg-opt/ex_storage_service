@@ -12,6 +12,7 @@ defmodule ExStorageService.CrossClusterReplication.Sync do
   require Logger
 
   alias ExStorageService.Metadata
+  alias ExStorageService.HTTPClient
   alias ExStorageService.CrossClusterReplication.Config
   alias ExStorageService.CrossClusterReplication.Config.Replica
   alias ExStorageService.Replication.JobQueue
@@ -206,7 +207,7 @@ defmodule ExStorageService.CrossClusterReplication.Sync do
     url = "#{String.trim_trailing(replica.endpoint, "/")}/#{remote_bucket}?list-type=2"
     headers = auth_headers(replica)
 
-    case Req.get(url, headers: headers, decode_body: false) do
+    case HTTPClient.request(url, method: :get, headers: headers) do
       {:ok, %{status: 200, body: body}} ->
         parse_list_response(body)
 

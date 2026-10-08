@@ -21,6 +21,7 @@ defmodule ExStorageService.CloudCache.Client do
   require Logger
 
   alias ExStorageService.CloudCache.Config
+  alias ExStorageService.HTTPClient
 
   @doc """
   Upload an object to the remote S3/R2 bucket.
@@ -39,7 +40,7 @@ defmodule ExStorageService.CloudCache.Client do
     signed_headers =
       sign_request("PUT", url, headers, body, config)
 
-    case Req.put(url, body: body, headers: signed_headers) do
+    case HTTPClient.request(url, method: :put, body: body, headers: signed_headers) do
       {:ok, %{status: status}} when status in 200..299 ->
         Logger.info("CloudCache PUT #{config.bucket}/#{key} → #{endpoint} (#{status})")
         :ok
@@ -71,7 +72,7 @@ defmodule ExStorageService.CloudCache.Client do
 
     signed_headers = sign_request("GET", url, [], "", config)
 
-    case Req.get(url, headers: signed_headers, decode_body: false) do
+    case HTTPClient.request(url, method: :get, headers: signed_headers) do
       {:ok, %{status: 200, body: body}} ->
         {:ok, body}
 
@@ -105,7 +106,7 @@ defmodule ExStorageService.CloudCache.Client do
 
     signed_headers = sign_request("HEAD", url, [], "", config)
 
-    case Req.head(url, headers: signed_headers) do
+    case HTTPClient.request(url, method: :head, headers: signed_headers) do
       {:ok, %{status: 200, headers: resp_headers}} ->
         {:ok, parse_headers(resp_headers)}
 
@@ -132,7 +133,7 @@ defmodule ExStorageService.CloudCache.Client do
 
     signed_headers = sign_request("DELETE", url, [], "", config)
 
-    case Req.delete(url, headers: signed_headers) do
+    case HTTPClient.request(url, method: :delete, headers: signed_headers) do
       {:ok, %{status: status}} when status in 200..299 or status == 404 ->
         Logger.debug("CloudCache DELETE #{config.bucket}/#{key} (#{status})")
         :ok
@@ -162,7 +163,7 @@ defmodule ExStorageService.CloudCache.Client do
 
     signed_headers = sign_request("HEAD", url, [], "", config)
 
-    case Req.head(url, headers: signed_headers) do
+    case HTTPClient.request(url, method: :head, headers: signed_headers) do
       {:ok, %{status: status}} when status in 200..299 ->
         :ok
 
@@ -229,7 +230,7 @@ defmodule ExStorageService.CloudCache.Client do
 
     signed_headers = sign_request("GET", url, [], "", config)
 
-    case Req.get(url, headers: signed_headers, decode_body: false) do
+    case HTTPClient.request(url, method: :get, headers: signed_headers) do
       {:ok, %{status: 200, body: xml_body}} ->
         result = parse_list_objects_xml(xml_body)
 
@@ -399,7 +400,7 @@ defmodule ExStorageService.CloudCache.Client do
     :crypto.mac(:hmac, :sha256, key, data)
   end
 
-  # Req 0.5+ returns headers as %{String.t() => [String.t()]} (map of lists)
+  # Compatibility with callers supplying a map of header lists
   defp parse_headers(headers) when is_map(headers) do
     %{
       content_length: headers |> Map.get("content-length", []) |> List.first() |> parse_int(),
@@ -410,7 +411,7 @@ defmodule ExStorageService.CloudCache.Client do
     }
   end
 
-  # Legacy: list of {key, value} tuples
+  # http_fetch response headers are a list of {key, value} tuples
   defp parse_headers(headers) when is_list(headers) do
     header_map = Map.new(headers, fn {k, v} -> {String.downcase(k), v} end)
 

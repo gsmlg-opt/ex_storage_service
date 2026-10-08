@@ -2,7 +2,7 @@ defmodule ExStorageServiceCli.S3Client do
   @moduledoc """
   S3-compatible HTTP client with automatic SigV4 request signing.
 
-  Wraps `Req` with path-style S3 addressing and XML response parsing.
+  Uses `http_fetch` with path-style S3 addressing and XML response parsing.
   """
 
   alias ExStorageServiceCli.SigV4
@@ -257,12 +257,9 @@ defmodule ExStorageServiceCli.S3Client do
   def health(client) do
     url = "#{client.endpoint}/health"
 
-    case Req.get(url) do
+    case do_request("GET", url, "", [], :follow) do
       {:ok, %{status: 200, body: body}} when is_binary(body) ->
         {:ok, JSON.decode!(body)}
-
-      {:ok, %{status: 200, body: body}} when is_map(body) ->
-        {:ok, body}
 
       {:ok, resp} ->
         {:error, "Health check failed with status #{resp.status}"}
@@ -291,19 +288,22 @@ defmodule ExStorageServiceCli.S3Client do
     end
   end
 
-  defp do_request(method, url, body, headers) do
-    req =
-      Req.new(
-        url: url,
-        method: String.downcase(method) |> String.to_atom(),
-        headers: Map.new(headers),
-        body: if(body == "", do: nil, else: body),
-        decode_body: false,
-        retry: false,
-        redirect: false
-      )
+  defp do_request(method, url, body, headers, redirect \\ :manual) do
+    case HTTP.fetch(url,
+           method: method,
+           headers: headers,
+           body: if(body == "", do: nil, else: body),
+           redirect: redirect
+         )
+         |> HTTP.Promise.await() do
+      %HTTP.Response{} = response ->
+        {:ok, %{response | body: HTTP.Response.read_all(response), stream: nil}}
 
-    Req.request(req)
+      {:error, reason} ->
+        {:error, reason}
+    end
+  rescue
+    error in RuntimeError -> {:error, error}
   end
 
   defp merge_headers(base, override) do
@@ -319,25 +319,7 @@ defmodule ExStorageServiceCli.S3Client do
   end
 
   defp get_resp_header(headers, key) do
-    key_down = String.downcase(key)
-
-    case headers do
-      %{} ->
-        # Req returns headers as a map of lists
-        headers
-        |> Enum.find_value("", fn {k, v} ->
-          if String.downcase(k) == key_down do
-            case v do
-              [val | _] -> val
-              val when is_binary(val) -> val
-              _ -> ""
-            end
-          end
-        end)
-
-      _ ->
-        ""
-    end
+    HTTP.Headers.get(headers, key) || ""
   end
 
   defp parse_error(%{body: body, status: status}) when is_binary(body) and byte_size(body) > 0 do

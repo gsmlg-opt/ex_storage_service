@@ -225,6 +225,17 @@ Runtime services:
 | Admin portal | 4900 | Phoenix + LiveView + Bandit | Web dashboard and management |
 | Internal cluster transport | 9100 | Bandit + HMAC + optional TLS | Private data-plane between cluster data nodes (never expose publicly) |
 
+Outbound HTTP clients use [`http_fetch`](https://github.com/gsmlg-dev/http_fetch)
+0.17.0 for the CLI, cloud cache, remote inventory synchronization, and webhooks.
+Object responses remain raw bytes; signed requests do not follow redirects.
+Webhook retries remain controlled by the notification worker.
+
+Internal cluster transport and cross-cluster replication uploads still use Req:
+their fixed-length streaming migration is blocked by
+[http_fetch#20](https://github.com/gsmlg-dev/http_fetch/issues/20). Preserve their
+bounded streaming and declared-length contracts until an upstream release supports
+them. The migration is incomplete while these clients remain on Req.
+
 Repository layout:
 
 | Path | Contents |

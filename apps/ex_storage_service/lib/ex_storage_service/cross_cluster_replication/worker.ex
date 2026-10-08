@@ -197,6 +197,7 @@ defmodule ExStorageService.CrossClusterReplication.Worker do
   end
 
   defp request(request_opts, opts) do
+    # TODO(upstream): gsmlg-dev/http_fetch#20 — fixed-length streaming uploads
     request = Keyword.get(opts, :request, &Req.request/1)
 
     try do

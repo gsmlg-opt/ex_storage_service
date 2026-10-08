@@ -18,6 +18,8 @@ defmodule ExStorageService.Notifications do
 
   require Logger
 
+  alias ExStorageService.HTTPClient
+
   @doc """
   Configure notifications for a bucket.
   """
@@ -170,7 +172,11 @@ defmodule ExStorageService.Notifications do
   defp deliver_webhook(endpoint, event, attempt) do
     body = JSON.encode!(event)
 
-    case Req.post(endpoint, body: body, headers: [{"content-type", "application/json"}]) do
+    case HTTPClient.request(endpoint,
+           method: :post,
+           body: body,
+           headers: [{"content-type", "application/json"}]
+         ) do
       {:ok, %{status: status}} when status in 200..299 ->
         Logger.debug("Notification delivered to #{endpoint}: #{status}")
         :ok

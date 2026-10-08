@@ -78,6 +78,11 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
   - S3 app: `ExStorageServiceS3.*` (strictly do NOT use `ExStorageService.S3.*`)
   - Web app: `ExStorageServiceWeb.*`
 - Use the built-in `JSON` module (available in Elixir 1.18+) instead of third-party JSON parsers where appropriate.
+- Outbound clients use `http_fetch` for CLI, cloud cache, remote inventory, and
+  webhooks. Keep object bodies as raw bytes and disable redirects on signed
+  requests. Cluster transport and cross-cluster replication retain Req until
+  gsmlg-dev/http_fetch#20 supplies fixed-length streaming uploads; do not buffer
+  whole blobs or weaken declared-length authentication to bypass this blocker.
 - Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
 
 ### File Organization

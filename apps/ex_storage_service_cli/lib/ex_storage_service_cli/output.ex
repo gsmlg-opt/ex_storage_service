@@ -146,7 +146,7 @@ defmodule ExStorageServiceCli.Output do
   @doc """
   Safely converts an error reason to a printable string.
 
-  Handles exceptions (e.g. `Req.TransportError`), strings, atoms, and arbitrary terms.
+  Handles exceptions, strings, atoms, and arbitrary terms.
   """
   def format_error(reason) when is_exception(reason), do: Exception.message(reason)
   def format_error(reason) when is_binary(reason), do: reason

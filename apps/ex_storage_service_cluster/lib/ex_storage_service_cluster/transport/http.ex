@@ -28,6 +28,7 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
              path: path,
              request_id: request_id
            ),
+         # TODO(upstream): gsmlg-dev/http_fetch#20
          {:ok, response} <-
            Req.request(
              request_options(node, path, opts) ++
