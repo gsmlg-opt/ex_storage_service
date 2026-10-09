@@ -53,6 +53,25 @@ defmodule ExStorageServiceCli.S3ClientTest do
              S3Client.get_object(client, "bucket", "object.bin")
   end
 
+  test "downloads preserve stored gzip and deflate bytes" do
+    for {encoding, compress} <- [{"gzip", &:zlib.gzip/1}, {"deflate", &:zlib.compress/1}] do
+      stored = compress.(<<0, 255, 128, 1>>)
+
+      client =
+        serve(
+          200,
+          [
+            {"Content-Type", "application/octet-stream"},
+            {"Content-Encoding", encoding}
+          ],
+          stored
+        )
+
+      assert {:ok, %{body: ^stored, content_type: "application/octet-stream"}} =
+               S3Client.get_object(client, "bucket", "compressed.bin")
+    end
+  end
+
   test "HEAD preserves metadata without reading the advertised body length" do
     client =
       serve(
@@ -111,6 +130,17 @@ defmodule ExStorageServiceCli.S3ClientTest do
     assert {:ok, %{"status" => "ok"}} = S3Client.health(client)
     assert_receive {:request, "GET", "/health", headers, ""}
     refute Map.has_key?(headers, "authorization")
+  end
+
+  test "health continues to decode compressed JSON responses" do
+    client =
+      serve(
+        200,
+        [{"Content-Type", "application/json"}, {"Content-Encoding", "gzip"}],
+        :zlib.gzip("{\"status\":\"ok\"}")
+      )
+
+    assert {:ok, %{"status" => "ok"}} = S3Client.health(client)
   end
 
   test "S3 errors retain their code, message, and status" do

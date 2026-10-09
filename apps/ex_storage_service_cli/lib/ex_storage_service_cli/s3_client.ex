@@ -257,7 +257,7 @@ defmodule ExStorageServiceCli.S3Client do
   def health(client) do
     url = "#{client.endpoint}/health"
 
-    case do_request("GET", url, "", [], :follow) do
+    case do_request("GET", url, "", [], redirect: :follow, decode_body: true) do
       {:ok, %{status: 200, body: body}} when is_binary(body) ->
         {:ok, JSON.decode!(body)}
 
@@ -288,14 +288,20 @@ defmodule ExStorageServiceCli.S3Client do
     end
   end
 
-  defp do_request(method, url, body, headers, redirect \\ :manual) do
-    case HTTP.fetch(url,
-           method: method,
-           headers: headers,
-           body: if(body == "", do: nil, else: body),
-           redirect: redirect
-         )
-         |> HTTP.Promise.await() do
+  defp do_request(method, url, body, headers, opts \\ []) do
+    options =
+      Keyword.merge(
+        [
+          method: method,
+          headers: headers,
+          body: if(body == "", do: nil, else: body),
+          redirect: :manual,
+          decode_body: false
+        ],
+        opts
+      )
+
+    case HTTP.fetch(url, options) |> HTTP.Promise.await() do
       %HTTP.Response{} = response ->
         {:ok, %{response | body: HTTP.Response.read_all(response), stream: nil}}
 

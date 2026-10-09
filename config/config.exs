@@ -12,6 +12,9 @@ config :ex_storage_service_web, ExStorageServiceWeb.Endpoint,
 
 config :ex_storage_service, :json_library, Jason
 
+# Always expose download bodies as streams; callers decide whether to buffer them.
+config :http_fetch, streaming_threshold: 0
+
 config :duskmoon_bundler,
   entry: Path.expand("../apps/ex_storage_service_web/assets/js/app.js", __DIR__),
   root: Path.expand("../apps/ex_storage_service_web/assets", __DIR__),

@@ -63,7 +63,10 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
     def call(%Plug.Conn{method: "GET"} = conn, opts) do
       conn =
         conn
-        |> put_resp_header("content-length", Integer.to_string(@content_length))
+        |> put_resp_header(
+          "content-length",
+          Integer.to_string(Keyword.get(opts, :advertised_length, @content_length))
+        )
         |> send_chunked(200)
 
       stream_chunks(conn, opts[:owner], :binary.copy(<<0>>, @chunk_size), @chunk_count, 1)
@@ -186,6 +189,53 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
 
     assert_receive {:enumerated, 1}
     assert_receive {:enumerated, ^chunks}
+  end
+
+  @tag :tmp_dir
+  test "fixed-length upload rejects short and overlong sources without publishing content", %{
+    tmp_dir: tmp_dir
+  } do
+    %{url: url, context: context, router_opts: router_opts} = start_transport(tmp_dir)
+    data = "expected"
+    hash = sha256(data)
+    size = byte_size(data)
+
+    for payload <- ["short", "overlong-source"] do
+      assert {:error, :content_length_mismatch} =
+               HTTP.put_blob(context, url, Source.stream([payload], size), descriptor(hash, size),
+                 secret: @secret
+               )
+
+      eventually(fn -> upload_files(router_opts) == [] end)
+
+      assert {:error, :not_found} =
+               ExStorageService.BlobStore.LocalCAS.stat(hash, router_opts[:blob_store_opts])
+    end
+  end
+
+  @tag :tmp_dir
+  test "upload propagates a stateful source failure and removes staged content", %{
+    tmp_dir: tmp_dir
+  } do
+    %{url: url, context: context, router_opts: router_opts} = start_transport(tmp_dir)
+    hash = sha256("expected")
+
+    source =
+      Source.stateful_stream(
+        fn initial, reducer ->
+          {:cont, next} = reducer.("part", initial)
+          {:error, :source_failed, next}
+        end,
+        8
+      )
+
+    assert {:error, %Source.RequestBodyError{reason: :source_failed}} =
+             HTTP.put_blob(context, url, source, descriptor(hash, 8), secret: @secret)
+
+    eventually(fn -> upload_files(router_opts) == [] end)
+
+    assert {:error, :not_found} =
+             ExStorageService.BlobStore.LocalCAS.stat(hash, router_opts[:blob_store_opts])
   end
 
   @tag :tmp_dir
@@ -375,6 +425,41 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
     assert byte_size(received) > 0
     assert byte_size(received) < content_length
     assert_receive {:slow_download, :first_chunk}
+    assert_receive {:slow_download, :closed, attempt, _reason}, 2_000
+    assert attempt < 64
+    refute_receive {:slow_download, :completed}
+  end
+
+  test "invalid download length rejects bytes before the sink and closes the request" do
+    hash = sha256("invalid-download-length")
+    content_length = 262_144 * 64
+
+    server =
+      start_supervised!(
+        {Bandit,
+         plug:
+           {SlowDownloadPlug, owner: self(), hash: hash, advertised_length: content_length - 1},
+         ip: {127, 0, 0, 1},
+         port: 0,
+         startup_log: false}
+      )
+
+    assert {:ok, {_address, port}} = ThousandIsland.listener_info(server)
+    {:ok, config} = InstanceConfig.new(internal_secret: @secret)
+    context = Context.new(config)
+
+    assert {:ok, source} =
+             HTTP.open_blob(context, "http://127.0.0.1:#{port}", hash, nil, secret: @secret)
+
+    owner = self()
+
+    assert {:error, :invalid_content_length, :initial} =
+             Source.reduce(source, :initial, fn chunk, state ->
+               send(owner, {:unexpected_chunk, chunk})
+               {:cont, state}
+             end)
+
+    refute_receive {:unexpected_chunk, _chunk}
     assert_receive {:slow_download, :closed, attempt, _reason}, 2_000
     assert attempt < 64
     refute_receive {:slow_download, :completed}

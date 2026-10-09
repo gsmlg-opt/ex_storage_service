@@ -2,8 +2,8 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
   @moduledoc """
   Authenticated HTTP implementation of the cluster blob transport.
 
-  Upload bodies are lazy Enumerables and downloads use Req's callback-based
-  HTTP/1 streaming path. Retries and redirects are disabled so a signed
+  Uploads and downloads use bounded `http_fetch` HTTP/1 streams with
+  backpressure. Retries and redirects are disabled so a signed
   request ID always describes exactly one transfer attempt.
   """
 
@@ -11,7 +11,9 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
 
   alias ExStorageService.BlobStore.{Source, StagedBlob}
   alias ExStorageService.Cluster.{BlobDescriptor, ReplicaAck}
+  alias ExStorageService.HTTPClient
   alias ExStorageServiceCluster.InternalAuth
+  alias HTTP.{AbortController, Headers, Response}
 
   @telemetry_prefix [:ex_storage_service, :cluster, :blob_transport]
   @health_hash String.duplicate("0", 64)
@@ -28,15 +30,11 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
              path: path,
              request_id: request_id
            ),
-         # TODO(upstream): gsmlg-dev/http_fetch#20
          {:ok, response} <-
-           Req.request(
-             request_options(node, path, opts) ++
-               [
-                 method: :put,
-                 headers: [{"content-length", descriptor.size} | headers],
-                 body: body
-               ]
+           request(node, path, opts,
+             method: :put,
+             headers: [{"content-length", Integer.to_string(descriptor.size)} | headers],
+             body: body
            ),
          {:ok, ack} <- decode_ack(response, descriptor, request_id) do
       emit_stop(:put_blob, started_at, descriptor.size, node, descriptor.hash, :ok)
@@ -60,7 +58,7 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
              request_id: request_id
            ),
          {:ok, response} <-
-           Req.request(request_options(node, path, opts) ++ [method: :head, headers: headers]),
+           request(node, path, opts, method: :head, headers: headers),
          {:ok, info} <- decode_head(response, hash, request_id) do
       emit_stop(:head_blob, started_at, 0, node, hash, :ok)
       {:ok, info}
@@ -130,10 +128,7 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
              request_id: request_id
            ),
          {:ok, response} <-
-           Req.request(
-             request_options(node, path, opts) ++
-               [method: :delete, headers: cleanup_headers ++ headers]
-           ),
+           request(node, path, opts, method: :delete, headers: cleanup_headers ++ headers),
          :ok <- decode_delete(response) do
       emit_stop(:delete_blob, started_at, 0, node, hash, :ok)
       :ok
@@ -155,7 +150,7 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
              request_id: request_id
            ),
          {:ok, response} <-
-           Req.request(request_options(node, path, opts) ++ [method: :head, headers: headers]),
+           request(node, path, opts, method: :head, headers: headers),
          :ok <- decode_health(response, request_id, node) do
       :ok
     end
@@ -181,108 +176,125 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
     range = if offset == 0 and length == total_size, do: nil, else: {offset, length}
     range_header = encode_range(range)
 
-    with {:ok, headers} <-
-           signed_headers(:get, hash, "-", context, opts,
-             path: path,
-             request_id: request_id,
-             range: range_header
-           ),
-         {:ok, response} <-
-           Req.request(
-             request_options(node, path, opts) ++
-               [
-                 method: :get,
-                 headers: headers,
-                 into: stream_into(reducer, initial, range, offset, length, total_size)
-               ]
-           ),
-         {:ok, final} <-
-           validate_download(response, initial, range, offset, length, total_size) do
-      emit_stop(:open_blob, started_at, length, node, hash, :ok)
-      {:ok, final}
-    else
-      {:error, reason, _final} = error ->
-        emit_stop(:open_blob, started_at, 0, node, hash, reason)
-        error
+    controller = AbortController.new()
 
-      {:error, reason} ->
-        emit_stop(:open_blob, started_at, 0, node, hash, reason)
-        {:error, reason, initial}
+    try do
+      with {:ok, headers} <-
+             signed_headers(:get, hash, "-", context, opts,
+               path: path,
+               request_id: request_id,
+               range: range_header
+             ),
+           {:ok, response} <-
+             HTTPClient.fetch(
+               node_url(node) <> path,
+               request_options(opts) ++ [method: :get, headers: headers, signal: controller]
+             ),
+           {:ok, final} <-
+             consume_download(response, initial, reducer, range, offset, length, total_size, opts) do
+        emit_stop(:open_blob, started_at, length, node, hash, :ok)
+        {:ok, final}
+      else
+        {:error, reason, _final} = error ->
+          emit_stop(:open_blob, started_at, 0, node, hash, reason)
+          error
+
+        {:error, reason} ->
+          emit_stop(:open_blob, started_at, 0, node, hash, reason)
+          {:error, reason, initial}
+      end
+    after
+      AbortController.abort(controller)
+      Agent.stop(controller)
     end
   end
 
-  defp stream_into(reducer, initial, range, offset, length, total_size) do
-    fn {:data, data}, {request, response} ->
-      case validate_response_headers(response, range, offset, length, total_size) do
-        :ok ->
-          current =
-            Req.Response.get_private(
-              response,
-              :ex_storage_service_cluster_consumer_state,
-              initial
-            )
+  defp consume_download(response, initial, reducer, range, offset, length, total_size, opts) do
+    stream = Response.stream_pid(response)
 
-          case reducer.(data, current) do
-            {:cont, next} ->
-              response =
-                response
-                |> Req.Response.put_private(
-                  :ex_storage_service_cluster_consumer_state,
-                  next
-                )
-                |> Req.Response.put_private(
-                  :ex_storage_service_cluster_bytes,
-                  Req.Response.get_private(response, :ex_storage_service_cluster_bytes, 0) +
-                    byte_size(data)
-                )
+    if is_pid(stream) do
+      monitor = Process.monitor(stream)
+      send(stream, {:read_chunk, self(), :ack})
 
-              {:cont, {request, response}}
-
-            {:halt, reason, next} ->
-              response =
-                response
-                |> Req.Response.put_private(
-                  :ex_storage_service_cluster_consumer_state,
-                  next
-                )
-                |> Req.Response.put_private(:ex_storage_service_cluster_sink_error, reason)
-
-              {:halt, {request, response}}
-          end
-
-        {:error, _reason} = error ->
-          response =
-            Req.Response.put_private(response, :ex_storage_service_cluster_stream_error, error)
-
-          {:halt, {request, response}}
+      try do
+        with :ok <- validate_response_headers(response, range, offset, length, total_size) do
+          consume_stream(
+            stream,
+            monitor,
+            reducer,
+            initial,
+            0,
+            length,
+            Keyword.get(opts, :timeout, 60_000)
+          )
+        else
+          {:error, reason} -> {:error, reason, initial}
+        end
+      after
+        HTTP.Stream.error(stream, :aborted)
+        await_stream_stop(stream, monitor)
+      end
+    else
+      with :ok <- validate_response_headers(response, range, offset, length, total_size) do
+        case reducer.(response.body || "", initial) do
+          {:cont, next} -> validate_received(byte_size(response.body || ""), length, next)
+          {:halt, reason, next} -> {:error, {:sink, reason}, next}
+        end
+      else
+        {:error, reason} -> {:error, reason, initial}
       end
     end
   end
 
-  defp validate_download(response, initial, range, offset, length, total_size) do
-    received = Req.Response.get_private(response, :ex_storage_service_cluster_bytes, 0)
-    sink_error = Req.Response.get_private(response, :ex_storage_service_cluster_sink_error)
-    stream_error = Req.Response.get_private(response, :ex_storage_service_cluster_stream_error)
+  defp consume_stream(stream, monitor, reducer, state, received, length, timeout) do
+    receive do
+      {:stream_chunk, ^stream, data, ack_ref} ->
+        case reducer.(data, state) do
+          {:cont, next} ->
+            send(stream, {:stream_chunk_ack, ack_ref})
 
-    final =
-      Req.Response.get_private(response, :ex_storage_service_cluster_consumer_state, initial)
+            consume_stream(
+              stream,
+              monitor,
+              reducer,
+              next,
+              received + byte_size(data),
+              length,
+              timeout
+            )
 
-    cond do
-      stream_error ->
-        {:error, elem(stream_error, 1), final}
+          {:halt, reason, next} ->
+            {:error, {:sink, reason}, next}
+        end
 
-      sink_error ->
-        {:error, {:sink, sink_error}, final}
+      {:stream_end, ^stream} ->
+        validate_received(received, length, state)
 
-      (header_error = validate_response_headers(response, range, offset, length, total_size)) !=
-          :ok ->
-        {:error, elem(header_error, 1), final}
+      {:stream_error, ^stream, reason} ->
+        {:error, reason, state}
 
-      received != length ->
-        {:error, :incomplete_response, final}
+      {:stream_trailers, ^stream, _headers} ->
+        consume_stream(stream, monitor, reducer, state, received, length, timeout)
 
-      true ->
-        {:ok, final}
+      {:DOWN, ^monitor, :process, ^stream, reason} ->
+        {:error, {:stream_down, reason}, state}
+    after
+      timeout -> {:error, :timeout, state}
+    end
+  end
+
+  defp validate_received(length, length, state), do: {:ok, state}
+  defp validate_received(_received, _length, state), do: {:error, :incomplete_response, state}
+
+  defp await_stream_stop(stream, monitor) do
+    receive do
+      {:DOWN, ^monitor, :process, ^stream, _reason} -> :ok
+      {:stream_chunk, ^stream, _data, _ack_ref} -> await_stream_stop(stream, monitor)
+      {:stream_end, ^stream} -> await_stream_stop(stream, monitor)
+      {:stream_error, ^stream, _reason} -> await_stream_stop(stream, monitor)
+      {:stream_trailers, ^stream, _headers} -> await_stream_stop(stream, monitor)
+    after
+      1_000 -> Process.demonitor(monitor, [:flush])
     end
   end
 
@@ -334,18 +346,24 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
       Application.get_env(:ex_storage_service_cluster, :secret)
   end
 
-  defp request_options(node, path, opts) do
+  defp request(node, path, opts, init) do
+    with {:ok, response} <-
+           HTTPClient.fetch(node_url(node) <> path, request_options(opts) ++ init) do
+      {:ok, Response.with_buffered_body(response, Response.read_all(response))}
+    end
+  rescue
+    exception in RuntimeError -> {:error, exception}
+  end
+
+  defp request_options(opts) do
     [
-      url: node_url(node) <> path,
-      connect_options: [protocols: [:http1]],
-      retry: false,
-      redirect: false,
-      decode_body: false,
-      receive_timeout: Keyword.get(opts, :timeout, 60_000)
+      http_version: :http1,
+      redirect: :manual,
+      timeout: Keyword.get(opts, :timeout, 60_000)
     ]
   end
 
-  defp decode_ack(%Req.Response{status: 200} = response, descriptor, request_id) do
+  defp decode_ack(%Response{status: 200} = response, descriptor, request_id) do
     with {:ok, node_id} <- header(response, "x-ess-node-id"),
          {:ok, generation} <- header_integer(response, "x-ess-node-generation"),
          {:ok, hash} <- header(response, "x-ess-blob-sha256"),
@@ -368,7 +386,7 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
 
   defp decode_ack(response, _descriptor, _request_id), do: response_error(response)
 
-  defp decode_head(%Req.Response{status: 200} = response, hash, request_id) do
+  defp decode_head(%Response{status: 200} = response, hash, request_id) do
     with {:ok, node_id} <- header(response, "x-ess-node-id"),
          {:ok, node_generation} <- header_integer(response, "x-ess-node-generation"),
          {:ok, ^hash} <- header(response, "x-ess-blob-sha256"),
@@ -390,13 +408,13 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
     end
   end
 
-  defp decode_head(%Req.Response{status: 404}, _hash, _request_id), do: {:error, :not_found}
+  defp decode_head(%Response{status: 404}, _hash, _request_id), do: {:error, :not_found}
   defp decode_head(response, _hash, _request_id), do: response_error(response)
 
-  defp decode_delete(%Req.Response{status: status}) when status in [200, 204, 404], do: :ok
+  defp decode_delete(%Response{status: status}) when status in [200, 204, 404], do: :ok
   defp decode_delete(response), do: response_error(response)
 
-  defp decode_health(%Req.Response{status: 200} = response, request_id, node) do
+  defp decode_health(%Response{status: 200} = response, request_id, node) do
     with {:ok, ^request_id} <- header(response, "x-ess-request-id"),
          {:ok, node_id} <- header(response, "x-ess-node-id"),
          true <- node_id == Map.fetch!(node, :node_id),
@@ -446,13 +464,13 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
     end
   end
 
-  defp response_error(%Req.Response{status: 401}), do: {:error, :unauthorized}
-  defp response_error(%Req.Response{status: 404}), do: {:error, :not_found}
-  defp response_error(%Req.Response{status: 409}), do: {:error, :blob_conflict}
-  defp response_error(%Req.Response{status: 413}), do: {:error, :entity_too_large}
-  defp response_error(%Req.Response{status: 416}), do: {:error, :invalid_range}
-  defp response_error(%Req.Response{status: 422}), do: {:error, :checksum_mismatch}
-  defp response_error(%Req.Response{status: status}), do: {:error, {:http_status, status}}
+  defp response_error(%Response{status: 401}), do: {:error, :unauthorized}
+  defp response_error(%Response{status: 404}), do: {:error, :not_found}
+  defp response_error(%Response{status: 409}), do: {:error, :blob_conflict}
+  defp response_error(%Response{status: 413}), do: {:error, :entity_too_large}
+  defp response_error(%Response{status: 416}), do: {:error, :invalid_range}
+  defp response_error(%Response{status: 422}), do: {:error, :checksum_mismatch}
+  defp response_error(%Response{status: status}), do: {:error, {:http_status, status}}
 
   defp normalize_range(nil, total_size), do: {:ok, {0, total_size}}
   defp normalize_range(:all, total_size), do: {:ok, {0, total_size}}
@@ -468,7 +486,7 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
   defp encode_range({offset, length}), do: "bytes=#{offset}-#{offset + length - 1}"
 
   defp header(response, name) do
-    case Req.Response.get_header(response, name) do
+    case Headers.get_all(response.headers, name) do
       [value] -> {:ok, value}
       _ -> {:error, {:invalid_header, name}}
     end

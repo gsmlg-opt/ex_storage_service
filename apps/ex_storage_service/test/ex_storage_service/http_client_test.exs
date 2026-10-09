@@ -19,6 +19,57 @@ defmodule ExStorageService.HTTPClientTest do
     assert request_headers["content-length"] == "4"
   end
 
+  test "fixed-length uploads lazily split large binary and iodata producer items" do
+    url =
+      serve_raw("HTTP/1.1 200 OK\r\nContent-Length: 0\r\nConnection: close\r\n\r\n", true)
+
+    owner = self()
+    item = :binary.copy(<<0, 255, 128, 1>>, 65_536)
+    size = byte_size(item) * 3
+
+    source =
+      Stream.map(1..3, fn index ->
+        send(owner, {:producer_item, index, self()})
+
+        receive do
+          {:release_item, ^index} ->
+            if index == 2,
+              do: [binary_part(item, 0, 131_072), [binary_part(item, 131_072, 131_072)]],
+              else: item
+        after
+          5_000 -> raise "producer item was not released"
+        end
+      end)
+
+    refute_receive {:producer_item, _index, _producer}
+
+    task =
+      Task.async(fn ->
+        HTTPClient.request(url <> "/stream",
+          method: :put,
+          headers: [{"content-length", Integer.to_string(size)}],
+          body: source
+        )
+      end)
+
+    assert_receive {:producer_item, 1, producer}, 1_000
+    assert_receive {:request_head, "PUT", "/stream", headers}, 1_000
+    assert headers["content-length"] == Integer.to_string(size)
+    refute Map.has_key?(headers, "transfer-encoding")
+    refute_receive {:producer_item, 2, _producer}
+    send(producer, {:release_item, 1})
+
+    assert_receive {:producer_item, 2, ^producer}, 1_000
+    refute_receive {:producer_item, 3, _producer}
+    send(producer, {:release_item, 2})
+    assert_receive {:producer_item, 3, ^producer}, 1_000
+    send(producer, {:release_item, 3})
+
+    assert {:ok, %{status: 200}} = Task.await(task, 5_000)
+    assert_receive {:request, "PUT", "/stream", _headers, body}
+    assert body == :binary.copy(item, 3)
+  end
+
   test "consumes chunked responses and reports interrupted streams as errors" do
     url =
       serve_raw(
@@ -35,6 +86,46 @@ defmodule ExStorageService.HTTPClientTest do
       )
 
     assert {:error, _reason} = HTTPClient.request(interrupted)
+  end
+
+  test "buffered requests preserve gzip and deflate entity bytes and headers" do
+    for {encoding, compress} <- [{"gzip", &:zlib.gzip/1}, {"deflate", &:zlib.compress/1}] do
+      stored = compress.(<<0, 255, 128, 1>>)
+      url = serve(200, [{"Content-Encoding", encoding}], stored)
+
+      assert {:ok, %{body: ^stored, headers: headers}} = HTTPClient.request(url)
+      headers = Map.new(headers, fn {name, value} -> {String.downcase(name), value} end)
+      assert headers["content-encoding"] == encoding
+      assert headers["content-length"] == Integer.to_string(byte_size(stored))
+    end
+  end
+
+  test "streaming fetch preserves compressed chunks and acknowledgement backpressure" do
+    for {encoding, compress} <- [{"gzip", &:zlib.gzip/1}, {"deflate", &:zlib.compress/1}] do
+      stored = compress.(<<0, 255, 128, 1>>)
+      <<first::binary-size(5), rest::binary>> = stored
+
+      url =
+        serve_raw(
+          "HTTP/1.1 200 OK\r\nContent-Encoding: #{encoding}\r\n" <>
+            "Transfer-Encoding: chunked\r\nConnection: close\r\n\r\n" <>
+            "5\r\n" <>
+            first <>
+            "\r\n" <>
+            Integer.to_string(byte_size(rest), 16) <> "\r\n" <> rest <> "\r\n0\r\n\r\n"
+        )
+
+      assert {:ok, %HTTP.Response{body: stream} = response} = HTTPClient.fetch(url)
+      assert is_pid(stream)
+      assert HTTP.Response.get_header(response, "content-encoding") == encoding
+
+      send(stream, {:read_chunk, self(), :ack})
+      assert_receive {:stream_chunk, ^stream, ^first, ack_ref}, 1_000
+      refute_receive {:stream_chunk, ^stream, _chunk, _ack_ref}, 25
+      send(stream, {:stream_chunk_ack, ack_ref})
+
+      assert collect_stream(stream, [first]) == stored
+    end
   end
 
   test "HEAD returns headers without reading the advertised response body" do
@@ -118,6 +209,15 @@ defmodule ExStorageService.HTTPClientTest do
 
     missing = cloud_config(serve(404, [], "missing"))
     assert {:error, :not_found} = Client.get_object(missing, "missing")
+  end
+
+  test "cloud downloads preserve stored gzip and deflate object bytes" do
+    for {encoding, compress} <- [{"gzip", &:zlib.gzip/1}, {"deflate", &:zlib.compress/1}] do
+      stored = compress.(<<0, 255, 128, 1>>)
+      config = cloud_config(serve(200, [{"Content-Encoding", encoding}], stored))
+
+      assert {:ok, ^stored} = Client.get_object(config, "compressed.bin")
+    end
   end
 
   test "cloud HEAD parses tuple response headers" do
@@ -226,6 +326,22 @@ defmodule ExStorageService.HTTPClientTest do
     }
   end
 
+  defp collect_stream(stream, chunks) do
+    receive do
+      {:stream_chunk, ^stream, chunk, ack_ref} ->
+        send(stream, {:stream_chunk_ack, ack_ref})
+        collect_stream(stream, [chunk | chunks])
+
+      {:stream_end, ^stream} ->
+        chunks |> Enum.reverse() |> IO.iodata_to_binary()
+
+      {:stream_error, ^stream, reason} ->
+        flunk("unexpected stream error: #{inspect(reason)}")
+    after
+      1_000 -> flunk("stream did not finish")
+    end
+  end
+
   defp serve(status, headers, body) do
     headers =
       if Enum.any?(headers, fn {name, _} -> String.downcase(name) == "content-length" end),
@@ -236,7 +352,7 @@ defmodule ExStorageService.HTTPClientTest do
     serve_raw("HTTP/1.1 #{status} Response\r\n#{head}Connection: close\r\n\r\n#{body}")
   end
 
-  defp serve_raw(response) do
+  defp serve_raw(response, notify_head \\ false) do
     {:ok, listener} = :gen_tcp.listen(0, [:binary, active: false, ip: {127, 0, 0, 1}])
     {:ok, {_address, port}} = :inet.sockname(listener)
     owner = self()
@@ -254,6 +370,7 @@ defmodule ExStorageService.HTTPClientTest do
             {String.downcase(name), String.trim(value)}
           end)
 
+        if notify_head, do: send(owner, {:request_head, method, target, headers})
         length = String.to_integer(headers["content-length"] || "0")
         body = read_body(socket, body, length)
         :ok = :gen_tcp.send(socket, response)

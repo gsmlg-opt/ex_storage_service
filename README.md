@@ -226,15 +226,18 @@ Runtime services:
 | Internal cluster transport | 9100 | Bandit + HMAC + optional TLS | Private data-plane between cluster data nodes (never expose publicly) |
 
 Outbound HTTP clients use [`http_fetch`](https://github.com/gsmlg-dev/http_fetch)
-0.17.0 for the CLI, cloud cache, remote inventory synchronization, and webhooks.
-Object responses remain raw bytes; signed requests do not follow redirects.
+0.17.2 for the CLI, cloud cache, remote inventory synchronization, webhooks,
+internal cluster transport, and cross-cluster replication. Signed requests do
+not follow redirects. Cluster and replication uploads use bounded streams with
+an explicit Content-Length and upload chunks of at most 64 KiB. Cluster downloads
+validate headers before
+forwarding bytes with acknowledged backpressure.
 Webhook retries remain controlled by the notification worker.
 
-Internal cluster transport and cross-cluster replication uploads still use Req:
-their fixed-length streaming migration is blocked by
-[http_fetch#20](https://github.com/gsmlg-dev/http_fetch/issues/20). Preserve their
-bounded streaming and declared-length contracts until an upstream release supports
-them. The migration is incomplete while these clients remain on Req.
+Storage requests set `decode_body: false` to preserve stored gzip/deflate object
+bytes and their Content-Encoding metadata. This uses the raw response support
+released in [http_fetch#27](https://github.com/gsmlg-dev/http_fetch/issues/27).
+Independent S3 test clients use Req; production object requests use `http_fetch`.
 
 Repository layout:
 

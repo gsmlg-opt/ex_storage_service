@@ -155,7 +155,7 @@ defmodule ExStorageServiceS3.ReplicationWorkerTest do
     request = fn options ->
       case options[:method] do
         :head ->
-          {:ok, Req.Response.new(status: 404)}
+          {:ok, %{status: 404, headers: [], body: ""}}
 
         :put ->
           refute is_binary(options[:body])
@@ -179,10 +179,10 @@ defmodule ExStorageServiceS3.ReplicationWorkerTest do
             bytes,
             max_chunk,
             :crypto.hash_final(hash),
-            options[:connect_options]
+            options[:http_version]
           })
 
-          {:ok, Req.Response.new(status: 200)}
+          {:ok, %{status: 200, headers: [], body: ""}}
       end
     end
 
@@ -207,7 +207,7 @@ defmodule ExStorageServiceS3.ReplicationWorkerTest do
     assert_receive {:opened, ^object, source_opts}
     assert source_opts[:bucket] == "source"
 
-    assert_receive {:uploaded, headers, ^size, ^chunk_size, ^expected_hash, [protocols: [:http1]]}
+    assert_receive {:uploaded, headers, ^size, ^chunk_size, ^expected_hash, :http1}
 
     assert {"content-length", Integer.to_string(size)} in headers
   end
@@ -225,11 +225,11 @@ defmodule ExStorageServiceS3.ReplicationWorkerTest do
     request = fn options ->
       case options[:method] do
         :head ->
-          {:ok, Req.Response.new(status: 404)}
+          {:ok, %{status: 404, headers: [], body: ""}}
 
         :put ->
           Enum.reduce(options[:body], 0, fn chunk, size -> size + byte_size(chunk) end)
-          {:ok, Req.Response.new(status: 200)}
+          {:ok, %{status: 200, headers: [], body: ""}}
       end
     end
 

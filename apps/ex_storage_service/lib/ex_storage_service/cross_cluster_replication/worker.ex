@@ -142,11 +142,8 @@ defmodule ExStorageService.CrossClusterReplication.Worker do
         | headers
       ],
       body: Source.request_body(source),
-      connect_options: [protocols: [:http1]],
-      pool_max_idle_time: 0,
-      retry: false,
-      redirect: false,
-      decode_body: false
+      http_version: :http1,
+      redirect: :manual
     ]
 
     case request(request_opts, opts) do
@@ -179,13 +176,13 @@ defmodule ExStorageService.CrossClusterReplication.Worker do
       {:ok, %{status: 200} = response} ->
         remote_etag =
           response
-          |> Req.Response.get_header("etag")
+          |> response_header("etag")
           |> List.first()
           |> unquote_etag()
 
         remote_size =
           response
-          |> Req.Response.get_header("content-length")
+          |> response_header("content-length")
           |> List.first()
           |> parse_integer()
 
@@ -197,8 +194,7 @@ defmodule ExStorageService.CrossClusterReplication.Worker do
   end
 
   defp request(request_opts, opts) do
-    # TODO(upstream): gsmlg-dev/http_fetch#20 — fixed-length streaming uploads
-    request = Keyword.get(opts, :request, &Req.request/1)
+    request = Keyword.get(opts, :request, &http_request/1)
 
     try do
       request.(request_opts)
@@ -207,6 +203,15 @@ defmodule ExStorageService.CrossClusterReplication.Worker do
     catch
       kind, reason -> {:error, {:request_failed, {kind, reason}}}
     end
+  end
+
+  defp http_request(request_opts) do
+    {url, options} = Keyword.pop!(request_opts, :url)
+    ExStorageService.HTTPClient.request(url, options)
+  end
+
+  defp response_header(%{headers: headers}, name) do
+    for {key, value} <- headers, String.downcase(key) == name, do: value
   end
 
   defp validate_identity(hash, size)

@@ -30,8 +30,7 @@ defmodule ExStorageServiceCluster.MixProject do
     [
       {:ex_storage_service, in_umbrella: true},
       {:bandit, "~> 1.6"},
-      {:plug, "~> 1.16"},
-      {:req, "~> 0.6"},
+      {:plug, "~> 1.16"}
     ]
   end
 end
