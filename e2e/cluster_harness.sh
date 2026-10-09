@@ -61,6 +61,7 @@ start_node() {
   printf '\n===== start %s bootstrap=%s at %s =====\n' \
     "$id" "$bootstrap" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >>"$root/logs/$id.log"
 
+  # Nodes share one precompiled build; concurrent compilation races consolidation.
   env \
     MIX_ENV=prod \
     ESS_MODE=cluster \
@@ -92,7 +93,7 @@ start_node() {
     ESS_REPAIR_ENABLED="$repair_enabled" \
     ESS_SCRUB_ENABLED=false \
     ESS_MASTER_KEY="$master_key" \
-    elixir --name "$(node_name "$id")" --cookie "$cookie" -S mix phx.server \
+    elixir --name "$(node_name "$id")" --cookie "$cookie" -S mix phx.server --no-compile \
     >>"$root/logs/$id.log" 2>&1 &
 
   echo "$!" >"$root/pids/$id"
