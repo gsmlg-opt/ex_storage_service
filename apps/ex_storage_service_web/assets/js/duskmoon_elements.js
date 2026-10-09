@@ -5,9 +5,10 @@
  *
  * DO NOT EDIT — regenerate with: mix duskmoon.bundle el-accordion el-alert el-autocomplete el-badge el-bottom-navigation el-bottom-sheet el-breadcrumbs el-button el-card el-cascader el-chart el-chip el-circle-menu el-code-block el-datepicker el-dialog el-drawer el-file-upload el-form el-form-group el-input el-menu el-navbar el-navigation el-nested-menu el-otp-input el-pagination el-pin-input el-popover el-progress el-segment-control el-select el-slider el-stepper el-switch el-table el-tabs el-theme-controller el-time-input el-tooltip
  */
-//#region node_modules/@duskmoon-dev/el-base/dist/esm/index.js
+import "@duskmoon-dev/el-pin-input/register";
+//#region ../../node_modules/@duskmoon-dev/el-base/dist/esm/index.js
 var styleSheetCache = /* @__PURE__ */ new WeakMap();
-function css$31(strings, ...values) {
+function css$30(strings, ...values) {
 	const cached = styleSheetCache.get(strings);
 	if (cached && values.length === 0) return cached;
 	let cssText = strings[0];
@@ -17,7 +18,7 @@ function css$31(strings, ...values) {
 	if (values.length === 0) styleSheetCache.set(strings, sheet);
 	return sheet;
 }
-var defaultTheme = css$31`
+var defaultTheme = css$30`
   :host {
     /* Typography - safe to set defaults */
     --font-family: system-ui, -apple-system, sans-serif;
@@ -51,7 +52,7 @@ var defaultTheme = css$31`
     --transition-slow: 300ms ease;
   }
 `;
-var resetStyles = css$31`
+var resetStyles = css$30`
   *,
   *::before,
   *::after {
@@ -200,7 +201,7 @@ var BaseElement = class extends HTMLElement {
 function toKebabCase(str) {
 	return str.replace(/([A-Z])/g, "-$1").toLowerCase();
 }
-var animationStyles = css$31`
+var animationStyles = css$30`
   @keyframes dm-fade-in {
     from {
       opacity: 0;
@@ -349,8 +350,8 @@ function validate(value, rules) {
 	};
 }
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/accordion.js
-const css$30 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/accordion.js
+const css$29 = `/**
  * Accordion Component Styles
  * DuskMoonUI - Material Design 3 inspired accordion/expansion panel system
  */
@@ -394,7 +395,7 @@ const css$30 = `/**
     background-color: transparent;
     border: none;
     cursor: pointer;
-    text-align: left;
+    text-align: start;
     transition: background-color 150ms ease-in-out;
   }
 
@@ -408,7 +409,8 @@ const css$30 = `/**
     box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
   }
 
-  .accordion-item.open .accordion-header {
+  .accordion-item:not(details):is(.open, .accordion-item-open) > .accordion-header,
+  details.accordion-item[open] > .accordion-header {
     background-color: var(--color-surface-container);
   }
 
@@ -419,7 +421,7 @@ const css$30 = `/**
     justify-content: center;
     width: 1.5rem;
     height: 1.5rem;
-    margin-right: 0.75rem;
+    margin-inline-end: 0.75rem;
     color: var(--color-on-surface-variant);
     flex-shrink: 0;
   }
@@ -444,13 +446,14 @@ const css$30 = `/**
     justify-content: center;
     width: 1.5rem;
     height: 1.5rem;
-    margin-left: auto;
+    margin-inline-start: auto;
     color: var(--color-on-surface-variant);
     transition: transform 200ms ease-in-out;
     flex-shrink: 0;
   }
 
-  .accordion-item.open .accordion-expand {
+  .accordion-item:not(details):is(.open, .accordion-item-open) > .accordion-header > .accordion-expand,
+  details.accordion-item[open] > .accordion-header > .accordion-expand {
     transform: rotate(180deg);
   }
 
@@ -461,12 +464,14 @@ const css$30 = `/**
     transition: grid-template-rows 200ms ease-in-out;
   }
 
-  .accordion-item.open .accordion-content {
+  .accordion-item:not(details):is(.open, .accordion-item-open) > .accordion-content,
+  details.accordion-item[open] > .accordion-content {
     grid-template-rows: 1fr;
   }
 
   .accordion-body {
     overflow: hidden;
+    min-block-size: 0;
   }
 
   .accordion-body-inner {
@@ -504,7 +509,8 @@ const css$30 = `/**
   }
 
   .accordion-filled .accordion-header:hover,
-  .accordion-filled .accordion-item.open .accordion-header {
+  .accordion-filled > .accordion-item:not(details):is(.open, .accordion-item-open) > .accordion-header,
+  .accordion-filled > details.accordion-item[open] > .accordion-header {
     background-color: var(--color-surface-container-high);
   }
 
@@ -576,14 +582,33 @@ const css$30 = `/**
   }
 
   /* Color Variants */
-  .accordion-primary .accordion-item.open .accordion-header {
+  .accordion-primary > .accordion-item:not(details):is(.open, .accordion-item-open) > .accordion-header,
+  .accordion-primary > details.accordion-item[open] > .accordion-header {
     background-color: var(--color-primary-container);
     color: var(--color-on-primary-container);
   }
 
-  .accordion-primary .accordion-item.open .accordion-expand {
+  .accordion-primary > .accordion-item:not(details):is(.open, .accordion-item-open) > .accordion-header > .accordion-expand,
+  .accordion-primary > details.accordion-item[open] > .accordion-header > .accordion-expand {
     color: var(--color-on-primary-container);
   }
+
+  .accordion-outlined { border: 1px solid var(--color-outline-variant); }
+  .accordion-comfortable .accordion-header { padding: 1.25rem; }
+  .accordion-header-icon { display: flex; align-items: center; gap: 0.75rem; }
+  .accordion-header-icon-leading { inline-size: 1.25rem; block-size: 1.25rem; flex: none; }
+  .accordion-item-disabled > .accordion-header { opacity: 0.6; cursor: not-allowed; }
+  .accordion-no-animation .accordion-content, .accordion-no-animation .accordion-expand { transition: none; }
+  .accordion-secondary > .accordion-item:not(details):is(.open, .accordion-item-open) > .accordion-header,
+  .accordion-secondary > details.accordion-item[open] > .accordion-header { color: var(--color-secondary); }
+  .accordion-tertiary > .accordion-item:not(details):is(.open, .accordion-item-open) > .accordion-header,
+  .accordion-tertiary > details.accordion-item[open] > .accordion-header { color: var(--color-tertiary); }
+  details.accordion-item > summary { list-style: none; }
+  details.accordion-item > summary::-webkit-details-marker { display: none; }
+  details.accordion-item:not([open]) > .accordion-content,
+  .accordion-item:not(details):not(.open):not(.accordion-item-open) > .accordion-content,
+  .accordion-content[hidden] { display: none; }
+  .accordion-title, .accordion-body-inner { min-inline-size: 0; overflow-wrap: anywhere; }
 
   /* Reduce Motion */
   @media (prefers-reduced-motion: reduce) {
@@ -595,12 +620,12 @@ const css$30 = `/**
   }
 }
 `;
-const sheet$30 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$30) sheet$30.replaceSync(css$30);
+const sheet$29 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$29) sheet$29.replaceSync(css$29);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-accordion/dist/esm/register.js
-var coreStyles$32 = css$30.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$68 = css$31`
+//#region ../../node_modules/@duskmoon-dev/el-accordion/dist/esm/register.js
+var coreStyles$31 = css$29.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
+var styles$66 = css$30`
   :host {
     display: block;
   }
@@ -610,7 +635,7 @@ var styles$68 = css$31`
   }
 
   /* Import core accordion styles */
-  ${coreStyles$32}
+  ${coreStyles$31}
 
   /* Web component specific: slotted item borders */
   ::slotted(el-dm-accordion-item:not(:last-child)) {
@@ -630,7 +655,7 @@ var ElDmAccordion = class extends BaseElement {
 	};
 	constructor() {
 		super();
-		this.attachStyles(styles$68);
+		this.attachStyles(styles$66);
 	}
 	connectedCallback() {
 		super.connectedCallback();
@@ -686,7 +711,7 @@ var ElDmAccordion = class extends BaseElement {
     `;
 	}
 };
-var itemStyles = css$31`
+var itemStyles = css$30`
   :host {
     display: block;
   }
@@ -696,7 +721,7 @@ var itemStyles = css$31`
   }
 
   /* Import core accordion styles */
-  ${coreStyles$32}
+  ${coreStyles$31}
 
   /* Web component specific adjustments */
   .accordion-header {
@@ -795,14 +820,14 @@ var ElDmAccordionItem = class extends BaseElement {
 		header?.addEventListener("keydown", this._handleKeyDown.bind(this));
 	}
 };
-function register$39() {
+function register$38() {
 	if (!customElements.get("el-dm-accordion")) customElements.define("el-dm-accordion", ElDmAccordion);
 	if (!customElements.get("el-dm-accordion-item")) customElements.define("el-dm-accordion-item", ElDmAccordionItem);
 }
-register$39();
+register$38();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/alert.js
-const css$29 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/alert.js
+const css$28 = `/**
  * Alert Component Styles
  * DuskMoonUI - Material Design 3 inspired alert system
  */
@@ -810,8 +835,11 @@ const css$29 = `/**
 @layer components {
   /* Base Alert */
   .alert {
-    display: flex;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "icon content actions close";
+    align-items: center;
     gap: 0.75rem;
     padding: 1rem;
     border-radius: var(--radius-sm);
@@ -822,6 +850,7 @@ const css$29 = `/**
 
   /* Alert Icon */
   .alert-icon {
+    grid-area: icon;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -829,10 +858,12 @@ const css$29 = `/**
     height: 1.5rem;
     font-size: 1.25rem;
     flex-shrink: 0;
+    align-self: start;
   }
 
   /* Alert Content */
   .alert-content {
+    grid-area: content;
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
@@ -840,13 +871,42 @@ const css$29 = `/**
     min-width: 0;
   }
 
+  .alert-content > p {
+    margin: 0;
+  }
+
+  /* Keep the compact single-message form vertically balanced against global typography margins. */
+  .alert > p {
+    margin: 0;
+  }
+
+  .alert-horizontal { display: grid; }
+  .alert-actions-end { grid-template-areas: "icon content actions close"; }
+  .alert-actions-bottom {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "icon content close"
+      ". actions .";
+  }
+
+  .alert-actions-bottom .alert-actions {
+    justify-self: start;
+    margin-top: 0.5rem;
+  }
+  .alert-vertical {
+    display: flex;
+    flex-direction: column;
+  }
+
   .alert-title {
+    margin: 0;
     font-size: 0.875rem;
     font-weight: 600;
     line-height: 1.25rem;
   }
 
   .alert-description {
+    margin: 0;
     font-size: 0.875rem;
     line-height: 1.25rem;
     opacity: 0.9;
@@ -854,6 +914,7 @@ const css$29 = `/**
 
   /* Alert Close Button */
   .alert-close {
+    grid-area: close;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1067,6 +1128,7 @@ const css$29 = `/**
   /* Dismissible */
   .alert-dismissible {
     padding-right: 2.5rem;
+    padding-inline-end: 2.5rem;
     position: relative;
   }
 
@@ -1074,6 +1136,7 @@ const css$29 = `/**
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
+    inset-inline-end: 0.75rem;
   }
 
   /* Compact */
@@ -1093,11 +1156,25 @@ const css$29 = `/**
     font-size: 0.8125rem;
   }
 
+  .alert-comfortable {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
   /* Alert Actions */
   .alert-actions {
+    grid-area: actions;
     display: flex;
     gap: 0.5rem;
-    margin-top: 0.5rem;
+    margin-top: 0;
+    flex-wrap: wrap;
+    align-self: center;
+    justify-self: end;
+  }
+
+  .alert-vertical .alert-actions {
+    align-self: stretch;
+    width: 100%;
   }
 
   .alert-filled .alert-actions .btn-text {
@@ -1121,12 +1198,38 @@ const css$29 = `/**
       transition: none;
     }
   }
+
+  @media (max-width: 32rem) {
+    .alert:not(.alert-vertical) .alert-content,
+    .alert-horizontal .alert-content {
+      flex-basis: min(100%, 18rem);
+    }
+    .alert:not(.alert-vertical),
+    .alert-horizontal {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        "icon content close"
+        ". actions actions";
+    }
+    .alert:not(.alert-vertical).alert-actions-end,
+    .alert-horizontal.alert-actions-end {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        "icon content close"
+        ". actions actions";
+    }
+    .alert:not(.alert-vertical) .alert-actions,
+    .alert-horizontal .alert-actions {
+      justify-self: start;
+      margin-top: 0.5rem;
+    }
+  }
 }
 `;
-const sheet$29 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$29) sheet$29.replaceSync(css$29);
+const sheet$28 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$28) sheet$28.replaceSync(css$28);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-alert/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-alert/dist/esm/register.js
 var TYPE_CLASSES = {
 	info: "alert-info",
 	success: "alert-success",
@@ -1137,7 +1240,7 @@ var VARIANT_CLASSES$4 = {
 	filled: "alert-filled",
 	outlined: "alert-outlined"
 };
-var styles$66 = css$31`
+var styles$64 = css$30`
   :host {
     display: block;
   }
@@ -1146,7 +1249,7 @@ var styles$66 = css$31`
     display: none !important;
   }
 
-  ${css$29.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$28.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   .alert {
     font-family: inherit;
@@ -1178,7 +1281,7 @@ var ElDmAlert = class extends BaseElement {
 	};
 	constructor() {
 		super();
-		this.attachStyles(styles$66);
+		this.attachStyles(styles$64);
 	}
 	_handleDismiss() {
 		this.emit("dismiss");
@@ -1225,18 +1328,20 @@ var ElDmAlert = class extends BaseElement {
 		if (this.dismissible) (this.shadowRoot?.querySelector(".alert-close"))?.addEventListener("click", this._handleDismiss.bind(this));
 	}
 };
-function register$38() {
+function register$37() {
 	if (!customElements.get("el-dm-alert")) customElements.define("el-dm-alert", ElDmAlert);
 }
-register$38();
+register$37();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/autocomplete.js
-const css$28 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/autocomplete.js
+const css$27 = `/**
  * Autocomplete Component Styles
  * DuskMoonUI - Material Design 3 inspired autocomplete system
  */
 
 @layer components {
+  :where(.autocomplete, .autocomplete *) { box-sizing: border-box; }
+
   /* Autocomplete Container */
   .autocomplete {
     position: relative;
@@ -1247,6 +1352,7 @@ const css$28 = `/**
   /* Autocomplete Input */
   .autocomplete-input {
     width: 100%;
+    min-inline-size: 0;
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
     line-height: 1.5;
@@ -1256,6 +1362,37 @@ const css$28 = `/**
     border-radius: var(--radius-sm);
     transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
   }
+
+  .autocomplete-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .autocomplete-toggle {
+    position: absolute;
+    inset-inline-end: 0.125rem;
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    padding: 0;
+    font: inherit;
+    color: var(--color-on-surface);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  .autocomplete-toggle:hover:not(:disabled) { background-color: var(--color-surface-container); }
+  .autocomplete-toggle:focus-visible { outline: 2px solid currentColor; outline-offset: -3px; }
+  .autocomplete-toggle:disabled { opacity: 0.38; cursor: not-allowed; }
+  .autocomplete-sm .autocomplete-toggle { inline-size: 1.75rem; block-size: 1.75rem; }
+  .autocomplete-outlined .autocomplete-input { background-color: transparent; }
+  .autocomplete-options { list-style: none; margin: 0; padding: 0.25rem; }
 
   .autocomplete-input:focus {
     outline: none;
@@ -1273,8 +1410,7 @@ const css$28 = `/**
   .autocomplete-dropdown {
     position: absolute;
     top: 100%;
-    left: 0;
-    right: 0;
+    inset-inline: 0;
     z-index: 1000;
     max-height: 15rem;
     margin-top: 0.25rem;
@@ -1290,11 +1426,17 @@ const css$28 = `/**
   }
 
   .autocomplete.autocomplete-open .autocomplete-dropdown,
+  .autocomplete-dropdown.autocomplete-dropdown-open,
   .autocomplete-dropdown.show {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
   }
+
+  .autocomplete-dropdown[hidden],
+  .autocomplete-option[hidden],
+  .autocomplete-no-results[hidden],
+  .autocomplete-no-options[hidden] { display: none; }
 
   /* Autocomplete Options */
   .autocomplete-option {
@@ -1310,16 +1452,20 @@ const css$28 = `/**
 
   .autocomplete-option:hover,
   .autocomplete-option:focus,
+  .autocomplete-option.autocomplete-option-focused,
   .autocomplete-option.highlighted {
     background-color: var(--color-surface-container);
   }
 
-  .autocomplete-option.selected {
+  .autocomplete-option.selected,
+  .autocomplete-option.autocomplete-option-selected,
+  .autocomplete-option[aria-selected="true"] {
     background-color: var(--color-primary-container);
     color: var(--color-on-primary-container);
   }
 
   .autocomplete-option:disabled,
+  .autocomplete-option[aria-disabled="true"],
   .autocomplete-option.disabled {
     color: var(--color-on-surface-variant);
     cursor: not-allowed;
@@ -1366,7 +1512,8 @@ const css$28 = `/**
   }
 
   /* Group Header */
-  .autocomplete-group-header {
+  .autocomplete-group-header,
+  .autocomplete-group-label {
     padding: 0.5rem 1rem;
     font-size: 0.75rem;
     font-weight: 600;
@@ -1377,7 +1524,8 @@ const css$28 = `/**
   }
 
   /* No Results */
-  .autocomplete-no-results {
+  .autocomplete-no-results,
+  .autocomplete-no-options {
     padding: 1rem;
     text-align: center;
     font-size: 0.875rem;
@@ -1397,7 +1545,7 @@ const css$28 = `/**
   /* Clear Button */
   .autocomplete-clear {
     position: absolute;
-    right: 0.75rem;
+    inset-inline-end: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
@@ -1420,28 +1568,31 @@ const css$28 = `/**
 
   /* With Clear Button */
   .autocomplete-clearable .autocomplete-input {
-    padding-right: 2.5rem;
+    padding-inline-end: 2.5rem;
   }
 
   /* Multi-select Tags */
-  .autocomplete-tags {
+  .autocomplete-tags,
+  .autocomplete-chips {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
     padding: 0.375rem;
-    padding-right: 2.5rem;
+    padding-inline-end: 2.5rem;
     min-height: 2.75rem;
     background-color: var(--color-surface);
     border: 1px solid var(--color-outline);
     border-radius: var(--radius-sm);
   }
 
-  .autocomplete-tags:focus-within {
+  .autocomplete-tags:focus-within,
+  .autocomplete-chips:focus-within {
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px var(--color-primary-container);
   }
 
-  .autocomplete-tag {
+  .autocomplete-tag,
+  .autocomplete-chip {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
@@ -1452,7 +1603,8 @@ const css$28 = `/**
     border-radius: var(--radius-xs);
   }
 
-  .autocomplete-tag-remove {
+  .autocomplete-tag-remove,
+  .autocomplete-chip-remove {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1466,7 +1618,8 @@ const css$28 = `/**
     transition: background-color 150ms ease-in-out;
   }
 
-  .autocomplete-tag-remove:hover {
+  .autocomplete-tag-remove:hover,
+  .autocomplete-chip-remove:hover {
     background-color: var(--color-on-primary-container);
     color: var(--color-primary-container);
   }
@@ -1574,6 +1727,10 @@ const css$28 = `/**
     font-size: 1rem;
   }
 
+  /* Reserve the toggle's space after size shorthands set input padding. */
+  .autocomplete-input-wrapper .autocomplete-input { padding-inline-end: 3.25rem; }
+  .autocomplete-sm .autocomplete-input-wrapper .autocomplete-input { padding-inline-end: 2.25rem; }
+
   /* Reduce Motion */
   @media (prefers-reduced-motion: reduce) {
     .autocomplete-dropdown {
@@ -1582,10 +1739,10 @@ const css$28 = `/**
   }
 }
 `;
-const sheet$28 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$28) sheet$28.replaceSync(css$28);
-var styles$64 = css$31`
-  ${css$28.replace(/@layer\s+components\s*\{/, "").replace(/\}[\s]*$/, "")}
+const sheet$27 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$27) sheet$27.replaceSync(css$27);
+var styles$62 = css$30`
+  ${css$27.replace(/@layer\s+components\s*\{/, "").replace(/\}[\s]*$/, "")}
 
   :host {
     display: block;
@@ -1665,7 +1822,7 @@ var ElDmAutocomplete = class extends BaseElement {
 	_scrollHandler = null;
 	constructor() {
 		super();
-		this.attachStyles(styles$64);
+		this.attachStyles(styles$62);
 	}
 	connectedCallback() {
 		super.connectedCallback();
@@ -2024,13 +2181,13 @@ var ElDmAutocomplete = class extends BaseElement {
 		if (value) this._removeValue(value);
 	};
 };
-function register$37() {
+function register$36() {
 	if (!customElements.get("el-dm-autocomplete")) customElements.define("el-dm-autocomplete", ElDmAutocomplete);
 }
-register$37();
+register$36();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/badge.js
-const css$27 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/badge.js
+const css$26 = `/**
  * Badge Component Styles
  * DuskMoonUI - Material Design 3 inspired badge system
  */
@@ -2038,6 +2195,7 @@ const css$27 = `/**
 @layer components {
   /* Base Badge */
   .badge {
+    box-sizing: border-box;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2045,7 +2203,10 @@ const css$27 = `/**
     font-size: 0.75rem;
     font-weight: 500;
     line-height: 1rem;
-    white-space: nowrap;
+    white-space: normal;
+    max-inline-size: 100%;
+    overflow-wrap: anywhere;
+    min-inline-size: 0;
     border-radius: var(--radius-full);
     background-color: var(--color-surface-container);
     color: var(--color-on-surface);
@@ -2259,13 +2420,13 @@ const css$27 = `/**
   /* Badge with Indicator Dot */
   .badge-indicator {
     position: relative;
-    padding-left: 1rem;
+    padding-inline-start: 1rem;
   }
 
   .badge-indicator::before {
     content: '';
     position: absolute;
-    left: 0.375rem;
+    inset-inline-start: 0.375rem;
     top: 50%;
     transform: translateY(-50%);
     width: 0.375rem;
@@ -2273,6 +2434,14 @@ const css$27 = `/**
     border-radius: var(--radius-full);
     background-color: currentColor;
   }
+
+  .badge-filled { font-weight: 500; }
+  .badge-md { padding: 0.125rem 0.5rem; font-size: 0.75rem; line-height: 1rem; }
+  .badge-notification { position: absolute; inset-block-start: 0; inset-inline-end: 0; transform: translate(50%, -50%); }
+  .badge-notification:dir(rtl) { transform: translate(-50%, -50%); }
+  .badge-removable { gap: 0.25rem; }
+  .badge-removable > button { display: inline-flex; padding: 0; border: 0; color: inherit; background: transparent; cursor: pointer; }
+  .badge-removable > button:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 
   /* Empty Badge (just a dot) */
   .badge-dot {
@@ -2283,10 +2452,10 @@ const css$27 = `/**
   }
 }
 `;
-const sheet$27 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$27) sheet$27.replaceSync(css$27);
+const sheet$26 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$26) sheet$26.replaceSync(css$26);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-badge/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-badge/dist/esm/register.js
 var VARIANT_CLASSES$3 = {
 	filled: "",
 	outlined: "badge-outlined",
@@ -2307,7 +2476,7 @@ var SIZE_CLASSES$9 = {
 	md: "",
 	lg: "badge-lg"
 };
-var styles$62 = css$31`
+var styles$60 = css$30`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -2317,7 +2486,7 @@ var styles$62 = css$31`
     display: none !important;
   }
 
-  ${css$27.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$26.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   .badge {
     font-family: inherit;
@@ -2374,7 +2543,7 @@ var ElDmBadge = class extends BaseElement {
 	};
 	constructor() {
 		super();
-		this.attachStyles(styles$62);
+		this.attachStyles(styles$60);
 	}
 	_getBadgeClasses() {
 		const classes = ["badge"];
@@ -2395,13 +2564,13 @@ var ElDmBadge = class extends BaseElement {
     `;
 	}
 };
-function register$36() {
+function register$35() {
 	if (!customElements.get("el-dm-badge")) customElements.define("el-dm-badge", ElDmBadge);
 }
-register$36();
+register$35();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/bottom-navigation.js
-const css$26 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/bottom-navigation.js
+const css$25 = `/**
  * Bottom Navigation Component Styles
  * DuskMoonUI - Material Design 3 inspired bottom navigation system
  */
@@ -2410,15 +2579,15 @@ const css$26 = `/**
   /* Base Bottom Navigation */
   .bottom-nav {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 0; /* Physical fallback retained for legacy test and browser coverage. */
+    inset-block-end: 0;
+    inset-inline: 0;
     z-index: 1000;
     display: flex;
     align-items: stretch;
     justify-content: space-around;
     min-height: 5rem;
-    padding-bottom: env(safe-area-inset-bottom, 0);
+    padding-block-end: env(safe-area-inset-bottom, 0);
     background-color: var(--color-surface);
     box-shadow: 0 -1px 3px 0 color-mix(in srgb, var(--color-shadow) 10%, transparent);
   }
@@ -2440,6 +2609,8 @@ const css$26 = `/**
     transition: color 150ms ease-in-out;
     text-decoration: none;
     gap: 0.25rem;
+    position: relative;
+    border-radius: var(--radius-md);
   }
 
   .bottom-nav-item:hover {
@@ -2447,7 +2618,8 @@ const css$26 = `/**
   }
 
   .bottom-nav-item:focus-visible {
-    outline: none;
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
   }
 
   .bottom-nav-item:focus-visible .bottom-nav-indicator {
@@ -2456,8 +2628,16 @@ const css$26 = `/**
   }
 
   /* Active State */
-  .bottom-nav-item.active {
+  .bottom-nav-item.active,
+  .bottom-nav-item-active,
+  .bottom-nav-item-active-primary,
+  .bottom-nav-item[aria-current="page"] {
     color: var(--color-on-surface);
+  }
+
+  .bottom-nav-item:is(.active, .bottom-nav-item-active, .bottom-nav-item-active-primary, [aria-current="page"]):not(:has(.bottom-nav-indicator)) {
+    color: var(--color-on-secondary-container);
+    background-color: var(--color-secondary-container);
   }
 
   /* Icon Container with Indicator */
@@ -2476,7 +2656,10 @@ const css$26 = `/**
     background-color: var(--color-surface-container);
   }
 
-  .bottom-nav-item.active .bottom-nav-indicator {
+  .bottom-nav-item.active .bottom-nav-indicator,
+  .bottom-nav-item-active .bottom-nav-indicator,
+  .bottom-nav-item-active-primary .bottom-nav-indicator,
+  .bottom-nav-item[aria-current="page"] .bottom-nav-indicator {
     background-color: var(--color-secondary-container);
   }
 
@@ -2499,7 +2682,10 @@ const css$26 = `/**
     max-width: 100%;
   }
 
-  .bottom-nav-item.active .bottom-nav-label {
+  .bottom-nav-item.active .bottom-nav-label,
+  .bottom-nav-item-active .bottom-nav-label,
+  .bottom-nav-item-active-primary .bottom-nav-label,
+  .bottom-nav-item[aria-current="page"] .bottom-nav-label {
     font-weight: 600;
   }
 
@@ -2507,7 +2693,7 @@ const css$26 = `/**
   .bottom-nav-badge {
     position: absolute;
     top: 0;
-    right: 0.5rem;
+    inset-inline-end: 0.5rem;
     min-width: 1rem;
     height: 1rem;
     padding: 0 0.25rem;
@@ -2526,7 +2712,7 @@ const css$26 = `/**
     height: 0.5rem;
     padding: 0;
     top: 0.125rem;
-    right: 0.75rem;
+    inset-inline-end: 0.75rem;
   }
 
   /* Variants */
@@ -2544,21 +2730,94 @@ const css$26 = `/**
   }
 
   /* Color Variants */
-  .bottom-nav-primary .bottom-nav-item.active .bottom-nav-indicator {
+  .bottom-nav-primary .bottom-nav-item.active .bottom-nav-indicator,
+  .bottom-nav-primary .bottom-nav-item.bottom-nav-item-active .bottom-nav-indicator,
+  .bottom-nav-primary .bottom-nav-item[aria-current="page"] .bottom-nav-indicator {
     background-color: var(--color-primary-container);
   }
 
-  .bottom-nav-primary .bottom-nav-item.active {
+  .bottom-nav-item-active-secondary {
+    color: var(--color-on-secondary-container);
+  }
+
+  .bottom-nav-item-active-secondary .bottom-nav-indicator {
+    background-color: var(--color-secondary-container);
+  }
+
+  .bottom-nav-item-active-tertiary {
+    color: var(--color-on-tertiary-container);
+  }
+
+  .bottom-nav-item-active-tertiary .bottom-nav-indicator {
+    background-color: var(--color-tertiary-container);
+  }
+
+  .bottom-nav-surface {
+    background-color: var(--color-surface);
+  }
+
+  .bottom-nav-surface-container-low {
+    background-color: var(--color-surface-container-low);
+  }
+
+  .bottom-nav-surface-container-high {
+    background-color: var(--color-surface-container-high);
+  }
+
+  .bottom-nav-transparent {
+    background-color: transparent;
+  }
+
+  .bottom-nav-borderless {
+    border-block-start: 0;
+    box-shadow: none;
+  }
+
+  .bottom-nav-compact {
+    min-height: 3.5rem;
+  }
+
+  .bottom-nav-item-disabled,
+  .bottom-nav-item:disabled,
+  .bottom-nav-item[aria-disabled="true"] {
+    opacity: 0.38;
+    cursor: not-allowed;
+  }
+
+  .bottom-nav-primary .bottom-nav-item.active,
+  .bottom-nav-primary .bottom-nav-item.bottom-nav-item-active,
+  .bottom-nav-primary .bottom-nav-item[aria-current="page"] {
     color: var(--color-on-primary-container);
   }
 
   /* Hide Labels */
   .bottom-nav-icons-only .bottom-nav-label {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .bottom-nav-icons-only .bottom-nav-item {
     padding: 1rem 0.25rem;
+  }
+
+  .bottom-nav-labels-only .bottom-nav-icon {
+    display: none;
+  }
+
+  .bottom-nav-labels-only .bottom-nav-item {
+    flex-direction: row;
+    min-width: auto;
+  }
+
+  .bottom-nav-labels-only .bottom-nav-label {
+    font-size: 0.875rem;
   }
 
   /* Show Labels Only on Active */
@@ -2569,7 +2828,7 @@ const css$26 = `/**
     transition: opacity 150ms ease-in-out, max-height 150ms ease-in-out;
   }
 
-  .bottom-nav-labels-active .bottom-nav-item.active .bottom-nav-label {
+  .bottom-nav-labels-active .bottom-nav-item:is(.active, .bottom-nav-item-active, [aria-current="page"]) .bottom-nav-label {
     opacity: 1;
     max-height: 1rem;
   }
@@ -2580,7 +2839,16 @@ const css$26 = `/**
     transition: flex 200ms ease-in-out;
   }
 
-  .bottom-nav-shifting .bottom-nav-item.active {
+  /* Legacy spelling retained; prefer .bottom-nav-shifting. */
+  .bottom-nav-shift .bottom-nav-item:not(:is(.active, .bottom-nav-item-active, [aria-current="page"])) .bottom-nav-label {
+    display: none;
+  }
+
+  .bottom-nav-shift .bottom-nav-item:is(.active, .bottom-nav-item-active, [aria-current="page"]) {
+    min-width: 6rem;
+  }
+
+  .bottom-nav-shifting .bottom-nav-item:is(.active, .bottom-nav-item-active, [aria-current="page"]) {
     flex: 1 1 6rem;
   }
 
@@ -2590,7 +2858,7 @@ const css$26 = `/**
     transition: opacity 150ms ease-in-out, transform 150ms ease-in-out;
   }
 
-  .bottom-nav-shifting .bottom-nav-item.active .bottom-nav-label {
+  .bottom-nav-shifting .bottom-nav-item:is(.active, .bottom-nav-item-active, [aria-current="page"]) .bottom-nav-label {
     opacity: 1;
     transform: translateY(0);
   }
@@ -2598,9 +2866,9 @@ const css$26 = `/**
   /* Rail Style (Side Navigation) */
   .nav-rail {
     position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
+    left: 0; /* Physical fallback; logical inset below controls RTL placement. */
+    inset-inline-start: 0;
+    inset-block: 0;
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -2608,7 +2876,11 @@ const css$26 = `/**
     width: 5rem;
     padding: 1rem 0;
     background-color: var(--color-surface);
-    border-right: 1px solid var(--color-outline-variant);
+    border-inline-end: 1px solid var(--color-outline-variant);
+  }
+
+  .nav-rail:dir(rtl) {
+    left: auto;
   }
 
   .nav-rail .bottom-nav-item {
@@ -2626,13 +2898,13 @@ const css$26 = `/**
   @media (min-width: 768px) {
     .bottom-nav-responsive {
       position: relative;
-      bottom: auto;
+      inset-block-end: auto;
       justify-content: flex-start;
       gap: 0.5rem;
       min-height: 3rem;
       padding: 0 1rem;
       box-shadow: none;
-      border-bottom: 1px solid var(--color-outline-variant);
+      border-block-end: 1px solid var(--color-outline-variant);
     }
 
     .bottom-nav-responsive .bottom-nav-item {
@@ -2648,8 +2920,8 @@ const css$26 = `/**
       background-color: transparent !important;
     }
 
-    .bottom-nav-responsive .bottom-nav-item.active {
-      border-bottom: 2px solid var(--color-primary);
+    .bottom-nav-responsive .bottom-nav-item:is(.active, .bottom-nav-item-active, [aria-current="page"]) {
+      border-block-end: 2px solid var(--color-primary);
     }
   }
 
@@ -2665,9 +2937,9 @@ const css$26 = `/**
   }
 }
 `;
-const sheet$26 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$26) sheet$26.replaceSync(css$26);
-var styles$60 = css$31`
+const sheet$25 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$25) sheet$25.replaceSync(css$25);
+var styles$58 = css$30`
   :host {
     --bottom-nav-height: 56px;
     --bottom-nav-bg: var(--color-surface, #ffffff);
@@ -2699,7 +2971,7 @@ var styles$60 = css$31`
   }
 
   /* Import core bottom-navigation styles */
-  ${css$26.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$25.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Override core's fixed positioning — :host handles it */
   .bottom-nav {
@@ -2860,7 +3132,7 @@ var ElDmBottomNavigation = class extends BaseElement {
 	};
 	constructor() {
 		super();
-		this.attachStyles(styles$60);
+		this.attachStyles(styles$58);
 	}
 	connectedCallback() {
 		super.connectedCallback();
@@ -2956,13 +3228,13 @@ var ElDmBottomNavigation = class extends BaseElement {
     `;
 	}
 };
-function register$35() {
+function register$34() {
 	if (!customElements.get("el-dm-bottom-navigation")) customElements.define("el-dm-bottom-navigation", ElDmBottomNavigation);
 }
-register$35();
+register$34();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/bottomsheet.js
-const css$25 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/bottomsheet.js
+const css$24 = `/**
  * Bottom Sheet Component Styles
  * DuskMoonUI - Material Design 3 inspired bottom sheet system
  */
@@ -3366,9 +3638,9 @@ const css$25 = `/**
   }
 }
 `;
-const sheet$25 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$25) sheet$25.replaceSync(css$25);
-var styles$58 = css$31`
+const sheet$24 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$24) sheet$24.replaceSync(css$24);
+var styles$56 = css$30`
   :host {
     display: contents;
   }
@@ -3378,7 +3650,7 @@ var styles$58 = css$31`
   }
 
   /* Import core bottomsheet styles */
-  ${css$25.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$24.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Wrapper for fixed overlay with pointer-events control */
   .bottomsheet-wrapper {
@@ -3481,7 +3753,7 @@ var ElDmBottomSheet = class extends BaseElement {
 	_previouslyFocused = null;
 	constructor() {
 		super();
-		this.attachStyles(styles$58);
+		this.attachStyles(styles$56);
 	}
 	connectedCallback() {
 		super.connectedCallback?.();
@@ -3708,19 +3980,128 @@ var ElDmBottomSheet = class extends BaseElement {
 		handleArea?.addEventListener("mousedown", this._handleMouseDown);
 	}
 };
-function register$34() {
+function register$33() {
 	if (!customElements.get("el-dm-bottom-sheet")) customElements.define("el-dm-bottom-sheet", ElDmBottomSheet);
 }
-register$34();
+register$33();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/navigation.js
-const css$24 = `/**
- * Navigation Component Styles
- * DuskMoonUI - Material Design 3 inspired navigation system
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/navigation.js
+const css$23 = `/**
+ * Navigation compatibility aggregate.
+ *
+ * Component-specific CSS files are canonical. Imports are resolved by the build
+ * before CSS strings and constructable stylesheets are generated.
+ */
+
+/* Keep the historical Dropdown coverage and cascade order. */
+/**
+ * Dropdown Component Styles
+ * Native Popover disclosure with logical CSS anchor positioning.
  */
 
 @layer components {
-  /* Navbar Base */
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  .dropdown > .dropdown-content[popover] {
+    display: none;
+    position: fixed;
+    inset-block-start: auto;
+    inset-block-end: max(0.5rem, env(safe-area-inset-bottom, 0px));
+    inset-inline-start: auto;
+    inset-inline-end: max(
+      0.5rem,
+      env(safe-area-inset-left, 0px),
+      env(safe-area-inset-right, 0px)
+    );
+    z-index: 50;
+    min-inline-size: 12rem;
+    max-inline-size: min(24rem, calc(100dvw - 1rem));
+    max-block-size: calc(100dvh - 1rem);
+    margin: 0;
+    padding: 0.5rem;
+    overflow: auto;
+    color: var(--color-on-surface);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-0.5rem);
+    transition:
+      opacity 150ms ease-out,
+      transform 150ms ease-out,
+      overlay 150ms ease-out allow-discrete,
+      display 150ms ease-out allow-discrete;
+  }
+
+  .dropdown > .dropdown-content[popover]:popover-open {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  @starting-style {
+    .dropdown > .dropdown-content[popover]:popover-open {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+    }
+  }
+
+  @supports (position-area: block-end) and (anchor-scope: --dm-dropdown-trigger) {
+    /* Keep the shared anchor name local to each dropdown, including nested ones. */
+    .dropdown {
+      anchor-scope: --dm-dropdown-trigger;
+    }
+
+    .dropdown > [popovertarget] {
+      anchor-name: --dm-dropdown-trigger;
+    }
+
+    .dropdown > .dropdown-content[popover] {
+      inset: auto;
+      margin: 0.25rem;
+      position-anchor: --dm-dropdown-trigger;
+      position-area: block-end span-inline-end;
+      position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    }
+
+    .dropdown.dropdown-block-start > .dropdown-content[popover] {
+      position-area: block-start span-inline-end;
+    }
+
+    .dropdown.dropdown-block-end > .dropdown-content[popover] {
+      position-area: block-end span-inline-end;
+    }
+
+    .dropdown.dropdown-inline-start > .dropdown-content[popover] {
+      position-area: inline-start span-block-end;
+    }
+
+    .dropdown.dropdown-inline-end > .dropdown-content[popover] {
+      position-area: inline-end span-block-end;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dropdown > .dropdown-content[popover] {
+      transition: none;
+    }
+  }
+}
+
+/**
+ * Navbar Component Styles
+ * DuskMoonUI - Material Design 3 inspired navigation bar
+ */
+
+@layer components {
   .navbar {
     display: flex;
     align-items: center;
@@ -3729,6 +4110,9 @@ const css$24 = `/**
     padding: 0.5rem 1rem;
     background-color: var(--color-surface);
     color: var(--color-on-surface);
+    gap: 1rem;
+    border-block-end: 1px solid var(--color-outline-variant);
+    min-width: 0;
   }
 
   .navbar-primary {
@@ -3791,6 +4175,7 @@ const css$24 = `/**
     flex: 1;
     justify-content: flex-start;
     gap: 0.5rem;
+    min-width: 0;
   }
 
   .navbar-center {
@@ -3799,6 +4184,10 @@ const css$24 = `/**
     justify-content: center;
     flex-shrink: 0;
     gap: 0.5rem;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
   }
 
   .navbar-end {
@@ -3807,9 +4196,196 @@ const css$24 = `/**
     flex: 1;
     justify-content: flex-end;
     gap: 0.5rem;
+    min-width: 0;
   }
 
-  /* Menu */
+  .navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    color: inherit;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.75rem;
+    text-decoration: none;
+  }
+
+  .navbar-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    color: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    text-decoration: none;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color 150ms ease-in-out, color 150ms ease-in-out;
+    white-space: nowrap;
+  }
+
+  .navbar-item:hover,
+  .navbar-hamburger:hover {
+    background-color: color-mix(in oklch, currentColor 8%, transparent);
+  }
+
+  .navbar-item:focus-visible,
+  .navbar-brand:focus-visible,
+  .navbar-hamburger:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  .navbar-item-active,
+  .navbar-item[aria-current="page"] {
+    color: var(--color-primary);
+    background-color: color-mix(in oklch, var(--color-primary) 12%, transparent);
+  }
+
+  :is(.navbar-primary, .navbar-secondary, .navbar-tertiary) :is(.navbar-item-active, .navbar-item[aria-current="page"]) {
+    color: inherit;
+    background-color: color-mix(in oklch, white 20%, transparent);
+  }
+
+  .navbar-hamburger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    padding: 0.5rem;
+    color: inherit;
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  .navbar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    color: var(--color-on-surface);
+    background-color: var(--color-surface-container);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+  }
+
+  .navbar-divider {
+    inline-size: 1px;
+    block-size: 1.5rem;
+    margin-inline: 0.25rem;
+    background-color: var(--color-outline-variant);
+  }
+
+  .navbar-surface {
+    background-color: var(--color-surface);
+  }
+
+  .navbar-surface-container {
+    background-color: var(--color-surface-container);
+  }
+
+  .navbar-surface-container-high {
+    background-color: var(--color-surface-container-high);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .navbar-surface-container-highest {
+    background-color: var(--color-surface-container-highest);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .navbar-transparent {
+    background-color: transparent;
+    border-block-end: 0;
+  }
+
+  .navbar-blur {
+    background-color: color-mix(in oklch, var(--color-surface) 80%, transparent);
+    backdrop-filter: blur(8px);
+  }
+
+  .navbar-fixed {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: 50;
+  }
+
+  .navbar-sticky {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 50;
+  }
+
+  .navbar-static {
+    position: static;
+  }
+
+  .navbar-compact {
+    padding-block: 0.5rem;
+  }
+
+  .navbar-compact .navbar-item {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.8125rem;
+  }
+
+  .navbar-comfortable {
+    padding: 1rem 1.5rem;
+  }
+
+  .navbar-comfortable .navbar-item {
+    padding: 0.625rem 1rem;
+    font-size: 1rem;
+  }
+
+  .navbar-borderless {
+    border-block-end: 0;
+  }
+
+  @media (max-width: 47.999rem) {
+    .navbar-responsive .navbar-center {
+      display: none;
+    }
+
+    .navbar-responsive .navbar-start,
+    .navbar-responsive .navbar-end {
+      flex: 0 1 auto;
+    }
+
+    .navbar-responsive .navbar-end {
+      margin-inline-start: auto;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .navbar-responsive .navbar-hamburger {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .navbar,
+    .navbar-item {
+      transition: none;
+    }
+  }
+}
+
+/**
+ * Menu Component Styles
+ * DuskMoonUI - Material Design 3 inspired dropdown menu
+ */
+
+@layer components {
   .menu {
     display: flex;
     flex-wrap: wrap;
@@ -3878,13 +4454,13 @@ const css$24 = `/**
     position-area: right;
   }
 
-  .menu li {
+  .menu > li {
     display: flex;
     flex-shrink: 0;
   }
 
-  .menu li > a,
-  .menu li > button,
+  .menu > li > a,
+  .menu > li > button,
   .menu-item {
     display: flex;
     align-items: center;
@@ -3899,41 +4475,46 @@ const css$24 = `/**
     white-space: nowrap;
   }
 
-  .menu li > a:hover,
-  .menu li > button:hover,
+  .menu > li > a:hover,
+  .menu > li > button:hover,
   .menu-item:hover {
     background-color: var(--color-surface-container);
   }
 
-  .menu li > a:focus-visible,
-  .menu li > button:focus-visible,
+  .menu > li > a:focus-visible,
+  .menu > li > button:focus-visible,
   .menu-item:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
   }
 
-  .menu li > a.active,
-  .menu li > button.active,
+  .menu > li > a.active,
+  .menu > li > button.active,
   .menu-item.active,
-  .menu li > a[aria-current="page"],
-  .menu li > button[aria-current="page"] {
+  .menu > li > a[aria-current="page"],
+  .menu > li > button[aria-current="page"] {
     background-color: var(--color-primary-container);
     color: var(--color-on-primary-container);
   }
 
-  .menu li.disabled > a,
-  .menu li.disabled > button,
-  .menu-item:disabled {
-    opacity: 0.5;
-    pointer-events: none;
+  .menu-item[aria-current="page"] {
+    background-color: var(--color-primary-container);
+    color: var(--color-on-primary-container);
   }
 
-  /* Menu Horizontal */
+  .menu > li.disabled > a,
+  .menu > li.disabled > button,
+  .menu-item:disabled,
+  .menu > li > button:disabled,
+  .menu-item[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   .menu-horizontal {
     flex-direction: row;
   }
 
-  /* Menu Vertical */
   .menu-vertical {
     flex-direction: column;
   }
@@ -3948,7 +4529,6 @@ const css$24 = `/**
     width: 100%;
   }
 
-  /* Menu Compact */
   .menu-compact li > a,
   .menu-compact li > button,
   .menu-compact .menu-item {
@@ -3956,7 +4536,6 @@ const css$24 = `/**
     font-size: 0.8125rem;
   }
 
-  /* Menu Title */
   .menu-title {
     padding: 0.5rem 1rem;
     font-size: 0.75rem;
@@ -3966,7 +4545,23 @@ const css$24 = `/**
     color: var(--color-on-surface-variant);
   }
 
-  /* Breadcrumbs */
+  /* Reduce Motion */
+  @media (prefers-reduced-motion: reduce) {
+    .menu > li > a,
+    .menu > li > button,
+    .menu-item,
+    .menu[popover] {
+      transition: none;
+    }
+  }
+}
+
+/**
+ * Breadcrumbs Component Styles
+ * DuskMoonUI - Material Design 3 inspired breadcrumb navigation
+ */
+
+@layer components {
   .breadcrumbs {
     display: flex;
     align-items: center;
@@ -3978,7 +4573,6 @@ const css$24 = `/**
     font-size: 0.875rem;
   }
 
-  /* List-based breadcrumbs (legacy) */
   .breadcrumbs li {
     display: flex;
     align-items: center;
@@ -4009,7 +4603,6 @@ const css$24 = `/**
     color: var(--color-on-surface-variant);
   }
 
-  /* Span-based breadcrumbs */
   .breadcrumb-item {
     display: inline-flex;
     align-items: center;
@@ -4050,7 +4643,6 @@ const css$24 = `/**
     border-radius: var(--radius-xs);
   }
 
-  /* Separator - Default shows "/" */
   .breadcrumb-separator {
     display: inline-flex;
     align-items: center;
@@ -4064,7 +4656,6 @@ const css$24 = `/**
     content: "/";
   }
 
-  /* Separator Variants */
   .breadcrumbs-slash .breadcrumb-separator::before {
     content: "/";
   }
@@ -4086,7 +4677,6 @@ const css$24 = `/**
     content: "|";
   }
 
-  /* Breadcrumb Icon */
   .breadcrumb-icon {
     display: inline-flex;
     align-items: center;
@@ -4101,7 +4691,6 @@ const css$24 = `/**
     height: 100%;
   }
 
-  /* Home Icon Link */
   .breadcrumb-home {
     display: inline-flex;
     align-items: center;
@@ -4120,7 +4709,6 @@ const css$24 = `/**
     height: 1.125rem;
   }
 
-  /* Collapsed Breadcrumbs (with ellipsis) */
   .breadcrumb-ellipsis {
     display: inline-flex;
     align-items: center;
@@ -4142,7 +4730,6 @@ const css$24 = `/**
     background-color: color-mix(in oklch, var(--color-on-surface) 8%, transparent);
   }
 
-  /* Color Variants */
   .breadcrumbs-primary .breadcrumb-link:hover,
   .breadcrumbs-primary .breadcrumb-item-active {
     color: var(--color-primary);
@@ -4158,7 +4745,6 @@ const css$24 = `/**
     color: var(--color-tertiary);
   }
 
-  /* Size Variants */
   .breadcrumbs-sm {
     font-size: 0.75rem;
     gap: 0.375rem;
@@ -4181,185 +4767,156 @@ const css$24 = `/**
     height: 1.25rem;
   }
 
-  /* Contained Variant (with background) */
   .breadcrumbs-contained {
     padding: 0.75rem 1rem;
     background-color: var(--color-surface-container);
     border-radius: var(--radius-sm);
   }
 
-  /* No Wrap Variant */
   .breadcrumbs-nowrap {
     flex-wrap: nowrap;
     overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
   }
 
-  /* Disabled Breadcrumb Item */
+  .breadcrumbs-nowrap > * {
+    flex: 0 0 auto;
+  }
+
   .breadcrumb-item-disabled {
     opacity: 1;
     pointer-events: none;
     cursor: not-allowed;
   }
 
-  /* Tabs */
-  .tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    border-bottom: 1px solid var(--color-outline);
-  }
-
-  .tab {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--color-on-surface-variant);
-    text-decoration: none;
-    background-color: transparent;
-    border: none;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-    transition: all 150ms ease-in-out;
-    position: relative;
-    margin-bottom: -1px;
-  }
-
-  .tab:hover {
-    color: var(--color-on-surface);
-    background-color: var(--color-surface-container);
-  }
-
-  .tab:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
-  }
-
-  .tab.tab-active,
-  .tab[aria-selected="true"] {
-    color: var(--color-primary);
-    border-bottom-color: var(--color-primary);
-  }
-
-  .tab:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* Tabs Boxed */
-  .tabs-boxed {
-    background-color: var(--color-surface-container);
-    border-radius: var(--radius-sm);
-    padding: 0.25rem;
-    border: none;
-  }
-
-  .tabs-boxed .tab {
+  .breadcrumb-ellipsis:focus-visible,
+  .breadcrumb-home:focus-visible,
+  .breadcrumbs li > a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
     border-radius: var(--radius-xs);
-    border-bottom: none;
-    margin-bottom: 0;
   }
 
-  .tabs-boxed .tab.tab-active,
-  .tabs-boxed .tab[aria-selected="true"] {
-    background-color: var(--color-surface);
-    color: var(--color-on-surface);
-    box-shadow: var(--shadow-xs);
+  /* Reduce Motion */
+  @media (prefers-reduced-motion: reduce) {
+    .breadcrumbs a,
+    .breadcrumbs-item a,
+    .breadcrumbs-link,
+    .breadcrumbs-separator {
+      transition: none;
+    }
   }
+}
 
-  /* Tabs Lifted */
-  .tabs-lifted {
-    border: none;
+/** DuskMoonUI tabs and tab-panel presentation. Interaction remains application-owned. */
+@layer components {
+  .tabs {
+    display: flex; align-items: stretch; flex-wrap: wrap; gap: 0.25rem;
+    border-block-end: 1px solid var(--color-outline); color: var(--color-on-surface);
   }
+  .tab {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    min-width: 0; padding: 0.75rem 1.25rem; font: inherit; font-size: 0.875rem;
+    font-weight: 500; line-height: 1.25rem; color: var(--color-on-surface-variant);
+    text-decoration: none; white-space: nowrap; background-color: transparent;
+    border: none; border-block-end: 2px solid transparent; cursor: pointer;
+    transition: background-color 150ms ease-in-out, color 150ms ease-in-out,
+      border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+    position: relative; margin-block-end: -1px;
+  }
+  .tab:hover:not(:disabled, [aria-disabled="true"]) {
+    color: var(--color-on-surface); background-color: var(--color-surface-container);
+  }
+  .tab:focus-visible {
+    outline: 2px solid currentColor; outline-offset: -2px;
+    box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent); z-index: 1;
+  }
+  .tab:disabled,
+  .tab[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+  .tab:is(.tab-active, .tab-active-primary, [aria-selected="true"], [aria-current="page"]) {
+    color: var(--color-primary); border-block-end-color: var(--color-primary);
+  }
+  .tab.tab-active-secondary { color: var(--color-secondary); border-block-end-color: var(--color-secondary); }
+  .tab.tab-active-tertiary { color: var(--color-tertiary); border-block-end-color: var(--color-tertiary); }
 
+  .tabs-pill,
+  .tabs-tonal,
+  .tabs-boxed { padding: 0.25rem; border: none; border-radius: var(--radius-lg); }
+  .tabs-pill .tab,
+  .tabs-tonal .tab,
+  .tabs-boxed .tab { margin-block-end: 0; border: none; border-radius: var(--radius-lg); }
+  .tabs-pill .tab:is(.tab-active, .tab-active-primary, [aria-selected="true"], [aria-current="page"]) {
+    color: var(--color-primary-content); background-color: var(--color-primary);
+  }
+  .tabs-pill .tab.tab-active-secondary { color: var(--color-secondary-content); background-color: var(--color-secondary); }
+  .tabs-pill .tab.tab-active-tertiary { color: var(--color-tertiary-content); background-color: var(--color-tertiary); }
+  .tabs-tonal .tab:is(.tab-active, .tab-active-primary, [aria-selected="true"], [aria-current="page"]) {
+    color: var(--color-on-primary-container); background-color: var(--color-primary-container);
+  }
+  .tabs-tonal .tab.tab-active-secondary { color: var(--color-on-secondary-container); background-color: var(--color-secondary-container); }
+  .tabs-tonal .tab.tab-active-tertiary { color: var(--color-on-tertiary-container); background-color: var(--color-tertiary-container); }
+  .tabs-boxed { background-color: var(--color-surface-container); border-radius: var(--radius-sm); }
+  .tabs-boxed .tab { border-radius: var(--radius-xs); }
+  .tabs-boxed .tab:is(.tab-active, .tab-active-primary, .tab-active-secondary, .tab-active-tertiary, [aria-selected="true"], [aria-current="page"]) {
+    color: var(--color-on-surface); background-color: var(--color-surface); box-shadow: var(--shadow-xs);
+  }
+  .tabs-lifted { border: none; }
   .tabs-lifted .tab {
-    border: 1px solid transparent;
-    border-bottom: none;
-    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-    margin-bottom: -1px;
+    border: 1px solid transparent; border-block-end: none;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin-block-end: -1px;
+  }
+  .tabs-lifted .tab:is(.tab-active, .tab-active-primary, .tab-active-secondary, .tab-active-tertiary, [aria-selected="true"], [aria-current="page"]) {
+    background-color: var(--color-surface); border-color: var(--color-outline);
+    border-block-end-color: var(--color-surface);
   }
 
-  .tabs-lifted .tab.tab-active,
-  .tabs-lifted .tab[aria-selected="true"] {
-    background-color: var(--color-surface);
-    border-color: var(--color-outline);
-    border-bottom-color: var(--color-surface);
+  .tabs-vertical {
+    flex-direction: column; flex-wrap: nowrap; align-items: stretch;
+    border-block-end: none; border-inline-end: 1px solid var(--color-outline);
   }
-
-  /* Tab Sizes */
-  .tab-xs {
-    padding: 0.375rem 0.625rem;
-    font-size: 0.75rem;
+  .tabs-vertical .tab {
+    justify-content: flex-start; width: 100%; margin: 0;
+    border-block-end: none; border-inline-end: 2px solid transparent;
   }
-
-  .tab-sm {
-    padding: 0.5rem 0.875rem;
-    font-size: 0.8125rem;
+  .tabs-vertical .tab:is(.tab-active, .tab-active-primary, [aria-selected="true"], [aria-current="page"]) { border-inline-end-color: var(--color-primary); }
+  .tabs-vertical .tab.tab-active-secondary { border-inline-end-color: var(--color-secondary); }
+  .tabs-vertical .tab.tab-active-tertiary { border-inline-end-color: var(--color-tertiary); }
+  .tabs-scrollable {
+    flex-wrap: nowrap; max-width: 100%; overflow-x: auto; overflow-y: hidden;
+    overscroll-behavior-inline: contain; scrollbar-width: thin;
   }
+  .tabs-full .tab { flex: 1 1 0; }
+  .tabs-center { justify-content: center; }
+  .tabs-end { justify-content: flex-end; }
 
-  .tab-lg {
-    padding: 1rem 1.5rem;
-    font-size: 1rem;
+  .tabs-sm .tab,
+  .tab-sm { padding: 0.5rem 0.875rem; font-size: 0.8125rem; }
+  .tabs-md .tab { padding: 0.75rem 1.25rem; font-size: 0.875rem; }
+  .tabs-lg .tab,
+  .tab-lg { padding: 1rem 1.5rem; font-size: 1rem; }
+  .tab-xs { padding: 0.375rem 0.625rem; font-size: 0.75rem; }
+  .tab-icon { flex: 0 0 auto; font-size: 1.25em; }
+  .tab-icon-only { aspect-ratio: 1; padding-inline: 0.75rem; }
+  .tab-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 1.25rem; min-height: 1.25rem; padding-inline: 0.375rem;
+    font-size: 0.6875rem; font-weight: 600; color: var(--color-error-content);
+    background-color: var(--color-error); border-radius: var(--radius-full);
   }
+  .tab-panel { display: none; padding: 1rem; color: var(--color-on-surface); }
+  .tab-panel:is(.tab-panel-show, [data-active="true"]):not([hidden]) { display: block; }
+  .tab-panel[hidden] { display: none !important; }
 
-  /* Dropdown */
-  .dropdown {
-    position: relative;
-    display: inline-block;
-  }
+  @media (prefers-reduced-motion: reduce) { .tab { scroll-behavior: auto; transition: none; } }
+}
 
-  .dropdown-content {
-    position: absolute;
-    z-index: 50;
-    min-width: 12rem;
-    padding: 0.5rem;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-outline);
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-lg);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-0.5rem);
-    transition: all 150ms ease-in-out;
-  }
+/**
+ * Pagination Component Styles
+ * DuskMoonUI - Material Design 3 inspired pagination
+ */
 
-  .dropdown:hover .dropdown-content,
-  .dropdown:focus-within .dropdown-content,
-  .dropdown.dropdown-open .dropdown-content {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
-
-  /* Dropdown Positions */
-  .dropdown-end .dropdown-content {
-    right: 0;
-  }
-
-  .dropdown-top .dropdown-content {
-    bottom: 100%;
-    top: auto;
-    margin-bottom: 0.25rem;
-  }
-
-  .dropdown-left .dropdown-content {
-    right: 100%;
-    left: auto;
-    top: 0;
-    margin-right: 0.25rem;
-  }
-
-  .dropdown-right .dropdown-content {
-    left: 100%;
-    right: auto;
-    top: 0;
-    margin-left: 0.25rem;
-  }
-
-  /* Pagination */
+@layer components {
   .pagination {
     display: flex;
     align-items: center;
@@ -4401,6 +4958,7 @@ const css$24 = `/**
 
   .pagination-item-active,
   .pagination-item-active-primary,
+  .pagination-item[aria-current="page"],
   .pagination li > a.active,
   .pagination li > button.active,
   .pagination li > a[aria-current="page"],
@@ -4422,6 +4980,14 @@ const css$24 = `/**
     border-color: var(--color-tertiary);
   }
 
+  .pagination-item-active:hover,
+  .pagination-item-active-primary:hover,
+  .pagination-item[aria-current="page"]:hover,
+  .pagination li > a[aria-current="page"]:hover,
+  .pagination li > button[aria-current="page"]:hover {
+    background-color: color-mix(in oklch, var(--color-primary), black 10%);
+  }
+
   .pagination-item:focus-visible,
   .pagination-prev:focus-visible,
   .pagination-next:focus-visible,
@@ -4436,13 +5002,12 @@ const css$24 = `/**
   .pagination-prev:disabled,
   .pagination-next:disabled,
   .pagination li > a:disabled,
-  .pagination li > button:disabled {
+  .pagination li > button:disabled,
+  .pagination a[aria-disabled="true"] {
     opacity: 0.5;
     cursor: not-allowed;
-    pointer-events: none;
   }
 
-  /* Pagination Ellipsis */
   .pagination-ellipsis {
     display: inline-flex;
     align-items: center;
@@ -4456,7 +5021,6 @@ const css$24 = `/**
     content: '…';
   }
 
-  /* Pagination Info */
   .pagination-info {
     display: flex;
     flex-direction: row;
@@ -4469,7 +5033,6 @@ const css$24 = `/**
     color: var(--color-on-surface-variant);
   }
 
-  /* Pagination Input */
   .pagination-input {
     display: inline-flex;
     align-items: center;
@@ -4491,10 +5054,13 @@ const css$24 = `/**
 
   .pagination-input input:focus {
     outline: none;
-    border-color: var(--color-primary);
   }
 
-  /* Pagination Variants */
+  .pagination-input input:focus-visible {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
+  }
+
   .pagination-outlined .pagination-item,
   .pagination-outlined .pagination-prev,
   .pagination-outlined .pagination-next {
@@ -4508,7 +5074,6 @@ const css$24 = `/**
     border-color: var(--color-primary-container);
   }
 
-  /* Pagination Sizes */
   .pagination-sm .pagination-item,
   .pagination-sm .pagination-prev,
   .pagination-sm .pagination-next {
@@ -4527,7 +5092,6 @@ const css$24 = `/**
     font-size: 1rem;
   }
 
-  /* Pagination Compact */
   .pagination-compact {
     gap: 0;
   }
@@ -4540,26 +5104,22 @@ const css$24 = `/**
 
   .pagination-compact .pagination-item:first-child,
   .pagination-compact .pagination-prev {
-    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    border-start-start-radius: var(--radius-sm);
+    border-end-start-radius: var(--radius-sm);
   }
 
   .pagination-compact .pagination-item:last-child,
   .pagination-compact .pagination-next {
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    border-start-end-radius: var(--radius-sm);
+    border-end-end-radius: var(--radius-sm);
   }
 
-  /* Pagination Responsive */
   .pagination-responsive {
     flex-wrap: wrap;
     justify-content: center;
   }
 
-  /* Reduce Motion */
   @media (prefers-reduced-motion: reduce) {
-    .menu li > a,
-    .menu li > button,
-    .menu-item,
-    .menu[popover],
     .pagination-item,
     .pagination-prev,
     .pagination-next {
@@ -4567,10 +5127,136 @@ const css$24 = `/**
     }
   }
 }
+
+/** DuskMoonUI text-link primitive. */
+@layer components {
+  .link {
+    color: var(--color-primary);
+    text-decoration-line: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+    transition: color 150ms ease-in-out, text-decoration-color 150ms ease-in-out,
+      background-color 150ms ease-in-out;
+  }
+
+  .link:hover {
+    color: color-mix(in oklch, var(--color-primary), var(--color-on-surface) 18%);
+    text-decoration-thickness: 0.12em;
+  }
+
+  .link:active {
+    color: color-mix(in oklch, var(--color-primary), var(--color-on-surface) 30%);
+  }
+
+  .link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+    border-radius: var(--radius-xs);
+  }
+
+  .link-hover { text-decoration-color: transparent; }
+  .link-hover:hover,
+  .link-hover:focus-visible { text-decoration-color: currentColor; }
+  .link-primary { color: var(--color-primary); }
+  .link-secondary { color: var(--color-secondary); }
+  .link-tertiary { color: var(--color-tertiary); }
+  .link-neutral,
+  .link-inherit { color: inherit; }
+  .link-neutral:hover,
+  .link-inherit:hover { color: color-mix(in oklch, currentColor, var(--color-on-surface) 18%); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .link { transition: none; }
+  }
+}
+
+/**
+ * Megamenu is a CSS composition layer over native popovers, Menu, and Link.
+ * Give each trigger/panel pair a unique --megamenu-anchor custom identifier.
+ */
+
+
+
+@layer components {
+  .megamenu { position: relative; display: flex; align-items: center; max-width: 100%; }
+  .megamenu-bar {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 0.25rem;
+    margin: 0; padding: 0; list-style: none;
+  }
+  .megamenu-trigger {
+    anchor-name: var(--megamenu-anchor);
+    display: inline-flex; align-items: center; gap: 0.375rem;
+    padding: 0.625rem 0.875rem; color: var(--color-on-surface);
+    background: transparent; border: 0; border-radius: var(--radius-sm);
+    font: inherit; cursor: pointer;
+  }
+  .megamenu-trigger:hover,
+  .megamenu-trigger[aria-expanded="true"],
+  .megamenu:has(.megamenu-panel:popover-open) .megamenu-trigger {
+    color: var(--color-on-primary-container);
+    background-color: var(--color-primary-container);
+  }
+  .megamenu-trigger:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+  .megamenu-panel[popover] {
+    position-anchor: var(--megamenu-anchor);
+    position-area: block-end span-inline-end;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    display: none; box-sizing: border-box;
+    width: min(48rem, calc(100vw - 2rem)); max-width: calc(100vw - 2rem);
+    max-height: min(36rem, calc(100dvh - 2rem)); margin: 0.5rem; padding: 1rem;
+    overflow: auto; color: var(--color-on-surface);
+    background-color: var(--color-surface-container);
+    border: 1px solid var(--color-outline-variant); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg); opacity: 0;
+    transform: translateY(-0.25rem) scale(0.98);
+    transition: opacity 150ms ease-out, transform 150ms ease-out,
+      overlay 150ms ease-out allow-discrete, display 150ms ease-out allow-discrete;
+  }
+  .megamenu-panel[popover]:popover-open { display: block; opacity: 1; transform: translateY(0) scale(1); }
+  .megamenu-panel-full[popover] { width: calc(100vw - 2rem); }
+  .megamenu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+    gap: 1.25rem;
+  }
+  .megamenu-group { min-width: 0; }
+  .megamenu-heading {
+    margin: 0 0 0.5rem; color: var(--color-on-surface); font-size: 0.75rem;
+    font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .megamenu-panel .menu { flex-direction: column; padding: 0; }
+  .megamenu-panel .menu > li,
+  .megamenu-panel .menu > li > .link { width: 100%; }
+  .megamenu-supporting { color: var(--color-on-surface-variant); font-size: 0.875rem; }
+
+  @starting-style {
+    .megamenu-panel[popover]:popover-open { opacity: 0; transform: translateY(-0.25rem) scale(0.98); }
+  }
+  @supports not (position-area: bottom) {
+    .megamenu-panel[popover] { position: fixed; inset: 4.5rem 1rem auto; margin-inline: auto; }
+  }
+  /* Baseline fallback: without Popover API support, links remain visible and reachable. */
+  @supports not selector(:popover-open) {
+    .megamenu { display: block; }
+    .megamenu-panel[popover] {
+      position: static; display: block; width: 100%; max-width: 100%; max-height: none;
+      margin: 0.5rem 0 0; opacity: 1; transform: none;
+    }
+  }
+  @media (max-width: 47.999rem) {
+    .megamenu-desktop { display: none; }
+    .megamenu-mobile { display: block; }
+  }
+  @media (min-width: 48rem) { .megamenu-mobile { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .megamenu-panel[popover] { transition: none; } }
+}
+
 `;
-const sheet$24 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$24) sheet$24.replaceSync(css$24);
-var styles$56 = css$31`
+const sheet$23 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$23) sheet$23.replaceSync(css$23);
+var styles$54 = css$30`
   :host {
     display: block;
   }
@@ -4580,7 +5266,7 @@ var styles$56 = css$31`
   }
 
   /* Import core navigation styles */
-  ${css$24.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$23.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   .breadcrumbs-nav {
     font-family: inherit;
@@ -4653,7 +5339,7 @@ var ElDmBreadcrumbs = class extends BaseElement {
 	_itemsObserver;
 	constructor() {
 		super();
-		this.attachStyles(styles$56);
+		this.attachStyles(styles$54);
 		this.items = [];
 	}
 	_handleClick(event, item, index) {
@@ -4747,13 +5433,13 @@ var ElDmBreadcrumbs = class extends BaseElement {
 		});
 	}
 };
-function register$33() {
+function register$32() {
 	if (!customElements.get("el-dm-breadcrumbs")) customElements.define("el-dm-breadcrumbs", ElDmBreadcrumbs);
 }
-register$33();
+register$32();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/button.js
-const css$23 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/button.js
+const css$22 = `/**
  * Button Component Styles
  * DuskMoonUI - Material Design 3 inspired button system
  */
@@ -5424,10 +6110,10 @@ const css$23 = `/**
   }
 }
 `;
-const sheet$23 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$23) sheet$23.replaceSync(css$23);
+const sheet$22 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$22) sheet$22.replaceSync(css$22);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-button/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-button/dist/esm/register.js
 var VARIANT_CLASSES$2 = {
 	primary: "btn-primary",
 	secondary: "btn-secondary",
@@ -5445,7 +6131,7 @@ var SIZE_CLASSES$8 = {
 	md: "btn-md",
 	lg: "btn-lg"
 };
-var styles$54 = css$31`
+var styles$52 = css$30`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -5456,7 +6142,7 @@ var styles$54 = css$31`
   }
 
   /* Import core button styles */
-  ${css$23.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$22.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Web component specific adjustments */
   .btn {
@@ -5500,7 +6186,7 @@ var ElDmButton = class extends BaseElement {
 	};
 	constructor() {
 		super();
-		this.attachStyles(styles$54);
+		this.attachStyles(styles$52);
 	}
 	_handleClick(event) {
 		if (this.disabled || this.loading) {
@@ -5574,13 +6260,13 @@ var ElDmButton = class extends BaseElement {
     `;
 	}
 };
-function register$32() {
+function register$31() {
 	if (!customElements.get("el-dm-button")) customElements.define("el-dm-button", ElDmButton);
 }
-register$32();
+register$31();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/card.js
-const css$22 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/card.js
+const css$21 = `/**
  * Card Component Styles
  * DuskMoonUI - Material Design 3 inspired card system
  */
@@ -5618,6 +6304,8 @@ const css$22 = `/**
 
   /* Card Body */
   .card-body {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
     --card-p: 1.5rem;
     display: flex;
     flex-direction: column;
@@ -5682,6 +6370,16 @@ const css$22 = `/**
     border: 1px solid var(--color-outline);
     box-shadow: none;
   }
+  .card-outlined { border: 1px solid var(--color-outline); box-shadow: none; }
+  .card-outlined:hover { box-shadow: none; }
+  .card-filled { background: var(--color-surface-container-highest); box-shadow: none; }
+  .card-lowest { background: var(--color-surface-container-lowest); box-shadow: none; }
+  .card-low { background: var(--color-surface-container-low); box-shadow: var(--shadow-sm); }
+  .card-default { background: var(--color-surface-container); box-shadow: var(--shadow-md); }
+  .card-high { background: var(--color-surface-container-high); box-shadow: var(--shadow-lg); }
+  .card-highest { background: var(--color-surface-container-highest); box-shadow: var(--shadow-xl); }
+  .card-subtitle { color: var(--color-on-surface-variant); font-size: 0.875rem; }
+  .card-comfortable .card-body { --card-p: 2rem; }
 
   .card-bordered:hover {
     box-shadow: none;
@@ -5871,16 +6569,16 @@ const css$22 = `/**
   }
 }
 `;
-const sheet$22 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$22) sheet$22.replaceSync(css$22);
+const sheet$21 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$21) sheet$21.replaceSync(css$21);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-card/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-card/dist/esm/register.js
 var VARIANT_CLASSES$1 = {
 	elevated: "card-elevated",
 	outlined: "card-bordered",
 	filled: ""
 };
-var styles$52 = css$31`
+var styles$50 = css$30`
   :host {
     display: block;
   }
@@ -5890,7 +6588,7 @@ var styles$52 = css$31`
   }
 
   /* Import core card styles */
-  ${css$22.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$21.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Web component specific adjustments */
 
@@ -5958,7 +6656,7 @@ var ElDmCard = class extends BaseElement {
 	};
 	constructor() {
 		super();
-		this.attachStyles(styles$52);
+		this.attachStyles(styles$50);
 	}
 	connectedCallback() {
 		super.connectedCallback();
@@ -6018,13 +6716,13 @@ var ElDmCard = class extends BaseElement {
     `;
 	}
 };
-function register$31() {
+function register$30() {
 	if (!customElements.get("el-dm-card")) customElements.define("el-dm-card", ElDmCard);
 }
-register$31();
+register$30();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/cascader.js
-const css$21 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/cascader.js
+const css$20 = `/**
  * Cascader Component Styles
  * DuskMoonUI - Multi-level dropdown selection with horizontal panels
  */
@@ -6139,6 +6837,23 @@ const css$21 = `/**
     background-color: var(--color-surface-container-high);
   }
 
+  .cascader:has(> .cascader-clear) .cascader-value {
+    padding-inline-end: 2rem;
+  }
+
+  .cascader > .cascader-clear {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 2.75rem;
+    z-index: 1;
+    transform: translateY(-50%);
+  }
+
+  .cascader > .cascader-clear:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
   /* Cascader Dropdown */
   .cascader-dropdown {
     position: absolute;
@@ -6160,7 +6875,10 @@ const css$21 = `/**
 
   /* Popover API Support */
   .cascader-dropdown[popover] {
-    inset: unset;
+    position: fixed;
+    inset: auto 0.5rem 0.5rem auto;
+    max-inline-size: calc(100dvw - 1rem);
+    max-block-size: min(16rem, calc(100dvh - 1rem));
     margin: 0;
     border: 1px solid var(--color-outline-variant);
   }
@@ -6169,32 +6887,14 @@ const css$21 = `/**
     display: flex;
   }
 
-  /* CSS Anchor Positioning for modern browsers */
-  @supports (anchor-name: --anchor) {
-    .cascader-trigger {
-      anchor-name: --cascader-anchor;
-    }
-
+  /* The popovertarget invoker is the implicit anchor for its own dropdown. */
+  @supports (position-area: block-end) {
     .cascader-dropdown[popover] {
-      position-anchor: --cascader-anchor;
-      top: anchor(bottom);
-      left: anchor(left);
-      margin-top: 0.25rem;
-      position-try-fallbacks: flip-block;
-    }
-  }
-
-  /* Fallback for browsers without anchor positioning */
-  @supports not (anchor-name: --anchor) {
-    .cascader {
-      position: relative;
-    }
-
-    .cascader-dropdown[popover]:popover-open {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      margin-top: 0.25rem;
+      inset: auto;
+      margin-block: 0.25rem;
+      margin-inline: 0;
+      position-area: block-end span-inline-end;
+      position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     }
   }
 
@@ -6514,23 +7214,23 @@ const css$21 = `/**
   }
 }
 `;
-const sheet$21 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$21) sheet$21.replaceSync(css$21);
+const sheet$20 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$20) sheet$20.replaceSync(css$20);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-cascader/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-cascader/dist/esm/register.js
 var chevronDownIcon$1 = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
 var chevronRightIcon$1 = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
 var checkIcon$1 = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
 var closeIcon$1 = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`;
 var searchIcon$1 = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`;
 var loadingIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spinner"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
-var styles$50 = css$31`
+var styles$48 = css$30`
   :host {
     display: inline-block;
     width: 100%;
   }
 
-  ${css$21.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$20.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Override: block display for full-width behavior */
   .cascader {
@@ -6858,7 +7558,7 @@ var ElDmCascader = class extends BaseElement {
 	_handleResize = this._onResize.bind(this);
 	constructor() {
 		super();
-		this.attachStyles(styles$50);
+		this.attachStyles(styles$48);
 	}
 	connectedCallback() {
 		super.connectedCallback();
@@ -7355,12 +8055,12 @@ var ElDmCascader = class extends BaseElement {
 		}, true);
 	}
 };
-function register$30() {
+function register$29() {
 	if (!customElements.get("el-dm-cascader")) customElements.define("el-dm-cascader", ElDmCascader);
 }
-register$30();
+register$29();
 //#endregion
-//#region node_modules/@duskmoon-dev/el-chart/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-chart/dist/esm/register.js
 var CHART_TYPES = new Set([
 	"bar",
 	"line",
@@ -7389,7 +8089,7 @@ var CHART_VARIANTS = new Set([
 var DEFAULT_VIEWBOX_WIDTH = 320;
 var DEFAULT_VIEWBOX_HEIGHT = 180;
 var CHART_PADDING = 24;
-var styles$49 = css$31`
+var styles$47 = css$30`
   :host {
     display: block;
     width: 100%;
@@ -7555,7 +8255,7 @@ var ElDmChart = class extends BaseElement {
 	};
 	constructor() {
 		super();
-		this.attachStyles(styles$49);
+		this.attachStyles(styles$47);
 	}
 	_getType() {
 		return CHART_TYPES.has(this.type) ? this.type : "bar";
@@ -7778,13 +8478,13 @@ function getSliceOpacity(index) {
 function escapeHtml$1(value) {
 	return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
-function register$29() {
+function register$28() {
 	if (!customElements.get("el-dm-chart")) customElements.define("el-dm-chart", ElDmChart);
 }
-register$29();
+register$28();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/chip.js
-const css$20 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/chip.js
+const css$19 = `/**
  * Chip Component Styles
  * DuskMoonUI - Material Design 3 inspired chip system
  */
@@ -8193,10 +8893,10 @@ const css$20 = `/**
   }
 }
 `;
-const sheet$20 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$20) sheet$20.replaceSync(css$20);
+const sheet$19 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$19) sheet$19.replaceSync(css$19);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-chip/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-chip/dist/esm/register.js
 var VARIANT_CLASSES = {
 	filled: "",
 	outlined: "chip-outlined",
@@ -8223,7 +8923,7 @@ function escapeHtml(value) {
 function matchesSelector(target, selector) {
 	return typeof target.matches === "function" && target.matches(selector);
 }
-var styles$47 = css$31`
+var styles$45 = css$30`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -8233,7 +8933,7 @@ var styles$47 = css$31`
     display: none !important;
   }
 
-  ${css$20.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$19.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   .chip {
     font-family: inherit;
@@ -8435,7 +9135,7 @@ var ElDmChip = class extends BaseElement {
 	};
 	constructor() {
 		super();
-		this.attachStyles(styles$47);
+		this.attachStyles(styles$45);
 	}
 	connectedCallback() {
 		super.connectedCallback();
@@ -8546,13 +9246,13 @@ var ElDmChip = class extends BaseElement {
 		if (activeSelector) this.shadowRoot.querySelector(activeSelector)?.focus();
 	}
 };
-function register$28() {
+function register$27() {
 	if (!customElements.get("el-dm-chip")) customElements.define("el-dm-chip", ElDmChip);
 }
-register$28();
+register$27();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/circle-menu.js
-const css$19 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/circle-menu.js
+const css$18 = `/**
  * Circle Menu Component Styles
  * DuskMoonUI - Radial circular navigation menu with CSS-only checkbox toggle
  *
@@ -8901,10 +9601,10 @@ const css$19 = `/**
   }
 }
 `;
-const sheet$19 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$19) sheet$19.replaceSync(css$19);
+const sheet$18 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$18) sheet$18.replaceSync(css$18);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-circle-menu/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-circle-menu/dist/esm/register.js
 var COLOR_CLASSES$4 = {
 	primary: "circle-menu-primary",
 	secondary: "circle-menu-secondary",
@@ -8919,7 +9619,7 @@ var SIZE_CLASSES$6 = {
 	md: "",
 	lg: "circle-menu-lg"
 };
-var styles$45 = css$31`
+var styles$43 = css$30`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -8929,7 +9629,7 @@ var styles$45 = css$31`
     display: none !important;
   }
 
-  ${css$19.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$18.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   .circle-menu {
     font-family: inherit;
@@ -8959,7 +9659,7 @@ var ElDmCircleMenu = class extends BaseElement {
 	#toggleId = `cm-${Math.random().toString(36).slice(2, 8)}`;
 	constructor() {
 		super();
-		this.attachStyles(styles$45);
+		this.attachStyles(styles$43);
 	}
 	_getContainerClasses() {
 		const classes = ["circle-menu"];
@@ -9037,13 +9737,13 @@ var ElDmCircleMenu = class extends BaseElement {
 		this.emit("toggle", { open: this.open });
 	}
 };
-function register$27() {
+function register$26() {
 	if (!customElements.get("el-dm-circle-menu")) customElements.define("el-dm-circle-menu", ElDmCircleMenu);
 }
-register$27();
+register$26();
 //#endregion
-//#region node_modules/@duskmoon-dev/el-code-block/dist/esm/register.js
-var styles$44 = css$31`
+//#region ../../node_modules/@duskmoon-dev/el-code-block/dist/esm/register.js
+var styles$42 = css$30`
   :host {
     display: block;
   }
@@ -9175,7 +9875,7 @@ var ElDmCodeBlock = class extends BaseElement {
 	};
 	constructor() {
 		super();
-		this.attachStyles(styles$44);
+		this.attachStyles(styles$42);
 	}
 	_getSlottedText() {
 		const slot = this.shadowRoot?.querySelector("slot:not([name])");
@@ -9228,18 +9928,88 @@ var ElDmCodeBlock = class extends BaseElement {
     `;
 	}
 };
-function register$26() {
+function register$25() {
 	if (!customElements.get("el-dm-code-block")) customElements.define("el-dm-code-block", ElDmCodeBlock);
 }
-register$26();
+register$25();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/datepicker.js
-const css$18 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/datepicker.js
+const css$17 = `/** Opt-in native presentation. Applications own errors, messages and announcements. */
+@layer components {
+  /* Compatibility wrapper states are intentionally immediate. */
+  :is(.form-group-info, .form-control.info) { --dm-validation-color: var(--color-info); }
+  :is(.form-group-warning, .form-control.warning) { --dm-validation-color: var(--color-warning); }
+  :is(.form-group-success, .form-control.success) { --dm-validation-color: var(--color-success); }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is(.validate :valid, .validate:valid, .validator.validator-success:user-valid):not([aria-invalid="true"]):not(:where(.form-group-error *, .form-control.error *)):not(:disabled) {
+    --dm-validation-color: var(--color-success);
+    --dm-validation-content: var(--color-success-content);
+  }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is(.validate :invalid, .validate:invalid, .validator:user-invalid):not(:disabled) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  :is(.form-group-error, .form-control.error) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  /* Higher specificity than native states, including server-invalid + user-valid. */
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .form-group-error *, .form-control.error *):not(:disabled):is(:focus, :not(:focus)) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  /* This shared selector wins over filled/ghost focus and semantic modifiers. */
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .validator:user-invalid, .validator.validator-success:user-valid, .validate :invalid, .validate :valid, .validate:invalid, .validate:valid, .form-group-error *, .form-group-success *, .form-group-warning *, .form-group-info *, .form-control.error *, .form-control.success *, .form-control.warning *, .form-control.info *):not(:disabled) {
+    color: var(--dm-validation-color);
+    border-color: var(--dm-validation-color);
+    --checkbox-color: var(--dm-validation-color);
+    --radio-color: var(--dm-validation-color);
+    --switch-color: var(--dm-validation-color);
+    --switch-content-color: var(--dm-validation-content, var(--color-primary-content));
+    --toggle-color: var(--dm-validation-color);
+  }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .validator:user-invalid, .validator.validator-success:user-valid, .validate :invalid, .validate :valid, .validate:invalid, .validate:valid, .form-group-error *, .form-group-success *, .form-group-warning *, .form-group-info *, .form-control.error *, .form-control.success *, .form-control.warning *, .form-control.info *):not(:disabled):focus {
+    border-color: var(--dm-validation-color);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--dm-validation-color) 20%, transparent);
+  }
+
+  :is(.form-group-error, .form-control.error) :is(.form-label, .label-text) { color: var(--color-error); }
+  :is(.form-group-success, .form-control.success) :is(.form-label, .label-text) { color: var(--color-success); }
+  :is(.form-group-warning, .form-control.warning) :is(.form-label, .label-text) { color: var(--color-warning); }
+  :is(.form-group-info, .form-control.info) :is(.form-label, .label-text) { color: var(--color-info); }
+
+  .validator-hint { font-size: 0.75rem; color: var(--color-on-surface-variant); }
+  .validator-error { display: none; font-size: 0.75rem; color: var(--color-error); }
+  /* Keep OTP actions stationary when blur reveals an error during a click. */
+  :is(.otp-code, .otp-input) ~ .validator-error { display: block; visibility: hidden; }
+  :is(.form-group, .form-control):has(:is([aria-invalid="true"], .validator:user-invalid, .validate :invalid, .validate:invalid):not(:disabled)) > .validator-error,
+  :is(.form-group-error, .form-control.error) > .validator-error { display: block; visibility: visible; }
+
+  @media (forced-colors: active) {
+    :is(input, select, textarea):is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+    input:is(.checkbox, .radio, .switch, .toggle) { appearance: auto; }
+    input:is(.checkbox, .radio, .switch, .toggle)::before,
+    input:is(.checkbox, .radio, .switch, .toggle)::after { content: none; }
+  }
+}
+
+
+/**
  * Datepicker Component Styles
  * DuskMoonUI - Material Design 3 inspired datepicker system
  */
 
 @layer components {
+  :where(.datepicker, .datepicker-input) { box-sizing: border-box; }
+
   /* Datepicker Container */
   .datepicker {
     position: relative;
@@ -9431,6 +10201,9 @@ const css$18 = `/**
     gap: 0.125rem;
     padding: 0.5rem;
   }
+
+  .datepicker-calendar > :is(.datepicker-weekdays, .datepicker-days) { grid-column: 1 / -1; }
+  .datepicker-trigger:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 
   /* Weekday Headers */
   .datepicker-weekdays {
@@ -9914,6 +10687,7 @@ const css$18 = `/**
   /* Inline Datepicker (always visible) */
   .datepicker-inline {
     position: static;
+    max-inline-size: 22rem;
   }
 
   .datepicker-inline .datepicker-dropdown,
@@ -9925,6 +10699,8 @@ const css$18 = `/**
     transform: none;
     margin-top: 0;
     box-shadow: none;
+    min-inline-size: 0;
+    max-inline-size: 100%;
   }
 
   /* Input Color Variants */
@@ -10091,10 +10867,10 @@ const css$18 = `/**
   }
 }
 `;
-const sheet$18 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$18) sheet$18.replaceSync(css$18);
-var styles$42 = css$31`
-  ${css$18.replace(/@layer\s+components\s*\{/, "").replace(/\}[\s]*$/, "")}
+const sheet$17 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$17) sheet$17.replaceSync(css$17);
+var styles$40 = css$30`
+  ${css$17.replace(/@layer\s+components\s*\{/, "").replace(/\}[\s]*$/, "")}
 
   :host {
     display: block;
@@ -10249,7 +11025,7 @@ var ElDmDatepicker = class extends BaseElement {
 	_period = "AM";
 	constructor() {
 		super();
-		this.attachStyles(styles$42);
+		this.attachStyles(styles$40);
 	}
 	_delegatedClickHandler = null;
 	_delegatedChangeHandler = null;
@@ -10757,13 +11533,13 @@ var ElDmDatepicker = class extends BaseElement {
 		else this._setViewMode("days");
 	};
 };
-function register$25() {
+function register$24() {
 	if (!customElements.get("el-dm-datepicker")) customElements.define("el-dm-datepicker", ElDmDatepicker);
 }
-register$25();
+register$24();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/dialog.js
-const css$17 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/dialog.js
+const css$16 = `/**
  * Dialog Component Styles
  * DuskMoonUI - Material Design 3 inspired dialog system
  * Uses native HTML <dialog> element for accessibility and built-in functionality
@@ -10776,9 +11552,10 @@ const css$17 = `/**
     margin: auto;
     padding: 0;
     border: none;
-    width: 100%;
+    width: calc(100% - 2rem);
     max-width: 28rem;
-    max-height: calc(100vh - 4rem);
+    max-height: calc(100dvh - 2rem);
+    box-sizing: border-box;
     background-color: var(--color-surface);
     color: var(--color-on-surface);
     border-radius: var(--radius-2xl);
@@ -10795,7 +11572,7 @@ const css$17 = `/**
   .dialog-box {
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 4rem);
+    max-height: calc(100dvh - 2rem);
     overflow: hidden;
   }
 
@@ -10854,6 +11631,7 @@ const css$17 = `/**
   /* Dialog Footer */
   .dialog-footer {
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
     gap: 0.5rem;
     padding: 1rem 1.5rem 1.5rem;
@@ -10891,6 +11669,30 @@ const css$17 = `/**
     height: 100%;
     border-radius: 0;
     margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    dialog.dialog {
+      width: calc(100% - 1rem);
+      max-height: calc(100dvh - 1rem);
+      border-radius: var(--radius-lg);
+    }
+
+    .dialog-box {
+      max-height: calc(100dvh - 1rem);
+    }
+
+    .dialog-header {
+      padding: 1rem 1rem 0;
+    }
+
+    .dialog-body {
+      padding: 1rem;
+    }
+
+    .dialog-footer {
+      padding: 0.75rem 1rem 1rem;
+    }
   }
 
   dialog.dialog.dialog-fullscreen .dialog-box {
@@ -10937,10 +11739,10 @@ const css$17 = `/**
   }
 }
 `;
-const sheet$17 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$17) sheet$17.replaceSync(css$17);
+const sheet$16 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$16) sheet$16.replaceSync(css$16);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-dialog/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-dialog/dist/esm/register.js
 var SIZE_CLASSES$5 = {
 	sm: "dialog-sm",
 	md: "",
@@ -10948,7 +11750,7 @@ var SIZE_CLASSES$5 = {
 	xl: "dialog-xl",
 	full: "dialog-fullscreen"
 };
-var styles$40 = css$31`
+var styles$38 = css$30`
   :host {
     display: contents;
   }
@@ -10957,7 +11759,7 @@ var styles$40 = css$31`
     display: none !important;
   }
 
-  ${css$17.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$16.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   dialog.dialog {
     font-family: inherit;
@@ -10993,7 +11795,7 @@ var ElDmDialog = class extends BaseElement {
 	_structureKey = "";
 	constructor() {
 		super();
-		this.attachStyles(styles$40);
+		this.attachStyles(styles$38);
 	}
 	connectedCallback() {
 		super.connectedCallback();
@@ -11144,13 +11946,13 @@ var ElDmDialog = class extends BaseElement {
 		}
 	}
 };
-function register$24() {
+function register$23() {
 	if (!customElements.get("el-dm-dialog")) customElements.define("el-dm-dialog", ElDmDialog);
 }
-register$24();
+register$23();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/drawer.js
-const css$16 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/drawer.js
+const css$15 = `/**
  * Drawer Component Styles
  * DuskMoonUI - Material Design 3 inspired navigation drawer system
  */
@@ -11599,9 +12401,9 @@ const css$16 = `/**
   }
 }
 `;
-const sheet$16 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$16) sheet$16.replaceSync(css$16);
-var styles$38 = css$31`
+const sheet$15 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$15) sheet$15.replaceSync(css$15);
+var styles$36 = css$30`
   :host {
     display: contents;
   }
@@ -11611,7 +12413,7 @@ var styles$38 = css$31`
   }
 
   /* Import core drawer styles */
-  ${css$16.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$15.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Web component specific: wrapper for positioning context */
   .drawer-wrapper {
@@ -11666,7 +12468,7 @@ var ElDmDrawer = class extends BaseElement {
 	_previouslyFocused = null;
 	constructor() {
 		super();
-		this.attachStyles([styles$38, animationStyles]);
+		this.attachStyles([styles$36, animationStyles]);
 	}
 	_handleBackdropClick(event) {
 		if (this.modal && event.target === event.currentTarget) this.hide();
@@ -11796,13 +12598,13 @@ var ElDmDrawer = class extends BaseElement {
 		(this.shadowRoot?.querySelector(".drawer-close"))?.addEventListener("click", () => this.hide());
 	}
 };
-function register$23() {
+function register$22() {
 	if (!customElements.get("el-dm-drawer")) customElements.define("el-dm-drawer", ElDmDrawer);
 }
-register$23();
+register$22();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/file-upload.js
-const css$15 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/file-upload.js
+const css$14 = `/**
  * File Upload Component Styles
  * DuskMoonUI - Material Design 3 inspired file upload system
  */
@@ -12205,16 +13007,16 @@ const css$15 = `/**
   }
 }
 `;
-const sheet$15 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$15) sheet$15.replaceSync(css$15);
+const sheet$14 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$14) sheet$14.replaceSync(css$14);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-file-upload/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-file-upload/dist/esm/register.js
 var SIZE_CLASSES$4 = {
 	sm: "file-upload-sm",
 	md: "",
 	lg: "file-upload-lg"
 };
-var styles$36 = css$31`
+var styles$34 = css$30`
   :host {
     display: block;
   }
@@ -12223,7 +13025,7 @@ var styles$36 = css$31`
     display: none !important;
   }
 
-  ${css$15.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$14.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Web component specific adjustments */
   .file-upload {
@@ -12468,7 +13270,7 @@ var ElDmFileUpload = class extends BaseElement {
 	_files = [];
 	constructor() {
 		super();
-		this.attachStyles(styles$36);
+		this.attachStyles(styles$34);
 	}
 	get files() {
 		return this._files;
@@ -12657,297 +13459,802 @@ var ElDmFileUpload = class extends BaseElement {
 		});
 	}
 };
-function register$22() {
+function register$21() {
 	if (!customElements.get("el-dm-file-upload")) customElements.define("el-dm-file-upload", ElDmFileUpload);
 }
-register$22();
+register$21();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/form.js
-const css$14 = `/**
- * Form Component Styles
- * DuskMoonUI - Material Design 3 inspired form system
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/form.js
+const css$13 = `/**
+ * Legacy form entry: native controls and composition reuse canonical CSS.
+ * No control state rules belong in this compatibility wrapper.
+ */
+/** Opt-in native presentation. Applications own errors, messages and announcements. */
+@layer components {
+  /* Compatibility wrapper states are intentionally immediate. */
+  :is(.form-group-info, .form-control.info) { --dm-validation-color: var(--color-info); }
+  :is(.form-group-warning, .form-control.warning) { --dm-validation-color: var(--color-warning); }
+  :is(.form-group-success, .form-control.success) { --dm-validation-color: var(--color-success); }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is(.validate :valid, .validate:valid, .validator.validator-success:user-valid):not([aria-invalid="true"]):not(:where(.form-group-error *, .form-control.error *)):not(:disabled) {
+    --dm-validation-color: var(--color-success);
+    --dm-validation-content: var(--color-success-content);
+  }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is(.validate :invalid, .validate:invalid, .validator:user-invalid):not(:disabled) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  :is(.form-group-error, .form-control.error) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  /* Higher specificity than native states, including server-invalid + user-valid. */
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .form-group-error *, .form-control.error *):not(:disabled):is(:focus, :not(:focus)) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  /* This shared selector wins over filled/ghost focus and semantic modifiers. */
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .validator:user-invalid, .validator.validator-success:user-valid, .validate :invalid, .validate :valid, .validate:invalid, .validate:valid, .form-group-error *, .form-group-success *, .form-group-warning *, .form-group-info *, .form-control.error *, .form-control.success *, .form-control.warning *, .form-control.info *):not(:disabled) {
+    color: var(--dm-validation-color);
+    border-color: var(--dm-validation-color);
+    --checkbox-color: var(--dm-validation-color);
+    --radio-color: var(--dm-validation-color);
+    --switch-color: var(--dm-validation-color);
+    --switch-content-color: var(--dm-validation-content, var(--color-primary-content));
+    --toggle-color: var(--dm-validation-color);
+  }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .validator:user-invalid, .validator.validator-success:user-valid, .validate :invalid, .validate :valid, .validate:invalid, .validate:valid, .form-group-error *, .form-group-success *, .form-group-warning *, .form-group-info *, .form-control.error *, .form-control.success *, .form-control.warning *, .form-control.info *):not(:disabled):focus {
+    border-color: var(--dm-validation-color);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--dm-validation-color) 20%, transparent);
+  }
+
+  :is(.form-group-error, .form-control.error) :is(.form-label, .label-text) { color: var(--color-error); }
+  :is(.form-group-success, .form-control.success) :is(.form-label, .label-text) { color: var(--color-success); }
+  :is(.form-group-warning, .form-control.warning) :is(.form-label, .label-text) { color: var(--color-warning); }
+  :is(.form-group-info, .form-control.info) :is(.form-label, .label-text) { color: var(--color-info); }
+
+  .validator-hint { font-size: 0.75rem; color: var(--color-on-surface-variant); }
+  .validator-error { display: none; font-size: 0.75rem; color: var(--color-error); }
+  /* Keep OTP actions stationary when blur reveals an error during a click. */
+  :is(.otp-code, .otp-input) ~ .validator-error { display: block; visibility: hidden; }
+  :is(.form-group, .form-control):has(:is([aria-invalid="true"], .validator:user-invalid, .validate :invalid, .validate:invalid):not(:disabled)) > .validator-error,
+  :is(.form-group-error, .form-control.error) > .validator-error { display: block; visibility: visible; }
+
+  @media (forced-colors: active) {
+    :is(input, select, textarea):is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+    input:is(.checkbox, .radio, .switch, .toggle) { appearance: auto; }
+    input:is(.checkbox, .radio, .switch, .toggle)::before,
+    input:is(.checkbox, .radio, .switch, .toggle)::after { content: none; }
+  }
+}
+
+
+
+@layer components {
+  .file-input {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    font: inherit;
+    color: var(--color-on-surface);
+    background-color: var(--color-surface);
+    border: 1px solid currentColor;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .file-input::file-selector-button {
+    padding: 0.75rem 1rem;
+    margin-inline-end: 0.75rem;
+    font: inherit;
+    color: inherit;
+    background-color: var(--color-surface-container);
+    border: none;
+    border-inline-end: 1px solid currentColor;
+    cursor: inherit;
+  }
+  .file-input:hover:not(:disabled)::file-selector-button { background-color: var(--color-surface-container-high); }
+  .file-input:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent); }
+  .file-input:disabled { opacity: 0.5; cursor: not-allowed; }
+  .file-input-xs::file-selector-button { padding: 0.375rem 0.625rem; }
+  .file-input-sm::file-selector-button { padding: 0.5rem 0.75rem; }
+  .file-input-lg::file-selector-button { padding: 1rem 1.25rem; }
+  .file-input-primary { color: var(--color-primary); }
+  .file-input-secondary { color: var(--color-secondary); }
+  .file-input-tertiary { color: var(--color-tertiary); }
+  .file-input-info { color: var(--color-info); }
+  .file-input-success { color: var(--color-success); }
+  .file-input-warning { color: var(--color-warning); }
+  .file-input-error { color: var(--color-error); }
+  .file-input-ghost { border-color: transparent; }
+}
+
+
+/**
+ * Input Component Styles
+ * DuskMoonUI - Material Design 3 inspired input system
  */
 
 @layer components {
-  /* Form Control */
-  .form-control {
+  /* Base Input */
+  .input {
+    box-sizing: border-box;
+    min-width: 0;
     display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
     width: 100%;
-    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    background-color: var(--color-surface);
     color: var(--color-on-surface);
+    border: 1px solid currentColor;
+    border-radius: var(--radius-sm);
+    transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
   }
 
-  /* Label */
-  .label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.25rem 0;
-  }
-
-  .label-text {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--color-on-surface);
-    padding-bottom: 0.25rem;
-  }
-
-  .label-text-alt {
-    font-size: 0.75rem;
+  .input::placeholder {
     color: var(--color-on-surface-variant);
+    opacity: 0.7;
   }
 
-  /* Checkbox */
-  .checkbox {
-    appearance: none;
-    width: 1.25rem;
-    height: 1.25rem;
-    border: 2px solid var(--color-outline);
-    border-radius: var(--radius-xs);
-    background-color: transparent;
-    cursor: pointer;
-    transition: all 150ms ease-in-out;
-    position: relative;
-  }
-
-  .checkbox:hover {
-    border-color: var(--color-primary);
-  }
-
-  .checkbox:checked {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
-  }
-
-  .checkbox:checked::after {
-    content: '';
-    position: absolute;
-    left: 0.25rem;
-    top: 0.0625rem;
-    width: 0.375rem;
-    height: 0.625rem;
-    border: solid var(--color-primary-content);
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-  }
-
-  .checkbox:focus-visible {
+  .input:focus {
     outline: none;
+  }
+
+  .input:focus-visible {
+    box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
+    outline: none;
+  }
+
+  .input:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    background-color: var(--color-surface-container);
+  }
+
+  /* Bordered Input */
+  .input-outlined { background-color: transparent; border-color: var(--color-outline); }
+  .input-bordered {
+    border-color: var(--color-outline);
+    background-color: var(--color-surface);
+  }
+
+  .input-bordered:hover:not(:disabled):not(:focus) {
+    border-color: var(--color-outline-variant);
+  }
+
+  /* Color Variants — base .input:focus-visible uses currentColor 20%, so no per-variant
+     focus-visible overrides needed; setting color: here is sufficient. */
+  .input-primary   { color: var(--color-primary); }
+  .input-secondary { color: var(--color-secondary); }
+  .input-tertiary  { color: var(--color-tertiary); }
+
+  /* Semantic Colors */
+  .input-info    { color: var(--color-info); }
+  .input-success { color: var(--color-success); }
+  .input-warning { color: var(--color-warning); }
+  .input-error   { color: var(--color-error); }
+  .input-accent  { color: var(--color-accent); }
+  .input-neutral { color: var(--color-neutral); }
+  .input-base    { color: var(--color-base-content); }
+
+  /* Size Variants */
+  .input-xs {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    border-radius: var(--radius-xs);
+    height: 1.75rem;
+  }
+
+  .input-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    border-radius: var(--radius-xs);
+    height: 2.25rem;
+  }
+
+  .input-lg {
+    padding: 1rem 1.25rem;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    border-radius: var(--radius-sm);
+    height: 3.5rem;
+  }
+
+  /* Ghost Input */
+  .input-md { height: 3rem; }
+  .input-ghost {
+    background-color: transparent;
+    border-color: transparent;
+  }
+
+  .input-ghost:focus-visible {
+    background-color: var(--color-surface-container);
+    border-color: transparent;
     box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
   }
 
+  /* Filled Input */
+  .input-filled {
+    background-color: var(--color-surface-container);
+    border-color: transparent;
+    border-bottom: 2px solid var(--color-outline);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  }
+
+  .input-filled:focus-visible {
+    border-bottom-color: var(--color-primary);
+    box-shadow: none;
+  }
+
+  .input-filled.input-primary:focus-visible { border-bottom-color: var(--color-primary); }
+  .input-filled.input-secondary:focus-visible { border-bottom-color: var(--color-secondary); }
+  .input-filled.input-tertiary:focus-visible { border-bottom-color: var(--color-tertiary); }
+  .input-filled.input-info:focus-visible { border-bottom-color: var(--color-info); }
+  .input-filled.input-success:focus-visible { border-bottom-color: var(--color-success); }
+  .input-filled.input-warning:focus-visible { border-bottom-color: var(--color-warning); }
+  .input-filled.input-error:focus-visible { border-bottom-color: var(--color-error); }
+  .input-filled.input-accent:focus-visible { border-bottom-color: var(--color-accent); }
+  .input-filled.input-neutral:focus-visible { border-bottom-color: var(--color-neutral); }
+  .input-filled.input-base:focus-visible { border-bottom-color: var(--color-base-content); }
+
+  /* Input with Icon */
+  .input-group {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .input-group > .input {
+    flex: 1;
+    border-radius: 0;
+  }
+
+  .input-group > .input:first-child {
+    border-top-left-radius: var(--radius-sm);
+    border-bottom-left-radius: var(--radius-sm);
+  }
+
+  .input-group > .input:last-child {
+    border-top-right-radius: var(--radius-sm);
+    border-bottom-right-radius: var(--radius-sm);
+  }
+
+  .input-group-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    background-color: var(--color-surface-container);
+    color: var(--color-on-surface-variant);
+    border: 1px solid var(--color-outline);
+  }
+
+  .input-group-text:first-child {
+    border-top-left-radius: var(--radius-sm);
+    border-bottom-left-radius: var(--radius-sm);
+    border-right: none;
+  }
+
+  .input-group-text:last-child {
+    border-top-right-radius: var(--radius-sm);
+    border-bottom-right-radius: var(--radius-sm);
+    border-left: none;
+  }
+
+  /* Reduce Motion */
+  @media (prefers-reduced-motion: reduce) {
+    .input,
+    .input-filled,
+    .file-input {
+      transition: none;
+    }
+  }
+}
+
+
+
+/**
+ * Checkbox Component Styles
+ * DuskMoonUI - Material Design 3 inspired checkbox
+ *
+ * Usage: <input type="checkbox" class="checkbox" />
+ * With label: <label class="label cursor-pointer gap-2"><input type="checkbox" class="checkbox" /><span>Label</span></label>
+ */
+
+@layer components {
+  :where(.checkbox) { box-sizing: border-box; }
+
+  /* Base Checkbox - applied directly to input[type="checkbox"] */
+  .checkbox {
+    --checkbox-size: 1.25rem;
+    --checkbox-color: var(--color-primary);
+    --checkbox-border-color: var(--color-on-surface-variant);
+    color: var(--color-on-surface);
+
+    position: relative;
+    display: inline-grid;
+    place-content: center;
+    width: var(--checkbox-size);
+    height: var(--checkbox-size);
+    margin: 0;
+    cursor: pointer;
+    appearance: none;
+    background-color: transparent;
+    border: 2px solid var(--checkbox-border-color);
+    border-radius: var(--radius-xs);
+    transition: background-color 150ms ease-in-out, border-color 150ms ease-in-out;
+  }
+
+  /* Checkmark using ::before pseudo-element */
+  .checkbox::before {
+    content: "";
+    width: 0.65em;
+    height: 0.35em;
+    transform: scale(0) rotate(-45deg);
+    transform-origin: center;
+    border-bottom: 2px solid var(--dm-validation-content, var(--color-primary-content));
+    border-left: 2px solid var(--dm-validation-content, var(--color-primary-content));
+    transition: transform 150ms ease-in-out;
+  }
+
+  /* Checked State */
+  .checkbox:checked {
+    background-color: var(--checkbox-color);
+    border-color: var(--checkbox-color);
+  }
+
+  .checkbox:checked::before {
+    transform: scale(1) rotate(-45deg);
+  }
+
+  /* Indeterminate State */
+  .checkbox:indeterminate {
+    background-color: var(--checkbox-color);
+    border-color: var(--checkbox-color);
+  }
+
+  .checkbox:indeterminate::before {
+    width: 0.5em;
+    height: 0;
+    border-bottom: 2px solid var(--dm-validation-content, var(--color-primary-content));
+    border-left: 0;
+    transform: scale(1) rotate(0deg);
+  }
+
+  /* Hover State */
+  .checkbox:hover:not(:disabled):not(:checked) {
+    border-color: var(--color-on-surface);
+  }
+
+  .checkbox:checked:hover:not(:disabled),
+  .checkbox:indeterminate:hover:not(:disabled) {
+    background-color: color-mix(in oklch, var(--checkbox-color), black 10%);
+    border-color: color-mix(in oklch, var(--checkbox-color), black 10%);
+  }
+
+  /* Focus State */
+  .checkbox:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--checkbox-color) 20%, transparent);
+  }
+
+  /* Disabled State */
   .checkbox:disabled {
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 0.38;
   }
 
-  /* Checkbox Color Variants */
-  .checkbox-primary:checked {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
-  }
+  /* ========================================
+   * Size Variants
+   * ======================================== */
 
-  .checkbox-secondary:checked {
-    background-color: var(--color-secondary);
-    border-color: var(--color-secondary);
-  }
-
-  .checkbox-success:checked {
-    background-color: var(--color-success);
-    border-color: var(--color-success);
-  }
-
-  .checkbox-tertiary:checked {
-    background-color: var(--color-tertiary);
-    border-color: var(--color-tertiary);
-  }
-
-  .checkbox-info:checked {
-    background-color: var(--color-info);
-    border-color: var(--color-info);
-  }
-
-  .checkbox-warning:checked {
-    background-color: var(--color-warning);
-    border-color: var(--color-warning);
-  }
-
-  .checkbox-error:checked {
-    background-color: var(--color-error);
-    border-color: var(--color-error);
-  }
-
-  .checkbox-accent:checked {
-    background-color: var(--color-accent);
-    border-color: var(--color-accent);
-  }
-
-  .checkbox-accent:checked::after {
-    border-color: var(--color-accent-content);
-  }
-
-  .checkbox-neutral:checked {
-    background-color: var(--color-neutral);
-    border-color: var(--color-neutral);
-  }
-
-  .checkbox-neutral:checked::after {
-    border-color: var(--color-neutral-content);
-  }
-
-  .checkbox-base:checked {
-    background-color: var(--color-base-100);
-    border-color: var(--color-base-100);
-  }
-
-  .checkbox-base:checked::after {
-    border-color: var(--color-base-content);
-  }
-
-  /* Checkbox Sizes */
   .checkbox-xs {
-    width: 0.875rem;
-    height: 0.875rem;
+    --checkbox-size: 0.875rem;
   }
 
   .checkbox-sm {
-    width: 1rem;
-    height: 1rem;
+    --checkbox-size: 1rem;
+  }
+
+  .checkbox-md {
+    --checkbox-size: 1.25rem;
   }
 
   .checkbox-lg {
-    width: 1.5rem;
-    height: 1.5rem;
+    --checkbox-size: 1.5rem;
   }
 
-  /* Radio */
-  .radio {
-    appearance: none;
-    width: 1.25rem;
-    height: 1.25rem;
-    border: 2px solid var(--color-outline);
-    border-radius: var(--radius-full);
-    background-color: transparent;
+  .checkbox-xl {
+    --checkbox-size: 1.75rem;
+  }
+
+  /* ========================================
+   * Color Variants
+   * ======================================== */
+
+  .checkbox-primary {
+    --checkbox-color: var(--color-primary);
+  }
+
+  .checkbox-primary:checked::before,
+  .checkbox-primary:indeterminate::before {
+    border-color: var(--dm-validation-content, var(--color-primary-content));
+  }
+
+  .checkbox-secondary {
+    --checkbox-color: var(--color-secondary);
+  }
+
+  .checkbox-secondary:checked::before,
+  .checkbox-secondary:indeterminate::before {
+    border-color: var(--dm-validation-content, var(--color-secondary-content));
+  }
+
+  .checkbox-tertiary {
+    --checkbox-color: var(--color-tertiary);
+  }
+
+  .checkbox-tertiary:checked::before,
+  .checkbox-tertiary:indeterminate::before {
+    border-color: var(--dm-validation-content, var(--color-tertiary-content));
+  }
+
+  .checkbox-success {
+    --checkbox-color: var(--color-success);
+  }
+
+  .checkbox-success:checked::before,
+  .checkbox-success:indeterminate::before {
+    border-color: var(--dm-validation-content, var(--color-success-content));
+  }
+
+  .checkbox-warning {
+    --checkbox-color: var(--color-warning);
+  }
+
+  .checkbox-warning:checked::before,
+  .checkbox-warning:indeterminate::before {
+    border-color: var(--dm-validation-content, var(--color-warning-content));
+  }
+
+  .checkbox-error {
+    --checkbox-color: var(--color-error);
+  }
+
+  .checkbox-error:checked::before,
+  .checkbox-error:indeterminate::before {
+    border-color: var(--dm-validation-content, var(--color-error-content));
+  }
+
+  .checkbox-info {
+    --checkbox-color: var(--color-info);
+  }
+
+  .checkbox-info:checked::before,
+  .checkbox-info:indeterminate::before {
+    border-color: var(--dm-validation-content, var(--color-info-content));
+  }
+
+  .checkbox-accent {
+    --checkbox-color: var(--color-accent);
+  }
+
+  .checkbox-accent:checked::before,
+  .checkbox-accent:indeterminate::before {
+    border-color: var(--dm-validation-content, var(--color-accent-content));
+  }
+
+  .checkbox-neutral {
+    --checkbox-color: var(--color-neutral);
+  }
+
+  .checkbox-neutral:checked::before,
+  .checkbox-neutral:indeterminate::before {
+    border-color: var(--dm-validation-content, var(--color-neutral-content));
+  }
+
+  .checkbox-base {
+    --checkbox-color: var(--color-base-100);
+  }
+
+  .checkbox-base:checked::before,
+  .checkbox-base:indeterminate::before {
+    border-color: var(--dm-validation-content, var(--color-base-content));
+  }
+
+  /* Ghost Variant — borderless unchecked state */
+  .checkbox-ghost {
+    --checkbox-border-color: transparent;
+  }
+
+  .checkbox-ghost:hover:not(:disabled):not(:checked) {
+    border-color: transparent;
+  }
+
+  /* ========================================
+   * Checkbox with Label (wrapper pattern)
+   * ======================================== */
+
+  .checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     cursor: pointer;
-    transition: all 150ms ease-in-out;
+    user-select: none;
+    font-size: 0.875rem;
+    color: var(--color-on-surface);
+  }
+
+  .checkbox-label:has(.checkbox:disabled) {
+    cursor: not-allowed;
+    opacity: 0.38;
+  }
+
+  /* ========================================
+   * Checkbox Group
+   * ======================================== */
+
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .checkbox-group-horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .checkbox-group-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-on-surface);
+    margin-bottom: 0.5rem;
+  }
+
+  /* ========================================
+   * Reduce Motion
+   * ======================================== */
+
+  @media (prefers-reduced-motion: reduce) {
+    .checkbox,
+    .checkbox::before {
+      transition: none;
+    }
+  }
+}
+
+
+
+/**
+ * Radio Component Styles
+ * DuskMoonUI - Material Design 3 inspired radio button
+ *
+ * Usage: <input type="radio" name="group" class="radio" />
+ * With label: <label class="radio-label"><input type="radio" name="group" class="radio" /><span>Option</span></label>
+ */
+
+@layer components {
+  :where(.radio) { box-sizing: border-box; }
+
+  /* Base Radio - applied directly to input[type="radio"] */
+  .radio {
+    --radio-size: 1.25rem;
+    --radio-color: var(--color-primary);
+    --radio-border-color: var(--color-on-surface-variant);
+    color: var(--color-on-surface);
+
     position: relative;
-  }
-
-  .radio:hover {
-    border-color: var(--color-primary);
-  }
-
-  .radio:checked {
-    border-color: var(--color-primary);
-  }
-
-  .radio:checked::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 0.5rem;
-    height: 0.5rem;
-    background-color: var(--color-primary);
+    display: inline-grid;
+    place-content: center;
+    width: var(--radio-size);
+    height: var(--radio-size);
+    margin: 0;
+    cursor: pointer;
+    appearance: none;
+    background-color: transparent;
+    border: 2px solid var(--radio-border-color);
     border-radius: var(--radius-full);
-    transform: translate(-50%, -50%);
+    transition: border-color 150ms ease-in-out;
   }
 
+  /* Inner dot using ::before pseudo-element */
+  .radio::before {
+    content: "";
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: var(--radius-full);
+    background-color: var(--radio-color);
+    transform: scale(0);
+    transition: transform 150ms ease-in-out;
+  }
+
+  /* Checked State */
+  .radio:checked {
+    border-color: var(--radio-color);
+  }
+
+  .radio:checked::before {
+    transform: scale(1);
+  }
+
+  /* Hover State */
+  .radio:hover:not(:disabled):not(:checked) {
+    border-color: var(--color-on-surface);
+  }
+
+  .radio:checked:hover:not(:disabled) {
+    border-color: color-mix(in oklch, var(--radio-color), black 10%);
+  }
+
+  .radio:checked:hover:not(:disabled)::before {
+    background-color: color-mix(in oklch, var(--radio-color), black 10%);
+  }
+
+  /* Focus State */
   .radio:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--radio-color) 20%, transparent);
   }
 
+  /* Disabled State */
   .radio:disabled {
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 0.38;
   }
 
-  /* Radio Color Variants */
-  .radio-primary:checked {
-    border-color: var(--color-primary);
+  /* ========================================
+   * Size Variants
+   * ======================================== */
+
+  .radio-xs {
+    --radio-size: 0.875rem;
   }
 
-  .radio-primary:checked::after {
-    background-color: var(--color-primary);
+  .radio-sm {
+    --radio-size: 1rem;
   }
 
-  .radio-secondary:checked {
-    border-color: var(--color-secondary);
+  .radio-md {
+    --radio-size: 1.25rem;
   }
 
-  .radio-secondary:checked::after {
-    background-color: var(--color-secondary);
+  .radio-lg {
+    --radio-size: 1.5rem;
   }
 
-  .radio-tertiary:checked {
-    border-color: var(--color-tertiary);
+  .radio-xl {
+    --radio-size: 1.75rem;
   }
 
-  .radio-tertiary:checked::after {
-    background-color: var(--color-tertiary);
+  /* ========================================
+   * Color Variants
+   * ======================================== */
+
+  .radio-primary {
+    --radio-color: var(--color-primary);
   }
 
-  .radio-info:checked {
-    border-color: var(--color-info);
+  .radio-secondary {
+    --radio-color: var(--color-secondary);
   }
 
-  .radio-info:checked::after {
-    background-color: var(--color-info);
+  .radio-tertiary {
+    --radio-color: var(--color-tertiary);
   }
 
-  .radio-success:checked {
-    border-color: var(--color-success);
+  .radio-success {
+    --radio-color: var(--color-success);
   }
 
-  .radio-success:checked::after {
-    background-color: var(--color-success);
+  .radio-warning {
+    --radio-color: var(--color-warning);
   }
 
-  .radio-warning:checked {
-    border-color: var(--color-warning);
+  .radio-error {
+    --radio-color: var(--color-error);
   }
 
-  .radio-warning:checked::after {
-    background-color: var(--color-warning);
+  .radio-info {
+    --radio-color: var(--color-info);
   }
 
-  .radio-error:checked {
-    border-color: var(--color-error);
+  .radio-accent {
+    --radio-color: var(--color-accent);
   }
 
-  .radio-error:checked::after {
-    background-color: var(--color-error);
+  .radio-neutral {
+    --radio-color: var(--color-neutral);
   }
 
-  .radio-accent:checked {
-    border-color: var(--color-accent);
+  .radio-base {
+    --radio-color: var(--color-base-content);
   }
 
-  .radio-accent:checked::after {
-    background-color: var(--color-accent);
+  /* Ghost Variant — borderless unchecked state */
+  .radio-ghost {
+    --radio-border-color: transparent;
   }
 
-  .radio-neutral:checked {
-    border-color: var(--color-neutral);
+  .radio-ghost:hover:not(:disabled):not(:checked) {
+    border-color: transparent;
   }
 
-  .radio-neutral:checked::after {
-    background-color: var(--color-neutral);
+  /* ========================================
+   * Radio with Label (wrapper pattern)
+   * ======================================== */
+
+  .radio-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.875rem;
+    color: var(--color-on-surface);
   }
 
-  .radio-base:checked {
-    border-color: var(--color-base-content);
+  .radio-label:has(.radio:disabled) {
+    cursor: not-allowed;
+    opacity: 0.38;
   }
 
-  .radio-base:checked::after {
-    background-color: var(--color-base-content);
+  /* ========================================
+   * Radio Group
+   * ======================================== */
+
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
   }
 
+  .radio-group-horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .radio-group-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-on-surface);
+    margin-bottom: 0.5rem;
+  }
+
+  /* ========================================
+   * Reduce Motion
+   * ======================================== */
+
+  @media (prefers-reduced-motion: reduce) {
+    .radio,
+    .radio::before {
+      transition: none;
+    }
+  }
+}
+
+
+
+@layer components {
   /* Toggle/Switch */
   .toggle {
+    --toggle-color: var(--color-primary);
+    box-sizing: border-box;
+    color: var(--color-on-surface);
+    border: 1px solid currentColor;
     appearance: none;
     width: 3rem;
     height: 1.5rem;
@@ -12961,7 +14268,7 @@ const css$14 = `/**
   .toggle::after {
     content: '';
     position: absolute;
-    left: 0.25rem;
+    inset-inline-start: 0.25rem;
     top: 50%;
     transform: translateY(-50%);
     width: 1rem;
@@ -12972,12 +14279,12 @@ const css$14 = `/**
   }
 
   .toggle:checked {
-    background-color: var(--color-primary);
+    background-color: var(--toggle-color);
   }
 
   .toggle:checked::after {
-    left: calc(100% - 1.25rem);
-    background-color: var(--color-primary-content);
+    inset-inline-start: calc(100% - 1.25rem);
+    background-color: var(--dm-validation-content, var(--color-primary-content));
   }
 
   .toggle:focus-visible {
@@ -12999,11 +14306,11 @@ const css$14 = `/**
   .toggle-xs::after {
     width: 0.625rem;
     height: 0.625rem;
-    left: 0.1875rem;
+    inset-inline-start: 0.1875rem;
   }
 
   .toggle-xs:checked::after {
-    left: calc(100% - 0.8125rem);
+    inset-inline-start: calc(100% - 0.8125rem);
   }
 
   .toggle-sm {
@@ -13026,23 +14333,52 @@ const css$14 = `/**
     height: 1.5rem;
   }
 
-  /* Select */
+  .toggle-sm:checked::after { inset-inline-start: calc(100% - 1rem); }
+  .toggle-lg:checked::after { inset-inline-start: calc(100% - 1.75rem); }
+  .toggle-primary { --toggle-color: var(--color-primary); }
+  .toggle-secondary { --toggle-color: var(--color-secondary); }
+  .toggle-tertiary { --toggle-color: var(--color-tertiary); }
+  .toggle-info { --toggle-color: var(--color-info); }
+  .toggle-success { --toggle-color: var(--color-success); }
+  .toggle-warning { --toggle-color: var(--color-warning); }
+  .toggle-error { --toggle-color: var(--color-error); }
+  .toggle-ghost { border-color: transparent; }
+  @media (prefers-reduced-motion: reduce) { .toggle, .toggle::after { transition: none; } }
+}
+
+
+
+/**
+ * Select Component Styles
+ * DuskMoonUI - Material Design 3 inspired select/dropdown system
+ */
+
+@layer components {
+  :where(.select) { box-sizing: border-box; }
+
+  /* Base Select */
   .select {
-    appearance: none;
+    display: block;
     width: 100%;
     padding: 0.75rem 2.5rem 0.75rem 1rem;
     font-size: 1rem;
     line-height: 1.5rem;
-    background-color: var(--color-surface);
     color: var(--color-on-surface);
+    background-color: var(--color-surface);
     border: 1px solid currentColor;
     border-radius: var(--radius-sm);
+    outline: none;
     cursor: pointer;
+    appearance: none;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
     background-position: right 0.75rem center;
     background-repeat: no-repeat;
-    background-size: 1.25rem;
-    transition: border-color 150ms ease-in-out;
+    background-size: 1.25rem 1.25rem;
+    transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+  }
+
+  .select:hover:not(:disabled) {
+    background-color: var(--color-surface-container);
   }
 
   .select:focus {
@@ -13050,94 +14386,274 @@ const css$14 = `/**
   }
 
   .select:focus-visible {
-    border-color: var(--color-primary);
-    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
   }
 
   .select:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+    background-color: var(--color-surface-container);
   }
 
-  /* Select Bordered */
-  .select-bordered {
-    border-color: var(--color-outline);
+  /* Filled Variant */
+  .select-filled {
+    background-color: var(--color-surface-container);
+    border: none;
+    border-bottom: 2px solid var(--color-outline);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   }
 
-  /* Select Color Variants */
-  .select-primary:focus-visible {
-    border-color: var(--color-primary);
+  .select-filled:hover:not(:disabled) {
+    background-color: var(--color-surface-container-high);
+    border-bottom-color: var(--color-on-surface);
   }
 
-  .select-secondary:focus-visible {
-    border-color: var(--color-secondary);
+  .select-filled:focus-visible {
+    border-bottom-color: var(--color-primary);
+    box-shadow: none;
   }
 
-  .select-tertiary:focus-visible {
-    border-color: var(--color-tertiary);
+  .select-filled.select-primary:focus-visible { border-bottom-color: var(--color-primary); }
+  .select-filled.select-secondary:focus-visible { border-bottom-color: var(--color-secondary); }
+  .select-filled.select-tertiary:focus-visible { border-bottom-color: var(--color-tertiary); }
+  .select-filled.select-info:focus-visible { border-bottom-color: var(--color-info); }
+  .select-filled.select-success:focus-visible { border-bottom-color: var(--color-success); }
+  .select-filled.select-warning:focus-visible { border-bottom-color: var(--color-warning); }
+  .select-filled.select-error:focus-visible { border-bottom-color: var(--color-error); }
+  .select-filled.select-accent:focus-visible { border-bottom-color: var(--color-accent); }
+  .select-filled.select-neutral:focus-visible { border-bottom-color: var(--color-neutral); }
+  .select-filled.select-base:focus-visible { border-bottom-color: var(--color-base-content); }
+
+  /* Outlined Variant (default is outlined) */
+  .select-outlined {
+    background-color: transparent;
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-sm);
   }
 
-  .select-info:focus-visible {
-    border-color: var(--color-info);
-  }
+  /* Color Variants — base .select:focus-visible uses currentColor 20%, so no per-variant
+     focus-visible overrides needed; setting color: here is sufficient. */
+  .select-primary   { color: var(--color-primary); }
+  .select-secondary { color: var(--color-secondary); }
+  .select-tertiary  { color: var(--color-tertiary); }
 
-  .select-success:focus-visible {
-    border-color: var(--color-success);
-  }
+  /* Semantic Colors */
+  .select-info    { color: var(--color-info); }
+  .select-success { color: var(--color-success); }
+  .select-warning { color: var(--color-warning); }
+  .select-error   { color: var(--color-error); }
+  .select-accent  { color: var(--color-accent); }
+  .select-neutral { color: var(--color-neutral); }
+  .select-base    { color: var(--color-base-content); }
 
-  .select-warning:focus-visible {
-    border-color: var(--color-warning);
-  }
+  .select-bordered { border-color: var(--color-outline); }
+  .select-md { font-size: 1rem; }
+  .select:dir(rtl) { padding-inline: 1rem 2.5rem; background-position: left 0.75rem center; }
 
-  .select-error:focus-visible {
-    border-color: var(--color-error);
-  }
-
-  .select-accent:focus-visible {
-    border-color: var(--color-accent);
-  }
-
-  .select-neutral:focus-visible {
-    border-color: var(--color-neutral);
-  }
-
-  .select-base:focus-visible {
-    border-color: var(--color-base-content);
-  }
-
-  /* Select Sizes */
+  /* Size Variants */
   .select-xs {
     padding: 0.375rem 2rem 0.375rem 0.625rem;
     font-size: 0.75rem;
     line-height: 1rem;
+    border-radius: var(--radius-xs);
+    background-size: 1rem 1rem;
   }
 
   .select-sm {
     padding: 0.5rem 2.25rem 0.5rem 0.75rem;
     font-size: 0.875rem;
     line-height: 1.25rem;
+    border-radius: var(--radius-xs);
+    background-size: 1.125rem 1.125rem;
   }
 
   .select-lg {
     padding: 1rem 3rem 1rem 1.25rem;
     font-size: 1.125rem;
     line-height: 1.75rem;
+    border-radius: var(--radius-sm);
+    background-size: 1.5rem 1.5rem;
+    background-position: right 1rem center;
   }
 
-  /* Textarea */
+  /* Select Container */
+  .select-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+  }
+
+  .select-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-on-surface);
+  }
+
+  .select-helper {
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant);
+  }
+
+  .select-container-error .select-helper {
+    color: var(--color-error);
+  }
+
+  /* Select Group */
+  .select-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  /* Multiple Select */
+  .select-multiple {
+    padding: 0.5rem;
+    height: auto;
+    min-height: 6rem;
+    background-image: none;
+  }
+
+  .select-multiple option {
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-xs);
+  }
+
+  .select-multiple option:checked {
+    background-color: var(--color-primary-container);
+    color: var(--color-on-primary-container);
+  }
+
+  /* Ghost Select */
+  .select-ghost {
+    background-color: transparent;
+    border-color: transparent;
+  }
+
+  .select-ghost:hover:not(:disabled) {
+    background-color: var(--color-surface-container);
+    border-color: transparent;
+  }
+
+  .select-ghost:focus-visible {
+    background-color: var(--color-surface-container);
+    border-color: transparent;
+    box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
+  }
+
+  /* Reduce Motion */
+  @media (prefers-reduced-motion: reduce) {
+    .select {
+      transition: none;
+    }
+  }
+}
+
+
+
+/**
+ * Textarea Component Styles
+ * DuskMoonUI - Material Design 3 inspired multi-line text input
+ */
+
+@layer components {
+  :where(.textarea) { box-sizing: border-box; }
+
+  /* ============================================
+   * TEXTAREA CONTAINER
+   * ============================================ */
+
+  .textarea-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+  }
+
+  /* ============================================
+   * TEXTAREA LABEL
+   * ============================================ */
+
+  .textarea-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    color: var(--color-on-surface);
+    margin-bottom: 0.25rem;
+  }
+
+  /* Floating Label */
+  .textarea-label-floating {
+    position: absolute;
+    top: 0.75rem;
+    left: 1rem;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--color-on-surface-variant);
+    pointer-events: none;
+    transition: all 150ms ease-in-out;
+    transform-origin: left top;
+    z-index: 1;
+  }
+
+  /* Floating label active state - when textarea has content or focus */
+  .textarea:focus ~ .textarea-label-floating,
+  .textarea:not(:placeholder-shown) ~ .textarea-label-floating {
+    top: -0.5rem;
+    left: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-primary);
+    background-color: var(--color-surface);
+    padding: 0 0.25rem;
+  }
+
+  /* Floating label for filled variant */
+  .textarea-filled ~ .textarea-label-floating {
+    background-color: transparent;
+  }
+
+  .textarea-filled:focus ~ .textarea-label-floating,
+  .textarea-filled:not(:placeholder-shown) ~ .textarea-label-floating {
+    top: 0.25rem;
+    left: 0.75rem;
+    background-color: transparent;
+  }
+
+  /* ============================================
+   * HELPER TEXT
+   * ============================================ */
+
+  .textarea-helper {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--color-on-surface-variant);
+    margin-top: 0.25rem;
+  }
+
+  /* ============================================
+   * BASE TEXTAREA
+   * ============================================ */
+
   .textarea {
+    display: block;
     width: 100%;
     min-height: 6rem;
     padding: 0.75rem 1rem;
     font-size: 1rem;
     line-height: 1.5rem;
-    background-color: var(--color-surface);
+    font-family: inherit;
     color: var(--color-on-surface);
+    background-color: var(--color-surface);
     border: 1px solid currentColor;
     border-radius: var(--radius-sm);
+    outline: none;
     resize: vertical;
     field-sizing: content;
-    transition: border-color 150ms ease-in-out;
+    transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
   }
 
   .textarea::placeholder {
@@ -13145,333 +14661,279 @@ const css$14 = `/**
     opacity: 0.7;
   }
 
+  .textarea:hover:not(:disabled) {
+    background-color: var(--color-surface-container);
+  }
+
   .textarea:focus {
     outline: none;
   }
 
   .textarea:focus-visible {
-    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
   }
 
   .textarea:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+    background-color: var(--color-surface-container);
     resize: none;
   }
 
-  .textarea-bordered {
-    border-color: var(--color-outline);
+  .textarea[readonly] {
+    background-color: var(--color-surface-container);
+    cursor: default;
   }
 
-  /* Validation States */
-  .form-control.error .input,
-  .form-control.error .select,
-  .form-control.error .textarea,
-  .input-error,
-  .select-error,
-  .textarea-error {
-    border-color: var(--color-error);
-  }
-
-  .form-control.error .input:focus-visible,
-  .form-control.error .select:focus-visible,
-  .form-control.error .textarea:focus-visible {
-    border-color: var(--color-error);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-error) 10%, transparent);
-  }
-
-  .form-control.error .label-text {
-    color: var(--color-error);
-  }
-
-  .form-control.success .input,
-  .form-control.success .select,
-  .form-control.success .textarea,
-  .input-success,
-  .select-success,
-  .textarea-success {
-    border-color: var(--color-success);
-  }
-
-  .form-control.success .input:focus-visible,
-  .form-control.success .select:focus-visible,
-  .form-control.success .textarea:focus-visible {
-    border-color: var(--color-success);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-success) 10%, transparent);
-  }
-
-  .form-control.success .label-text {
-    color: var(--color-success);
-  }
-
-  .form-control.warning .input,
-  .form-control.warning .select,
-  .form-control.warning .textarea,
-  .input-warning,
-  .select-warning,
-  .textarea-warning {
-    border-color: var(--color-warning);
-  }
-
-  .form-control.warning .input:focus-visible,
-  .form-control.warning .select:focus-visible,
-  .form-control.warning .textarea:focus-visible {
-    border-color: var(--color-warning);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-warning) 10%, transparent);
-  }
-
-  .form-control.warning .label-text {
-    color: var(--color-warning);
-  }
-
-  .form-control.info .input,
-  .form-control.info .select,
-  .form-control.info .textarea,
-  .input-info,
-  .select-info,
-  .textarea-info {
-    border-color: var(--color-info);
-  }
-
-  .form-control.info .input:focus-visible,
-  .form-control.info .select:focus-visible,
-  .form-control.info .textarea:focus-visible {
-    border-color: var(--color-info);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-info) 10%, transparent);
-  }
-
-  .form-control.info .label-text {
-    color: var(--color-info);
-  }
-
-  /* Helper Text */
-  .helper-text {
-    font-size: 0.75rem;
-    color: var(--color-on-surface-variant);
-    margin-top: 0.25rem;
-  }
-
-  .helper-text.error {
-    color: var(--color-error);
-  }
-
-  .helper-text.success {
-    color: var(--color-success);
-  }
-
-  .helper-text.warning {
-    color: var(--color-warning);
-  }
-
-  .helper-text.info {
-    color: var(--color-info);
-  }
-
-  /* Native HTML Validation (:user-invalid/:user-valid, :invalid/:valid, ARIA)
-   * is handled in form-group.css to avoid duplication. */
-
-  /* Required Field Indicator */
-  .label-text.required::after {
-    content: ' *';
-    color: var(--color-error);
-  }
-
-  /* Range Input */
-  .range {
-    appearance: none;
+  /* Full Width */
+  .textarea-full {
     width: 100%;
-    height: 0.5rem;
-    background-color: var(--color-surface-container-highest);
-    border-radius: var(--radius-xs);
-    cursor: pointer;
   }
 
-  .range::-webkit-slider-thumb {
-    appearance: none;
-    width: 1.25rem;
-    height: 1.25rem;
-    background-color: var(--color-primary);
-    border-radius: var(--radius-full);
-    cursor: pointer;
-    transition: transform 150ms ease-in-out;
-  }
+  /* ============================================
+   * VARIANTS
+   * ============================================ */
 
-  .range::-webkit-slider-thumb:hover {
-    transform: scale(1.1);
-  }
-
-  .range::-moz-range-thumb {
-    width: 1.25rem;
-    height: 1.25rem;
-    background-color: var(--color-primary);
+  /* Filled Variant */
+  .textarea-filled {
+    background-color: var(--color-surface-container);
     border: none;
-    border-radius: var(--radius-full);
-    cursor: pointer;
+    border-bottom: 2px solid var(--color-outline);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   }
 
-  .range:focus-visible {
-    outline: none;
+  .textarea-filled:hover:not(:disabled) {
+    background-color: var(--color-surface-container-high);
+    border-bottom-color: var(--color-on-surface);
+  }
+
+  .textarea-filled:focus-visible {
+    border-bottom-color: var(--color-primary);
+    box-shadow: none;
+  }
+
+  .textarea-filled.textarea-primary:focus-visible { border-bottom-color: var(--color-primary); }
+  .textarea-filled.textarea-secondary:focus-visible { border-bottom-color: var(--color-secondary); }
+  .textarea-filled.textarea-tertiary:focus-visible { border-bottom-color: var(--color-tertiary); }
+  .textarea-filled.textarea-info:focus-visible { border-bottom-color: var(--color-info); }
+  .textarea-filled.textarea-success:focus-visible { border-bottom-color: var(--color-success); }
+  .textarea-filled.textarea-warning:focus-visible { border-bottom-color: var(--color-warning); }
+  .textarea-filled.textarea-error:focus-visible { border-bottom-color: var(--color-error); }
+  .textarea-filled.textarea-accent:focus-visible { border-bottom-color: var(--color-accent); }
+  .textarea-filled.textarea-neutral:focus-visible { border-bottom-color: var(--color-neutral); }
+  .textarea-filled.textarea-base:focus-visible { border-bottom-color: var(--color-base-content); }
+
+  /* Outlined Variant (default) */
+  .textarea-outlined {
+    background-color: transparent;
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-sm);
+  }
+
+  /* Ghost Variant */
+  .textarea-ghost {
+    background-color: transparent;
+    border-color: transparent;
+  }
+
+  .textarea-ghost:hover:not(:disabled) {
+    background-color: var(--color-surface-container);
+    border-color: transparent;
+  }
+
+  .textarea-ghost:focus-visible {
+    background-color: var(--color-surface-container);
+    border-color: transparent;
     box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
   }
 
-  /* Reduce Motion */
+  /* ============================================
+   * COLOR VARIANTS
+   * ============================================ */
+
+  /* Color Variants — base .textarea:focus-visible uses currentColor 20%, so no per-variant
+     focus-visible overrides needed; setting color: here is sufficient. */
+  .textarea-primary   { color: var(--color-primary); }
+  .textarea-secondary { color: var(--color-secondary); }
+  .textarea-tertiary  { color: var(--color-tertiary); }
+
+  /* ============================================
+   * SEMANTIC COLORS
+   * ============================================ */
+
+  .textarea-info    { color: var(--color-info); }
+  .textarea-success { color: var(--color-success); }
+  .textarea-warning { color: var(--color-warning); }
+  .textarea-error   { color: var(--color-error); }
+  .textarea-accent  { color: var(--color-accent); }
+  .textarea-neutral { color: var(--color-neutral); }
+  .textarea-base    { color: var(--color-base-content); }
+
+  /* ============================================
+   * SIZE VARIANTS
+   * ============================================ */
+
+  .textarea-xs { min-height: 3rem; padding: 0.375rem 0.625rem; font-size: 0.75rem; line-height: 1rem; }
+  .textarea-md { min-height: 6rem; }
+  .textarea-bordered { border-color: var(--color-outline); }
+
+  .textarea-sm {
+    min-height: 4rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    border-radius: var(--radius-xs);
+  }
+
+  .textarea-lg {
+    min-height: 8rem;
+    padding: 1rem 1.25rem;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ============================================
+   * RESIZE OPTIONS
+   * ============================================ */
+
+  .textarea-resize-none {
+    resize: none;
+  }
+
+  .textarea-resize-vertical {
+    resize: vertical;
+  }
+
+  .textarea-resize-horizontal {
+    resize: horizontal;
+  }
+
+  .textarea-resize-both {
+    resize: both;
+  }
+
+  /* ============================================
+   * COMPACT AUTO-RESIZE
+   * ============================================ */
+
+  .textarea-auto-resize,
+  .textarea-autosize {
+    resize: none;
+    overflow: hidden;
+    min-height: 3rem;
+    field-sizing: content; /* Modern CSS - auto-grows without JS in supported browsers */
+  }
+
+  /* ============================================
+   * CHARACTER COUNTER
+   * ============================================ */
+
+  .textarea-counter {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--color-on-surface-variant);
+    text-align: right;
+  }
+
+  .textarea-counter-error,
+  .textarea-counter-exceeded {
+    color: var(--color-error);
+  }
+
+  /* ============================================
+   * CONTAINER STATES
+   * ============================================ */
+
+  .textarea-container-error .textarea-label {
+    color: var(--color-error);
+  }
+
+  .textarea-container-error .textarea-helper {
+    color: var(--color-error);
+  }
+
+  .textarea-container-error .textarea-label-floating {
+    color: var(--color-error);
+  }
+
+  .textarea-container-error .textarea:focus ~ .textarea-label-floating {
+    color: var(--color-error);
+  }
+
+  .textarea-container-success .textarea-label {
+    color: var(--color-success);
+  }
+
+  .textarea-container-success .textarea-helper {
+    color: var(--color-success);
+  }
+
+  .textarea-container-success .textarea-label-floating {
+    color: var(--color-success);
+  }
+
+  .textarea-container-success .textarea:focus ~ .textarea-label-floating {
+    color: var(--color-success);
+  }
+
+  /* ============================================
+   * REDUCE MOTION
+   * ============================================ */
+
   @media (prefers-reduced-motion: reduce) {
-    .form-control,
-    .input,
-    .select,
     .textarea,
-    .range,
-    .label-float .form-control ~ label {
+    .textarea-label-floating {
       transition: none;
     }
   }
 }
-`;
-const sheet$14 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$14) sheet$14.replaceSync(css$14);
-var styles$34 = css$31`
-  :host {
+
+@layer components {
+  .range {
+    --range-thumb-size: 1.25rem;
+    appearance: none;
     display: block;
-  }
-
-  :host([hidden]) {
-    display: none !important;
-  }
-
-  ${css$14.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
-
-  /* Web component specific adjustments */
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--form-gap, 1rem);
-    font-family: inherit;
-  }
-
-  :host([disabled]) {
-    opacity: 0.6;
-    pointer-events: none;
-  }
-
-  /* Form control wrapper */
-  .form-control {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    margin-bottom: 0;
-  }
-
-  .form-control.error .label-text,
-  .form-control.error .helper-text {
-    color: var(--color-error);
-  }
-
-  .form-control.success .label-text,
-  .form-control.success .helper-text {
-    color: var(--color-success);
-  }
-
-  /* Label */
-  .label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .label-text {
-    font-size: 0.875rem;
-    font-weight: 500;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    height: var(--range-thumb-size);
+    margin: 0;
     color: var(--color-on-surface);
+    accent-color: currentColor;
+    background: transparent;
+    cursor: pointer;
   }
-
-  .label-text.required::after {
-    content: ' *';
-    color: var(--color-error);
+  .range::-webkit-slider-runnable-track { height: 0.5rem; background: var(--color-surface-container-highest); border-radius: var(--radius-xs); }
+  .range::-moz-range-track { height: 0.5rem; background: var(--color-surface-container-highest); border-radius: var(--radius-xs); }
+  .range::-webkit-slider-thumb {
+    appearance: none;
+    width: var(--range-thumb-size);
+    height: var(--range-thumb-size);
+    margin-top: calc((0.5rem - var(--range-thumb-size)) / 2);
+    background: currentColor;
+    border: 1px solid currentColor;
+    border-radius: var(--radius-full);
   }
-
-  /* Helper text */
-  .helper-text {
-    font-size: 0.75rem;
-    color: var(--color-on-surface-variant, var(--color-on-surface));
-    opacity: 0.7;
-  }
-
-  .helper-text.error {
-    color: var(--color-error);
-    opacity: 1;
-  }
-
-  .helper-text.success {
-    color: var(--color-success);
-    opacity: 1;
-  }
-`;
-var ElDmForm = class extends BaseElement {
-	static properties = {
-		validationState: {
-			type: String,
-			reflect: true,
-			attribute: "validation-state",
-			default: "default"
-		},
-		gap: {
-			type: String,
-			reflect: true,
-			default: "1rem"
-		},
-		disabled: {
-			type: Boolean,
-			reflect: true
-		}
-	};
-	constructor() {
-		super();
-		this.attachStyles(styles$34);
-	}
-	_handleSubmit(e) {
-		e.preventDefault();
-		if (this.disabled) return;
-		this.emit("submit", { form: this });
-	}
-	_handleReset(e) {
-		e.preventDefault();
-		if (this.disabled) return;
-		this.emit("reset", { form: this });
-	}
-	render() {
-		return `
-      <form class="form" part="form" style="--form-gap: ${this.gap}">
-        <slot></slot>
-      </form>
-    `;
-	}
-	update() {
-		super.update();
-		const form = this.shadowRoot?.querySelector("form");
-		if (form) {
-			form.addEventListener("submit", this._handleSubmit.bind(this));
-			form.addEventListener("reset", this._handleReset.bind(this));
-		}
-	}
-	submit() {
-		const form = this.shadowRoot?.querySelector("form");
-		if (form && !this.disabled) form.requestSubmit();
-	}
-	reset() {
-		const form = this.shadowRoot?.querySelector("form");
-		if (form && !this.disabled) {
-			form.reset();
-			this.emit("reset", { form: this });
-		}
-	}
-};
-function register$21() {
-	if (!customElements.get("el-dm-form")) customElements.define("el-dm-form", ElDmForm);
+  .range::-moz-range-thumb { width: var(--range-thumb-size); height: var(--range-thumb-size); background: currentColor; border: 1px solid currentColor; border-radius: var(--radius-full); }
+  .range:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+  .range:disabled { opacity: 0.5; cursor: not-allowed; }
+  .range-xs { --range-thumb-size: 0.875rem; }
+  .range-sm { --range-thumb-size: 1rem; }
+  .range-lg { --range-thumb-size: 1.5rem; }
+  .range-primary { color: var(--color-primary); }
+  .range-secondary { color: var(--color-secondary); }
+  .range-tertiary { color: var(--color-tertiary); }
+  .range-info { color: var(--color-info); }
+  .range-success { color: var(--color-success); }
+  .range-warning { color: var(--color-warning); }
+  .range-error { color: var(--color-error); }
+  @media (forced-colors: active) { .range { appearance: auto; } .range:focus-visible { outline-color: Highlight; } }
 }
-register$21();
-//#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/form-group.js
-const css$13 = `/**
+
+
+
+/**
  * Form Group Component Styles
  * DuskMoonUI - Form layout utilities including label, helper text, fieldset
  */
@@ -13751,231 +15213,592 @@ const css$13 = `/**
     color: var(--color-error);
   }
 
-  /* Error State on Form Group */
-  .form-group-error .form-label {
-    color: var(--color-error);
+  /* Legacy label and helper APIs share the composition implementation. */
+  /* Label */
+  .label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
   }
 
-  .form-group-error .input,
-  .form-group-error .select,
-  .form-group-error .textarea {
-    border-color: var(--color-error);
+  .label-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-on-surface);
+    padding-bottom: 0.25rem;
   }
 
-  .form-group-error .input:focus-visible,
-  .form-group-error .select:focus-visible,
-  .form-group-error .textarea:focus-visible {
-    border-color: var(--color-error);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-error) 10%, transparent);
+  .label-text-alt {
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant);
   }
 
-  /* Success State on Form Group */
-  .form-group-success .form-label {
-    color: var(--color-success);
-  }
 
-  .form-group-success .input,
-  .form-group-success .select,
-  .form-group-success .textarea {
-    border-color: var(--color-success);
-  }
-
-  .form-group-success .input:focus-visible,
-  .form-group-success .select:focus-visible,
-  .form-group-success .textarea:focus-visible {
-    border-color: var(--color-success);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-success) 10%, transparent);
-  }
-
-  /* Warning State on Form Group */
-  .form-group-warning .form-label {
-    color: var(--color-warning);
-  }
-
-  .form-group-warning .input,
-  .form-group-warning .select,
-  .form-group-warning .textarea {
-    border-color: var(--color-warning);
-  }
-
-  .form-group-warning .input:focus-visible,
-  .form-group-warning .select:focus-visible,
-  .form-group-warning .textarea:focus-visible {
-    border-color: var(--color-warning);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-warning) 10%, transparent);
-  }
-
-  /* Info State on Form Group */
-  .form-group-info .form-label {
-    color: var(--color-info);
-  }
-
-  .form-group-info .input,
-  .form-group-info .select,
-  .form-group-info .textarea {
-    border-color: var(--color-info);
-  }
-
-  .form-group-info .input:focus-visible,
-  .form-group-info .select:focus-visible,
-  .form-group-info .textarea:focus-visible {
-    border-color: var(--color-info);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-info) 10%, transparent);
-  }
-
-  /* Disabled Form Group */
-  .form-group-disabled {
-    opacity: 0.5;
-    pointer-events: none;
-  }
-
-  /* ARIA-based validation states — mirrors class-based states for native form validation */
-  .input[aria-invalid="true"],
-  .select[aria-invalid="true"],
-  .textarea[aria-invalid="true"] {
-    border-color: var(--color-error);
-    color: var(--color-error);
-  }
-
-  .input[aria-invalid="true"]:focus-visible,
-  .select[aria-invalid="true"]:focus-visible,
-  .textarea[aria-invalid="true"]:focus-visible {
-    border-color: var(--color-error);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-error) 10%, transparent);
-  }
-
-  /* ARIA-based validation for checkbox, radio, switch, file-input
-     (frameworks like React Hook Form / Angular set aria-invalid programmatically) */
-  .checkbox[aria-invalid="true"],
-  .radio[aria-invalid="true"],
-  .file-input[aria-invalid="true"] {
-    border-color: var(--color-error);
-  }
-
-  .checkbox[aria-invalid="true"]:focus-visible,
-  .radio[aria-invalid="true"]:focus-visible,
-  .file-input[aria-invalid="true"]:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-error) 20%, transparent);
-  }
-
-  .switch[aria-invalid="true"] {
-    border-color: var(--color-error);
-  }
-
-  .switch[aria-invalid="true"]:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-error) 20%, transparent);
-  }
-
-  /* ARIA required indicator for labels */
+  .label-text.required::after,
   .form-label[aria-required="true"]::after,
   label[aria-required="true"]::after {
     content: ' *';
     color: var(--color-error);
   }
 
-  /* Native :invalid pseudo-class (opt-in with .validate class to avoid red on page load) */
-  .validate .input:invalid,
-  .validate .select:invalid,
-  .validate .textarea:invalid {
-    border-color: var(--color-error);
-  }
+  .helper-text.error { color: var(--color-error); }
+  .helper-text.success { color: var(--color-success); }
+  .helper-text.warning { color: var(--color-warning); }
+  .helper-text.info { color: var(--color-info); }
 
-  .validate .input:valid,
-  .validate .select:valid,
-  .validate .textarea:valid {
-    border-color: var(--color-success);
-  }
+  .form-group-disabled { opacity: 0.5; pointer-events: none; }
+  .fieldset { min-inline-size: 0; }
+  .form-group, .form-control { min-inline-size: 0; }
+  .form-control { width: 100%; margin-bottom: 1rem; color: var(--color-on-surface); }
 
-  /* :user-invalid — fires only after user interaction (no .validate wrapper needed) */
-  .input:user-invalid,
-  .select:user-invalid,
-  .textarea:user-invalid {
-    border-color: var(--color-error);
-  }
-
-  .input:user-invalid:focus-visible,
-  .select:user-invalid:focus-visible,
-  .textarea:user-invalid:focus-visible {
-    border-color: var(--color-error);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-error) 10%, transparent);
-  }
-
-  .input:user-valid,
-  .select:user-valid,
-  .textarea:user-valid {
-    border-color: var(--color-success);
-  }
-
-  .input:user-valid:focus-visible,
-  .select:user-valid:focus-visible,
-  .textarea:user-valid:focus-visible {
-    border-color: var(--color-success);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-success) 10%, transparent);
-  }
-
-  /* Checkbox & Radio — validation pseudo-classes */
-  .checkbox:user-invalid,
-  .radio:user-invalid {
-    border-color: var(--color-error);
-  }
-
-  .checkbox:user-invalid:focus-visible,
-  .radio:user-invalid:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-error) 20%, transparent);
-  }
-
-  .checkbox:user-valid:checked,
-  .radio:user-valid:checked {
-    border-color: var(--color-success);
-    background-color: var(--color-success);
-  }
-
-  /* Switch — validation pseudo-classes (required but unchecked) */
-  .switch:user-invalid {
-    border-color: var(--color-error);
-  }
-
-  .switch:user-invalid:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-error) 20%, transparent);
-  }
-
-  .switch:user-valid:checked {
-    background-color: var(--color-success);
-    border-color: var(--color-success);
-  }
-
-  /* File Input — validation pseudo-classes */
-  .file-input:user-invalid {
-    border-color: var(--color-error);
-  }
-
-  .file-input:user-invalid:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-error) 20%, transparent);
-  }
-
-  /* Filled Input — validation with bottom border */
-  .input-filled:user-invalid {
-    border-bottom-color: var(--color-error);
-  }
-
-  .input-filled:user-invalid:focus-visible {
-    border-bottom-color: var(--color-error);
-    box-shadow: none;
-  }
-
-  .input-filled:user-valid {
-    border-bottom-color: var(--color-success);
-  }
-
-  .input-filled:user-valid:focus-visible {
-    border-bottom-color: var(--color-success);
-    box-shadow: none;
+  @media (max-width: 640px) {
+    .form-group-horizontal { flex-direction: column; }
+    .form-row > .form-group { min-width: 0; flex-basis: 100%; }
   }
 }
+
 `;
 const sheet$13 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$13) sheet$13.replaceSync(css$13);
-var styles$32 = css$31`
+var styles$32 = css$30`
+  :host {
+    display: block;
+  }
+
+  :host([hidden]) {
+    display: none !important;
+  }
+
+  ${css$13.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+
+  /* Web component specific adjustments */
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--form-gap, 1rem);
+    font-family: inherit;
+  }
+
+  :host([disabled]) {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  /* Form control wrapper */
+  .form-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0;
+  }
+
+  .form-control.error .label-text,
+  .form-control.error .helper-text {
+    color: var(--color-error);
+  }
+
+  .form-control.success .label-text,
+  .form-control.success .helper-text {
+    color: var(--color-success);
+  }
+
+  /* Label */
+  .label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .label-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-on-surface);
+  }
+
+  .label-text.required::after {
+    content: ' *';
+    color: var(--color-error);
+  }
+
+  /* Helper text */
+  .helper-text {
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant, var(--color-on-surface));
+    opacity: 0.7;
+  }
+
+  .helper-text.error {
+    color: var(--color-error);
+    opacity: 1;
+  }
+
+  .helper-text.success {
+    color: var(--color-success);
+    opacity: 1;
+  }
+`;
+var ElDmForm = class extends BaseElement {
+	static properties = {
+		validationState: {
+			type: String,
+			reflect: true,
+			attribute: "validation-state",
+			default: "default"
+		},
+		gap: {
+			type: String,
+			reflect: true,
+			default: "1rem"
+		},
+		disabled: {
+			type: Boolean,
+			reflect: true
+		}
+	};
+	constructor() {
+		super();
+		this.attachStyles(styles$32);
+	}
+	_handleSubmit(e) {
+		e.preventDefault();
+		if (this.disabled) return;
+		this.emit("submit", { form: this });
+	}
+	_handleReset(e) {
+		e.preventDefault();
+		if (this.disabled) return;
+		this.emit("reset", { form: this });
+	}
+	render() {
+		return `
+      <form class="form" part="form" style="--form-gap: ${this.gap}">
+        <slot></slot>
+      </form>
+    `;
+	}
+	update() {
+		super.update();
+		const form = this.shadowRoot?.querySelector("form");
+		if (form) {
+			form.addEventListener("submit", this._handleSubmit.bind(this));
+			form.addEventListener("reset", this._handleReset.bind(this));
+		}
+	}
+	submit() {
+		const form = this.shadowRoot?.querySelector("form");
+		if (form && !this.disabled) form.requestSubmit();
+	}
+	reset() {
+		const form = this.shadowRoot?.querySelector("form");
+		if (form && !this.disabled) {
+			form.reset();
+			this.emit("reset", { form: this });
+		}
+	}
+};
+function register$20() {
+	if (!customElements.get("el-dm-form")) customElements.define("el-dm-form", ElDmForm);
+}
+register$20();
+//#endregion
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/form-group.js
+const css$12 = `/** Opt-in native presentation. Applications own errors, messages and announcements. */
+@layer components {
+  /* Compatibility wrapper states are intentionally immediate. */
+  :is(.form-group-info, .form-control.info) { --dm-validation-color: var(--color-info); }
+  :is(.form-group-warning, .form-control.warning) { --dm-validation-color: var(--color-warning); }
+  :is(.form-group-success, .form-control.success) { --dm-validation-color: var(--color-success); }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is(.validate :valid, .validate:valid, .validator.validator-success:user-valid):not([aria-invalid="true"]):not(:where(.form-group-error *, .form-control.error *)):not(:disabled) {
+    --dm-validation-color: var(--color-success);
+    --dm-validation-content: var(--color-success-content);
+  }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is(.validate :invalid, .validate:invalid, .validator:user-invalid):not(:disabled) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  :is(.form-group-error, .form-control.error) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  /* Higher specificity than native states, including server-invalid + user-valid. */
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .form-group-error *, .form-control.error *):not(:disabled):is(:focus, :not(:focus)) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  /* This shared selector wins over filled/ghost focus and semantic modifiers. */
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .validator:user-invalid, .validator.validator-success:user-valid, .validate :invalid, .validate :valid, .validate:invalid, .validate:valid, .form-group-error *, .form-group-success *, .form-group-warning *, .form-group-info *, .form-control.error *, .form-control.success *, .form-control.warning *, .form-control.info *):not(:disabled) {
+    color: var(--dm-validation-color);
+    border-color: var(--dm-validation-color);
+    --checkbox-color: var(--dm-validation-color);
+    --radio-color: var(--dm-validation-color);
+    --switch-color: var(--dm-validation-color);
+    --switch-content-color: var(--dm-validation-content, var(--color-primary-content));
+    --toggle-color: var(--dm-validation-color);
+  }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .validator:user-invalid, .validator.validator-success:user-valid, .validate :invalid, .validate :valid, .validate:invalid, .validate:valid, .form-group-error *, .form-group-success *, .form-group-warning *, .form-group-info *, .form-control.error *, .form-control.success *, .form-control.warning *, .form-control.info *):not(:disabled):focus {
+    border-color: var(--dm-validation-color);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--dm-validation-color) 20%, transparent);
+  }
+
+  :is(.form-group-error, .form-control.error) :is(.form-label, .label-text) { color: var(--color-error); }
+  :is(.form-group-success, .form-control.success) :is(.form-label, .label-text) { color: var(--color-success); }
+  :is(.form-group-warning, .form-control.warning) :is(.form-label, .label-text) { color: var(--color-warning); }
+  :is(.form-group-info, .form-control.info) :is(.form-label, .label-text) { color: var(--color-info); }
+
+  .validator-hint { font-size: 0.75rem; color: var(--color-on-surface-variant); }
+  .validator-error { display: none; font-size: 0.75rem; color: var(--color-error); }
+  /* Keep OTP actions stationary when blur reveals an error during a click. */
+  :is(.otp-code, .otp-input) ~ .validator-error { display: block; visibility: hidden; }
+  :is(.form-group, .form-control):has(:is([aria-invalid="true"], .validator:user-invalid, .validate :invalid, .validate:invalid):not(:disabled)) > .validator-error,
+  :is(.form-group-error, .form-control.error) > .validator-error { display: block; visibility: visible; }
+
+  @media (forced-colors: active) {
+    :is(input, select, textarea):is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+    input:is(.checkbox, .radio, .switch, .toggle) { appearance: auto; }
+    input:is(.checkbox, .radio, .switch, .toggle)::before,
+    input:is(.checkbox, .radio, .switch, .toggle)::after { content: none; }
+  }
+}
+
+
+/**
+ * Form Group Component Styles
+ * DuskMoonUI - Form layout utilities including label, helper text, fieldset
+ */
+
+@layer components {
+  /* Form Group Container */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+  }
+
+  .form-group-horizontal {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .form-group-horizontal .form-label {
+    min-width: 8rem;
+    padding-top: 0.75rem;
+  }
+
+  .form-group-horizontal .form-control {
+    flex: 1;
+  }
+
+  /* Form Label */
+  .form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    color: var(--color-on-surface);
+    margin-bottom: 0.25rem;
+  }
+
+  .form-label-required::after {
+    content: ' *';
+    color: var(--color-error);
+  }
+
+  .form-label-optional::after {
+    content: ' (optional)';
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--color-on-surface-variant);
+  }
+
+  /* Label Sizes */
+  .form-label-sm {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  .form-label-lg {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  /* Form Control Wrapper */
+  .form-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  /* Helper Text */
+  .helper-text {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--color-on-surface-variant);
+    margin-top: 0.25rem;
+  }
+
+  .helper-text-error {
+    color: var(--color-error);
+  }
+
+  .helper-text-success {
+    color: var(--color-success);
+  }
+
+  .helper-text-warning {
+    color: var(--color-warning);
+  }
+
+  .helper-text-info {
+    color: var(--color-info);
+  }
+
+  /* Helper Text with Icon */
+  .helper-text-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .helper-text-icon svg,
+  .helper-text-icon .icon {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  /* Form Hint (above input) */
+  .form-hint {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--color-on-surface-variant);
+    margin-bottom: 0.25rem;
+  }
+
+  /* Fieldset */
+  .fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    margin: 0;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+  }
+
+  .fieldset-legend {
+    padding: 0 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    color: var(--color-on-surface);
+  }
+
+  /* Fieldset Variants */
+  .fieldset-filled {
+    background-color: var(--color-surface-container-lowest);
+    border-color: transparent;
+  }
+
+  .fieldset-borderless {
+    border: none;
+    padding: 0;
+  }
+
+  /* Fieldset with Card Style */
+  .fieldset-card {
+    background-color: var(--color-surface);
+    border-color: transparent;
+    box-shadow: var(--shadow-xs);
+    padding: 1.5rem;
+  }
+
+  /* Form Row */
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .form-row > .form-group {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  /* Form Grid */
+  .form-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .form-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .form-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media (max-width: 640px) {
+    .form-grid-2,
+    .form-grid-3,
+    .form-grid-4 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Form Actions */
+  .form-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .form-actions-right {
+    justify-content: flex-end;
+  }
+
+  .form-actions-center {
+    justify-content: center;
+  }
+
+  .form-actions-between {
+    justify-content: space-between;
+  }
+
+  /* Form Divider */
+  .form-divider {
+    height: 1px;
+    background-color: var(--color-outline-variant);
+    margin: 1rem 0;
+  }
+
+  .form-divider-text {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--color-on-surface-variant);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  .form-divider-text::before,
+  .form-divider-text::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: var(--color-outline-variant);
+  }
+
+  /* Form Section */
+  .form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .form-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-on-surface);
+    margin-bottom: 0.5rem;
+  }
+
+  .form-section-description {
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant);
+    margin-bottom: 1rem;
+  }
+
+  /* Inline Form */
+  .form-inline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem;
+  }
+
+  .form-inline .form-group {
+    flex: none;
+    width: auto;
+  }
+
+  /* Character Counter */
+  .form-counter {
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant);
+    text-align: right;
+    margin-top: 0.25rem;
+  }
+
+  .form-counter-error {
+    color: var(--color-error);
+  }
+
+  /* Legacy label and helper APIs share the composition implementation. */
+  /* Label */
+  .label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+  }
+
+  .label-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-on-surface);
+    padding-bottom: 0.25rem;
+  }
+
+  .label-text-alt {
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant);
+  }
+
+
+  .label-text.required::after,
+  .form-label[aria-required="true"]::after,
+  label[aria-required="true"]::after {
+    content: ' *';
+    color: var(--color-error);
+  }
+
+  .helper-text.error { color: var(--color-error); }
+  .helper-text.success { color: var(--color-success); }
+  .helper-text.warning { color: var(--color-warning); }
+  .helper-text.info { color: var(--color-info); }
+
+  .form-group-disabled { opacity: 0.5; pointer-events: none; }
+  .fieldset { min-inline-size: 0; }
+  .form-group, .form-control { min-inline-size: 0; }
+  .form-control { width: 100%; margin-bottom: 1rem; color: var(--color-on-surface); }
+
+  @media (max-width: 640px) {
+    .form-group-horizontal { flex-direction: column; }
+    .form-row > .form-group { min-width: 0; flex-basis: 100%; }
+  }
+}
+`;
+const sheet$12 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$12) sheet$12.replaceSync(css$12);
+var styles$30 = css$30`
   :host {
     display: block;
     width: 100%;
@@ -13985,7 +15808,7 @@ var styles$32 = css$31`
     display: none !important;
   }
 
-  ${css$13.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$12.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 `;
 var ElDmFormGroup = class extends BaseElement {
 	static properties = { orientation: {
@@ -13995,7 +15818,7 @@ var ElDmFormGroup = class extends BaseElement {
 	} };
 	constructor() {
 		super();
-		this.attachStyles(styles$32);
+		this.attachStyles(styles$30);
 	}
 	render() {
 		return `
@@ -14005,13 +15828,123 @@ var ElDmFormGroup = class extends BaseElement {
     `;
 	}
 };
-function register$20() {
+function register$19() {
 	if (!customElements.get("el-dm-form-group")) customElements.define("el-dm-form-group", ElDmFormGroup);
 }
-register$20();
+register$19();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/input.js
-const css$12 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/input.js
+const css$11 = `/** Opt-in native presentation. Applications own errors, messages and announcements. */
+@layer components {
+  /* Compatibility wrapper states are intentionally immediate. */
+  :is(.form-group-info, .form-control.info) { --dm-validation-color: var(--color-info); }
+  :is(.form-group-warning, .form-control.warning) { --dm-validation-color: var(--color-warning); }
+  :is(.form-group-success, .form-control.success) { --dm-validation-color: var(--color-success); }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is(.validate :valid, .validate:valid, .validator.validator-success:user-valid):not([aria-invalid="true"]):not(:where(.form-group-error *, .form-control.error *)):not(:disabled) {
+    --dm-validation-color: var(--color-success);
+    --dm-validation-content: var(--color-success-content);
+  }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is(.validate :invalid, .validate:invalid, .validator:user-invalid):not(:disabled) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  :is(.form-group-error, .form-control.error) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  /* Higher specificity than native states, including server-invalid + user-valid. */
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .form-group-error *, .form-control.error *):not(:disabled):is(:focus, :not(:focus)) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  /* This shared selector wins over filled/ghost focus and semantic modifiers. */
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .validator:user-invalid, .validator.validator-success:user-valid, .validate :invalid, .validate :valid, .validate:invalid, .validate:valid, .form-group-error *, .form-group-success *, .form-group-warning *, .form-group-info *, .form-control.error *, .form-control.success *, .form-control.warning *, .form-control.info *):not(:disabled) {
+    color: var(--dm-validation-color);
+    border-color: var(--dm-validation-color);
+    --checkbox-color: var(--dm-validation-color);
+    --radio-color: var(--dm-validation-color);
+    --switch-color: var(--dm-validation-color);
+    --switch-content-color: var(--dm-validation-content, var(--color-primary-content));
+    --toggle-color: var(--dm-validation-color);
+  }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .validator:user-invalid, .validator.validator-success:user-valid, .validate :invalid, .validate :valid, .validate:invalid, .validate:valid, .form-group-error *, .form-group-success *, .form-group-warning *, .form-group-info *, .form-control.error *, .form-control.success *, .form-control.warning *, .form-control.info *):not(:disabled):focus {
+    border-color: var(--dm-validation-color);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--dm-validation-color) 20%, transparent);
+  }
+
+  :is(.form-group-error, .form-control.error) :is(.form-label, .label-text) { color: var(--color-error); }
+  :is(.form-group-success, .form-control.success) :is(.form-label, .label-text) { color: var(--color-success); }
+  :is(.form-group-warning, .form-control.warning) :is(.form-label, .label-text) { color: var(--color-warning); }
+  :is(.form-group-info, .form-control.info) :is(.form-label, .label-text) { color: var(--color-info); }
+
+  .validator-hint { font-size: 0.75rem; color: var(--color-on-surface-variant); }
+  .validator-error { display: none; font-size: 0.75rem; color: var(--color-error); }
+  /* Keep OTP actions stationary when blur reveals an error during a click. */
+  :is(.otp-code, .otp-input) ~ .validator-error { display: block; visibility: hidden; }
+  :is(.form-group, .form-control):has(:is([aria-invalid="true"], .validator:user-invalid, .validate :invalid, .validate:invalid):not(:disabled)) > .validator-error,
+  :is(.form-group-error, .form-control.error) > .validator-error { display: block; visibility: visible; }
+
+  @media (forced-colors: active) {
+    :is(input, select, textarea):is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+    input:is(.checkbox, .radio, .switch, .toggle) { appearance: auto; }
+    input:is(.checkbox, .radio, .switch, .toggle)::before,
+    input:is(.checkbox, .radio, .switch, .toggle)::after { content: none; }
+  }
+}
+
+
+
+@layer components {
+  .file-input {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    font: inherit;
+    color: var(--color-on-surface);
+    background-color: var(--color-surface);
+    border: 1px solid currentColor;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .file-input::file-selector-button {
+    padding: 0.75rem 1rem;
+    margin-inline-end: 0.75rem;
+    font: inherit;
+    color: inherit;
+    background-color: var(--color-surface-container);
+    border: none;
+    border-inline-end: 1px solid currentColor;
+    cursor: inherit;
+  }
+  .file-input:hover:not(:disabled)::file-selector-button { background-color: var(--color-surface-container-high); }
+  .file-input:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent); }
+  .file-input:disabled { opacity: 0.5; cursor: not-allowed; }
+  .file-input-xs::file-selector-button { padding: 0.375rem 0.625rem; }
+  .file-input-sm::file-selector-button { padding: 0.5rem 0.75rem; }
+  .file-input-lg::file-selector-button { padding: 1rem 1.25rem; }
+  .file-input-primary { color: var(--color-primary); }
+  .file-input-secondary { color: var(--color-secondary); }
+  .file-input-tertiary { color: var(--color-tertiary); }
+  .file-input-info { color: var(--color-info); }
+  .file-input-success { color: var(--color-success); }
+  .file-input-warning { color: var(--color-warning); }
+  .file-input-error { color: var(--color-error); }
+  .file-input-ghost { border-color: transparent; }
+}
+
+
+/**
  * Input Component Styles
  * DuskMoonUI - Material Design 3 inspired input system
  */
@@ -14019,6 +15952,8 @@ const css$12 = `/**
 @layer components {
   /* Base Input */
   .input {
+    box-sizing: border-box;
+    min-width: 0;
     display: flex;
     width: 100%;
     padding: 0.75rem 1rem;
@@ -14052,6 +15987,7 @@ const css$12 = `/**
   }
 
   /* Bordered Input */
+  .input-outlined { background-color: transparent; border-color: var(--color-outline); }
   .input-bordered {
     border-color: var(--color-outline);
     background-color: var(--color-surface);
@@ -14102,6 +16038,7 @@ const css$12 = `/**
   }
 
   /* Ghost Input */
+  .input-md { height: 3rem; }
   .input-ghost {
     background-color: transparent;
     border-color: transparent;
@@ -14180,37 +16117,6 @@ const css$12 = `/**
     border-left: none;
   }
 
-  /* File Input */
-  .file-input {
-    display: flex;
-    width: 100%;
-    padding: 0;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-outline);
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  .file-input::file-selector-button {
-    padding: 0.75rem 1rem;
-    background-color: var(--color-surface-container);
-    color: var(--color-on-surface);
-    border: none;
-    border-right: 1px solid var(--color-outline);
-    cursor: pointer;
-    transition: background-color 150ms ease-in-out;
-  }
-
-  .file-input::file-selector-button:hover {
-    background-color: var(--color-surface-container-high);
-  }
-
-  .file-input:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
-    outline: none;
-  }
-
   /* Reduce Motion */
   @media (prefers-reduced-motion: reduce) {
     .input,
@@ -14221,10 +16127,10 @@ const css$12 = `/**
   }
 }
 `;
-const sheet$12 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$12) sheet$12.replaceSync(css$12);
+const sheet$11 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$11) sheet$11.replaceSync(css$11);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-input/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-input/dist/esm/register.js
 var SIZE_CLASSES$3 = {
 	sm: "input-sm",
 	md: "",
@@ -14235,7 +16141,7 @@ var VALIDATION_CLASSES = {
 	invalid: "input-error",
 	pending: ""
 };
-var styles$30 = css$31`
+var styles$28 = css$30`
   :host {
     display: block;
   }
@@ -14245,7 +16151,7 @@ var styles$30 = css$31`
   }
 
   /* Import core input styles */
-  ${css$12.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$11.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Form field container */
   .container {
@@ -14464,7 +16370,7 @@ var ElDmInput = class extends BaseElement {
 	}
 	constructor() {
 		super();
-		this.attachStyles(styles$30);
+		this.attachStyles(styles$28);
 	}
 	connectedCallback() {
 		super.connectedCallback();
@@ -14584,11 +16490,11 @@ var ElDmInput = class extends BaseElement {
     `;
 	}
 };
-function register$19() {
+function register$18() {
 	if (!customElements.get("el-dm-input")) customElements.define("el-dm-input", ElDmInput);
 }
-register$19();
-var menuStyles = css$31`
+register$18();
+var menuStyles = css$30`
   :host {
     display: inline-block;
     position: relative;
@@ -14599,7 +16505,7 @@ var menuStyles = css$31`
   }
 
   /* Import core navigation styles */
-  ${css$24.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$23.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Override core .menu for dropdown behavior */
   .menu {
@@ -14897,7 +16803,7 @@ var ElDmMenu = class extends BaseElement {
     `;
 	}
 };
-var menuItemStyles = css$31`
+var menuItemStyles = css$30`
   :host {
     display: block;
   }
@@ -15035,12 +16941,12 @@ var ElDmMenuItem = class extends BaseElement {
     `;
 	}
 };
-function register$18() {
+function register$17() {
 	if (!customElements.get("el-dm-menu")) customElements.define("el-dm-menu", ElDmMenu);
 	if (!customElements.get("el-dm-menu-item")) customElements.define("el-dm-menu-item", ElDmMenuItem);
 }
-register$18();
-var styles$29 = css$31`
+register$17();
+var styles$27 = css$30`
   :host {
     display: block;
     width: 100%;
@@ -15059,7 +16965,7 @@ var styles$29 = css$31`
   }
 
   /* Import core navigation styles */
-  ${css$24.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$23.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Web component specific adjustments */
   .navbar {
@@ -15260,7 +17166,7 @@ var ElDmNavbar = class extends BaseElement {
 	_scrollHandler = null;
 	constructor() {
 		super();
-		this.attachStyles(styles$29);
+		this.attachStyles(styles$27);
 	}
 	connectedCallback() {
 		super.connectedCallback();
@@ -15351,11 +17257,11 @@ var ElDmNavbar = class extends BaseElement {
 		(this.shadowRoot?.querySelector(".navbar-hamburger"))?.addEventListener("click", this._toggleMobileMenu.bind(this));
 	}
 };
-function register$17() {
+function register$16() {
 	if (!customElements.get("el-dm-navbar")) customElements.define("el-dm-navbar", ElDmNavbar);
 }
-register$17();
-var styles$28 = css$31`
+register$16();
+var styles$26 = css$30`
   :host {
     display: block;
   }
@@ -15364,25 +17270,25 @@ var styles$28 = css$31`
     display: none !important;
   }
 
-  ${css$24.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$23.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 `;
 var ElDmNavigation = class extends BaseElement {
 	static properties = {};
 	constructor() {
 		super();
-		this.attachStyles(styles$28);
+		this.attachStyles(styles$26);
 	}
 	render() {
 		return `<div class="navigation"><slot></slot></div>`;
 	}
 };
-function register$16() {
+function register$15() {
 	if (!customElements.get("el-dm-navigation")) customElements.define("el-dm-navigation", ElDmNavigation);
 }
-register$16();
+register$15();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/nested-menu.js
-const css$11 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/nested-menu.js
+const css$10 = `/**
  * Nested Menu Component Styles
  * DuskMoonUI - Sidebar navigation with collapsible cascading levels via <details>/<summary>
  */
@@ -15472,8 +17378,12 @@ const css$11 = `/**
   }
 
   .nested-menu li.disabled > a,
-  .nested-menu li.disabled > button {
+  .nested-menu li.disabled > button,
+  .nested-menu li > button:disabled,
+  .nested-menu li > a[aria-disabled="true"] {
     color: var(--color-on-surface-variant);
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   /* ============================================
@@ -15523,7 +17433,7 @@ const css$11 = `/**
   .nested-menu summary::after {
     content: "";
     display: inline-block;
-    margin-left: auto;
+    margin-inline-start: auto;
     width: 0.375rem;
     height: 0.375rem;
     border-right: 1.5px solid currentColor;
@@ -15538,11 +17448,22 @@ const css$11 = `/**
     transform: rotate(45deg);
   }
 
+  .nested-menu:dir(rtl) summary::after {
+    border-right: 0;
+    border-left: 1.5px solid currentColor;
+    transform: rotate(135deg);
+  }
+
+  .nested-menu:dir(rtl) details[open] > summary::after {
+    transform: rotate(45deg);
+  }
+
   /* Nested <ul> inside details — auto-indentation */
   .nested-menu details > ul {
     list-style: none;
     margin: 0;
-    padding: 0.125rem 0 0.125rem 1rem;
+    padding-block: 0.125rem;
+    padding-inline: 1rem 0;
     display: flex;
     flex-direction: column;
     gap: 0.125rem;
@@ -15632,7 +17553,7 @@ const css$11 = `/**
   }
 
   .nested-menu-compact details > ul {
-    padding: 0 0 0 0.75rem;
+    padding-inline: 0.75rem 0;
   }
 
   /* ============================================
@@ -15649,9 +17570,9 @@ const css$11 = `/**
   }
 }
 `;
-const sheet$11 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$11) sheet$11.replaceSync(css$11);
-var styles$26 = css$31`
+const sheet$10 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$10) sheet$10.replaceSync(css$10);
+var styles$24 = css$30`
   :host {
     display: block;
   }
@@ -15660,32 +17581,103 @@ var styles$26 = css$31`
     display: none !important;
   }
 
-  ${css$11.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$10.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 `;
 var ElDmNestedMenu = class extends BaseElement {
 	static properties = {};
 	constructor() {
 		super();
-		this.attachStyles(styles$26);
+		this.attachStyles(styles$24);
 	}
 	render() {
 		return `<ul class="nested-menu"><slot></slot></ul>`;
 	}
 };
-function register$15() {
+function register$14() {
 	if (!customElements.get("el-dm-nested-menu")) customElements.define("el-dm-nested-menu", ElDmNestedMenu);
 }
-register$15();
+register$14();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/otp-input.js
-const css$10 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/otp-input.js
+const css$9 = `/** Opt-in native presentation. Applications own errors, messages and announcements. */
+@layer components {
+  /* Compatibility wrapper states are intentionally immediate. */
+  :is(.form-group-info, .form-control.info) { --dm-validation-color: var(--color-info); }
+  :is(.form-group-warning, .form-control.warning) { --dm-validation-color: var(--color-warning); }
+  :is(.form-group-success, .form-control.success) { --dm-validation-color: var(--color-success); }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is(.validate :valid, .validate:valid, .validator.validator-success:user-valid):not([aria-invalid="true"]):not(:where(.form-group-error *, .form-control.error *)):not(:disabled) {
+    --dm-validation-color: var(--color-success);
+    --dm-validation-content: var(--color-success-content);
+  }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is(.validate :invalid, .validate:invalid, .validator:user-invalid):not(:disabled) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  :is(.form-group-error, .form-control.error) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  /* Higher specificity than native states, including server-invalid + user-valid. */
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .form-group-error *, .form-control.error *):not(:disabled):is(:focus, :not(:focus)) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  /* This shared selector wins over filled/ghost focus and semantic modifiers. */
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .validator:user-invalid, .validator.validator-success:user-valid, .validate :invalid, .validate :valid, .validate:invalid, .validate:valid, .form-group-error *, .form-group-success *, .form-group-warning *, .form-group-info *, .form-control.error *, .form-control.success *, .form-control.warning *, .form-control.info *):not(:disabled) {
+    color: var(--dm-validation-color);
+    border-color: var(--dm-validation-color);
+    --checkbox-color: var(--dm-validation-color);
+    --radio-color: var(--dm-validation-color);
+    --switch-color: var(--dm-validation-color);
+    --switch-content-color: var(--dm-validation-content, var(--color-primary-content));
+    --toggle-color: var(--dm-validation-color);
+  }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .validator:user-invalid, .validator.validator-success:user-valid, .validate :invalid, .validate :valid, .validate:invalid, .validate:valid, .form-group-error *, .form-group-success *, .form-group-warning *, .form-group-info *, .form-control.error *, .form-control.success *, .form-control.warning *, .form-control.info *):not(:disabled):focus {
+    border-color: var(--dm-validation-color);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--dm-validation-color) 20%, transparent);
+  }
+
+  :is(.form-group-error, .form-control.error) :is(.form-label, .label-text) { color: var(--color-error); }
+  :is(.form-group-success, .form-control.success) :is(.form-label, .label-text) { color: var(--color-success); }
+  :is(.form-group-warning, .form-control.warning) :is(.form-label, .label-text) { color: var(--color-warning); }
+  :is(.form-group-info, .form-control.info) :is(.form-label, .label-text) { color: var(--color-info); }
+
+  .validator-hint { font-size: 0.75rem; color: var(--color-on-surface-variant); }
+  .validator-error { display: none; font-size: 0.75rem; color: var(--color-error); }
+  /* Keep OTP actions stationary when blur reveals an error during a click. */
+  :is(.otp-code, .otp-input) ~ .validator-error { display: block; visibility: hidden; }
+  :is(.form-group, .form-control):has(:is([aria-invalid="true"], .validator:user-invalid, .validate :invalid, .validate:invalid):not(:disabled)) > .validator-error,
+  :is(.form-group-error, .form-control.error) > .validator-error { display: block; visibility: visible; }
+
+  @media (forced-colors: active) {
+    :is(input, select, textarea):is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+    input:is(.checkbox, .radio, .switch, .toggle) { appearance: auto; }
+    input:is(.checkbox, .radio, .switch, .toggle)::before,
+    input:is(.checkbox, .radio, .switch, .toggle)::after { content: none; }
+  }
+}
+
+
+/**
  * OTP Input Component Styles
  * DuskMoonUI - One-Time Password input for verification codes
  */
 
 @layer components {
+  :where(.otp-input, .otp-input-field) { box-sizing: border-box; }
+
   /* Base OTP Container */
   .otp-input {
+    flex-wrap: wrap;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -15734,7 +17726,8 @@ const css$10 = `/**
   }
 
   /* Separator */
-  .otp-separator {
+  .otp-separator,
+  .otp-input-separator {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -15788,14 +17781,16 @@ const css$10 = `/**
   }
 
   /* Underline Variant */
-  .otp-input-underline .otp-input-field {
+  .otp-input-underline .otp-input-field,
+  .otp-input-underlined .otp-input-field {
     background-color: transparent;
     border: none;
     border-bottom: 2px solid var(--color-outline);
     border-radius: 0;
   }
 
-  .otp-input-underline .otp-input-field:focus {
+  .otp-input-underline .otp-input-field:focus,
+  .otp-input-underlined .otp-input-field:focus {
     border-bottom-color: var(--color-primary);
     box-shadow: none;
   }
@@ -15912,27 +17907,229 @@ const css$10 = `/**
     color: var(--color-on-surface);
   }
 
-  .otp-helper {
+  .otp-helper,
+  .otp-input-helper {
     font-size: 0.75rem;
     color: var(--color-on-surface-variant);
   }
 
-  .otp-error-message {
+  .otp-error-message,
+  .otp-input-helper-error {
     font-size: 0.75rem;
     color: var(--color-error);
   }
 
-  /* Reduce Motion */
+  /* One complete native code. Length guides never create separate fields. */
+  .otp-code {
+    --otp-length: 6;
+    display: block;
+    box-sizing: border-box;
+    /* The extra two content pixels keep the trailing native caret in view. */
+    inline-size: calc(var(--otp-length) * 1ch + 1.5rem + 4px);
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    padding: 0.75rem;
+    font: 1.5rem / 1.5 ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    direction: ltr;
+    text-align: start;
+    color: var(--color-on-surface);
+    caret-color: currentColor;
+    background-color: var(--color-surface);
+    border: 1px solid currentColor;
+    border-radius: var(--radius-sm);
+  }
+  .otp-code-4 { --otp-length: 4; }
+  .otp-code:focus { outline: 2px solid currentColor; outline-offset: 3px; }
+  .otp-code:disabled { opacity: 0.38; cursor: not-allowed; }
+  .otp-code-primary { color: var(--color-primary); }
+  .otp-code-secondary { color: var(--color-secondary); }
+  .otp-code-tertiary { color: var(--color-tertiary); }
+  .otp-code-info { color: var(--color-info); }
+  .otp-code-success { color: var(--color-success); }
+  .otp-code-warning { color: var(--color-warning); }
+  .otp-code-error { color: var(--color-error); }
+  .otp-input-helper-success { font-size: 0.75rem; color: var(--color-success); }
+
+  @supports (background-image: repeating-linear-gradient(to right, transparent 0 1ch)) {
+    .otp-code {
+      background-image: repeating-linear-gradient(to right, transparent 0 0.125ch, var(--color-outline-variant) 0.125ch 0.875ch, transparent 0.875ch 1ch);
+      background-size: calc(var(--otp-length) * 1ch) 3px;
+      background-repeat: no-repeat;
+      background-origin: content-box;
+      background-position: left bottom;
+    }
+  }
+  @media (forced-colors: active) { .otp-code { background-image: none; } }
+
+  /* One native input over decorative cells, following the daisyUI OTP layout.
+     The spans must precede the input; their count matches maxlength/pattern. */
+  .otp-input:has(> .otp-code) {
+    --otp-count: 6;
+    --otp-cell: 2ch;
+    --otp-gap-ratio: 0.25;
+    --otp-gap: calc(var(--otp-cell) * var(--otp-gap-ratio));
+    --otp-stride: calc(var(--otp-cell) + var(--otp-gap));
+    --otp-width-units: calc(var(--otp-count) * (1 + var(--otp-gap-ratio)) + 0.25);
+    --otp-height: 3rem;
+    position: relative;
+    display: inline-flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0;
+    inline-size: calc(var(--otp-cell) * var(--otp-width-units) + 2px);
+    max-inline-size: 100%;
+    container-type: inline-size;
+    block-size: var(--otp-height);
+    font: 1.5rem / 1 ui-monospace, monospace;
+    direction: ltr;
+    color: var(--dm-validation-color, var(--color-on-surface));
+    border-radius: var(--radius-sm);
+    /* Reserve space for the trailing native caret and cell focus rings. */
+    clip-path: inset(-4px -4px -4px -4px);
+  }
+
+  /* Scale cells to the actual wrapper width, including inside narrow forms. */
+  .otp-input > :is(span, .otp-code), .otp-input:has(> .otp-code)::after {
+    --otp-cell: calc((100cqi - 2px) / var(--otp-width-units));
+    --otp-gap: calc(var(--otp-cell) * var(--otp-gap-ratio));
+    --otp-stride: calc(var(--otp-cell) + var(--otp-gap));
+  }
+
+  .otp-input:has(> span:nth-child(1)) { --otp-count: 1; }
+  .otp-input:has(> span:nth-child(2)) { --otp-count: 2; }
+  .otp-input:has(> span:nth-child(3)) { --otp-count: 3; }
+  .otp-input:has(> span:nth-child(4)) { --otp-count: 4; }
+  .otp-input:has(> span:nth-child(5)) { --otp-count: 5; }
+  .otp-input:has(> span:nth-child(6)) { --otp-count: 6; }
+  .otp-input:has(> span:nth-child(7)) { --otp-count: 7; }
+  .otp-input:has(> span:nth-child(8)) { --otp-count: 8; }
+
+  .otp-input > span[aria-hidden="true"] {
+    position: absolute;
+    inset-block: 0;
+    inline-size: var(--otp-cell);
+    box-sizing: border-box;
+    background-color: var(--color-surface);
+    border: 1px solid currentColor;
+    border-radius: inherit;
+    pointer-events: none;
+    transition: background-color 150ms ease-in-out;
+  }
+  .otp-input > span:nth-child(1) { left: 0; }
+  .otp-input > span:nth-child(2) { left: var(--otp-stride); }
+  .otp-input > span:nth-child(3) { left: calc(var(--otp-stride) * 2); }
+  .otp-input > span:nth-child(4) { left: calc(var(--otp-stride) * 3); }
+  .otp-input > span:nth-child(5) { left: calc(var(--otp-stride) * 4); }
+  .otp-input > span:nth-child(6) { left: calc(var(--otp-stride) * 5); }
+  .otp-input > span:nth-child(7) { left: calc(var(--otp-stride) * 6); }
+  .otp-input > span:nth-child(8) { left: calc(var(--otp-stride) * 7); }
+
+  .otp-input > .otp-code {
+    position: relative;
+    z-index: 1;
+    field-sizing: content;
+    flex-shrink: 0;
+    inline-size: auto;
+    min-inline-size: 0;
+    max-inline-size: none;
+    block-size: 100%;
+    margin: 0;
+    padding: 0 0 0 calc((var(--otp-cell) - 1ch) / 2);
+    border: 0;
+    border-radius: 0;
+    font: inherit;
+    font-size: min(1em, var(--otp-cell));
+    letter-spacing: calc(var(--otp-stride) - 1ch);
+    color: inherit;
+    background: transparent;
+    outline: none;
+    box-shadow: none;
+    appearance: none;
+  }
+
+  /* Intrinsic input width follows the entered characters, positioning the next cell. */
+  .otp-input:has(> .otp-code)::after {
+    content: "";
+    flex-shrink: 0;
+    inline-size: var(--otp-cell);
+    block-size: var(--otp-height);
+    margin-inline-start: calc(-0.25 * var(--otp-cell));
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  .otp-input:focus-within::after,
+  .otp-input:has(> .otp-code:focus) > span {
+    box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
+    outline: 1px solid currentColor;
+  }
+  .otp-input:has(> .otp-code:valid:focus)::after { visibility: hidden; }
+  /* Cell indicators replace the reset's unlayered native focus outline. */
+  .otp-input > .otp-code:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .otp-input-xs:has(> .otp-code) { font-size: 1rem; --otp-height: 2rem; }
+  .otp-input-sm:has(> .otp-code) { font-size: 1.25rem; --otp-height: 2.5rem; }
+  .otp-input-md:has(> .otp-code) { font-size: 1.5rem; --otp-height: 3rem; }
+  .otp-input-lg:has(> .otp-code) { font-size: 1.75rem; --otp-height: 3.5rem; }
+  .otp-input-xl:has(> .otp-code) { font-size: 2rem; --otp-height: 4rem; }
+  .otp-input-joined:has(> .otp-code) { --otp-gap-ratio: 0; }
+  .otp-input-joined > span:not(:first-child) { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  .otp-input-joined > span:not(:nth-last-child(2)) { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: 0; }
+  .otp-input-ghost > span { border-color: transparent; }
+  .otp-input-filled > span { background-color: var(--color-surface-container); }
+  .otp-input-underline > span { border-width: 0 0 1px; border-radius: 0; background-color: transparent; }
+
+  .otp-input-primary:has(> .otp-code) { color: var(--dm-validation-color, var(--color-primary)); }
+  .otp-input-secondary:has(> .otp-code) { color: var(--dm-validation-color, var(--color-secondary)); }
+  .otp-input-tertiary:has(> .otp-code) { color: var(--dm-validation-color, var(--color-tertiary)); }
+  .otp-input-info:has(> .otp-code) { color: var(--dm-validation-color, var(--color-info)); }
+  .otp-input-success:has(> .otp-code) { color: var(--dm-validation-color, var(--color-success)); }
+  .otp-input-warning:has(> .otp-code) { color: var(--dm-validation-color, var(--color-warning)); }
+  .otp-input-error:has(> .otp-code) { color: var(--dm-validation-color, var(--color-error)); }
+  .otp-input-accent:has(> .otp-code) { color: var(--dm-validation-color, var(--color-accent)); }
+  .otp-input-neutral:has(> .otp-code) { color: var(--dm-validation-color, var(--color-neutral)); }
+  .otp-input-base:has(> .otp-code) { color: var(--dm-validation-color, var(--color-base-content)); }
+
+  .otp-input:has(> .otp-code:is(.validate :valid, .validate:valid, .validator.validator-success:user-valid):not([aria-invalid="true"]):not(:disabled)):not(:where(.form-group-error *, .form-control.error *)) {
+    --dm-validation-color: var(--color-success);
+  }
+  .otp-input:has(> .otp-code:is([aria-invalid="true"], .validator:user-invalid, .validate :invalid, .validate:invalid):not(:disabled)),
+  :is(.form-group-error, .form-control.error) .otp-input {
+    --dm-validation-color: var(--color-error);
+  }
+  .otp-input:has(> .otp-code:is([aria-invalid="true"], .validator:user-invalid, .validate :invalid, .validate:invalid):not(:disabled)) > span,
+  :is(.form-group-error, .form-control.error) .otp-input > span {
+    border-color: currentColor;
+  }
+  .otp-input:has(> .otp-code:disabled) {
+    opacity: 0.38;
+    cursor: not-allowed;
+  }
+  .otp-input > .otp-code:disabled { opacity: 1; }
+
+  /* Engines without content sizing retain a usable single native input. */
+  @supports not (field-sizing: content) {
+    .otp-input > .otp-code { inline-size: 100%; letter-spacing: normal; padding: 0.75rem; background-color: var(--color-surface); border: 1px solid currentColor; border-radius: inherit; }
+    .otp-input > span, .otp-input:has(> .otp-code)::after { display: none; }
+    .otp-input > .otp-code:focus { outline: 2px solid currentColor !important; outline-offset: 2px; }
+  }
+  @media (forced-colors: active) {
+    .otp-input:focus-within { outline: 2px solid Highlight; outline-offset: 2px; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .otp-input-field {
+    .otp-input-field, .otp-input > span {
       transition: none;
     }
   }
 }
 `;
-const sheet$10 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$10) sheet$10.replaceSync(css$10);
-var styles$24 = css$31`
+const sheet$9 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
+if (sheet$9) sheet$9.replaceSync(css$9);
+var styles$22 = css$30`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -15940,7 +18137,7 @@ var styles$24 = css$31`
   :host([hidden]) {
     display: none !important;
   }
-  ${css$10.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$9.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 `;
 var ElDmOtpInput = class extends BaseElement {
 	static properties = {
@@ -15962,7 +18159,7 @@ var ElDmOtpInput = class extends BaseElement {
 	#listening = false;
 	constructor() {
 		super();
-		this.attachStyles(styles$24);
+		this.attachStyles(styles$22);
 	}
 	update() {
 		super.update();
@@ -15987,13 +18184,13 @@ var ElDmOtpInput = class extends BaseElement {
 		return `<div class="otp-input ${`otp-input-${this.color || "primary"}`}">${Array.from({ length: len }, () => `<input type="text" maxlength="1" class="otp-input-field" ${this.disabled ? "disabled" : ""} />`).join("")}</div>`;
 	}
 };
-function register$14() {
+function register$13() {
 	if (!customElements.get("el-dm-otp-input")) customElements.define("el-dm-otp-input", ElDmOtpInput);
 }
-register$14();
+register$13();
 //#endregion
-//#region node_modules/@duskmoon-dev/el-pagination/dist/esm/register.js
-var styles$23 = css$31`
+//#region ../../node_modules/@duskmoon-dev/el-pagination/dist/esm/register.js
+var styles$21 = css$30`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -16205,7 +18402,7 @@ var ElDmPagination = class extends BaseElement {
 	_controlsObserver;
 	constructor() {
 		super();
-		this.attachStyles(styles$23);
+		this.attachStyles(styles$21);
 	}
 	connectedCallback() {
 		super.connectedCallback();
@@ -16351,328 +18548,12 @@ var ElDmPagination = class extends BaseElement {
     `;
 	}
 };
-function register$13() {
-	if (!customElements.get("el-dm-pagination")) customElements.define("el-dm-pagination", ElDmPagination);
-}
-register$13();
-//#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/pin-input.js
-const css$9 = `/**
- * PIN Input Component Styles
- * DuskMoonUI - Secure PIN/password entry input
- */
-
-@layer components {
-  /* Base PIN Container */
-  .pin-input {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  /* PIN Input Field */
-  .pin-input-field {
-    width: 3rem;
-    height: 3.5rem;
-    padding: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-    text-align: center;
-    color: var(--color-on-surface);
-    background-color: var(--color-surface);
-    border: 2px solid currentColor;
-    border-radius: var(--radius-sm);
-    outline: none;
-    transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
-    caret-color: var(--color-primary);
-    -webkit-text-security: disc;
-  }
-
-  .pin-input-field::placeholder {
-    color: var(--color-on-surface-variant);
-    opacity: 0.3;
-  }
-
-  .pin-input-field:hover:not(:disabled):not(:focus) {
-    background-color: var(--color-surface-container);
-  }
-
-  .pin-input-field:focus {
-    box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
-  }
-
-  .pin-input-field:disabled {
-    opacity: 0.38;
-    cursor: not-allowed;
-    background-color: var(--color-surface-container);
-  }
-
-  /* Show PIN (toggle visibility) */
-  .pin-input-visible .pin-input-field {
-    -webkit-text-security: none;
-  }
-
-  /* Size Variants */
-  .pin-input-sm .pin-input-field {
-    width: 2.5rem;
-    height: 3rem;
-    font-size: 1.25rem;
-    border-radius: var(--radius-xs);
-  }
-
-  .pin-input-lg .pin-input-field {
-    width: 3.5rem;
-    height: 4rem;
-    font-size: 1.75rem;
-    border-radius: var(--radius-sm);
-  }
-
-  /* Compact Gap */
-  .pin-input-compact {
-    gap: 0.25rem;
-  }
-
-  /* Filled Variant */
-  .pin-input-filled .pin-input-field {
-    background-color: var(--color-surface-container);
-    border: none;
-    border-bottom: 2px solid var(--color-outline);
-    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  }
-
-  .pin-input-filled .pin-input-field:focus {
-    border-bottom-color: var(--color-primary);
-    box-shadow: none;
-  }
-
-  /* Circle Variant */
-  .pin-input-circle .pin-input-field {
-    width: 3rem;
-    height: 3rem;
-    border-radius: var(--radius-full);
-  }
-
-  .pin-input-circle.pin-input-sm .pin-input-field {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
-
-  .pin-input-circle.pin-input-lg .pin-input-field {
-    width: 3.5rem;
-    height: 3.5rem;
-  }
-
-  /* Dot Display (shows dots instead of numbers) */
-  .pin-input-dots .pin-input-field {
-    font-size: 2rem;
-    letter-spacing: -0.25rem;
-  }
-
-  /* Color Variants */
-  .pin-input-primary .pin-input-field {
-    color: var(--color-primary);
-  }
-
-  .pin-input-primary .pin-input-field:focus {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-primary) 10%, transparent);
-  }
-
-  .pin-input-secondary .pin-input-field {
-    color: var(--color-secondary);
-  }
-
-  .pin-input-secondary .pin-input-field:focus {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-secondary) 10%, transparent);
-  }
-
-  .pin-input-tertiary .pin-input-field {
-    color: var(--color-tertiary);
-  }
-
-  .pin-input-tertiary .pin-input-field:focus {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-tertiary) 10%, transparent);
-  }
-
-  .pin-input-info .pin-input-field {
-    color: var(--color-info);
-  }
-
-  .pin-input-info .pin-input-field:focus {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-info) 10%, transparent);
-  }
-
-  .pin-input-success .pin-input-field {
-    color: var(--color-success);
-  }
-
-  .pin-input-success .pin-input-field:focus {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-success) 10%, transparent);
-  }
-
-  .pin-input-warning .pin-input-field {
-    color: var(--color-warning);
-  }
-
-  .pin-input-warning .pin-input-field:focus {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-warning) 10%, transparent);
-  }
-
-  .pin-input-error .pin-input-field {
-    color: var(--color-error);
-    animation: pin-shake 300ms ease-in-out;
-  }
-
-  .pin-input-error .pin-input-field:focus {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-error) 10%, transparent);
-  }
-
-  .pin-input-accent .pin-input-field {
-    color: var(--color-accent);
-  }
-
-  .pin-input-accent .pin-input-field:focus {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-accent) 10%, transparent);
-  }
-
-  .pin-input-neutral .pin-input-field {
-    color: var(--color-neutral);
-  }
-
-  .pin-input-neutral .pin-input-field:focus {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-neutral) 10%, transparent);
-  }
-
-  .pin-input-base .pin-input-field {
-    color: var(--color-base-content);
-  }
-
-  .pin-input-base .pin-input-field:focus {
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-base-content) 10%, transparent);
-  }
-
-  @keyframes pin-shake {
-    0%, 100% { transform: translateX(0); }
-    20%, 60% { transform: translateX(-4px); }
-    40%, 80% { transform: translateX(4px); }
-  }
-
-  /* Ghost Variant */
-  .pin-input-ghost .pin-input-field {
-    background-color: transparent;
-    border-color: transparent;
-  }
-
-  .pin-input-ghost .pin-input-field:focus {
-    background-color: var(--color-surface-container);
-    border-color: transparent;
-    box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 20%, transparent);
-  }
-
-  /* PIN Group with Label */
-  .pin-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .pin-label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--color-on-surface);
-  }
-
-  .pin-helper {
-    font-size: 0.75rem;
-    color: var(--color-on-surface-variant);
-  }
-
-  .pin-error-message {
-    font-size: 0.75rem;
-    color: var(--color-error);
-  }
-
-  /* Reduce Motion */
-  @media (prefers-reduced-motion: reduce) {
-    .pin-input-field {
-      transition: none;
-    }
-
-    .pin-input-error .pin-input-field {
-      animation: none;
-    }
-  }
-}
-`;
-const sheet$9 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
-if (sheet$9) sheet$9.replaceSync(css$9);
-var styles$21 = css$31`
-  :host {
-    display: inline-flex;
-    vertical-align: middle;
-  }
-  :host([hidden]) {
-    display: none !important;
-  }
-  ${css$9.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
-`;
-var ElDmPinInput = class extends BaseElement {
-	static properties = {
-		length: {
-			type: Number,
-			reflect: true,
-			default: 4
-		},
-		color: {
-			type: String,
-			reflect: true,
-			default: "primary"
-		},
-		disabled: {
-			type: Boolean,
-			reflect: true
-		},
-		masked: {
-			type: Boolean,
-			reflect: true,
-			default: true
-		}
-	};
-	#listening = false;
-	constructor() {
-		super();
-		this.attachStyles(styles$21);
-	}
-	update() {
-		super.update();
-		if (!this.#listening && this.shadowRoot) {
-			this.#listening = true;
-			this.shadowRoot.addEventListener("input", this.#onInput.bind(this));
-			this.shadowRoot.addEventListener("keydown", this.#onKeydown.bind(this));
-		}
-	}
-	#onInput(e) {
-		const input = e.target;
-		if (!input.classList.contains("pin-input-field")) return;
-		if (input.value.length === 1) input.nextElementSibling?.focus();
-	}
-	#onKeydown(e) {
-		const input = e.target;
-		if (!input.classList.contains("pin-input-field")) return;
-		if (e.key === "Backspace" && input.value === "") input.previousElementSibling?.focus();
-	}
-	render() {
-		const len = this.length || 4;
-		const colorClass = `pin-input-${this.color || "primary"}`;
-		const inputType = this.masked !== false ? "password" : "text";
-		return `<div class="pin-input ${colorClass}">${Array.from({ length: len }, () => `<input type="${inputType}" maxlength="1" class="pin-input-field" ${this.disabled ? "disabled" : ""} />`).join("")}</div>`;
-	}
-};
 function register$12() {
-	if (!customElements.get("el-dm-pin-input")) customElements.define("el-dm-pin-input", ElDmPinInput);
+	if (!customElements.get("el-dm-pagination")) customElements.define("el-dm-pagination", ElDmPagination);
 }
 register$12();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/popover.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/popover.js
 const css$8 = `/**
  * Popover Component Styles
  * DuskMoonUI - Material Design 3 inspired popover system
@@ -17123,7 +19004,7 @@ const css$8 = `/**
 `;
 const sheet$8 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$8) sheet$8.replaceSync(css$8);
-var styles$19 = css$31`
+var styles$19 = css$30`
   :host {
     display: inline-block;
     position: relative;
@@ -17536,7 +19417,7 @@ function register$11() {
 }
 register$11();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/progress.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/progress.js
 const css$7 = `/**
  * Progress Component Styles
  * DuskMoonUI - Material Design 3 inspired progress system
@@ -17551,6 +19432,36 @@ const css$7 = `/**
     background-color: var(--color-surface-container-highest);
     border-radius: var(--radius-full);
     overflow: hidden;
+  }
+
+  /* Native progress keeps the platform's accessible value/max contract. */
+  progress.progress {
+    appearance: none;
+    border: 0;
+    display: block;
+  }
+
+  progress.progress::-webkit-progress-bar {
+    background: var(--color-surface-container-highest);
+    border-radius: var(--radius-full);
+  }
+
+  progress.progress::-webkit-progress-value {
+    background: var(--color-primary);
+    border-radius: var(--radius-full);
+    transition: width 300ms ease-in-out;
+  }
+
+  progress.progress::-moz-progress-bar {
+    background: var(--color-primary);
+    border-radius: var(--radius-full);
+    transition: width 300ms ease-in-out;
+  }
+
+  progress.progress:indeterminate::-webkit-progress-value,
+  progress.progress:indeterminate::-moz-progress-bar {
+    width: 30%;
+    animation: progress-indeterminate 1.5s infinite ease-in-out;
   }
 
   /* Progress Bar */
@@ -17604,6 +19515,21 @@ const css$7 = `/**
   .progress-base .progress-bar {
     background-color: var(--color-base-content);
   }
+
+  progress.progress-primary::-webkit-progress-value,
+  progress.progress-primary::-moz-progress-bar { background: var(--color-primary); }
+  progress.progress-secondary::-webkit-progress-value,
+  progress.progress-secondary::-moz-progress-bar { background: var(--color-secondary); }
+  progress.progress-tertiary::-webkit-progress-value,
+  progress.progress-tertiary::-moz-progress-bar { background: var(--color-tertiary); }
+  progress.progress-info::-webkit-progress-value,
+  progress.progress-info::-moz-progress-bar { background: var(--color-info); }
+  progress.progress-success::-webkit-progress-value,
+  progress.progress-success::-moz-progress-bar { background: var(--color-success); }
+  progress.progress-warning::-webkit-progress-value,
+  progress.progress-warning::-moz-progress-bar { background: var(--color-warning); }
+  progress.progress-error::-webkit-progress-value,
+  progress.progress-error::-moz-progress-bar { background: var(--color-error); }
 
   /* Size Variants */
   .progress-xs {
@@ -17678,6 +19604,25 @@ const css$7 = `/**
     to {
       background-position: 0 0;
     }
+  }
+
+  /* Buffer tracks belong to custom markup, not native <progress>. */
+  .progress-buffer {
+    position: relative;
+  }
+
+  .progress-buffer-bar {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 0;
+    background: color-mix(in oklch, var(--color-primary) 30%, transparent);
+    border-radius: var(--radius-full);
+    transition: width 300ms ease-in-out;
+  }
+
+  .progress-buffer .progress-bar {
+    z-index: 1;
   }
 
   /* Circular Progress */
@@ -17779,7 +19724,17 @@ const css$7 = `/**
 
   /* Reduce Motion */
   @media (prefers-reduced-motion: reduce) {
+    .progress-bar,
+    progress.progress::-webkit-progress-value,
+    progress.progress::-moz-progress-bar,
+    .progress-circular-bar,
+    .progress-buffer-bar {
+      transition: none;
+    }
+
     .progress-indeterminate .progress-bar,
+    progress.progress:indeterminate::-webkit-progress-value,
+    progress.progress:indeterminate::-moz-progress-bar,
     .progress-striped.progress-animated .progress-bar,
     .progress-circular-indeterminate svg,
     .progress-circular-indeterminate .progress-circular-bar {
@@ -17791,7 +19746,7 @@ const css$7 = `/**
 const sheet$7 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$7) sheet$7.replaceSync(css$7);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-progress/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-progress/dist/esm/register.js
 var COLOR_CLASSES$3 = {
 	primary: "progress-primary",
 	secondary: "progress-secondary",
@@ -17808,7 +19763,7 @@ var SIZE_CLASSES$2 = {
 	md: "",
 	lg: "progress-lg"
 };
-var styles$17 = css$31`
+var styles$17 = css$30`
   :host {
     display: block;
     width: 100%;
@@ -18018,8 +19973,8 @@ function register$10() {
 }
 register$10();
 //#endregion
-//#region node_modules/@duskmoon-dev/el-segment-control/dist/esm/register.js
-var styles$16 = css$31`
+//#region ../../node_modules/@duskmoon-dev/el-segment-control/dist/esm/register.js
+var styles$16 = css$30`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -18163,13 +20118,13 @@ function register$9() {
 }
 register$9();
 //#endregion
-//#region node_modules/@duskmoon-dev/el-select/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-select/dist/esm/register.js
 var chevronDownIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
 var chevronRightIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
 var checkIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
 var closeIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`;
 var searchIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`;
-var styles$15 = css$31`
+var styles$15 = css$30`
   :host {
     display: inline-block;
     width: 100%;
@@ -19250,7 +21205,7 @@ function register$8() {
 }
 register$8();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/slider.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/slider.js
 const css$6 = `/**
  * Slider Component Styles
  * DuskMoonUI - Material Design 3 inspired slider system
@@ -19772,7 +21727,7 @@ const css$6 = `/**
 const sheet$6 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$6) sheet$6.replaceSync(css$6);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-slider/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-slider/dist/esm/register.js
 var SIZE_CLASSES$1 = {
 	sm: "slider-sm",
 	md: "",
@@ -19787,7 +21742,7 @@ var COLOR_CLASSES$2 = {
 	error: "slider-error",
 	info: "slider-info"
 };
-var styles$13 = css$31`
+var styles$13 = css$30`
   :host {
     display: block;
     width: 100%;
@@ -20118,7 +22073,7 @@ function register$7() {
 }
 register$7();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/stepper.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/stepper.js
 const css$5 = `/**
  * Stepper Component Styles
  * DuskMoonUI - Material Design 3 inspired stepper/wizard system
@@ -20145,7 +22100,7 @@ const css$5 = `/**
   .stepper-step-connector {
     position: absolute;
     top: 1.25rem;
-    left: calc(50% + 1.25rem);
+    inset-inline-start: calc(50% + 1.25rem);
     width: calc(100% - 2.5rem);
     height: 2px;
     background-color: var(--color-outline-variant);
@@ -20170,10 +22125,13 @@ const css$5 = `/**
     background: none;
     border: none;
     padding: 0;
+    color: inherit;
   }
 
   .stepper-step-button:focus-visible {
-    outline: none;
+    outline: 2px solid currentColor;
+    outline-offset: 0.25rem;
+    border-radius: var(--radius-sm);
   }
 
   .stepper-step-button:focus-visible .stepper-step-icon {
@@ -20197,7 +22155,8 @@ const css$5 = `/**
     transition: background-color 150ms ease-in-out, border-color 150ms ease-in-out, color 150ms ease-in-out;
   }
 
-  .stepper-step-active .stepper-step-icon {
+  .stepper-step-active .stepper-step-icon,
+  .stepper-step[aria-current="step"] .stepper-step-icon {
     background-color: var(--color-primary);
     border-color: var(--color-primary);
     color: var(--color-primary-content);
@@ -20228,7 +22187,8 @@ const css$5 = `/**
     text-align: center;
   }
 
-  .stepper-step-active .stepper-step-label {
+  .stepper-step-active .stepper-step-label,
+  .stepper-step[aria-current="step"] .stepper-step-label {
     color: var(--color-primary);
   }
 
@@ -20239,14 +22199,14 @@ const css$5 = `/**
   .stepper-step-description {
     font-size: 0.75rem;
     color: var(--color-on-surface-variant);
-    margin-top: 0.125rem;
+    margin-block-start: 0.125rem;
     text-align: center;
   }
 
   /* Step Content (for vertical stepper) */
   .stepper-step-content {
-    margin-top: 1.5rem;
-    padding: 0 1rem;
+    margin-block-start: 1.5rem;
+    padding-inline: 1rem;
     width: 100%;
   }
 
@@ -20256,7 +22216,7 @@ const css$5 = `/**
     display: block;
     font-size: 0.6875rem;
     color: var(--color-on-surface-variant);
-    margin-top: 0.125rem;
+    margin-block-start: 0.125rem;
   }
 
   /* Vertical Stepper */
@@ -20273,7 +22233,7 @@ const css$5 = `/**
 
   .stepper-vertical .stepper-step-connector {
     top: 2.5rem;
-    left: 1.25rem;
+    inset-inline-start: 1.25rem;
     width: 2px;
     height: calc(100% - 2.5rem);
     transform: translateX(-50%);
@@ -20286,18 +22246,19 @@ const css$5 = `/**
 
   .stepper-vertical .stepper-step-label,
   .stepper-vertical .stepper-step-description {
-    text-align: left;
-    margin-left: 1rem;
+    text-align: start;
+    margin-inline-start: 1rem;
   }
 
   .stepper-vertical .stepper-step-content {
-    margin-top: 0;
-    margin-left: 3.5rem;
-    padding: 1rem 0 1.5rem;
+    margin-block-start: 0;
+    margin-inline-start: 3.5rem;
+    padding-block: 1rem 1.5rem;
   }
 
   /* Color Variants */
   .stepper-secondary .stepper-step-active .stepper-step-icon,
+  .stepper-secondary .stepper-step[aria-current="step"] .stepper-step-icon,
   .stepper-secondary .stepper-step-completed .stepper-step-icon {
     background-color: var(--color-secondary);
     border-color: var(--color-secondary);
@@ -20308,11 +22269,13 @@ const css$5 = `/**
     background-color: var(--color-secondary);
   }
 
-  .stepper-secondary .stepper-step-active .stepper-step-label {
+  .stepper-secondary .stepper-step-active .stepper-step-label,
+  .stepper-secondary .stepper-step[aria-current="step"] .stepper-step-label {
     color: var(--color-secondary);
   }
 
   .stepper-tertiary .stepper-step-active .stepper-step-icon,
+  .stepper-tertiary .stepper-step[aria-current="step"] .stepper-step-icon,
   .stepper-tertiary .stepper-step-completed .stepper-step-icon {
     background-color: var(--color-tertiary);
     border-color: var(--color-tertiary);
@@ -20323,7 +22286,8 @@ const css$5 = `/**
     background-color: var(--color-tertiary);
   }
 
-  .stepper-tertiary .stepper-step-active .stepper-step-label {
+  .stepper-tertiary .stepper-step-active .stepper-step-label,
+  .stepper-tertiary .stepper-step[aria-current="step"] .stepper-step-label {
     color: var(--color-tertiary);
   }
 
@@ -20336,7 +22300,7 @@ const css$5 = `/**
 
   .stepper-sm .stepper-step-connector {
     top: 1rem;
-    left: calc(50% + 1rem);
+    inset-inline-start: calc(50% + 1rem);
     width: calc(100% - 2rem);
   }
 
@@ -20357,14 +22321,14 @@ const css$5 = `/**
 
   .stepper-lg .stepper-step-connector {
     top: 1.5rem;
-    left: calc(50% + 1.5rem);
+    inset-inline-start: calc(50% + 1.5rem);
     width: calc(100% - 3rem);
   }
 
   /* Alternative Label Positioning */
   .stepper-alt-labels .stepper-step-connector {
     top: 1.25rem;
-    left: calc(50% + 2rem);
+    inset-inline-start: calc(50% + 2rem);
     width: calc(100% - 4rem);
   }
 
@@ -20419,6 +22383,11 @@ const css$5 = `/**
     opacity: 0.7;
   }
 
+  .stepper-step-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
   /* Icon Stepper */
   .stepper-icons .stepper-step-icon {
     font-size: 1.25rem;
@@ -20436,7 +22405,7 @@ const css$5 = `/**
 const sheet$5 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$5) sheet$5.replaceSync(css$5);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-stepper/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-stepper/dist/esm/register.js
 var COLOR_MAP = {
 	primary: "var(--color-primary)",
 	secondary: "var(--color-secondary)",
@@ -20447,7 +22416,7 @@ var COLOR_MAP = {
 	info: "var(--color-info)"
 };
 var coreStyles$6 = css$5.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
-var styles$11 = css$31`
+var styles$11 = css$30`
   :host {
     display: block;
     font-family: var(--font-family-sans, system-ui, sans-serif);
@@ -20610,7 +22579,7 @@ var ElDmStepper = class extends BaseElement {
     `;
 	}
 };
-var stepStyles = css$31`
+var stepStyles = css$30`
   :host {
     display: flex;
     position: relative;
@@ -20733,8 +22702,76 @@ function register$6() {
 }
 register$6();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/switch.js
-const css$4 = `/**
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/switch.js
+const css$4 = `/** Opt-in native presentation. Applications own errors, messages and announcements. */
+@layer components {
+  /* Compatibility wrapper states are intentionally immediate. */
+  :is(.form-group-info, .form-control.info) { --dm-validation-color: var(--color-info); }
+  :is(.form-group-warning, .form-control.warning) { --dm-validation-color: var(--color-warning); }
+  :is(.form-group-success, .form-control.success) { --dm-validation-color: var(--color-success); }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is(.validate :valid, .validate:valid, .validator.validator-success:user-valid):not([aria-invalid="true"]):not(:where(.form-group-error *, .form-control.error *)):not(:disabled) {
+    --dm-validation-color: var(--color-success);
+    --dm-validation-content: var(--color-success-content);
+  }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is(.validate :invalid, .validate:invalid, .validator:user-invalid):not(:disabled) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  :is(.form-group-error, .form-control.error) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  /* Higher specificity than native states, including server-invalid + user-valid. */
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .form-group-error *, .form-control.error *):not(:disabled):is(:focus, :not(:focus)) {
+    --dm-validation-color: var(--color-error);
+    --dm-validation-content: var(--color-error-content);
+  }
+
+  /* This shared selector wins over filled/ghost focus and semantic modifiers. */
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .validator:user-invalid, .validator.validator-success:user-valid, .validate :invalid, .validate :valid, .validate:invalid, .validate:valid, .form-group-error *, .form-group-success *, .form-group-warning *, .form-group-info *, .form-control.error *, .form-control.success *, .form-control.warning *, .form-control.info *):not(:disabled) {
+    color: var(--dm-validation-color);
+    border-color: var(--dm-validation-color);
+    --checkbox-color: var(--dm-validation-color);
+    --radio-color: var(--dm-validation-color);
+    --switch-color: var(--dm-validation-color);
+    --switch-content-color: var(--dm-validation-content, var(--color-primary-content));
+    --toggle-color: var(--dm-validation-color);
+  }
+
+  :is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):is([aria-invalid="true"], .validator:user-invalid, .validator.validator-success:user-valid, .validate :invalid, .validate :valid, .validate:invalid, .validate:valid, .form-group-error *, .form-group-success *, .form-group-warning *, .form-group-info *, .form-control.error *, .form-control.success *, .form-control.warning *, .form-control.info *):not(:disabled):focus {
+    border-color: var(--dm-validation-color);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--dm-validation-color) 20%, transparent);
+  }
+
+  :is(.form-group-error, .form-control.error) :is(.form-label, .label-text) { color: var(--color-error); }
+  :is(.form-group-success, .form-control.success) :is(.form-label, .label-text) { color: var(--color-success); }
+  :is(.form-group-warning, .form-control.warning) :is(.form-label, .label-text) { color: var(--color-warning); }
+  :is(.form-group-info, .form-control.info) :is(.form-label, .label-text) { color: var(--color-info); }
+
+  .validator-hint { font-size: 0.75rem; color: var(--color-on-surface-variant); }
+  .validator-error { display: none; font-size: 0.75rem; color: var(--color-error); }
+  /* Keep OTP actions stationary when blur reveals an error during a click. */
+  :is(.otp-code, .otp-input) ~ .validator-error { display: block; visibility: hidden; }
+  :is(.form-group, .form-control):has(:is([aria-invalid="true"], .validator:user-invalid, .validate :invalid, .validate:invalid):not(:disabled)) > .validator-error,
+  :is(.form-group-error, .form-control.error) > .validator-error { display: block; visibility: visible; }
+
+  @media (forced-colors: active) {
+    :is(input, select, textarea):is(.input, .select, .textarea, .checkbox, .radio, .switch, .toggle, .file-input, .otp-input-field, .otp-code, .datepicker-input):focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+    input:is(.checkbox, .radio, .switch, .toggle) { appearance: auto; }
+    input:is(.checkbox, .radio, .switch, .toggle)::before,
+    input:is(.checkbox, .radio, .switch, .toggle)::after { content: none; }
+  }
+}
+
+
+/**
  * Switch Component Styles
  * DuskMoonUI - Material Design 3 inspired switch/toggle
  *
@@ -20743,6 +22780,8 @@ const css$4 = `/**
  */
 
 @layer components {
+  :where(.switch) { box-sizing: border-box; }
+
   /* Base Switch - applied directly to input[type="checkbox"] */
   .switch {
     --switch-width: 3.25rem;
@@ -21013,7 +23052,7 @@ const css$4 = `/**
 const sheet$4 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$4) sheet$4.replaceSync(css$4);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-switch/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-switch/dist/esm/register.js
 var SIZE_CLASSES = {
 	sm: "switch-sm",
 	md: "",
@@ -21028,7 +23067,7 @@ var COLOR_CLASSES$1 = {
 	error: "switch-error",
 	info: "switch-info"
 };
-var styles$9 = css$31`
+var styles$9 = css$30`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -21145,7 +23184,7 @@ function register$5() {
 }
 register$5();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/table.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/table.js
 const css$3 = `/**
  * Table Component Styles
  * DuskMoonUI - Material Design 3 inspired table system
@@ -21319,6 +23358,8 @@ const css$3 = `/**
   /* Selected Row */
   .table-row-selected,
   .table tr.selected,
+  .table-hover tbody tr:is(.selected, .table-row-selected),
+  .table-hover .table-row:is(.selected, .table-row-selected),
   .table-selectable tbody tr.table-row-selected,
   .table-selectable .table-row.table-row-selected,
   .table-selectable tbody tr.selected,
@@ -21326,6 +23367,12 @@ const css$3 = `/**
     background-color: var(--color-primary-container);
     color: var(--color-on-primary-container);
   }
+
+  .table-numeric { text-align: end; font-variant-numeric: tabular-nums; }
+  .table-center { text-align: center; }
+  .table-actions { white-space: nowrap; text-align: end; }
+  .table-checkbox { inline-size: 1%; }
+  .table-sort-icon { display: inline-block; margin-inline-start: 0.25rem; }
 
   /* Clickable Row */
   .table-row-clickable,
@@ -21401,7 +23448,7 @@ const css$3 = `/**
 const sheet$3 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$3) sheet$3.replaceSync(css$3);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-table/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-table/dist/esm/register.js
 var ElDmTableColumn = class extends BaseElement {
 	static properties = {
 		key: {
@@ -21470,7 +23517,7 @@ var ICONS = {
 	chevronFirst: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 18-6-6 6-6"/><path d="M7 6v12"/></svg>`,
 	chevronLast: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 18 6-6-6-6"/><path d="M17 6v12"/></svg>`
 };
-var styles$7 = css$31`
+var styles$7 = css$30`
   :host {
     display: block;
     font-family: inherit;
@@ -22254,7 +24301,7 @@ function register$4() {
 	registerTableColumn();
 }
 register$4();
-var styles$6 = css$31`
+var styles$6 = css$30`
   :host {
     display: block;
     font-family: inherit;
@@ -22270,7 +24317,7 @@ var styles$6 = css$31`
   }
 
   /* Import core navigation styles */
-  ${css$24.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
+  ${css$23.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "")}
 
   /* Override core .tabs for our custom behavior */
   .tabs {
@@ -22522,7 +24569,7 @@ var ElDmTabs = class extends BaseElement {
 		});
 	}
 };
-var tabStyles = css$31`
+var tabStyles = css$30`
   :host {
     display: inline-flex;
   }
@@ -22666,7 +24713,7 @@ var ElDmTab = class extends BaseElement {
 		(this.shadowRoot?.querySelector("button"))?.addEventListener("click", this._handleClick.bind(this));
 	}
 };
-var panelStyles = css$31`
+var panelStyles = css$30`
   :host {
     display: block;
   }
@@ -22715,7 +24762,7 @@ function register$3() {
 }
 register$3();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/theme-controller.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/theme-controller.js
 const css$2 = `/**
  * Theme Controller Component Styles
  * DuskMoonUI - Two display modes for theme switching:
@@ -23000,7 +25047,7 @@ const css$2 = `/**
 `;
 const sheet$2 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$2) sheet$2.replaceSync(css$2);
-var styles$4 = css$31`
+var styles$4 = css$30`
   :host {
     display: inline-flex;
     vertical-align: middle;
@@ -23068,7 +25115,7 @@ function register$2() {
 }
 register$2();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/time-input.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/time-input.js
 const css$1 = `/**
  * Time Input Component Styles
  * DuskMoonUI - Time selection input component
@@ -23400,7 +25447,7 @@ const css$1 = `/**
 `;
 const sheet$1 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$1) sheet$1.replaceSync(css$1);
-var styles$2 = css$31`
+var styles$2 = css$30`
   :host {
     display: block;
     width: 100%;
@@ -23444,7 +25491,7 @@ function register$1() {
 }
 register$1();
 //#endregion
-//#region node_modules/@duskmoon-dev/core/dist/esm/components/tooltip.js
+//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/tooltip.js
 const css = `/**
  * Tooltip Component Styles
  * DuskMoonUI - Material Design 3 inspired tooltip system
@@ -23523,53 +25570,8 @@ const css = `/**
     position-area: right;
   }
 
-  /* ========================================
-   * Arrow (preferred position only; may be wrong after flip)
-   * ======================================== */
-
-  .tooltip[popover]::before {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 0;
-    border: 0.375rem solid transparent;
-  }
-
-  .tooltip-top[popover]::before,
-  .tooltip[popover]:not(.tooltip-bottom):not(.tooltip-left):not(.tooltip-right)::before {
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-top-color: var(--tooltip-bg);
-  }
-
-  .tooltip-bottom[popover]::before {
-    bottom: 100%;
-    top: auto;
-    left: 50%;
-    transform: translateX(-50%);
-    border-bottom-color: var(--tooltip-bg);
-    border-top-color: transparent;
-  }
-
-  .tooltip-left[popover]::before {
-    left: 100%;
-    top: 50%;
-    bottom: auto;
-    transform: translateY(-50%);
-    border-left-color: var(--tooltip-bg);
-    border-top-color: transparent;
-  }
-
-  .tooltip-right[popover]::before {
-    right: 100%;
-    left: auto;
-    top: 50%;
-    bottom: auto;
-    transform: translateY(-50%);
-    border-right-color: var(--tooltip-bg);
-    border-top-color: transparent;
-  }
+  /* Automatic placement can flip independently of the preferred side. The
+     core stays arrowless instead of showing a misleading arrow. */
 
   /* ========================================
    * Color variants
@@ -23690,7 +25692,7 @@ const css = `/**
 const sheet = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet) sheet.replaceSync(css);
 //#endregion
-//#region node_modules/@duskmoon-dev/el-tooltip/dist/esm/register.js
+//#region ../../node_modules/@duskmoon-dev/el-tooltip/dist/esm/register.js
 var POSITION_CLASSES = {
 	top: "tooltip-top",
 	bottom: "tooltip-bottom",
@@ -23706,7 +25708,7 @@ var COLOR_CLASSES = {
 	warning: "tooltip-warning",
 	error: "tooltip-error"
 };
-var styles = css$31`
+var styles = css$30`
   :host {
     display: inline-flex;
     position: relative;
