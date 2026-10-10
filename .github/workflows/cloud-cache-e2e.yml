@@ -70,8 +70,13 @@ jobs:
 
       - name: Install mc CLI
         run: |
-          curl -sL https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc
-          chmod +x /usr/local/bin/mc
+          # The MinIO download service is retired; use a verified release asset.
+          mc_binary="${RUNNER_TEMP}/mc"
+          curl -fsSL --retry 3 \
+            https://github.com/minio/mc/releases/download/RELEASE.2025-08-13T08-35-41Z/mc.linux-amd64.RELEASE.2025-08-13T08-35-41Z \
+            -o "$mc_binary"
+          echo "01f866e9c5f9b87c2b09116fa5d7c06695b106242d829a8bb32990c00312e891  $mc_binary" | sha256sum --check
+          install -m 755 "$mc_binary" /usr/local/bin/mc
           mc --version
 
       - name: Create upstream RustFS bucket
