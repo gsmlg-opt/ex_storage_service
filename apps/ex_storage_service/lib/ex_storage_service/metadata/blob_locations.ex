@@ -13,13 +13,13 @@ defmodule ExStorageService.Metadata.BlobLocations do
 
   @max_attempts 4
 
-  @type record :: %{
+  @type location_record :: %{
           key: binary(),
           location: BlobLocation.t(),
           mod_revision: non_neg_integer()
         }
 
-  @spec list(binary(), keyword()) :: {:ok, [record()]} | {:error, term()}
+  @spec list(binary(), keyword()) :: {:ok, [location_record()]} | {:error, term()}
   def list(hash, opts \\ []) when is_binary(hash) do
     with {:ok, entries} <-
            backend(opts).prefix_scan(Keys.blob_location_prefix(hash), read_opts(opts)) do
@@ -178,7 +178,7 @@ defmodule ExStorageService.Metadata.BlobLocations do
   Removes a draining location only while all supplied retained locations remain
   checksum-ready and the optional durable-job fence is still live.
   """
-  @spec retire(binary(), binary(), [record()], keyword()) :: :ok | {:error, term()}
+  @spec retire(binary(), binary(), [location_record()], keyword()) :: :ok | {:error, term()}
   def retire(hash, node_id, retained, opts \\ [])
       when is_binary(hash) and is_binary(node_id) and is_list(retained) do
     retire(hash, node_id, retained, opts, @max_attempts)

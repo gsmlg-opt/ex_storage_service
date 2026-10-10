@@ -11,9 +11,9 @@ defmodule ExStorageService.Metadata.BlobCatalog do
   alias ExStorageService.Metadata.Keys
   alias ExStorageService.Metadata.Models.Blob
 
-  @type record :: %{key: binary(), descriptor: Blob.t(), mod_revision: non_neg_integer()}
+  @type blob_record :: %{key: binary(), descriptor: Blob.t(), mod_revision: non_neg_integer()}
 
-  @spec get(binary(), keyword()) :: {:ok, record()} | {:error, :not_found | term()}
+  @spec get(binary(), keyword()) :: {:ok, blob_record()} | {:error, :not_found | term()}
   def get(hash, opts \\ []) when is_binary(hash) do
     key = Keys.blob(hash)
 
@@ -32,7 +32,7 @@ defmodule ExStorageService.Metadata.BlobCatalog do
   end
 
   @spec list_page(binary() | nil, binary() | nil, pos_integer(), keyword()) ::
-          {:ok, %{records: [record()], next_cursor: binary() | nil}} | {:error, term()}
+          {:ok, %{records: [blob_record()], next_cursor: binary() | nil}} | {:error, term()}
   def list_page(shard, cursor \\ nil, limit \\ 100, opts \\ [])
 
   def list_page(shard, cursor, limit, opts)

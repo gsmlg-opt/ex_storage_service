@@ -63,7 +63,7 @@ defmodule ExStorageService.HTTPClient do
 
   defp reduce_upload_chunks(bytes, acc, reducer) do
     size = min(byte_size(bytes), 65_536)
-    <<chunk::binary-size(size), rest::binary>> = bytes
+    <<chunk::binary-size(^size), rest::binary>> = bytes
 
     case reducer.(chunk, acc) do
       {:cont, next} -> reduce_upload_chunks(rest, next, reducer)

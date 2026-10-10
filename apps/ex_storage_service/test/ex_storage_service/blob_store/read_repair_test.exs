@@ -64,6 +64,36 @@ defmodule ExStorageService.BlobStore.ReadRepairTest do
   end
 
   @tag :tmp_dir
+  test "local write failures preserve the remote stream and discard the repair", %{
+    tmp_dir: tmp_dir
+  } do
+    body = "remote bytes"
+    hash = sha256(body)
+    parent = self()
+    opts = repair_opts(tmp_dir, on_ready: &send(parent, {:ready, &1}))
+
+    source =
+      Source.stateful_stream(
+        fn {_consumer, staging} = initial, reducer ->
+          :ok = File.close(staging.io)
+          {:cont, next} = reducer.("remote ", initial)
+          {:cont, final} = reducer.("bytes", next)
+          {:ok, final}
+        end,
+        byte_size(body)
+      )
+
+    wrapped = ReadRepair.wrap(source, hash, byte_size(body), opts)
+
+    assert {:ok, ^body} =
+             Source.reduce(wrapped, "", fn data, acc -> {:cont, acc <> data} end)
+
+    refute_receive {:ready, _ready}
+    assert {:error, :not_found} = LocalCAS.stat(hash, opts[:blob_store_opts])
+    assert staging_files(opts) == []
+  end
+
+  @tag :tmp_dir
   test "verified repair atomically replaces an existing same-size corrupt CAS file", %{
     tmp_dir: tmp_dir
   } do
@@ -168,7 +198,7 @@ defmodule ExStorageService.BlobStore.ReadRepairTest do
   end
 
   defp chunk(body, size),
-    do: for(<<chunk::binary-size(size) <- body>>, do: chunk) ++ tail(body, size)
+    do: for(<<chunk::binary-size(^size) <- body>>, do: chunk) ++ tail(body, size)
 
   defp tail(body, size) do
     remainder = rem(byte_size(body), size)

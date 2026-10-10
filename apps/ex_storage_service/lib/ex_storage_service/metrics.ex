@@ -6,8 +6,6 @@ defmodule ExStorageService.Metrics do
   via the `format_metrics/0` function.
   """
 
-  require Logger
-
   @counters_table :ex_storage_service_metrics_counters
   @histograms_table :ex_storage_service_metrics_histograms
   @gauges_table :ex_storage_service_metrics_gauges

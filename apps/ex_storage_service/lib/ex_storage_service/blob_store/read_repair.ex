@@ -61,7 +61,7 @@ defmodule ExStorageService.BlobStore.ReadRepair do
   end
 
   defp write_chunk(%{error: nil} = staging, chunk) do
-    case IO.binwrite(staging.io, chunk) do
+    case :file.write(staging.io, chunk) do
       :ok -> %{staging | bytes: staging.bytes + byte_size(chunk)}
       {:error, reason} -> %{staging | error: {:write, reason}}
     end
@@ -152,7 +152,7 @@ defmodule ExStorageService.BlobStore.ReadRepair do
   defp file_hash(path) do
     digest =
       path
-      |> File.stream!([], @chunk_size)
+      |> File.stream!(@chunk_size, [])
       |> Enum.reduce(:crypto.hash_init(:sha256), &:crypto.hash_update(&2, &1))
       |> :crypto.hash_final()
       |> Base.encode16(case: :lower)

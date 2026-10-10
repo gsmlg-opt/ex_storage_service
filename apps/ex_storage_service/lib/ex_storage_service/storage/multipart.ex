@@ -13,8 +13,6 @@ defmodule ExStorageService.Storage.Multipart do
   desired replica count before the part record becomes visible.
   """
 
-  require Logger
-
   alias ExStorageService.BlobStore.LocalCAS
   alias ExStorageService.Cluster.WriteCoordinator
   alias ExStorageService.Context
