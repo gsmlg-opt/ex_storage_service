@@ -84,6 +84,8 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
   `http_fetch` 0.17.2 or newer and set `decode_body: false` on storage requests
   to preserve Content-Encoding object bytes. Do not buffer blobs, rewrite
   headers, or re-compress objects to replace bounded raw-byte transfers.
+  Core and CLI package constraints support both the 0.17 series from 0.17.2
+  and 0.18.x; the umbrella lock uses the coordinated 0.18 family.
 - Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
 
 ### File Organization

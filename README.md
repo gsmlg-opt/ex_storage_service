@@ -226,13 +226,16 @@ Runtime services:
 | Internal cluster transport | 9100 | Bandit + HMAC + optional TLS | Private data-plane between cluster data nodes (never expose publicly) |
 
 Outbound HTTP clients use [`http_fetch`](https://github.com/gsmlg-dev/http_fetch)
-0.17.2 for the CLI, cloud cache, remote inventory synchronization, webhooks,
+0.18 for the CLI, cloud cache, remote inventory synchronization, webhooks,
 internal cluster transport, and cross-cluster replication. Signed requests do
 not follow redirects. Cluster and replication uploads use bounded streams with
 an explicit Content-Length and upload chunks of at most 64 KiB. Cluster downloads
 validate headers before
 forwarding bytes with acknowledged backpressure.
 Webhook retries remain controlled by the notification worker.
+
+The core and CLI packages accept HTTP 0.17.2 or later in the 0.17 series, as well
+as 0.18.x. The umbrella locks a coordinated 0.18 family without dependency overrides.
 
 Storage requests set `decode_body: false` to preserve stored gzip/deflate object
 bytes and their Content-Encoding metadata. This uses the raw response support
