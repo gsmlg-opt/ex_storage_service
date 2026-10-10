@@ -101,6 +101,11 @@ The codebase is structured as an umbrella project with five apps:
 ### Testing & Validation Requirements
 - All new features must be accompanied by tests.
 - When fixing a bug, write a reproducing test case first to prevent future regression.
+- Cloud-cache E2E uses RustFS as the upstream server through the generic
+  `:s3_compat` provider. Test settings are `RUSTFS_ENDPOINT`
+  (`http://localhost:9100`), `RUSTFS_ACCESS_KEY` (`rustfsadmin`),
+  `RUSTFS_SECRET_KEY` (`rustfsadmin`), and `RUSTFS_BUCKET` (`upstream-e2e`).
+  Preserve the Boto3 standalone and `mc` cloud-cache compatibility coverage.
 - Always run the specific test suite of the application you modified before committing:
   - Core app tests: `mix test apps/ex_storage_service/test`
   - S3 app tests: `mix test apps/ex_storage_service_s3/test`

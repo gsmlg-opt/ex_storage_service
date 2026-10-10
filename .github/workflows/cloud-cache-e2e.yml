@@ -34,11 +34,10 @@ env:
   # SHA-256 of "cloud-cache-e2e-admin" — satisfies the runtime.exs prod guardrail
   # that rejects the default "admin" password hash.
   ESS_ADMIN_PASSWORD_HASH: c89aca9f1fbfa8dc9383ff1f97a9c0f64a9bb6c1f456f00f2888c2e2fb733d14
-  MINIO_PORT: "9100"
-  MINIO_ENDPOINT: http://localhost:9100
-  MINIO_ACCESS_KEY: minioadmin
-  MINIO_SECRET_KEY: minioadmin
-  MINIO_BUCKET: upstream-e2e
+  RUSTFS_ENDPOINT: http://localhost:9100
+  RUSTFS_ACCESS_KEY: rustfsadmin
+  RUSTFS_SECRET_KEY: rustfsadmin
+  RUSTFS_BUCKET: upstream-e2e
   ESS_CLOUD_E2E_BUCKET: cloud-e2e
 
 jobs:
@@ -49,23 +48,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Start MinIO properly — service containers use default entrypoint,
-      # so we start minio via a sidecar approach instead.
-      - name: Start MinIO server
+      - name: Start RustFS server
         run: |
-          docker run -d --name minio-server \
-            -p 9100:9000 \
-            -e MINIO_ROOT_USER=minioadmin \
-            -e MINIO_ROOT_PASSWORD=minioadmin \
-            minio/minio server /data
-          # Wait for MinIO to be ready
+          docker run -d --name rustfs-server \
+            -p 127.0.0.1:9100:9000 \
+            -e RUSTFS_ACCESS_KEY \
+            -e RUSTFS_SECRET_KEY \
+            -e RUSTFS_CONSOLE_ENABLE=false \
+            rustfs/rustfs:1.0.1
           for i in $(seq 1 30); do
-            if curl -sf http://localhost:9100/minio/health/live > /dev/null 2>&1; then
-              echo "MinIO is ready"
-              break
+            echo "Waiting for RustFS readiness (attempt $i/30)..."
+            if curl -fsS --max-time 2 "${RUSTFS_ENDPOINT}/health" > /dev/null 2>&1; then
+              echo "RustFS is ready"
+              exit 0
             fi
             sleep 2
           done
+          echo "RustFS failed to become ready"
+          docker logs rustfs-server || true
+          exit 1
 
       - name: Install mc CLI
         run: |
@@ -73,11 +74,11 @@ jobs:
           chmod +x /usr/local/bin/mc
           mc --version
 
-      - name: Create upstream MinIO bucket
+      - name: Create upstream RustFS bucket
         run: |
-          mc alias set minio-upstream "$MINIO_ENDPOINT" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY" --api S3v4
-          mc mb "minio-upstream/${MINIO_BUCKET}"
-          mc ls minio-upstream/
+          mc alias set rustfs-upstream "$RUSTFS_ENDPOINT" "$RUSTFS_ACCESS_KEY" "$RUSTFS_SECRET_KEY" --api S3v4
+          mc mb "rustfs-upstream/${RUSTFS_BUCKET}"
+          mc ls rustfs-upstream/
 
       - uses: erlef/setup-beam@v1
         with:
@@ -171,6 +172,10 @@ jobs:
           echo "═══ ESS Application Logs ═══"
           cat /tmp/ex_storage_service/app.log || true
 
-      - name: Stop MinIO
+      - name: Print RustFS logs on failure
+        if: failure()
+        run: docker logs rustfs-server || true
+
+      - name: Stop RustFS
         if: always()
-        run: docker rm -f minio-server 2>/dev/null || true
+        run: docker rm -fv rustfs-server 2>/dev/null || true

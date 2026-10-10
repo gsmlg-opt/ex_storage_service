@@ -584,7 +584,18 @@ instructions for terminal-based AI coding agents.
 
 Black-box S3 compatibility checks live in [e2e/](e2e/). See
 [e2e/README.md](e2e/README.md) for the local signed-S3 exercise and persistence
-verification workflow.
+verification workflow and cloud-cache checks against a RustFS upstream. The
+cloud-cache tests use the generic `s3_compat` provider with `mc`. The standalone
+S3 compatibility harness uses Boto3.
+
+Cloud-cache E2E upstream settings:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `RUSTFS_ENDPOINT` | `http://localhost:9100` | RustFS S3 API endpoint |
+| `RUSTFS_ACCESS_KEY` | `rustfsadmin` | Test upstream access key |
+| `RUSTFS_SECRET_KEY` | `rustfsadmin` | Test upstream secret key |
+| `RUSTFS_BUCKET` | `upstream-e2e` | Test upstream bucket |
 
 ## CI/CD
 
@@ -596,7 +607,7 @@ GitHub Actions workflows include:
 - **Release** (`release.yml`) - manually dispatch a versioned GHCR image, GitHub release, core package publish, and CLI publish
 - **E2E Test** (`e2e-test.yml`) - run the standalone signed-S3/admin exercise and restart persistence check
 - **Cluster Integration** (`cluster-e2e.yml`) - run the tagged three-voter test separately from the active-active Boto3 failure/restart harness and upload node logs
-- **Cloud Cache E2E** (`cloud-cache-e2e.yml`) - validate cloud cache against MinIO
+- **Cloud Cache E2E** (`cloud-cache-e2e.yml`) - validate cloud cache against RustFS
 - **Publish CLI** (`publish-cli.yml`) - publish the `ex_storage_service_cli` package
 - **Publish core** (`publish-core.yml`) - publish the embeddable `ex_storage_service` package
 

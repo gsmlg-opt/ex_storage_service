@@ -3,35 +3,35 @@
 # Cloud Cache E2E Test
 #
 # Tests the cloud cache module by using mc CLI to perform operations
-# against ESS (which proxies to an upstream MinIO) and verifying
+# against ESS (which proxies to an upstream RustFS) and verifying
 # results on both sides.
 #
 # Prerequisites:
 #   - mc CLI installed and in PATH
 #   - ESS running on ESS_S3_PORT (default 9000) with cloud cache configured
-#   - MinIO running on MINIO_PORT (default 9100) as upstream
+#   - RustFS running at RUSTFS_ENDPOINT (default http://localhost:9100) as upstream
 #
 # Environment variables:
 #   ESS_S3_ENDPOINT     — ESS S3 endpoint (default http://localhost:9000)
-#   MINIO_ENDPOINT      — MinIO endpoint (default http://localhost:9100)
-#   MINIO_ACCESS_KEY    — MinIO root user (default minioadmin)
-#   MINIO_SECRET_KEY    — MinIO root password (default minioadmin)
+#   RUSTFS_ENDPOINT     — RustFS endpoint (default http://localhost:9100)
+#   RUSTFS_ACCESS_KEY    — RustFS access key (default rustfsadmin)
+#   RUSTFS_SECRET_KEY    — RustFS secret key (default rustfsadmin)
 #   ESS_ACCESS_KEY      — ESS access key (default from E2E_ACCESS_KEY_ID)
 #   ESS_SECRET_KEY      — ESS secret key (default from E2E_SECRET_ACCESS_KEY)
 #   LOCAL_BUCKET        — ESS bucket name (default cloud-e2e)
-#   REMOTE_BUCKET       — MinIO upstream bucket name (default upstream-e2e)
+#   RUSTFS_BUCKET       — RustFS upstream bucket name (default upstream-e2e)
 
 set -euo pipefail
 
 # ── Configuration ──────────────────────────────────────────────────
 ESS_S3_ENDPOINT="${ESS_S3_ENDPOINT:-http://localhost:9000}"
-MINIO_ENDPOINT="${MINIO_ENDPOINT:-http://localhost:9100}"
-MINIO_ACCESS_KEY="${MINIO_ACCESS_KEY:-minioadmin}"
-MINIO_SECRET_KEY="${MINIO_SECRET_KEY:-minioadmin}"
+RUSTFS_ENDPOINT="${RUSTFS_ENDPOINT:-http://localhost:9100}"
+RUSTFS_ACCESS_KEY="${RUSTFS_ACCESS_KEY:-rustfsadmin}"
+RUSTFS_SECRET_KEY="${RUSTFS_SECRET_KEY:-rustfsadmin}"
 ESS_ACCESS_KEY="${ESS_ACCESS_KEY:-${E2E_ACCESS_KEY_ID:-}}"
 ESS_SECRET_KEY="${ESS_SECRET_KEY:-${E2E_SECRET_ACCESS_KEY:-}}"
 LOCAL_BUCKET="${LOCAL_BUCKET:-cloud-e2e}"
-REMOTE_BUCKET="${REMOTE_BUCKET:-upstream-e2e}"
+RUSTFS_BUCKET="${RUSTFS_BUCKET:-upstream-e2e}"
 
 PASS_COUNT=0
 FAIL_COUNT=0
@@ -125,7 +125,7 @@ summary() {
 echo "═══ Setting up mc aliases ═══"
 
 mc alias set ess "$ESS_S3_ENDPOINT" "$ESS_ACCESS_KEY" "$ESS_SECRET_KEY" --api S3v4 2>&1
-mc alias set minio-upstream "$MINIO_ENDPOINT" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY" --api S3v4 2>&1
+mc alias set rustfs-upstream "$RUSTFS_ENDPOINT" "$RUSTFS_ACCESS_KEY" "$RUSTFS_SECRET_KEY" --api S3v4 2>&1
 
 echo ""
 
@@ -140,8 +140,8 @@ sleep 1
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
 assert_contains "File visible on ESS" "test-file.txt" "$listing_ess"
 
-listing_minio=$(mc ls "minio-upstream/${REMOTE_BUCKET}/" 2>&1)
-assert_contains "File visible on upstream MinIO" "test-file.txt" "$listing_minio"
+listing_rustfs=$(mc ls "rustfs-upstream/${RUSTFS_BUCKET}/" 2>&1)
+assert_contains "File visible on upstream RustFS" "test-file.txt" "$listing_rustfs"
 
 # 1.2 Download file
 echo "── 1.2 Download file ──"
@@ -156,7 +156,7 @@ sleep 1
 content=$(mc cat "ess/${LOCAL_BUCKET}/test-file.txt" 2>&1)
 assert_eq "Updated content on ESS" "updated content" "$content"
 
-content_upstream=$(mc cat "minio-upstream/${REMOTE_BUCKET}/test-file.txt" 2>&1)
+content_upstream=$(mc cat "rustfs-upstream/${RUSTFS_BUCKET}/test-file.txt" 2>&1)
 assert_eq "Updated content on upstream" "updated content" "$content_upstream"
 
 # 1.4 Copy file
@@ -184,8 +184,8 @@ sleep 1
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
 assert_not_contains "Removed file gone from ESS" "test-file-moved.txt" "$listing_ess"
 
-listing_minio=$(mc ls "minio-upstream/${REMOTE_BUCKET}/" 2>&1)
-assert_not_contains "Removed file gone from upstream" "test-file-moved.txt" "$listing_minio"
+listing_rustfs=$(mc ls "rustfs-upstream/${RUSTFS_BUCKET}/" 2>&1)
+assert_not_contains "Removed file gone from upstream" "test-file-moved.txt" "$listing_rustfs"
 
 # Clean up remaining file
 mc rm "ess/${LOCAL_BUCKET}/test-file.txt" 2>&1 || true
@@ -206,8 +206,8 @@ sleep 1
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
 assert_contains "Directory visible on ESS" "mydir/" "$listing_ess"
 
-listing_minio=$(mc ls "minio-upstream/${REMOTE_BUCKET}/" 2>&1)
-assert_contains "Directory visible on upstream" "mydir/" "$listing_minio"
+listing_rustfs=$(mc ls "rustfs-upstream/${RUSTFS_BUCKET}/" 2>&1)
+assert_contains "Directory visible on upstream" "mydir/" "$listing_rustfs"
 
 # 2.2 List directory contents
 echo "── 2.2 List directory contents ──"
@@ -260,8 +260,8 @@ sleep 1
 listing_ess=$(mc ls "ess/${LOCAL_BUCKET}/" 2>&1)
 assert_not_contains "Original dir gone from ESS" "mydir/" "$listing_ess"
 
-listing_minio=$(mc ls "minio-upstream/${REMOTE_BUCKET}/" 2>&1)
-assert_not_contains "Original dir gone from upstream" "mydir/" "$listing_minio"
+listing_rustfs=$(mc ls "rustfs-upstream/${RUSTFS_BUCKET}/" 2>&1)
+assert_not_contains "Original dir gone from upstream" "mydir/" "$listing_rustfs"
 
 echo ""
 

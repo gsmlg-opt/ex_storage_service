@@ -8,20 +8,20 @@ defmodule CloudCacheE2ESeed do
 
   @doc """
   Seeds a local bucket with cloud cache configuration pointing at the
-  upstream MinIO instance for E2E testing.
+  upstream RustFS instance for E2E testing.
 
   Expected environment variables:
-    - MINIO_ENDPOINT      — upstream MinIO URL (e.g. http://localhost:9100)
-    - MINIO_ACCESS_KEY    — upstream MinIO root user
-    - MINIO_SECRET_KEY    — upstream MinIO root password
-    - MINIO_BUCKET        — upstream bucket name (default: upstream-e2e)
+    - RUSTFS_ENDPOINT     — upstream RustFS URL (e.g. http://localhost:9100)
+    - RUSTFS_ACCESS_KEY    — upstream RustFS access key
+    - RUSTFS_SECRET_KEY    — upstream RustFS secret key
+    - RUSTFS_BUCKET        — upstream bucket name (default: upstream-e2e)
     - ESS_CLOUD_E2E_BUCKET — local ESS bucket name (default: cloud-e2e)
   """
   def run do
-    endpoint = System.get_env("MINIO_ENDPOINT", "http://localhost:9100")
-    access_key = System.get_env("MINIO_ACCESS_KEY", "minioadmin")
-    secret_key = System.get_env("MINIO_SECRET_KEY", "minioadmin")
-    remote_bucket = System.get_env("MINIO_BUCKET", "upstream-e2e")
+    endpoint = System.get_env("RUSTFS_ENDPOINT", "http://localhost:9100")
+    access_key = System.get_env("RUSTFS_ACCESS_KEY", "rustfsadmin")
+    secret_key = System.get_env("RUSTFS_SECRET_KEY", "rustfsadmin")
+    remote_bucket = System.get_env("RUSTFS_BUCKET", "upstream-e2e")
     local_bucket = System.get_env("ESS_CLOUD_E2E_BUCKET", "cloud-e2e")
 
     # 1. Create local ESS bucket
@@ -37,10 +37,10 @@ defmodule CloudCacheE2ESeed do
         System.halt(1)
     end
 
-    # 2. Set cloud cache config pointing at upstream MinIO
+    # 2. Set cloud cache config pointing at upstream RustFS
     case CloudConfig.set_config(local_bucket, %{
            enabled: true,
-           provider: :minio,
+           provider: :s3_compat,
            endpoint: endpoint,
            region: "us-east-1",
            bucket: remote_bucket,
