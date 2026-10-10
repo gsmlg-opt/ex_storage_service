@@ -59,6 +59,12 @@ pre,
   border-radius: var(--radius-md);
 }
 
+@media (width < 40rem) {
+  .ess-appbar .appbar-title {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -4,11 +4,15 @@
   <.dm_appbar
     title="ExStorageService"
     title_to={~p"/dashboard"}
-    class="appbar-primary appbar-elevated"
+    class="ess-appbar appbar-primary appbar-elevated"
   >
     <:logo>
       <.dm_mdi name="database" class="w-7 h-7" />
+      <span class="sr-only sm:hidden">ExStorageService</span>
     </:logo>
+    <:after_title>
+      <.version_badge info={version_info()} />
+    </:after_title>
     <:user_profile>
       <div class="flex items-center gap-2">
         <.dm_theme_switcher id="theme-toggle" theme={assigns[:theme] || "sunshine"} />
