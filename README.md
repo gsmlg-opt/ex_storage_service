@@ -333,6 +333,15 @@ Repository layout:
 | `SECRET_KEY_BASE` | none | Phoenix session signing key; required in production |
 | `PHX_HOST` | `localhost` | Production URL host for the admin portal |
 
+The appbar version tooltip includes build metadata embedded at compilation.
+`ESS_BUILD_GIT_REF`, `ESS_BUILD_GIT_SHA`, and `ESS_BUILD_TIME` are optional
+build-time environment variables, also accepted as Docker build arguments.
+`ESS_BUILD_TIME` is the UTC ISO 8601 timestamp when the image build starts,
+not the commit date or GitHub release publication time. The Build and Release
+workflows supply these values; the release Git ref is the intended version tag,
+and its SHA identifies the checked-out source before the version-bump commit.
+These values are embedded in the release and do not require Git at runtime.
+
 Standalone local storage remains the default with RF=1/W=1. Phase 4 also
 supports a fixed, ordered three-voter Concord metadata cluster with static or
 DNS discovery. Start every cluster BEAM with a distributed Erlang node name

@@ -42,6 +42,14 @@ RUN npm ci
 COPY config ./config
 COPY apps ./apps
 
+# Embed source identity and the release build timestamp in the admin UI.
+ARG ESS_BUILD_GIT_REF
+ARG ESS_BUILD_GIT_SHA
+ARG ESS_BUILD_TIME
+ENV ESS_BUILD_GIT_REF=$ESS_BUILD_GIT_REF \
+    ESS_BUILD_GIT_SHA=$ESS_BUILD_GIT_SHA \
+    ESS_BUILD_TIME=$ESS_BUILD_TIME
+
 # Build assets (duskmoon.bundle + duskmoon_bundler.build)
 # Dummy env vars satisfy runtime.exs prod guards during the build step only.
 # Real values must be provided at container runtime by the operator.

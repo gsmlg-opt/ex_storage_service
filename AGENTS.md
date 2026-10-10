@@ -118,6 +118,13 @@ The codebase is structured as an umbrella project with five apps:
 - Keep documentation up-to-date.
 - Preserve existing docstrings (`@doc`) and module docs (`@moduledoc`) unless deliberately refactoring them.
 - Document any new environment variables in both `README.md` and `AGENTS.md`.
+- Appbar build metadata uses the optional build-time variables
+  `ESS_BUILD_GIT_REF`, `ESS_BUILD_GIT_SHA`, and `ESS_BUILD_TIME`, also exposed
+  as Docker build arguments. Embed them at compilation so releases need no
+  runtime Mix or Git. `ESS_BUILD_TIME` is the image build-start timestamp in
+  UTC ISO 8601, never a commit date or presumed release publication time.
+  Release builds use the intended version tag as their Git ref and the actual
+  checked-out source SHA before the workflow's version-bump commit.
 - Storage mode variables are `ESS_MODE`, `ESS_REPLICATION_FACTOR`,
   `ESS_WRITE_QUORUM`, `ESS_ALLOW_DEGRADED_WRITES`,
   `ESS_CLUSTER_DATA_PLANE_ENABLED`, and `ESS_PUBLIC_S3_ENABLED`. Defaults must

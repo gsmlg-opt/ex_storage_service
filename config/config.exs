@@ -1,5 +1,27 @@
 import Config
 
+build_value = fn name ->
+  case System.get_env(name) do
+    value when value in [nil, ""] -> nil
+    value -> value
+  end
+end
+
+git_value = fn args ->
+  with git when not is_nil(git) <- System.find_executable("git"),
+       {value, 0} <- System.cmd(git, args, stderr_to_stdout: true) do
+    String.trim(value)
+  else
+    _ -> nil
+  end
+end
+
+config :ex_storage_service_web, :build_info,
+  environment: config_env(),
+  git_ref: build_value.("ESS_BUILD_GIT_REF") || git_value.(["rev-parse", "--abbrev-ref", "HEAD"]),
+  git_sha: build_value.("ESS_BUILD_GIT_SHA") || git_value.(["rev-parse", "HEAD"]),
+  build_time: build_value.("ESS_BUILD_TIME")
+
 config :ex_storage_service_web, ExStorageServiceWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,

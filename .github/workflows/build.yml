@@ -46,11 +46,24 @@ jobs:
             type=raw,value=latest
             type=sha,prefix=sha-
 
+      - name: Capture build metadata
+        id: build_info
+        env:
+          BUILD_GIT_REF: ${{ github.head_ref || github.ref_name }}
+        run: |
+          printf 'git_ref=%s\n' "$BUILD_GIT_REF" >> "$GITHUB_OUTPUT"
+          printf 'git_sha=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          printf 'build_time=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
       - uses: docker/build-push-action@v6
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            ESS_BUILD_GIT_REF=${{ steps.build_info.outputs.git_ref }}
+            ESS_BUILD_GIT_SHA=${{ steps.build_info.outputs.git_sha }}
+            ESS_BUILD_TIME=${{ steps.build_info.outputs.build_time }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
