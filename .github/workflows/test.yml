@@ -25,6 +25,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install the shell used by CLI completion contract tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes zsh
+
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: ${{ env.ELIXIR_VERSION }}

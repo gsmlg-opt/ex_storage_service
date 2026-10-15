@@ -7,7 +7,7 @@ defmodule ExStorageServiceCli.CLI.RuntimeTest do
   @moduletag :tmp_dir
   @now ~U[2026-10-15 00:00:00Z]
 
-  test "invocation starts only HTTP dependencies and stops its task/provider tree", %{
+  test "invocation stops its task/provider tree", %{
     tmp_dir: root
   } do
     parent = self()
@@ -30,23 +30,53 @@ defmodule ExStorageServiceCli.CLI.RuntimeTest do
                   context.credential_owner}
                )
 
-               apps = Enum.map(Application.started_applications(), &elem(&1, 0))
-
-               for app <- [
-                     :ex_storage_service,
-                     :ex_storage_service_web,
-                     :ex_storage_service_s3,
-                     :ex_storage_service_cluster,
-                     :concord,
-                     :bandit
-                   ],
-                   do: refute(app in apps)
-
                :done
              end)
 
     assert_receive {:owned, supervisor, tasks, credentials, provider}
     for pid <- [supervisor, tasks, credentials, provider], do: refute(Process.alive?(pid))
+  end
+
+  test "fresh invocation starts HTTP dependencies without storage servers", %{tmp_dir: root} do
+    # Umbrella Mix starts server applications before tests; isolate startup in a
+    # fresh VM with only the standalone CLI application's dependency code paths.
+    paths =
+      application_closure([:ex_storage_service_cli], MapSet.new())
+      |> Enum.flat_map(&["-pa", Application.app_dir(&1, "ebin")])
+
+    script = """
+    alias ExStorageServiceCli.CLI.Runtime
+    forbidden = [:ex_storage_service, :ex_storage_service_web, :ex_storage_service_s3,
+                 :ex_storage_service_cluster, :concord, :bandit]
+    assert_no_servers = fn ->
+      apps = Enum.map(Application.started_applications(), &elem(&1, 0))
+      [] = Enum.filter(apps, &(&1 in forbidden))
+      apps
+    end
+    apps = assert_no_servers.()
+    false = :http_fetch in apps
+    :ok = Runtime.with_invocation(fn runtime ->
+      true = :http_fetch in assert_no_servers.()
+      true = is_pid(Runtime.task_supervisor(runtime))
+      {:ok, context} = Runtime.aws_context(runtime, %{},
+        env: %{"AWS_ACCESS_KEY_ID" => "a", "AWS_SECRET_ACCESS_KEY" => "s"},
+        home: #{inspect(root)})
+      true = is_pid(context.credential_owner)
+      assert_no_servers.()
+      :ok
+    end)
+    assert_no_servers.()
+    IO.puts("STANDALONE_HTTP_ONLY")
+    """
+
+    assert {output, 0} =
+             System.cmd(
+               System.find_executable("elixir"),
+               ["--erl", "+S 2:2"] ++ paths ++ ["-e", script],
+               stderr_to_stdout: true
+             )
+
+    assert output =~ "STANDALONE_HTTP_ONLY"
   end
 
   test "provider refresh updates session credentials before subsequent signatures", %{
@@ -166,6 +196,25 @@ defmodule ExStorageServiceCli.CLI.RuntimeTest do
 
     assert_receive {:supervisor, supervisor}
     refute Process.alive?(supervisor)
+  end
+
+  defp application_closure([], seen), do: seen
+
+  defp application_closure([app | rest], seen) do
+    if MapSet.member?(seen, app) do
+      application_closure(rest, seen)
+    else
+      assert Application.load(app) in [:ok, {:error, {:already_loaded, app}}]
+      optional = Application.spec(app, :optional_applications) || []
+
+      dependencies =
+        Enum.filter(Application.spec(app, :applications) || [], fn dependency ->
+          dependency not in optional or
+            :code.where_is_file(String.to_charlist("#{dependency}.app")) != :non_existing
+        end)
+
+      application_closure(dependencies ++ rest, MapSet.put(seen, app))
+    end
   end
 
   defp response(access, expiration),
