@@ -10,7 +10,7 @@
 
 Deliver a standalone Elixir S3 client with mc-style native commands, complete pinned AWS CLI `s3` functionality, and complete pinned `s3api` functionality. Preserve valid legacy ESS CLI invocations while replacing the existing handcrafted command/transport paths with shared, tested foundations.
 
-The original design-only change consisted of `docs/cli/design.md` and this file. The user subsequently authorized implementing M0–M9, committing/pushing, and releasing the next version. The original source baseline above remains historical; the implementation audit baseline is `9b8661e58107eddb24cb8f15495cee4ac979219a` plus the implementation diff. Checklist items are not closed by a generic handler or parser registration; acceptance reports distinguish implementation, wire and provider results.
+The original design-only change consisted of `docs/cli/design.md` and this file. The user subsequently authorized implementing M0–M9, committing/pushing, and releasing the next version. The original source baseline above remains historical; the implementation began at `9b8661e58107eddb24cb8f15495cee4ac979219a`, and clean checkpoint `6816ee14c87ccc8de76a37a41811ec46a0c7aa9e` has complete CLI/umbrella CI and standalone package evidence. Checklist items are not closed by a generic handler or parser registration; acceptance reports distinguish implementation, wire and provider results.
 
 The complete target is all milestones M0-M9. An early useful release is not permission to rename partial CRUD coverage as full compatibility. Separate client implementation status, wire-contract evidence, and provider integration evidence throughout.
 
@@ -234,8 +234,8 @@ Every mc inventory row has a working tested mapping or an explicit scope/differe
 - [ ] Close every implementation gap in the pinned `s3`/`s3api` inventories, including parameters, enums, customizations, endpoints, credential modes, paginators, waiters, outputs, and error semantics.
 - [ ] Run the complete CLI test matrix and differential reference suites; publish generated coverage with exact command/model/binary versions and provider versions.
 - [ ] Validate fresh standalone Hex installation, escript building/running, required generated assets/notices, and absence of server-umbrella runtime dependencies.
-- [ ] Correct CLI package metadata links to the actual repository where necessary; verify LICENSE, README, version reporting, executable naming, and artifact contents.
-- [ ] Test supported Linux/macOS architectures and declared OTP/Elixir minimums. State the Erlang runtime requirement for escripts; add alternative self-contained packaging only with its own tested support contract.
+- [x] Correct CLI package metadata links to the actual repository where necessary; verify LICENSE, README, version reporting, executable naming, and artifact contents.
+- [x] Test supported Linux/macOS architectures and declared OTP/Elixir minimums. State the Erlang runtime requirement for escripts; add alternative self-contained packaging only with its own tested support contract.
 - [ ] Add real memory/backpressure/cancellation benchmarks and documented resource defaults. Report measured results, not extrapolated throughput promises.
 - [ ] Publish command reference, legacy migration guide, AWS configuration guide, mc difference table, provider limitations, safety/restore procedures, and examples using non-secret credentials references.
 - [ ] Prepare changelog, checksums, model/reference lock, compatibility report, and immutable source/artifact mapping.

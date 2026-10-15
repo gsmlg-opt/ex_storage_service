@@ -127,3 +127,28 @@ under Elixir 1.18.5 and 1.19.6, and both edited workflows pass actionlint.
 Local umbrella execution did not reach tests because its existing web
 `build_info` compile environment differs from the checkout; it was not altered
 or bypassed. The clean remote umbrella job remains the integration check.
+
+## Accepted CI environment correction
+
+Clean source `6816ee14c87ccc8de76a37a41811ec46a0c7aa9e` was pushed to
+`origin/main`. [CLI run 38740996062](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38740996062)
+passed all seven jobs. Its full CLI suite passed **3,222 tests, zero failures
+and one resource exclusion**, seed 146899, in 339.1 seconds. Inventory/tooling,
+formatting and strict compilation also passed. All four standalone package jobs,
+the separate 2 GiB test and independent provider limitation-policy job passed;
+their downloaded evidence is recorded in the companion reports. Log:
+`/tmp/ess-cli-6816ee1-run.log`.
+
+[Umbrella Test run 38740995957](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38740995957)
+also passed: **3,223 CLI tests, zero failures**, seed 456119, in 357.6 seconds,
+including the default-size resource test. Core, cluster, S3 and web suites had
+zero failures. The new fresh-VM startup test and actual Zsh completion contracts
+passed in both contexts; the earlier failures are resolved. Log:
+`/tmp/ess-test-6816ee1-run.log`. CI, Cluster Integration and E2E workflows also
+passed at the same source. No server source, dependency constraint or lock was
+changed for these CI corrections.
+
+This closes the current complete-suite repair gate. It does not close the
+documented HTTP deadline blocker, remaining independent compatibility evidence,
+live AWS account-specific acceptance or publication gates. No version bump,
+release tag, CLI publication or next-version release has occurred.

@@ -75,3 +75,12 @@ was two, active requests one and reserved bytes 131,072. Disk staging peaked
 at the object length; final request reservations and staging were released.
 The downloaded log is `/tmp/ess-cli-2380dea-resource/cli-resource.log`.
 This does not expand the filesystem/platform or live-provider boundaries above.
+
+The follow-up [run 38740996062](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38740996062)
+repeated the same 2 GiB contract from clean source
+`6816ee14c87ccc8de76a37a41811ec46a0c7aa9e`: one test, zero failures, 152.5
+seconds and 12,029 large-run samples. Total/binary memory peaked at
+64,080,152/2,038,464 bytes from baselines of 63,220,632/1,250,304. Mailbox,
+request and reservation maxima remained two, one and 131,072 respectively;
+final reservations and staging were released. The downloaded evidence is
+retained at `/tmp/ess-cli-6816ee1-resource`.

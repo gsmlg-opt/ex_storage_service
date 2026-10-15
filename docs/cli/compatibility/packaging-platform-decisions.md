@@ -154,3 +154,18 @@ overall remote run failed its separate full test job; see
 integration-validation.md. These artifacts are CI evidence, not public release
 artifacts. The deadline blocker, complete-suite and publication gates remain
 open, including http_fetch#129; no next-version release has been attempted.
+
+The CI-environment correction checkpoint
+`6816ee14c87ccc8de76a37a41811ec46a0c7aa9e` repeated all four package jobs in
+[run 38740996062](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38740996062).
+All passed with clean source and the same platform/check boundaries. All eight
+downloaded tar/escript hashes match their manifests. The common source tar
+SHA256 is `0062018bae267e39cf60f40bd544ada564f92ee97be116fc715e686ba640c593`;
+the Linux x86_64 / Elixir 1.19.6 / OTP 28 escript SHA256 is
+`7c83b3b07074047b6f717356566140f4a3e14705f4296374ef76ff1011ef5566`.
+The four exact platform manifests and artifacts are retained at
+`/tmp/ess-cli-6816ee1-packages`. These remain unpublished version 0.6.7 artifacts.
+The separate complete CLI and umbrella Test jobs also passed at this source;
+see integration-validation.md. The earlier checkpoint's failed test job remains
+historical evidence, not the current complete-suite result. Deadline,
+compatibility and publication gates remain open.

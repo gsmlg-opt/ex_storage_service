@@ -60,13 +60,14 @@ response-stream timer in 0.21.11; the missing request-scoped policy is tracked
 as blocker [#129](https://github.com/gsmlg-dev/http_fetch/issues/129). No local
 workaround or candidate dependency change has been applied. The historical
 local CLI snapshot passed 3,222 tests with zero failures and one separate
-resource exclusion; formatting and strict compilation also pass. Clean source
-2380dea was pushed and its four remote package jobs, 2 GiB resource job and
-provider limitation-policy job passed. Its complete CLI job failed four absent-Zsh
-completion tests; the umbrella test job also exposed a CLI runtime-test isolation
-error. The test-environment corrections require a fresh result. Deadline
-integration, exact native differences, complete-suite acceptance, immutable
-release mapping and publication verification remain explicit release gates.
+resource exclusion. Clean source 6816ee1 was pushed; its complete remote CLI
+suite passed 3,222 tests with zero failures and one resource exclusion. Formatting,
+strict compilation, four package jobs, 2 GiB resource acceptance and provider
+limitation-policy checks also pass. The umbrella job passed 3,223 CLI tests and
+its other app suites. The previously recorded completion/runtime-test failures
+are resolved. Deadline integration, remaining independent compatibility evidence,
+exact native differences, immutable release mapping and publication verification
+remain explicit release gates.
 
 The [provider report](provider-acceptance.md) preserves independent ESS 0.6.7
 and RustFS 1.0.1 failures. Live AWS account-specific infrastructure has not been

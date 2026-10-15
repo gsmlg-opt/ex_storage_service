@@ -81,3 +81,11 @@ The green provider job means that the full required passing contracts and exact
 known-limitation policy matched. It does not turn the four server failures into
 passes or establish complete provider compatibility. Live AWS account-specific
 acceptance remains unrun.
+
+The follow-up [run 38740996062](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38740996062)
+repeated that exact policy successfully from source
+`6816ee14c87ccc8de76a37a41811ec46a0c7aa9e`, using escript SHA256
+`57467b8b3763a9fcc13bbe3d630e8ea6c0ca4e6ee7be53a3b94c5dd7bec4abfa`.
+The downloaded independent report retains the same ten/thirteen passing checks,
+three/one server failures and successful owned bucket cleanup. Its artifacts
+are retained at `/tmp/ess-cli-6816ee1-providers`.
