@@ -1,0 +1,503 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "OBJECT-EXISTS"  "" "" ""
+.SH NAME
+object-exists \- 
+.SH DESCRIPTION
+.sp
+Wait until 200 response is received when polling with \fBhead\-object\fP\&. It will poll every 5 seconds until a successful state has been reached. This will exit with a return code of 255 after 20 failed checks.
+.sp
+See also: AWS API Documentation
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  object\-exists
+\-\-bucket <value>
+[\-\-if\-match <value>]
+[\-\-if\-modified\-since <value>]
+[\-\-if\-none\-match <value>]
+[\-\-if\-unmodified\-since <value>]
+\-\-key <value>
+[\-\-range <value>]
+[\-\-response\-cache\-control <value>]
+[\-\-response\-content\-disposition <value>]
+[\-\-response\-content\-encoding <value>]
+[\-\-response\-content\-language <value>]
+[\-\-response\-content\-type <value>]
+[\-\-response\-expires <value>]
+[\-\-version\-id <value>]
+[\-\-sse\-customer\-algorithm <value>]
+[\-\-sse\-customer\-key <value>]
+[\-\-sse\-customer\-key\-md5 <value>]
+[\-\-request\-payer <value>]
+[\-\-part\-number <value>]
+[\-\-expected\-bucket\-owner <value>]
+[\-\-checksum\-mode <value>]
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The name of the bucket that contains the object.
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- When you use this operation with a directory bucket, you must use virtual\-hosted\-style requests in the format \(ga\(ga \fIBucket\-name\fP .s3express\-\fIzone\-id\fP .*region\-code* .amazonaws.com\(ga\(ga . Path\-style requests are not supported. Directory bucket names must be unique in the chosen Zone (Availability Zone or Local Zone). Bucket names must follow the format \(ga\(ga \fIbucket\-base\-name\fP \-\-\fIzone\-id\fP \-\-x\-s3\(ga\(ga (for example, \(ga\(ga \fIamzn\-s3\-demo\-bucket\fP \-\-\fIusw2\-az1\fP \-\-x\-s3\(ga\(ga ). For information about bucket naming restrictions, see \fI\%Directory bucket naming rules\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBAccess points\fP \- When you use this action with an access point for general purpose buckets, you must provide the alias of the access point in place of the bucket name or specify the access point ARN. When you use this action with an access point for directory buckets, you must provide the access point name in place of the bucket name. When using the access point ARN, you must direct requests to the access point hostname. The access point hostname takes the form \fIAccessPointName\fP \-\fIAccountId\fP .s3\-accesspoint.*Region* .amazonaws.com. When using this action with an access point through the Amazon Web Services SDKs, you provide the access point ARN in place of the bucket name. For more information about access point ARNs, see \fI\%Using access points\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+Object Lambda access points are not supported by directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+\fBS3 on Outposts\fP \- When you use this action with S3 on Outposts, you must direct requests to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form \(ga\(ga \fIAccessPointName\fP \-\fIAccountId\fP .*outpostID* .s3\-outposts.*Region* .amazonaws.com\(ga\(ga . When you use this action with S3 on Outposts, the destination bucket must be the Outposts access point ARN or the access point alias. For more information about S3 on Outposts, see \fI\%What is S3 on Outposts?\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-if\-match\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Return the object only if its entity tag (ETag) is the same as the one specified; otherwise, return a 412 (precondition failed) error.
+.sp
+If both of the \fBIf\-Match\fP and \fBIf\-Unmodified\-Since\fP headers are present in the request as follows:
+.INDENT 0.0
+.IP \(bu 2
+\fBIf\-Match\fP condition evaluates to \fBtrue\fP , and;
+.IP \(bu 2
+\fBIf\-Unmodified\-Since\fP condition evaluates to \fBfalse\fP ;
+.UNINDENT
+.sp
+Then Amazon S3 returns \fB200 OK\fP and the data requested.
+.sp
+For more information about conditional requests, see \fI\%RFC 7232\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-if\-modified\-since\fP (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Return the object only if it has been modified since the specified time; otherwise, return a 304 (not modified) error.
+.sp
+If both of the \fBIf\-None\-Match\fP and \fBIf\-Modified\-Since\fP headers are present in the request as follows:
+.INDENT 0.0
+.IP \(bu 2
+\fBIf\-None\-Match\fP condition evaluates to \fBfalse\fP , and;
+.IP \(bu 2
+\fBIf\-Modified\-Since\fP condition evaluates to \fBtrue\fP ;
+.UNINDENT
+.sp
+Then Amazon S3 returns the \fB304 Not Modified\fP response code.
+.sp
+For more information about conditional requests, see \fI\%RFC 7232\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-if\-none\-match\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Return the object only if its entity tag (ETag) is different from the one specified; otherwise, return a 304 (not modified) error.
+.sp
+If both of the \fBIf\-None\-Match\fP and \fBIf\-Modified\-Since\fP headers are present in the request as follows:
+.INDENT 0.0
+.IP \(bu 2
+\fBIf\-None\-Match\fP condition evaluates to \fBfalse\fP , and;
+.IP \(bu 2
+\fBIf\-Modified\-Since\fP condition evaluates to \fBtrue\fP ;
+.UNINDENT
+.sp
+Then Amazon S3 returns the \fB304 Not Modified\fP response code.
+.sp
+For more information about conditional requests, see \fI\%RFC 7232\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-if\-unmodified\-since\fP (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Return the object only if it has not been modified since the specified time; otherwise, return a 412 (precondition failed) error.
+.sp
+If both of the \fBIf\-Match\fP and \fBIf\-Unmodified\-Since\fP headers are present in the request as follows:
+.INDENT 0.0
+.IP \(bu 2
+\fBIf\-Match\fP condition evaluates to \fBtrue\fP , and;
+.IP \(bu 2
+\fBIf\-Unmodified\-Since\fP condition evaluates to \fBfalse\fP ;
+.UNINDENT
+.sp
+Then Amazon S3 returns \fB200 OK\fP and the data requested.
+.sp
+For more information about conditional requests, see \fI\%RFC 7232\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-key\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The object key.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-range\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+HeadObject returns only the metadata for an object. If the Range is satisfiable, only the \fBContentLength\fP is affected in the response. If the Range is not satisfiable, S3 returns a \fB416 \- Requested Range Not Satisfiable\fP error.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-response\-cache\-control\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Sets the \fBCache\-Control\fP header of the response.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-response\-content\-disposition\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Sets the \fBContent\-Disposition\fP header of the response.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-response\-content\-encoding\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Sets the \fBContent\-Encoding\fP header of the response.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-response\-content\-language\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Sets the \fBContent\-Language\fP header of the response.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-response\-content\-type\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Sets the \fBContent\-Type\fP header of the response.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-response\-expires\fP (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Sets the \fBExpires\fP header of the response.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-version\-id\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Version ID used to reference a specific version of the object.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+For directory buckets in this API operation, only the \fBnull\fP value of the version ID is supported.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-sse\-customer\-algorithm\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the algorithm to use when encrypting the object (for example, AES256).
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-sse\-customer\-key\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the customer\-provided encryption key for Amazon S3 to use in encrypting data. This value is used to store the object and then it is discarded; Amazon S3 does not store the encryption key. The key must be appropriate for use with the algorithm specified in the \fBx\-amz\-server\-side\-encryption\-customer\-algorithm\fP header.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-sse\-customer\-key\-md5\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the 128\-bit MD5 digest of the encryption key according to RFC 1321. Amazon S3 uses this header for a message integrity check to ensure that the encryption key was transmitted without error.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-request\-payer\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Confirms that the requester knows that they will be charged for the request. Bucket owners need not specify this parameter in their requests. If either the source or destination S3 bucket has Requester Pays enabled, the requester will pay for corresponding charges to copy the object. For information about downloading objects from Requester Pays buckets, see \fI\%Downloading Objects in Requester Pays Buckets\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBrequester\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-part\-number\fP (integer)
+.INDENT 0.0
+.INDENT 3.5
+Part number of the object being read. This is a positive integer between 1 and 10,000. Effectively performs a \(aqranged\(aq HEAD request for the part specified. Useful querying about the size of the part and the number of parts in this object.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expected\-bucket\-owner\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The account ID of the expected bucket owner. If the account ID that you provide does not match the actual owner of the bucket, the request fails with the HTTP status code \fB403 Forbidden\fP (access denied).
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-checksum\-mode\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+To retrieve the checksum, this parameter must be enabled.
+.INDENT 0.0
+.INDENT 3.5
+\fBGeneral purpose buckets\fP \- If you enable checksum mode and the object is uploaded with a \fI\%checksum\fP and encrypted with an Key Management Service (KMS) key, you must have permission to use the \fBkms:Decrypt\fP action to retrieve the checksum.
+.sp
+\fBDirectory buckets\fP \- If you enable \fBChecksumMode\fP and the object is encrypted with Amazon Web Services Key Management Service (Amazon Web Services KMS), you must also have the \fBkms:GenerateDataKey\fP and \fBkms:Decrypt\fP permissions in IAM identity\-based policies and KMS key policies for the KMS key to retrieve the checksum of the object.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBENABLED\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH EXAMPLES
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use the following examples, you must have the AWS CLI installed and configured. See the \fI\%Getting started guide\fP in the \fIAWS CLI User Guide\fP for more information.
+.sp
+Unless otherwise stated, all examples have unix\-like quotation rules. These examples will need to be adapted to your terminal\(aqs quoting rules. See \fI\%Using quotation marks with strings\fP in the \fIAWS CLI User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBTo wait (pause running) until an object exists\fP
+.sp
+The following \fBwait object\-not\-exists\fP example pauses and continues only after it can confirm that the specified object (\fB\-\-key\fP) in the specified bucket exists.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api wait object\-exists \e
+    \-\-bucket amzn\-s3\-demo\-bucket \e
+    \-\-key doc1.rtf
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command produces no output.
+.SH OUTPUT
+.sp
+None
+.\" Generated by docutils manpage writer.
+.

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-10-15",
+  "providers": [
+    {
+      "id": "aws-s3-general-purpose",
+      "max_single_put_bytes": 5368709120,
+      "min_nonfinal_part_bytes": 5242880,
+      "max_part_bytes": 5368709120,
+      "max_parts": 10000,
+      "max_object_bytes": 53687091200000,
+      "max_parts_per_page": 1000,
+      "max_uploads_per_page": 1000,
+      "addressing": ["virtual", "path-where-supported"],
+      "auth": ["sigv4", "temporary-sigv4", "unsigned-public-where-authorized"],
+      "bucket_types": ["general-purpose"],
+      "source": ["https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html", "https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingObjects.html"],
+      "derivation": "The documented maximum is 10000 * 5 GiB, exactly 53687091200000 bytes; 48.8 TiB is rounded. Special endpoint/bucket/auth variants are separately inventoried, not established by this general-purpose record.",
+      "live_evidence": "not-run"
+    },
+    {
+      "id": "rustfs-1.0.1",
+      "source_revision": "01fa3eced9c1a957a2a31405b09993fa8224b275",
+      "max_single_put_bytes": 5368709120,
+      "min_nonfinal_part_bytes": 5242880,
+      "max_part_bytes": 5368709120,
+      "max_parts": 10000,
+      "max_object_bytes": null,
+      "addressing": ["path", "virtual-with-configured-domain"],
+      "auth": ["sigv4", "temporary-sigv4-where-configured"],
+      "bucket_types": ["general-purpose-compatible"],
+      "source": ["https://github.com/rustfs/rustfs/blob/01fa3eced9c1a957a2a31405b09993fa8224b275/crates/config/src/constants/body_limits.rs", "https://github.com/rustfs/rustfs/blob/01fa3eced9c1a957a2a31405b09993fa8224b275/crates/ecstore/src/set_disk/mod.rs"],
+      "limits_evidence": "MAX_SINGLE_PUT_OBJECT_SIZE, MAX_PARTS_COUNT, GLOBAL_MIN_PART_SIZE. An exact composed-object ceiling is not proven; do not substitute AWS limits or the independent tier-client ceiling.",
+      "live_evidence": "not-run"
+    },
+    {
+      "id": "ess-0.6.7-default-runtime",
+      "source_revision": "9b8661e",
+      "max_single_put_bytes": 5368709120,
+      "min_nonfinal_part_bytes": 5242880,
+      "max_part_bytes": 5368709120,
+      "max_parts": 10000,
+      "max_object_bytes": 5368709120,
+      "addressing": ["path"],
+      "auth": ["sigv4-when-auth-enabled"],
+      "bucket_types": ["ess-standalone", "ess-cluster-guarded"],
+      "source": ["config/runtime.exs", "apps/ex_storage_service_s3/lib/ex_storage_service_s3/multipart_handlers.ex", "apps/ex_storage_service/lib/ex_storage_service/storage/multipart.ex", "apps/ex_storage_service/lib/ex_storage_service/blob_store/local_cas.ex"],
+      "limits_evidence": "Default runtime max_object_size/max_part_size and LocalCAS staging cap apply to assembled multipart objects. Embedded deployments may override settings; test min_part_size is zero and is not a production limit.",
+      "live_evidence": "not-run"
+    },
+    {
+      "id": "generic-s3-compatible",
+      "max_single_put_bytes": null,
+      "min_nonfinal_part_bytes": null,
+      "max_part_bytes": null,
+      "max_parts": null,
+      "max_object_bytes": null,
+      "addressing": ["provider-configured"],
+      "auth": ["provider-configured"],
+      "bucket_types": ["unknown"],
+      "limits_evidence": "No universal limit. Require an explicitly selected provider profile before size-dependent multipart planning.",
+      "live_evidence": "not-run"
+    }
+  ]
+}

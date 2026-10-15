@@ -1,0 +1,12 @@
+{
+    "Bucket": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "PublicAccessBlockConfiguration": {
+        "BlockPublicAcls": true,
+        "IgnorePublicAcls": true,
+        "BlockPublicPolicy": true,
+        "RestrictPublicBuckets": true
+    },
+    "ExpectedBucketOwner": ""
+}

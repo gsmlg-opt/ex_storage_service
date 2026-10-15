@@ -1,0 +1,599 @@
+{
+  "aws_sha256": "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a",
+  "waiters_sha256": "9b44492319c95bbbba7a62e3635db4d6b99f78ac60cf57fb54353ba8a24e2387",
+  "cases": [
+    {
+      "waiter": "BucketExists",
+      "scenario": "success-200",
+      "args": [
+        "s3api",
+        "wait",
+        "bucket-exists",
+        "--bucket",
+        "bucket"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "waiter": "BucketExists",
+      "scenario": "success-301",
+      "args": [
+        "s3api",
+        "wait",
+        "bucket-exists",
+        "--bucket",
+        "bucket"
+      ],
+      "responses": [
+        {
+          "status": 301,
+          "headers": {
+            "x-amz-request-id": "fixture-request",
+            "x-amz-bucket-region": "us-east-1"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 301,
+          "headers": {
+            "x-amz-request-id": "fixture-request",
+            "x-amz-bucket-region": "us-east-1"
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "HEAD",
+            "target": "/bucket",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "waiter": "BucketExists",
+      "scenario": "success-403",
+      "args": [
+        "s3api",
+        "wait",
+        "bucket-exists",
+        "--bucket",
+        "bucket"
+      ],
+      "responses": [
+        {
+          "status": 403,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "waiter": "BucketExists",
+      "scenario": "retry-then-success",
+      "args": [
+        "s3api",
+        "wait",
+        "bucket-exists",
+        "--bucket",
+        "bucket"
+      ],
+      "responses": [
+        {
+          "status": 404,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "HEAD",
+            "target": "/bucket",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "waiter": "BucketExists",
+      "scenario": "terminal-error",
+      "args": [
+        "s3api",
+        "wait",
+        "bucket-exists",
+        "--bucket",
+        "bucket"
+      ],
+      "responses": [
+        {
+          "status": 401,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 255,
+        "stdout": "",
+        "stderr": "\nWaiter BucketExists failed: An error occurred (401): Unauthorized\n",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "waiter": "BucketNotExists",
+      "scenario": "success-404",
+      "args": [
+        "s3api",
+        "wait",
+        "bucket-not-exists",
+        "--bucket",
+        "bucket"
+      ],
+      "responses": [
+        {
+          "status": 404,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "waiter": "BucketNotExists",
+      "scenario": "retry-then-success",
+      "args": [
+        "s3api",
+        "wait",
+        "bucket-not-exists",
+        "--bucket",
+        "bucket"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 404,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "HEAD",
+            "target": "/bucket",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "waiter": "BucketNotExists",
+      "scenario": "terminal-error",
+      "args": [
+        "s3api",
+        "wait",
+        "bucket-not-exists",
+        "--bucket",
+        "bucket"
+      ],
+      "responses": [
+        {
+          "status": 403,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 255,
+        "stdout": "",
+        "stderr": "\nWaiter BucketNotExists failed: An error occurred (403): Forbidden\n",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "waiter": "ObjectExists",
+      "scenario": "success-200",
+      "args": [
+        "s3api",
+        "wait",
+        "object-exists",
+        "--bucket",
+        "bucket",
+        "--key",
+        "key%2F+ 雪"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/key%252F%2B%20%E9%9B%AA",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "waiter": "ObjectExists",
+      "scenario": "retry-then-success",
+      "args": [
+        "s3api",
+        "wait",
+        "object-exists",
+        "--bucket",
+        "bucket",
+        "--key",
+        "key%2F+ 雪"
+      ],
+      "responses": [
+        {
+          "status": 404,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/key%252F%2B%20%E9%9B%AA",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "HEAD",
+            "target": "/bucket/key%252F%2B%20%E9%9B%AA",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "waiter": "ObjectExists",
+      "scenario": "terminal-error",
+      "args": [
+        "s3api",
+        "wait",
+        "object-exists",
+        "--bucket",
+        "bucket",
+        "--key",
+        "key%2F+ 雪"
+      ],
+      "responses": [
+        {
+          "status": 403,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 255,
+        "stdout": "",
+        "stderr": "\nWaiter ObjectExists failed: An error occurred (403): Forbidden\n",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/key%252F%2B%20%E9%9B%AA",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "waiter": "ObjectNotExists",
+      "scenario": "success-404",
+      "args": [
+        "s3api",
+        "wait",
+        "object-not-exists",
+        "--bucket",
+        "bucket",
+        "--key",
+        "key%2F+ 雪"
+      ],
+      "responses": [
+        {
+          "status": 404,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/key%252F%2B%20%E9%9B%AA",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "waiter": "ObjectNotExists",
+      "scenario": "retry-then-success",
+      "args": [
+        "s3api",
+        "wait",
+        "object-not-exists",
+        "--bucket",
+        "bucket",
+        "--key",
+        "key%2F+ 雪"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 404,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/key%252F%2B%20%E9%9B%AA",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "HEAD",
+            "target": "/bucket/key%252F%2B%20%E9%9B%AA",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "waiter": "ObjectNotExists",
+      "scenario": "terminal-error",
+      "args": [
+        "s3api",
+        "wait",
+        "object-not-exists",
+        "--bucket",
+        "bucket",
+        "--key",
+        "key%2F+ 雪"
+      ],
+      "responses": [
+        {
+          "status": 403,
+          "headers": {
+            "x-amz-request-id": "fixture-request"
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 255,
+        "stdout": "",
+        "stderr": "\nWaiter ObjectNotExists failed: An error occurred (403): Forbidden\n",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/key%252F%2B%20%E9%9B%AA",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    }
+  ]
+}

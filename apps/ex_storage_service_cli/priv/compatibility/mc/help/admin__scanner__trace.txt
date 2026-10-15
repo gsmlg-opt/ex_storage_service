@@ -1,0 +1,57 @@
+NAME:
+  mc admin scanner trace - show trace for MinIO scanner operations
+
+USAGE:
+  mc admin scanner trace [FLAGS] TARGET
+
+FLAGS:
+  --verbose, -v                    print verbose trace
+  --funcname value                 trace only matching func name (eg 'scanner.ScanObject')
+  --node value                     trace only matching servers
+  --path value                     trace only matching path
+  --filter-request                 trace calls only with request bytes greater than this threshold, use with filter-size
+  --filter-response                trace calls only with response bytes greater than this threshold, use with filter-size
+  --response-duration 5ms          trace calls only with response duration greater than this threshold (e.g. 5ms)
+  --filter-size value              filter size, use with filter (see UNITS)
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+
+UNITS
+  --filter-size flags use with --filter-response or --filter-request accept human-readable case-insensitive number
+  suffixes such as "k", "m", "g" and "t" referring to the metric units KB,
+  MB, GB and TB respectively. Adding an "i" to these prefixes, uses the IEC
+  units, so that "gi" refers to "gibibyte" or "GiB". A "b" at the end is
+  also accepted. Without suffixes the unit is bytes.
+
+EXAMPLES:
+  1. Show scanner trace for MinIO server
+     $ mc admin scanner trace myminio
+
+  2. Show scanner trace for a specific path
+    $ mc admin scanner trace --path my-bucket/my-prefix/* myminio
+
+  3. Show trace for only ScanObject operations
+    $ mc admin scanner trace --funcname=scanner.ScanObject myminio
+
+  4. Avoid printing replication related S3 requests
+    $ mc admin scanner trace --request-header '!X-Minio-Source' myminio
+
+  5. Show trace only for ScanObject operations request bytes greater than 1MB
+    $ mc admin scanner trace --filter-request --filter-size 1MB myminio
+
+  6. Show trace only for ScanObject operations response bytes greater than 1MB
+    $ mc admin scanner trace --filter-response --filter-size 1MB myminio
+  
+  7. Show trace only for requests operations duration greater than 5ms
+    $ mc admin scanner trace --response-duration 5ms myminio

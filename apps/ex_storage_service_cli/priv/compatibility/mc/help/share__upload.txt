@@ -1,0 +1,35 @@
+NAME:
+  mc share upload - generate `curl` command to upload objects without requiring access/secret keys
+
+USAGE:
+  mc share upload [FLAGS] TARGET [TARGET...]
+
+FLAGS:
+  --recursive, -r                  recursively upload any object matching the prefix
+  --expire value, -E value         set expiry in NN[h|m|s] (default: "168h")
+  --content-type value, -T value   specify a content-type to allow
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Generate a curl command to allow upload access for a single object. Command expires in 7 days (default).
+     $ mc share upload s3/backup/2006-Mar-1/backup.tar.gz
+
+  2. Generate a curl command to allow upload access to a folder. Command expires in 120 hours.
+     $ mc share upload --expire=120h s3/backup/2007-Mar-2/
+
+  3. Generate a curl command to allow upload access of only '.png' images to a folder. Command expires in 2 hours.
+     $ mc share upload --expire=2h --content-type=image/png s3/backup/2007-Mar-2/
+
+  4. Generate a curl command to allow upload access to any objects matching the key prefix 'backup/'. Command expires in 2 hours.
+     $ mc share upload --recursive --expire=2h s3/backup/2007-Mar-2/backup/

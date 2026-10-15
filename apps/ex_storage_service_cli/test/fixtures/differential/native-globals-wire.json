@@ -1,0 +1,131 @@
+{
+  "mc_sha256": "a62c4c85f9efbe5d07e03e2ff9923625fbf659a9f272a077a0cd846279f1ccc2",
+  "cases": [
+    {
+      "name": "repeated-header",
+      "args": [
+        "--dp",
+        "--insecure",
+        "--custom-header",
+        "X-Trace:first:part",
+        "--custom-header",
+        "x-trace:second",
+        "ls",
+        "fixture/bucket"
+      ],
+      "status": 0,
+      "stdout": "",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "x_trace": [
+            "first:part",
+            "second"
+          ],
+          "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+        },
+        {
+          "method": "HEAD",
+          "target": "/bucket/",
+          "x_trace": [
+            "first:part",
+            "second"
+          ],
+          "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?delimiter=%2F&encoding-type=url&fetch-owner=true&list-type=2&prefix=",
+          "x_trace": [
+            "first:part",
+            "second"
+          ],
+          "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+        }
+      ]
+    },
+    {
+      "name": "invalid-header",
+      "header": "missing-colon",
+      "status": 0,
+      "stdout": "",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "x_trace": [],
+          "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+        },
+        {
+          "method": "HEAD",
+          "target": "/bucket/",
+          "x_trace": [],
+          "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?delimiter=%2F&encoding-type=url&fetch-owner=true&list-type=2&prefix=",
+          "x_trace": [],
+          "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+        }
+      ]
+    },
+    {
+      "name": "invalid-header",
+      "header": "bad name:value",
+      "status": 0,
+      "stdout": "",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "x_trace": [],
+          "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+        },
+        {
+          "method": "HEAD",
+          "target": "/bucket/",
+          "x_trace": [],
+          "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?delimiter=%2F&encoding-type=url&fetch-owner=true&list-type=2&prefix=",
+          "x_trace": [],
+          "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+        }
+      ]
+    },
+    {
+      "name": "invalid-header",
+      "header": "x-test:a\r\ninjected:yes",
+      "status": 0,
+      "stdout": "",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "x_trace": [],
+          "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+        },
+        {
+          "method": "HEAD",
+          "target": "/bucket/",
+          "x_trace": [],
+          "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?delimiter=%2F&encoding-type=url&fetch-owner=true&list-type=2&prefix=",
+          "x_trace": [],
+          "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+        }
+      ]
+    }
+  ]
+}

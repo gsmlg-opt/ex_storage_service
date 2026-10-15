@@ -1,0 +1,45 @@
+NAME:
+  mc admin user add - add a new user
+
+USAGE:
+  mc admin user add TARGET ACCESSKEY SECRETKEY
+
+ACCESSKEY:
+  Also called as username.
+
+SECRETKEY:
+  Also called as password.
+
+FLAGS:
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Add a new user 'foobar' to MinIO server.
+     $ set +o history
+     $ mc admin user add myminio foobar foo12345
+     $ set -o history
+
+  2. Add a new user 'foobar' to MinIO server, prompting for keys.
+     $ mc admin user add myminio
+     Enter Access Key: foobar
+     Enter Secret Key: foobar12345
+
+  3. Add a new user 'foobar' to MinIO server using piped keys.
+     $ set +o history
+     $ echo -e "foobar\nfoobar12345" | mc admin user add myminio
+     $ set -o history
+
+  4. Add a new user 'foobar' to MinIO server, then attach IAM policy "writeonly".
+     $ mc admin user add myminio foobar foo12345 
+     $ mc admin policy attach myminio writeonly --user foobar

@@ -1,0 +1,31 @@
+{
+    "Bucket": "",
+    "Id": "",
+    "ExpectedBucketOwner": "",
+    "IntelligentTieringConfiguration": {
+        "Id": "",
+        "Filter": {
+            "Prefix": "",
+            "Tag": {
+                "Key": "",
+                "Value": ""
+            },
+            "And": {
+                "Prefix": "",
+                "Tags": [
+                    {
+                        "Key": "",
+                        "Value": ""
+                    }
+                ]
+            }
+        },
+        "Status": "Enabled",
+        "Tierings": [
+            {
+                "Days": 0,
+                "AccessTier": "ARCHIVE_ACCESS"
+            }
+        ]
+    }
+}

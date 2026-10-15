@@ -1,0 +1,71 @@
+{
+    "Bucket": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "ReplicationConfiguration": {
+        "Role": "",
+        "Rules": [
+            {
+                "ID": "",
+                "Priority": 0,
+                "Prefix": "",
+                "Filter": {
+                    "Prefix": "",
+                    "Tag": {
+                        "Key": "",
+                        "Value": ""
+                    },
+                    "And": {
+                        "Prefix": "",
+                        "Tags": [
+                            {
+                                "Key": "",
+                                "Value": ""
+                            }
+                        ]
+                    }
+                },
+                "Status": "Enabled",
+                "SourceSelectionCriteria": {
+                    "SseKmsEncryptedObjects": {
+                        "Status": "Enabled"
+                    },
+                    "ReplicaModifications": {
+                        "Status": "Enabled"
+                    }
+                },
+                "ExistingObjectReplication": {
+                    "Status": "Enabled"
+                },
+                "Destination": {
+                    "Bucket": "",
+                    "Account": "",
+                    "StorageClass": "STANDARD",
+                    "AccessControlTranslation": {
+                        "Owner": "Destination"
+                    },
+                    "EncryptionConfiguration": {
+                        "ReplicaKmsKeyID": ""
+                    },
+                    "ReplicationTime": {
+                        "Status": "Enabled",
+                        "Time": {
+                            "Minutes": 0
+                        }
+                    },
+                    "Metrics": {
+                        "Status": "Enabled",
+                        "EventThreshold": {
+                            "Minutes": 0
+                        }
+                    }
+                },
+                "DeleteMarkerReplication": {
+                    "Status": "Enabled"
+                }
+            }
+        ]
+    },
+    "Token": "",
+    "ExpectedBucketOwner": ""
+}

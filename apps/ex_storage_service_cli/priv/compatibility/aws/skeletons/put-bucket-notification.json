@@ -1,0 +1,33 @@
+{
+    "Bucket": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "NotificationConfiguration": {
+        "TopicConfiguration": {
+            "Id": "",
+            "Events": [
+                "s3:ReducedRedundancyLostObject"
+            ],
+            "Event": "s3:ReducedRedundancyLostObject",
+            "Topic": ""
+        },
+        "QueueConfiguration": {
+            "Id": "",
+            "Event": "s3:ReducedRedundancyLostObject",
+            "Events": [
+                "s3:ReducedRedundancyLostObject"
+            ],
+            "Queue": ""
+        },
+        "CloudFunctionConfiguration": {
+            "Id": "",
+            "Event": "s3:ReducedRedundancyLostObject",
+            "Events": [
+                "s3:ReducedRedundancyLostObject"
+            ],
+            "CloudFunction": "",
+            "InvocationRole": ""
+        }
+    },
+    "ExpectedBucketOwner": ""
+}

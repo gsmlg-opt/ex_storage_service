@@ -1,0 +1,59 @@
+NAME:
+  mc admin tier add - add a new remote tier target
+
+USAGE:
+  mc admin tier add TYPE ALIAS NAME [FLAGS]
+
+TYPE:
+  Type of the cloud storage backend to add. Supported values are minio, s3, azure and gcs.
+
+NAME:
+  Name of the remote tier target. e.g WARM-TIER
+
+FLAGS:
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --endpoint value                 remote tier endpoint. e.g https://s3.amazonaws.com
+  --region value                   remote tier region. e.g us-west-2
+  --access-key value               AWS S3 or compatible object storage access-key
+  --secret-key value               AWS S3 or compatible object storage secret-key
+  --use-aws-role                   use AWS S3 role
+  --aws-role-arn value             use AWS S3 role name
+  --aws-web-identity-file value    use AWS S3 web identity file
+  --account-name value             Azure Blob Storage account name
+  --account-key value              Azure Blob Storage account key
+  --az-sp-tenant-id value          Directory ID for the Azure service principal account
+  --az-sp-client-id value          The client ID of the Azure service principal account
+  --az-sp-client-secret value      The client secret of the Azure service principal account
+  --credentials-file value         path to Google Cloud Storage credentials file
+  --bucket value                   remote tier bucket
+  --prefix value                   remote tier prefix
+  --storage-class value            remote tier storage-class
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Configure a new remote tier which transitions objects to a bucket in a MinIO deployment:
+     $ mc admin tier add minio myminio WARM-MINIO-TIER --endpoint https://warm-minio.com \
+        --access-key ACCESSKEY --secret-key SECRETKEY --bucket mybucket --prefix myprefix/
+
+  2. Configure a new remote tier which transitions objects to a bucket in Azure Blob Storage:
+     $ mc admin tier add azure myminio AZTIER --account-name ACCOUNT-NAME --account-key ACCOUNT-KEY \
+        --bucket myazurebucket --prefix myazureprefix/
+
+  3. Configure a new remote tier which transitions objects to a bucket in AWS S3 with STANDARD storage class:
+     $ mc admin tier add s3 myminio S3TIER --endpoint https://s3.amazonaws.com \
+        --access-key ACCESSKEY --secret-key SECRETKEY --bucket mys3bucket --prefix mys3prefix/ \
+        --storage-class "STANDARD" --region us-west-2
+
+  4. Configure a new remote tier which transitions objects to a bucket in Google Cloud Storage:
+     $ mc admin tier add gcs myminio GCSTIER --credentials-file /path/to/credentials.json \
+        --bucket mygcsbucket  --prefix mygcsprefix/

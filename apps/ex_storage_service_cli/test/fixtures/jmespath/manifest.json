@@ -1,0 +1,21 @@
+{
+  "source": "Hex jmes 0.4.1 MIT package",
+  "package_checksum": "a16f10e87af9a1dfe829a072437d7dd89d46fc4f6c59aff936ef9ec8306f2db1",
+  "files": {
+    "boolean.json": "055b0b70cc9ebd800e06cf337e2e1e8321e75fdb168d24bd78e315794cba0209",
+    "escape.json": "55b09670b206d2fa89779dd02b5d187812855b109b697224e51f5ed0dd8289d6",
+    "wildcard.json": "32b2a981b3e380a65a73d4145d4093c684133e697c694ac65e1621b87a852cd7",
+    "literal.json": "c1016f8cb8fd583a041efddd4e90bd5ee6961d3be68b4ac41a4731edb2e563f6",
+    "slice.json": "423a616e9f54fdf616e7d2e41a2567e46117fb7cdbce8c4ef86d22512ad2dd19",
+    "pipe.json": "6946e7badc321f0137661f2796e63a3958d26c2b28d7fc3e87106c2e32bb7216",
+    "unicode.json": "5a341b0faca2c9151d7ca0cd281c679cd37a399acda700198401454add0d8f86",
+    "indices.json": "04450149ec3b782a9d4a4a2d27dd0596877f847d81dc6001a6a21ebb90e5bdbe",
+    "multiselect.json": "efbef026bf817b9aa6828f6f878d17f1bae9e3b3177c16bf40c12c86b627e6e3",
+    "current.json": "77bf364258f5fefa80a74a185ff8f926a7d68f911e36bb0b6b4bf2f204c536d0",
+    "filters.json": "98dddfab200894422fd43c04f8d7628812326b41c6ee4d7e6da47d944fa63f06",
+    "functions.json": "2e006a185273f5f3ebf05516138304b1bdc7d6b7f67c7355989251f91ca79786",
+    "syntax.json": "a6a54b234ed0305eb25e754d027568700a445e87592c7a397d42e443b1a684cb",
+    "identifiers.json": "7d979f71dd21af690f7422b5eac54b0e9cb185e76180b5180ce0b72daf68b257",
+    "basic.json": "e02b094b3de1707a851244e532ced95f128ec4fb815105773d46d9f9cc2ff0b1"
+  }
+}

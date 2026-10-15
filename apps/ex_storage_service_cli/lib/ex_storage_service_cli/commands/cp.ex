@@ -10,6 +10,8 @@ defmodule ExStorageServiceCli.Commands.Cp do
 
   alias ExStorageServiceCli.S3Client
   alias ExStorageServiceCli.Output
+  alias ExStorageServiceCli.Commands.Failure
+  alias ExStorageServiceCli.Transfer.{Engine, Sink}
 
   def run(_command, args, ctx) do
     {opts, rest, _} =
@@ -33,29 +35,32 @@ defmodule ExStorageServiceCli.Commands.Cp do
         _ ->
           Output.error("Expected exactly 2 arguments: <source> <destination>")
           help("cp")
-          System.halt(1)
+          Failure.reported()
       end
     end
+  rescue
+    _error in File.Error ->
+      {:error, ExStorageServiceCli.Error.new(:client, "Local file operation failed")}
   end
 
   def help(_command) do
     IO.puts("""
-    #{IO.ANSI.bright()}ess cp#{IO.ANSI.reset()} — Copy files between local and S3
+    #{Output.color(IO.ANSI.bright())}ess cp#{Output.color(IO.ANSI.reset())} — Copy files between local and S3
 
-    #{IO.ANSI.bright()}USAGE#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}USAGE#{Output.color(IO.ANSI.reset())}
         ess cp <source> <destination> [options]
 
-    #{IO.ANSI.bright()}COPY DIRECTIONS#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}COPY DIRECTIONS#{Output.color(IO.ANSI.reset())}
         Local → S3:   ess cp ./file.txt s3://bucket/key
         S3 → Local:   ess cp s3://bucket/key ./file.txt
         S3 → S3:      ess cp s3://bucket1/key1 s3://bucket2/key2
 
-    #{IO.ANSI.bright()}OPTIONS#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}OPTIONS#{Output.color(IO.ANSI.reset())}
         --content-type <type>   Set content type (upload only)
         -r, --recursive         Copy directories recursively
         -h, --help              Show help
 
-    #{IO.ANSI.bright()}EXAMPLES#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}EXAMPLES#{Output.color(IO.ANSI.reset())}
         ess cp ./photo.jpg s3://my-bucket/images/photo.jpg
         ess cp s3://my-bucket/data.csv ./data.csv
         ess cp -r ./folder s3://my-bucket/folder
@@ -71,15 +76,20 @@ defmodule ExStorageServiceCli.Commands.Cp do
 
     cond do
       !src_s3? && dst_s3? ->
-        if File.dir?(src) && !recursive? do
-          Output.error("Directory copy requires --recursive flag: #{src}")
-          System.halt(1)
-        end
+        cond do
+          not File.exists?(src) ->
+            Output.error("Local file not found: #{src}")
+            Failure.reported()
 
-        if recursive? do
-          upload_recursive(client, src, dst, opts, ctx)
-        else
-          upload(client, src, dst, opts, ctx)
+          File.dir?(src) && !recursive? ->
+            Output.error("Directory copy requires --recursive flag: #{src}")
+            Failure.reported()
+
+          recursive? ->
+            upload_recursive(client, src, dst, opts, ctx)
+
+          true ->
+            upload(client, src, dst, opts, ctx)
         end
 
       src_s3? && !dst_s3? ->
@@ -98,16 +108,20 @@ defmodule ExStorageServiceCli.Commands.Cp do
 
       true ->
         Output.error("At least one argument must be an S3 path (s3://bucket/key)")
-        System.halt(1)
+        Failure.reported()
     end
   end
 
   defp upload(client, local_path, s3_path, opts, ctx) do
-    unless File.exists?(local_path) do
+    if File.exists?(local_path) do
+      upload_file(client, local_path, s3_path, opts, ctx)
+    else
       Output.error("Local file not found: #{local_path}")
-      System.halt(1)
+      Failure.reported()
     end
+  end
 
+  defp upload_file(client, local_path, s3_path, opts, ctx) do
     {bucket, key} = parse_s3_path(s3_path)
 
     # If the S3 key ends with /, append the filename
@@ -118,18 +132,17 @@ defmodule ExStorageServiceCli.Commands.Cp do
         key
       end
 
-    body = File.read!(local_path)
-    file_size = byte_size(body)
-
     upload_opts =
       if opts[:content_type] do
-        [content_type: opts[:content_type]]
+        [input: %{"ContentType" => opts[:content_type]}]
       else
         []
       end
 
-    case S3Client.put_object(client, bucket, key, body, upload_opts) do
+    case Engine.upload_file(S3Client.context(client), bucket, key, local_path, upload_opts) do
       {:ok, result} ->
+        file_size = result.bytes
+
         if ctx.json do
           IO.puts(
             JSON.encode!(%{
@@ -149,7 +162,7 @@ defmodule ExStorageServiceCli.Commands.Cp do
 
       {:error, reason} ->
         Output.error("Upload failed: #{Output.format_error(reason)}")
-        System.halt(1)
+        Failure.reported()
     end
   end
 
@@ -157,58 +170,57 @@ defmodule ExStorageServiceCli.Commands.Cp do
     if File.regular?(local_path) do
       upload(client, local_path, s3_path, opts, ctx)
     else
-      files = list_local_files_recursive(local_path)
+      with {:ok, files} <- list_local_files_recursive(local_path) do
+        if files == [] do
+          Output.info("No files to upload in #{local_path}")
+        else
+          {bucket, dst_prefix} = parse_s3_path(s3_path)
 
-      if files == [] do
-        Output.info("No files to upload in #{local_path}")
-      else
-        {bucket, dst_prefix} = parse_s3_path(s3_path)
+          each_until_error(files, fn file ->
+            rel_path = relative_local_path(file, local_path)
 
-        Enum.each(files, fn file ->
-          rel_path = relative_local_path(file, local_path)
-
-          dst_key =
-            if dst_prefix == "" do
-              rel_path
-            else
-              prefix = String.trim_trailing(dst_prefix, "/")
-              prefix <> "/" <> rel_path
-            end
-
-          body = File.read!(file)
-          file_size = byte_size(body)
-
-          upload_opts =
-            if opts[:content_type] do
-              [content_type: opts[:content_type]]
-            else
-              []
-            end
-
-          case S3Client.put_object(client, bucket, dst_key, body, upload_opts) do
-            {:ok, result} ->
-              if ctx.json do
-                IO.puts(
-                  JSON.encode!(%{
-                    status: "ok",
-                    operation: "upload",
-                    source: file,
-                    destination: "s3://#{bucket}/#{dst_key}",
-                    size: file_size,
-                    etag: result.etag
-                  })
-                )
+            dst_key =
+              if dst_prefix == "" do
+                rel_path
               else
-                Output.success(
-                  "Uploaded #{file} → s3://#{bucket}/#{dst_key} (#{Output.format_bytes(file_size)})"
-                )
+                prefix = String.trim_trailing(dst_prefix, "/")
+                prefix <> "/" <> rel_path
               end
 
-            {:error, reason} ->
-              Output.error("Upload failed for #{file}: #{Output.format_error(reason)}")
-              System.halt(1)
-          end
-        end)
+            upload_opts =
+              if opts[:content_type] do
+                [input: %{"ContentType" => opts[:content_type]}]
+              else
+                []
+              end
+
+            case Engine.upload_file(S3Client.context(client), bucket, dst_key, file, upload_opts) do
+              {:ok, result} ->
+                file_size = result.bytes
+
+                if ctx.json do
+                  IO.puts(
+                    JSON.encode!(%{
+                      status: "ok",
+                      operation: "upload",
+                      source: file,
+                      destination: "s3://#{bucket}/#{dst_key}",
+                      size: file_size,
+                      etag: result.etag
+                    })
+                  )
+                else
+                  Output.success(
+                    "Uploaded #{file} → s3://#{bucket}/#{dst_key} (#{Output.format_bytes(file_size)})"
+                  )
+                end
+
+              {:error, reason} ->
+                Output.error("Upload failed for #{file}: #{Output.format_error(reason)}")
+                Failure.reported()
+            end
+          end)
+        end
       end
     end
   end
@@ -224,12 +236,9 @@ defmodule ExStorageServiceCli.Commands.Cp do
         local_path
       end
 
-    case S3Client.get_object(client, bucket, key) do
+    case Engine.download_file(S3Client.context(client), bucket, key, local_path) do
       {:ok, result} ->
-        # Ensure parent directory exists
-        local_path |> Path.dirname() |> File.mkdir_p!()
-        File.write!(local_path, result.body)
-        file_size = byte_size(result.body)
+        file_size = result.bytes
 
         if ctx.json do
           IO.puts(
@@ -249,11 +258,11 @@ defmodule ExStorageServiceCli.Commands.Cp do
 
       {:error, :not_found} ->
         Output.error("Object not found: s3://#{bucket}/#{key}")
-        System.halt(1)
+        Failure.reported()
 
       {:error, reason} ->
         Output.error("Download failed: #{Output.format_error(reason)}")
-        System.halt(1)
+        Failure.reported()
     end
   end
 
@@ -265,44 +274,42 @@ defmodule ExStorageServiceCli.Commands.Cp do
         Output.info("No objects found with prefix: s3://#{bucket}/#{src_prefix}")
 
       {:ok, objects} ->
-        Enum.each(objects, fn obj ->
+        each_until_error(objects, fn obj ->
           rel_key = relative_key(obj.key, src_prefix)
 
           if rel_key != "" do
-            local_path = Path.join(local_dir, rel_key)
-            local_path |> Path.dirname() |> File.mkdir_p!()
+            with {:ok, local_path} <- Sink.map(local_dir, rel_key) do
+              case Engine.download_file(S3Client.context(client), bucket, obj.key, local_path) do
+                {:ok, result} ->
+                  file_size = result.bytes
 
-            case S3Client.get_object(client, bucket, obj.key) do
-              {:ok, result} ->
-                File.write!(local_path, result.body)
-                file_size = byte_size(result.body)
+                  if ctx.json do
+                    IO.puts(
+                      JSON.encode!(%{
+                        status: "ok",
+                        operation: "download",
+                        source: "s3://#{bucket}/#{obj.key}",
+                        destination: local_path,
+                        size: file_size
+                      })
+                    )
+                  else
+                    Output.success(
+                      "Downloaded s3://#{bucket}/#{obj.key} → #{local_path} (#{Output.format_bytes(file_size)})"
+                    )
+                  end
 
-                if ctx.json do
-                  IO.puts(
-                    JSON.encode!(%{
-                      status: "ok",
-                      operation: "download",
-                      source: "s3://#{bucket}/#{obj.key}",
-                      destination: local_path,
-                      size: file_size
-                    })
-                  )
-                else
-                  Output.success(
-                    "Downloaded s3://#{bucket}/#{obj.key} → #{local_path} (#{Output.format_bytes(file_size)})"
-                  )
-                end
-
-              {:error, reason} ->
-                Output.error("Download failed for #{obj.key}: #{Output.format_error(reason)}")
-                System.halt(1)
+                {:error, reason} ->
+                  Output.error("Download failed for #{obj.key}: #{Output.format_error(reason)}")
+                  Failure.reported()
+              end
             end
           end
         end)
 
       {:error, reason} ->
         Output.error("Failed to list S3 directory: #{Output.format_error(reason)}")
-        System.halt(1)
+        Failure.reported()
     end
   end
 
@@ -335,7 +342,7 @@ defmodule ExStorageServiceCli.Commands.Cp do
 
       {:error, reason} ->
         Output.error("Copy failed: #{Output.format_error(reason)}")
-        System.halt(1)
+        Failure.reported()
     end
   end
 
@@ -348,7 +355,7 @@ defmodule ExStorageServiceCli.Commands.Cp do
         Output.info("No objects found to copy: s3://#{src_bucket}/#{src_prefix}")
 
       {:ok, objects} ->
-        Enum.each(objects, fn obj ->
+        each_until_error(objects, fn obj ->
           rel_key = relative_key(obj.key, src_prefix)
 
           if rel_key != "" do
@@ -379,37 +386,50 @@ defmodule ExStorageServiceCli.Commands.Cp do
 
               {:error, reason} ->
                 Output.error("Copy failed for #{obj.key}: #{Output.format_error(reason)}")
-                System.halt(1)
+                Failure.reported()
             end
           end
         end)
 
       {:error, reason} ->
         Output.error("Failed to list S3 directory: #{Output.format_error(reason)}")
-        System.halt(1)
+        Failure.reported()
     end
   end
 
   # Helpers
+
+  defp each_until_error(items, function) do
+    Enum.reduce_while(items, :ok, fn item, :ok ->
+      case function.(item) do
+        {:error, _error} = error -> {:halt, error}
+        result when result in [:ok, nil] -> {:cont, :ok}
+      end
+    end)
+  end
 
   defp list_local_files_recursive(path) do
     cond do
       File.dir?(path) ->
         case File.ls(path) do
           {:ok, children} ->
-            Enum.flat_map(children, fn child ->
-              list_local_files_recursive(Path.join(path, child))
+            Enum.reduce_while(children, {:ok, []}, fn child, {:ok, files} ->
+              case list_local_files_recursive(Path.join(path, child)) do
+                {:ok, nested} -> {:cont, {:ok, files ++ nested}}
+                {:error, _error} = error -> {:halt, error}
+              end
             end)
 
           {:error, _} ->
-            []
+            {:error,
+             ExStorageServiceCli.Error.new(:client, "Local source directory could not be read")}
         end
 
       File.regular?(path) ->
-        [path]
+        {:ok, [path]}
 
       true ->
-        []
+        {:ok, []}
     end
   end
 

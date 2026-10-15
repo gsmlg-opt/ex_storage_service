@@ -1,0 +1,48 @@
+NAME:
+  mc mb - make a bucket
+
+USAGE:
+  mc mb [FLAGS] TARGET [TARGET...]
+
+FLAGS:
+  --region value                   specify bucket region; defaults to 'us-east-1' (default: "us-east-1")
+  --ignore-existing, -p            ignore if bucket/directory already exists
+  --with-lock, -l                  enable object lock
+  --with-versioning                enable versioned bucket
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Create a bucket on Amazon S3 cloud storage.
+     $ mc mb s3/mynewbucket
+
+  2. Create a new bucket on Google Cloud Storage.
+     $ mc mb gcs/miniocloud
+
+  3. Create a new bucket on Amazon S3 cloud storage in region 'us-west-2'.
+     $ mc mb --region=us-west-2 s3/myregionbucket
+
+  4. Create a new directory including its missing parents (equivalent to 'mkdir -p').
+     $ mc mb /tmp/this/new/dir1
+
+  5. Create multiple directories including its missing parents (behavior similar to 'mkdir -p').
+     $ mc mb /mnt/sdb/mydisk /mnt/sdc/mydisk /mnt/sdd/mydisk
+
+  6. Ignore if bucket/directory already exists.
+     $ mc mb --ignore-existing myminio/mynewbucket
+
+  7. Create a new bucket on Amazon S3 cloud storage in region 'us-west-2' with object lock enabled.
+     $ mc mb --with-lock --region=us-west-2 s3/myregionbucket
+
+  8. Create a new bucket on MinIO with versioning enabled.
+     $ mc mb --with-versioning myminio/myversionedbucket

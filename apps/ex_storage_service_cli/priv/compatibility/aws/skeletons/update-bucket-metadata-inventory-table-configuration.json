@@ -1,0 +1,13 @@
+{
+    "Bucket": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "InventoryTableConfiguration": {
+        "ConfigurationState": "ENABLED",
+        "EncryptionConfiguration": {
+            "SseAlgorithm": "aws:kms",
+            "KmsKeyArn": ""
+        }
+    },
+    "ExpectedBucketOwner": ""
+}

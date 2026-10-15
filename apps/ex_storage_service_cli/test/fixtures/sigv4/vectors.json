@@ -1,0 +1,141 @@
+{
+  "reference": {
+    "aws_cli": "2.31.18",
+    "botocore": "2.0.0dev155",
+    "auth_source_sha256": "298d690158ff374e13b73d764f42bdd410183686771e8d46a60b972980db467d"
+  },
+  "credentials": {
+    "access_key_id": "AKIDEXAMPLE",
+    "secret_access_key": "wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY"
+  },
+  "now": "2024-01-15T12:00:00Z",
+  "vectors": [
+    {
+      "name": "binary_and_encoded_key",
+      "method": "PUT",
+      "base": "https://s3.example.com",
+      "key": "bucket/a%+?# space/中文//./../end",
+      "url": "https://s3.example.com/bucket/a%25%2B%3F%23%20space/%E4%B8%AD%E6%96%87//./../end?same=z&same=a%20%2B%2F%25%3F&empty=&versionId=%C3%A9",
+      "query": [
+        [
+          "same",
+          "z"
+        ],
+        [
+          "same",
+          "a +/%?"
+        ],
+        [
+          "empty",
+          ""
+        ],
+        [
+          "versionId",
+          "é"
+        ]
+      ],
+      "headers": [
+        [
+          "X-Amz-Meta-Title",
+          "  alpha\t beta   "
+        ],
+        [
+          "x-amz-meta-title",
+          "gamma  delta"
+        ]
+      ],
+      "body_base64": "AP+ACg0=",
+      "session_token": null,
+      "presign": false,
+      "canonical_request": "PUT\n/bucket/a%25%2B%3F%23%20space/%E4%B8%AD%E6%96%87//./../end\nempty=&same=a%20%2B%2F%25%3F&same=z&versionId=%C3%A9\nhost:s3.example.com\nx-amz-content-sha256:037e68ac6512d2c57a0d7247a76b3ab486a7f7e9c05ea50cae197782c80b63d4\nx-amz-date:20240115T120000Z\nx-amz-meta-title:alpha beta,gamma delta\n\nhost;x-amz-content-sha256;x-amz-date;x-amz-meta-title\n037e68ac6512d2c57a0d7247a76b3ab486a7f7e9c05ea50cae197782c80b63d4",
+      "expected": "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20240115/us-east-1/s3/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-meta-title, Signature=084a3e1372e9882265518ef7a08c8f77845187d967fd0c12b2189ec1a4aabc22"
+    },
+    {
+      "name": "ipv6_port_session",
+      "method": "PUT",
+      "base": "http://[2001:db8::1]:9000",
+      "key": "bucket//./../key",
+      "url": "http://[2001:db8::1]:9000/bucket//./../key?uploads=&same=2&same=1",
+      "query": [
+        [
+          "uploads",
+          ""
+        ],
+        [
+          "same",
+          "2"
+        ],
+        [
+          "same",
+          "1"
+        ]
+      ],
+      "headers": [],
+      "body_base64": "AP+ACg0=",
+      "session_token": "session+/= token",
+      "presign": false,
+      "canonical_request": "PUT\n/bucket//./../key\nsame=1&same=2&uploads=\nhost:[2001:db8::1]:9000\nx-amz-content-sha256:037e68ac6512d2c57a0d7247a76b3ab486a7f7e9c05ea50cae197782c80b63d4\nx-amz-date:20240115T120000Z\nx-amz-security-token:session+/= token\n\nhost;x-amz-content-sha256;x-amz-date;x-amz-security-token\n037e68ac6512d2c57a0d7247a76b3ab486a7f7e9c05ea50cae197782c80b63d4",
+      "expected": "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20240115/us-east-1/s3/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-security-token, Signature=f23c55cb70476c79125f8bd80593d02fbf83f44e323d99c9cc8c7022571711a9"
+    },
+    {
+      "name": "default_port",
+      "method": "PUT",
+      "base": "https://example.com:443",
+      "key": "bucket/key",
+      "url": "https://example.com:443/bucket/key",
+      "query": [],
+      "headers": [],
+      "body_base64": "AP+ACg0=",
+      "session_token": null,
+      "presign": false,
+      "canonical_request": "PUT\n/bucket/key\n\nhost:example.com\nx-amz-content-sha256:037e68ac6512d2c57a0d7247a76b3ab486a7f7e9c05ea50cae197782c80b63d4\nx-amz-date:20240115T120000Z\n\nhost;x-amz-content-sha256;x-amz-date\n037e68ac6512d2c57a0d7247a76b3ab486a7f7e9c05ea50cae197782c80b63d4",
+      "expected": "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20240115/us-east-1/s3/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=067e425e6f59c395779116af840cb8ad234e4ff17fe0a0043dcdd0a0bb7c33cd"
+    },
+    {
+      "name": "presign_duplicates_session",
+      "method": "GET",
+      "base": "http://[2001:db8::1]:9000",
+      "key": "bucket/a%+?# space/中文//./../end",
+      "url": "http://[2001:db8::1]:9000/bucket/a%25%2B%3F%23%20space/%E4%B8%AD%E6%96%87//./../end?same=z&same=a%20%2B%2F%25%3F&response-content-disposition=attachment%3B%20filename%3D%22a%20b%22",
+      "query": [
+        [
+          "same",
+          "z"
+        ],
+        [
+          "same",
+          "a +/%?"
+        ],
+        [
+          "response-content-disposition",
+          "attachment; filename=\"a b\""
+        ]
+      ],
+      "headers": [],
+      "body_base64": "AP+ACg0=",
+      "session_token": "session+/= token",
+      "presign": true,
+      "canonical_request": "GET\n/bucket/a%25%2B%3F%23%20space/%E4%B8%AD%E6%96%87//./../end\nX-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIDEXAMPLE%2F20240115%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240115T120000Z&X-Amz-Expires=3600&X-Amz-Security-Token=session%2B%2F%3D%20token&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22a%20b%22&same=a%20%2B%2F%25%3F&same=z\nhost:[2001:db8::1]:9000\n\nhost\nUNSIGNED-PAYLOAD",
+      "expected": "http://[2001:db8::1]:9000/bucket/a%25%2B%3F%23%20space/%E4%B8%AD%E6%96%87//./../end?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIDEXAMPLE%2F20240115%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240115T120000Z&X-Amz-Expires=3600&X-Amz-Security-Token=session%2B%2F%3D%20token&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22a%20b%22&same=a%20%2B%2F%25%3F&same=z&X-Amz-Signature=17fabf62790ba9efa18742cca066d005ba4a89ec6f4757a55c249291ed05edb4"
+    },
+    {
+      "name": "presign_root",
+      "method": "GET",
+      "base": "https://example.com",
+      "key": "",
+      "url": "https://example.com/?empty=",
+      "query": [
+        [
+          "empty",
+          ""
+        ]
+      ],
+      "headers": [],
+      "body_base64": "AP+ACg0=",
+      "session_token": null,
+      "presign": true,
+      "canonical_request": "GET\n/\nX-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIDEXAMPLE%2F20240115%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240115T120000Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&empty=\nhost:example.com\n\nhost\nUNSIGNED-PAYLOAD",
+      "expected": "https://example.com/?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIDEXAMPLE%2F20240115%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240115T120000Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&empty=&X-Amz-Signature=7d6554f51985f78e30594d890c461ec446b70fa0ab959f1e52ff0ef7c81e96a2"
+    }
+  ]
+}

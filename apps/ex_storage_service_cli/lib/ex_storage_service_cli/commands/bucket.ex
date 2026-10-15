@@ -5,6 +5,7 @@ defmodule ExStorageServiceCli.Commands.Bucket do
 
   alias ExStorageServiceCli.S3Client
   alias ExStorageServiceCli.Output
+  alias ExStorageServiceCli.Commands.Failure
 
   def run("mb", args, ctx) do
     {opts, rest, _} =
@@ -31,18 +32,18 @@ defmodule ExStorageServiceCli.Commands.Bucket do
 
             {:error, reason} ->
               Output.error("Failed to create bucket '#{bucket}': #{Output.format_error(reason)}")
-              System.halt(1)
+              Failure.reported()
           end
 
         [] ->
           Output.error("Missing bucket name")
           help("mb")
-          System.halt(1)
+          Failure.reported()
 
         _ ->
           Output.error("Too many arguments")
           help("mb")
-          System.halt(1)
+          Failure.reported()
       end
     end
   end
@@ -72,31 +73,31 @@ defmodule ExStorageServiceCli.Commands.Bucket do
 
             {:error, reason} ->
               Output.error("Failed to delete bucket '#{bucket}': #{Output.format_error(reason)}")
-              System.halt(1)
+              Failure.reported()
           end
 
         [] ->
           Output.error("Missing bucket name")
           help("rb")
-          System.halt(1)
+          Failure.reported()
 
         _ ->
           Output.error("Too many arguments")
           help("rb")
-          System.halt(1)
+          Failure.reported()
       end
     end
   end
 
   def help("mb") do
     IO.puts("""
-    #{IO.ANSI.bright()}ess mb#{IO.ANSI.reset()} — Make (create) a bucket
+    #{Output.color(IO.ANSI.bright())}ess mb#{Output.color(IO.ANSI.reset())} — Make (create) a bucket
 
-    #{IO.ANSI.bright()}USAGE#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}USAGE#{Output.color(IO.ANSI.reset())}
         ess mb <bucket-name>
         ess mb s3://<bucket-name>
 
-    #{IO.ANSI.bright()}EXAMPLES#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}EXAMPLES#{Output.color(IO.ANSI.reset())}
         ess mb my-bucket
         ess mb s3://my-bucket
     """)
@@ -104,16 +105,16 @@ defmodule ExStorageServiceCli.Commands.Bucket do
 
   def help("rb") do
     IO.puts("""
-    #{IO.ANSI.bright()}ess rb#{IO.ANSI.reset()} — Remove (delete) a bucket
+    #{Output.color(IO.ANSI.bright())}ess rb#{Output.color(IO.ANSI.reset())} — Remove (delete) a bucket
 
-    #{IO.ANSI.bright()}USAGE#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}USAGE#{Output.color(IO.ANSI.reset())}
         ess rb <bucket-name>
         ess rb s3://<bucket-name>
 
-    #{IO.ANSI.bright()}DESCRIPTION#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}DESCRIPTION#{Output.color(IO.ANSI.reset())}
         The bucket must be empty before it can be deleted.
 
-    #{IO.ANSI.bright()}EXAMPLES#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}EXAMPLES#{Output.color(IO.ANSI.reset())}
         ess rb my-bucket
         ess rb s3://my-bucket
     """)

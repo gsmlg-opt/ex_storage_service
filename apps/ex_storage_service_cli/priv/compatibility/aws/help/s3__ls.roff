@@ -1,0 +1,391 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "LS"  "" "" ""
+.SH NAME
+ls \- 
+.SH DESCRIPTION
+.sp
+List S3 objects and common prefixes under a prefix or all S3 buckets. Note that the \-\-output and \-\-no\-paginate arguments are ignored for this command.
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  ls
+<S3Uri> or NONE
+[\-\-recursive]
+[\-\-page\-size <value>]
+[\-\-human\-readable]
+[\-\-summarize]
+[\-\-request\-payer <value>]
+[\-\-bucket\-name\-prefix <value>]
+[\-\-bucket\-region <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fBpaths\fP (string)
+.sp
+\fB\-\-recursive\fP (boolean)
+Command is performed on all files or objects under the specified directory or prefix.
+.sp
+\fB\-\-page\-size\fP (integer)
+The number of results to return in each response to a list operation. The default value is 1000 (the maximum allowed). Using a lower value may help if an operation times out.
+.sp
+\fB\-\-human\-readable\fP (boolean)
+Displays file sizes in human readable format.
+.sp
+\fB\-\-summarize\fP (boolean)
+Displays summary information (number of objects, total size).
+.sp
+\fB\-\-request\-payer\fP (string)
+Confirms that the requester knows that they will be charged for the request. Bucket owners need not specify this parameter in their requests. Documentation on downloading objects from requester pays buckets can be found at \fI\%http://docs.aws.amazon.com/AmazonS3/latest/dev/ObjectsinRequesterPaysBuckets.html\fP
+.sp
+\fB\-\-bucket\-name\-prefix\fP (string)
+Limits the response to bucket names that begin with the specified bucket name prefix.
+.sp
+\fB\-\-bucket\-region\fP (string)
+Limits the response to buckets that are located in the specified Amazon Web Services Region. The Amazon Web Services Region must be expressed according to the Amazon Web Services Region code, such as us\-west\-2 for the US West (Oregon) Region. For a list of the valid values for all of the Amazon Web Services Regions, see \fI\%https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region\fP
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH EXAMPLES
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use the following examples, you must have the AWS CLI installed and configured. See the \fI\%Getting started guide\fP in the \fIAWS CLI User Guide\fP for more information.
+.sp
+Unless otherwise stated, all examples have unix\-like quotation rules. These examples will need to be adapted to your terminal\(aqs quoting rules. See \fI\%Using quotation marks with strings\fP in the \fIAWS CLI User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBExample 1: Listing all user owned buckets\fP
+.sp
+The following \fBls\fP command lists all of the bucket owned by the user.  In this example, the user owns the buckets \fBamzn\-s3\-demo\-bucket\fP and \fBamzn\-s3\-demo\-bucket2\fP\&.  The timestamp is the date the bucket was created, shown in your machine\(aqs time zone.  This date can change when making changes to your bucket, such as editing its bucket policy.  Note if  \fBs3://\fP is used for the path argument \fB<S3Uri>\fP, it will list all of the buckets as well.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3 ls
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+2013\-07\-11 17:08:50 amzn\-s3\-demo\-bucket
+2013\-07\-24 14:55:44 amzn\-s3\-demo\-bucket2
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBExample 2: Listing all prefixes and objects in a bucket\fP
+.sp
+The following \fBls\fP command lists objects and common prefixes under a specified bucket and prefix.  In this example, the user owns the bucket \fBamzn\-s3\-demo\-bucket\fP with the objects \fBtest.txt\fP and \fBsomePrefix/test.txt\fP\&.  The \fBLastWriteTime\fP and \fBLength\fP are arbitrary. Note that since the \fBls\fP command has no interaction with the local filesystem, the \fBs3://\fP URI scheme is not required to resolve ambiguity and may be omitted.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3 ls s3://amzn\-s3\-demo\-bucket
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+                           PRE somePrefix/
+2013\-07\-25 17:06:27         88 test.txt
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBExample 3: Listing all prefixes and objects in a specific bucket and prefix\fP
+.sp
+The following \fBls\fP command lists objects and common prefixes under a specified bucket and prefix.  However, there are no objects nor common prefixes under the specified bucket and prefix.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3 ls s3://amzn\-s3\-demo\-bucket/noExistPrefix
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+None
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBExample 4: Recursively listing all prefixes and objects in a bucket\fP
+.sp
+The following \fBls\fP command will recursively list objects in a bucket.  Rather than showing \fBPRE dirname/\fP in the output, all the content in a bucket will be listed in order.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3 ls s3://amzn\-s3\-demo\-bucket \e
+    \-\-recursive
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+2013\-09\-02 21:37:53         10 a.txt
+2013\-09\-02 21:37:53    2863288 foo.zip
+2013\-09\-02 21:32:57         23 foo/bar/.baz/a
+2013\-09\-02 21:32:58         41 foo/bar/.baz/b
+2013\-09\-02 21:32:57        281 foo/bar/.baz/c
+2013\-09\-02 21:32:57         73 foo/bar/.baz/d
+2013\-09\-02 21:32:57        452 foo/bar/.baz/e
+2013\-09\-02 21:32:57        896 foo/bar/.baz/hooks/bar
+2013\-09\-02 21:32:57        189 foo/bar/.baz/hooks/foo
+2013\-09\-02 21:32:57        398 z.txt
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBExample 5: Summarizing all prefixes and objects in a bucket\fP
+.sp
+The following \fBls\fP command demonstrates the same command using the \-\-human\-readable and \-\-summarize options. \-\-human\-readable displays file size in Bytes/MiB/KiB/GiB/TiB/PiB/EiB. \-\-summarize displays the total number of objects and total size at the end of the result listing:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3 ls s3://amzn\-s3\-demo\-bucket \e
+    \-\-recursive \e
+    \-\-human\-readable \e
+    \-\-summarize
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+2013\-09\-02 21:37:53   10 Bytes a.txt
+2013\-09\-02 21:37:53  2.9 MiB foo.zip
+2013\-09\-02 21:32:57   23 Bytes foo/bar/.baz/a
+2013\-09\-02 21:32:58   41 Bytes foo/bar/.baz/b
+2013\-09\-02 21:32:57  281 Bytes foo/bar/.baz/c
+2013\-09\-02 21:32:57   73 Bytes foo/bar/.baz/d
+2013\-09\-02 21:32:57  452 Bytes foo/bar/.baz/e
+2013\-09\-02 21:32:57  896 Bytes foo/bar/.baz/hooks/bar
+2013\-09\-02 21:32:57  189 Bytes foo/bar/.baz/hooks/foo
+2013\-09\-02 21:32:57  398 Bytes z.txt
+
+Total Objects: 10
+   Total Size: 2.9 MiB
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBExample 6: Listing from an S3 access point\fP
+.sp
+The following \fBls\fP command list objects from access point (\fBmyaccesspoint\fP):
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3 ls s3://arn:aws:s3:us\-west\-2:123456789012:accesspoint/myaccesspoint/
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+                           PRE somePrefix/
+2013\-07\-25 17:06:27         88 test.txt
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.\" Generated by docutils manpage writer.
+.

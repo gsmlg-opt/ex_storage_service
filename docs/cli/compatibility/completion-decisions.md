@@ -1,0 +1,13 @@
+# Registry-backed shell completion
+
+`CLI.Completion.generate/1` emits static literal scripts for bash, zsh, and fish. Its input is `CLI.Registry` for native commands, AWS high-level S3 commands, modeled S3API operations, waiters, nested native groups, global options and applicable per-command options. The scripts contain their required metadata; they do not call `ess` during tab completion, read configuration, invoke credentials, contact metadata services, or make requests.
+
+The scanner tracks command context, valued options before/after commands, inline values, supported short-option aliases, and the `--` terminator. Required option values are consumed without becoming subcommands. Optional values retain option completion when the next token begins with a dash. A selected command retains its options after positional operands. Boolean options expose accepted negative forms, including modeled S3API booleans. Registry enum/optional-enum choices support both separated values and `--name=value` completion.
+
+This provides command/option completion, not AWS CLI's entire interactive auto-prompt UI. Dynamic remote bucket/key suggestions, credential/profile/alias lookup, filesystem-value discovery, shorthand-member editing, combined short-option-group parsing, and all modeled enum values whose registry type remains opaque are not claimed. `ess completion SHELL` must remain an offline path in Runner; unsupported shells produce a typed syntax error. Re-generate scripts after upgrading because the emitted registry snapshot is static.
+
+Validation on Linux x86_64:
+
+- Scoped `completion_test.exs`: **7 tests, 0 failures**. Tests source the real generated scripts in installed bash/zsh, check syntax, nested native/AWS/waiter paths, command option applicability, boolean negation, flags after operands, separate/inline enum values, valued-option namespace confusion, terminators, literal shell metacharacters, and actual `COMP_WORDS` / zsh `words` wrapper dispatch.
+- Fish was absent from PATH, so `nix shell nixpkgs#fish --command fish --version` realized Fish 4.7.1 without changing repository dependencies. Its `--no-execute` syntax check passed. Seven actual candidate cases passed (nested alias, valued profile, command applicability, separate/inline enum, waiter option, terminator), and real `complete --do-complete 'ess s3api wait bucket-exists --buck'` returned `--bucket`.
+- Neither tests nor generation require storage servers or credentials. No live-provider or macOS-shell execution is claimed. Source-level generation uses the same current registry as the parser; final release artifact tests must also prove the installed `completion` command routes to this generator.

@@ -1,0 +1,539 @@
+{
+  "aws_cli_version": "2.31.18",
+  "aws_cli_source_revision": "f4f66e65e70f23f1bf232ecb4a6d8696f4dda3bc",
+  "ruamel_yaml_version": "0.17.21",
+  "source_sha256": {
+    "cliinput": "38f7f26608d60f321a180477d33e38b06ec691e92bbe4a0e512b6fe6c24ed361",
+    "formatter": "b7754fca42770a1449a22a2ba1744a27aac1fc18101c21766bb95376c67135c2"
+  },
+  "input": [
+    {
+      "name": "input-0",
+      "text": "",
+      "value": null
+    },
+    {
+      "name": "input-1",
+      "text": "null",
+      "value": null
+    },
+    {
+      "name": "input-2",
+      "text": "false",
+      "value": false
+    },
+    {
+      "name": "input-3",
+      "text": "42",
+      "value": 42
+    },
+    {
+      "name": "input-4",
+      "text": "hello",
+      "value": "hello"
+    },
+    {
+      "name": "input-5",
+      "text": "Bucket: sample\nKey: path/a\nMetadata: {first: one, second: two}\n",
+      "value": {
+        "Bucket": "sample",
+        "Key": "path/a",
+        "Metadata": {
+          "first": "one",
+          "second": "two"
+        }
+      }
+    },
+    {
+      "name": "input-6",
+      "text": "Delete:\n  Objects:\n  - Key: one\n  - Key: two\n  Quiet: false\n",
+      "value": {
+        "Delete": {
+          "Objects": [
+            {
+              "Key": "one"
+            },
+            {
+              "Key": "two"
+            }
+          ],
+          "Quiet": false
+        }
+      }
+    },
+    {
+      "name": "input-7",
+      "text": "value: [1, 2, false, null, \"\", {x: y}]\n",
+      "value": {
+        "value": [
+          1,
+          2,
+          false,
+          null,
+          "",
+          {
+            "x": "y"
+          }
+        ]
+      }
+    },
+    {
+      "name": "input-8",
+      "text": "value: \"escaped\\nline\\twith\\u263a\"\n",
+      "value": {
+        "value": "escaped\nline\twith☺"
+      }
+    },
+    {
+      "name": "input-9",
+      "text": "value: 'single ''quoted'' scalar'\n",
+      "value": {
+        "value": "single 'quoted' scalar"
+      }
+    },
+    {
+      "name": "input-10",
+      "text": "value: |\n  first\n  second\n",
+      "value": {
+        "value": "first\nsecond\n"
+      }
+    },
+    {
+      "name": "input-11",
+      "text": "value: |-\n  first\n  second\n",
+      "value": {
+        "value": "first\nsecond"
+      }
+    },
+    {
+      "name": "input-12",
+      "text": "value: |+\n  first\n\n",
+      "value": {
+        "value": "first\n\n"
+      }
+    },
+    {
+      "name": "input-13",
+      "text": "value: >\n  first\n  second\n",
+      "value": {
+        "value": "first second\n"
+      }
+    },
+    {
+      "name": "input-14",
+      "text": "value: >-\n  first\n\n  third\n",
+      "value": {
+        "value": "first\nthird"
+      }
+    },
+    {
+      "name": "input-15",
+      "text": "base: &base {x: 1, y: 2}\nvalue: {<<: *base, y: 3}\n",
+      "value": {
+        "base": {
+          "x": 1,
+          "y": 2
+        },
+        "value": {
+          "x": 1,
+          "y": 3
+        }
+      }
+    },
+    {
+      "name": "input-16",
+      "text": "base: &base\n  x: 1\n  y: 2\nvalue:\n  <<: *base\n  y: 3\n",
+      "value": {
+        "base": {
+          "x": 1,
+          "y": 2
+        },
+        "value": {
+          "x": 1,
+          "y": 3
+        }
+      }
+    },
+    {
+      "name": "input-17",
+      "text": "first: &first {x: 1, y: 2}\nsecond: &second {x: 3, z: 4}\nvalue: {<<: [*first, *second]}\n",
+      "value": {
+        "first": {
+          "x": 1,
+          "y": 2
+        },
+        "second": {
+          "x": 3,
+          "z": 4
+        },
+        "value": {
+          "x": 1,
+          "z": 4,
+          "y": 2
+        }
+      }
+    },
+    {
+      "name": "input-18",
+      "text": "value: {\"<<\": literal}\n",
+      "value": {
+        "value": {
+          "<<": "literal"
+        }
+      }
+    },
+    {
+      "name": "input-19",
+      "text": "value: !!str 123\n",
+      "value": {
+        "value": "123"
+      }
+    },
+    {
+      "name": "input-20",
+      "text": "value: !!int \"42\"\n",
+      "value": {
+        "value": 42
+      }
+    },
+    {
+      "name": "input-21",
+      "text": "value: !!float \"1.5\"\n",
+      "value": {
+        "value": 1.5
+      }
+    },
+    {
+      "name": "input-22",
+      "text": "value: !!bool \"true\"\n",
+      "value": {
+        "value": true
+      }
+    },
+    {
+      "name": "input-23",
+      "text": "value: !!null null\n",
+      "value": {
+        "value": null
+      }
+    },
+    {
+      "name": "input-24",
+      "text": "value: !!binary SGVsbG8=\n",
+      "value": {
+        "value": {
+          "__yaml_tag__": "binary",
+          "value": "SGVsbG8="
+        }
+      }
+    },
+    {
+      "name": "input-25",
+      "text": "value: 2024-01-02\n",
+      "value": {
+        "value": {
+          "__yaml_tag__": "date",
+          "value": "2024-01-02"
+        }
+      }
+    },
+    {
+      "name": "input-26",
+      "text": "value: 2024-01-02T03:04:05Z\n",
+      "value": {
+        "value": {
+          "__yaml_tag__": "timestamp",
+          "value": "2024-01-02T03:04:05Z"
+        }
+      }
+    },
+    {
+      "name": "input-27",
+      "text": "value: 2024-01-02 03:04:05.125 +02:30\n",
+      "value": {
+        "value": {
+          "__yaml_tag__": "timestamp",
+          "value": "2024-01-02T00:34:05.125000Z"
+        }
+      }
+    },
+    {
+      "name": "input-28",
+      "text": "value: !!timestamp 2024-01-02\n",
+      "value": {
+        "value": {
+          "__yaml_tag__": "date",
+          "value": "2024-01-02"
+        }
+      }
+    },
+    {
+      "name": "input-29",
+      "text": "value: \"2024-01-02\"\n",
+      "value": {
+        "value": "2024-01-02"
+      }
+    },
+    {
+      "name": "input-30",
+      "text": "value: yes\n",
+      "value": {
+        "value": "yes"
+      }
+    },
+    {
+      "name": "input-31",
+      "text": "value: on\n",
+      "value": {
+        "value": "on"
+      }
+    },
+    {
+      "name": "input-32",
+      "text": "value: 1_000\n",
+      "value": {
+        "value": 1000
+      }
+    },
+    {
+      "name": "input-33",
+      "text": "value: 0b1010\n",
+      "value": {
+        "value": 10
+      }
+    },
+    {
+      "name": "input-34",
+      "text": "value: 0o12\n",
+      "value": {
+        "value": 10
+      }
+    },
+    {
+      "name": "input-35",
+      "text": "value: 0xFF\n",
+      "value": {
+        "value": 255
+      }
+    },
+    {
+      "name": "input-36",
+      "text": "value: 1_000.25\n",
+      "value": {
+        "value": 1000.25
+      }
+    },
+    {
+      "name": "input-37",
+      "text": "value: 1e3\n",
+      "value": {
+        "value": 1000.0
+      }
+    },
+    {
+      "name": "input-38",
+      "text": "value: -.25\n",
+      "value": {
+        "value": -0.25
+      }
+    },
+    {
+      "name": "input-39",
+      "text": "value: 9007199254740993\n",
+      "value": {
+        "value": 9007199254740993
+      }
+    },
+    {
+      "name": "input-40",
+      "text": "%YAML 1.1\n---\nvalue: yes\n",
+      "value": {
+        "value": true
+      }
+    },
+    {
+      "name": "input-41",
+      "text": "%YAML 1.1\n---\nvalue: 012\n",
+      "value": {
+        "value": 10
+      }
+    },
+    {
+      "name": "input-42",
+      "text": "%YAML 1.1\n---\nvalue: 1:20\n",
+      "value": {
+        "value": 80
+      }
+    },
+    {
+      "name": "input-43",
+      "text": "key: one\nkey: two\n",
+      "error": true
+    },
+    {
+      "name": "input-44",
+      "text": "value: [unterminated\n",
+      "error": true
+    },
+    {
+      "name": "input-45",
+      "text": "value: !unsupported data\n",
+      "error": true
+    },
+    {
+      "name": "input-46",
+      "text": "value: *missing\n",
+      "error": true
+    },
+    {
+      "name": "input-47",
+      "text": "---\na: 1\n---\nb: 2\n",
+      "error": true
+    }
+  ],
+  "output": [
+    {
+      "name": "output-0",
+      "value": null,
+      "text": "null\n"
+    },
+    {
+      "name": "output-1",
+      "value": false,
+      "text": "false\n"
+    },
+    {
+      "name": "output-2",
+      "value": 42,
+      "text": "42\n"
+    },
+    {
+      "name": "output-3",
+      "value": 1.5,
+      "text": "1.5\n"
+    },
+    {
+      "name": "output-4",
+      "value": "hello",
+      "text": "\"hello\"\n"
+    },
+    {
+      "name": "output-5",
+      "value": "☃",
+      "text": "\"☃\"\n"
+    },
+    {
+      "name": "output-6",
+      "value": [],
+      "text": "[]\n"
+    },
+    {
+      "name": "output-7",
+      "value": {},
+      "text": "{}\n"
+    },
+    {
+      "name": "output-8",
+      "value": {
+        "a": null,
+        "b": [],
+        "c": {},
+        "d": false
+      },
+      "text": "a: null\nb: []\nc: {}\nd: false\n"
+    },
+    {
+      "name": "output-9",
+      "value": {
+        "Users": [
+          {
+            "UserName": "alice",
+            "CreateDate": "2024-01-02T03:04:05Z",
+            "Path": "/"
+          }
+        ]
+      },
+      "text": "Users:\n- CreateDate: '2024-01-02T03:04:05Z'\n  Path: /\n  UserName: alice\n"
+    },
+    {
+      "name": "output-10",
+      "value": {
+        "a": [
+          1,
+          null,
+          {
+            "x": false
+          }
+        ],
+        "b": "2024-01-01"
+      },
+      "text": "a:\n- 1\n- null\n- x: false\nb: '2024-01-01'\n"
+    },
+    {
+      "name": "output-11",
+      "value": {
+        "x": "1_000",
+        "y": "true",
+        "z": "a: b"
+      },
+      "text": "x: '1_000'\ny: 'true'\nz: 'a: b'\n"
+    },
+    {
+      "name": "output-12",
+      "value": {
+        "value": "multiline\ntext\n"
+      },
+      "text": "value: 'multiline\n\n  text\n\n  '\n"
+    },
+    {
+      "name": "output-13",
+      "value": {
+        "value": "first\n second"
+      },
+      "text": "value: \"first\\n second\"\n"
+    },
+    {
+      "name": "output-14",
+      "value": {
+        "value": "first\n\nthird"
+      },
+      "text": "value: 'first\n\n\n  third'\n"
+    },
+    {
+      "name": "output-15",
+      "value": {
+        "value": "a'b\nc"
+      },
+      "text": "value: 'a''b\n\n  c'\n"
+    },
+    {
+      "name": "output-16",
+      "value": {
+        "value": "a'b",
+        "other": "\\path"
+      },
+      "text": "other: \\path\nvalue: a'b\n"
+    },
+    {
+      "name": "output-17",
+      "value": {
+        "value": "\u0000 "
+      },
+      "text": "value: \"\\0\\N\\L\"\n"
+    },
+    {
+      "name": "output-18",
+      "value": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "text": "- - 1\n  - 2\n- - 3\n  - 4\n"
+    }
+  ]
+}

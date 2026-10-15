@@ -1,0 +1,20 @@
+{
+    "Body": null,
+    "Bucket": "",
+    "ContentLength": 0,
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "ChecksumCRC32": "",
+    "ChecksumCRC32C": "",
+    "ChecksumCRC64NVME": "",
+    "ChecksumSHA1": "",
+    "ChecksumSHA256": "",
+    "Key": "",
+    "PartNumber": 0,
+    "UploadId": "",
+    "SSECustomerAlgorithm": "",
+    "SSECustomerKey": "",
+    "SSECustomerKeyMD5": "",
+    "RequestPayer": "requester",
+    "ExpectedBucketOwner": ""
+}

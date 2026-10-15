@@ -1,0 +1,18 @@
+Name:
+   mc update - update mc to latest release
+
+USAGE:
+   mc update [FLAGS]
+
+FLAGS:
+  --json      enable JSON lines formatted output
+  --help, -h  show help
+  
+EXIT STATUS:
+  0 - you are already running the most recent version
+  1 - new update was applied successfully
+ -1 - error in getting update information
+
+EXAMPLES:
+  1. Check and update mc:
+     $ mc update

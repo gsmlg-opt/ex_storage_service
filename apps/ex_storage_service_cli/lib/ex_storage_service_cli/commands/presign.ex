@@ -5,6 +5,7 @@ defmodule ExStorageServiceCli.Commands.Presign do
 
   alias ExStorageServiceCli.SigV4
   alias ExStorageServiceCli.Output
+  alias ExStorageServiceCli.Commands.Failure
 
   def run(_command, args, ctx) do
     {opts, rest, _} =
@@ -26,29 +27,29 @@ defmodule ExStorageServiceCli.Commands.Presign do
 
         [] ->
           Output.error("Missing target. Usage: ess presign s3://bucket/key")
-          System.halt(1)
+          Failure.reported()
 
         _ ->
           Output.error("Too many arguments")
           help("presign")
-          System.halt(1)
+          Failure.reported()
       end
     end
   end
 
   def help(_command) do
     IO.puts("""
-    #{IO.ANSI.bright()}ess presign#{IO.ANSI.reset()} — Generate a presigned URL
+    #{Output.color(IO.ANSI.bright())}ess presign#{Output.color(IO.ANSI.reset())} — Generate a presigned URL
 
-    #{IO.ANSI.bright()}USAGE#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}USAGE#{Output.color(IO.ANSI.reset())}
         ess presign s3://<bucket>/<key> [options]
 
-    #{IO.ANSI.bright()}OPTIONS#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}OPTIONS#{Output.color(IO.ANSI.reset())}
         --expires <seconds>   Expiration time (default: 3600, max: 604800)
         --method <method>     HTTP method: GET or PUT (default: GET)
         -h, --help            Show help
 
-    #{IO.ANSI.bright()}EXAMPLES#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}EXAMPLES#{Output.color(IO.ANSI.reset())}
         ess presign s3://my-bucket/file.txt
         ess presign s3://my-bucket/file.txt --expires 86400
         ess presign s3://my-bucket/upload.txt --method PUT
@@ -56,27 +57,35 @@ defmodule ExStorageServiceCli.Commands.Presign do
   end
 
   defp generate_presigned_url(target, opts, ctx) do
-    unless ctx.access_key_id && ctx.secret_access_key do
+    if ctx.access_key_id && ctx.secret_access_key do
+      generate_signed_url(target, opts, ctx)
+    else
       Output.error("Access key and secret key are required for presigned URLs")
       Output.error("Run 'ess configure' or pass --access-key and --secret-key")
-      System.halt(1)
+      Failure.reported()
     end
+  end
 
+  defp generate_signed_url(target, opts, ctx) do
     {bucket, key} = parse_s3_path(target)
 
     if key == "" do
       Output.error("Object key is required. Usage: ess presign s3://bucket/key")
-      System.halt(1)
+      Failure.reported()
+    else
+      method = String.upcase(opts[:method] || "GET")
+      expires = opts[:expires] || 3600
+
+      if method in ["GET", "PUT", "HEAD", "DELETE"] do
+        print_signed_url(method, expires, bucket, key, ctx)
+      else
+        Output.error("Invalid method '#{method}'. Use GET, PUT, HEAD, or DELETE.")
+        Failure.reported()
+      end
     end
+  end
 
-    method = String.upcase(opts[:method] || "GET")
-    expires = opts[:expires] || 3600
-
-    unless method in ["GET", "PUT", "HEAD", "DELETE"] do
-      Output.error("Invalid method '#{method}'. Use GET, PUT, HEAD, or DELETE.")
-      System.halt(1)
-    end
-
+  defp print_signed_url(method, expires, bucket, key, ctx) do
     url = "#{ctx.endpoint}/#{bucket}/#{key}"
 
     presigned_url =

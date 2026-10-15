@@ -1,0 +1,224 @@
+{
+  "mc_commit": "77f82e18b5401a65958f1619df6ebb994634bd88",
+  "mc_sha256": "a62c4c85f9efbe5d07e03e2ff9923625fbf659a9f272a077a0cd846279f1ccc2",
+  "mc_version": "DEVELOPMENT.GOGET",
+  "runtime": "go1.26.6 linux/amd64",
+  "timezone": "Asia/Shanghai",
+  "cases": [
+    {
+      "args": [
+        "cat",
+        "--rewind",
+        "2026-10-15T00:00:00Z",
+        "fixture/bucket/top.txt"
+      ],
+      "exit": 0,
+      "stdout": "older",
+      "stderr": "",
+      "requests": [
+        [
+          "GET",
+          "/bucket/?location="
+        ],
+        [
+          "GET",
+          "/bucket/?delimiter=%2F&encoding-type=url&prefix=top.txt&versions="
+        ],
+        [
+          "GET",
+          "/bucket/top.txt?versionId=older"
+        ]
+      ]
+    },
+    {
+      "args": [
+        "cat",
+        "--rewind",
+        "2026-10-14T00:00:00Z",
+        "fixture/bucket/top.txt"
+      ],
+      "exit": 1,
+      "stdout": "{\"status\":\"error\",\"error\":{\"message\":\"Unable to read from `fixture/bucket/top.txt`.\",\"cause\":{\"message\":\"Object did not exist at `Wed, 14 Oct 2026 00:00:00 UTC`\",\"error\":{}},\"type\":\"fatal\"}}\n",
+      "stderr": "",
+      "requests": [
+        [
+          "GET",
+          "/bucket/?location="
+        ],
+        [
+          "GET",
+          "/bucket/?delimiter=%2F&encoding-type=url&prefix=top.txt&versions="
+        ]
+      ]
+    },
+    {
+      "args": [
+        "head",
+        "--rewind",
+        "2026-10-15T00:00:00Z",
+        "fixture/bucket/top.txt"
+      ],
+      "exit": 0,
+      "stdout": "older\n",
+      "stderr": "",
+      "requests": [
+        [
+          "GET",
+          "/bucket/?location="
+        ],
+        [
+          "GET",
+          "/bucket/?delimiter=%2F&encoding-type=url&prefix=top.txt&versions="
+        ],
+        [
+          "GET",
+          "/bucket/top.txt?versionId=older"
+        ]
+      ]
+    },
+    {
+      "args": [
+        "ls",
+        "--rewind",
+        "2026-10-15T00:00:00Z",
+        "fixture/bucket/"
+      ],
+      "exit": 0,
+      "stdout": "{\"status\":\"success\",\"type\":\"file\",\"lastModified\":\"2026-10-14T08:00:00+08:00\",\"size\":5,\"key\":\"top.txt\",\"etag\":\"e\",\"url\":\"http://127.0.0.1:46137/bucket/\",\"versionId\":\"older\",\"versionOrdinal\":1,\"storageClass\":\"STANDARD\"}\n{\"status\":\"success\",\"type\":\"file\",\"lastModified\":\"2026-10-14T08:00:00+08:00\",\"size\":5,\"key\":\"a/leaf\",\"etag\":\"e\",\"url\":\"http://127.0.0.1:46137/bucket/\",\"versionId\":\"a-old\",\"versionOrdinal\":1,\"storageClass\":\"STANDARD\"}\n{\"status\":\"success\",\"type\":\"file\",\"lastModified\":\"2026-10-14T20:00:00+08:00\",\"size\":0,\"key\":\"gone\",\"etag\":\"\",\"url\":\"http://127.0.0.1:46137/bucket/\",\"versionId\":\"deleted\",\"versionOrdinal\":2,\"isDeleteMarker\":true}\n",
+      "stderr": "",
+      "requests": [
+        [
+          "GET",
+          "/bucket/?location="
+        ],
+        [
+          "GET",
+          "/bucket/?delimiter=%2F&encoding-type=url&prefix=&versions="
+        ]
+      ]
+    },
+    {
+      "args": [
+        "ls",
+        "--versions",
+        "--rewind",
+        "2026-10-15T00:00:00Z",
+        "fixture/bucket/"
+      ],
+      "exit": 0,
+      "stdout": "{\"status\":\"success\",\"type\":\"file\",\"lastModified\":\"2026-10-14T08:00:00+08:00\",\"size\":5,\"key\":\"top.txt\",\"etag\":\"e\",\"url\":\"http://127.0.0.1:46137/bucket/\",\"versionId\":\"older\",\"versionOrdinal\":1,\"storageClass\":\"STANDARD\"}\n{\"status\":\"success\",\"type\":\"file\",\"lastModified\":\"2026-10-14T08:00:00+08:00\",\"size\":5,\"key\":\"a/leaf\",\"etag\":\"e\",\"url\":\"http://127.0.0.1:46137/bucket/\",\"versionId\":\"a-old\",\"versionOrdinal\":1,\"storageClass\":\"STANDARD\"}\n{\"status\":\"success\",\"type\":\"file\",\"lastModified\":\"2026-10-14T20:00:00+08:00\",\"size\":0,\"key\":\"gone\",\"etag\":\"\",\"url\":\"http://127.0.0.1:46137/bucket/\",\"versionId\":\"deleted\",\"versionOrdinal\":2,\"isDeleteMarker\":true}\n{\"status\":\"success\",\"type\":\"file\",\"lastModified\":\"2026-10-13T08:00:00+08:00\",\"size\":8,\"key\":\"gone\",\"etag\":\"e\",\"url\":\"http://127.0.0.1:46137/bucket/\",\"versionId\":\"gone-old\",\"versionOrdinal\":1,\"storageClass\":\"STANDARD\"}\n",
+      "stderr": "",
+      "requests": [
+        [
+          "GET",
+          "/bucket/?location="
+        ],
+        [
+          "GET",
+          "/bucket/?delimiter=%2F&encoding-type=url&prefix=&versions="
+        ]
+      ]
+    },
+    {
+      "args": [
+        "stat",
+        "--rewind",
+        "2026-10-15T00:00:00Z",
+        "fixture/bucket/top.txt"
+      ],
+      "exit": 0,
+      "stdout": "{\"status\":\"success\",\"name\":\"top.txt\",\"lastModified\":\"2026-10-14T08:00:00+08:00\",\"size\":5,\"etag\":\"e\",\"type\":\"file\",\"versionID\":\"older\"}\n",
+      "stderr": "",
+      "requests": [
+        [
+          "GET",
+          "/bucket/?location="
+        ],
+        [
+          "GET",
+          "/bucket/?delimiter=%2F&encoding-type=url&prefix=top.txt&versions="
+        ],
+        [
+          "GET",
+          "/bucket/?delimiter=%2F&encoding-type=url&prefix=top.txt&versions="
+        ]
+      ]
+    },
+    {
+      "args": [
+        "du",
+        "--rewind",
+        "2026-10-15T00:00:00Z",
+        "fixture/bucket/"
+      ],
+      "exit": 0,
+      "stdout": "{\"prefix\":\"bucket\",\"size\":18,\"objects\":3,\"status\":\"success\",\"isVersions\":false}\n",
+      "stderr": "",
+      "requests": [
+        [
+          "GET",
+          "/bucket/?location="
+        ],
+        [
+          "HEAD",
+          "/bucket/"
+        ],
+        [
+          "GET",
+          "/bucket/?delimiter=&encoding-type=url&prefix=&versions="
+        ]
+      ]
+    },
+    {
+      "args": [
+        "du",
+        "--versions",
+        "--rewind",
+        "2026-10-15T00:00:00Z",
+        "fixture/bucket/"
+      ],
+      "exit": 0,
+      "stdout": "{\"prefix\":\"bucket\",\"size\":18,\"objects\":3,\"status\":\"success\",\"isVersions\":true}\n",
+      "stderr": "",
+      "requests": [
+        [
+          "GET",
+          "/bucket/?location="
+        ],
+        [
+          "HEAD",
+          "/bucket/"
+        ],
+        [
+          "GET",
+          "/bucket/?delimiter=&encoding-type=url&prefix=&versions="
+        ]
+      ]
+    },
+    {
+      "args": [
+        "tree",
+        "--rewind",
+        "2026-10-15T00:00:00Z",
+        "fixture/bucket/"
+      ],
+      "exit": 0,
+      "stdout": "{\"status\":\"success\",\"type\":\"file\",\"lastModified\":\"2026-10-14T08:00:00+08:00\",\"size\":5,\"key\":\"top.txt\",\"etag\":\"e\",\"url\":\"http://127.0.0.1:46137/bucket/\",\"versionId\":\"older\",\"versionOrdinal\":1,\"storageClass\":\"STANDARD\"}\n{\"status\":\"success\",\"type\":\"file\",\"lastModified\":\"2026-10-14T08:00:00+08:00\",\"size\":5,\"key\":\"a/leaf\",\"etag\":\"e\",\"url\":\"http://127.0.0.1:46137/bucket/\",\"versionId\":\"a-old\",\"versionOrdinal\":1,\"storageClass\":\"STANDARD\"}\n{\"status\":\"success\",\"type\":\"file\",\"lastModified\":\"2026-10-14T20:00:00+08:00\",\"size\":0,\"key\":\"gone\",\"etag\":\"\",\"url\":\"http://127.0.0.1:46137/bucket/\",\"versionId\":\"deleted\",\"versionOrdinal\":2,\"isDeleteMarker\":true}\n",
+      "stderr": "",
+      "requests": [
+        [
+          "GET",
+          "/bucket/?location="
+        ],
+        [
+          "HEAD",
+          "/bucket/"
+        ],
+        [
+          "GET",
+          "/bucket/?delimiter=&encoding-type=url&prefix=&versions="
+        ]
+      ]
+    }
+  ]
+}

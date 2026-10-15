@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "artifact_sha256": "832080b5f9fe283360005f4faa7d8fd0966f076e5b216ed6b5080e3f69b2eba0",
+  "independent_aws": true,
+  "providers": [
+    {
+      "provider": "ess",
+      "endpoint": "http://127.0.0.1:38959",
+      "container_id": "a0a493b0b6fdad2f2dc96533652086394ed5fe1d5747cc8bac53b89d88a751e2",
+      "image_reference": "ghcr.io/gsmlg-dev/ess:0.6.7",
+      "image_id": "607bda66e90360b02cd79d40a57ec867ccfad6d0b45b44d43c40e0fee0593e6a",
+      "image_digests": [
+        "ghcr.io/gsmlg-dev/ess@sha256:59c6b85d2bc60a18660b1304c62b41479138c55aebb4078682f6b307fc85fb02",
+        "ghcr.io/gsmlg-dev/ess@sha256:6fe501daa558eacbc0f94cf20d221adb81e38cb05df4be87064e42d2001f8ed6"
+      ],
+      "checks": [
+        "authenticated create-bucket and environment alias",
+        "raw binary unusual-key API/AWS/native/highlevel roundtrip",
+        "raw gzip unusual-key API/AWS/native/highlevel roundtrip",
+        "raw deflate unusual-key API/AWS/native/highlevel roundtrip",
+        "native copy verification and unverified move source-preservation",
+        "9MiB multipart upload and independent AWS byte verification",
+        "five keys through two-item API pagination",
+        "sync upload/delete/exclude independently listed and downloaded",
+        "empty configuration-bucket versioning roundtrip",
+        "lifecycle document roundtrip independently read by AWS"
+      ],
+      "failures": [
+        {
+          "check": "independent AWS unusual-key inventory identity",
+          "error": "Provider inventory changed literal object keys; independent AWS results retained"
+        },
+        {
+          "check": "independent provider unusual-key and multi-delete boundaries",
+          "error": "Published ESS multi-delete boundary failure; independent results retained"
+        },
+        {
+          "check": "independent AWS Content-Encoding metadata retention",
+          "error": "Provider did not retain Content-Encoding=gzip; raw byte result recorded separately"
+        }
+      ],
+      "limitations": [
+        "Native unversioned move preserves the source because conditional deletion is unverified"
+      ],
+      "cleanup": [
+        {
+          "bucket": "ess-cli-probe-ess-141245ee234b-config",
+          "status": "removed"
+        },
+        {
+          "bucket": "ess-cli-probe-ess-141245ee234b",
+          "status": "fixture-only known-key cleanup",
+          "upstream_issue": 22
+        },
+        {
+          "bucket": "ess-cli-probe-ess-141245ee234b",
+          "status": "fixture-only individual cleanup",
+          "upstream_issue": 20
+        },
+        {
+          "bucket": "ess-cli-probe-ess-141245ee234b",
+          "status": "removed"
+        }
+      ],
+      "content_encoding": {
+        "binary": {
+          "requested": null,
+          "aws_head_content_encoding": null,
+          "raw_bytes_verified": true
+        },
+        "gzip": {
+          "requested": "gzip",
+          "aws_head_content_encoding": null,
+          "raw_bytes_verified": true
+        },
+        "deflate": {
+          "requested": "deflate",
+          "aws_head_content_encoding": null,
+          "raw_bytes_verified": true
+        }
+      },
+      "listed_raw_keys": {
+        "uploaded": [
+          "unusual/binary% +?#/\u96ea/bytes.bin",
+          "unusual/gzip% +?#/\u96ea/bytes.bin",
+          "unusual/deflate% +?#/\u96ea/bytes.bin"
+        ],
+        "listed_by_aws": [
+          "unusual/binary%  ?#/\u96ea/bytes.bin",
+          "unusual/deflate%  ?#/\u96ea/bytes.bin",
+          "unusual/gzip%  ?#/\u96ea/bytes.bin"
+        ]
+      },
+      "delete_boundary": {
+        "delete-ascii": {
+          "ess_status": 0,
+          "aws_status": 0,
+          "ess_error": "",
+          "aws_error": ""
+        },
+        "delete-\u96ea": {
+          "ess_status": 254,
+          "aws_status": 254,
+          "ess_error": "An error occurred (MalformedXML) when calling the DeleteObjects operation (reached max retries: 0): The XML you provided was not well-formed.\n",
+          "aws_error": "\nAn error occurred (MalformedXML) when calling the DeleteObjects operation (reached max retries: 0): The XML you provided was not well-formed.\n"
+        }
+      }
+    },
+    {
+      "provider": "rustfs",
+      "endpoint": "http://127.0.0.1:42623",
+      "container_id": "0b8e7fe7cf32c118ba3274ffd49cd664102e8ca7568518bef88c641f9c75f6ce",
+      "image_reference": "docker.io/rustfs/rustfs:1.0.1",
+      "image_id": "f6b22807f10db2aee80b8a9ed1e36bd12c2fba25ac2d98dc3b0332a23f1a5c4d",
+      "image_digests": [
+        "docker.io/rustfs/rustfs@sha256:1803faef57627e2d9c2e7d89d655d712ddded5389040054987163043fecb6a3c",
+        "docker.io/rustfs/rustfs@sha256:7465b31993156ca5cc0eb4b3c59a01ff69651961be62bcfeb6ce569f22034a56"
+      ],
+      "checks": [
+        "authenticated create-bucket and environment alias",
+        "raw binary unusual-key API/AWS/native/highlevel roundtrip",
+        "raw gzip unusual-key API/AWS/native/highlevel roundtrip",
+        "raw deflate unusual-key API/AWS/native/highlevel roundtrip",
+        "independent AWS unusual-key inventory identity",
+        "native copy verification and unverified move source-preservation",
+        "9MiB multipart upload and independent AWS byte verification",
+        "five keys through two-item API pagination",
+        "sync upload/delete/exclude independently listed and downloaded",
+        "independent AWS Content-Encoding metadata retention",
+        "native versioned move deletes only selected immutable source and preserves destination bytes",
+        "empty configuration-bucket versioning roundtrip",
+        "lifecycle document roundtrip independently read by AWS"
+      ],
+      "failures": [
+        {
+          "check": "independent provider unusual-key and multi-delete boundaries",
+          "error": "RustFS rejects dot-segment key; both executable results retained"
+        }
+      ],
+      "limitations": [
+        "Native unversioned move preserves the source because conditional deletion is unverified"
+      ],
+      "cleanup": [
+        {
+          "bucket": "ess-cli-probe-rustfs-8443dd295428-config",
+          "status": "removed"
+        },
+        {
+          "bucket": "ess-cli-probe-rustfs-8443dd295428",
+          "status": "removed"
+        }
+      ],
+      "content_encoding": {
+        "binary": {
+          "requested": null,
+          "aws_head_content_encoding": null,
+          "raw_bytes_verified": true
+        },
+        "gzip": {
+          "requested": "gzip",
+          "aws_head_content_encoding": "gzip",
+          "raw_bytes_verified": true
+        },
+        "deflate": {
+          "requested": "deflate",
+          "aws_head_content_encoding": "deflate",
+          "raw_bytes_verified": true
+        }
+      },
+      "listed_raw_keys": {
+        "uploaded": [
+          "unusual/binary% +?#/\u96ea/bytes.bin",
+          "unusual/gzip% +?#/\u96ea/bytes.bin",
+          "unusual/deflate% +?#/\u96ea/bytes.bin"
+        ],
+        "listed_by_aws": [
+          "unusual/binary% +?#/\u96ea/bytes.bin",
+          "unusual/deflate% +?#/\u96ea/bytes.bin",
+          "unusual/gzip% +?#/\u96ea/bytes.bin"
+        ]
+      },
+      "key_boundary": {
+        "key": "dot//./../key",
+        "ess_status": 254,
+        "aws_status": 254,
+        "ess_error": "An error occurred (InvalidArgument) when calling the PutObject operation (reached max retries: 0): Invalid argument\n",
+        "aws_error": "\nAn error occurred (InvalidArgument) when calling the PutObject operation (reached max retries: 0): Invalid argument\n"
+      }
+    }
+  ],
+  "aws_reference": {
+    "artifact_sha256": "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a",
+    "version": "aws-cli/2.31.18 Python/3.13.7 Linux/6.18.33 exe/x86_64.nixos.26"
+  }
+}

@@ -1,0 +1,1011 @@
+{
+  "schema_version": 1,
+  "aws_sha256": "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a",
+  "cases": [
+    {
+      "name": "ls-buckets",
+      "command": "ls",
+      "args": [
+        "s3",
+        "ls",
+        "--bucket-name-prefix",
+        "fi",
+        "--bucket-region",
+        "us-east-1",
+        "--page-size",
+        "2"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PExpc3RBbGxNeUJ1Y2tldHNSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5maXh0dXJlLembqjwvTmFtZT48Q3JlYXRpb25EYXRlPjIwMjYtMDEtMDJUMDM6MDQ6MDVaPC9DcmVhdGlvbkRhdGU+PC9CdWNrZXQ+PC9CdWNrZXRzPjwvTGlzdEFsbE15QnVja2V0c1Jlc3VsdD4="
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "2026-01-02 03:04:05 fixture-雪\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/?prefix=fi&bucket-region=us-east-1&max-buckets=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "ls-human-summary",
+      "command": "ls",
+      "args": [
+        "s3",
+        "ls",
+        "s3://bucket/p/",
+        "--recursive",
+        "--human-readable",
+        "--summarize",
+        "--page-size",
+        "2",
+        "--request-payer",
+        "requester"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+cC88L1ByZWZpeD48SXNUcnVuY2F0ZWQ+ZmFsc2U8L0lzVHJ1bmNhdGVkPjxDb250ZW50cz48S2V5PnAvemVybzwvS2V5PjxMYXN0TW9kaWZpZWQ+MjAyNi0wMS0wMlQwMzowNDowNVo8L0xhc3RNb2RpZmllZD48RVRhZz4iMTQ4NjQ1NmRhNmY1ZjU4MjAzMmFmZjQ1OTUzNzgzN2UiPC9FVGFnPjxTaXplPjA8L1NpemU+PFN0b3JhZ2VDbGFzcz5TVEFOREFSRDwvU3RvcmFnZUNsYXNzPjwvQ29udGVudHM+PENvbnRlbnRzPjxLZXk+cC9vbmU8L0tleT48TGFzdE1vZGlmaWVkPjIwMjYtMDEtMDJUMDM6MDQ6MDVaPC9MYXN0TW9kaWZpZWQ+PEVUYWc+IjE0ODY0NTZkYTZmNWY1ODIwMzJhZmY0NTk1Mzc4MzdlIjwvRVRhZz48U2l6ZT4xPC9TaXplPjxTdG9yYWdlQ2xhc3M+U1RBTkRBUkQ8L1N0b3JhZ2VDbGFzcz48L0NvbnRlbnRzPjxDb250ZW50cz48S2V5PnAvc2V2ZW48L0tleT48TGFzdE1vZGlmaWVkPjIwMjYtMDEtMDJUMDM6MDQ6MDVaPC9MYXN0TW9kaWZpZWQ+PEVUYWc+IjE0ODY0NTZkYTZmNWY1ODIwMzJhZmY0NTk1Mzc4MzdlIjwvRVRhZz48U2l6ZT43PC9TaXplPjxTdG9yYWdlQ2xhc3M+U1RBTkRBUkQ8L1N0b3JhZ2VDbGFzcz48L0NvbnRlbnRzPjxDb250ZW50cz48S2V5PnAva2liPC9LZXk+PExhc3RNb2RpZmllZD4yMDI2LTAxLTAyVDAzOjA0OjA1WjwvTGFzdE1vZGlmaWVkPjxFVGFnPiIxNDg2NDU2ZGE2ZjVmNTgyMDMyYWZmNDU5NTM3ODM3ZSI8L0VUYWc+PFNpemU+MTAyNDwvU2l6ZT48U3RvcmFnZUNsYXNzPlNUQU5EQVJEPC9TdG9yYWdlQ2xhc3M+PC9Db250ZW50cz48Q29udGVudHM+PEtleT5wL3RocmVzaG9sZDwvS2V5PjxMYXN0TW9kaWZpZWQ+MjAyNi0wMS0wMlQwMzowNDowNVo8L0xhc3RNb2RpZmllZD48RVRhZz4iMTQ4NjQ1NmRhNmY1ZjU4MjAzMmFmZjQ1OTUzNzgzN2UiPC9FVGFnPjxTaXplPjEwNDgwNjQ8L1NpemU+PFN0b3JhZ2VDbGFzcz5TVEFOREFSRDwvU3RvcmFnZUNsYXNzPjwvQ29udGVudHM+PC9MaXN0QnVja2V0UmVzdWx0Pg=="
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "2026-01-02 03:04:05    0 Bytes p/zero\n2026-01-02 03:04:05     1 Byte p/one\n2026-01-02 03:04:05    7 Bytes p/seven\n2026-01-02 03:04:05    1.0 KiB p/kib\n2026-01-02 03:04:05    1.0 MiB p/threshold\n\nTotal Objects: 5\n   Total Size: 1.0 MiB\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=p%2F&max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-request-payer": "requester",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "mb-regional",
+      "command": "mb",
+      "args": [
+        "s3",
+        "mb",
+        "s3://bucket",
+        "--region",
+        "us-west-2"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "etag": "\"1486456da6f5f582032aff459537837e\""
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "make_bucket: bucket\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket",
+            "headers": {
+              "x-amz-content-sha256": "a4a3d263179bfcbaf88755b14ea9db3048e4179c03bbc94ccf0f13c8c2d3df6a",
+              "content-length": "153"
+            },
+            "body_base64": "PENyZWF0ZUJ1Y2tldENvbmZpZ3VyYXRpb24geG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PExvY2F0aW9uQ29uc3RyYWludD51cy13ZXN0LTI8L0xvY2F0aW9uQ29uc3RyYWludD48L0NyZWF0ZUJ1Y2tldENvbmZpZ3VyYXRpb24+",
+            "xml_semantics": {
+              "name": "CreateBucketConfiguration",
+              "attributes": {},
+              "text": "",
+              "children": {
+                "LocationConstraint": [
+                  {
+                    "name": "LocationConstraint",
+                    "attributes": {},
+                    "text": "us-west-2",
+                    "children": {}
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "rb-empty",
+      "command": "rb",
+      "args": [
+        "s3",
+        "rb",
+        "s3://bucket"
+      ],
+      "responses": [
+        {
+          "status": 204,
+          "headers": {},
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "remove_bucket: bucket\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "DELETE",
+            "target": "/bucket",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "rb-force-empty",
+      "command": "rb",
+      "args": [
+        "s3",
+        "rb",
+        "s3://bucket",
+        "--force"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+cC88L1ByZWZpeD48SXNUcnVuY2F0ZWQ+ZmFsc2U8L0lzVHJ1bmNhdGVkPjwvTGlzdEJ1Y2tldFJlc3VsdD4="
+        },
+        {
+          "status": 204,
+          "headers": {},
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "remove_bucket: bucket\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "DELETE",
+            "target": "/bucket",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "rm-requester",
+      "command": "rm",
+      "args": [
+        "s3",
+        "rm",
+        "s3://bucket/p/% +?#/雪",
+        "--request-payer",
+        "requester"
+      ],
+      "responses": [
+        {
+          "status": 204,
+          "headers": {},
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "delete: s3://bucket/p/% +?#/雪\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "DELETE",
+            "target": "/bucket/p/%25%20%2B%3F%23/%E9%9B%AA",
+            "headers": {
+              "x-amz-request-payer": "requester",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "website-documents",
+      "command": "website",
+      "args": [
+        "s3",
+        "website",
+        "s3://bucket",
+        "--index-document",
+        "index.html",
+        "--error-document",
+        "error.html"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "etag": "\"1486456da6f5f582032aff459537837e\""
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket?website",
+            "headers": {
+              "x-amz-checksum-crc64nvme": "PaLPxW6eR3A=",
+              "x-amz-sdk-checksum-algorithm": "CRC64NVME",
+              "x-amz-content-sha256": "4fc00d9e2e032142387d372f490cf85fde56581d524aaa3cc9a6bc24002fb557",
+              "content-length": "203"
+            },
+            "body_base64": "PFdlYnNpdGVDb25maWd1cmF0aW9uIHhtbG5zPSJodHRwOi8vczMuYW1hem9uYXdzLmNvbS9kb2MvMjAwNi0wMy0wMS8iPjxJbmRleERvY3VtZW50PjxTdWZmaXg+aW5kZXguaHRtbDwvU3VmZml4PjwvSW5kZXhEb2N1bWVudD48RXJyb3JEb2N1bWVudD48S2V5PmVycm9yLmh0bWw8L0tleT48L0Vycm9yRG9jdW1lbnQ+PC9XZWJzaXRlQ29uZmlndXJhdGlvbj4=",
+            "xml_semantics": {
+              "name": "WebsiteConfiguration",
+              "attributes": {},
+              "text": "",
+              "children": {
+                "IndexDocument": [
+                  {
+                    "name": "IndexDocument",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "Suffix": [
+                        {
+                          "name": "Suffix",
+                          "attributes": {},
+                          "text": "index.html",
+                          "children": {}
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "ErrorDocument": [
+                  {
+                    "name": "ErrorDocument",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "Key": [
+                        {
+                          "name": "Key",
+                          "attributes": {},
+                          "text": "error.html",
+                          "children": {}
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "presign-unsigned",
+      "command": "presign",
+      "args": [
+        "s3",
+        "presign",
+        "s3://bucket/p/% +?#/雪",
+        "--expires-in",
+        "90",
+        "--no-sign-request"
+      ],
+      "responses": [],
+      "aws": {
+        "status": 0,
+        "stdout": "@ENDPOINT@/bucket/p/%25%20%2B%3F%23/%E9%9B%AA\n",
+        "stderr": "",
+        "requests": [],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "cp-upload-fields",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "@TMP@/source.bin",
+        "s3://bucket/p/% +?#/雪",
+        "--no-progress",
+        "--content-type",
+        "application/x-fixture",
+        "--content-encoding",
+        "gzip",
+        "--content-language",
+        "en",
+        "--content-disposition",
+        "attachment; filename=fixture.bin",
+        "--cache-control",
+        "max-age=60",
+        "--expires",
+        "2030-01-02T03:04:05Z",
+        "--metadata",
+        "owner=fixture,note=two words",
+        "--acl",
+        "private",
+        "--storage-class",
+        "STANDARD_IA",
+        "--sse",
+        "aws:kms",
+        "--sse-kms-key-id",
+        "fixture-kms-key",
+        "--checksum-algorithm",
+        "SHA256",
+        "--website-redirect",
+        "/new",
+        "--grants",
+        "read=id=first",
+        "read=uri=http://acs.amazonaws.com/groups/global/AllUsers",
+        "full=id=\"owner\""
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "etag": "\"1486456da6f5f582032aff459537837e\""
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "upload: ./source.bin to s3://bucket/p/% +?#/雪\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/p/%25%20%2B%3F%23/%E9%9B%AA",
+            "headers": {
+              "x-amz-acl": "private",
+              "x-amz-storage-class": "STANDARD_IA",
+              "x-amz-website-redirect-location": "/new",
+              "content-type": "application/x-fixture",
+              "cache-control": "max-age=60",
+              "content-disposition": "attachment; filename=fixture.bin",
+              "content-encoding": "gzip",
+              "content-language": "en",
+              "expires": "Wed, 02 Jan 2030 03:04:05 GMT",
+              "x-amz-grant-read": "uri=http://acs.amazonaws.com/groups/global/AllUsers",
+              "x-amz-grant-full-control": "id=\"owner\"",
+              "x-amz-meta-owner": "fixture",
+              "x-amz-meta-note": "two words",
+              "x-amz-server-side-encryption": "aws:kms",
+              "x-amz-server-side-encryption-aws-kms-key-id": "fixture-kms-key",
+              "x-amz-sdk-checksum-algorithm": "SHA256",
+              "expect": "100-continue",
+              "x-amz-checksum-sha256": "g3+lepvvra2cwHTwimUqhSh7/MAV+81hrTegVPmJQw8=",
+              "x-amz-content-sha256": "837fa57a9befadad9cc074f08a652a85287bfcc015fbcd61ad37a054f989430f",
+              "content-length": "9"
+            },
+            "body_base64": "Zml4dHVyZQD/"
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "cp-download-raw",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/% +?#/雪",
+        "@TMP@/result.bin",
+        "--no-progress",
+        "--checksum-mode",
+        "ENABLED",
+        "--request-payer",
+        "requester"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {
+            "etag": "\"1486456da6f5f582032aff459537837e\""
+          },
+          "body_base64": "Zml4dHVyZQD/"
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "download: s3://bucket/p/% +?#/雪 to ./result.bin\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/%25%20%2B%3F%23/%E9%9B%AA",
+            "headers": {
+              "x-amz-request-payer": "requester",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket/p/%25%20%2B%3F%23/%E9%9B%AA",
+            "headers": {
+              "x-amz-request-payer": "requester",
+              "x-amz-checksum-mode": "ENABLED",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "outfile_base64": "Zml4dHVyZQD/"
+      }
+    },
+    {
+      "name": "mv-server-copy",
+      "command": "mv",
+      "args": [
+        "s3",
+        "mv",
+        "s3://bucket/p/source",
+        "s3://bucket/p/destination",
+        "--copy-props",
+        "none",
+        "--no-progress",
+        "--source-region",
+        "us-west-2"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PENvcHlPYmplY3RSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PEVUYWc+IjE0ODY0NTZkYTZmNWY1ODIwMzJhZmY0NTk1Mzc4MzdlIjwvRVRhZz48TGFzdE1vZGlmaWVkPjIwMjYtMDEtMDJUMDM6MDQ6MDVaPC9MYXN0TW9kaWZpZWQ+PC9Db3B5T2JqZWN0UmVzdWx0Pg=="
+        },
+        {
+          "status": 204,
+          "headers": {},
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "move: s3://bucket/p/source to s3://bucket/p/destination\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/p/destination",
+            "headers": {
+              "x-amz-copy-source": "bucket/p/source",
+              "x-amz-metadata-directive": "REPLACE",
+              "x-amz-tagging-directive": "REPLACE",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "DELETE",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "cp-server-copy-none",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "s3://bucket/p/destination",
+        "--no-progress",
+        "--copy-props",
+        "none"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "content-type": "application/x-original",
+            "cache-control": "private",
+            "content-language": "en",
+            "x-amz-meta-preserved": "source"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PENvcHlPYmplY3RSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PEVUYWc+IjE0ODY0NTZkYTZmNWY1ODIwMzJhZmY0NTk1Mzc4MzdlIjwvRVRhZz48TGFzdE1vZGlmaWVkPjIwMjYtMDEtMDJUMDM6MDQ6MDVaPC9MYXN0TW9kaWZpZWQ+PC9Db3B5T2JqZWN0UmVzdWx0Pg=="
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "copy: s3://bucket/p/source to s3://bucket/p/destination\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/p/destination",
+            "headers": {
+              "x-amz-copy-source": "bucket/p/source",
+              "x-amz-metadata-directive": "REPLACE",
+              "x-amz-tagging-directive": "REPLACE",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "cp-server-copy-metadata-only",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "s3://bucket/p/destination",
+        "--no-progress",
+        "--copy-props",
+        "metadata-directive",
+        "--content-type",
+        "application/x-replaced"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "content-type": "application/x-original",
+            "cache-control": "private",
+            "content-language": "en",
+            "x-amz-meta-preserved": "source"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PENvcHlPYmplY3RSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PEVUYWc+IjE0ODY0NTZkYTZmNWY1ODIwMzJhZmY0NTk1Mzc4MzdlIjwvRVRhZz48TGFzdE1vZGlmaWVkPjIwMjYtMDEtMDJUMDM6MDQ6MDVaPC9MYXN0TW9kaWZpZWQ+PC9Db3B5T2JqZWN0UmVzdWx0Pg=="
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "copy: s3://bucket/p/source to s3://bucket/p/destination\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/p/destination",
+            "headers": {
+              "x-amz-copy-source": "bucket/p/source",
+              "content-type": "application/x-replaced",
+              "x-amz-metadata-directive": "REPLACE",
+              "cache-control": "private",
+              "content-language": "en",
+              "x-amz-meta-preserved": "source",
+              "x-amz-tagging-directive": "REPLACE",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "cp-server-copy-default-metadata",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "s3://bucket/p/destination",
+        "--no-progress",
+        "--metadata",
+        "new=two"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "content-type": "application/x-original",
+            "cache-control": "private",
+            "content-language": "en",
+            "x-amz-meta-preserved": "source"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PENvcHlPYmplY3RSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PEVUYWc+IjE0ODY0NTZkYTZmNWY1ODIwMzJhZmY0NTk1Mzc4MzdlIjwvRVRhZz48TGFzdE1vZGlmaWVkPjIwMjYtMDEtMDJUMDM6MDQ6MDVaPC9MYXN0TW9kaWZpZWQ+PC9Db3B5T2JqZWN0UmVzdWx0Pg=="
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "copy: s3://bucket/p/source to s3://bucket/p/destination\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/p/destination",
+            "headers": {
+              "x-amz-copy-source": "bucket/p/source",
+              "x-amz-meta-new": "two",
+              "x-amz-metadata-directive": "REPLACE",
+              "cache-control": "private",
+              "content-language": "en",
+              "content-type": "application/x-original",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "cp-server-copy-default",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "s3://bucket/p/destination",
+        "--no-progress"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "content-type": "application/x-original",
+            "cache-control": "private",
+            "content-language": "en",
+            "x-amz-meta-preserved": "source"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PENvcHlPYmplY3RSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PEVUYWc+IjE0ODY0NTZkYTZmNWY1ODIwMzJhZmY0NTk1Mzc4MzdlIjwvRVRhZz48TGFzdE1vZGlmaWVkPjIwMjYtMDEtMDJUMDM6MDQ6MDVaPC9MYXN0TW9kaWZpZWQ+PC9Db3B5T2JqZWN0UmVzdWx0Pg=="
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "copy: s3://bucket/p/source to s3://bucket/p/destination\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/p/destination",
+            "headers": {
+              "x-amz-copy-source": "bucket/p/source",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "cp-server-copy-directive-copy",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "s3://bucket/p/destination",
+        "--no-progress",
+        "--metadata-directive",
+        "COPY",
+        "--copy-props",
+        "none"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "content-type": "application/x-original",
+            "cache-control": "private",
+            "content-language": "en",
+            "x-amz-meta-preserved": "source"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PENvcHlPYmplY3RSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PEVUYWc+IjE0ODY0NTZkYTZmNWY1ODIwMzJhZmY0NTk1Mzc4MzdlIjwvRVRhZz48TGFzdE1vZGlmaWVkPjIwMjYtMDEtMDJUMDM6MDQ6MDVaPC9MYXN0TW9kaWZpZWQ+PC9Db3B5T2JqZWN0UmVzdWx0Pg=="
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "copy: s3://bucket/p/source to s3://bucket/p/destination\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/p/destination",
+            "headers": {
+              "x-amz-copy-source": "bucket/p/source",
+              "x-amz-metadata-directive": "COPY",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "cp-server-copy-directive-replace",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "s3://bucket/p/destination",
+        "--no-progress",
+        "--metadata-directive",
+        "REPLACE",
+        "--metadata",
+        "new=two"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "content-type": "application/x-original",
+            "cache-control": "private",
+            "content-language": "en",
+            "x-amz-meta-preserved": "source"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PENvcHlPYmplY3RSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PEVUYWc+IjE0ODY0NTZkYTZmNWY1ODIwMzJhZmY0NTk1Mzc4MzdlIjwvRVRhZz48TGFzdE1vZGlmaWVkPjIwMjYtMDEtMDJUMDM6MDQ6MDVaPC9MYXN0TW9kaWZpZWQ+PC9Db3B5T2JqZWN0UmVzdWx0Pg=="
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "copy: s3://bucket/p/source to s3://bucket/p/destination\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/p/destination",
+            "headers": {
+              "x-amz-copy-source": "bucket/p/source",
+              "x-amz-metadata-directive": "REPLACE",
+              "x-amz-meta-new": "two",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "sync-upload",
+      "command": "sync",
+      "args": [
+        "s3",
+        "sync",
+        "@TMP@/local/",
+        "s3://bucket/p/",
+        "--no-progress",
+        "--exclude",
+        "*",
+        "--include",
+        "*.bin",
+        "--size-only"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+cC88L1ByZWZpeD48SXNUcnVuY2F0ZWQ+ZmFsc2U8L0lzVHJ1bmNhdGVkPjwvTGlzdEJ1Y2tldFJlc3VsdD4="
+        },
+        {
+          "status": 200,
+          "headers": {
+            "etag": "\"1486456da6f5f582032aff459537837e\""
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "upload: local/file.bin to s3://bucket/p/file.bin\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=p%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/p/file.bin",
+            "headers": {
+              "x-amz-sdk-checksum-algorithm": "CRC64NVME",
+              "content-type": "application/octet-stream",
+              "expect": "100-continue",
+              "x-amz-checksum-crc64nvme": "4T3hFC0XGZY=",
+              "x-amz-content-sha256": "837fa57a9befadad9cc074f08a652a85287bfcc015fbcd61ad37a054f989430f",
+              "content-length": "9"
+            },
+            "body_base64": "Zml4dHVyZQD/"
+          }
+        ],
+        "peer_errors": []
+      }
+    }
+  ]
+}

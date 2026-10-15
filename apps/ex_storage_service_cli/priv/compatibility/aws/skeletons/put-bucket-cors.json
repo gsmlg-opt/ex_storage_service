@@ -1,0 +1,26 @@
+{
+    "Bucket": "",
+    "CORSConfiguration": {
+        "CORSRules": [
+            {
+                "ID": "",
+                "AllowedHeaders": [
+                    ""
+                ],
+                "AllowedMethods": [
+                    ""
+                ],
+                "AllowedOrigins": [
+                    ""
+                ],
+                "ExposeHeaders": [
+                    ""
+                ],
+                "MaxAgeSeconds": 0
+            }
+        ]
+    },
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "ExpectedBucketOwner": ""
+}

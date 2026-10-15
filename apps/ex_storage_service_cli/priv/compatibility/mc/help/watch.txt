@@ -1,0 +1,42 @@
+NAME:
+  mc watch - listen for object notification events
+
+USAGE:
+  mc watch [FLAGS] TARGET
+
+FLAGS:
+  --events value                   filter specific types of events; defaults to all events by default (default: "put,delete,get")
+  --prefix value                   filter events for a prefix
+  --suffix value                   filter events for a suffix
+  --recursive                      recursively watch for events
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Watch new S3 operations on a MinIO server
+     $ mc watch play/testbucket
+
+  2. Watch new events for a specific prefix "output/"  on MinIO server.
+     $ mc watch --prefix "output/" play/testbucket
+
+  3. Watch new events for a specific suffix ".jpg" on MinIO server.
+     $ mc watch --suffix ".jpg" play/testbucket
+
+  4. Watch new events on a specific prefix and suffix on MinIO server.
+     $ mc watch --suffix ".jpg" --prefix "photos/" play/testbucket
+
+  5. Site level watch (except new buckets created after running this command)
+     $ mc watch play/
+
+  6. Watch for events on local directory.
+     $ mc watch /usr/share

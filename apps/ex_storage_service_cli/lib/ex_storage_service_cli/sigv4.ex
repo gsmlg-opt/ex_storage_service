@@ -7,6 +7,8 @@ defmodule ExStorageServiceCli.SigV4 do
   """
 
   @algorithm "AWS4-HMAC-SHA256"
+  alias ExStorageServiceCli.S3.Encoding
+  @unsigned_headers ~w(authorization expect transfer-encoding user-agent x-amzn-trace-id)
 
   @doc """
   Signs an HTTP request and returns the headers to add.
@@ -23,6 +25,8 @@ defmodule ExStorageServiceCli.SigV4 do
       * `:region` - AWS region (default: "us-east-1")
       * `:service` - AWS service name (default: "s3")
       * `:now` - Override current time (for testing)
+      * `:payload_hash` - Precomputed SHA256 hex or `UNSIGNED-PAYLOAD` for streamed bodies
+      * `:session_token` - Temporary credential token
 
   ## Returns
 
@@ -41,18 +45,21 @@ defmodule ExStorageServiceCli.SigV4 do
     date_stamp = Calendar.strftime(now, "%Y%m%d")
     amz_date = Calendar.strftime(now, "%Y%m%dT%H%M%SZ")
 
-    # Build host header
     host = build_host(uri)
+    payload_hash = payload_hash(body, opts)
+    generated = [{"x-amz-date", amz_date}, {"host", host}]
 
-    # Merge host and x-amz-date into headers
+    generated =
+      if Keyword.get(opts, :include_content_sha256, true),
+        do: List.insert_at(generated, 1, {"x-amz-content-sha256", payload_hash}),
+        else: generated
+
+    generated = add_session_token(generated, opts)
+    replaced = Enum.map(generated, &elem(&1, 0))
+
     headers =
-      headers
-      |> ensure_header("host", host)
-      |> ensure_header("x-amz-date", amz_date)
-
-    # Compute payload hash
-    payload_hash = hash_payload(body)
-    headers = ensure_header(headers, "x-amz-content-sha256", payload_hash)
+      Enum.reject(headers, fn {key, _} -> String.downcase(to_string(key)) in replaced end) ++
+        generated
 
     # Build canonical request
     canonical_headers = build_canonical_headers(headers)
@@ -82,12 +89,7 @@ defmodule ExStorageServiceCli.SigV4 do
     authorization =
       "#{@algorithm} Credential=#{credential}, SignedHeaders=#{signed_headers}, Signature=#{signature}"
 
-    [
-      {"authorization", authorization},
-      {"x-amz-date", amz_date},
-      {"x-amz-content-sha256", payload_hash},
-      {"host", host}
-    ]
+    [{"authorization", authorization} | generated]
   end
 
   @doc """
@@ -96,13 +98,14 @@ defmodule ExStorageServiceCli.SigV4 do
   ## Parameters
 
     * `method` - HTTP method
-    * `url` - Base URL (without query params)
+    * `url` - Base URL, including any existing query pairs
     * `opts` - Options:
       * `:access_key_id` - required
       * `:secret_access_key` - required
       * `:region` - default "us-east-1"
       * `:expires` - seconds until expiry (default 3600)
       * `:now` - override time for testing
+      * `:session_token` - Temporary credential token
   """
   @spec presign_url(String.t(), String.t(), keyword()) :: String.t()
   def presign_url(method, url, opts) do
@@ -111,6 +114,11 @@ defmodule ExStorageServiceCli.SigV4 do
     region = Keyword.get(opts, :region, "us-east-1")
     service = Keyword.get(opts, :service, "s3")
     expires = Keyword.get(opts, :expires, 3600)
+
+    unless is_integer(expires) and expires in 1..604_800 do
+      raise ArgumentError, "presign expiry must be an integer between 1 and 604800 seconds"
+    end
+
     now = Keyword.get(opts, :now, DateTime.utc_now())
 
     uri = URI.parse(url)
@@ -121,39 +129,57 @@ defmodule ExStorageServiceCli.SigV4 do
     credential = "#{access_key_id}/#{date_stamp}/#{region}/#{service}/aws4_request"
     scope = "#{date_stamp}/#{region}/#{service}/aws4_request"
 
-    query_params = [
-      {"X-Amz-Algorithm", @algorithm},
-      {"X-Amz-Credential", credential},
-      {"X-Amz-Date", amz_date},
-      {"X-Amz-Expires", to_string(expires)},
-      {"X-Amz-SignedHeaders", "host"}
-    ]
+    query_params =
+      Encoding.query_pairs(uri.query) ++
+        [
+          {"X-Amz-Algorithm", @algorithm},
+          {"X-Amz-Credential", credential},
+          {"X-Amz-Date", amz_date},
+          {"X-Amz-Expires", to_string(expires)},
+          {"X-Amz-SignedHeaders", "host"}
+        ]
 
-    canonical_query =
-      query_params
-      |> Enum.sort()
-      |> Enum.map(fn {k, v} -> "#{URI.encode_www_form(k)}=#{URI.encode_www_form(v)}" end)
-      |> Enum.join("&")
+    query_params =
+      case Keyword.get(opts, :session_token) do
+        nil -> query_params
+        token -> query_params ++ [{opts[:session_token_query] || "X-Amz-Security-Token", token}]
+      end
+
+    canonical_query = Encoding.query(query_params)
 
     canonical_headers = "host:#{host}\n"
     signed_headers = "host"
     payload_hash = "UNSIGNED-PAYLOAD"
 
     canonical_request =
-      [method, uri.path || "/", canonical_query, canonical_headers, signed_headers, payload_hash]
+      [
+        method,
+        Encoding.url_path(uri.path),
+        canonical_query,
+        canonical_headers,
+        signed_headers,
+        payload_hash
+      ]
       |> Enum.join("\n")
 
     string_to_sign = build_string_to_sign(amz_date, scope, canonical_request)
     signing_key = derive_signing_key(secret_access_key, date_stamp, region, service)
     signature = hmac_hex(signing_key, string_to_sign)
 
-    "#{uri.scheme}://#{host}#{uri.path}?#{canonical_query}&X-Amz-Signature=#{signature}"
+    %{
+      uri
+      | path: Encoding.url_path(uri.path),
+        query: canonical_query <> "&X-Amz-Signature=" <> signature
+    }
+    |> URI.to_string()
   end
 
   # Private helpers
 
   defp build_host(%URI{host: host, port: port, scheme: scheme}) do
     default_port = if scheme == "https", do: 443, else: 80
+    host = String.downcase(host)
+    host = if String.contains?(host, ":"), do: "[#{host}]", else: host
 
     if port && port != default_port do
       "#{host}:#{port}"
@@ -162,29 +188,30 @@ defmodule ExStorageServiceCli.SigV4 do
     end
   end
 
-  defp ensure_header(headers, key, value) do
-    key_down = String.downcase(key)
+  defp add_session_token(headers, opts) do
+    case Keyword.get(opts, :session_token) do
+      nil ->
+        headers
 
-    if Enum.any?(headers, fn {k, _} -> String.downcase(k) == key_down end) do
-      headers
-    else
-      [{key, value} | headers]
+      token when is_binary(token) ->
+        headers ++ [{opts[:session_token_header] || "x-amz-security-token", token}]
+
+      _ ->
+        raise ArgumentError, "session_token must be a binary"
     end
   end
 
   defp build_canonical_headers(headers) do
     headers
-    |> Enum.map(fn {k, v} -> {String.downcase(k), String.trim(v)} end)
-    |> Enum.sort_by(fn {k, _} -> k end)
-    |> Enum.map(fn {k, v} -> "#{k}:#{v}\n" end)
+    |> canonical_header_pairs()
+    |> Enum.map(fn {k, values} -> "#{k}:#{Enum.join(values, ",")}\n" end)
     |> Enum.join()
   end
 
   defp build_signed_headers(headers) do
     headers
-    |> Enum.map(fn {k, _} -> String.downcase(k) end)
-    |> Enum.sort()
-    |> Enum.uniq()
+    |> canonical_header_pairs()
+    |> Enum.map(&elem(&1, 0))
     |> Enum.join(";")
   end
 
@@ -196,27 +223,48 @@ defmodule ExStorageServiceCli.SigV4 do
          signed_headers,
          payload_hash
        ) do
-    # URI-encode each path segment individually
-    canonical_path =
-      path
-      |> String.split("/")
-      |> Enum.map(&URI.encode/1)
-      |> Enum.join("/")
-
-    canonical_query = canonicalize_query(query)
+    canonical_path = Encoding.url_path(path)
+    canonical_query = query |> Encoding.query_pairs() |> Encoding.query()
 
     [method, canonical_path, canonical_query, canonical_headers, signed_headers, payload_hash]
     |> Enum.join("\n")
   end
 
-  defp canonicalize_query(""), do: ""
+  defp canonical_header_pairs(headers) do
+    headers
+    |> Enum.map(fn {key, value} ->
+      {String.downcase(to_string(key)), value |> to_string() |> String.split() |> Enum.join(" ")}
+    end)
+    |> Enum.reject(fn {key, _} -> key in @unsigned_headers end)
+    |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
+    |> Enum.sort_by(&elem(&1, 0))
+  end
 
-  defp canonicalize_query(query) do
-    query
-    |> URI.decode_query()
-    |> Enum.sort()
-    |> Enum.map(fn {k, v} -> "#{URI.encode_www_form(k)}=#{URI.encode_www_form(v)}" end)
-    |> Enum.join("&")
+  defp payload_hash(body, opts) do
+    case Keyword.fetch(opts, :payload_hash) do
+      :error ->
+        hash_payload(body)
+
+      {:ok, "UNSIGNED-PAYLOAD" = hash} ->
+        hash
+
+      {:ok, marker}
+      when marker in [
+             "STREAMING-UNSIGNED-PAYLOAD-TRAILER",
+             "STREAMING-AWS4-HMAC-SHA256-PAYLOAD",
+             "STREAMING-AWS4-HMAC-SHA256-PAYLOAD-TRAILER"
+           ] ->
+        marker
+
+      {:ok, hash} when is_binary(hash) ->
+        if Regex.match?(~r/\A[0-9a-fA-F]{64}\z/, hash),
+          do: String.downcase(hash),
+          else:
+            raise(ArgumentError, "payload_hash must be a SHA256 hex digest or UNSIGNED-PAYLOAD")
+
+      _ ->
+        raise ArgumentError, "payload_hash must be a SHA256 hex digest or UNSIGNED-PAYLOAD"
+    end
   end
 
   defp build_string_to_sign(amz_date, scope, canonical_request) do

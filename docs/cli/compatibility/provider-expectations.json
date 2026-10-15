@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "description": "Known failures are independent provider limitations for these immutable images, never full provider compatibility. Changes require review.",
+  "providers": {
+    "ess": {
+      "image_id": "607bda66e90360b02cd79d40a57ec867ccfad6d0b45b44d43c40e0fee0593e6a",
+      "image_digest": "sha256:59c6b85d2bc60a18660b1304c62b41479138c55aebb4078682f6b307fc85fb02",
+      "required_checks": [
+        "authenticated create-bucket and environment alias",
+        "raw binary unusual-key API/AWS/native/highlevel roundtrip",
+        "raw gzip unusual-key API/AWS/native/highlevel roundtrip",
+        "raw deflate unusual-key API/AWS/native/highlevel roundtrip",
+        "native copy verification and unverified move source-preservation",
+        "9MiB multipart upload and independent AWS byte verification",
+        "five keys through two-item API pagination",
+        "sync upload/delete/exclude independently listed and downloaded",
+        "empty configuration-bucket versioning roundtrip",
+        "lifecycle document roundtrip independently read by AWS"
+      ],
+      "known_failures": [
+        {
+          "check": "independent AWS unusual-key inventory identity",
+          "error": "Provider inventory changed literal object keys; independent AWS results retained"
+        },
+        {
+          "check": "independent provider unusual-key and multi-delete boundaries",
+          "error": "Published ESS multi-delete boundary failure; independent results retained"
+        },
+        {
+          "check": "independent AWS Content-Encoding metadata retention",
+          "error": "Provider did not retain Content-Encoding=gzip; raw byte result recorded separately"
+        }
+      ]
+    },
+    "rustfs": {
+      "image_id": "f6b22807f10db2aee80b8a9ed1e36bd12c2fba25ac2d98dc3b0332a23f1a5c4d",
+      "image_digest": "sha256:1803faef57627e2d9c2e7d89d655d712ddded5389040054987163043fecb6a3c",
+      "required_checks": [
+        "authenticated create-bucket and environment alias",
+        "raw binary unusual-key API/AWS/native/highlevel roundtrip",
+        "raw gzip unusual-key API/AWS/native/highlevel roundtrip",
+        "raw deflate unusual-key API/AWS/native/highlevel roundtrip",
+        "independent AWS unusual-key inventory identity",
+        "native copy verification and unverified move source-preservation",
+        "9MiB multipart upload and independent AWS byte verification",
+        "five keys through two-item API pagination",
+        "sync upload/delete/exclude independently listed and downloaded",
+        "independent AWS Content-Encoding metadata retention",
+        "native versioned move deletes only selected immutable source and preserves destination bytes",
+        "empty configuration-bucket versioning roundtrip",
+        "lifecycle document roundtrip independently read by AWS"
+      ],
+      "known_failures": [
+        {
+          "check": "independent provider unusual-key and multi-delete boundaries",
+          "error": "RustFS rejects dot-segment key; both executable results retained"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "source": "AWS CLI 2.31.18 tests/unit/botocore/test_eventstream.py",
+  "vectors": [
+    {
+      "name": "EMPTY_MESSAGE",
+      "frame_base64": "AAAAEAAAAAAFwkjrfZjI/w==",
+      "headers": {},
+      "payload_base64": ""
+    },
+    {
+      "name": "INT8_HEADER",
+      "frame_base64": "AAAAFwAAAAcphgFYBGJ5dGUC/8L4adw=",
+      "headers": {
+        "byte": -1
+      },
+      "payload_base64": ""
+    },
+    {
+      "name": "INT16_HEADER",
+      "frame_base64": "AAAAGQAAAAlxDpI+BXNob3J0A///sny2zA==",
+      "headers": {
+        "short": -1
+      },
+      "payload_base64": ""
+    },
+    {
+      "name": "INT32_HEADER",
+      "frame_base64": "AAAAHQAAAA2D4/DnB2ludGVnZXIE/////4uOEus=",
+      "headers": {
+        "integer": -1
+      },
+      "payload_base64": ""
+    },
+    {
+      "name": "INT64_HEADER",
+      "frame_base64": "AAAAHgAAAA5dStuNBGxvbmcF//////////9LwjLa",
+      "headers": {
+        "long": -1
+      },
+      "payload_base64": ""
+    },
+    {
+      "name": "PAYLOAD_NO_HEADERS",
+      "frame_base64": "AAAAHQAAAAD9Uoxaeydmb28nOidiYXInfcNlOTY=",
+      "headers": {},
+      "payload_base64": "eydmb28nOidiYXInfQ=="
+    },
+    {
+      "name": "PAYLOAD_ONE_STR_HEADER",
+      "frame_base64": "AAAAPQAAACAH/YOWDGNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb257J2Zvbyc6J2Jhcid9jZwIsQ==",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "payload_base64": "eydmb28nOidiYXInfQ=="
+    },
+    {
+      "name": "ALL_HEADERS_TYPES",
+      "frame_base64": "AAAAYgAAAFIDtcucATAAATEBATICAgEzAwADATQEAAAABAE1BQAAAAAAAAAFATYGAAVieXRlcwE3BwAEdXRmOAE4CAAAAAAAAAAIATkJMDEyMzQ1Njc4OWFiY2RlZmM1NnE=",
+      "headers": {
+        "0": true,
+        "1": false,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": "bytes",
+        "7": "utf8",
+        "8": 8,
+        "9": "0123456789abcdef"
+      },
+      "payload_base64": ""
+    },
+    {
+      "name": "ERROR_EVENT_MESSAGE",
+      "frame_base64": "AAAAUgAAAEK/I2N+DTptZXNzYWdlLXR5cGUHAAVlcnJvcgs6ZXJyb3ItY29kZQcABGNvZGUOOmVycm9yLW1lc3NhZ2UHAAdtZXNzYWdla2zqPQ==",
+      "headers": {
+        ":message-type": "error",
+        ":error-code": "code",
+        ":error-message": "message"
+      },
+      "payload_base64": ""
+    }
+  ]
+}

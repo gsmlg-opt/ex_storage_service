@@ -4,7 +4,9 @@ defmodule ExStorageServiceCli.Commands.Tree do
   """
 
   alias ExStorageServiceCli.Output
+  alias ExStorageServiceCli.Commands.Failure
   alias ExStorageServiceCli.S3Client
+  alias ExStorageServiceCli.Error
 
   def run(_command, args, ctx) do
     {opts, rest, _} =
@@ -32,31 +34,31 @@ defmodule ExStorageServiceCli.Commands.Tree do
 
         [] ->
           Output.error("Missing target. Usage: ess tree s3://bucket[/prefix]")
-          System.halt(1)
+          Failure.reported()
 
         _ ->
           Output.error("Too many arguments")
           help("tree")
-          System.halt(1)
+          Failure.reported()
       end
     end
   end
 
   def help(_command) do
     IO.puts("""
-    #{IO.ANSI.bright()}ess tree#{IO.ANSI.reset()} — Display objects as a directory tree
+    #{Output.color(IO.ANSI.bright())}ess tree#{Output.color(IO.ANSI.reset())} — Display objects as a directory tree
 
-    #{IO.ANSI.bright()}USAGE#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}USAGE#{Output.color(IO.ANSI.reset())}
         ess tree <bucket>
         ess tree <bucket>/<prefix>
         ess tree s3://<bucket>/<prefix>
 
-    #{IO.ANSI.bright()}OPTIONS#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}OPTIONS#{Output.color(IO.ANSI.reset())}
         --prefix <prefix>     Filter by prefix
         --max-keys <n>        Page size for ListObjectsV2 requests (default: 1000)
         --json                Output tree lines and objects in JSON format
 
-    #{IO.ANSI.bright()}EXAMPLES#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}EXAMPLES#{Output.color(IO.ANSI.reset())}
         ess tree my-bucket
         ess tree my-bucket/images/
         ess tree s3://my-bucket/docs/
@@ -94,25 +96,52 @@ defmodule ExStorageServiceCli.Commands.Tree do
 
       {:error, reason} ->
         Output.error("Failed to list objects in '#{bucket}': #{Output.format_error(reason)}")
-        System.halt(1)
+        Failure.reported()
     end
   end
 
   defp list_all_objects(client, bucket, prefix, max_keys) do
-    list_all_objects_paginated(client, bucket, prefix, max_keys, nil, [])
+    list_all_objects_paginated(client, bucket, prefix, max_keys, nil, [], MapSet.new())
   end
 
-  defp list_all_objects_paginated(client, bucket, prefix, max_keys, token, acc) do
+  defp list_all_objects_paginated(client, bucket, prefix, max_keys, token, acc, seen) do
     opts = [prefix: prefix, max_keys: max_keys]
     opts = if token, do: opts ++ [continuation_token: token], else: opts
 
     case S3Client.list_objects(client, bucket, opts) do
-      {:ok, %{contents: contents, is_truncated: true, next_continuation_token: next_token}}
-      when is_binary(next_token) and next_token != "" ->
-        list_all_objects_paginated(client, bucket, prefix, max_keys, next_token, acc ++ contents)
+      {:ok, %{contents: contents} = page} ->
+        next = page[:next_continuation_token]
 
-      {:ok, %{contents: contents}} ->
-        {:ok, acc ++ contents}
+        cond do
+          length(acc) + length(contents) > 1000 ->
+            {:error,
+             Error.new(
+               :client,
+               "Legacy tree exceeds 1000 objects; use --limit with --output for bounded inspection",
+               code: :result_limit
+             )}
+
+          page[:is_truncated] and
+              (not is_binary(next) or next == "" or MapSet.member?(seen, next)) ->
+            {:error,
+             Error.new(:protocol, "Tree listing has a missing or repeated continuation token",
+               code: :pagination_cycle
+             )}
+
+          page[:is_truncated] ->
+            list_all_objects_paginated(
+              client,
+              bucket,
+              prefix,
+              max_keys,
+              next,
+              acc ++ contents,
+              MapSet.put(seen, next)
+            )
+
+          true ->
+            {:ok, acc ++ contents}
+        end
 
       {:error, reason} ->
         {:error, reason}

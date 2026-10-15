@@ -1,0 +1,50 @@
+NAME:
+  mc ilm edit - modify a lifecycle configuration rule with given id
+
+USAGE:
+  mc ilm edit [COMMAND FLAGS] TARGET
+
+FLAGS:
+  --id value                          id of the rule to be modified
+  --disable                           disable the rule
+  --enable                            enable the rule
+  --prefix value                      object prefix
+  --tags value                        key value pairs of the form '<key1>=<value1>&<key2>=<value2>&<key3>=<value3>'
+  --size-lt value                     objects with size less than this value will be selected for the lifecycle action
+  --size-gt value                     objects with size greater than this value will be selected for the lifecycle action
+  --expire-days value                 number of days to expire
+  --expire-delete-marker              expire zombie delete markers
+  --transition-days value             number of days to transition
+  --transition-tier value             remote tier name to transition
+  --noncurrent-expire-days value      number of days to expire noncurrent versions
+  --noncurrent-expire-newer value     number of newer noncurrent versions to retain (default: 0)
+  --noncurrent-transition-days value  number of days to transition noncurrent versions (default: 0)
+  --noncurrent-transition-tier value  remote tier name to transition
+  --expire-all-object-versions        expire all object versions
+  --config-dir value, -C value        path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                         disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp               disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                          disable color theme [$MC_NO_COLOR]
+  --json                              enable JSON lines formatted output [$MC_JSON]
+  --debug                             enable debug output [$MC_DEBUG]
+  --resolve value                     resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                          disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value                limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value              limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value     add custom HTTP header to the request. 'key:value' format.
+  --help, -h                          show help
+  
+DESCRIPTION:
+  Modify a lifecycle configuration rule with given id.
+
+EXAMPLES:
+  1. Modify the expiration date for an existing rule with id "rHTY.a123".
+     $ mc ilm edit --id "rHTY.a123" --expiry-date "2020-09-17" s3/mybucket
+
+  2. Modify the expiration and transition days for an existing rule with id "hGHKijqpo123".
+     $ mc ilm edit --id "hGHKijqpo123" --expiry-days "300" \
+          --transition-days "200" --storage-class "GLACIER" s3/mybucket
+
+  3. Disable the rule with id "rHTY.a123".
+     $ mc ilm edit --id "rHTY.a123" --disable s3/mybucket
+

@@ -1,0 +1,43 @@
+{
+  "reference_commit": "77f82e18b5401a65958f1619df6ebb994634bd88",
+  "binary_sha256": "a62c4c85f9efbe5d07e03e2ff9923625fbf659a9f272a077a0cd846279f1ccc2",
+  "cutoff": "2026-01-01T00:00:00Z",
+  "cases": [
+    {
+      "flag": "older-than",
+      "mtime_delta_seconds": -1,
+      "exit_code": 0,
+      "copied": true
+    },
+    {
+      "flag": "older-than",
+      "mtime_delta_seconds": 0,
+      "exit_code": 0,
+      "copied": false
+    },
+    {
+      "flag": "older-than",
+      "mtime_delta_seconds": 1,
+      "exit_code": 0,
+      "copied": false
+    },
+    {
+      "flag": "newer-than",
+      "mtime_delta_seconds": -1,
+      "exit_code": 0,
+      "copied": false
+    },
+    {
+      "flag": "newer-than",
+      "mtime_delta_seconds": 0,
+      "exit_code": 0,
+      "copied": true
+    },
+    {
+      "flag": "newer-than",
+      "mtime_delta_seconds": 1,
+      "exit_code": 0,
+      "copied": true
+    }
+  ]
+}

@@ -1,0 +1,445 @@
+{
+  "mc_commit": "77f82e18b5401a65958f1619df6ebb994634bd88",
+  "mc_sha256": "a62c4c85f9efbe5d07e03e2ff9923625fbf659a9f272a077a0cd846279f1ccc2",
+  "mc_version": "DEVELOPMENT.GOGET",
+  "runtime": "go1.26.6 linux/amd64",
+  "cases": [
+    {
+      "args": [
+        "legalhold",
+        "set",
+        "fixture/bucket/key"
+      ],
+      "exit": 0,
+      "stdout": "{\"legalhold\":\"ON\",\"urlpath\":\"http://127.0.0.1:45621/bucket/key\",\"key\":\"key\",\"versionID\":\"\",\"status\":\"success\"}\n",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?object-lock=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "PUT",
+          "target": "/bucket/key?legal-hold=",
+          "body": "<LegalHold><Status>ON</Status></LegalHold>",
+          "bypass": null
+        }
+      ]
+    },
+    {
+      "args": [
+        "legalhold",
+        "clear",
+        "--vid",
+        "v1",
+        "fixture/bucket/key"
+      ],
+      "exit": 0,
+      "stdout": "{\"legalhold\":\"OFF\",\"urlpath\":\"http://127.0.0.1:45621/bucket/key\",\"key\":\"key\",\"versionID\":\"v1\",\"status\":\"success\"}\n",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?object-lock=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "PUT",
+          "target": "/bucket/key?legal-hold=&versionId=v1",
+          "body": "<LegalHold><Status>OFF</Status></LegalHold>",
+          "bypass": null
+        }
+      ]
+    },
+    {
+      "args": [
+        "legalhold",
+        "info",
+        "fixture/bucket/key"
+      ],
+      "exit": 0,
+      "stdout": "{\"legalhold\":\"ON\",\"urlpath\":\"http://127.0.0.1:45621/bucket/key\",\"key\":\"key\",\"versionID\":\"\",\"status\":\"success\"}\n",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?object-lock=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/key?legal-hold=",
+          "body": "",
+          "bypass": null
+        }
+      ]
+    },
+    {
+      "args": [
+        "legalhold",
+        "set",
+        "--rewind",
+        "2026-10-15T00:00:00Z",
+        "fixture/bucket/key"
+      ],
+      "exit": 0,
+      "stdout": "{\"legalhold\":\"ON\",\"urlpath\":\"http://127.0.0.1:45621/bucket/key\",\"key\":\"key\",\"versionID\":\"\",\"status\":\"success\"}\n",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?object-lock=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "PUT",
+          "target": "/bucket/key?legal-hold=",
+          "body": "<LegalHold><Status>ON</Status></LegalHold>",
+          "bypass": null
+        }
+      ]
+    },
+    {
+      "args": [
+        "legalhold",
+        "set",
+        "--versions",
+        "--rewind",
+        "2026-10-15T00:00:00Z",
+        "fixture/bucket/key"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?object-lock=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?delimiter=%2F&encoding-type=url&prefix=key&versions=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "PUT",
+          "target": "/bucket/key?legal-hold=&versionId=v1",
+          "body": "<LegalHold><Status>ON</Status></LegalHold>",
+          "bypass": null
+        }
+      ]
+    },
+    {
+      "args": [
+        "retention",
+        "set",
+        "governance",
+        "30d",
+        "fixture/bucket/key"
+      ],
+      "exit": 0,
+      "stdout": "{\"op\":\"set\",\"mode\":\"GOVERNANCE\",\"validity\":\"\",\"urlpath\":\"fixture/bucket/key\",\"versionID\":\"\",\"status\":\"success\",\"error\":null}\n",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?object-lock=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "PUT",
+          "target": "/bucket/key?retention=",
+          "body": "<Retention><Mode>GOVERNANCE</Mode><RetainUntilDate>2026-11-14T11:24:29Z</RetainUntilDate></Retention>",
+          "bypass": null
+        }
+      ]
+    },
+    {
+      "args": [
+        "retention",
+        "set",
+        "--bypass",
+        "compliance",
+        "1y",
+        "fixture/bucket/key"
+      ],
+      "exit": 0,
+      "stdout": "{\"op\":\"set\",\"mode\":\"COMPLIANCE\",\"validity\":\"\",\"urlpath\":\"fixture/bucket/key\",\"versionID\":\"\",\"status\":\"success\",\"error\":null}\n",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?object-lock=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "PUT",
+          "target": "/bucket/key?retention=",
+          "body": "<Retention><Mode>COMPLIANCE</Mode><RetainUntilDate>2027-10-15T11:24:29Z</RetainUntilDate></Retention>",
+          "bypass": "true"
+        }
+      ]
+    },
+    {
+      "args": [
+        "retention",
+        "clear",
+        "fixture/bucket/key"
+      ],
+      "exit": 0,
+      "stdout": "{\"op\":\"clear\",\"mode\":\"\",\"validity\":\"\",\"urlpath\":\"fixture/bucket/key\",\"versionID\":\"\",\"status\":\"success\",\"error\":null}\n",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?object-lock=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "PUT",
+          "target": "/bucket/key?retention=",
+          "body": "<Retention></Retention>",
+          "bypass": "true"
+        }
+      ]
+    },
+    {
+      "args": [
+        "retention",
+        "info",
+        "--vid",
+        "v1",
+        "fixture/bucket/key"
+      ],
+      "exit": 0,
+      "stdout": "{\"mode\":\"GOVERNANCE\",\"until\":\"2030-01-01T00:00:00Z\",\"urlpath\":\"fixture/bucket/key\",\"versionID\":\"v1\",\"status\":\"success\",\"error\":null}\n",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?object-lock=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/key?retention=&versionId=v1",
+          "body": "",
+          "bypass": null
+        }
+      ]
+    },
+    {
+      "args": [
+        "retention",
+        "set",
+        "--default",
+        "governance",
+        "30d",
+        "fixture/bucket/"
+      ],
+      "exit": 0,
+      "stdout": "{\"op\":\"set\",\"enabled\":\"Enabled\",\"mode\":\"GOVERNANCE\",\"validity\":\"30DAYS\",\"status\":\"success\"}\n",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "PUT",
+          "target": "/bucket/?object-lock=",
+          "body": "<ObjectLockConfiguration><ObjectLockEnabled>Enabled</ObjectLockEnabled><Rule><DefaultRetention><Mode>GOVERNANCE</Mode><Days>30</Days></DefaultRetention></Rule></ObjectLockConfiguration>",
+          "bypass": null
+        }
+      ]
+    },
+    {
+      "args": [
+        "retention",
+        "clear",
+        "--default",
+        "fixture/bucket/"
+      ],
+      "exit": 0,
+      "stdout": "{\"op\":\"clear\",\"enabled\":\"Enabled\",\"mode\":\"\",\"validity\":\"0\",\"status\":\"success\"}\n",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?object-lock=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "PUT",
+          "target": "/bucket/?object-lock=",
+          "body": "<ObjectLockConfiguration><ObjectLockEnabled>Enabled</ObjectLockEnabled></ObjectLockConfiguration>",
+          "bypass": null
+        }
+      ]
+    },
+    {
+      "args": [
+        "retention",
+        "info",
+        "--default",
+        "fixture/bucket/"
+      ],
+      "exit": 0,
+      "stdout": "{\"op\":\"info\",\"enabled\":\"Enabled\",\"mode\":\"GOVERNANCE\",\"validity\":\"30DAYS\",\"status\":\"success\"}\n",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?object-lock=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?object-lock=",
+          "body": "",
+          "bypass": null
+        }
+      ]
+    },
+    {
+      "args": [
+        "retention",
+        "set",
+        "governance",
+        "0d",
+        "fixture/bucket/key"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "mc: <ERROR> invalid validity '0'\n",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?object-lock=",
+          "body": "",
+          "bypass": null
+        }
+      ]
+    },
+    {
+      "args": [
+        "retention",
+        "set",
+        "governance",
+        "1D",
+        "fixture/bucket/key"
+      ],
+      "exit": 0,
+      "stdout": "{\"op\":\"set\",\"mode\":\"GOVERNANCE\",\"validity\":\"\",\"urlpath\":\"fixture/bucket/key\",\"versionID\":\"\",\"status\":\"success\",\"error\":null}\n",
+      "stderr": "",
+      "requests": [
+        {
+          "method": "GET",
+          "target": "/bucket/?location=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "GET",
+          "target": "/bucket/?object-lock=",
+          "body": "",
+          "bypass": null
+        },
+        {
+          "method": "PUT",
+          "target": "/bucket/key?retention=",
+          "body": "<Retention><Mode>GOVERNANCE</Mode><RetainUntilDate>2026-10-16T11:24:29Z</RetainUntilDate></Retention>",
+          "bypass": null
+        }
+      ]
+    }
+  ]
+}

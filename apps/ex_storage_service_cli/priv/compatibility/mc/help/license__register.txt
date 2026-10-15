@@ -1,0 +1,41 @@
+NAME:
+  mc license register - register with MinIO Subscription Network
+
+USAGE:
+  mc license register TARGET
+
+FLAGS:
+  --name value                     Specify the name to associate to this MinIO cluster in SUBNET
+  --license value                  license of the account on SUBNET
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --airgap                         use in environments without network access to SUBNET (e.g. airgapped, firewalled, etc.)
+  --api-key value                  API Key of the account on SUBNET [$_MC_SUBNET_API_KEY]
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Register MinIO cluster at alias 'play' on SUBNET, using api key for auth
+     $ mc license register play --api-key 08efc836-4289-dbd4-ad82-b5e8b6d25577
+
+  2. Register MinIO cluster at alias 'play' on SUBNET, using license file ./minio.license
+     $ mc license register play --license ./minio.license
+
+  3. Register MinIO cluster at alias 'play' on SUBNET, using api key for auth,
+     and "play-cluster" as the preferred name for the cluster on SUBNET.
+     $ mc license register play --api-key 08efc836-4289-dbd4-ad82-b5e8b6d25577 --name play-cluster
+
+  4. Register MinIO cluster at alias 'play' on SUBNET in an airgapped environment
+     $ mc license register play --airgap
+
+  5. Register MinIO cluster at alias 'play' on SUBNET, using alias as the cluster name.
+     This asks for SUBNET credentials if the cluster is not already registered.
+     $ mc license register play

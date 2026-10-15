@@ -1,0 +1,64 @@
+package cmd
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/minio/cli"
+	"os"
+)
+
+func ESSCapture() {
+	flag := func(f cli.Flag) map[string]interface{} {
+		b, err := json.Marshal(f)
+		if err != nil {
+			panic(err)
+		}
+		var data map[string]interface{}
+		if err = json.Unmarshal(b, &data); err != nil {
+			panic(err)
+		}
+		return map[string]interface{}{"type": fmt.Sprintf("%T", f), "definition": data, "help": f.String()}
+	}
+	flags := func(fs []cli.Flag) []map[string]interface{} {
+		result := []map[string]interface{}{}
+		for _, f := range fs {
+			result = append(result, flag(f))
+		}
+		return result
+	}
+	implicit := func(rows []map[string]interface{}, f cli.Flag) []map[string]interface{} {
+		entry := flag(f)
+		entry["origin"] = "framework implicit"
+		return append(rows, entry)
+	}
+	rows := []map[string]interface{}{}
+	var walk func([]cli.Command, []string)
+	walk = func(cs []cli.Command, parent []string) {
+		for _, c := range cs {
+			path := append(append([]string{}, parent...), c.Name)
+			commandFlags := flags(c.Flags)
+			if !c.HideHelp && (cli.HelpFlag != cli.BoolFlag{}) {
+				commandFlags = implicit(commandFlags, cli.HelpFlag)
+			}
+			rows = append(rows, map[string]interface{}{"path": path, "aliases": c.Aliases, "usage": c.Usage, "args_usage": c.ArgsUsage, "description": c.Description, "hidden": c.Hidden, "hide_help": c.HideHelp, "flags": commandFlags, "has_action": c.Action != nil})
+			walk(c.Subcommands, path)
+		}
+	}
+	app := registerApp("mc")
+	walk(app.Commands, []string{})
+	globalFlags := flags(app.Flags)
+	if !app.HideHelp && (cli.HelpFlag != cli.BoolFlag{}) {
+		globalFlags = implicit(globalFlags, cli.HelpFlag)
+	}
+	if !app.HideVersion {
+		globalFlags = implicit(globalFlags, cli.VersionFlag)
+	}
+	data := map[string]interface{}{"commands": rows, "global_flags": globalFlags, "hide_help": app.HideHelp, "hide_version": app.HideVersion, "anonymous_permissions": []accessPerms{accessNone, accessDownload, accessUpload, accessPrivate, accessPublic}}
+	b, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	if err = os.WriteFile(os.Getenv("ESS_CAPTURE_OUTPUT"), append(b, '\n'), 0600); err != nil {
+		panic(err)
+	}
+}

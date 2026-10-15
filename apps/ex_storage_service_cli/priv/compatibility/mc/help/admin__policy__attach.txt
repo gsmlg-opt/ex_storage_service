@@ -1,0 +1,32 @@
+NAME:
+  mc admin policy attach - attach an IAM policy to a user or group
+
+USAGE:
+  mc admin policy attach [FLAGS] TARGET POLICY [POLICY...] [--user USER | --group GROUP]
+
+  Exactly one of --user or --group is required.
+
+POLICY:
+  Name of the policy on the MinIO server.
+
+FLAGS:
+  --user value, -u value           attach policy to user
+  --group value, -g value          attach policy to group
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Attach the "readonly" policy to user "james".
+     $ mc admin policy attach myminio readonly --user james
+  2. Attach the "audit-policy" and "acct-policy" policies to group "legal".
+     $ mc admin policy attach myminio audit-policy acct-policy --group legal

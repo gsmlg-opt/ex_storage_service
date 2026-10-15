@@ -10,3 +10,5 @@ __pycache__/
 erl_crash.dump
 node_modules
 /apps/ex_storage_service_cli/ess
+/apps/ex_storage_service_cli/lib/ex_storage_service_cli/query/src/ess_cli_jmes_parser.erl
+/apps/ex_storage_service_cli/lib/ex_storage_service_cli/query/src/ess_cli_jmes_lexer.erl

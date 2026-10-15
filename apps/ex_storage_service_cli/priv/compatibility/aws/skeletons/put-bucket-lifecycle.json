@@ -1,0 +1,37 @@
+{
+    "Bucket": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "LifecycleConfiguration": {
+        "Rules": [
+            {
+                "Expiration": {
+                    "Date": "1970-01-01T00:00:00",
+                    "Days": 0,
+                    "ExpiredObjectDeleteMarker": true
+                },
+                "ID": "",
+                "Prefix": "",
+                "Status": "Enabled",
+                "Transition": {
+                    "Date": "1970-01-01T00:00:00",
+                    "Days": 0,
+                    "StorageClass": "GLACIER"
+                },
+                "NoncurrentVersionTransition": {
+                    "NoncurrentDays": 0,
+                    "StorageClass": "GLACIER",
+                    "NewerNoncurrentVersions": 0
+                },
+                "NoncurrentVersionExpiration": {
+                    "NoncurrentDays": 0,
+                    "NewerNoncurrentVersions": 0
+                },
+                "AbortIncompleteMultipartUpload": {
+                    "DaysAfterInitiation": 0
+                }
+            }
+        ]
+    },
+    "ExpectedBucketOwner": ""
+}

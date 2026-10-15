@@ -1,0 +1,36 @@
+{
+  "reference": "AWS CLI 2.31.18",
+  "binary_sha256": "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a",
+  "options": [
+    "s3",
+    "mv",
+    "SOURCE",
+    "s3://bucket/dest/",
+    "--recursive",
+    "--no-progress"
+  ],
+  "max_concurrent_requests": 1,
+  "exit_code": 1,
+  "operations": [
+    {
+      "method": "PUT",
+      "path": "/bucket/dest/a",
+      "sources_present": [
+        true,
+        true
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/bucket/dest/b",
+      "sources_present": [
+        false,
+        true
+      ]
+    }
+  ],
+  "sources_remaining": [
+    false,
+    true
+  ]
+}

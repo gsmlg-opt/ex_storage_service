@@ -1,0 +1,85 @@
+NAME:
+  mc admin trace - Show HTTP call trace for all incoming and internode on MinIO
+
+USAGE:
+  mc admin trace [FLAGS] TARGET
+
+FLAGS:
+  --verbose, -v                    print verbose trace
+  --all, -a                        trace all call types
+  --call value                     trace only matching call types. See CALL TYPES below for list. (default: s3)
+  --status-code value              trace only matching status code
+  --method value                   trace only matching HTTP method
+  --funcname value                 trace only matching func name
+  --path value                     trace only matching path
+  --node value                     trace only matching servers
+  --request-header value           trace only matching request headers
+  --request-query value            trace only matching request queries
+  --errors, -e                     trace only failed requests
+  --stats                          print statistical summary of all the traced calls
+  --filter-request                 trace calls only with request bytes greater than this threshold, use with filter-size
+  --filter-response                trace calls only with response bytes greater than this threshold, use with filter-size
+  --response-duration 5ms          trace calls only with response duration greater than this threshold (e.g. 5ms) (default: 0s)
+  --filter-size value              filter size, use with filter (see UNITS)
+  --in value                       read previously saved json from file and replay
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+CALL TYPES:
+  batch-expiration:    Trace Batch Expiration (alias: bexp)
+  batch-keyrotation:   Trace Batch KeyRotation (alias: brot)
+  batch-replication:   Trace Batch Replication (alias: brep)
+  bootstrap:           Trace Bootstrap operations
+  decommission:        Trace Decommission operations (alias: decom)
+  ftp:                 Trace FTP operations
+  healing:             Trace Healing operations (alias: heal)
+  ilm:                 Trace ILM operations
+  internal:            Trace Internal RPC calls
+  os:                  Trace Operating System calls
+  rebalance:           Trace Server Pool Rebalancing operations
+  replication-resync:  Trace Replication Resync operations (alias: resync)
+  s3:                  Trace S3 API calls
+  scanner:             Trace Scanner calls
+  storage:             Trace Storage calls
+
+UNITS
+  --filter-size flags use with --filter-response or --filter-request accept human-readable case-insensitive number
+  suffixes such as "k", "m", "g" and "t" referring to the metric units KB,
+  MB, GB and TB respectively. Adding an "i" to these prefixes, uses the IEC
+  units, so that "gi" refers to "gibibyte" or "GiB". A "b" at the end is
+  also accepted. Without suffixes the unit is bytes.
+
+EXAMPLES:
+  1. Show verbose console trace for MinIO server
+     $ mc admin trace -v -a myminio
+
+  2. Show trace only for failed requests for MinIO server
+    $ mc admin trace -v -e myminio
+
+  3. Show verbose console trace for requests with '503' status code
+    $ mc admin trace -v --status-code 503 myminio
+
+  4. Show console trace for a specific path
+    $ mc admin trace --path my-bucket/my-prefix/* myminio
+
+  5. Show console trace for requests with '404' and '503' status code
+    $ mc admin trace --status-code 404 --status-code 503 myminio
+  
+  6. Show trace only for requests bytes greater than 1MB
+    $ mc admin trace --filter-request --filter-size 1MB myminio
+
+  7. Show trace only for response bytes greater than 1MB
+    $ mc admin trace --filter-response --filter-size 1MB myminio
+  
+  8. Show trace only for requests operations duration greater than 5ms
+     $ mc admin trace --response-duration 5ms myminio

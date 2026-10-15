@@ -1,0 +1,1 @@
+This command is deprecated and will be removed in a future release. Use 'mc support diag' instead.

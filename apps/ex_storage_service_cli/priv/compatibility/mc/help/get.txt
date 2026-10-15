@@ -1,0 +1,29 @@
+NAME:
+  mc get - get s3 object to local
+
+USAGE:
+  mc get [FLAGS] SOURCE TARGET
+
+FLAGS:
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --enc-c value                    encrypt/decrypt objects using client provided keys. (multiple keys can be provided) Formats: RawBase64 or Hex.
+  --version-id value, --vid value  get a specific version of an object
+  --help, -h                       show help
+  
+
+EXAMPLES:
+  1. Get an object from MinIO storage to local file system
+     $ mc get play/mybucket/object path-to/object
+
+  2. Get an object from MinIO storage using encryption
+     $ mc get --enc-c "play/mybucket/object=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDA" play/mybucket/object path-to/object

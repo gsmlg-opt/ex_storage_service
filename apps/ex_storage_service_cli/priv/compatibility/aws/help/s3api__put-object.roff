@@ -1,0 +1,1306 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "PUT-OBJECT"  "" "" ""
+.SH NAME
+put-object \- 
+.SH DESCRIPTION
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+End of support notice: Beginning October 1, 2025, Amazon S3 will discontinue support for creating new Email Grantee Access Control Lists (ACL). Email Grantee ACLs created prior to this date will continue to work and remain accessible through the Amazon Web Services Management Console, Command Line Interface (CLI), SDKs, and REST API. However, you will no longer be able to create new Email Grantee ACLs.
+.sp
+This change affects the following Amazon Web Services Regions: US East (N. Virginia) Region, US West (N. California) Region, US West (Oregon) Region, Asia Pacific (Singapore) Region, Asia Pacific (Sydney) Region, Asia Pacific (Tokyo) Region, Europe (Ireland) Region, and South America (São Paulo) Region.
+.UNINDENT
+.UNINDENT
+.sp
+Adds an object to a bucket.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+Amazon S3 never adds partial objects; if you receive a success response, Amazon S3 added the entire object to the bucket. You cannot use \fBPutObject\fP to only update a single piece of metadata for an existing object. You must put the entire object with updated metadata if you want to update some values.
+.IP \(bu 2
+If your bucket uses the bucket owner enforced setting for Object Ownership, ACLs are disabled and no longer affect permissions. All objects written to the bucket by any account will be owned by the bucket owner.
+.IP \(bu 2
+\fBDirectory buckets\fP \- For directory buckets, you must make requests for this API operation to the Zonal endpoint. These endpoints support virtual\-hosted\-style requests in the format 
+.nf
+\(ga\(ga
+.fi
+\fI\%https://\fP\fIamzn\-s3\-demo\-bucket\fP .s3express\-\fIzone\-id\fP .*region\-code* .amazonaws.com/\fIkey\-name\fP \(ga\(ga . Path\-style requests are not supported. For more information about endpoints in Availability Zones, see \fI\%Regional and Zonal endpoints for directory buckets in Availability Zones\fP in the \fIAmazon S3 User Guide\fP . For more information about endpoints in Local Zones, see \fI\%Concepts for directory buckets in Local Zones\fP in the \fIAmazon S3 User Guide\fP .
+.IP "System Message: WARNING/2 (<string>:, line 45)"
+Inline literal start\-string without end\-string.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Amazon S3 is a distributed system. If it receives multiple write requests for the same object simultaneously, it overwrites all but the last object written. However, Amazon S3 provides features that can modify this behavior:
+.INDENT 0.0
+.IP \(bu 2
+\fBS3 Object Lock\fP \- To prevent objects from being deleted or overwritten, you can use \fI\%Amazon S3 Object Lock\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+\fBIf\-None\-Match\fP \- Uploads the object only if the object key name does not already exist in the specified bucket. Otherwise, Amazon S3 returns a \fB412 Precondition Failed\fP error. If a conflicting operation occurs during the upload, S3 returns a \fB409 ConditionalRequestConflict\fP response. On a 409 failure, retry the upload. Expects the * character (asterisk). For more information, see \fI\%Add preconditions to S3 operations with conditional requests\fP in the \fIAmazon S3 User Guide\fP or \fI\%RFC 7232\fP .
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for S3 on Outposts.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+\fBS3 Versioning\fP \- When you enable versioning for a bucket, if Amazon S3 receives multiple write requests for the same object simultaneously, it stores all versions of the objects. For each write request that is made to the same object, Amazon S3 automatically generates a unique version ID of that object being stored in Amazon S3. You can retrieve, replace, or delete any version of the object. For more information about versioning, see \fI\%Adding Objects to Versioning\-Enabled Buckets\fP in the \fIAmazon S3 User Guide\fP . For information about returning the versioning state of a bucket, see \fI\%GetBucketVersioning\fP .
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Permissions
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+\fBGeneral purpose bucket permissions\fP \- The following permissions are required in your policies when your \fBPutObject\fP request includes specific headers.
+.INDENT 2.0
+.IP \(bu 2
+
+.nf
+**
+.fi
+\fBs3:PutObject\fP ** \- To successfully complete the \fBPutObject\fP request, you must always have the \fBs3:PutObject\fP permission on a bucket to add an object to it.
+.IP "System Message: WARNING/2 (<string>:, line 88)"
+Inline strong start\-string without end\-string.
+.IP \(bu 2
+
+.nf
+**
+.fi
+\fBs3:PutObjectAcl\fP ** \- To successfully change the objects ACL of your \fBPutObject\fP request, you must have the \fBs3:PutObjectAcl\fP .
+.IP "System Message: WARNING/2 (<string>:, line 90)"
+Inline strong start\-string without end\-string.
+.IP \(bu 2
+
+.nf
+**
+.fi
+\fBs3:PutObjectTagging\fP ** \- To successfully set the tag\-set with your \fBPutObject\fP request, you must have the \fBs3:PutObjectTagging\fP .
+.IP "System Message: WARNING/2 (<string>:, line 92)"
+Inline strong start\-string without end\-string.
+.UNINDENT
+.IP \(bu 2
+\fBDirectory bucket permissions\fP \- To grant access to this API operation on a directory bucket, we recommend that you use the \(ga \fBCreateSession\fP \fI\%https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateSession\fP\&.html\(ga__ API operation for session\-based authorization. Specifically, you grant the \fBs3express:CreateSession\fP permission to the directory bucket in a bucket policy or an IAM identity\-based policy. Then, you make the \fBCreateSession\fP API call on the bucket to obtain a session token. With the session token in your request header, you can make API requests to this operation. After the session token expires, you make another \fBCreateSession\fP API call to generate a new session token for use. Amazon Web Services CLI or SDKs create session and refresh the session token automatically to avoid service interruptions when a session expires. For more information about authorization, see \(ga \fBCreateSession\fP \fI\%https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateSession\fP\&.html\(ga__ . If the object is encrypted with SSE\-KMS, you must also have the \fBkms:GenerateDataKey\fP and \fBkms:Decrypt\fP permissions in IAM identity\-based policies and KMS key policies for the KMS key.
+.sp
+Data integrity with Content\-MD5
+.IP \(bu 2
+\fBGeneral purpose bucket\fP \- To ensure that data is not corrupted traversing the network, use the \fBContent\-MD5\fP header. When you use this header, Amazon S3 checks the object against the provided MD5 value and, if they do not match, Amazon S3 returns an error. Alternatively, when the object\(aqs ETag is its MD5 digest, you can calculate the MD5 while putting the object to Amazon S3 and compare the returned ETag to the calculated MD5 value.
+.IP \(bu 2
+\fBDirectory bucket\fP \- This functionality is not supported for directory buckets.
+.sp
+HTTP Host header syntax
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- The HTTP Host header syntax is \(ga\(ga \fIBucket\-name\fP .s3express\-\fIzone\-id\fP .*region\-code* .amazonaws.com\(ga\(ga .
+.UNINDENT
+.UNINDENT
+.sp
+For more information about related Amazon S3 APIs, see the following:
+.INDENT 0.0
+.IP \(bu 2
+\fI\%CopyObject\fP
+.IP \(bu 2
+\fI\%DeleteObject\fP
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  put\-object
+[\-\-acl <value>]
+[\-\-body <value>]
+\-\-bucket <value>
+[\-\-cache\-control <value>]
+[\-\-content\-disposition <value>]
+[\-\-content\-encoding <value>]
+[\-\-content\-language <value>]
+[\-\-content\-length <value>]
+[\-\-content\-md5 <value>]
+[\-\-content\-type <value>]
+[\-\-checksum\-algorithm <value>]
+[\-\-checksum\-crc32 <value>]
+[\-\-checksum\-crc32\-c <value>]
+[\-\-checksum\-crc64\-nvme <value>]
+[\-\-checksum\-sha1 <value>]
+[\-\-checksum\-sha256 <value>]
+[\-\-expires <value>]
+[\-\-if\-match <value>]
+[\-\-if\-none\-match <value>]
+[\-\-grant\-full\-control <value>]
+[\-\-grant\-read <value>]
+[\-\-grant\-read\-acp <value>]
+[\-\-grant\-write\-acp <value>]
+\-\-key <value>
+[\-\-write\-offset\-bytes <value>]
+[\-\-metadata <value>]
+[\-\-server\-side\-encryption <value>]
+[\-\-storage\-class <value>]
+[\-\-website\-redirect\-location <value>]
+[\-\-sse\-customer\-algorithm <value>]
+[\-\-sse\-customer\-key <value>]
+[\-\-sse\-customer\-key\-md5 <value>]
+[\-\-ssekms\-key\-id <value>]
+[\-\-ssekms\-encryption\-context <value>]
+[\-\-bucket\-key\-enabled | \-\-no\-bucket\-key\-enabled]
+[\-\-request\-payer <value>]
+[\-\-tagging <value>]
+[\-\-object\-lock\-mode <value>]
+[\-\-object\-lock\-retain\-until\-date <value>]
+[\-\-object\-lock\-legal\-hold\-status <value>]
+[\-\-expected\-bucket\-owner <value>]
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-acl\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The canned ACL to apply to the object. For more information, see \fI\%Canned ACL\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+When adding a new object, you can use headers to grant ACL\-based permissions to individual Amazon Web Services accounts or to predefined groups defined by Amazon S3. These permissions are then added to the ACL on the object. By default, all objects are private. Only the owner has full access control. For more information, see \fI\%Access Control List (ACL) Overview\fP and \fI\%Managing ACLs Using the REST API\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+If the bucket that you\(aqre uploading objects to uses the bucket owner enforced setting for S3 Object Ownership, ACLs are disabled and no longer affect permissions. Buckets that use this setting only accept PUT requests that don\(aqt specify an ACL or PUT requests that specify bucket owner full control ACLs, such as the \fBbucket\-owner\-full\-control\fP canned ACL or an equivalent form of this ACL expressed in the XML format. PUT requests that contain other ACLs (for example, custom grants to certain Amazon Web Services accounts) fail and return a \fB400\fP error with the error code \fBAccessControlListNotSupported\fP . For more information, see \fI\%Controlling ownership of objects and disabling ACLs\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+This functionality is not supported for directory buckets.
+.IP \(bu 2
+This functionality is not supported for Amazon S3 on Outposts.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBprivate\fP
+.IP \(bu 2
+\fBpublic\-read\fP
+.IP \(bu 2
+\fBpublic\-read\-write\fP
+.IP \(bu 2
+\fBauthenticated\-read\fP
+.IP \(bu 2
+\fBaws\-exec\-read\fP
+.IP \(bu 2
+\fBbucket\-owner\-read\fP
+.IP \(bu 2
+\fBbucket\-owner\-full\-control\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-body\fP (streaming blob)
+.INDENT 0.0
+.INDENT 3.5
+Object data.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This argument is of type: streaming blob. Its value must be the path to a file (e.g. \fBpath/to/file\fP) and must \fBnot\fP be prefixed with \fBfile://\fP or \fBfileb://\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The bucket name to which the PUT action was initiated.
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- When you use this operation with a directory bucket, you must use virtual\-hosted\-style requests in the format \(ga\(ga \fIBucket\-name\fP .s3express\-\fIzone\-id\fP .*region\-code* .amazonaws.com\(ga\(ga . Path\-style requests are not supported. Directory bucket names must be unique in the chosen Zone (Availability Zone or Local Zone). Bucket names must follow the format \(ga\(ga \fIbucket\-base\-name\fP \-\-\fIzone\-id\fP \-\-x\-s3\(ga\(ga (for example, \(ga\(ga \fIamzn\-s3\-demo\-bucket\fP \-\-\fIusw2\-az1\fP \-\-x\-s3\(ga\(ga ). For information about bucket naming restrictions, see \fI\%Directory bucket naming rules\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBAccess points\fP \- When you use this action with an access point for general purpose buckets, you must provide the alias of the access point in place of the bucket name or specify the access point ARN. When you use this action with an access point for directory buckets, you must provide the access point name in place of the bucket name. When using the access point ARN, you must direct requests to the access point hostname. The access point hostname takes the form \fIAccessPointName\fP \-\fIAccountId\fP .s3\-accesspoint.*Region* .amazonaws.com. When using this action with an access point through the Amazon Web Services SDKs, you provide the access point ARN in place of the bucket name. For more information about access point ARNs, see \fI\%Using access points\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+Object Lambda access points are not supported by directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+\fBS3 on Outposts\fP \- When you use this action with S3 on Outposts, you must direct requests to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form \(ga\(ga \fIAccessPointName\fP \-\fIAccountId\fP .*outpostID* .s3\-outposts.*Region* .amazonaws.com\(ga\(ga . When you use this action with S3 on Outposts, the destination bucket must be the Outposts access point ARN or the access point alias. For more information about S3 on Outposts, see \fI\%What is S3 on Outposts?\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cache\-control\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Can be used to specify caching behavior along the request/reply chain. For more information, see \fI\%http://www.w3.org/Protocols/rfc2616/rfc2616\-sec14.html#sec14.9\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-content\-disposition\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies presentational information for the object. For more information, see \fI\%https://www.rfc\-editor.org/rfc/rfc6266#section\-4\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-content\-encoding\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies what content encodings have been applied to the object and thus what decoding mechanisms must be applied to obtain the media\-type referenced by the Content\-Type header field. For more information, see \fI\%https://www.rfc\-editor.org/rfc/rfc9110.html#field.content\-encoding\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-content\-language\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The language the content is in.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-content\-length\fP (long)
+.INDENT 0.0
+.INDENT 3.5
+Size of the body in bytes. This parameter is useful when the size of the body cannot be determined automatically. For more information, see \fI\%https://www.rfc\-editor.org/rfc/rfc9110.html#name\-content\-length\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-content\-md5\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded 128\-bit \fBMD5\fP digest of the message (without the headers) according to RFC 1864. This header can be used as a message integrity check to verify that the data is the same data that was originally sent. Although it is optional, we recommend using the Content\-MD5 mechanism as an end\-to\-end integrity check. For more information about REST request authentication, see \fI\%REST Authentication\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+The \fBContent\-MD5\fP or \fBx\-amz\-sdk\-checksum\-algorithm\fP header is required for any request to upload an object with a retention period configured using Amazon S3 Object Lock. For more information, see \fI\%Uploading objects to an Object Lock enabled bucket\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-content\-type\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+A standard MIME type describing the format of the contents. For more information, see \fI\%https://www.rfc\-editor.org/rfc/rfc9110.html#name\-content\-type\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-checksum\-algorithm\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Indicates the algorithm used to create the checksum for the object when you use the SDK. This header will not provide any additional functionality if you don\(aqt use the SDK. When you send this header, there must be a corresponding \fBx\-amz\-checksum\-*algorithm* \(ga\(ga or \(ga\(gax\-amz\-trailer\fP header sent. Otherwise, Amazon S3 fails the request with the HTTP status code \fB400 Bad Request\fP .
+.sp
+For the 
+.nf
+\(ga\(ga
+.fi
+x\-amz\-checksum\-\fIalgorithm\fP \(ga\(ga header, replace \(ga\(ga \fIalgorithm\fP \(ga\(ga with the supported algorithm from the following list:
+.IP "System Message: WARNING/2 (<string>:, line 380)"
+Inline literal start\-string without end\-string.
+.INDENT 0.0
+.IP \(bu 2
+\fBCRC32\fP
+.IP \(bu 2
+\fBCRC32C\fP
+.IP \(bu 2
+\fBCRC64NVME\fP
+.IP \(bu 2
+\fBSHA1\fP
+.IP \(bu 2
+\fBSHA256\fP
+.UNINDENT
+.sp
+For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+If the individual checksum value you provide through \fBx\-amz\-checksum\-*algorithm* \(ga\(ga doesn\(aqt match the checksum algorithm you set through \(ga\(gax\-amz\-sdk\-checksum\-algorithm\fP , Amazon S3 fails the request with a \fBBadDigest\fP error.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+The \fBContent\-MD5\fP or \fBx\-amz\-sdk\-checksum\-algorithm\fP header is required for any request to upload an object with a retention period configured using Amazon S3 Object Lock. For more information, see \fI\%Uploading objects to an Object Lock enabled bucket\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+For directory buckets, when you use Amazon Web Services SDKs, \fBCRC32\fP is the default checksum algorithm that\(aqs used for performance.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBCRC32\fP
+.IP \(bu 2
+\fBCRC32C\fP
+.IP \(bu 2
+\fBSHA1\fP
+.IP \(bu 2
+\fBSHA256\fP
+.IP \(bu 2
+\fBCRC64NVME\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-checksum\-crc32\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+This header can be used as a data integrity check to verify that the data received is the same data that was originally sent. This header specifies the Base64 encoded, 32\-bit \fBCRC32\fP checksum of the object. For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-checksum\-crc32\-c\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+This header can be used as a data integrity check to verify that the data received is the same data that was originally sent. This header specifies the Base64 encoded, 32\-bit \fBCRC32C\fP checksum of the object. For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-checksum\-crc64\-nvme\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+This header can be used as a data integrity check to verify that the data received is the same data that was originally sent. This header specifies the Base64 encoded, 64\-bit \fBCRC64NVME\fP checksum of the object. The \fBCRC64NVME\fP checksum is always a full object checksum. For more information, see \fI\%Checking object integrity in the Amazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-checksum\-sha1\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+This header can be used as a data integrity check to verify that the data received is the same data that was originally sent. This header specifies the Base64 encoded, 160\-bit \fBSHA1\fP digest of the object. For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-checksum\-sha256\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+This header can be used as a data integrity check to verify that the data received is the same data that was originally sent. This header specifies the Base64 encoded, 256\-bit \fBSHA256\fP digest of the object. For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expires\fP (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+The date and time at which the object is no longer cacheable. For more information, see \fI\%https://www.rfc\-editor.org/rfc/rfc7234#section\-5.3\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-if\-match\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Uploads the object only if the ETag (entity tag) value provided during the WRITE operation matches the ETag of the object in S3. If the ETag values do not match, the operation returns a \fB412 Precondition Failed\fP error.
+.sp
+If a conflicting operation occurs during the upload S3 returns a \fB409 ConditionalRequestConflict\fP response. On a 409 failure you should fetch the object\(aqs ETag and retry the upload.
+.sp
+Expects the ETag value as a string.
+.sp
+For more information about conditional requests, see \fI\%RFC 7232\fP , or \fI\%Conditional requests\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-if\-none\-match\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Uploads the object only if the object key name does not already exist in the bucket specified. Otherwise, Amazon S3 returns a \fB412 Precondition Failed\fP error.
+.sp
+If a conflicting operation occurs during the upload S3 returns a \fB409 ConditionalRequestConflict\fP response. On a 409 failure you should retry the upload.
+.sp
+Expects the \(aq*\(aq (asterisk) character.
+.sp
+For more information about conditional requests, see \fI\%RFC 7232\fP , or \fI\%Conditional requests\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-grant\-full\-control\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Gives the grantee READ, READ_ACP, and WRITE_ACP permissions on the object.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+This functionality is not supported for directory buckets.
+.IP \(bu 2
+This functionality is not supported for Amazon S3 on Outposts.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-grant\-read\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Allows grantee to read the object data and its metadata.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+This functionality is not supported for directory buckets.
+.IP \(bu 2
+This functionality is not supported for Amazon S3 on Outposts.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-grant\-read\-acp\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Allows grantee to read the object ACL.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+This functionality is not supported for directory buckets.
+.IP \(bu 2
+This functionality is not supported for Amazon S3 on Outposts.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-grant\-write\-acp\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Allows grantee to write the ACL for the applicable object.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+This functionality is not supported for directory buckets.
+.IP \(bu 2
+This functionality is not supported for Amazon S3 on Outposts.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-key\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Object key for which the PUT action was initiated.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-write\-offset\-bytes\fP (long)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the offset for appending data to existing objects in bytes. The offset must be equal to the size of the existing object being appended to. If no object exists, setting this header to 0 will create a new object.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is only supported for objects in the Amazon S3 Express One Zone storage class in directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-metadata\fP (map)
+.INDENT 0.0
+.INDENT 3.5
+A map of metadata to store with the object in S3.
+.sp
+key \-> (string)
+.sp
+value \-> (string)
+.UNINDENT
+.UNINDENT
+.sp
+Shorthand Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+KeyName1=string,KeyName2=string
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+JSON Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{\(dqstring\(dq: \(dqstring\(dq
+  ...}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-server\-side\-encryption\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The server\-side encryption algorithm that was used when you store this object in Amazon S3 or Amazon FSx.
+.INDENT 0.0
+.IP \(bu 2
+\fBGeneral purpose buckets\fP \- You have four mutually exclusive options to protect data using server\-side encryption in Amazon S3, depending on how you choose to manage the encryption keys. Specifically, the encryption key options are Amazon S3 managed keys (SSE\-S3), Amazon Web Services KMS keys (SSE\-KMS or DSSE\-KMS), and customer\-provided keys (SSE\-C). Amazon S3 encrypts data with server\-side encryption by using Amazon S3 managed keys (SSE\-S3) by default. You can optionally tell Amazon S3 to encrypt data at rest by using server\-side encryption with other key options. For more information, see \fI\%Using Server\-Side Encryption\fP in the \fIAmazon S3 User Guide\fP .
+.IP \(bu 2
+\fBDirectory buckets\fP \- For directory buckets, there are only two supported options for server\-side encryption: server\-side encryption with Amazon S3 managed keys (SSE\-S3) (\fBAES256\fP ) and server\-side encryption with KMS keys (SSE\-KMS) (\fBaws:kms\fP ). We recommend that the bucket\(aqs default encryption uses the desired encryption configuration and you don\(aqt override the bucket default encryption in your \fBCreateSession\fP requests or \fBPUT\fP object requests. Then, new objects are automatically encrypted with the desired encryption settings. For more information, see \fI\%Protecting data with server\-side encryption\fP in the \fIAmazon S3 User Guide\fP . For more information about the encryption overriding behaviors in directory buckets, see \fI\%Specifying server\-side encryption with KMS for new object uploads\fP .  In the Zonal endpoint API calls (except \fI\%CopyObject\fP and \fI\%UploadPartCopy\fP ) using the REST API, the encryption request headers must match the encryption settings that are specified in the \fBCreateSession\fP request. You can\(aqt override the values of the encryption settings (\fBx\-amz\-server\-side\-encryption\fP , \fBx\-amz\-server\-side\-encryption\-aws\-kms\-key\-id\fP , \fBx\-amz\-server\-side\-encryption\-context\fP , and \fBx\-amz\-server\-side\-encryption\-bucket\-key\-enabled\fP ) that are specified in the \fBCreateSession\fP request. You don\(aqt need to explicitly specify these encryption settings values in Zonal endpoint API calls, and Amazon S3 will use the encryption settings values from the \fBCreateSession\fP request to protect new objects in the directory bucket.
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+When you use the CLI or the Amazon Web Services SDKs, for \fBCreateSession\fP , the session token refreshes automatically to avoid service interruptions when a session expires. The CLI or the Amazon Web Services SDKs use the bucket\(aqs default encryption configuration for the \fBCreateSession\fP request. It\(aqs not supported to override the encryption settings values in the \fBCreateSession\fP request. So in the Zonal endpoint API calls (except \fI\%CopyObject\fP and \fI\%UploadPartCopy\fP ), the encryption request headers must match the default encryption configuration of the directory bucket.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+\fBS3 access points for Amazon FSx\fP \- When accessing data stored in Amazon FSx file systems using S3 access points, the only valid server side encryption option is \fBaws:fsx\fP . All Amazon FSx file systems have encryption configured by default and are encrypted at rest. Data is automatically encrypted before being written to the file system, and automatically decrypted as it is read. These processes are handled transparently by Amazon FSx.
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBAES256\fP
+.IP \(bu 2
+\fBaws:fsx\fP
+.IP \(bu 2
+\fBaws:kms\fP
+.IP \(bu 2
+\fBaws:kms:dsse\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-storage\-class\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+By default, Amazon S3 uses the STANDARD Storage Class to store newly created objects. The STANDARD storage class provides high durability and high availability. Depending on performance needs, you can specify a different Storage Class. For more information, see \fI\%Storage Classes\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+Directory buckets only support \fBEXPRESS_ONEZONE\fP (the S3 Express One Zone storage class) in Availability Zones and \fBONEZONE_IA\fP (the S3 One Zone\-Infrequent Access storage class) in Dedicated Local Zones.
+.IP \(bu 2
+Amazon S3 on Outposts only uses the OUTPOSTS Storage Class.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBSTANDARD\fP
+.IP \(bu 2
+\fBREDUCED_REDUNDANCY\fP
+.IP \(bu 2
+\fBSTANDARD_IA\fP
+.IP \(bu 2
+\fBONEZONE_IA\fP
+.IP \(bu 2
+\fBINTELLIGENT_TIERING\fP
+.IP \(bu 2
+\fBGLACIER\fP
+.IP \(bu 2
+\fBDEEP_ARCHIVE\fP
+.IP \(bu 2
+\fBOUTPOSTS\fP
+.IP \(bu 2
+\fBGLACIER_IR\fP
+.IP \(bu 2
+\fBSNOW\fP
+.IP \(bu 2
+\fBEXPRESS_ONEZONE\fP
+.IP \(bu 2
+\fBFSX_OPENZFS\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-website\-redirect\-location\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+If the bucket is configured as a website, redirects requests for this object to another object in the same bucket or to an external URL. Amazon S3 stores the value of this header in the object metadata. For information about object metadata, see \fI\%Object Key and Metadata\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+In the following example, the request header sets the redirect to an object (anotherPage.html) in the same bucket:
+.INDENT 0.0
+.INDENT 3.5
+\fBx\-amz\-website\-redirect\-location: /anotherPage.html\fP
+.UNINDENT
+.UNINDENT
+.sp
+In the following example, the request header sets the object redirect to another website:
+.INDENT 0.0
+.INDENT 3.5
+\fBx\-amz\-website\-redirect\-location: http://www.example.com/\fP
+.UNINDENT
+.UNINDENT
+.sp
+For more information about website hosting in Amazon S3, see \fI\%Hosting Websites on Amazon S3\fP and \fI\%How to Configure Website Page Redirects\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-sse\-customer\-algorithm\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the algorithm to use when encrypting the object (for example, \fBAES256\fP ).
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-sse\-customer\-key\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the customer\-provided encryption key for Amazon S3 to use in encrypting data. This value is used to store the object and then it is discarded; Amazon S3 does not store the encryption key. The key must be appropriate for use with the algorithm specified in the \fBx\-amz\-server\-side\-encryption\-customer\-algorithm\fP header.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-sse\-customer\-key\-md5\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the 128\-bit MD5 digest of the encryption key according to RFC 1321. Amazon S3 uses this header for a message integrity check to ensure that the encryption key was transmitted without error.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-ssekms\-key\-id\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the KMS key ID (Key ID, Key ARN, or Key Alias) to use for object encryption. If the KMS key doesn\(aqt exist in the same account that\(aqs issuing the command, you must use the full Key ARN not the Key ID.
+.INDENT 0.0
+.INDENT 3.5
+\fBGeneral purpose buckets\fP \- If you specify \fBx\-amz\-server\-side\-encryption\fP with \fBaws:kms\fP or \fBaws:kms:dsse\fP , this header specifies the ID (Key ID, Key ARN, or Key Alias) of the KMS key to use. If you specify \fBx\-amz\-server\-side\-encryption:aws:kms\fP or \fBx\-amz\-server\-side\-encryption:aws:kms:dsse\fP , but do not provide \fBx\-amz\-server\-side\-encryption\-aws\-kms\-key\-id\fP , Amazon S3 uses the Amazon Web Services managed key (\fBaws/s3\fP ) to protect the data.
+.sp
+\fBDirectory buckets\fP \- To encrypt data using SSE\-KMS, it\(aqs recommended to specify the \fBx\-amz\-server\-side\-encryption\fP header to \fBaws:kms\fP . Then, the \fBx\-amz\-server\-side\-encryption\-aws\-kms\-key\-id\fP header implicitly uses the bucket\(aqs default KMS customer managed key ID. If you want to explicitly set the \fBx\-amz\-server\-side\-encryption\-aws\-kms\-key\-id\fP header, it must match the bucket\(aqs default customer managed key (using key ID or ARN, not alias). Your SSE\-KMS configuration can only support 1 \fI\%customer managed key\fP per directory bucket\(aqs lifetime. The \fI\%Amazon Web Services managed key\fP (\fBaws/s3\fP ) isn\(aqt supported. Incorrect key specification results in an HTTP \fB400 Bad Request\fP error.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-ssekms\-encryption\-context\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the Amazon Web Services KMS Encryption Context as an additional encryption context to use for object encryption. The value of this header is a Base64 encoded string of a UTF\-8 encoded JSON, which contains the encryption context as key\-value pairs. This value is stored as object metadata and automatically gets passed on to Amazon Web Services KMS for future \fBGetObject\fP operations on this object.
+.INDENT 0.0
+.INDENT 3.5
+\fBGeneral purpose buckets\fP \- This value must be explicitly added during \fBCopyObject\fP operations if you want an additional encryption context for your object. For more information, see \fI\%Encryption context\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBDirectory buckets\fP \- You can optionally provide an explicit encryption context value. The value must match the default encryption context \- the bucket Amazon Resource Name (ARN). An additional encryption context value is not supported.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-bucket\-key\-enabled\fP | \fB\-\-no\-bucket\-key\-enabled\fP (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether Amazon S3 should use an S3 Bucket Key for object encryption with server\-side encryption using Key Management Service (KMS) keys (SSE\-KMS).
+.INDENT 0.0
+.INDENT 3.5
+\fBGeneral purpose buckets\fP \- Setting this header to \fBtrue\fP causes Amazon S3 to use an S3 Bucket Key for object encryption with SSE\-KMS. Also, specifying this header with a PUT action doesn\(aqt affect bucket\-level settings for S3 Bucket Key.
+.sp
+\fBDirectory buckets\fP \- S3 Bucket Keys are always enabled for \fBGET\fP and \fBPUT\fP operations in a directory bucket and can’t be disabled. S3 Bucket Keys aren\(aqt supported, when you copy SSE\-KMS encrypted objects from general purpose buckets to directory buckets, from directory buckets to general purpose buckets, or between directory buckets, through \fI\%CopyObject\fP , \fI\%UploadPartCopy\fP , \fI\%the Copy operation in Batch Operations\fP , or \fI\%the import jobs\fP . In this case, Amazon S3 makes a call to KMS every time a copy request is made for a KMS\-encrypted object.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-request\-payer\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Confirms that the requester knows that they will be charged for the request. Bucket owners need not specify this parameter in their requests. If either the source or destination S3 bucket has Requester Pays enabled, the requester will pay for corresponding charges to copy the object. For information about downloading objects from Requester Pays buckets, see \fI\%Downloading Objects in Requester Pays Buckets\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBrequester\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-tagging\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The tag\-set for the object. The tag\-set must be encoded as URL Query parameters. (For example, \(dqKey1=Value1\(dq)
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-object\-lock\-mode\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The Object Lock mode that you want to apply to this object.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBGOVERNANCE\fP
+.IP \(bu 2
+\fBCOMPLIANCE\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-object\-lock\-retain\-until\-date\fP (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+The date and time when you want this object\(aqs Object Lock to expire. Must be formatted as a timestamp parameter.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-object\-lock\-legal\-hold\-status\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether a legal hold will be applied to this object. For more information about S3 Object Lock, see \fI\%Object Lock\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBON\fP
+.IP \(bu 2
+\fBOFF\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expected\-bucket\-owner\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The account ID of the expected bucket owner. If the account ID that you provide does not match the actual owner of the bucket, the request fails with the HTTP status code \fB403 Forbidden\fP (access denied).
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH EXAMPLES
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use the following examples, you must have the AWS CLI installed and configured. See the \fI\%Getting started guide\fP in the \fIAWS CLI User Guide\fP for more information.
+.sp
+Unless otherwise stated, all examples have unix\-like quotation rules. These examples will need to be adapted to your terminal\(aqs quoting rules. See \fI\%Using quotation marks with strings\fP in the \fIAWS CLI User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBExample 1: Upload an object to Amazon S3\fP
+.sp
+The following \fBput\-object\fP command example uploads an object to Amazon S3.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api put\-object \e
+    \-\-bucket amzn\-s3\-demo\-bucket \e
+    \-\-key my\-dir/MySampleImage.png \e
+    \-\-body MySampleImage.png
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+For more information about uploading objects, see 
+.nf
+\(gaUploading Objects < http://docs.aws.amazon.com/AmazonS3/latest/dev/UploadingObjects.html>\(ga__
+.fi
+ in the \fIAmazon S3 Developer Guide\fP\&.
+.sp
+\fBExample 2: Upload a video file to Amazon S3\fP
+.sp
+The following \fBput\-object\fP command example uploads a video file.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api put\-object \e
+    \-\-bucket amzn\-s3\-demo\-bucket \e
+    \-\-key my\-dir/big\-video\-file.mp4 \e
+    \-\-body /media/videos/f\-sharp\-3\-data\-services.mp4
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+For more information about uploading objects, see 
+.nf
+\(gaUploading Objects < http://docs.aws.amazon.com/AmazonS3/latest/dev/UploadingObjects.html>\(ga__
+.fi
+ in the \fIAmazon S3 Developer Guide\fP\&.
+.SH OUTPUT
+.sp
+Expiration \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If the expiration is configured for the object (see \fI\%PutBucketLifecycleConfiguration\fP ) in the \fIAmazon S3 User Guide\fP , the response includes this header. It includes the \fBexpiry\-date\fP and \fBrule\-id\fP key\-value pairs that provide information about object expiration. The value of the \fBrule\-id\fP is URL\-encoded.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+Object expiration information is not returned in directory buckets and this header returns the value \(dq\fBNotImplemented\fP \(dq in all responses for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ETag \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Entity tag for the uploaded object.
+.INDENT 0.0
+.INDENT 3.5
+\fBGeneral purpose buckets\fP \- To ensure that data is not corrupted traversing the network, for objects where the ETag is the MD5 digest of the object, you can calculate the MD5 while putting an object to Amazon S3 and compare the returned ETag to the calculated MD5 value.
+.sp
+\fBDirectory buckets\fP \- The ETag for the object in a directory bucket isn\(aqt the MD5 digest of the object.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumCRC32 \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 32\-bit \fBCRC32 checksum\fP of the object. This checksum is only be present if the checksum was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it\(aqs a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumCRC32C \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 32\-bit \fBCRC32C\fP checksum of the object. This checksum is only present if the checksum was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it\(aqs a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumCRC64NVME \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 64\-bit \fBCRC64NVME\fP checksum of the object. This header is present if the object was uploaded with the \fBCRC64NVME\fP checksum algorithm, or if it was uploaded without a checksum (and Amazon S3 added the default checksum, \fBCRC64NVME\fP , to the uploaded object). For more information about how checksums are calculated with multipart uploads, see \fI\%Checking object integrity in the Amazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumSHA1 \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 160\-bit \fBSHA1\fP digest of the object. This will only be present if the object was uploaded with the object. When you use the API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it\(aqs a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumSHA256 \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 256\-bit \fBSHA256\fP digest of the object. This will only be present if the object was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it\(aqs a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumType \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+This header specifies the checksum type of the object, which determines how part\-level checksums are combined to create an object\-level checksum for multipart objects. For \fBPutObject\fP uploads, the checksum type is always \fBFULL_OBJECT\fP . You can use this header as a data integrity check to verify that the checksum type that is received is the same checksum that was specified. For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBCOMPOSITE\fP
+.IP \(bu 2
+\fBFULL_OBJECT\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ServerSideEncryption \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The server\-side encryption algorithm used when you store this object in Amazon S3 or Amazon FSx.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+When accessing data stored in Amazon FSx file systems using S3 access points, the only valid server side encryption option is \fBaws:fsx\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBAES256\fP
+.IP \(bu 2
+\fBaws:fsx\fP
+.IP \(bu 2
+\fBaws:kms\fP
+.IP \(bu 2
+\fBaws:kms:dsse\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+VersionId \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Version ID of the object.
+.sp
+If you enable versioning for a bucket, Amazon S3 automatically generates a unique version ID for the object being stored. Amazon S3 returns this ID in the response. When you enable versioning for a bucket, if Amazon S3 receives multiple write requests for the same object simultaneously, it stores all of the objects. For more information about versioning, see \fI\%Adding Objects to Versioning\-Enabled Buckets\fP in the \fIAmazon S3 User Guide\fP . For information about returning the versioning state of a bucket, see \fI\%GetBucketVersioning\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+SSECustomerAlgorithm \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If server\-side encryption with a customer\-provided encryption key was requested, the response will include this header to confirm the encryption algorithm that\(aqs used.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+SSECustomerKeyMD5 \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If server\-side encryption with a customer\-provided encryption key was requested, the response will include this header to provide the round\-trip message integrity verification of the customer\-provided encryption key.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+SSEKMSKeyId \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If present, indicates the ID of the KMS key that was used for object encryption.
+.UNINDENT
+.UNINDENT
+.sp
+SSEKMSEncryptionContext \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If present, indicates the Amazon Web Services KMS Encryption Context to use for object encryption. The value of this header is a Base64 encoded string of a UTF\-8 encoded JSON, which contains the encryption context as key\-value pairs. This value is stored as object metadata and automatically gets passed on to Amazon Web Services KMS for future \fBGetObject\fP operations on this object.
+.UNINDENT
+.UNINDENT
+.sp
+BucketKeyEnabled \-> (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Indicates whether the uploaded object uses an S3 Bucket Key for server\-side encryption with Key Management Service (KMS) keys (SSE\-KMS).
+.UNINDENT
+.UNINDENT
+.sp
+Size \-> (long)
+.INDENT 0.0
+.INDENT 3.5
+The size of the object in bytes. This value is only be present if you append to an object.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is only supported for objects in the Amazon S3 Express One Zone storage class in directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+RequestCharged \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If present, indicates that the requester was successfully charged for the request. For more information, see \fI\%Using Requester Pays buckets for storage transfers and usage\fP in the \fIAmazon Simple Storage Service user guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBrequester\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SH DOCUTILS SYSTEM MESSAGES
+.IP "System Message: ERROR/3 (<string>:)"
+Anonymous hyperlink mismatch: 2 references but 0 targets.
+See \(dqbackrefs\(dq attribute for IDs.
+.\" Generated by docutils manpage writer.
+.

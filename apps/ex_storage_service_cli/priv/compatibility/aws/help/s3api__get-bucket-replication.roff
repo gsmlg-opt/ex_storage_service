@@ -1,0 +1,747 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "GET-BUCKET-REPLICATION"  "" "" ""
+.SH NAME
+get-bucket-replication \- 
+.SH DESCRIPTION
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This operation is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Returns the replication configuration of a bucket.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+It can take a while to propagate the put or delete a replication configuration to all Amazon S3 systems. Therefore, a get request soon after put or delete can return a wrong result.
+.UNINDENT
+.UNINDENT
+.sp
+For information about replication configuration, see \fI\%Replication\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+This action requires permissions for the \fBs3:GetReplicationConfiguration\fP action. For more information about permissions, see \fI\%Using Bucket Policies and User Policies\fP .
+.sp
+If you include the \fBFilter\fP element in a replication configuration, you must also include the \fBDeleteMarkerReplication\fP and \fBPriority\fP elements. The response also returns those elements.
+.sp
+For information about \fBGetBucketReplication\fP errors, see \fI\%List of replication\-related error codes\fP
+.sp
+The following operations are related to \fBGetBucketReplication\fP :
+.INDENT 0.0
+.IP \(bu 2
+\fI\%PutBucketReplication\fP
+.IP \(bu 2
+\fI\%DeleteBucketReplication\fP
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  get\-bucket\-replication
+\-\-bucket <value>
+[\-\-expected\-bucket\-owner <value>]
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The bucket name for which to get the replication information.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expected\-bucket\-owner\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The account ID of the expected bucket owner. If the account ID that you provide does not match the actual owner of the bucket, the request fails with the HTTP status code \fB403 Forbidden\fP (access denied).
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH EXAMPLES
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use the following examples, you must have the AWS CLI installed and configured. See the \fI\%Getting started guide\fP in the \fIAWS CLI User Guide\fP for more information.
+.sp
+Unless otherwise stated, all examples have unix\-like quotation rules. These examples will need to be adapted to your terminal\(aqs quoting rules. See \fI\%Using quotation marks with strings\fP in the \fIAWS CLI User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+The following command retrieves the replication configuration for a bucket named \fBamzn\-s3\-demo\-bucket\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api get\-bucket\-replication \-\-bucket amzn\-s3\-demo\-bucket
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+    \(dqReplicationConfiguration\(dq: {
+        \(dqRules\(dq: [
+            {
+                \(dqStatus\(dq: \(dqEnabled\(dq,
+                \(dqPrefix\(dq: \(dq\(dq,
+                \(dqDestination\(dq: {
+                    \(dqBucket\(dq: \(dqarn:aws:s3:::amzn\-s3\-demo\-bucket\-backup\(dq,
+                    \(dqStorageClass\(dq: \(dqSTANDARD\(dq
+                },
+                \(dqID\(dq: \(dqZmUwNzE4ZmQ4tMjVhOS00MTlkLOGI4NDkzZTIWJjNTUtYTA1\(dq
+            }
+        ],
+        \(dqRole\(dq: \(dqarn:aws:iam::123456789012:role/s3\-replication\-role\(dq
+    }
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OUTPUT
+.sp
+ReplicationConfiguration \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+A container for replication rules. You can add up to 1,000 rules. The maximum size of a replication configuration is 2 MB.
+.sp
+Role \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The Amazon Resource Name (ARN) of the Identity and Access Management (IAM) role that Amazon S3 assumes when replicating objects. For more information, see \fI\%How to Set Up Replication\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Rules \-> (list) [required]
+.INDENT 0.0
+.INDENT 3.5
+A container for one or more replication rules. A replication configuration must have at least one rule and can contain a maximum of 1,000 rules.
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies which Amazon S3 objects to replicate and where to store the replicas.
+.sp
+ID \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+A unique identifier for the rule. The maximum value is 255 characters.
+.UNINDENT
+.UNINDENT
+.sp
+Priority \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+The priority indicates which rule has precedence whenever two or more replication rules conflict. Amazon S3 will attempt to replicate objects according to all replication rules. However, if there are two or more rules with the same destination bucket, then objects will be replicated according to the rule with the highest priority. The higher the number, the higher the priority.
+.sp
+For more information, see \fI\%Replication\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Prefix \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+An object key name prefix that identifies the object or objects to which the rule applies. The maximum prefix length is 1,024 characters. To include all objects in a bucket, specify an empty string.
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+Replacement must be made for object keys containing special characters (such as carriage returns) when using XML requests. For more information, see \fI\%XML related object key constraints\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Filter \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+A filter that identifies the subset of objects to which the replication rule applies. A \fBFilter\fP must specify exactly one \fBPrefix\fP , \fBTag\fP , or an \fBAnd\fP child element.
+.sp
+Prefix \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+An object key name prefix that identifies the subset of objects to which the rule applies.
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+Replacement must be made for object keys containing special characters (such as carriage returns) when using XML requests. For more information, see \fI\%XML related object key constraints\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Tag \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+A container for specifying a tag key and value.
+.sp
+The rule applies only to objects that have the tag in their tag set.
+.sp
+Key \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Name of the object key.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Value \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Value of the tag.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+And \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+A container for specifying rule filters. The filters determine the subset of objects to which the rule applies. This element is required only if you specify more than one filter. For example:
+.INDENT 0.0
+.IP \(bu 2
+If you specify both a \fBPrefix\fP and a \fBTag\fP filter, wrap these filters in an \fBAnd\fP tag.
+.IP \(bu 2
+If you specify a filter based on multiple tags, wrap the \fBTag\fP elements in an \fBAnd\fP tag.
+.UNINDENT
+.sp
+Prefix \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+An object key name prefix that identifies the subset of objects to which the rule applies.
+.UNINDENT
+.UNINDENT
+.sp
+Tags \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+An array of tags containing key and value pairs.
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+A container of a key value name pair.
+.sp
+Key \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Name of the object key.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Value \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Value of the tag.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Status \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether the rule is enabled.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBEnabled\fP
+.IP \(bu 2
+\fBDisabled\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+SourceSelectionCriteria \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+A container that describes additional filters for identifying the source objects that you want to replicate. You can choose to enable or disable the replication of these objects. Currently, Amazon S3 supports only the filter that you can specify for objects created with server\-side encryption using a customer managed key stored in Amazon Web Services Key Management Service (SSE\-KMS).
+.sp
+SseKmsEncryptedObjects \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+A container for filter information for the selection of Amazon S3 objects encrypted with Amazon Web Services KMS. If you include \fBSourceSelectionCriteria\fP in the replication configuration, this element is required.
+.sp
+Status \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether Amazon S3 replicates objects created with server\-side encryption using an Amazon Web Services KMS key stored in Amazon Web Services Key Management Service.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBEnabled\fP
+.IP \(bu 2
+\fBDisabled\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ReplicaModifications \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+A filter that you can specify for selections for modifications on replicas. Amazon S3 doesn\(aqt replicate replica modifications by default. In the latest version of replication configuration (when \fBFilter\fP is specified), you can specify this element and set the status to \fBEnabled\fP to replicate modifications on replicas.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+If you don\(aqt specify the \fBFilter\fP element, Amazon S3 assumes that the replication configuration is the earlier version, V1. In the earlier version, this element is not allowed
+.UNINDENT
+.UNINDENT
+.sp
+Status \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether Amazon S3 replicates modifications on replicas.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBEnabled\fP
+.IP \(bu 2
+\fBDisabled\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ExistingObjectReplication \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Optional configuration to replicate existing source bucket objects.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This parameter is no longer supported. To replicate existing objects, see \fI\%Replicating existing objects with S3 Batch Replication\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Status \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether Amazon S3 replicates existing source bucket objects.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBEnabled\fP
+.IP \(bu 2
+\fBDisabled\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Destination \-> (structure) [required]
+.INDENT 0.0
+.INDENT 3.5
+A container for information about the replication destination and its configurations including enabling the S3 Replication Time Control (S3 RTC).
+.sp
+Bucket \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The Amazon Resource Name (ARN) of the bucket where you want Amazon S3 to store the results.
+.UNINDENT
+.UNINDENT
+.sp
+Account \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Destination bucket owner account ID. In a cross\-account scenario, if you direct Amazon S3 to change replica ownership to the Amazon Web Services account that owns the destination bucket by specifying the \fBAccessControlTranslation\fP property, this is the account ID of the destination bucket owner. For more information, see \fI\%Replication Additional Configuration: Changing the Replica Owner\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+StorageClass \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The storage class to use when replicating objects, such as S3 Standard or reduced redundancy. By default, Amazon S3 uses the storage class of the source object to create the object replica.
+.sp
+For valid values, see the \fBStorageClass\fP element of the \fI\%PUT Bucket replication\fP action in the \fIAmazon S3 API Reference\fP .
+.INDENT 0.0
+.INDENT 3.5
+\fBFSX_OPENZFS\fP is not an accepted value when replicating objects.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBSTANDARD\fP
+.IP \(bu 2
+\fBREDUCED_REDUNDANCY\fP
+.IP \(bu 2
+\fBSTANDARD_IA\fP
+.IP \(bu 2
+\fBONEZONE_IA\fP
+.IP \(bu 2
+\fBINTELLIGENT_TIERING\fP
+.IP \(bu 2
+\fBGLACIER\fP
+.IP \(bu 2
+\fBDEEP_ARCHIVE\fP
+.IP \(bu 2
+\fBOUTPOSTS\fP
+.IP \(bu 2
+\fBGLACIER_IR\fP
+.IP \(bu 2
+\fBSNOW\fP
+.IP \(bu 2
+\fBEXPRESS_ONEZONE\fP
+.IP \(bu 2
+\fBFSX_OPENZFS\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+AccessControlTranslation \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specify this only in a cross\-account scenario (where source and destination bucket owners are not the same), and you want to change replica ownership to the Amazon Web Services account that owns the destination bucket. If this is not specified in the replication configuration, the replicas are owned by same Amazon Web Services account that owns the source object.
+.sp
+Owner \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Specifies the replica ownership. For default and valid values, see \fI\%PUT bucket replication\fP in the \fIAmazon S3 API Reference\fP .
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBDestination\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+EncryptionConfiguration \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+A container that provides information about encryption. If \fBSourceSelectionCriteria\fP is specified, you must specify this element.
+.sp
+ReplicaKmsKeyID \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the ID (Key ARN or Alias ARN) of the customer managed Amazon Web Services KMS key stored in Amazon Web Services Key Management Service (KMS) for the destination bucket. Amazon S3 uses this key to encrypt replica objects. Amazon S3 only supports symmetric encryption KMS keys. For more information, see \fI\%Asymmetric keys in Amazon Web Services KMS\fP in the \fIAmazon Web Services Key Management Service Developer Guide\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ReplicationTime \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+A container specifying S3 Replication Time Control (S3 RTC), including whether S3 RTC is enabled and the time when all objects and operations on objects must be replicated. Must be specified together with a \fBMetrics\fP block.
+.sp
+Status \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether the replication time is enabled.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBEnabled\fP
+.IP \(bu 2
+\fBDisabled\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Time \-> (structure) [required]
+.INDENT 0.0
+.INDENT 3.5
+A container specifying the time by which replication should be complete for all objects and operations on objects.
+.sp
+Minutes \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+Contains an integer specifying time in minutes.
+.sp
+Valid value: 15
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Metrics \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+A container specifying replication metrics\-related settings enabling replication metrics and events.
+.sp
+Status \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether the replication metrics are enabled.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBEnabled\fP
+.IP \(bu 2
+\fBDisabled\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+EventThreshold \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+A container specifying the time threshold for emitting the \fBs3:Replication:OperationMissedThreshold\fP event.
+.sp
+Minutes \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+Contains an integer specifying time in minutes.
+.sp
+Valid value: 15
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+DeleteMarkerReplication \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether Amazon S3 replicates delete markers. If you specify a \fBFilter\fP in your replication configuration, you must also include a \fBDeleteMarkerReplication\fP element. If your \fBFilter\fP includes a \fBTag\fP element, the \fBDeleteMarkerReplication\fP  \fBStatus\fP must be set to Disabled, because Amazon S3 does not support replicating delete markers for tag\-based rules. For an example configuration, see \fI\%Basic Rule Configuration\fP .
+.sp
+For more information about delete marker replication, see \fI\%Basic Rule Configuration\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+If you are using an earlier version of the replication configuration, Amazon S3 handles replication of delete markers differently. For more information, see \fI\%Backward Compatibility\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Status \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Indicates whether to replicate delete markers.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+Indicates whether to replicate delete markers.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBEnabled\fP
+.IP \(bu 2
+\fBDisabled\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.\" Generated by docutils manpage writer.
+.

@@ -1,0 +1,28 @@
+NAME:
+   mc replicate resync start - start replicating back all previously replicated objects
+
+USAGE:
+   mc replicate resync start TARGET
+
+FLAGS:
+   --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+   --quiet, -q                      disable progress bar display [$MC_QUIET]
+   --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+   --no-color                       disable color theme [$MC_NO_COLOR]
+   --json                           enable JSON lines formatted output [$MC_JSON]
+   --debug                          enable debug output [$MC_DEBUG]
+   --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+   --insecure                       disable SSL certificate verification [$MC_INSECURE]
+   --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+   --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+   --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+   --older-than value               replicate back objects older than value in duration string (e.g. 7d10h31s)
+   --remote-bucket value            remote bucket ARN
+   --help, -h                       show help
+   
+EXAMPLES:
+  1. Re-replicate previously replicated objects in bucket "mybucket" for alias "myminio" for remote target.
+   $ mc replicate resync start myminio/mybucket --remote-bucket "arn:minio:replication::xxx:mybucket"
+
+  2. Re-replicate all objects older than 60 days in bucket "mybucket" for remote bucket target.
+   $ mc replicate resync start myminio/mybucket --older-than 60d --remote-bucket "arn:minio:replication::xxx:mybucket"

@@ -1,0 +1,18 @@
+{
+  "source": "https://raw.githubusercontent.com/awslabs/aws-c-auth/dd505b55fd46222834f35c6e54165d8cbebbfaaa/tests/test_chunked_signing.c",
+  "revision": "dd505b55fd46222834f35c6e54165d8cbebbfaaa",
+  "sha256": "7b594758107384c1c9eeaafb4012d2e97e046abd83534ea0d9145d22ce2b4a4a",
+  "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+  "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+  "timestamp": "2013-05-24T00:00:00Z",
+  "values": {
+    "s_chunked_test_ecc_pub_x": "18b7d04643359f6ec270dcbab8dce6d169d66ddc9778c75cfb08dfdb701637ab",
+    "s_chunked_test_ecc_pub_y": "fa36b35e4fe67e3112261d2e17a956ef85b06e44712d2850bcd3c2161e9993f2",
+    "s_chunk_sts_pre_signature": "AWS4-ECDSA-P256-SHA256-PAYLOAD\n20130524T000000Z\n20130524/s3/aws4_request\n",
+    "s_chunk1_sts_post_signature": "\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nbf718b6f653bebc184e1479f1935b8da974d701b893afcf49e701f3e2f9f9c5a",
+    "s_chunk2_sts_post_signature": "\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n2edc986847e209b4016e141a6dc8716d3207350f416969382d431539bf292e4a",
+    "s_chunk3_sts_post_signature": "\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "s_trailing_headers_expected_sts_pre_signature": "AWS4-ECDSA-P256-SHA256-TRAILER\n20130524T000000Z\n20130524/s3/aws4_request\n",
+    "s_trailing_headers_expected_sts_post_signature": "\n83d8f190334fb741bc8daf73c891689d320bd8017756bc730c540021ed48001f"
+  }
+}

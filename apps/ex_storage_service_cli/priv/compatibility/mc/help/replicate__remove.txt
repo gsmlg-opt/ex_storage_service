@@ -1,0 +1,29 @@
+NAME:
+  mc replicate remove - remove a server side replication configuration rule
+
+USAGE:
+  mc replicate remove TARGET
+
+FLAGS:
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --id value                       id for the rule, should be a unique value
+  --force                          force remove all the replication configuration rules on the bucket
+  --all                            remove all replication configuration rules of the bucket, force flag enforced
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Remove replication configuration rule on bucket "mybucket" for alias "myminio" with rule id "bsib5mgt874bi56l0fmg".
+     $ mc replicate remove --id "bsib5mgt874bi56l0fmg" myminio/mybucket
+
+  2. Remove all the replication configuration rules on bucket "mybucket" for alias "myminio". --force flag is required.
+     $ mc replicate remove --all --force myminio/mybucket

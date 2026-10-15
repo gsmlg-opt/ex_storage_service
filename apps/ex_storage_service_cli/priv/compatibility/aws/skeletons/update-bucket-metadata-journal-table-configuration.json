@@ -1,0 +1,12 @@
+{
+    "Bucket": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "JournalTableConfiguration": {
+        "RecordExpiration": {
+            "Expiration": "ENABLED",
+            "Days": 0
+        }
+    },
+    "ExpectedBucketOwner": ""
+}

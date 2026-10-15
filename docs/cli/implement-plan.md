@@ -1,6 +1,6 @@
 # ESS CLI Implementation Plan
 
-- Status: planned; no implementation milestone is completed by adding this document.
+- Status: implementation in progress; acceptance and release remain open. See [milestone-acceptance-status.md](compatibility/milestone-acceptance-status.md) for scoped evidence and blockers.
 - Date: 2026-10-14.
 - Target: `apps/ex_storage_service_cli` and its standalone `ess` executable.
 - Source baseline inspected: `42a9fe2b41faa82cf10c3f07840b890be18b876d`; CLI version at inspection: `0.6.7`.
@@ -10,7 +10,7 @@
 
 Deliver a standalone Elixir S3 client with mc-style native commands, complete pinned AWS CLI `s3` functionality, and complete pinned `s3api` functionality. Preserve valid legacy ESS CLI invocations while replacing the existing handcrafted command/transport paths with shared, tested foundations.
 
-The requested design change consists only of `docs/cli/design.md` and this file. Everything below describes subsequent implementation work, not work already performed or authorization to start implementing during the design-only task.
+The original design-only change consisted of `docs/cli/design.md` and this file. The user subsequently authorized implementing M0–M9, committing/pushing, and releasing the next version. The original source baseline above remains historical; the implementation audit baseline is `9b8661e58107eddb24cb8f15495cee4ac979219a` plus the implementation diff. Checklist items are not closed by a generic handler or parser registration; acceptance reports distinguish implementation, wire and provider results.
 
 The complete target is all milestones M0-M9. An early useful release is not permission to rename partial CRUD coverage as full compatibility. Separate client implementation status, wire-contract evidence, and provider integration evidence throughout.
 
@@ -45,7 +45,7 @@ No Ecto/database, no dependency on ESS core/Concord/Phoenix, no runtime `aws`/`m
 
 After M2, transfer work (M3-M4) and modeled API work (M5-M6) can proceed in parallel. Once their shared interfaces are stable, credentials/special-endpoint work and provider fixtures can also run independently. Keep one owner for shared request/response types, registry, transport, and coverage schema; parallel agents must not independently redesign those contracts.
 
-Use project-local `.trees/<branch>` worktrees for parallel branches. Commit small coherent increments, integrate through normal branch protections, and never force-push over unrelated work. A milestone may have several implementation PRs but has one explicit acceptance report.
+Work in the current checkout/branch unless the user explicitly requests branches or worktrees. Requested worktrees belong in `.trees/<branch>`. Commit coherent increments, integrate through normal branch protections, and never force-push over unrelated work. A milestone may have several implementation PRs but has one explicit acceptance report.
 
 ## 3. Milestones
 
@@ -53,17 +53,17 @@ Use project-local `.trees/<branch>` worktrees for parallel branches. Commit smal
 
 ### Tasks
 
-- [ ] Read current CLI sources/tests, package metadata, root instructions, and publishing workflows; update the inspected source SHA rather than assuming this document's baseline is still HEAD.
-- [ ] Capture the behavior of all valid existing commands and their JSON output, option positions, configuration/profile selection, and return codes. Record current failures separately from behavior intentionally preserved.
-- [ ] Pin mc to `77f82e18b5401a65958f1619df6ebb994634bd88`, or explicitly review a replacement; capture nested command help, flags, defaults, and binary/source digest.
-- [ ] Select one real AWS CLI v2 release; capture its executable digest, source revision, bundled S3 service/SDK-extra models, customizations, endpoint/partition data, paginators, and waiters. Do not select a version solely from inconsistent rolling documentation headers.
-- [ ] Create the `docs/cli/compatibility/` lock and inventory files specified in the design. Enumerate every high-level command/flag and every `s3api` operation/member; no manually selected CRUD subset.
-- [ ] Classify all mc commands as portable S3, client-side utility, provider-specific extension, or explicitly outside scope; record every planned difference, including the existing `ess version` meaning.
-- [ ] Create an acceptance matrix with requirement ID, reference, milestone owner, code location, test IDs, client status, wire evidence, and provider evidence.
-- [ ] Spike the actual locked `http_fetch` APIs for streamed file/range uploads, streamed downloads, cancellation, Content-Length, raw Content-Encoding bytes, deadlines, trailers, and connection cleanup. Document gaps with failing wire tests; do not invent library options.
-- [ ] Evaluate the smallest adequate approach for JMESPath, YAML, bounded REST-XML/EventStream decoding, SigV4a, and all checksum algorithms in the reference. Record dependency/license/runtime decisions; do not hide unsupported algorithms behind ignored flags.
-- [ ] Record exact provider transfer limits in bytes and supported bucket/addressing/auth variants. Do not reuse a historical object-size ceiling.
-- [ ] Set up subprocess CLI tests, a controllable local wire server, temporary config/state roots, and credential-redaction assertions.
+- [x] Read current CLI sources/tests, package metadata, root instructions, and publishing workflows; update the inspected source SHA rather than assuming this document's baseline is still HEAD.
+- [x] Capture the behavior of all valid existing commands and their JSON output, option positions, configuration/profile selection, and return codes. Record current failures separately from behavior intentionally preserved.
+- [x] Pin mc to `77f82e18b5401a65958f1619df6ebb994634bd88`, or explicitly review a replacement; capture nested command help, flags, defaults, and binary/source digest.
+- [x] Select one real AWS CLI v2 release; capture its executable digest, source revision, bundled S3 service/SDK-extra models, customizations, endpoint/partition data, paginators, and waiters. Do not select a version solely from inconsistent rolling documentation headers.
+- [x] Create the `docs/cli/compatibility/` lock and inventory files specified in the design. Enumerate every high-level command/flag and every `s3api` operation/member; no manually selected CRUD subset.
+- [x] Classify all mc commands as portable S3, client-side utility, provider-specific extension, or explicitly outside scope; record every planned difference, including the existing `ess version` meaning.
+- [x] Create an acceptance matrix with requirement ID, reference, milestone owner, code location, test IDs, client status, wire evidence, and provider evidence.
+- [x] Spike the actual locked `http_fetch` APIs for streamed file/range uploads, streamed downloads, cancellation, Content-Length, raw Content-Encoding bytes, deadlines, trailers, and connection cleanup. Document gaps with failing wire tests; do not invent library options.
+- [x] Evaluate the smallest adequate approach for JMESPath, YAML, bounded REST-XML/EventStream decoding, SigV4a, and all checksum algorithms in the reference. Record dependency/license/runtime decisions; do not hide unsupported algorithms behind ignored flags.
+- [x] Record exact provider transfer limits in bytes and supported bucket/addressing/auth variants. Do not reuse a historical object-size ceiling.
+- [x] Set up subprocess CLI tests, a controllable local wire server, temporary config/state roots, and credential-redaction assertions.
 
 ### Acceptance
 
@@ -77,16 +77,16 @@ Reference lock, initial generated coverage report, test harness, compatibility s
 
 ### Tasks
 
-- [ ] Introduce `CLI.Registry`, `CLI.Parser`, `CLI.Runner`, immutable `Target`/`Context`, `Error`, and `ExitStatus` under `ExStorageServiceCli`.
-- [ ] Implement the native, `s3`, and `s3api` frontend selection without duplicating execution logic. Reject unknown/invalid/conflicting options; support nested help, global option positions, repeated ordered filters, and `--`.
-- [ ] Keep `ess version` and `ess --version` for CLI version; reserve explicit `version enable|suspend|info` subcommands for bucket versioning.
-- [ ] Preserve native `--endpoint`, `--expires`, current valid targets, and existing JSON contracts through adapters. Add AWS spellings only in the intended compatibility surface.
-- [ ] Parse explicit local paths, alias paths, `ess://`, `s3://`, ARN targets, stdin/stdout, trailing slashes, and platform paths into typed targets. Do not normalize S3 keys as filesystem paths.
-- [ ] Implement `alias set/list/remove/import/export` and legacy `configure` on the common config layer. Aliases hold provider/profile references where possible.
-- [ ] Implement atomic config/state writes, locking, private permissions, escaping, corruption reporting, explicit migration backups, secret-redacted output, and preservation of unrelated configuration.
-- [ ] Define namespace-specific resolution rules: AWS config/provider behavior is not implicitly overridden by ESS defaults; native cross-alias targets retain independent contexts.
-- [ ] Centralize stdout/stderr ownership and final exit handling. Command handlers return typed values; only the top-level executable may halt the VM.
-- [ ] Add help/completion generation from the registry; help must not start networking or resolve credentials.
+- [x] Introduce `CLI.Registry`, `CLI.Parser`, `CLI.Runner`, immutable `Target`/`Context`, `Error`, and `ExitStatus` under `ExStorageServiceCli`.
+- [x] Implement the native, `s3`, and `s3api` frontend selection without duplicating execution logic. Reject unknown/invalid/conflicting options; support nested help, global option positions, repeated ordered filters, and `--`.
+- [x] Keep `ess version` and `ess --version` for CLI version; reserve explicit `version enable|suspend|info` subcommands for bucket versioning.
+- [x] Preserve native `--endpoint`, `--expires`, current valid targets, and existing JSON contracts through adapters. Add AWS spellings only in the intended compatibility surface.
+- [x] Parse explicit local paths, alias paths, `ess://`, `s3://`, ARN targets, stdin/stdout, trailing slashes, and platform paths into typed targets. Do not normalize S3 keys as filesystem paths.
+- [x] Implement `alias set/list/remove/import/export` and legacy `configure` on the common config layer. Aliases hold provider/profile references where possible.
+- [x] Implement atomic config/state writes, locking, private permissions, escaping, corruption reporting, explicit migration backups, secret-redacted output, and preservation of unrelated configuration.
+- [x] Define namespace-specific resolution rules: AWS config/provider behavior is not implicitly overridden by ESS defaults; native cross-alias targets retain independent contexts.
+- [x] Centralize stdout/stderr ownership and final exit handling. Command handlers return typed values; only the top-level executable may halt the VM.
+- [x] Add help/completion generation from the registry; help must not start networking or resolve credentials.
 
 ### Acceptance tests
 
@@ -138,7 +138,7 @@ Exercise every multipart boundary using local fixtures, plus representative real
 
 ### Tasks
 
-- [ ] Implement all eight `ess s3` commands through shared operations/transfers, plus native `get`, `put`, `cat`, `head`, and `pipe` conveniences.
+- [ ] Implement all nine pinned `ess s3` commands (including `website`, identified during M0) through shared operations/transfers, plus native `get`, `put`, `cat`, `head`, and `pipe` conveniences.
 - [ ] Add the complete pinned high-level flag inventory: recursive/filter/dry-run, MIME/metadata/content headers, ACL/grants, SSE variants, storage class, checksums, requester pays, Glacier controls, source region, copy properties, progress, overwrite/case-conflict behavior, and other captured flags.
 - [ ] Map parameters to actual operation fields/effects; flags requiring M6/M7 capabilities remain explicitly tracked as incomplete until those dependencies pass, never silently accepted.
 - [ ] Implement distinct AWS-sync and mc-mirror policy modules. Preserve direction-specific timestamp/size decisions, ordered include/exclude rules, trailing slashes, metadata/copy-property rules, and symlink behavior.

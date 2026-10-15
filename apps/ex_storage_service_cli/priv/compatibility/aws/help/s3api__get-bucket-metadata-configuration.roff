@@ -1,0 +1,583 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "GET-BUCKET-METADATA-CONFIGURATION"  "" "" ""
+.SH NAME
+get-bucket-metadata-configuration \- 
+.SH DESCRIPTION
+.sp
+Retrieves the S3 Metadata configuration for a general purpose bucket. For more information, see \fI\%Accelerating data discovery with S3 Metadata\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+You can use the V2 \fBGetBucketMetadataConfiguration\fP API operation with V1 or V2 metadata configurations. However, if you try to use the V1 \fBGetBucketMetadataTableConfiguration\fP API operation with V2 configurations, you will receive an HTTP \fB405 Method Not Allowed\fP error.
+.sp
+Permissions
+.UNINDENT
+.UNINDENT
+.sp
+To use this operation, you must have the \fBs3:GetBucketMetadataTableConfiguration\fP permission. For more information, see \fI\%Setting up permissions for configuring metadata tables\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+The IAM policy action name is the same for the V1 and V2 API operations.
+.UNINDENT
+.UNINDENT
+.sp
+The following operations are related to \fBGetBucketMetadataConfiguration\fP :
+.INDENT 0.0
+.IP \(bu 2
+\fI\%CreateBucketMetadataConfiguration\fP
+.IP \(bu 2
+\fI\%DeleteBucketMetadataConfiguration\fP
+.IP \(bu 2
+\fI\%UpdateBucketMetadataInventoryTableConfiguration\fP
+.IP \(bu 2
+\fI\%UpdateBucketMetadataJournalTableConfiguration\fP
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  get\-bucket\-metadata\-configuration
+\-\-bucket <value>
+[\-\-expected\-bucket\-owner <value>]
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The general purpose bucket that corresponds to the metadata configuration that you want to retrieve.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expected\-bucket\-owner\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The expected owner of the general purpose bucket that you want to retrieve the metadata table configuration for.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH OUTPUT
+.sp
+GetBucketMetadataConfigurationResult \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+The metadata configuration for the general purpose bucket.
+.sp
+MetadataConfigurationResult \-> (structure) [required]
+.INDENT 0.0
+.INDENT 3.5
+The metadata configuration for a general purpose bucket.
+.sp
+DestinationResult \-> (structure) [required]
+.INDENT 0.0
+.INDENT 3.5
+The destination settings for a metadata configuration.
+.sp
+TableBucketType \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The type of the table bucket where the metadata configuration is stored. The \fBaws\fP value indicates an Amazon Web Services managed table bucket, and the \fBcustomer\fP value indicates a customer\-managed table bucket. V2 metadata configurations are stored in Amazon Web Services managed table buckets, and V1 metadata configurations are stored in customer\-managed table buckets.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBaws\fP
+.IP \(bu 2
+\fBcustomer\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+TableBucketArn \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Amazon Resource Name (ARN) of the table bucket where the metadata configuration is stored.
+.UNINDENT
+.UNINDENT
+.sp
+TableNamespace \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The namespace in the table bucket where the metadata tables for a metadata configuration are stored.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+JournalTableConfigurationResult \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+The journal table configuration for a metadata configuration.
+.sp
+TableStatus \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The status of the journal table. The status values are:
+.INDENT 0.0
+.IP \(bu 2
+\fBCREATING\fP \- The journal table is in the process of being created in the specified table bucket.
+.IP \(bu 2
+\fBACTIVE\fP \- The journal table has been created successfully, and records are being delivered to the table.
+.IP \(bu 2
+\fBFAILED\fP \- Amazon S3 is unable to create the journal table, or Amazon S3 is unable to deliver records.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Error \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+If an S3 Metadata V1 \fBCreateBucketMetadataTableConfiguration\fP or V2 \fBCreateBucketMetadataConfiguration\fP request succeeds, but S3 Metadata was unable to create the table, this structure contains the error code and error message.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+If you created your S3 Metadata configuration before July 15, 2025, we recommend that you delete and re\-create your configuration by using \fI\%CreateBucketMetadataConfiguration\fP so that you can expire journal table records and create a live inventory table.
+.UNINDENT
+.UNINDENT
+.sp
+ErrorCode \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If the V1 \fBCreateBucketMetadataTableConfiguration\fP request succeeds, but S3 Metadata was unable to create the table, this structure contains the error code. The possible error codes and error messages are as follows:
+.INDENT 0.0
+.IP \(bu 2
+\fBAccessDeniedCreatingResources\fP \- You don\(aqt have sufficient permissions to create the required resources. Make sure that you have \fBs3tables:CreateNamespace\fP , \fBs3tables:CreateTable\fP , \fBs3tables:GetTable\fP and \fBs3tables:PutTablePolicy\fP permissions, and then try again. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBAccessDeniedWritingToTable\fP \- Unable to write to the metadata table because of missing resource permissions. To fix the resource policy, Amazon S3 needs to create a new metadata table. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBDestinationTableNotFound\fP \- The destination table doesn\(aqt exist. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBServerInternalError\fP \- An internal error has occurred. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBTableAlreadyExists\fP \- The table that you specified already exists in the table bucket\(aqs namespace. Specify a different table name. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBTableBucketNotFound\fP \- The table bucket that you specified doesn\(aqt exist in this Amazon Web Services Region and account. Create or choose a different table bucket. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.UNINDENT
+.sp
+If the V2 \fBCreateBucketMetadataConfiguration\fP request succeeds, but S3 Metadata was unable to create the table, this structure contains the error code. The possible error codes and error messages are as follows:
+.INDENT 0.0
+.IP \(bu 2
+\fBAccessDeniedCreatingResources\fP \- You don\(aqt have sufficient permissions to create the required resources. Make sure that you have \fBs3tables:CreateTableBucket\fP , \fBs3tables:CreateNamespace\fP , \fBs3tables:CreateTable\fP , \fBs3tables:GetTable\fP , \fBs3tables:PutTablePolicy\fP , \fBkms:DescribeKey\fP , and \fBs3tables:PutTableEncryption\fP permissions. Additionally, ensure that the KMS key used to encrypt the table still exists, is active and has a resource policy granting access to the S3 service principals \(aq\fBmaintenance.s3tables.amazonaws.com\fP \(aq and \(aq\fBmetadata.s3.amazonaws.com\fP \(aq. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBAccessDeniedWritingToTable\fP \- Unable to write to the metadata table because of missing resource permissions. To fix the resource policy, Amazon S3 needs to create a new metadata table. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBDestinationTableNotFound\fP \- The destination table doesn\(aqt exist. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBServerInternalError\fP \- An internal error has occurred. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBJournalTableAlreadyExists\fP \- A journal table already exists in the Amazon Web Services managed table bucket\(aqs namespace. Delete the journal table, and then try again. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBInventoryTableAlreadyExists\fP \- An inventory table already exists in the Amazon Web Services managed table bucket\(aqs namespace. Delete the inventory table, and then try again. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBJournalTableNotAvailable\fP \- The journal table that the inventory table relies on has a \fBFAILED\fP status. An inventory table requires a journal table with an \fBACTIVE\fP status. To create a new journal or inventory table, you must delete the metadata configuration for this bucket, along with any journal or inventory tables, and then create a new metadata configuration.
+.IP \(bu 2
+\fBNoSuchBucket\fP \- The specified general purpose bucket does not exist.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ErrorMessage \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If the V1 \fBCreateBucketMetadataTableConfiguration\fP request succeeds, but S3 Metadata was unable to create the table, this structure contains the error message. The possible error codes and error messages are as follows:
+.INDENT 0.0
+.IP \(bu 2
+\fBAccessDeniedCreatingResources\fP \- You don\(aqt have sufficient permissions to create the required resources. Make sure that you have \fBs3tables:CreateNamespace\fP , \fBs3tables:CreateTable\fP , \fBs3tables:GetTable\fP and \fBs3tables:PutTablePolicy\fP permissions, and then try again. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBAccessDeniedWritingToTable\fP \- Unable to write to the metadata table because of missing resource permissions. To fix the resource policy, Amazon S3 needs to create a new metadata table. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBDestinationTableNotFound\fP \- The destination table doesn\(aqt exist. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBServerInternalError\fP \- An internal error has occurred. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBTableAlreadyExists\fP \- The table that you specified already exists in the table bucket\(aqs namespace. Specify a different table name. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBTableBucketNotFound\fP \- The table bucket that you specified doesn\(aqt exist in this Amazon Web Services Region and account. Create or choose a different table bucket. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.UNINDENT
+.sp
+If the V2 \fBCreateBucketMetadataConfiguration\fP request succeeds, but S3 Metadata was unable to create the table, this structure contains the error code. The possible error codes and error messages are as follows:
+.INDENT 0.0
+.IP \(bu 2
+\fBAccessDeniedCreatingResources\fP \- You don\(aqt have sufficient permissions to create the required resources. Make sure that you have \fBs3tables:CreateTableBucket\fP , \fBs3tables:CreateNamespace\fP , \fBs3tables:CreateTable\fP , \fBs3tables:GetTable\fP , \fBs3tables:PutTablePolicy\fP , \fBkms:DescribeKey\fP , and \fBs3tables:PutTableEncryption\fP permissions. Additionally, ensure that the KMS key used to encrypt the table still exists, is active and has a resource policy granting access to the S3 service principals \(aq\fBmaintenance.s3tables.amazonaws.com\fP \(aq and \(aq\fBmetadata.s3.amazonaws.com\fP \(aq. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBAccessDeniedWritingToTable\fP \- Unable to write to the metadata table because of missing resource permissions. To fix the resource policy, Amazon S3 needs to create a new metadata table. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBDestinationTableNotFound\fP \- The destination table doesn\(aqt exist. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBServerInternalError\fP \- An internal error has occurred. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBJournalTableAlreadyExists\fP \- A journal table already exists in the Amazon Web Services managed table bucket\(aqs namespace. Delete the journal table, and then try again. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBInventoryTableAlreadyExists\fP \- An inventory table already exists in the Amazon Web Services managed table bucket\(aqs namespace. Delete the inventory table, and then try again. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBJournalTableNotAvailable\fP \- The journal table that the inventory table relies on has a \fBFAILED\fP status. An inventory table requires a journal table with an \fBACTIVE\fP status. To create a new journal or inventory table, you must delete the metadata configuration for this bucket, along with any journal or inventory tables, and then create a new metadata configuration.
+.IP \(bu 2
+\fBNoSuchBucket\fP \- The specified general purpose bucket does not exist.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+TableName \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The name of the journal table.
+.UNINDENT
+.UNINDENT
+.sp
+TableArn \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Amazon Resource Name (ARN) for the journal table.
+.UNINDENT
+.UNINDENT
+.sp
+RecordExpiration \-> (structure) [required]
+.INDENT 0.0
+.INDENT 3.5
+The journal table record expiration settings for the journal table.
+.sp
+Expiration \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether journal table record expiration is enabled or disabled.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBENABLED\fP
+.IP \(bu 2
+\fBDISABLED\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Days \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+If you enable journal table record expiration, you can set the number of days to retain your journal table records. Journal table records must be retained for a minimum of 7 days. To set this value, specify any whole number from \fB7\fP to \fB2147483647\fP . For example, to retain your journal table records for one year, set this value to \fB365\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+InventoryTableConfigurationResult \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+The inventory table configuration for a metadata configuration.
+.sp
+ConfigurationState \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The configuration state of the inventory table, indicating whether the inventory table is enabled or disabled.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBENABLED\fP
+.IP \(bu 2
+\fBDISABLED\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+TableStatus \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The status of the inventory table. The status values are:
+.INDENT 0.0
+.IP \(bu 2
+\fBCREATING\fP \- The inventory table is in the process of being created in the specified Amazon Web Services managed table bucket.
+.IP \(bu 2
+\fBBACKFILLING\fP \- The inventory table is in the process of being backfilled. When you enable the inventory table for your metadata configuration, the table goes through a process known as backfilling, during which Amazon S3 scans your general purpose bucket to retrieve the initial metadata for all objects in the bucket. Depending on the number of objects in your bucket, this process can take several hours. When the backfilling process is finished, the status of your inventory table changes from \fBBACKFILLING\fP to \fBACTIVE\fP . After backfilling is completed, updates to your objects are reflected in the inventory table within one hour.
+.IP \(bu 2
+\fBACTIVE\fP \- The inventory table has been created successfully, and records are being delivered to the table.
+.IP \(bu 2
+\fBFAILED\fP \- Amazon S3 is unable to create the inventory table, or Amazon S3 is unable to deliver records.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Error \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+If an S3 Metadata V1 \fBCreateBucketMetadataTableConfiguration\fP or V2 \fBCreateBucketMetadataConfiguration\fP request succeeds, but S3 Metadata was unable to create the table, this structure contains the error code and error message.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+If you created your S3 Metadata configuration before July 15, 2025, we recommend that you delete and re\-create your configuration by using \fI\%CreateBucketMetadataConfiguration\fP so that you can expire journal table records and create a live inventory table.
+.UNINDENT
+.UNINDENT
+.sp
+ErrorCode \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If the V1 \fBCreateBucketMetadataTableConfiguration\fP request succeeds, but S3 Metadata was unable to create the table, this structure contains the error code. The possible error codes and error messages are as follows:
+.INDENT 0.0
+.IP \(bu 2
+\fBAccessDeniedCreatingResources\fP \- You don\(aqt have sufficient permissions to create the required resources. Make sure that you have \fBs3tables:CreateNamespace\fP , \fBs3tables:CreateTable\fP , \fBs3tables:GetTable\fP and \fBs3tables:PutTablePolicy\fP permissions, and then try again. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBAccessDeniedWritingToTable\fP \- Unable to write to the metadata table because of missing resource permissions. To fix the resource policy, Amazon S3 needs to create a new metadata table. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBDestinationTableNotFound\fP \- The destination table doesn\(aqt exist. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBServerInternalError\fP \- An internal error has occurred. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBTableAlreadyExists\fP \- The table that you specified already exists in the table bucket\(aqs namespace. Specify a different table name. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBTableBucketNotFound\fP \- The table bucket that you specified doesn\(aqt exist in this Amazon Web Services Region and account. Create or choose a different table bucket. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.UNINDENT
+.sp
+If the V2 \fBCreateBucketMetadataConfiguration\fP request succeeds, but S3 Metadata was unable to create the table, this structure contains the error code. The possible error codes and error messages are as follows:
+.INDENT 0.0
+.IP \(bu 2
+\fBAccessDeniedCreatingResources\fP \- You don\(aqt have sufficient permissions to create the required resources. Make sure that you have \fBs3tables:CreateTableBucket\fP , \fBs3tables:CreateNamespace\fP , \fBs3tables:CreateTable\fP , \fBs3tables:GetTable\fP , \fBs3tables:PutTablePolicy\fP , \fBkms:DescribeKey\fP , and \fBs3tables:PutTableEncryption\fP permissions. Additionally, ensure that the KMS key used to encrypt the table still exists, is active and has a resource policy granting access to the S3 service principals \(aq\fBmaintenance.s3tables.amazonaws.com\fP \(aq and \(aq\fBmetadata.s3.amazonaws.com\fP \(aq. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBAccessDeniedWritingToTable\fP \- Unable to write to the metadata table because of missing resource permissions. To fix the resource policy, Amazon S3 needs to create a new metadata table. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBDestinationTableNotFound\fP \- The destination table doesn\(aqt exist. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBServerInternalError\fP \- An internal error has occurred. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBJournalTableAlreadyExists\fP \- A journal table already exists in the Amazon Web Services managed table bucket\(aqs namespace. Delete the journal table, and then try again. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBInventoryTableAlreadyExists\fP \- An inventory table already exists in the Amazon Web Services managed table bucket\(aqs namespace. Delete the inventory table, and then try again. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBJournalTableNotAvailable\fP \- The journal table that the inventory table relies on has a \fBFAILED\fP status. An inventory table requires a journal table with an \fBACTIVE\fP status. To create a new journal or inventory table, you must delete the metadata configuration for this bucket, along with any journal or inventory tables, and then create a new metadata configuration.
+.IP \(bu 2
+\fBNoSuchBucket\fP \- The specified general purpose bucket does not exist.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ErrorMessage \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If the V1 \fBCreateBucketMetadataTableConfiguration\fP request succeeds, but S3 Metadata was unable to create the table, this structure contains the error message. The possible error codes and error messages are as follows:
+.INDENT 0.0
+.IP \(bu 2
+\fBAccessDeniedCreatingResources\fP \- You don\(aqt have sufficient permissions to create the required resources. Make sure that you have \fBs3tables:CreateNamespace\fP , \fBs3tables:CreateTable\fP , \fBs3tables:GetTable\fP and \fBs3tables:PutTablePolicy\fP permissions, and then try again. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBAccessDeniedWritingToTable\fP \- Unable to write to the metadata table because of missing resource permissions. To fix the resource policy, Amazon S3 needs to create a new metadata table. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBDestinationTableNotFound\fP \- The destination table doesn\(aqt exist. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBServerInternalError\fP \- An internal error has occurred. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBTableAlreadyExists\fP \- The table that you specified already exists in the table bucket\(aqs namespace. Specify a different table name. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBTableBucketNotFound\fP \- The table bucket that you specified doesn\(aqt exist in this Amazon Web Services Region and account. Create or choose a different table bucket. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.UNINDENT
+.sp
+If the V2 \fBCreateBucketMetadataConfiguration\fP request succeeds, but S3 Metadata was unable to create the table, this structure contains the error code. The possible error codes and error messages are as follows:
+.INDENT 0.0
+.IP \(bu 2
+\fBAccessDeniedCreatingResources\fP \- You don\(aqt have sufficient permissions to create the required resources. Make sure that you have \fBs3tables:CreateTableBucket\fP , \fBs3tables:CreateNamespace\fP , \fBs3tables:CreateTable\fP , \fBs3tables:GetTable\fP , \fBs3tables:PutTablePolicy\fP , \fBkms:DescribeKey\fP , and \fBs3tables:PutTableEncryption\fP permissions. Additionally, ensure that the KMS key used to encrypt the table still exists, is active and has a resource policy granting access to the S3 service principals \(aq\fBmaintenance.s3tables.amazonaws.com\fP \(aq and \(aq\fBmetadata.s3.amazonaws.com\fP \(aq. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBAccessDeniedWritingToTable\fP \- Unable to write to the metadata table because of missing resource permissions. To fix the resource policy, Amazon S3 needs to create a new metadata table. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBDestinationTableNotFound\fP \- The destination table doesn\(aqt exist. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBServerInternalError\fP \- An internal error has occurred. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBJournalTableAlreadyExists\fP \- A journal table already exists in the Amazon Web Services managed table bucket\(aqs namespace. Delete the journal table, and then try again. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBInventoryTableAlreadyExists\fP \- An inventory table already exists in the Amazon Web Services managed table bucket\(aqs namespace. Delete the inventory table, and then try again. To create a new metadata table, you must delete the metadata configuration for this bucket, and then create a new metadata configuration.
+.IP \(bu 2
+\fBJournalTableNotAvailable\fP \- The journal table that the inventory table relies on has a \fBFAILED\fP status. An inventory table requires a journal table with an \fBACTIVE\fP status. To create a new journal or inventory table, you must delete the metadata configuration for this bucket, along with any journal or inventory tables, and then create a new metadata configuration.
+.IP \(bu 2
+\fBNoSuchBucket\fP \- The specified general purpose bucket does not exist.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+TableName \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The name of the inventory table.
+.UNINDENT
+.UNINDENT
+.sp
+TableArn \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Amazon Resource Name (ARN) for the inventory table.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.\" Generated by docutils manpage writer.
+.

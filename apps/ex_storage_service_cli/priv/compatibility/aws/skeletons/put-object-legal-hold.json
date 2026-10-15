@@ -1,0 +1,12 @@
+{
+    "Bucket": "",
+    "Key": "",
+    "LegalHold": {
+        "Status": "ON"
+    },
+    "RequestPayer": "requester",
+    "VersionId": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "ExpectedBucketOwner": ""
+}

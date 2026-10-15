@@ -1,0 +1,32 @@
+NAME:
+  mc version enable - enable bucket versioning
+
+USAGE:
+  mc version enable ALIAS/BUCKET
+
+FLAGS:
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --excluded-prefixes value        exclude versioning on these prefix patterns
+  --exclude-folders                exclude versioning on folder objects
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Enable versioning on bucket "mybucket" for alias "myminio".
+     $ mc version enable myminio/mybucket
+
+  2. Enable versioning on bucket "mybucket" while excluding versioning on a few select prefixes.
+     $ mc version enable myminio/mybucket --excluded-prefixes "app1/*/_temporary/,app2/*/_staging/"
+
+  3. Enable versioning on bucket "mybucket" while excluding versioning on a few select prefixes and all folders.
+     Note: this is useful on buckets used with Spark/Hadoop workloads.
+     $ mc version enable myminio/mybucket --excluded-prefixes "app1/*/_temporary/,app2/*/_staging/" --exclude-folders

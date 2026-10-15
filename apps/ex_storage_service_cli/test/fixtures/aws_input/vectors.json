@@ -1,0 +1,1344 @@
+{
+  "reference": {
+    "aws_cli": "2.31.18",
+    "source_revision": "f4f66e65e70f23f1bf232ecb4a6d8696f4dda3bc",
+    "source_sha256": {
+      "argprocess": "bc7b7408eaff27cc1fb7796e312eed874429a0ad344f9574d2fb4a24393409a2",
+      "shorthand": "076f6214d1065875bb8a931e634a8a3d1b18889c4bc28628acc4a003567b3970"
+    }
+  },
+  "shorthand": [
+    {
+      "operation": "PutObject",
+      "member": "Metadata",
+      "value": "a=x\\,y,b=\"hello world\"",
+      "expected": {
+        "a": "x,y",
+        "b": "hello world"
+      }
+    },
+    {
+      "operation": "DeleteObjects",
+      "member": "Delete",
+      "value": "Objects=[{Key=one,VersionId=v1},{Key=two}],Quiet=false",
+      "expected": {
+        "Objects": [
+          {
+            "Key": "one",
+            "VersionId": "v1"
+          },
+          {
+            "Key": "two"
+          }
+        ],
+        "Quiet": false
+      }
+    },
+    {
+      "operation": "PutBucketTagging",
+      "member": "Tagging",
+      "value": "TagSet=[{Key=first,Value=\"\"},{Key=second,Value=\"a,b\"}]",
+      "expected": {
+        "TagSet": [
+          {
+            "Key": "first",
+            "Value": ""
+          },
+          {
+            "Key": "second",
+            "Value": "a,b"
+          }
+        ]
+      }
+    },
+    {
+      "operation": "PutBucketLifecycleConfiguration",
+      "member": "LifecycleConfiguration",
+      "value": "Rules=[{ID=r,Status=Enabled,Filter={Prefix=docs/},Expiration={Days=30}}]",
+      "expected": {
+        "Rules": [
+          {
+            "ID": "r",
+            "Status": "Enabled",
+            "Filter": {
+              "Prefix": "docs/"
+            },
+            "Expiration": {
+              "Days": 30
+            }
+          }
+        ]
+      }
+    },
+    {
+      "operation": "PutBucketCors",
+      "member": "CORSConfiguration",
+      "value": "CORSRules=[{AllowedMethods=[GET,PUT],AllowedOrigins=[https://example.com],MaxAgeSeconds=300}]",
+      "expected": {
+        "CORSRules": [
+          {
+            "AllowedMethods": [
+              "GET",
+              "PUT"
+            ],
+            "AllowedOrigins": [
+              "https://example.com"
+            ],
+            "MaxAgeSeconds": 300
+          }
+        ]
+      }
+    },
+    {
+      "operation": "RestoreObject",
+      "member": "RestoreRequest",
+      "value": "Days=5,GlacierJobParameters={Tier=Standard}",
+      "expected": {
+        "Days": 5,
+        "GlacierJobParameters": {
+          "Tier": "Standard"
+        }
+      }
+    }
+  ],
+  "syntax": [
+    {
+      "value": "a=b,c=d",
+      "expected": {
+        "a": "b",
+        "c": "d"
+      }
+    },
+    {
+      "value": "a=b,c,d=e",
+      "expected": {
+        "a": [
+          "b",
+          "c"
+        ],
+        "d": "e"
+      }
+    },
+    {
+      "value": "a=[x,y]",
+      "expected": {
+        "a": [
+          "x",
+          "y"
+        ]
+      }
+    },
+    {
+      "value": "a=[x,]",
+      "expected": {
+        "a": [
+          "x"
+        ]
+      }
+    },
+    {
+      "value": "a={b=x,c=[y,z]}",
+      "expected": {
+        "a": {
+          "b": "x",
+          "c": [
+            "y",
+            "z"
+          ]
+        }
+      }
+    },
+    {
+      "value": "a=\"x,y\"",
+      "expected": {
+        "a": "x,y"
+      }
+    },
+    {
+      "value": "a=x\\,y",
+      "expected": {
+        "a": "x,y"
+      }
+    }
+  ],
+  "member_flags": {
+    "AbortMultipartUpload": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "upload-id": "UploadId",
+      "request-payer": "RequestPayer",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "if-match-initiated-time": "IfMatchInitiatedTime"
+    },
+    "CompleteMultipartUpload": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "multipart-upload": "MultipartUpload",
+      "upload-id": "UploadId",
+      "checksum-crc32": "ChecksumCRC32",
+      "checksum-crc32-c": "ChecksumCRC32C",
+      "checksum-crc64-nvme": "ChecksumCRC64NVME",
+      "checksum-sha1": "ChecksumSHA1",
+      "checksum-sha256": "ChecksumSHA256",
+      "checksum-type": "ChecksumType",
+      "mpu-object-size": "MpuObjectSize",
+      "request-payer": "RequestPayer",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "if-match": "IfMatch",
+      "if-none-match": "IfNoneMatch",
+      "sse-customer-algorithm": "SSECustomerAlgorithm",
+      "sse-customer-key": "SSECustomerKey",
+      "sse-customer-key-md5": "SSECustomerKeyMD5"
+    },
+    "CopyObject": {
+      "acl": "ACL",
+      "bucket": "Bucket",
+      "cache-control": "CacheControl",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "content-disposition": "ContentDisposition",
+      "content-encoding": "ContentEncoding",
+      "content-language": "ContentLanguage",
+      "content-type": "ContentType",
+      "copy-source": "CopySource",
+      "copy-source-if-match": "CopySourceIfMatch",
+      "copy-source-if-modified-since": "CopySourceIfModifiedSince",
+      "copy-source-if-none-match": "CopySourceIfNoneMatch",
+      "copy-source-if-unmodified-since": "CopySourceIfUnmodifiedSince",
+      "expires": "Expires",
+      "grant-full-control": "GrantFullControl",
+      "grant-read": "GrantRead",
+      "grant-read-acp": "GrantReadACP",
+      "grant-write-acp": "GrantWriteACP",
+      "key": "Key",
+      "metadata": "Metadata",
+      "metadata-directive": "MetadataDirective",
+      "tagging-directive": "TaggingDirective",
+      "server-side-encryption": "ServerSideEncryption",
+      "storage-class": "StorageClass",
+      "website-redirect-location": "WebsiteRedirectLocation",
+      "sse-customer-algorithm": "SSECustomerAlgorithm",
+      "sse-customer-key": "SSECustomerKey",
+      "sse-customer-key-md5": "SSECustomerKeyMD5",
+      "ssekms-key-id": "SSEKMSKeyId",
+      "ssekms-encryption-context": "SSEKMSEncryptionContext",
+      "bucket-key-enabled": "BucketKeyEnabled",
+      "copy-source-sse-customer-algorithm": "CopySourceSSECustomerAlgorithm",
+      "copy-source-sse-customer-key": "CopySourceSSECustomerKey",
+      "copy-source-sse-customer-key-md5": "CopySourceSSECustomerKeyMD5",
+      "request-payer": "RequestPayer",
+      "tagging": "Tagging",
+      "object-lock-mode": "ObjectLockMode",
+      "object-lock-retain-until-date": "ObjectLockRetainUntilDate",
+      "object-lock-legal-hold-status": "ObjectLockLegalHoldStatus",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "expected-source-bucket-owner": "ExpectedSourceBucketOwner"
+    },
+    "CreateBucket": {
+      "acl": "ACL",
+      "bucket": "Bucket",
+      "create-bucket-configuration": "CreateBucketConfiguration",
+      "grant-full-control": "GrantFullControl",
+      "grant-read": "GrantRead",
+      "grant-read-acp": "GrantReadACP",
+      "grant-write": "GrantWrite",
+      "grant-write-acp": "GrantWriteACP",
+      "object-lock-enabled-for-bucket": "ObjectLockEnabledForBucket",
+      "object-ownership": "ObjectOwnership"
+    },
+    "CreateBucketMetadataConfiguration": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "metadata-configuration": "MetadataConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "CreateBucketMetadataTableConfiguration": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "metadata-table-configuration": "MetadataTableConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "CreateMultipartUpload": {
+      "acl": "ACL",
+      "bucket": "Bucket",
+      "cache-control": "CacheControl",
+      "content-disposition": "ContentDisposition",
+      "content-encoding": "ContentEncoding",
+      "content-language": "ContentLanguage",
+      "content-type": "ContentType",
+      "expires": "Expires",
+      "grant-full-control": "GrantFullControl",
+      "grant-read": "GrantRead",
+      "grant-read-acp": "GrantReadACP",
+      "grant-write-acp": "GrantWriteACP",
+      "key": "Key",
+      "metadata": "Metadata",
+      "server-side-encryption": "ServerSideEncryption",
+      "storage-class": "StorageClass",
+      "website-redirect-location": "WebsiteRedirectLocation",
+      "sse-customer-algorithm": "SSECustomerAlgorithm",
+      "sse-customer-key": "SSECustomerKey",
+      "sse-customer-key-md5": "SSECustomerKeyMD5",
+      "ssekms-key-id": "SSEKMSKeyId",
+      "ssekms-encryption-context": "SSEKMSEncryptionContext",
+      "bucket-key-enabled": "BucketKeyEnabled",
+      "request-payer": "RequestPayer",
+      "tagging": "Tagging",
+      "object-lock-mode": "ObjectLockMode",
+      "object-lock-retain-until-date": "ObjectLockRetainUntilDate",
+      "object-lock-legal-hold-status": "ObjectLockLegalHoldStatus",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "checksum-type": "ChecksumType"
+    },
+    "CreateSession": {
+      "session-mode": "SessionMode",
+      "bucket": "Bucket",
+      "server-side-encryption": "ServerSideEncryption",
+      "ssekms-key-id": "SSEKMSKeyId",
+      "ssekms-encryption-context": "SSEKMSEncryptionContext",
+      "bucket-key-enabled": "BucketKeyEnabled"
+    },
+    "DeleteBucket": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteBucketAnalyticsConfiguration": {
+      "bucket": "Bucket",
+      "id": "Id",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteBucketCors": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteBucketEncryption": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteBucketIntelligentTieringConfiguration": {
+      "bucket": "Bucket",
+      "id": "Id",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteBucketInventoryConfiguration": {
+      "bucket": "Bucket",
+      "id": "Id",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteBucketLifecycle": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteBucketMetadataConfiguration": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteBucketMetadataTableConfiguration": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteBucketMetricsConfiguration": {
+      "bucket": "Bucket",
+      "id": "Id",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteBucketOwnershipControls": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteBucketPolicy": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteBucketReplication": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteBucketTagging": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteBucketWebsite": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteObject": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "mfa": "MFA",
+      "version-id": "VersionId",
+      "request-payer": "RequestPayer",
+      "bypass-governance-retention": "BypassGovernanceRetention",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "if-match": "IfMatch",
+      "if-match-last-modified-time": "IfMatchLastModifiedTime",
+      "if-match-size": "IfMatchSize"
+    },
+    "DeleteObjectTagging": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "version-id": "VersionId",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "DeleteObjects": {
+      "bucket": "Bucket",
+      "delete": "Delete",
+      "mfa": "MFA",
+      "request-payer": "RequestPayer",
+      "bypass-governance-retention": "BypassGovernanceRetention",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "checksum-algorithm": "ChecksumAlgorithm"
+    },
+    "DeletePublicAccessBlock": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketAccelerateConfiguration": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "request-payer": "RequestPayer"
+    },
+    "GetBucketAcl": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketAnalyticsConfiguration": {
+      "bucket": "Bucket",
+      "id": "Id",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketCors": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketEncryption": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketIntelligentTieringConfiguration": {
+      "bucket": "Bucket",
+      "id": "Id",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketInventoryConfiguration": {
+      "bucket": "Bucket",
+      "id": "Id",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketLifecycle": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketLifecycleConfiguration": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketLocation": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketLogging": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketMetadataConfiguration": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketMetadataTableConfiguration": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketMetricsConfiguration": {
+      "bucket": "Bucket",
+      "id": "Id",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketNotification": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketNotificationConfiguration": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketOwnershipControls": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketPolicy": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketPolicyStatus": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketReplication": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketRequestPayment": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketTagging": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketVersioning": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetBucketWebsite": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetObject": {
+      "bucket": "Bucket",
+      "if-match": "IfMatch",
+      "if-modified-since": "IfModifiedSince",
+      "if-none-match": "IfNoneMatch",
+      "if-unmodified-since": "IfUnmodifiedSince",
+      "key": "Key",
+      "range": "Range",
+      "response-cache-control": "ResponseCacheControl",
+      "response-content-disposition": "ResponseContentDisposition",
+      "response-content-encoding": "ResponseContentEncoding",
+      "response-content-language": "ResponseContentLanguage",
+      "response-content-type": "ResponseContentType",
+      "response-expires": "ResponseExpires",
+      "version-id": "VersionId",
+      "sse-customer-algorithm": "SSECustomerAlgorithm",
+      "sse-customer-key": "SSECustomerKey",
+      "sse-customer-key-md5": "SSECustomerKeyMD5",
+      "request-payer": "RequestPayer",
+      "part-number": "PartNumber",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "checksum-mode": "ChecksumMode"
+    },
+    "GetObjectAcl": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "version-id": "VersionId",
+      "request-payer": "RequestPayer",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetObjectAttributes": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "version-id": "VersionId",
+      "max-parts": "MaxParts",
+      "part-number-marker": "PartNumberMarker",
+      "sse-customer-algorithm": "SSECustomerAlgorithm",
+      "sse-customer-key": "SSECustomerKey",
+      "sse-customer-key-md5": "SSECustomerKeyMD5",
+      "request-payer": "RequestPayer",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "object-attributes": "ObjectAttributes"
+    },
+    "GetObjectLegalHold": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "version-id": "VersionId",
+      "request-payer": "RequestPayer",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetObjectLockConfiguration": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetObjectRetention": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "version-id": "VersionId",
+      "request-payer": "RequestPayer",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetObjectTagging": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "version-id": "VersionId",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "request-payer": "RequestPayer"
+    },
+    "GetObjectTorrent": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "request-payer": "RequestPayer",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "GetPublicAccessBlock": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "HeadBucket": {
+      "bucket": "Bucket",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "HeadObject": {
+      "bucket": "Bucket",
+      "if-match": "IfMatch",
+      "if-modified-since": "IfModifiedSince",
+      "if-none-match": "IfNoneMatch",
+      "if-unmodified-since": "IfUnmodifiedSince",
+      "key": "Key",
+      "range": "Range",
+      "response-cache-control": "ResponseCacheControl",
+      "response-content-disposition": "ResponseContentDisposition",
+      "response-content-encoding": "ResponseContentEncoding",
+      "response-content-language": "ResponseContentLanguage",
+      "response-content-type": "ResponseContentType",
+      "response-expires": "ResponseExpires",
+      "version-id": "VersionId",
+      "sse-customer-algorithm": "SSECustomerAlgorithm",
+      "sse-customer-key": "SSECustomerKey",
+      "sse-customer-key-md5": "SSECustomerKeyMD5",
+      "request-payer": "RequestPayer",
+      "part-number": "PartNumber",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "checksum-mode": "ChecksumMode"
+    },
+    "ListBucketAnalyticsConfigurations": {
+      "bucket": "Bucket",
+      "continuation-token": "ContinuationToken",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "ListBucketIntelligentTieringConfigurations": {
+      "bucket": "Bucket",
+      "continuation-token": "ContinuationToken",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "ListBucketInventoryConfigurations": {
+      "bucket": "Bucket",
+      "continuation-token": "ContinuationToken",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "ListBucketMetricsConfigurations": {
+      "bucket": "Bucket",
+      "continuation-token": "ContinuationToken",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "ListBuckets": {
+      "max-buckets": "MaxBuckets",
+      "continuation-token": "ContinuationToken",
+      "prefix": "Prefix",
+      "bucket-region": "BucketRegion"
+    },
+    "ListDirectoryBuckets": {
+      "continuation-token": "ContinuationToken",
+      "max-directory-buckets": "MaxDirectoryBuckets"
+    },
+    "ListMultipartUploads": {
+      "bucket": "Bucket",
+      "delimiter": "Delimiter",
+      "encoding-type": "EncodingType",
+      "key-marker": "KeyMarker",
+      "max-uploads": "MaxUploads",
+      "prefix": "Prefix",
+      "upload-id-marker": "UploadIdMarker",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "request-payer": "RequestPayer"
+    },
+    "ListObjectVersions": {
+      "bucket": "Bucket",
+      "delimiter": "Delimiter",
+      "encoding-type": "EncodingType",
+      "key-marker": "KeyMarker",
+      "max-keys": "MaxKeys",
+      "prefix": "Prefix",
+      "version-id-marker": "VersionIdMarker",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "request-payer": "RequestPayer",
+      "optional-object-attributes": "OptionalObjectAttributes"
+    },
+    "ListObjects": {
+      "bucket": "Bucket",
+      "delimiter": "Delimiter",
+      "encoding-type": "EncodingType",
+      "marker": "Marker",
+      "max-keys": "MaxKeys",
+      "prefix": "Prefix",
+      "request-payer": "RequestPayer",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "optional-object-attributes": "OptionalObjectAttributes"
+    },
+    "ListObjectsV2": {
+      "bucket": "Bucket",
+      "delimiter": "Delimiter",
+      "encoding-type": "EncodingType",
+      "max-keys": "MaxKeys",
+      "prefix": "Prefix",
+      "continuation-token": "ContinuationToken",
+      "fetch-owner": "FetchOwner",
+      "start-after": "StartAfter",
+      "request-payer": "RequestPayer",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "optional-object-attributes": "OptionalObjectAttributes"
+    },
+    "ListParts": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "max-parts": "MaxParts",
+      "part-number-marker": "PartNumberMarker",
+      "upload-id": "UploadId",
+      "request-payer": "RequestPayer",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "sse-customer-algorithm": "SSECustomerAlgorithm",
+      "sse-customer-key": "SSECustomerKey",
+      "sse-customer-key-md5": "SSECustomerKeyMD5"
+    },
+    "PutBucketAccelerateConfiguration": {
+      "bucket": "Bucket",
+      "accelerate-configuration": "AccelerateConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "checksum-algorithm": "ChecksumAlgorithm"
+    },
+    "PutBucketAcl": {
+      "acl": "ACL",
+      "access-control-policy": "AccessControlPolicy",
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "grant-full-control": "GrantFullControl",
+      "grant-read": "GrantRead",
+      "grant-read-acp": "GrantReadACP",
+      "grant-write": "GrantWrite",
+      "grant-write-acp": "GrantWriteACP",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutBucketAnalyticsConfiguration": {
+      "bucket": "Bucket",
+      "id": "Id",
+      "analytics-configuration": "AnalyticsConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutBucketCors": {
+      "bucket": "Bucket",
+      "cors-configuration": "CORSConfiguration",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutBucketEncryption": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "server-side-encryption-configuration": "ServerSideEncryptionConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutBucketIntelligentTieringConfiguration": {
+      "bucket": "Bucket",
+      "id": "Id",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "intelligent-tiering-configuration": "IntelligentTieringConfiguration"
+    },
+    "PutBucketInventoryConfiguration": {
+      "bucket": "Bucket",
+      "id": "Id",
+      "inventory-configuration": "InventoryConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutBucketLifecycle": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "lifecycle-configuration": "LifecycleConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutBucketLifecycleConfiguration": {
+      "bucket": "Bucket",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "lifecycle-configuration": "LifecycleConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "transition-default-minimum-object-size": "TransitionDefaultMinimumObjectSize"
+    },
+    "PutBucketLogging": {
+      "bucket": "Bucket",
+      "bucket-logging-status": "BucketLoggingStatus",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutBucketMetricsConfiguration": {
+      "bucket": "Bucket",
+      "id": "Id",
+      "metrics-configuration": "MetricsConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutBucketNotification": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "notification-configuration": "NotificationConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutBucketNotificationConfiguration": {
+      "bucket": "Bucket",
+      "notification-configuration": "NotificationConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "skip-destination-validation": "SkipDestinationValidation"
+    },
+    "PutBucketOwnershipControls": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "ownership-controls": "OwnershipControls",
+      "checksum-algorithm": "ChecksumAlgorithm"
+    },
+    "PutBucketPolicy": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "confirm-remove-self-bucket-access": "ConfirmRemoveSelfBucketAccess",
+      "policy": "Policy",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutBucketReplication": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "replication-configuration": "ReplicationConfiguration",
+      "token": "Token",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutBucketRequestPayment": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "request-payment-configuration": "RequestPaymentConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutBucketTagging": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "tagging": "Tagging",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutBucketVersioning": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "mfa": "MFA",
+      "versioning-configuration": "VersioningConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutBucketWebsite": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "website-configuration": "WebsiteConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutObject": {
+      "acl": "ACL",
+      "body": "Body",
+      "bucket": "Bucket",
+      "cache-control": "CacheControl",
+      "content-disposition": "ContentDisposition",
+      "content-encoding": "ContentEncoding",
+      "content-language": "ContentLanguage",
+      "content-length": "ContentLength",
+      "content-md5": "ContentMD5",
+      "content-type": "ContentType",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "checksum-crc32": "ChecksumCRC32",
+      "checksum-crc32-c": "ChecksumCRC32C",
+      "checksum-crc64-nvme": "ChecksumCRC64NVME",
+      "checksum-sha1": "ChecksumSHA1",
+      "checksum-sha256": "ChecksumSHA256",
+      "expires": "Expires",
+      "if-match": "IfMatch",
+      "if-none-match": "IfNoneMatch",
+      "grant-full-control": "GrantFullControl",
+      "grant-read": "GrantRead",
+      "grant-read-acp": "GrantReadACP",
+      "grant-write-acp": "GrantWriteACP",
+      "key": "Key",
+      "write-offset-bytes": "WriteOffsetBytes",
+      "metadata": "Metadata",
+      "server-side-encryption": "ServerSideEncryption",
+      "storage-class": "StorageClass",
+      "website-redirect-location": "WebsiteRedirectLocation",
+      "sse-customer-algorithm": "SSECustomerAlgorithm",
+      "sse-customer-key": "SSECustomerKey",
+      "sse-customer-key-md5": "SSECustomerKeyMD5",
+      "ssekms-key-id": "SSEKMSKeyId",
+      "ssekms-encryption-context": "SSEKMSEncryptionContext",
+      "bucket-key-enabled": "BucketKeyEnabled",
+      "request-payer": "RequestPayer",
+      "tagging": "Tagging",
+      "object-lock-mode": "ObjectLockMode",
+      "object-lock-retain-until-date": "ObjectLockRetainUntilDate",
+      "object-lock-legal-hold-status": "ObjectLockLegalHoldStatus",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutObjectAcl": {
+      "acl": "ACL",
+      "access-control-policy": "AccessControlPolicy",
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "grant-full-control": "GrantFullControl",
+      "grant-read": "GrantRead",
+      "grant-read-acp": "GrantReadACP",
+      "grant-write": "GrantWrite",
+      "grant-write-acp": "GrantWriteACP",
+      "key": "Key",
+      "request-payer": "RequestPayer",
+      "version-id": "VersionId",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutObjectLegalHold": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "legal-hold": "LegalHold",
+      "request-payer": "RequestPayer",
+      "version-id": "VersionId",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutObjectLockConfiguration": {
+      "bucket": "Bucket",
+      "object-lock-configuration": "ObjectLockConfiguration",
+      "request-payer": "RequestPayer",
+      "token": "Token",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutObjectRetention": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "retention": "Retention",
+      "request-payer": "RequestPayer",
+      "version-id": "VersionId",
+      "bypass-governance-retention": "BypassGovernanceRetention",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "PutObjectTagging": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "version-id": "VersionId",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "tagging": "Tagging",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "request-payer": "RequestPayer"
+    },
+    "PutPublicAccessBlock": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "public-access-block-configuration": "PublicAccessBlockConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "RenameObject": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "rename-source": "RenameSource",
+      "destination-if-match": "DestinationIfMatch",
+      "destination-if-none-match": "DestinationIfNoneMatch",
+      "destination-if-modified-since": "DestinationIfModifiedSince",
+      "destination-if-unmodified-since": "DestinationIfUnmodifiedSince",
+      "source-if-match": "SourceIfMatch",
+      "source-if-none-match": "SourceIfNoneMatch",
+      "source-if-modified-since": "SourceIfModifiedSince",
+      "source-if-unmodified-since": "SourceIfUnmodifiedSince",
+      "client-token": "ClientToken"
+    },
+    "RestoreObject": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "version-id": "VersionId",
+      "restore-request": "RestoreRequest",
+      "request-payer": "RequestPayer",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "SelectObjectContent": {
+      "bucket": "Bucket",
+      "key": "Key",
+      "sse-customer-algorithm": "SSECustomerAlgorithm",
+      "sse-customer-key": "SSECustomerKey",
+      "sse-customer-key-md5": "SSECustomerKeyMD5",
+      "expression": "Expression",
+      "expression-type": "ExpressionType",
+      "request-progress": "RequestProgress",
+      "input-serialization": "InputSerialization",
+      "output-serialization": "OutputSerialization",
+      "scan-range": "ScanRange",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "UpdateBucketMetadataInventoryTableConfiguration": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "inventory-table-configuration": "InventoryTableConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "UpdateBucketMetadataJournalTableConfiguration": {
+      "bucket": "Bucket",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "journal-table-configuration": "JournalTableConfiguration",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "UploadPart": {
+      "body": "Body",
+      "bucket": "Bucket",
+      "content-length": "ContentLength",
+      "content-md5": "ContentMD5",
+      "checksum-algorithm": "ChecksumAlgorithm",
+      "checksum-crc32": "ChecksumCRC32",
+      "checksum-crc32-c": "ChecksumCRC32C",
+      "checksum-crc64-nvme": "ChecksumCRC64NVME",
+      "checksum-sha1": "ChecksumSHA1",
+      "checksum-sha256": "ChecksumSHA256",
+      "key": "Key",
+      "part-number": "PartNumber",
+      "upload-id": "UploadId",
+      "sse-customer-algorithm": "SSECustomerAlgorithm",
+      "sse-customer-key": "SSECustomerKey",
+      "sse-customer-key-md5": "SSECustomerKeyMD5",
+      "request-payer": "RequestPayer",
+      "expected-bucket-owner": "ExpectedBucketOwner"
+    },
+    "UploadPartCopy": {
+      "bucket": "Bucket",
+      "copy-source": "CopySource",
+      "copy-source-if-match": "CopySourceIfMatch",
+      "copy-source-if-modified-since": "CopySourceIfModifiedSince",
+      "copy-source-if-none-match": "CopySourceIfNoneMatch",
+      "copy-source-if-unmodified-since": "CopySourceIfUnmodifiedSince",
+      "copy-source-range": "CopySourceRange",
+      "key": "Key",
+      "part-number": "PartNumber",
+      "upload-id": "UploadId",
+      "sse-customer-algorithm": "SSECustomerAlgorithm",
+      "sse-customer-key": "SSECustomerKey",
+      "sse-customer-key-md5": "SSECustomerKeyMD5",
+      "copy-source-sse-customer-algorithm": "CopySourceSSECustomerAlgorithm",
+      "copy-source-sse-customer-key": "CopySourceSSECustomerKey",
+      "copy-source-sse-customer-key-md5": "CopySourceSSECustomerKeyMD5",
+      "request-payer": "RequestPayer",
+      "expected-bucket-owner": "ExpectedBucketOwner",
+      "expected-source-bucket-owner": "ExpectedSourceBucketOwner"
+    },
+    "WriteGetObjectResponse": {
+      "request-route": "RequestRoute",
+      "request-token": "RequestToken",
+      "body": "Body",
+      "status-code": "StatusCode",
+      "error-code": "ErrorCode",
+      "error-message": "ErrorMessage",
+      "accept-ranges": "AcceptRanges",
+      "cache-control": "CacheControl",
+      "content-disposition": "ContentDisposition",
+      "content-encoding": "ContentEncoding",
+      "content-language": "ContentLanguage",
+      "content-length": "ContentLength",
+      "content-range": "ContentRange",
+      "content-type": "ContentType",
+      "checksum-crc32": "ChecksumCRC32",
+      "checksum-crc32-c": "ChecksumCRC32C",
+      "checksum-crc64-nvme": "ChecksumCRC64NVME",
+      "checksum-sha1": "ChecksumSHA1",
+      "checksum-sha256": "ChecksumSHA256",
+      "delete-marker": "DeleteMarker",
+      "e-tag": "ETag",
+      "expires": "Expires",
+      "expiration": "Expiration",
+      "last-modified": "LastModified",
+      "missing-meta": "MissingMeta",
+      "metadata": "Metadata",
+      "object-lock-mode": "ObjectLockMode",
+      "object-lock-legal-hold-status": "ObjectLockLegalHoldStatus",
+      "object-lock-retain-until-date": "ObjectLockRetainUntilDate",
+      "parts-count": "PartsCount",
+      "replication-status": "ReplicationStatus",
+      "request-charged": "RequestCharged",
+      "restore": "Restore",
+      "server-side-encryption": "ServerSideEncryption",
+      "sse-customer-algorithm": "SSECustomerAlgorithm",
+      "ssekms-key-id": "SSEKMSKeyId",
+      "sse-customer-key-md5": "SSECustomerKeyMD5",
+      "storage-class": "StorageClass",
+      "tag-count": "TagCount",
+      "version-id": "VersionId",
+      "bucket-key-enabled": "BucketKeyEnabled"
+    }
+  },
+  "skeletons": [
+    {
+      "operation": "PutObject",
+      "kind": "input",
+      "expected": {
+        "ACL": "private",
+        "Body": null,
+        "Bucket": "",
+        "CacheControl": "",
+        "ContentDisposition": "",
+        "ContentEncoding": "",
+        "ContentLanguage": "",
+        "ContentLength": 0,
+        "ContentMD5": "",
+        "ContentType": "",
+        "ChecksumAlgorithm": "CRC32",
+        "ChecksumCRC32": "",
+        "ChecksumCRC32C": "",
+        "ChecksumCRC64NVME": "",
+        "ChecksumSHA1": "",
+        "ChecksumSHA256": "",
+        "Expires": "1970-01-01T00:00:00",
+        "IfMatch": "",
+        "IfNoneMatch": "",
+        "GrantFullControl": "",
+        "GrantRead": "",
+        "GrantReadACP": "",
+        "GrantWriteACP": "",
+        "Key": "",
+        "WriteOffsetBytes": 0,
+        "Metadata": {
+          "KeyName": ""
+        },
+        "ServerSideEncryption": "AES256",
+        "StorageClass": "STANDARD",
+        "WebsiteRedirectLocation": "",
+        "SSECustomerAlgorithm": "",
+        "SSECustomerKey": "",
+        "SSECustomerKeyMD5": "",
+        "SSEKMSKeyId": "",
+        "SSEKMSEncryptionContext": "",
+        "BucketKeyEnabled": true,
+        "RequestPayer": "requester",
+        "Tagging": "",
+        "ObjectLockMode": "GOVERNANCE",
+        "ObjectLockRetainUntilDate": "1970-01-01T00:00:00",
+        "ObjectLockLegalHoldStatus": "ON",
+        "ExpectedBucketOwner": ""
+      }
+    },
+    {
+      "operation": "PutObject",
+      "kind": "output",
+      "expected": {
+        "Expiration": "Expiration",
+        "ETag": "ETag",
+        "ChecksumCRC32": "ChecksumCRC32",
+        "ChecksumCRC32C": "ChecksumCRC32C",
+        "ChecksumCRC64NVME": "ChecksumCRC64NVME",
+        "ChecksumSHA1": "ChecksumSHA1",
+        "ChecksumSHA256": "ChecksumSHA256",
+        "ChecksumType": "ChecksumType",
+        "ServerSideEncryption": "ServerSideEncryption",
+        "VersionId": "VersionId",
+        "SSECustomerAlgorithm": "SSECustomerAlgorithm",
+        "SSECustomerKeyMD5": "SSECustomerKeyMD5",
+        "SSEKMSKeyId": "SSEKMSKeyId",
+        "SSEKMSEncryptionContext": "SSEKMSEncryptionContext",
+        "BucketKeyEnabled": true,
+        "Size": 0,
+        "RequestCharged": "RequestCharged"
+      }
+    },
+    {
+      "operation": "DeleteObjects",
+      "kind": "input",
+      "expected": {
+        "Bucket": "",
+        "Delete": {
+          "Objects": [
+            {
+              "Key": "",
+              "VersionId": "",
+              "ETag": "",
+              "LastModifiedTime": "1970-01-01T00:00:00",
+              "Size": 0
+            }
+          ],
+          "Quiet": true
+        },
+        "MFA": "",
+        "RequestPayer": "requester",
+        "BypassGovernanceRetention": true,
+        "ExpectedBucketOwner": "",
+        "ChecksumAlgorithm": "CRC32"
+      }
+    },
+    {
+      "operation": "DeleteObjects",
+      "kind": "output",
+      "expected": {
+        "Deleted": [
+          {
+            "Key": "Key",
+            "VersionId": "VersionId",
+            "DeleteMarker": true,
+            "DeleteMarkerVersionId": "DeleteMarkerVersionId"
+          }
+        ],
+        "RequestCharged": "RequestCharged",
+        "Errors": [
+          {
+            "Key": "Key",
+            "VersionId": "VersionId",
+            "Code": "Code",
+            "Message": "Message"
+          }
+        ]
+      }
+    },
+    {
+      "operation": "GetObject",
+      "kind": "input",
+      "expected": {
+        "Bucket": "",
+        "IfMatch": "",
+        "IfModifiedSince": "1970-01-01T00:00:00",
+        "IfNoneMatch": "",
+        "IfUnmodifiedSince": "1970-01-01T00:00:00",
+        "Key": "",
+        "Range": "",
+        "ResponseCacheControl": "",
+        "ResponseContentDisposition": "",
+        "ResponseContentEncoding": "",
+        "ResponseContentLanguage": "",
+        "ResponseContentType": "",
+        "ResponseExpires": "1970-01-01T00:00:00",
+        "VersionId": "",
+        "SSECustomerAlgorithm": "",
+        "SSECustomerKey": "",
+        "SSECustomerKeyMD5": "",
+        "RequestPayer": "requester",
+        "PartNumber": 0,
+        "ExpectedBucketOwner": "",
+        "ChecksumMode": "ENABLED"
+      }
+    },
+    {
+      "operation": "GetObject",
+      "kind": "output",
+      "expected": {
+        "Body": null,
+        "DeleteMarker": true,
+        "AcceptRanges": "AcceptRanges",
+        "Expiration": "Expiration",
+        "Restore": "Restore",
+        "LastModified": "1970-01-01T00:00:00",
+        "ContentLength": 0,
+        "ETag": "ETag",
+        "ChecksumCRC32": "ChecksumCRC32",
+        "ChecksumCRC32C": "ChecksumCRC32C",
+        "ChecksumCRC64NVME": "ChecksumCRC64NVME",
+        "ChecksumSHA1": "ChecksumSHA1",
+        "ChecksumSHA256": "ChecksumSHA256",
+        "ChecksumType": "ChecksumType",
+        "MissingMeta": 0,
+        "VersionId": "VersionId",
+        "CacheControl": "CacheControl",
+        "ContentDisposition": "ContentDisposition",
+        "ContentEncoding": "ContentEncoding",
+        "ContentLanguage": "ContentLanguage",
+        "ContentRange": "ContentRange",
+        "ContentType": "ContentType",
+        "Expires": "1970-01-01T00:00:00",
+        "WebsiteRedirectLocation": "WebsiteRedirectLocation",
+        "ServerSideEncryption": "ServerSideEncryption",
+        "Metadata": {
+          "KeyName": ""
+        },
+        "SSECustomerAlgorithm": "SSECustomerAlgorithm",
+        "SSECustomerKeyMD5": "SSECustomerKeyMD5",
+        "SSEKMSKeyId": "SSEKMSKeyId",
+        "BucketKeyEnabled": true,
+        "StorageClass": "StorageClass",
+        "RequestCharged": "RequestCharged",
+        "ReplicationStatus": "ReplicationStatus",
+        "PartsCount": 0,
+        "TagCount": 0,
+        "ObjectLockMode": "ObjectLockMode",
+        "ObjectLockRetainUntilDate": "1970-01-01T00:00:00",
+        "ObjectLockLegalHoldStatus": "ObjectLockLegalHoldStatus"
+      }
+    },
+    {
+      "operation": "PutBucketLifecycleConfiguration",
+      "kind": "input",
+      "expected": {
+        "Bucket": "",
+        "ChecksumAlgorithm": "CRC32",
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "Expiration": {
+                "Date": "1970-01-01T00:00:00",
+                "Days": 0,
+                "ExpiredObjectDeleteMarker": true
+              },
+              "ID": "",
+              "Prefix": "",
+              "Filter": {
+                "Prefix": "",
+                "Tag": {
+                  "Key": "",
+                  "Value": ""
+                },
+                "ObjectSizeGreaterThan": 0,
+                "ObjectSizeLessThan": 0,
+                "And": {
+                  "Prefix": "",
+                  "Tags": [
+                    {
+                      "Key": "",
+                      "Value": ""
+                    }
+                  ],
+                  "ObjectSizeGreaterThan": 0,
+                  "ObjectSizeLessThan": 0
+                }
+              },
+              "Status": "Enabled",
+              "Transitions": [
+                {
+                  "Date": "1970-01-01T00:00:00",
+                  "Days": 0,
+                  "StorageClass": "GLACIER"
+                }
+              ],
+              "NoncurrentVersionTransitions": [
+                {
+                  "NoncurrentDays": 0,
+                  "StorageClass": "GLACIER",
+                  "NewerNoncurrentVersions": 0
+                }
+              ],
+              "NoncurrentVersionExpiration": {
+                "NoncurrentDays": 0,
+                "NewerNoncurrentVersions": 0
+              },
+              "AbortIncompleteMultipartUpload": {
+                "DaysAfterInitiation": 0
+              }
+            }
+          ]
+        },
+        "ExpectedBucketOwner": "",
+        "TransitionDefaultMinimumObjectSize": "varies_by_storage_class"
+      }
+    },
+    {
+      "operation": "PutBucketLifecycleConfiguration",
+      "kind": "output",
+      "expected": {
+        "TransitionDefaultMinimumObjectSize": "TransitionDefaultMinimumObjectSize"
+      }
+    }
+  ]
+}

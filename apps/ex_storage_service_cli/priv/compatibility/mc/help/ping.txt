@@ -1,0 +1,38 @@
+NAME:
+  mc ping - perform liveness check
+
+USAGE:
+  mc ping [FLAGS] TARGET [TARGET...]
+
+FLAGS:
+  --count value, -c value          perform liveliness check for count number of times (default: 0)
+  --error-count value, -e value    exit after N consecutive ping errors (default: 0)
+  --exit, -x                       exit when server(s) responds and reports being online
+  --interval value, -i value       wait interval between each request in seconds (default: 1)
+  --distributed, -a                ping all the servers in the cluster, use it when you have direct access to nodes/pods
+  --node value                     ping the specified node
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Return Latency and liveness probe.
+     $ mc ping myminio
+
+  2. Return Latency and liveness probe 5 number of times.
+     $ mc ping --count 5 myminio
+
+  3. Return Latency and liveness with wait interval set to 30 seconds.
+     $ mc ping --interval 30 myminio
+
+  4. Stop pinging when error count > 20.
+     $ mc ping --error-count 20 myminio

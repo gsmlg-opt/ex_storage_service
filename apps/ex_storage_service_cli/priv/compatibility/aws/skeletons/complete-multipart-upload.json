@@ -1,0 +1,32 @@
+{
+    "Bucket": "",
+    "Key": "",
+    "MultipartUpload": {
+        "Parts": [
+            {
+                "ETag": "",
+                "ChecksumCRC32": "",
+                "ChecksumCRC32C": "",
+                "ChecksumCRC64NVME": "",
+                "ChecksumSHA1": "",
+                "ChecksumSHA256": "",
+                "PartNumber": 0
+            }
+        ]
+    },
+    "UploadId": "",
+    "ChecksumCRC32": "",
+    "ChecksumCRC32C": "",
+    "ChecksumCRC64NVME": "",
+    "ChecksumSHA1": "",
+    "ChecksumSHA256": "",
+    "ChecksumType": "COMPOSITE",
+    "MpuObjectSize": 0,
+    "RequestPayer": "requester",
+    "ExpectedBucketOwner": "",
+    "IfMatch": "",
+    "IfNoneMatch": "",
+    "SSECustomerAlgorithm": "",
+    "SSECustomerKey": "",
+    "SSECustomerKeyMD5": ""
+}

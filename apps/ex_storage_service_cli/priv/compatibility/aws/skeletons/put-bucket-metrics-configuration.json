@@ -1,0 +1,26 @@
+{
+    "Bucket": "",
+    "Id": "",
+    "MetricsConfiguration": {
+        "Id": "",
+        "Filter": {
+            "Prefix": "",
+            "Tag": {
+                "Key": "",
+                "Value": ""
+            },
+            "AccessPointArn": "",
+            "And": {
+                "Prefix": "",
+                "Tags": [
+                    {
+                        "Key": "",
+                        "Value": ""
+                    }
+                ],
+                "AccessPointArn": ""
+            }
+        }
+    },
+    "ExpectedBucketOwner": ""
+}

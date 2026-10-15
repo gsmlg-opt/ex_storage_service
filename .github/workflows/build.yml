@@ -4,6 +4,16 @@ on:
   push:
     branches:
       - main
+    # Workflow-only build changes are checked on PRs or by explicit dispatch.
+    paths-ignore:
+      - "apps/ex_storage_service_cli/**"
+      - "docs/**"
+      - "scripts/cli_compatibility/**"
+      - ".github/workflows/publish-cli.yml"
+      - ".github/workflows/cli-compatibility.yml"
+      - ".github/workflows/build.yml"
+      - ".gitignore"
+      - "**/*.md"
   pull_request:
     branches:
       - main

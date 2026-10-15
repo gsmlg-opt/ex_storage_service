@@ -1,0 +1,830 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "LIST-MULTIPART-UPLOADS"  "" "" ""
+.SH NAME
+list-multipart-uploads \- 
+.SH DESCRIPTION
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+End of support notice: Beginning October 1, 2025, Amazon S3 will stop returning \fBDisplayName\fP . Update your applications to use canonical IDs (unique identifier for Amazon Web Services accounts), Amazon Web Services account ID (12 digit identifier) or IAM ARNs (full resource naming) as a direct replacement of \fBDisplayName\fP .
+.sp
+This change affects the following Amazon Web Services Regions: US East (N. Virginia) Region, US West (N. California) Region, US West (Oregon) Region, Asia Pacific (Singapore) Region, Asia Pacific (Sydney) Region, Asia Pacific (Tokyo) Region, Europe (Ireland) Region, and South America (São Paulo) Region.
+.UNINDENT
+.UNINDENT
+.sp
+This operation lists in\-progress multipart uploads in a bucket. An in\-progress multipart upload is a multipart upload that has been initiated by the \fBCreateMultipartUpload\fP request, but has not yet been completed or aborted.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- If multipart uploads in a directory bucket are in progress, you can\(aqt delete the bucket until all the in\-progress multipart uploads are aborted or completed. To delete these in\-progress multipart uploads, use the \fBListMultipartUploads\fP operation to list the in\-progress multipart uploads in the bucket and use the \fBAbortMultipartUpload\fP operation to abort all the in\-progress multipart uploads.
+.UNINDENT
+.UNINDENT
+.sp
+The \fBListMultipartUploads\fP operation returns a maximum of 1,000 multipart uploads in the response. The limit of 1,000 multipart uploads is also the default value. You can further limit the number of uploads in a response by specifying the \fBmax\-uploads\fP request parameter. If there are more than 1,000 multipart uploads that satisfy your \fBListMultipartUploads\fP request, the response returns an \fBIsTruncated\fP element with the value of \fBtrue\fP , a \fBNextKeyMarker\fP element, and a \fBNextUploadIdMarker\fP element. To list the remaining multipart uploads, you need to make subsequent \fBListMultipartUploads\fP requests. In these requests, include two query parameters: \fBkey\-marker\fP and \fBupload\-id\-marker\fP . Set the value of \fBkey\-marker\fP to the \fBNextKeyMarker\fP value from the previous response. Similarly, set the value of \fBupload\-id\-marker\fP to the \fBNextUploadIdMarker\fP value from the previous response.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- The \fBupload\-id\-marker\fP element and the \fBNextUploadIdMarker\fP element aren\(aqt supported by directory buckets. To list the additional multipart uploads, you only need to set the value of \fBkey\-marker\fP to the \fBNextKeyMarker\fP value from the previous response.
+.UNINDENT
+.UNINDENT
+.sp
+For more information about multipart uploads, see \fI\%Uploading Objects Using Multipart Upload\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- For directory buckets, you must make requests for this API operation to the Zonal endpoint. These endpoints support virtual\-hosted\-style requests in the format 
+.nf
+\(ga\(ga
+.fi
+\fI\%https://\fP\fIamzn\-s3\-demo\-bucket\fP .s3express\-\fIzone\-id\fP .*region\-code* .amazonaws.com/\fIkey\-name\fP \(ga\(ga . Path\-style requests are not supported. For more information about endpoints in Availability Zones, see \fI\%Regional and Zonal endpoints for directory buckets in Availability Zones\fP in the \fIAmazon S3 User Guide\fP . For more information about endpoints in Local Zones, see \fI\%Concepts for directory buckets in Local Zones\fP in the \fIAmazon S3 User Guide\fP .
+.IP "System Message: WARNING/2 (<string>:, line 68)"
+Inline literal start\-string without end\-string.
+.UNINDENT
+.UNINDENT
+.sp
+Permissions
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+\fBGeneral purpose bucket permissions\fP \- For information about permissions required to use the multipart upload API, see \fI\%Multipart Upload and Permissions\fP in the \fIAmazon S3 User Guide\fP .
+.IP \(bu 2
+\fBDirectory bucket permissions\fP \- To grant access to this API operation on a directory bucket, we recommend that you use the \(ga \fBCreateSession\fP \fI\%https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateSession\fP\&.html\(ga__ API operation for session\-based authorization. Specifically, you grant the \fBs3express:CreateSession\fP permission to the directory bucket in a bucket policy or an IAM identity\-based policy. Then, you make the \fBCreateSession\fP API call on the bucket to obtain a session token. With the session token in your request header, you can make API requests to this operation. After the session token expires, you make another \fBCreateSession\fP API call to generate a new session token for use. Amazon Web Services CLI or SDKs create session and refresh the session token automatically to avoid service interruptions when a session expires. For more information about authorization, see \(ga \fBCreateSession\fP \fI\%https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateSession\fP\&.html\(ga__ .
+.sp
+Sorting of multipart uploads in response
+.IP \(bu 2
+\fBGeneral purpose bucket\fP \- In the \fBListMultipartUploads\fP response, the multipart uploads are sorted based on two criteria:
+.INDENT 2.0
+.IP \(bu 2
+Key\-based sorting \- Multipart uploads are initially sorted in ascending order based on their object keys.
+.IP \(bu 2
+Time\-based sorting \- For uploads that share the same object key, they are further sorted in ascending order based on the upload initiation time. Among uploads with the same key, the one that was initiated first will appear before the ones that were initiated later.
+.UNINDENT
+.IP \(bu 2
+\fBDirectory bucket\fP \- In the \fBListMultipartUploads\fP response, the multipart uploads aren\(aqt sorted lexicographically based on the object keys.
+.sp
+HTTP Host header syntax
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- The HTTP Host header syntax is \(ga\(ga \fIBucket\-name\fP .s3express\-\fIzone\-id\fP .*region\-code* .amazonaws.com\(ga\(ga .
+.UNINDENT
+.UNINDENT
+.sp
+The following operations are related to \fBListMultipartUploads\fP :
+.INDENT 0.0
+.IP \(bu 2
+\fI\%CreateMultipartUpload\fP
+.IP \(bu 2
+\fI\%UploadPart\fP
+.IP \(bu 2
+\fI\%CompleteMultipartUpload\fP
+.IP \(bu 2
+\fI\%ListParts\fP
+.IP \(bu 2
+\fI\%AbortMultipartUpload\fP
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.sp
+\fBlist\-multipart\-uploads\fP is a paginated operation. Multiple API calls may be issued in order to retrieve the entire data set of results. You can disable pagination by providing the \fB\-\-no\-paginate\fP argument.
+When using \fB\-\-output text\fP and the \fB\-\-query\fP argument on a paginated response, the \fB\-\-query\fP argument must extract data from the results of the following query expressions: \fBUploads\fP, \fBCommonPrefixes\fP
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  list\-multipart\-uploads
+\-\-bucket <value>
+[\-\-delimiter <value>]
+[\-\-encoding\-type <value>]
+[\-\-prefix <value>]
+[\-\-expected\-bucket\-owner <value>]
+[\-\-request\-payer <value>]
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-starting\-token <value>]
+[\-\-page\-size <value>]
+[\-\-max\-items <value>]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The name of the bucket to which the multipart upload was initiated.
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- When you use this operation with a directory bucket, you must use virtual\-hosted\-style requests in the format \(ga\(ga \fIBucket\-name\fP .s3express\-\fIzone\-id\fP .*region\-code* .amazonaws.com\(ga\(ga . Path\-style requests are not supported. Directory bucket names must be unique in the chosen Zone (Availability Zone or Local Zone). Bucket names must follow the format \(ga\(ga \fIbucket\-base\-name\fP \-\-\fIzone\-id\fP \-\-x\-s3\(ga\(ga (for example, \(ga\(ga \fIamzn\-s3\-demo\-bucket\fP \-\-\fIusw2\-az1\fP \-\-x\-s3\(ga\(ga ). For information about bucket naming restrictions, see \fI\%Directory bucket naming rules\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBAccess points\fP \- When you use this action with an access point for general purpose buckets, you must provide the alias of the access point in place of the bucket name or specify the access point ARN. When you use this action with an access point for directory buckets, you must provide the access point name in place of the bucket name. When using the access point ARN, you must direct requests to the access point hostname. The access point hostname takes the form \fIAccessPointName\fP \-\fIAccountId\fP .s3\-accesspoint.*Region* .amazonaws.com. When using this action with an access point through the Amazon Web Services SDKs, you provide the access point ARN in place of the bucket name. For more information about access point ARNs, see \fI\%Using access points\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+Object Lambda access points are not supported by directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+\fBS3 on Outposts\fP \- When you use this action with S3 on Outposts, you must direct requests to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form \(ga\(ga \fIAccessPointName\fP \-\fIAccountId\fP .*outpostID* .s3\-outposts.*Region* .amazonaws.com\(ga\(ga . When you use this action with S3 on Outposts, the destination bucket must be the Outposts access point ARN or the access point alias. For more information about S3 on Outposts, see \fI\%What is S3 on Outposts?\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-delimiter\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Character you use to group keys.
+.sp
+All keys that contain the same string between the prefix, if specified, and the first occurrence of the delimiter after the prefix are grouped under a single result element, \fBCommonPrefixes\fP . If you don\(aqt specify the prefix parameter, then the substring starts at the beginning of the key. The keys that are grouped under \fBCommonPrefixes\fP result element are not returned elsewhere in the response.
+.INDENT 0.0
+.INDENT 3.5
+\fBCommonPrefixes\fP is filtered out from results if it is not lexicographically greater than the key\-marker.
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- For directory buckets, \fB/\fP is the only supported delimiter.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-encoding\-type\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Encoding type used by Amazon S3 to encode the \fI\%object keys\fP in the response. Responses are encoded only in UTF\-8. An object key can contain any Unicode character. However, the XML 1.0 parser can\(aqt parse certain characters, such as characters with an ASCII value from 0 to 10. For characters that aren\(aqt supported in XML 1.0, you can add this parameter to request that Amazon S3 encode the keys in the response. For more information about characters to avoid in object key names, see \fI\%Object key naming guidelines\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+When using the URL encoding type, non\-ASCII characters that are used in an object\(aqs key name will be percent\-encoded according to UTF\-8 code values. For example, the object \fBtest_file(3).png\fP will appear as \fBtest_file%283%29.png\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBurl\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-prefix\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Lists in\-progress uploads only for those keys that begin with the specified prefix. You can use prefixes to separate a bucket into different grouping of keys. (You can think of using \fBprefix\fP to make groups in the same way that you\(aqd use a folder in a file system.)
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- For directory buckets, only prefixes that end in a delimiter (\fB/\fP ) are supported.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expected\-bucket\-owner\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The account ID of the expected bucket owner. If the account ID that you provide does not match the actual owner of the bucket, the request fails with the HTTP status code \fB403 Forbidden\fP (access denied).
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-request\-payer\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Confirms that the requester knows that they will be charged for the request. Bucket owners need not specify this parameter in their requests. If either the source or destination S3 bucket has Requester Pays enabled, the requester will pay for corresponding charges to copy the object. For information about downloading objects from Requester Pays buckets, see \fI\%Downloading Objects in Requester Pays Buckets\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBrequester\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-starting\-token\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+A token to specify where to start paginating. This is the \fBNextToken\fP from a previously truncated response.
+.sp
+For usage examples, see \fI\%Pagination\fP in the \fIAWS Command Line Interface User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-page\-size\fP (integer)
+.INDENT 0.0
+.INDENT 3.5
+The size of each page to get in the AWS service call. This does not affect the number of items returned in the command\(aqs output. Setting a smaller page size results in more calls to the AWS service, retrieving fewer items in each call. This can help prevent the AWS service calls from timing out.
+.sp
+For usage examples, see \fI\%Pagination\fP in the \fIAWS Command Line Interface User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-max\-items\fP (integer)
+.INDENT 0.0
+.INDENT 3.5
+The total number of items to return in the command\(aqs output. If the total number of items available is more than the value specified, a \fBNextToken\fP is provided in the command\(aqs output. To resume pagination, provide the \fBNextToken\fP value in the \fBstarting\-token\fP argument of a subsequent command. \fBDo not\fP use the \fBNextToken\fP response element directly outside of the AWS CLI.
+.sp
+For usage examples, see \fI\%Pagination\fP in the \fIAWS Command Line Interface User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH EXAMPLES
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use the following examples, you must have the AWS CLI installed and configured. See the \fI\%Getting started guide\fP in the \fIAWS CLI User Guide\fP for more information.
+.sp
+Unless otherwise stated, all examples have unix\-like quotation rules. These examples will need to be adapted to your terminal\(aqs quoting rules. See \fI\%Using quotation marks with strings\fP in the \fIAWS CLI User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+The following command lists all of the active multipart uploads for a bucket named \fBamzn\-s3\-demo\-bucket\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api list\-multipart\-uploads \-\-bucket amzn\-s3\-demo\-bucket
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+    \(dqUploads\(dq: [
+        {
+            \(dqInitiator\(dq: {
+                \(dqDisplayName\(dq: \(dqusername\(dq,
+                \(dqID\(dq: \(dqarn:aws:iam::0123456789012:user/username\(dq
+            },
+            \(dqInitiated\(dq: \(dq2015\-06\-02T18:01:30.000Z\(dq,
+            \(dqUploadId\(dq: \(dqdfRtDYU0WWCCcH43C3WFbkRONycyCpTJJvxu2i5GYkZljF.Yxwh6XG7WfS2vC4to6HiV6Yjlx.cph0gtNBtJ8P3URCSbB7rjxI5iEwVDmgaXZOGgkk5nVTW16HOQ5l0R\(dq,
+            \(dqStorageClass\(dq: \(dqSTANDARD\(dq,
+            \(dqKey\(dq: \(dqmultipart/01\(dq,
+            \(dqOwner\(dq: {
+                \(dqDisplayName\(dq: \(dqaws\-account\-name\(dq,
+                \(dqID\(dq: \(dq100719349fc3b6dcd7c820a124bf7aecd408092c3d7b51b38494939801fc248b\(dq
+            }
+        }
+    ],
+    \(dqCommonPrefixes\(dq: []
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+In progress multipart uploads incur storage costs in Amazon S3. Complete or abort an active multipart upload to remove its parts from your account.
+.SH OUTPUT
+.sp
+Bucket \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The name of the bucket to which the multipart upload was initiated. Does not return the access point ARN or access point alias if used.
+.UNINDENT
+.UNINDENT
+.sp
+KeyMarker \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The key at or after which the listing began.
+.UNINDENT
+.UNINDENT
+.sp
+UploadIdMarker \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Together with key\-marker, specifies the multipart upload after which listing should begin. If key\-marker is not specified, the upload\-id\-marker parameter is ignored. Otherwise, any multipart uploads for a key equal to the key\-marker might be included in the list only if they have an upload ID lexicographically greater than the specified \fBupload\-id\-marker\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+NextKeyMarker \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+When a list is truncated, this element specifies the value that should be used for the key\-marker request parameter in a subsequent request.
+.UNINDENT
+.UNINDENT
+.sp
+Prefix \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+When a prefix is provided in the request, this field contains the specified prefix. The result contains only keys starting with the specified prefix.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- For directory buckets, only prefixes that end in a delimiter (\fB/\fP ) are supported.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Delimiter \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Contains the delimiter you specified in the request. If you don\(aqt specify a delimiter in your request, this element is absent from the response.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- For directory buckets, \fB/\fP is the only supported delimiter.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+NextUploadIdMarker \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+When a list is truncated, this element specifies the value that should be used for the \fBupload\-id\-marker\fP request parameter in a subsequent request.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+MaxUploads \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+Maximum number of multipart uploads that could have been included in the response.
+.UNINDENT
+.UNINDENT
+.sp
+IsTruncated \-> (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Indicates whether the returned list of multipart uploads is truncated. A value of true indicates that the list was truncated. The list can be truncated if the number of multipart uploads exceeds the limit allowed or specified by max uploads.
+.UNINDENT
+.UNINDENT
+.sp
+Uploads \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+Container for elements related to a particular multipart upload. A response can contain zero or more \fBUpload\fP elements.
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+Container for the \fBMultipartUpload\fP for the Amazon S3 object.
+.sp
+UploadId \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Upload ID that identifies the multipart upload.
+.UNINDENT
+.UNINDENT
+.sp
+Key \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Key of the object for which the multipart upload was initiated.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Initiated \-> (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Date and time at which the multipart upload was initiated.
+.UNINDENT
+.UNINDENT
+.sp
+StorageClass \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The class of storage used to store the object.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- Directory buckets only support \fBEXPRESS_ONEZONE\fP (the S3 Express One Zone storage class) in Availability Zones and \fBONEZONE_IA\fP (the S3 One Zone\-Infrequent Access storage class) in Dedicated Local Zones.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBSTANDARD\fP
+.IP \(bu 2
+\fBREDUCED_REDUNDANCY\fP
+.IP \(bu 2
+\fBSTANDARD_IA\fP
+.IP \(bu 2
+\fBONEZONE_IA\fP
+.IP \(bu 2
+\fBINTELLIGENT_TIERING\fP
+.IP \(bu 2
+\fBGLACIER\fP
+.IP \(bu 2
+\fBDEEP_ARCHIVE\fP
+.IP \(bu 2
+\fBOUTPOSTS\fP
+.IP \(bu 2
+\fBGLACIER_IR\fP
+.IP \(bu 2
+\fBSNOW\fP
+.IP \(bu 2
+\fBEXPRESS_ONEZONE\fP
+.IP \(bu 2
+\fBFSX_OPENZFS\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Owner \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the owner of the object that is part of the multipart upload.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- The bucket owner is returned as the object owner for all the objects.
+.UNINDENT
+.UNINDENT
+.sp
+DisplayName \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Container for the display name of the owner. This value is only supported in the following Amazon Web Services Regions:
+.INDENT 0.0
+.IP \(bu 2
+US East (N. Virginia)
+.IP \(bu 2
+US West (N. California)
+.IP \(bu 2
+US West (Oregon)
+.IP \(bu 2
+Asia Pacific (Singapore)
+.IP \(bu 2
+Asia Pacific (Sydney)
+.IP \(bu 2
+Asia Pacific (Tokyo)
+.IP \(bu 2
+Europe (Ireland)
+.IP \(bu 2
+South America (São Paulo)
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ID \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Container for the ID of the owner.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Initiator \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Identifies who initiated the multipart upload.
+.sp
+ID \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If the principal is an Amazon Web Services account, it provides the Canonical User ID. If the principal is an IAM User, it provides a user ARN value.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- If the principal is an Amazon Web Services account, it provides the Amazon Web Services account ID. If the principal is an IAM User, it provides a user ARN value.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+DisplayName \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Name of the Principal.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumAlgorithm \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The algorithm that was used to create a checksum of the object.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBCRC32\fP
+.IP \(bu 2
+\fBCRC32C\fP
+.IP \(bu 2
+\fBSHA1\fP
+.IP \(bu 2
+\fBSHA256\fP
+.IP \(bu 2
+\fBCRC64NVME\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumType \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The checksum type that is used to calculate the object’s checksum value. For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBCOMPOSITE\fP
+.IP \(bu 2
+\fBFULL_OBJECT\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+CommonPrefixes \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+If you specify a delimiter in the request, then the result returns each distinct key prefix containing the delimiter in a \fBCommonPrefixes\fP element. The distinct key prefixes are returned in the \fBPrefix\fP child element.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- For directory buckets, only prefixes that end in a delimiter (\fB/\fP ) are supported.
+.UNINDENT
+.UNINDENT
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+Container for all (if there are any) keys between Prefix and the next occurrence of the string specified by a delimiter. CommonPrefixes lists keys that act like subdirectories in the directory specified by Prefix. For example, if the prefix is notes/ and the delimiter is a slash (/) as in notes/summer/july, the common prefix is notes/summer/.
+.sp
+Prefix \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Container for the specified common prefix.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+EncodingType \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Encoding type used by Amazon S3 to encode object keys in the response.
+.sp
+If you specify the \fBencoding\-type\fP request parameter, Amazon S3 includes this element in the response, and returns encoded key name values in the following response elements:
+.INDENT 0.0
+.INDENT 3.5
+\fBDelimiter\fP , \fBKeyMarker\fP , \fBPrefix\fP , \fBNextKeyMarker\fP , \fBKey\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBurl\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+RequestCharged \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If present, indicates that the requester was successfully charged for the request. For more information, see \fI\%Using Requester Pays buckets for storage transfers and usage\fP in the \fIAmazon Simple Storage Service user guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBrequester\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.\" Generated by docutils manpage writer.
+.

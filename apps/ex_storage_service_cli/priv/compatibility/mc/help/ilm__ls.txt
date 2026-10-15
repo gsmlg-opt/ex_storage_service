@@ -1,0 +1,37 @@
+NAME:
+  mc ilm ls - lists lifecycle configuration rules set on a bucket
+
+USAGE:
+  mc ilm ls [FLAGS] TARGET
+
+FLAGS:
+  --expiry                         display only expiration fields
+  --transition                     display only transition fields
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+DESCRIPTION:
+  List lifecycle configuration rules set on a bucket.
+
+EXAMPLES:
+  1. List the lifecycle management rules (all fields) for mybucket on alias 'myminio'.
+     $ mc ilm ls myminio/mybucket
+
+  2. List the lifecycle management rules (expration date/days fields) for mybucket on alias 'myminio'.
+     $ mc ilm ls --expiry myminio/mybucket
+
+  3. List the lifecycle management rules (transition date/days, storage class fields) for mybucket on alias 'myminio'.
+     $ mc ilm ls --transition myminio/mybucket
+
+  4. List the lifecycle management rules in JSON format for mybucket on alias 'myminio'.
+     $ mc ilm ls --json myminio/mybucket

@@ -1,0 +1,44 @@
+NAME:
+  mc admin replicate status - display site replication status
+
+USAGE:
+  mc admin replicate status TARGET
+
+FLAGS:
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --buckets                        display only buckets
+  --policies                       display only policies
+  --users                          display only users
+  --groups                         display only groups
+  --ilm-expiry-rules               display only ilm expiry rules
+  --all                            display all available site replication status
+  --bucket value                   display bucket sync status
+  --policy value                   display policy sync status
+  --user value                     display user sync status
+  --group value                    display group sync status
+  --ilm-expiry-rule value          display ILM expiry rule sync status
+  --help, -h                       show help
+  
+
+EXAMPLES:
+    1. Display overall site replication status:
+       $ mc admin replicate status minio1
+
+    2. Display site replication status of buckets across sites
+       $ mc admin replicate status minio1 --buckets
+
+    3. Drill down and view site replication status of bucket "bucket"
+       $ mc admin replicate status minio1 --bucket bucket
+
+    4. Drill down and view site replication status of user "foo"
+       $ mc admin replicate status minio1 --user foo

@@ -1,0 +1,746 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "PUT-OBJECT-ACL"  "" "" ""
+.SH NAME
+put-object-acl \- 
+.SH DESCRIPTION
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This operation is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Uses the \fBacl\fP subresource to set the access control list (ACL) permissions for a new or existing object in an S3 bucket. You must have the \fBWRITE_ACP\fP permission to set the ACL of an object. For more information, see \fI\%What permissions can I grant?\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+This functionality is not supported for Amazon S3 on Outposts.
+.sp
+Depending on your application needs, you can choose to set the ACL on an object using either the request body or the headers. For example, if you have an existing application that updates a bucket ACL using the request body, you can continue to use that approach. For more information, see \fI\%Access Control List (ACL) Overview\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+If your bucket uses the bucket owner enforced setting for S3 Object Ownership, ACLs are disabled and no longer affect permissions. You must use policies to grant access to your bucket and the objects in it. Requests to set ACLs or update ACLs fail and return the \fBAccessControlListNotSupported\fP error code. Requests to read ACLs are still supported. For more information, see \fI\%Controlling object ownership\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+Permissions
+.UNINDENT
+.UNINDENT
+.sp
+You can set access permissions using one of the following methods:
+.INDENT 0.0
+.IP \(bu 2
+Specify a canned ACL with the \fBx\-amz\-acl\fP request header. Amazon S3 supports a set of predefined ACLs, known as canned ACLs. Each canned ACL has a predefined set of grantees and permissions. Specify the canned ACL name as the value of \fBx\-amz\-ac\fP l. If you use this header, you cannot use other access control\-specific headers in your request. For more information, see \fI\%Canned ACL\fP .
+.IP \(bu 2
+Specify access permissions explicitly with the \fBx\-amz\-grant\-read\fP , \fBx\-amz\-grant\-read\-acp\fP , \fBx\-amz\-grant\-write\-acp\fP , and \fBx\-amz\-grant\-full\-control\fP headers. When using these headers, you specify explicit access permissions and grantees (Amazon Web Services accounts or Amazon S3 groups) who will receive the permission. If you use these ACL\-specific headers, you cannot use \fBx\-amz\-acl\fP header to set a canned ACL. These parameters map to the set of permissions that Amazon S3 supports in an ACL. For more information, see \fI\%Access Control List (ACL) Overview\fP . You specify each grantee as a type=value pair, where the type is one of the following:
+.INDENT 2.0
+.IP \(bu 2
+\fBid\fP – if the value specified is the canonical user ID of an Amazon Web Services account
+.IP \(bu 2
+\fBuri\fP – if you are granting permissions to a predefined group
+.IP \(bu 2
+\fBemailAddress\fP – if the value specified is the email address of an Amazon Web Services account
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 2.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+Using email addresses to specify a grantee is only supported in the following Amazon Web Services Regions:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+US East (N. Virginia)
+.IP \(bu 2
+US West (N. California)
+.IP \(bu 2
+US West (Oregon)
+.IP \(bu 2
+Asia Pacific (Singapore)
+.IP \(bu 2
+Asia Pacific (Sydney)
+.IP \(bu 2
+Asia Pacific (Tokyo)
+.IP \(bu 2
+Europe (Ireland)
+.IP \(bu 2
+South America (São Paulo)
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+For a list of all the Amazon S3 supported Regions and endpoints, see \fI\%Regions and Endpoints\fP in the Amazon Web Services General Reference.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+For example, the following \fBx\-amz\-grant\-read\fP header grants list objects permission to the two Amazon Web Services accounts identified by their email addresses.
+.INDENT 0.0
+.INDENT 3.5
+\fBx\-amz\-grant\-read: emailAddress=\(dqxyz@amazon.com\(dq, emailAddress=\(dqabc@amazon.com\(dq\fP
+.UNINDENT
+.UNINDENT
+.sp
+You can use either a canned ACL or specify access permissions explicitly. You cannot do both.
+.INDENT 0.0
+.INDENT 3.5
+Grantee Values
+.UNINDENT
+.UNINDENT
+.sp
+You can specify the person (grantee) to whom you\(aqre assigning access rights (using request elements) in the following ways. For examples of how to specify these grantee values in JSON format, see the Amazon Web Services CLI example in \fI\%Enabling Amazon S3 server access logging\fP in the \fIAmazon S3 User Guide\fP .
+.INDENT 0.0
+.IP \(bu 2
+By the person\(aqs ID:  \fB<Grantee xmlns:xsi=\(dqhttp://www.w3.org/2001/XMLSchema\-instance\(dq xsi:type=\(dqCanonicalUser\(dq><ID><>ID<></ID><DisplayName><>GranteesEmail<></DisplayName> </Grantee>\fP   DisplayName is optional and ignored in the request.
+.IP \(bu 2
+By URI:  \fB<Grantee xmlns:xsi=\(dqhttp://www.w3.org/2001/XMLSchema\-instance\(dq xsi:type=\(dqGroup\(dq><URI><>http://acs.amazonaws.com/groups/global/AuthenticatedUsers<></URI></Grantee>\fP
+.IP \(bu 2
+By Email address:  \fB<Grantee xmlns:xsi=\(dqhttp://www.w3.org/2001/XMLSchema\-instance\(dq xsi:type=\(dqAmazonCustomerByEmail\(dq><EmailAddress><>Grantees@email.com<></EmailAddress>lt;/Grantee>\fP   The grantee is resolved to the CanonicalUser and, in a response to a GET Object acl request, appears as the CanonicalUser.
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+Using email addresses to specify a grantee is only supported in the following Amazon Web Services Regions:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+US East (N. Virginia)
+.IP \(bu 2
+US West (N. California)
+.IP \(bu 2
+US West (Oregon)
+.IP \(bu 2
+Asia Pacific (Singapore)
+.IP \(bu 2
+Asia Pacific (Sydney)
+.IP \(bu 2
+Asia Pacific (Tokyo)
+.IP \(bu 2
+Europe (Ireland)
+.IP \(bu 2
+South America (São Paulo)
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+For a list of all the Amazon S3 supported Regions and endpoints, see \fI\%Regions and Endpoints\fP in the Amazon Web Services General Reference.
+.sp
+Versioning
+.UNINDENT
+.UNINDENT
+.sp
+The ACL of an object is set at the object version level. By default, PUT sets the ACL of the current version of an object. To set the ACL of a different version, use the \fBversionId\fP subresource.
+.sp
+The following operations are related to \fBPutObjectAcl\fP :
+.INDENT 0.0
+.IP \(bu 2
+\fI\%CopyObject\fP
+.IP \(bu 2
+\fI\%GetObject\fP
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  put\-object\-acl
+[\-\-acl <value>]
+[\-\-access\-control\-policy <value>]
+\-\-bucket <value>
+[\-\-content\-md5 <value>]
+[\-\-checksum\-algorithm <value>]
+[\-\-grant\-full\-control <value>]
+[\-\-grant\-read <value>]
+[\-\-grant\-read\-acp <value>]
+[\-\-grant\-write <value>]
+[\-\-grant\-write\-acp <value>]
+\-\-key <value>
+[\-\-request\-payer <value>]
+[\-\-version\-id <value>]
+[\-\-expected\-bucket\-owner <value>]
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-acl\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The canned ACL to apply to the object. For more information, see \fI\%Canned ACL\fP .
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBprivate\fP
+.IP \(bu 2
+\fBpublic\-read\fP
+.IP \(bu 2
+\fBpublic\-read\-write\fP
+.IP \(bu 2
+\fBauthenticated\-read\fP
+.IP \(bu 2
+\fBaws\-exec\-read\fP
+.IP \(bu 2
+\fBbucket\-owner\-read\fP
+.IP \(bu 2
+\fBbucket\-owner\-full\-control\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-access\-control\-policy\fP (structure)
+.INDENT 0.0
+.INDENT 3.5
+Contains the elements that set the ACL permissions for an object per grantee.
+.sp
+Grants \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+A list of grants.
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+Container for grant information.
+.sp
+Grantee \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+The person being granted permissions.
+.sp
+DisplayName \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Screen name of the grantee.
+.UNINDENT
+.UNINDENT
+.sp
+EmailAddress \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Email address of the grantee.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+Using email addresses to specify a grantee is only supported in the following Amazon Web Services Regions:
+.INDENT 0.0
+.IP \(bu 2
+US East (N. Virginia)
+.IP \(bu 2
+US West (N. California)
+.IP \(bu 2
+US West (Oregon)
+.IP \(bu 2
+Asia Pacific (Singapore)
+.IP \(bu 2
+Asia Pacific (Sydney)
+.IP \(bu 2
+Asia Pacific (Tokyo)
+.IP \(bu 2
+Europe (Ireland)
+.IP \(bu 2
+South America (São Paulo)
+.UNINDENT
+.sp
+For a list of all the Amazon S3 supported Regions and endpoints, see \fI\%Regions and Endpoints\fP in the Amazon Web Services General Reference.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ID \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The canonical user ID of the grantee.
+.UNINDENT
+.UNINDENT
+.sp
+Type \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Type of grantee
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBCanonicalUser\fP
+.IP \(bu 2
+\fBAmazonCustomerByEmail\fP
+.IP \(bu 2
+\fBGroup\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+URI \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+URI of the grantee group.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Permission \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the permission given to the grantee.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBFULL_CONTROL\fP
+.IP \(bu 2
+\fBWRITE\fP
+.IP \(bu 2
+\fBWRITE_ACP\fP
+.IP \(bu 2
+\fBREAD\fP
+.IP \(bu 2
+\fBREAD_ACP\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Owner \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Container for the bucket owner\(aqs display name and ID.
+.sp
+DisplayName \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Container for the display name of the owner. This value is only supported in the following Amazon Web Services Regions:
+.INDENT 0.0
+.IP \(bu 2
+US East (N. Virginia)
+.IP \(bu 2
+US West (N. California)
+.IP \(bu 2
+US West (Oregon)
+.IP \(bu 2
+Asia Pacific (Singapore)
+.IP \(bu 2
+Asia Pacific (Sydney)
+.IP \(bu 2
+Asia Pacific (Tokyo)
+.IP \(bu 2
+Europe (Ireland)
+.IP \(bu 2
+South America (São Paulo)
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ID \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Container for the ID of the owner.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+JSON Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+  \(dqGrants\(dq: [
+    {
+      \(dqGrantee\(dq: {
+        \(dqDisplayName\(dq: \(dqstring\(dq,
+        \(dqEmailAddress\(dq: \(dqstring\(dq,
+        \(dqID\(dq: \(dqstring\(dq,
+        \(dqType\(dq: \(dqCanonicalUser\(dq|\(dqAmazonCustomerByEmail\(dq|\(dqGroup\(dq,
+        \(dqURI\(dq: \(dqstring\(dq
+      },
+      \(dqPermission\(dq: \(dqFULL_CONTROL\(dq|\(dqWRITE\(dq|\(dqWRITE_ACP\(dq|\(dqREAD\(dq|\(dqREAD_ACP\(dq
+    }
+    ...
+  ],
+  \(dqOwner\(dq: {
+    \(dqDisplayName\(dq: \(dqstring\(dq,
+    \(dqID\(dq: \(dqstring\(dq
+  }
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The bucket name that contains the object to which you want to attach the ACL.
+.INDENT 0.0
+.INDENT 3.5
+\fBAccess points\fP \- When you use this action with an access point for general purpose buckets, you must provide the alias of the access point in place of the bucket name or specify the access point ARN. When you use this action with an access point for directory buckets, you must provide the access point name in place of the bucket name. When using the access point ARN, you must direct requests to the access point hostname. The access point hostname takes the form \fIAccessPointName\fP \-\fIAccountId\fP .s3\-accesspoint.*Region* .amazonaws.com. When using this action with an access point through the Amazon Web Services SDKs, you provide the access point ARN in place of the bucket name. For more information about access point ARNs, see \fI\%Using access points\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBS3 on Outposts\fP \- When you use this action with S3 on Outposts, you must direct requests to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form \(ga\(ga \fIAccessPointName\fP \-\fIAccountId\fP .*outpostID* .s3\-outposts.*Region* .amazonaws.com\(ga\(ga . When you use this action with S3 on Outposts, the destination bucket must be the Outposts access point ARN or the access point alias. For more information about S3 on Outposts, see \fI\%What is S3 on Outposts?\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-content\-md5\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded 128\-bit \fBMD5\fP digest of the data. This header must be used as a message integrity check to verify that the request body was not corrupted in transit. For more information, go to \fI\%RFC 1864.>\fP
+.sp
+For requests made using the Amazon Web Services Command Line Interface (CLI) or Amazon Web Services SDKs, this field is calculated automatically.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-checksum\-algorithm\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Indicates the algorithm used to create the checksum for the object when you use the SDK. This header will not provide any additional functionality if you don\(aqt use the SDK. When you send this header, there must be a corresponding \fBx\-amz\-checksum\fP or \fBx\-amz\-trailer\fP header sent. Otherwise, Amazon S3 fails the request with the HTTP status code \fB400 Bad Request\fP . For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+If you provide an individual checksum, Amazon S3 ignores any provided \fBChecksumAlgorithm\fP parameter.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBCRC32\fP
+.IP \(bu 2
+\fBCRC32C\fP
+.IP \(bu 2
+\fBSHA1\fP
+.IP \(bu 2
+\fBSHA256\fP
+.IP \(bu 2
+\fBCRC64NVME\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-grant\-full\-control\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Allows grantee the read, write, read ACP, and write ACP permissions on the bucket.
+.sp
+This functionality is not supported for Amazon S3 on Outposts.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-grant\-read\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Allows grantee to list the objects in the bucket.
+.sp
+This functionality is not supported for Amazon S3 on Outposts.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-grant\-read\-acp\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Allows grantee to read the bucket ACL.
+.sp
+This functionality is not supported for Amazon S3 on Outposts.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-grant\-write\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Allows grantee to create new objects in the bucket.
+.sp
+For the bucket and object owners of existing objects, also allows deletions and overwrites of those objects.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-grant\-write\-acp\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Allows grantee to write the ACL for the applicable bucket.
+.sp
+This functionality is not supported for Amazon S3 on Outposts.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-key\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Key for which the PUT action was initiated.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-request\-payer\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Confirms that the requester knows that they will be charged for the request. Bucket owners need not specify this parameter in their requests. If either the source or destination S3 bucket has Requester Pays enabled, the requester will pay for corresponding charges to copy the object. For information about downloading objects from Requester Pays buckets, see \fI\%Downloading Objects in Requester Pays Buckets\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBrequester\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-version\-id\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Version ID used to reference a specific version of the object.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expected\-bucket\-owner\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The account ID of the expected bucket owner. If the account ID that you provide does not match the actual owner of the bucket, the request fails with the HTTP status code \fB403 Forbidden\fP (access denied).
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH EXAMPLES
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use the following examples, you must have the AWS CLI installed and configured. See the \fI\%Getting started guide\fP in the \fIAWS CLI User Guide\fP for more information.
+.sp
+Unless otherwise stated, all examples have unix\-like quotation rules. These examples will need to be adapted to your terminal\(aqs quoting rules. See \fI\%Using quotation marks with strings\fP in the \fIAWS CLI User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+The following command grants \fBfull control\fP to two AWS users (\fIuser1@example.com\fP and \fIuser2@example.com\fP) and \fBread\fP
+permission to everyone:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api put\-object\-acl \-\-bucket amzn\-s3\-demo\-bucket \-\-key file.txt \-\-grant\-full\-control emailaddress=user1@example.com,emailaddress=user2@example.com \-\-grant\-read uri=http://acs.amazonaws.com/groups/global/AllUsers
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+See \fI\%http://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketPUTacl.html\fP for details on custom ACLs (the s3api ACL
+commands, such as \fBput\-object\-acl\fP, use the same shorthand argument notation).
+.SH OUTPUT
+.sp
+RequestCharged \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If present, indicates that the requester was successfully charged for the request. For more information, see \fI\%Using Requester Pays buckets for storage transfers and usage\fP in the \fIAmazon Simple Storage Service user guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBrequester\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.\" Generated by docutils manpage writer.
+.

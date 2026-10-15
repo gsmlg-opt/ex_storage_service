@@ -4,22 +4,22 @@ on:
   workflow_dispatch:
     inputs:
       git_ref:
-        description: "Git ref to publish from"
+        description: "Committed Git ref to publish from"
         required: true
         default: "main"
         type: string
       version:
-        description: "Version to publish (e.g. 0.1.0)"
+        description: "Version already committed in the CLI mix.exs"
         required: true
         type: string
   workflow_call:
     inputs:
       git_ref:
-        description: "Git ref to publish from"
+        description: "Committed Git ref to publish from"
         required: true
         type: string
       version:
-        description: "Version to publish"
+        description: "Version already committed in the CLI mix.exs"
         required: true
         type: string
     secrets:
@@ -27,15 +27,21 @@ on:
         required: true
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.version }}
+  group: publish-cli-${{ inputs.version }}
   cancel-in-progress: false
 
+defaults:
+  run:
+    working-directory: apps/ex_storage_service_cli
+
 env:
+  PAGER: cat
   ELIXIR_VERSION: "1.19"
   OTP_VERSION: "28"
+  RELEASE_VERSION: ${{ inputs.version }}
 
 jobs:
   publish:
@@ -45,62 +51,101 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.git_ref }}
-
-      - name: Validate version format
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate committed version and capture immutable source
+        id: source
+        working-directory: .
         run: |
-          if ! echo "${{ inputs.version }}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$'; then
-            echo "::error::Invalid version format: ${{ inputs.version }}"
-            echo "Expected: MAJOR.MINOR.PATCH or MAJOR.MINOR.PATCH-prerelease"
-            exit 1
-          fi
-
+          python3 - <<'PY'
+          import os, pathlib, re
+          version = os.environ['RELEASE_VERSION']
+          if not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9.]+)?', version):
+              raise SystemExit('Invalid release version')
+          source = pathlib.Path('apps/ex_storage_service_cli/mix.exs').read_text()
+          if re.search(r'@version\s+"([^"]+)"', source).group(1) != version:
+              raise SystemExit('Commit the CLI version before publishing')
+          PY
+          printf 'sha=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: ${{ env.ELIXIR_VERSION }}
           otp-version: ${{ env.OTP_VERSION }}
-
-      - uses: actions/cache@v4
-        with:
-          path: |
-            deps
-            _build
-          key: ${{ runner.os }}-mix-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-mix-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-
-
-      - name: Set version in CLI mix.exs
+      - name: Validate inventories and scoped CLI implementation
         run: |
-          sed -i 's/@version "[^"]*"/@version "${{ inputs.version }}"/' apps/ex_storage_service_cli/mix.exs
-          echo "Updated version:"
-          grep '@version' apps/ex_storage_service_cli/mix.exs
-
-      - name: Install dependencies
-        run: mix deps.get
-
-      - name: Compile
-        run: mix compile --warnings-as-errors
+          python3 ../../scripts/cli_compatibility/generate.py --check
+          python3 -m unittest discover -s ../../scripts/cli_compatibility -p 'test_*.py'
+          mix deps.get
+          mix format --check-formatted
+          mix compile --warnings-as-errors
+          mix test
         env:
-          MIX_ENV: prod
-
-      - name: Run CLI tests
-        working-directory: apps/ex_storage_service_cli
-        run: mix test
-
-      - name: Build escript
-        working-directory: apps/ex_storage_service_cli
+          MIX_ENV: test
+      - name: Build and independently install the exact source package
+        working-directory: .
+        run: >-
+          python3 scripts/cli_compatibility/package_probe.py
+          --expected-version "$RELEASE_VERSION"
+          --output-dir "$RUNNER_TEMP/cli-package"
+      - name: Publish source package and documentation to Hex.pm
         run: |
-          mix escript.build
-          echo "Built escript:"
-          ls -la ess
-          ./ess version
-
-      - name: Publish to Hex.pm
-        working-directory: apps/ex_storage_service_cli
-        run: mix hex.publish --yes
+          mix deps.get
+          mix hex.publish --yes
         env:
+          MIX_ENV: dev
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
-
-      - name: Verify published package
+      - name: Verify registry bytes and a fresh published consumer
+        working-directory: .
         run: |
-          sleep 5
-          mix hex.info ex_storage_service_cli || echo "Package info will be available shortly"
+          python3 scripts/cli_compatibility/verify_published.py \
+            --version "$RELEASE_VERSION" \
+            --manifest "$RUNNER_TEMP/cli-package/manifest.json" \
+            --output "$RUNNER_TEMP/published-cli.tar"
+          python3 scripts/cli_compatibility/package_probe.py \
+            --package "$RUNNER_TEMP/published-cli.tar" \
+            --expected-version "$RELEASE_VERSION" \
+            --output-dir "$RUNNER_TEMP/published-consumer"
+      - name: Prepare downloadable executable and evidence
+        working-directory: .
+        run: |
+          mkdir -p "$RUNNER_TEMP/cli-release"
+          cp "$RUNNER_TEMP/cli-package/ess" "$RUNNER_TEMP/cli-release/ess-linux-x86_64-otp28"
+          cp "$RUNNER_TEMP/cli-package/manifest.json" "$RUNNER_TEMP/cli-release/build-manifest.json"
+          cp "$RUNNER_TEMP/published-consumer/manifest.json" "$RUNNER_TEMP/cli-release/published-consumer.json"
+          cp docs/cli/compatibility/reference-lock.json docs/cli/compatibility/coverage.md \
+            docs/cli/compatibility/release-notes.md docs/cli/compatibility/milestone-acceptance-status.md \
+            "$RUNNER_TEMP/cli-release/"
+          cp apps/ex_storage_service_cli/README.md "$RUNNER_TEMP/cli-release/README.md"
+          cp apps/ex_storage_service_cli/LICENSE "$RUNNER_TEMP/cli-release/LICENSE"
+          python3 - <<'PY'
+          import hashlib, os, pathlib
+          root = pathlib.Path(os.environ['RUNNER_TEMP']) / 'cli-release'
+          lines = []
+          for path in sorted(root.iterdir()):
+              with path.open('rb') as stream:
+                  digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+              lines.append(f'{digest}  {path.name}\n')
+          (root / 'SHA256SUMS').write_text(''.join(lines))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ess-v${{ inputs.version }}-linux-x86_64-otp28
+          path: ${{ runner.temp }}/cli-release/*
+          if-no-files-found: error
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.git_ref == format('v{0}', inputs.version) && inputs.git_ref || format('cli-v{0}', inputs.version) }}
+          target_commitish: ${{ steps.source.outputs.sha }}
+          name: ${{ inputs.git_ref == format('v{0}', inputs.version) && format('v{0}', inputs.version) || format('ESS CLI v{0}', inputs.version) }}
+          prerelease: ${{ contains(inputs.version, '-') }}
+          generate_release_notes: true
+          files: ${{ runner.temp }}/cli-release/*
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cli-publish-validation-logs
+          path: |
+            ${{ runner.temp }}/cli-package/commands.json
+            ${{ runner.temp }}/published-consumer/commands.json
+          if-no-files-found: warn

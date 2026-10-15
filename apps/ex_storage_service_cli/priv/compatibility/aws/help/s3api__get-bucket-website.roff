@@ -1,0 +1,434 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "GET-BUCKET-WEBSITE"  "" "" ""
+.SH NAME
+get-bucket-website \- 
+.SH DESCRIPTION
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This operation is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Returns the website configuration for a bucket. To host website on Amazon S3, you can configure a bucket as website by adding a website configuration. For more information about hosting websites, see \fI\%Hosting Websites on Amazon S3\fP .
+.sp
+This GET action requires the \fBS3:GetBucketWebsite\fP permission. By default, only the bucket owner can read the bucket website configuration. However, bucket owners can allow other users to read the website configuration by writing a bucket policy granting them the \fBS3:GetBucketWebsite\fP permission.
+.sp
+The following operations are related to \fBGetBucketWebsite\fP :
+.INDENT 0.0
+.IP \(bu 2
+\fI\%DeleteBucketWebsite\fP
+.IP \(bu 2
+\fI\%PutBucketWebsite\fP
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  get\-bucket\-website
+\-\-bucket <value>
+[\-\-expected\-bucket\-owner <value>]
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The bucket name for which to get the website configuration.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expected\-bucket\-owner\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The account ID of the expected bucket owner. If the account ID that you provide does not match the actual owner of the bucket, the request fails with the HTTP status code \fB403 Forbidden\fP (access denied).
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH EXAMPLES
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use the following examples, you must have the AWS CLI installed and configured. See the \fI\%Getting started guide\fP in the \fIAWS CLI User Guide\fP for more information.
+.sp
+Unless otherwise stated, all examples have unix\-like quotation rules. These examples will need to be adapted to your terminal\(aqs quoting rules. See \fI\%Using quotation marks with strings\fP in the \fIAWS CLI User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+The following command retrieves the static website configuration for a bucket named \fBamzn\-s3\-demo\-bucket\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api get\-bucket\-website \-\-bucket amzn\-s3\-demo\-bucket
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+    \(dqIndexDocument\(dq: {
+        \(dqSuffix\(dq: \(dqindex.html\(dq
+    },
+    \(dqErrorDocument\(dq: {
+        \(dqKey\(dq: \(dqerror.html\(dq
+    }
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OUTPUT
+.sp
+RedirectAllRequestsTo \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the redirect behavior of all requests to a website endpoint of an Amazon S3 bucket.
+.sp
+HostName \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Name of the host where requests are redirected.
+.UNINDENT
+.UNINDENT
+.sp
+Protocol \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Protocol to use when redirecting requests. The default is the protocol that is used in the original request.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBhttp\fP
+.IP \(bu 2
+\fBhttps\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+IndexDocument \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+The name of the index document for the website (for example \fBindex.html\fP ).
+.sp
+Suffix \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+A suffix that is appended to a request that is for a directory on the website endpoint. (For example, if the suffix is \fBindex.html\fP and you make a request to \fBsamplebucket/images/\fP , the data that is returned will be for the object with the key name \fBimages/index.html\fP .) The suffix must not be empty and must not include a slash character.
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+Replacement must be made for object keys containing special characters (such as carriage returns) when using XML requests. For more information, see \fI\%XML related object key constraints\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ErrorDocument \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+The object key name of the website error document to use for 4XX class errors.
+.sp
+Key \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The object key name to use when a 4XX class error occurs.
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+Replacement must be made for object keys containing special characters (such as carriage returns) when using XML requests. For more information, see \fI\%XML related object key constraints\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+RoutingRules \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+Rules that define when a redirect is applied and the redirect behavior.
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the redirect behavior and when a redirect is applied. For more information about routing rules, see \fI\%Configuring advanced conditional redirects\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+Condition \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+A container for describing a condition that must be met for the specified redirect to apply. For example, 1. If request is for pages in the \fB/docs\fP folder, redirect to the \fB/documents\fP folder. 2. If request results in HTTP error 4xx, redirect request to another host where you might process the error.
+.sp
+HttpErrorCodeReturnedEquals \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The HTTP error code when the redirect is applied. In the event of an error, if the error code equals this value, then the specified redirect is applied. Required when parent element \fBCondition\fP is specified and sibling \fBKeyPrefixEquals\fP is not specified. If both are specified, then both must be true for the redirect to be applied.
+.UNINDENT
+.UNINDENT
+.sp
+KeyPrefixEquals \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The object key name prefix when the redirect is applied. For example, to redirect requests for \fBExamplePage.html\fP , the key prefix will be \fBExamplePage.html\fP . To redirect request for all pages with the prefix \fBdocs/\fP , the key prefix will be \fB/docs\fP , which identifies all objects in the \fBdocs/\fP folder. Required when the parent element \fBCondition\fP is specified and sibling \fBHttpErrorCodeReturnedEquals\fP is not specified. If both conditions are specified, both must be true for the redirect to be applied.
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+Replacement must be made for object keys containing special characters (such as carriage returns) when using XML requests. For more information, see \fI\%XML related object key constraints\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Redirect \-> (structure) [required]
+.INDENT 0.0
+.INDENT 3.5
+Container for redirect information. You can redirect requests to another host, to another page, or with another protocol. In the event of an error, you can specify a different error code to return.
+.sp
+HostName \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The host name to use in the redirect request.
+.UNINDENT
+.UNINDENT
+.sp
+HttpRedirectCode \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The HTTP redirect code to use on the response. Not required if one of the siblings is present.
+.UNINDENT
+.UNINDENT
+.sp
+Protocol \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Protocol to use when redirecting requests. The default is the protocol that is used in the original request.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBhttp\fP
+.IP \(bu 2
+\fBhttps\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ReplaceKeyPrefixWith \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The object key prefix to use in the redirect request. For example, to redirect requests for all pages with prefix \fBdocs/\fP (objects in the \fBdocs/\fP folder) to \fBdocuments/\fP , you can set a condition block with \fBKeyPrefixEquals\fP set to \fBdocs/\fP and in the Redirect set \fBReplaceKeyPrefixWith\fP to \fB/documents\fP . Not required if one of the siblings is present. Can be present only if \fBReplaceKeyWith\fP is not provided.
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+Replacement must be made for object keys containing special characters (such as carriage returns) when using XML requests. For more information, see \fI\%XML related object key constraints\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ReplaceKeyWith \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The specific object key to use in the redirect request. For example, redirect request to \fBerror.html\fP . Not required if one of the siblings is present. Can be present only if \fBReplaceKeyPrefixWith\fP is not provided.
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+Replacement must be made for object keys containing special characters (such as carriage returns) when using XML requests. For more information, see \fI\%XML related object key constraints\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.\" Generated by docutils manpage writer.
+.

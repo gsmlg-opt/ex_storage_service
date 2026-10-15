@@ -1,0 +1,58 @@
+Name:
+  mc anonymous - manage anonymous access to buckets and objects
+
+USAGE:
+  mc anonymous [FLAGS] set PERMISSION TARGET
+  mc anonymous [FLAGS] set-json FILE TARGET
+  mc anonymous [FLAGS] get TARGET
+  mc anonymous [FLAGS] get-json TARGET
+  mc anonymous [FLAGS] list TARGET
+
+FLAGS:
+  --recursive, -r                  list recursively
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+PERMISSION:
+  Allowed policies are: [private, public, download, upload].
+
+FILE:
+  A valid S3 anonymous JSON filepath.
+
+EXAMPLES:
+  1. Set bucket to "download" on Amazon S3 cloud storage.
+     $ mc anonymous set download s3/mybucket
+
+  2. Set bucket to "public" on Amazon S3 cloud storage.
+     $ mc anonymous set public s3/shared
+
+  3. Set bucket to "upload" on Amazon S3 cloud storage.
+     $ mc anonymous set upload s3/incoming
+
+  4. Set anonymous to "public" for bucket with prefix on Amazon S3 cloud storage.
+     $ mc anonymous set public s3/public-commons/images
+
+  5. Set a custom prefix based bucket anonymous on Amazon S3 cloud storage using a JSON file.
+     $ mc anonymous set-json /path/to/anonymous.json s3/public-commons/images 
+
+  6. Get bucket permissions.
+     $ mc anonymous get s3/shared
+
+  7. Get bucket permissions in JSON format.
+     $ mc anonymous get-json s3/shared
+
+  8. List policies set to a specified bucket.
+     $ mc anonymous list s3/shared
+
+  9. List public object URLs recursively.
+     $ mc anonymous --recursive links s3/shared/

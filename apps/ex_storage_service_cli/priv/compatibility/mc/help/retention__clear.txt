@@ -1,0 +1,44 @@
+NAME:
+  mc retention clear - clear all retention settings on object(s)
+
+USAGE:
+  mc retention clear [FLAGS] TARGET
+
+FLAGS:
+  --recursive, -r                  clear retention recursively
+  --version-id value, --vid value  clear retention of a specific object version
+  --rewind value                   roll back object(s) to current version at specified time
+  --versions                       clear retention of object(s) and all its versions
+  --default                        set default bucket locking
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+
+EXAMPLES:
+  1. Clear object retention for a specific object
+     $ mc retention clear myminio/mybucket/prefix/obj.csv
+
+  2. Clear object retention for recursively for all objects at a given prefix
+     $ mc retention clear myminio/mybucket/prefix --recursive
+
+  3. Clear object retention for a specific version of a specific object
+     $ mc retention clear myminio/mybucket/prefix/obj.csv --version-id "3Jr2x6fqlBUsVzbvPihBO3HgNpgZgAnp"
+
+  4. Clear object retention for recursively for all versions of all objects
+     $ mc retention clear myminio/mybucket/prefix --recursive --versions
+
+  5. Clear object retention for recursively for all versions created one year ago
+     $ mc retention clear myminio/mybucket/prefix --recursive --versions --rewind 365d
+
+  6. Clear a bucket retention configuration
+     $ mc retention clear --default myminio/mybucket/

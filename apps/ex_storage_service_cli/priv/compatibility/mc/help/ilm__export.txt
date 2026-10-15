@@ -1,0 +1,15 @@
+NAME:
+  mc ilm export - export lifecycle configuration in JSON format
+
+USAGE:
+  mc ilm export TARGET
+
+DESCRIPTION:
+  Exports lifecycle configuration in JSON format to STDOUT.
+
+EXAMPLES:
+  1. Export lifecycle configuration for 'mybucket' to 'lifecycle.json' file.
+     $ mc ilm export myminio/mybucket > lifecycle.json
+
+  2. Print lifecycle configuration for 'mybucket' to STDOUT.
+     $ mc ilm export play/mybucket

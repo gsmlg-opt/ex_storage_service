@@ -1,0 +1,411 @@
+{
+  "aws_sha256": "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a",
+  "source_bytes": 9437184,
+  "response_part_checksums": "synthetic valid Base64 zero digests for each algorithm; no object entity GET is needed",
+  "cases": [
+    {
+      "name": "default",
+      "args": [
+        "s3",
+        "cp",
+        "s3://source/key",
+        "s3://bucket/target",
+        "--no-progress"
+      ],
+      "result": {
+        "status": 0,
+        "stdout": "copy: s3://source/key to s3://bucket/target\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/source/key",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/source/key?tagging",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "POST",
+            "target": "/bucket/target?uploads",
+            "headers": {
+              "content-type": "application/octet-stream",
+              "x-amz-tagging": "owner=fixture",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/target?uploadId=fixture-upload&partNumber=2",
+            "headers": {
+              "x-amz-copy-source": "source/key",
+              "x-amz-copy-source-range": "bytes=8388608-9437183",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/target?uploadId=fixture-upload&partNumber=1",
+            "headers": {
+              "x-amz-copy-source": "source/key",
+              "x-amz-copy-source-range": "bytes=0-8388607",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "POST",
+            "target": "/bucket/target?uploadId=fixture-upload",
+            "headers": {
+              "x-amz-content-sha256": "007f8c8e3fedee480c9d5ade42608720da18ee04f0c1799203ff185fc7eeeb0f",
+              "content-length": "225"
+            },
+            "body_base64": "PENvbXBsZXRlTXVsdGlwYXJ0VXBsb2FkIHhtbG5zPSJodHRwOi8vczMuYW1hem9uYXdzLmNvbS9kb2MvMjAwNi0wMy0wMS8iPjxQYXJ0PjxFVGFnPiJwYXJ0LWV0YWciPC9FVGFnPjxQYXJ0TnVtYmVyPjE8L1BhcnROdW1iZXI+PC9QYXJ0PjxQYXJ0PjxFVGFnPiJwYXJ0LWV0YWciPC9FVGFnPjxQYXJ0TnVtYmVyPjI8L1BhcnROdW1iZXI+PC9QYXJ0PjwvQ29tcGxldGVNdWx0aXBhcnRVcGxvYWQ+",
+            "xml_semantics": {
+              "name": "CompleteMultipartUpload",
+              "attributes": {},
+              "text": "",
+              "children": {
+                "Part": [
+                  {
+                    "name": "Part",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "ETag": [
+                        {
+                          "name": "ETag",
+                          "attributes": {},
+                          "text": "\"part-etag\"",
+                          "children": {}
+                        }
+                      ],
+                      "PartNumber": [
+                        {
+                          "name": "PartNumber",
+                          "attributes": {},
+                          "text": "1",
+                          "children": {}
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "name": "Part",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "ETag": [
+                        {
+                          "name": "ETag",
+                          "attributes": {},
+                          "text": "\"part-etag\"",
+                          "children": {}
+                        }
+                      ],
+                      "PartNumber": [
+                        {
+                          "name": "PartNumber",
+                          "attributes": {},
+                          "text": "2",
+                          "children": {}
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "copy-props-none",
+      "args": [
+        "s3",
+        "cp",
+        "s3://source/key",
+        "s3://bucket/target",
+        "--no-progress",
+        "--copy-props",
+        "none"
+      ],
+      "result": {
+        "status": 0,
+        "stdout": "copy: s3://source/key to s3://bucket/target\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/source/key",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "POST",
+            "target": "/bucket/target?uploads",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/target?uploadId=fixture-upload&partNumber=1",
+            "headers": {
+              "x-amz-copy-source": "source/key",
+              "x-amz-copy-source-range": "bytes=0-8388607",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/target?uploadId=fixture-upload&partNumber=2",
+            "headers": {
+              "x-amz-copy-source": "source/key",
+              "x-amz-copy-source-range": "bytes=8388608-9437183",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "POST",
+            "target": "/bucket/target?uploadId=fixture-upload",
+            "headers": {
+              "x-amz-content-sha256": "007f8c8e3fedee480c9d5ade42608720da18ee04f0c1799203ff185fc7eeeb0f",
+              "content-length": "225"
+            },
+            "body_base64": "PENvbXBsZXRlTXVsdGlwYXJ0VXBsb2FkIHhtbG5zPSJodHRwOi8vczMuYW1hem9uYXdzLmNvbS9kb2MvMjAwNi0wMy0wMS8iPjxQYXJ0PjxFVGFnPiJwYXJ0LWV0YWciPC9FVGFnPjxQYXJ0TnVtYmVyPjE8L1BhcnROdW1iZXI+PC9QYXJ0PjxQYXJ0PjxFVGFnPiJwYXJ0LWV0YWciPC9FVGFnPjxQYXJ0TnVtYmVyPjI8L1BhcnROdW1iZXI+PC9QYXJ0PjwvQ29tcGxldGVNdWx0aXBhcnRVcGxvYWQ+",
+            "xml_semantics": {
+              "name": "CompleteMultipartUpload",
+              "attributes": {},
+              "text": "",
+              "children": {
+                "Part": [
+                  {
+                    "name": "Part",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "ETag": [
+                        {
+                          "name": "ETag",
+                          "attributes": {},
+                          "text": "\"part-etag\"",
+                          "children": {}
+                        }
+                      ],
+                      "PartNumber": [
+                        {
+                          "name": "PartNumber",
+                          "attributes": {},
+                          "text": "1",
+                          "children": {}
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "name": "Part",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "ETag": [
+                        {
+                          "name": "ETag",
+                          "attributes": {},
+                          "text": "\"part-etag\"",
+                          "children": {}
+                        }
+                      ],
+                      "PartNumber": [
+                        {
+                          "name": "PartNumber",
+                          "attributes": {},
+                          "text": "2",
+                          "children": {}
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "explicit-sha256",
+      "args": [
+        "s3",
+        "cp",
+        "s3://source/key",
+        "s3://bucket/target",
+        "--no-progress",
+        "--checksum-algorithm",
+        "SHA256"
+      ],
+      "result": {
+        "status": 0,
+        "stdout": "copy: s3://source/key to s3://bucket/target\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/source/key",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/source/key?tagging",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "POST",
+            "target": "/bucket/target?uploads",
+            "headers": {
+              "x-amz-checksum-algorithm": "SHA256",
+              "content-type": "application/octet-stream",
+              "x-amz-tagging": "owner=fixture",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/target?uploadId=fixture-upload&partNumber=1",
+            "headers": {
+              "x-amz-copy-source": "source/key",
+              "x-amz-copy-source-range": "bytes=0-8388607",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/target?uploadId=fixture-upload&partNumber=2",
+            "headers": {
+              "x-amz-copy-source": "source/key",
+              "x-amz-copy-source-range": "bytes=8388608-9437183",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "POST",
+            "target": "/bucket/target?uploadId=fixture-upload",
+            "headers": {
+              "x-amz-content-sha256": "6eebebe66572377ec8c4d8e0e0eaf8b89b5d2611814f5c7936b8d95ec2c306f1",
+              "content-length": "379"
+            },
+            "body_base64": "PENvbXBsZXRlTXVsdGlwYXJ0VXBsb2FkIHhtbG5zPSJodHRwOi8vczMuYW1hem9uYXdzLmNvbS9kb2MvMjAwNi0wMy0wMS8iPjxQYXJ0PjxFVGFnPiJwYXJ0LWV0YWciPC9FVGFnPjxQYXJ0TnVtYmVyPjE8L1BhcnROdW1iZXI+PENoZWNrc3VtU0hBMjU2PkFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUE9PC9DaGVja3N1bVNIQTI1Nj48L1BhcnQ+PFBhcnQ+PEVUYWc+InBhcnQtZXRhZyI8L0VUYWc+PFBhcnROdW1iZXI+MjwvUGFydE51bWJlcj48Q2hlY2tzdW1TSEEyNTY+QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQT08L0NoZWNrc3VtU0hBMjU2PjwvUGFydD48L0NvbXBsZXRlTXVsdGlwYXJ0VXBsb2FkPg==",
+            "xml_semantics": {
+              "name": "CompleteMultipartUpload",
+              "attributes": {},
+              "text": "",
+              "children": {
+                "Part": [
+                  {
+                    "name": "Part",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "ETag": [
+                        {
+                          "name": "ETag",
+                          "attributes": {},
+                          "text": "\"part-etag\"",
+                          "children": {}
+                        }
+                      ],
+                      "PartNumber": [
+                        {
+                          "name": "PartNumber",
+                          "attributes": {},
+                          "text": "1",
+                          "children": {}
+                        }
+                      ],
+                      "ChecksumSHA256": [
+                        {
+                          "name": "ChecksumSHA256",
+                          "attributes": {},
+                          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+                          "children": {}
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "name": "Part",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "ETag": [
+                        {
+                          "name": "ETag",
+                          "attributes": {},
+                          "text": "\"part-etag\"",
+                          "children": {}
+                        }
+                      ],
+                      "PartNumber": [
+                        {
+                          "name": "PartNumber",
+                          "attributes": {},
+                          "text": "2",
+                          "children": {}
+                        }
+                      ],
+                      "ChecksumSHA256": [
+                        {
+                          "name": "ChecksumSHA256",
+                          "attributes": {},
+                          "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+                          "children": {}
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "peer_errors": []
+      }
+    }
+  ]
+}

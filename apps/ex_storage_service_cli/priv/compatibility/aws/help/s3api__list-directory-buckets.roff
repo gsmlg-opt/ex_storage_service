@@ -1,0 +1,323 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "LIST-DIRECTORY-BUCKETS"  "" "" ""
+.SH NAME
+list-directory-buckets \- 
+.SH DESCRIPTION
+.sp
+Returns a list of all Amazon S3 directory buckets owned by the authenticated sender of the request. For more information about directory buckets, see \fI\%Directory buckets\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- For directory buckets, you must make requests for this API operation to the Regional endpoint. These endpoints support path\-style requests in the format 
+.nf
+\(ga\(ga
+.fi
+\fI\%https://s3express\-control.*region\-code*\fP .amazonaws.com/\fIbucket\-name\fP \(ga\(ga . Virtual\-hosted\-style requests aren\(aqt supported. For more information about endpoints in Availability Zones, see \fI\%Regional and Zonal endpoints for directory buckets in Availability Zones\fP in the \fIAmazon S3 User Guide\fP . For more information about endpoints in Local Zones, see \fI\%Concepts for directory buckets in Local Zones\fP in the \fIAmazon S3 User Guide\fP .
+.IP "System Message: WARNING/2 (<string>:, line 26)"
+Inline literal start\-string without end\-string.
+.UNINDENT
+.UNINDENT
+.sp
+Permissions
+.UNINDENT
+.UNINDENT
+.sp
+You must have the \fBs3express:ListAllMyDirectoryBuckets\fP permission in an IAM identity\-based policy instead of a bucket policy. Cross\-account access to this API operation isn\(aqt supported. This operation can only be performed by the Amazon Web Services account that owns the resource. For more information about directory bucket policies and permissions, see \fI\%Amazon Web Services Identity and Access Management (IAM) for S3 Express One Zone\fP in the \fIAmazon S3 User Guide\fP .
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+HTTP Host header syntax
+.UNINDENT
+.UNINDENT
+.sp
+\fBDirectory buckets\fP \- The HTTP Host header syntax is \fBs3express\-control.*region* .amazonaws.com\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+The \fBBucketRegion\fP response element is not part of the \fBListDirectoryBuckets\fP Response Syntax.
+.UNINDENT
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.sp
+\fBlist\-directory\-buckets\fP is a paginated operation. Multiple API calls may be issued in order to retrieve the entire data set of results. You can disable pagination by providing the \fB\-\-no\-paginate\fP argument.
+When using \fB\-\-output text\fP and the \fB\-\-query\fP argument on a paginated response, the \fB\-\-query\fP argument must extract data from the results of the following query expressions: \fBBuckets\fP
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  list\-directory\-buckets
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-starting\-token <value>]
+[\-\-page\-size <value>]
+[\-\-max\-items <value>]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-starting\-token\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+A token to specify where to start paginating. This is the \fBNextToken\fP from a previously truncated response.
+.sp
+For usage examples, see \fI\%Pagination\fP in the \fIAWS Command Line Interface User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-page\-size\fP (integer)
+.INDENT 0.0
+.INDENT 3.5
+The size of each page to get in the AWS service call. This does not affect the number of items returned in the command\(aqs output. Setting a smaller page size results in more calls to the AWS service, retrieving fewer items in each call. This can help prevent the AWS service calls from timing out.
+.sp
+For usage examples, see \fI\%Pagination\fP in the \fIAWS Command Line Interface User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-max\-items\fP (integer)
+.INDENT 0.0
+.INDENT 3.5
+The total number of items to return in the command\(aqs output. If the total number of items available is more than the value specified, a \fBNextToken\fP is provided in the command\(aqs output. To resume pagination, provide the \fBNextToken\fP value in the \fBstarting\-token\fP argument of a subsequent command. \fBDo not\fP use the \fBNextToken\fP response element directly outside of the AWS CLI.
+.sp
+For usage examples, see \fI\%Pagination\fP in the \fIAWS Command Line Interface User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH OUTPUT
+.sp
+Buckets \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+The list of buckets owned by the requester.
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+In terms of implementation, a Bucket is a resource.
+.sp
+Name \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The name of the bucket.
+.UNINDENT
+.UNINDENT
+.sp
+CreationDate \-> (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Date the bucket was created. This date can change when making changes to your bucket, such as editing its bucket policy.
+.UNINDENT
+.UNINDENT
+.sp
+BucketRegion \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+\fBBucketRegion\fP indicates the Amazon Web Services region where the bucket is located. If the request contains at least one valid parameter, it is included in the response.
+.UNINDENT
+.UNINDENT
+.sp
+BucketArn \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Amazon Resource Name (ARN) of the S3 bucket. ARNs uniquely identify Amazon Web Services resources across all of Amazon Web Services.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This parameter is only supported for S3 directory buckets. For more information, see \fI\%Using tags with directory buckets\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.IP \(bu 2
+max: \fB128\fP
+.IP \(bu 2
+pattern: \fBarn:[^:]+:(s3|s3express):.*\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ContinuationToken \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If \fBContinuationToken\fP was sent with the request, it is included in the response. You can use the returned \fBContinuationToken\fP for pagination of the list response.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB0\fP
+.IP \(bu 2
+max: \fB1024\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.\" Generated by docutils manpage writer.
+.

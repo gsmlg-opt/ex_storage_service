@@ -1,0 +1,102 @@
+NAME:
+  mc mirror - synchronize object(s) to a remote site
+
+USAGE:
+  mc mirror [FLAGS] SOURCE TARGET
+
+FLAGS:
+  --overwrite                        overwrite object(s) on target if it differs from source
+  --dry-run                          perform a fake mirror operation
+  --watch, -w                        watch and synchronize changes
+  --remove                           remove extraneous object(s) on target
+  --region value                     specify region when creating new bucket(s) on target (default: "us-east-1")
+  --preserve, -a                     preserve file(s)/object(s) attributes and bucket(s) policy/locking configuration(s) on target bucket(s)
+  --active-active                    enable active-active multi-site setup
+  --disable-multipart                disable multipart upload feature
+  --exclude value                    exclude object(s) that match specified object name pattern
+  --exclude-bucket value             exclude bucket(s) that match specified bucket name pattern
+  --exclude-storageclass value       exclude object(s) that match the specified storage class
+  --older-than value                 filter object(s) older than value in duration string (e.g. 7d10h31s)
+  --newer-than value                 filter object(s) newer than value in duration string (e.g. 7d10h31s)
+  --storage-class value, --sc value  specify storage class for new object(s) on target
+  --attr value                       add custom metadata for all objects
+  --monitoring-address value         if specified, a new prometheus endpoint will be created to report mirroring activity. (eg: localhost:8081)
+  --retry                            if specified, will enable retrying on a per object basis if errors occur
+  --summary                          print a summary of the mirror session
+  --skip-errors                      skip any errors when mirroring
+  --max-workers value                maximum number of concurrent copies (default: autodetect) (default: 0)
+  --checksum value                   Add checksum to uploaded object. Values: CRC64NVME, CRC32, CRC32C, SHA1 or SHA256. Requires server trailing headers (AWS, MinIO)
+  --enc-c value                      encrypt/decrypt objects using client provided keys. (multiple keys can be provided) Formats: RawBase64 or Hex.
+  --enc-kms value                    encrypt/decrypt objects using specific server-side encryption keys. (multiple keys can be provided) [$MC_ENC_KMS]
+  --enc-s3 value                     encrypt/decrypt objects using server-side default keys and configurations. (multiple keys can be provided). [$MC_ENC_S3]
+  --config-dir value, -C value       path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                        disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp              disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                         disable color theme [$MC_NO_COLOR]
+  --json                             enable JSON lines formatted output [$MC_JSON]
+  --debug                            enable debug output [$MC_DEBUG]
+  --resolve value                    resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                         disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value               limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value             limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value    add custom HTTP header to the request. 'key:value' format.
+  --help, -h                         show help
+  
+
+ENVIRONMENT VARIABLES:
+  MC_ENC_KMS: KMS encryption key in the form of (alias/prefix=key).
+  MC_ENC_S3: S3 encryption key in the form of (alias/prefix=key).
+
+EXAMPLES:
+  01. Mirror a bucket recursively from MinIO cloud storage to a bucket on Amazon S3 cloud storage.
+      $ mc mirror play/photos/2014 s3/backup-photos
+
+  02. Mirror a local folder recursively to Amazon S3 cloud storage.
+      $ mc mirror backup/ s3/archive
+
+  03. Only mirror files that are newer than 7 days, 10 hours and 30 minutes to Amazon S3 cloud storage.
+      $ mc mirror --newer-than "7d10h30m" backup/ s3/archive
+
+  04. Mirror a bucket from aliased Amazon S3 cloud storage to a folder on Windows.
+      $ mc mirror s3\documents\2014\ C:\backup\2014
+
+  05. Mirror a bucket from aliased Amazon S3 cloud storage to a local folder use '--overwrite' to overwrite destination.
+      $ mc mirror --overwrite s3/miniocloud miniocloud-backup
+
+  06. Mirror a bucket from MinIO cloud storage to a bucket on Amazon S3 cloud storage and remove any extraneous
+      files on Amazon S3 cloud storage.
+      $ mc mirror --remove play/photos/2014 s3/backup-photos/2014
+
+  07. Continuously mirror a local folder recursively to MinIO cloud storage. '--watch' continuously watches for
+      new objects, uploads and removes extraneous files on Amazon S3 cloud storage.
+      $ mc mirror --remove --watch /var/lib/backups play/backups
+
+  08. Continuously mirror all buckets and objects from site 1 to site 2, removed buckets and objects will be reflected as well.
+      $ mc mirror --remove --watch site1-alias/ site2-alias/
+
+  09. Mirror a bucket from aliased Amazon S3 cloud storage to a local folder.
+      Exclude all .* files and *.temp files when mirroring.
+      $ mc mirror --exclude ".*" --exclude "*.temp" s3/test ~/test
+
+  10. Mirror all buckets from aliased Amazon S3 cloud storage to a local folder.
+      Exclude test* buckets and backup* buckets when mirroring.
+      $ mc mirror --exclude-bucket 'test*' --exclude 'backup*' s3 ~/test
+
+  11. Mirror objects newer than 10 days from bucket test to a local folder.
+      $ mc mirror --newer-than 10d s3/test ~/localfolder
+
+  12. Mirror objects older than 30 days from Amazon S3 bucket test to a local folder.
+      $ mc mirror --older-than 30d s3/test ~/test
+
+  13. Mirror server encrypted objects from Amazon S3 cloud storage to a bucket on Amazon S3 cloud storage
+      $ mc mirror --enc-c "minio/archive=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDA" --enc-c "s3/archive=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5BBB" s3/archive/ minio/archive/ 
+
+  14. Update 'Cache-Control' header on all existing objects recursively.
+      $ mc mirror --attr "Cache-Control=max-age=90000,min-fresh=9000" myminio/video-files myminio/video-files
+
+  15. Mirror a local folder recursively to Amazon S3 cloud storage and preserve all local file attributes.
+      $ mc mirror -a backup/ s3/archive
+
+  16. Cross mirror between sites in a active-active deployment.
+      Site-A: $ mc mirror --active-active siteA siteB
+      Site-B: $ mc mirror --active-active siteB siteA

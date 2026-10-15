@@ -1,0 +1,882 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "LIST-OBJECT-VERSIONS"  "" "" ""
+.SH NAME
+list-object-versions \- 
+.SH DESCRIPTION
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+End of support notice: Beginning October 1, 2025, Amazon S3 will stop returning \fBDisplayName\fP . Update your applications to use canonical IDs (unique identifier for Amazon Web Services accounts), Amazon Web Services account ID (12 digit identifier) or IAM ARNs (full resource naming) as a direct replacement of \fBDisplayName\fP .
+.sp
+This change affects the following Amazon Web Services Regions: US East (N. Virginia) Region, US West (N. California) Region, US West (Oregon) Region, Asia Pacific (Singapore) Region, Asia Pacific (Sydney) Region, Asia Pacific (Tokyo) Region, Europe (Ireland) Region, and South America (São Paulo) Region.
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This operation is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Returns metadata about all versions of the objects in a bucket. You can also use request parameters as selection criteria to return metadata about a subset of all the object versions.
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use this operation, you must have permission to perform the \fBs3:ListBucketVersions\fP action. Be aware of the name difference.
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+A \fB200 OK\fP response can contain valid or invalid XML. Make sure to design your application to parse the contents of the response and handle it appropriately.
+.UNINDENT
+.UNINDENT
+.sp
+To use this operation, you must have READ access to the bucket.
+.sp
+The following operations are related to \fBListObjectVersions\fP :
+.INDENT 0.0
+.IP \(bu 2
+\fI\%ListObjectsV2\fP
+.IP \(bu 2
+\fI\%GetObject\fP
+.IP \(bu 2
+\fI\%PutObject\fP
+.IP \(bu 2
+\fI\%DeleteObject\fP
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.sp
+\fBlist\-object\-versions\fP is a paginated operation. Multiple API calls may be issued in order to retrieve the entire data set of results. You can disable pagination by providing the \fB\-\-no\-paginate\fP argument.
+When using \fB\-\-output text\fP and the \fB\-\-query\fP argument on a paginated response, the \fB\-\-query\fP argument must extract data from the results of the following query expressions: \fBVersions\fP, \fBDeleteMarkers\fP, \fBCommonPrefixes\fP
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  list\-object\-versions
+\-\-bucket <value>
+[\-\-delimiter <value>]
+[\-\-encoding\-type <value>]
+[\-\-prefix <value>]
+[\-\-expected\-bucket\-owner <value>]
+[\-\-request\-payer <value>]
+[\-\-optional\-object\-attributes <value>]
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-starting\-token <value>]
+[\-\-page\-size <value>]
+[\-\-max\-items <value>]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The bucket name that contains the objects.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-delimiter\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+A delimiter is a character that you specify to group keys. All keys that contain the same string between the \fBprefix\fP and the first occurrence of the delimiter are grouped under a single result element in \fBCommonPrefixes\fP . These groups are counted as one result against the \fBmax\-keys\fP limitation. These keys are not returned elsewhere in the response.
+.INDENT 0.0
+.INDENT 3.5
+\fBCommonPrefixes\fP is filtered out from results if it is not lexicographically greater than the key\-marker.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-encoding\-type\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Encoding type used by Amazon S3 to encode the \fI\%object keys\fP in the response. Responses are encoded only in UTF\-8. An object key can contain any Unicode character. However, the XML 1.0 parser can\(aqt parse certain characters, such as characters with an ASCII value from 0 to 10. For characters that aren\(aqt supported in XML 1.0, you can add this parameter to request that Amazon S3 encode the keys in the response. For more information about characters to avoid in object key names, see \fI\%Object key naming guidelines\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+When using the URL encoding type, non\-ASCII characters that are used in an object\(aqs key name will be percent\-encoded according to UTF\-8 code values. For example, the object \fBtest_file(3).png\fP will appear as \fBtest_file%283%29.png\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBurl\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-prefix\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Use this parameter to select only those keys that begin with the specified prefix. You can use prefixes to separate a bucket into different groupings of keys. (You can think of using \fBprefix\fP to make groups in the same way that you\(aqd use a folder in a file system.) You can use \fBprefix\fP with \fBdelimiter\fP to roll up numerous objects into a single result under \fBCommonPrefixes\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expected\-bucket\-owner\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The account ID of the expected bucket owner. If the account ID that you provide does not match the actual owner of the bucket, the request fails with the HTTP status code \fB403 Forbidden\fP (access denied).
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-request\-payer\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Confirms that the requester knows that they will be charged for the request. Bucket owners need not specify this parameter in their requests. If either the source or destination S3 bucket has Requester Pays enabled, the requester will pay for corresponding charges to copy the object. For information about downloading objects from Requester Pays buckets, see \fI\%Downloading Objects in Requester Pays Buckets\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBrequester\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-optional\-object\-attributes\fP (list)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the optional fields that you want returned in the response. Fields that you do not specify are not returned.
+.sp
+(string)
+.INDENT 0.0
+.INDENT 3.5
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBRestoreStatus\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\(dqstring\(dq \(dqstring\(dq ...
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-starting\-token\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+A token to specify where to start paginating. This is the \fBNextToken\fP from a previously truncated response.
+.sp
+For usage examples, see \fI\%Pagination\fP in the \fIAWS Command Line Interface User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-page\-size\fP (integer)
+.INDENT 0.0
+.INDENT 3.5
+The size of each page to get in the AWS service call. This does not affect the number of items returned in the command\(aqs output. Setting a smaller page size results in more calls to the AWS service, retrieving fewer items in each call. This can help prevent the AWS service calls from timing out.
+.sp
+For usage examples, see \fI\%Pagination\fP in the \fIAWS Command Line Interface User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-max\-items\fP (integer)
+.INDENT 0.0
+.INDENT 3.5
+The total number of items to return in the command\(aqs output. If the total number of items available is more than the value specified, a \fBNextToken\fP is provided in the command\(aqs output. To resume pagination, provide the \fBNextToken\fP value in the \fBstarting\-token\fP argument of a subsequent command. \fBDo not\fP use the \fBNextToken\fP response element directly outside of the AWS CLI.
+.sp
+For usage examples, see \fI\%Pagination\fP in the \fIAWS Command Line Interface User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH EXAMPLES
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use the following examples, you must have the AWS CLI installed and configured. See the \fI\%Getting started guide\fP in the \fIAWS CLI User Guide\fP for more information.
+.sp
+Unless otherwise stated, all examples have unix\-like quotation rules. These examples will need to be adapted to your terminal\(aqs quoting rules. See \fI\%Using quotation marks with strings\fP in the \fIAWS CLI User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+The following command retrieves version information for an object in a bucket named \fBamzn\-s3\-demo\-bucket\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api list\-object\-versions \-\-bucket amzn\-s3\-demo\-bucket \-\-prefix index.html
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+    \(dqDeleteMarkers\(dq: [
+        {
+            \(dqOwner\(dq: {
+                \(dqDisplayName\(dq: \(dqmy\-username\(dq,
+                \(dqID\(dq: \(dq7009a8971cd660687538875e7c86c5b672fe116bd438f46db45460ddcd036c32\(dq
+            },
+            \(dqIsLatest\(dq: true,
+            \(dqVersionId\(dq: \(dqB2VsEK5saUNNHKcOAJj7hIE86RozToyq\(dq,
+            \(dqKey\(dq: \(dqindex.html\(dq,
+            \(dqLastModified\(dq: \(dq2015\-11\-10T00:57:03.000Z\(dq
+        },
+        {
+            \(dqOwner\(dq: {
+                \(dqDisplayName\(dq: \(dqmy\-username\(dq,
+                \(dqID\(dq: \(dq7009a8971cd660687538875e7c86c5b672fe116bd438f46db45460ddcd036c32\(dq
+            },
+            \(dqIsLatest\(dq: false,
+            \(dqVersionId\(dq: \(dq.FLQEZscLIcfxSq.jsFJ.szUkmng2Yw6\(dq,
+            \(dqKey\(dq: \(dqindex.html\(dq,
+            \(dqLastModified\(dq: \(dq2015\-11\-09T23:32:20.000Z\(dq
+        }
+    ],
+    \(dqVersions\(dq: [
+        {
+            \(dqLastModified\(dq: \(dq2015\-11\-10T00:20:11.000Z\(dq,
+            \(dqVersionId\(dq: \(dqRb_l2T8UHDkFEwCgJjhlgPOZC0qJ.vpD\(dq,
+            \(dqETag\(dq: \(dq\e\(dq0622528de826c0df5db1258a23b80be5\e\(dq\(dq,
+            \(dqStorageClass\(dq: \(dqSTANDARD\(dq,
+            \(dqKey\(dq: \(dqindex.html\(dq,
+            \(dqOwner\(dq: {
+                \(dqDisplayName\(dq: \(dqmy\-username\(dq,
+                \(dqID\(dq: \(dq7009a8971cd660687538875e7c86c5b672fe116bd438f46db45460ddcd036c32\(dq
+            },
+            \(dqIsLatest\(dq: false,
+            \(dqSize\(dq: 38
+        },
+        {
+            \(dqLastModified\(dq: \(dq2015\-11\-09T23:26:41.000Z\(dq,
+            \(dqVersionId\(dq: \(dqrasWWGpgk9E4s0LyTJgusGeRQKLVIAFf\(dq,
+            \(dqETag\(dq: \(dq\e\(dq06225825b8028de826c0df5db1a23be5\e\(dq\(dq,
+            \(dqStorageClass\(dq: \(dqSTANDARD\(dq,
+            \(dqKey\(dq: \(dqindex.html\(dq,
+            \(dqOwner\(dq: {
+                \(dqDisplayName\(dq: \(dqmy\-username\(dq,
+                \(dqID\(dq: \(dq7009a8971cd660687538875e7c86c5b672fe116bd438f46db45460ddcd036c32\(dq
+            },
+            \(dqIsLatest\(dq: false,
+            \(dqSize\(dq: 38
+        },
+        {
+            \(dqLastModified\(dq: \(dq2015\-11\-09T22:50:50.000Z\(dq,
+            \(dqVersionId\(dq: \(dqnull\(dq,
+            \(dqETag\(dq: \(dq\e\(dqd1f45267a863c8392e07d24dd592f1b9\e\(dq\(dq,
+            \(dqStorageClass\(dq: \(dqSTANDARD\(dq,
+            \(dqKey\(dq: \(dqindex.html\(dq,
+            \(dqOwner\(dq: {
+                \(dqDisplayName\(dq: \(dqmy\-username\(dq,
+                \(dqID\(dq: \(dq7009a8971cd660687538875e7c86c5b672fe116bd438f46db45460ddcd036c32\(dq
+            },
+            \(dqIsLatest\(dq: false,
+            \(dqSize\(dq: 533823
+        }
+    ]
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OUTPUT
+.sp
+IsTruncated \-> (boolean)
+.INDENT 0.0
+.INDENT 3.5
+A flag that indicates whether Amazon S3 returned all of the results that satisfied the search criteria. If your results were truncated, you can make a follow\-up paginated request by using the \fBNextKeyMarker\fP and \fBNextVersionIdMarker\fP response parameters as a starting place in another request to return the rest of the results.
+.UNINDENT
+.UNINDENT
+.sp
+KeyMarker \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Marks the last key returned in a truncated response.
+.UNINDENT
+.UNINDENT
+.sp
+VersionIdMarker \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Marks the last version of the key returned in a truncated response.
+.UNINDENT
+.UNINDENT
+.sp
+NextKeyMarker \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+When the number of responses exceeds the value of \fBMaxKeys\fP , \fBNextKeyMarker\fP specifies the first key not returned that satisfies the search criteria. Use this value for the key\-marker request parameter in a subsequent request.
+.UNINDENT
+.UNINDENT
+.sp
+NextVersionIdMarker \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+When the number of responses exceeds the value of \fBMaxKeys\fP , \fBNextVersionIdMarker\fP specifies the first object version not returned that satisfies the search criteria. Use this value for the \fBversion\-id\-marker\fP request parameter in a subsequent request.
+.UNINDENT
+.UNINDENT
+.sp
+Versions \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+Container for version information.
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+The version of an object.
+.sp
+ETag \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The entity tag is an MD5 hash of that version of the object.
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumAlgorithm \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+The algorithm that was used to create a checksum of the object.
+.sp
+(string)
+.INDENT 0.0
+.INDENT 3.5
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBCRC32\fP
+.IP \(bu 2
+\fBCRC32C\fP
+.IP \(bu 2
+\fBSHA1\fP
+.IP \(bu 2
+\fBSHA256\fP
+.IP \(bu 2
+\fBCRC64NVME\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumType \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The checksum type that is used to calculate the object’s checksum value. For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBCOMPOSITE\fP
+.IP \(bu 2
+\fBFULL_OBJECT\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Size \-> (long)
+.INDENT 0.0
+.INDENT 3.5
+Size in bytes of the object.
+.UNINDENT
+.UNINDENT
+.sp
+StorageClass \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The class of storage used to store the object.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBSTANDARD\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Key \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The object key.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+VersionId \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Version ID of an object.
+.UNINDENT
+.UNINDENT
+.sp
+IsLatest \-> (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether the object is (true) or is not (false) the latest version of an object.
+.UNINDENT
+.UNINDENT
+.sp
+LastModified \-> (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Date and time when the object was last modified.
+.UNINDENT
+.UNINDENT
+.sp
+Owner \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the owner of the object.
+.sp
+DisplayName \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Container for the display name of the owner. This value is only supported in the following Amazon Web Services Regions:
+.INDENT 0.0
+.IP \(bu 2
+US East (N. Virginia)
+.IP \(bu 2
+US West (N. California)
+.IP \(bu 2
+US West (Oregon)
+.IP \(bu 2
+Asia Pacific (Singapore)
+.IP \(bu 2
+Asia Pacific (Sydney)
+.IP \(bu 2
+Asia Pacific (Tokyo)
+.IP \(bu 2
+Europe (Ireland)
+.IP \(bu 2
+South America (São Paulo)
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ID \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Container for the ID of the owner.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+RestoreStatus \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the restoration status of an object. Objects in certain storage classes must be restored before they can be retrieved. For more information about these storage classes and how to work with archived objects, see \fI\%Working with archived objects\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+IsRestoreInProgress \-> (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether the object is currently being restored. If the object restoration is in progress, the header returns the value \fBTRUE\fP . For example:
+.INDENT 0.0
+.INDENT 3.5
+\fBx\-amz\-optional\-object\-attributes: IsRestoreInProgress=\(dqtrue\(dq\fP
+.UNINDENT
+.UNINDENT
+.sp
+If the object restoration has completed, the header returns the value \fBFALSE\fP . For example:
+.INDENT 0.0
+.INDENT 3.5
+\fBx\-amz\-optional\-object\-attributes: IsRestoreInProgress=\(dqfalse\(dq, RestoreExpiryDate=\(dq2012\-12\-21T00:00:00.000Z\(dq\fP
+.UNINDENT
+.UNINDENT
+.sp
+If the object hasn\(aqt been restored, there is no header response.
+.UNINDENT
+.UNINDENT
+.sp
+RestoreExpiryDate \-> (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Indicates when the restored copy will expire. This value is populated only if the object has already been restored. For example:
+.INDENT 0.0
+.INDENT 3.5
+\fBx\-amz\-optional\-object\-attributes: IsRestoreInProgress=\(dqfalse\(dq, RestoreExpiryDate=\(dq2012\-12\-21T00:00:00.000Z\(dq\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+DeleteMarkers \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+Container for an object that is a delete marker. To learn more about delete markers, see \fI\%Working with delete markers\fP .
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+Information about the delete marker.
+.sp
+Owner \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+The account that created the delete marker.
+.sp
+DisplayName \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Container for the display name of the owner. This value is only supported in the following Amazon Web Services Regions:
+.INDENT 0.0
+.IP \(bu 2
+US East (N. Virginia)
+.IP \(bu 2
+US West (N. California)
+.IP \(bu 2
+US West (Oregon)
+.IP \(bu 2
+Asia Pacific (Singapore)
+.IP \(bu 2
+Asia Pacific (Sydney)
+.IP \(bu 2
+Asia Pacific (Tokyo)
+.IP \(bu 2
+Europe (Ireland)
+.IP \(bu 2
+South America (São Paulo)
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ID \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Container for the ID of the owner.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Key \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The object key.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+VersionId \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Version ID of an object.
+.UNINDENT
+.UNINDENT
+.sp
+IsLatest \-> (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether the object is (true) or is not (false) the latest version of an object.
+.UNINDENT
+.UNINDENT
+.sp
+LastModified \-> (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Date and time when the object was last modified.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Name \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The bucket name.
+.UNINDENT
+.UNINDENT
+.sp
+Prefix \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Selects objects that start with the value supplied by this parameter.
+.UNINDENT
+.UNINDENT
+.sp
+Delimiter \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The delimiter grouping the included keys. A delimiter is a character that you specify to group keys. All keys that contain the same string between the prefix and the first occurrence of the delimiter are grouped under a single result element in \fBCommonPrefixes\fP . These groups are counted as one result against the \fBmax\-keys\fP limitation. These keys are not returned elsewhere in the response.
+.UNINDENT
+.UNINDENT
+.sp
+MaxKeys \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the maximum number of objects to return.
+.UNINDENT
+.UNINDENT
+.sp
+CommonPrefixes \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+All of the keys rolled up into a common prefix count as a single return when calculating the number of returns.
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+Container for all (if there are any) keys between Prefix and the next occurrence of the string specified by a delimiter. CommonPrefixes lists keys that act like subdirectories in the directory specified by Prefix. For example, if the prefix is notes/ and the delimiter is a slash (/) as in notes/summer/july, the common prefix is notes/summer/.
+.sp
+Prefix \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Container for the specified common prefix.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+EncodingType \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Encoding type used by Amazon S3 to encode object key names in the XML response.
+.sp
+If you specify the \fBencoding\-type\fP request parameter, Amazon S3 includes this element in the response, and returns encoded key name values in the following response elements:
+.INDENT 0.0
+.INDENT 3.5
+\fBKeyMarker, NextKeyMarker, Prefix, Key\fP , and \fBDelimiter\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBurl\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+RequestCharged \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If present, indicates that the requester was successfully charged for the request. For more information, see \fI\%Using Requester Pays buckets for storage transfers and usage\fP in the \fIAmazon Simple Storage Service user guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBrequester\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.\" Generated by docutils manpage writer.
+.

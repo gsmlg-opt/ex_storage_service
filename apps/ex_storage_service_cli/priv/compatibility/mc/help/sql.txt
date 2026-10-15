@@ -1,0 +1,59 @@
+NAME:
+  mc sql - run sql queries on objects
+
+USAGE:
+  mc sql [FLAGS] TARGET [TARGET...]
+
+FLAGS:
+  --query value, -e value          sql query expression (default: "select * from s3object")
+  --recursive, -r                  sql query recursively
+  --csv-input value                csv input serialization option
+  --json-input value               json input serialization option
+  --compression value              input compression type
+  --csv-output value               csv output serialization option
+  --csv-output-header value        optional csv output header
+  --json-output value              json output serialization option
+  --enc-c value                    encrypt/decrypt objects using client provided keys. (multiple keys can be provided) Formats: RawBase64 or Hex.
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+
+SERIALIZATION OPTIONS:
+  For query serialization options, refer to https://docs.min.io/community/minio-object-store/reference/minio-mc/mc-sql.html
+
+EXAMPLES:
+  1. Run a query on a set of objects recursively on AWS S3.
+     $ mc sql --recursive --query "select * from S3Object" s3/personalbucket/my-large-csvs/
+
+  2. Run a query on an object on MinIO.
+     $ mc sql --query "select count(s.power) from S3Object s" myminio/iot-devices/power-ratio.csv
+
+  3. Run a query on an encrypted object with customer provided keys.
+     $ mc sql --enc-c "myminio/iot-devices=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDA" \
+         --query "select count(s.power) from S3Object s" myminio/iot-devices/power-ratio-encrypted.csv
+
+  4. Run a query on an object on MinIO in gzip format using ; as field delimiter,
+     newline as record delimiter and file header to be used
+     $ mc sql --compression GZIP --csv-input "rd=\n,fh=USE,fd=;" \
+         --query "select count(s.power) from S3Object s" myminio/iot-devices/power-ratio.csv.gz
+
+  5. Run a query on an object on MinIO in gzip format using ; as field delimiter,
+     newline as record delimiter and file header to be used
+     $ mc sql --compression GZIP --csv-input "rd=\n,fh=USE,fd=;" \
+         --json-output "rd=\n\n" --query "select * from S3Object" myminio/iot-devices/data.csv
+
+  6. Run same query as in 5., but specify csv output headers. If --csv-output-headers is
+     specified as "", first row of csv is interpreted as header
+     $ mc sql --compression GZIP --csv-input "rd=\n,fh=USE,fd=;" \
+         --csv-output "rd=\n" --csv-output-header "device_id,uptime,lat,lon" \
+         --query "select * from S3Object" myminio/iot-devices/data.csv

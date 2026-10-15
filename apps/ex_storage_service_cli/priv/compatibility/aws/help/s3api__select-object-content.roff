@@ -1,0 +1,742 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "SELECT-OBJECT-CONTENT"  "" "" ""
+.SH NAME
+select-object-content \- 
+.SH DESCRIPTION
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This operation is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+This action filters the contents of an Amazon S3 object based on a simple structured query language (SQL) statement. In the request, along with the SQL expression, you must also specify a data serialization format (JSON, CSV, or Apache Parquet) of the object. Amazon S3 uses this format to parse object data into records, and returns only records that match the specified SQL expression. You must also specify the data serialization format for the response.
+.sp
+This functionality is not supported for Amazon S3 on Outposts.
+.sp
+For more information about Amazon S3 Select, see \fI\%Selecting Content from Objects\fP and \fI\%SELECT Command\fP in the \fIAmazon S3 User Guide\fP .
+.INDENT 0.0
+.INDENT 3.5
+Permissions
+.UNINDENT
+.UNINDENT
+.sp
+You must have the \fBs3:GetObject\fP permission for this operation. Amazon S3 Select does not support anonymous access. For more information about permissions, see \fI\%Specifying Permissions in a Policy\fP in the \fIAmazon S3 User Guide\fP .
+.INDENT 0.0
+.INDENT 3.5
+Object Data Formats
+.UNINDENT
+.UNINDENT
+.sp
+You can use Amazon S3 Select to query objects that have the following format properties:
+.INDENT 0.0
+.IP \(bu 2
+\fICSV, JSON, and Parquet\fP \- Objects must be in CSV, JSON, or Parquet format.
+.IP \(bu 2
+\fIUTF\-8\fP \- UTF\-8 is the only encoding type Amazon S3 Select supports.
+.IP \(bu 2
+\fIGZIP or BZIP2\fP \- CSV and JSON files can be compressed using GZIP or BZIP2. GZIP and BZIP2 are the only compression formats that Amazon S3 Select supports for CSV and JSON files. Amazon S3 Select supports columnar compression for Parquet using GZIP or Snappy. Amazon S3 Select does not support whole\-object compression for Parquet objects.
+.IP \(bu 2
+\fIServer\-side encryption\fP \- Amazon S3 Select supports querying objects that are protected with server\-side encryption. For objects that are encrypted with customer\-provided encryption keys (SSE\-C), you must use HTTPS, and you must use the headers that are documented in the \fI\%GetObject\fP . For more information about SSE\-C, see \fI\%Server\-Side Encryption (Using Customer\-Provided Encryption Keys)\fP in the \fIAmazon S3 User Guide\fP . For objects that are encrypted with Amazon S3 managed keys (SSE\-S3) and Amazon Web Services KMS keys (SSE\-KMS), server\-side encryption is handled transparently, so you don\(aqt need to specify anything. For more information about server\-side encryption, including SSE\-S3 and SSE\-KMS, see \fI\%Protecting Data Using Server\-Side Encryption\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+Working with the Response Body
+.UNINDENT
+.sp
+Given the response size is unknown, Amazon S3 Select streams the response as a series of messages and includes a \fBTransfer\-Encoding\fP header with \fBchunked\fP as its value in the response. For more information, see \fI\%Appendix: SelectObjectContent Response\fP .
+.INDENT 0.0
+.INDENT 3.5
+GetObject Support
+.UNINDENT
+.UNINDENT
+.sp
+The \fBSelectObjectContent\fP action does not support the following \fBGetObject\fP functionality. For more information, see \fI\%GetObject\fP .
+.INDENT 0.0
+.IP \(bu 2
+\fBRange\fP : Although you can specify a scan range for an Amazon S3 Select request (see \fI\%SelectObjectContentRequest \- ScanRange\fP in the request parameters), you cannot specify the range of bytes of an object to return.
+.IP \(bu 2
+The \fBGLACIER\fP , \fBDEEP_ARCHIVE\fP , and \fBREDUCED_REDUNDANCY\fP storage classes, or the \fBARCHIVE_ACCESS\fP and \fBDEEP_ARCHIVE_ACCESS\fP access tiers of the \fBINTELLIGENT_TIERING\fP storage class: You cannot query objects in the \fBGLACIER\fP , \fBDEEP_ARCHIVE\fP , or \fBREDUCED_REDUNDANCY\fP storage classes, nor objects in the \fBARCHIVE_ACCESS\fP or \fBDEEP_ARCHIVE_ACCESS\fP access tiers of the \fBINTELLIGENT_TIERING\fP storage class. For more information about storage classes, see \fI\%Using Amazon S3 storage classes\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+Special Errors
+.UNINDENT
+.sp
+For a list of special errors for this operation, see \fI\%List of SELECT Object Content Error Codes\fP
+.sp
+The following operations are related to \fBSelectObjectContent\fP :
+.INDENT 0.0
+.IP \(bu 2
+\fI\%GetObject\fP
+.IP \(bu 2
+\fI\%GetBucketLifecycleConfiguration\fP
+.IP \(bu 2
+\fI\%PutBucketLifecycleConfiguration\fP
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  select\-object\-content
+\-\-bucket <value>
+\-\-key <value>
+[\-\-sse\-customer\-algorithm <value>]
+[\-\-sse\-customer\-key <value>]
+[\-\-sse\-customer\-key\-md5 <value>]
+\-\-expression <value>
+\-\-expression\-type <value>
+[\-\-request\-progress <value>]
+\-\-input\-serialization <value>
+\-\-output\-serialization <value>
+[\-\-scan\-range <value>]
+[\-\-expected\-bucket\-owner <value>]
+<outfile>
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The S3 bucket.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-key\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The object key.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-sse\-customer\-algorithm\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The server\-side encryption (SSE) algorithm used to encrypt the object. This parameter is needed only when the object was created using a checksum algorithm. For more information, see \fI\%Protecting data using SSE\-C keys\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-sse\-customer\-key\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The server\-side encryption (SSE) customer managed key. This parameter is needed only when the object was created using a checksum algorithm. For more information, see \fI\%Protecting data using SSE\-C keys\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-sse\-customer\-key\-md5\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The MD5 server\-side encryption (SSE) customer managed key. This parameter is needed only when the object was created using a checksum algorithm. For more information, see \fI\%Protecting data using SSE\-C keys\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expression\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The expression that is used to query the object.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expression\-type\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The type of the provided expression (for example, SQL).
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBSQL\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-request\-progress\fP (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies if periodic request progress information should be enabled.
+.sp
+Enabled \-> (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether periodic QueryProgress frames should be sent. Valid values: TRUE, FALSE. Default value: FALSE.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Shorthand Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Enabled=boolean
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+JSON Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+  \(dqEnabled\(dq: true|false
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-input\-serialization\fP (structure) [required]
+.INDENT 0.0
+.INDENT 3.5
+Describes the format of the data in the object that is being queried.
+.sp
+CSV \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Describes the serialization of a CSV\-encoded object.
+.sp
+FileHeaderInfo \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Describes the first line of input. Valid values are:
+.INDENT 0.0
+.IP \(bu 2
+\fBNONE\fP : First line is not a header.
+.IP \(bu 2
+\fBIGNORE\fP : First line is a header, but you can\(aqt use the header values to indicate the column in an expression. You can use column position (such as _1, _2, …) to indicate the column (\fBSELECT s._1 FROM OBJECT s\fP ).
+.IP \(bu 2
+\fBUse\fP : First line is a header, and you can use the header value to identify a column in an expression (\fBSELECT \(dqname\(dq FROM OBJECT\fP ).
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBUSE\fP
+.IP \(bu 2
+\fBIGNORE\fP
+.IP \(bu 2
+\fBNONE\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Comments \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+A single character used to indicate that a row should be ignored when the character is present at the start of that row. You can specify any character to indicate a comment line. The default character is \fB#\fP .
+.sp
+Default: \fB#\fP
+.UNINDENT
+.UNINDENT
+.sp
+QuoteEscapeCharacter \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+A single character used for escaping the quotation mark character inside an already escaped value. For example, the value \fB\(dq\(dq\(dq a , b \(dq\(dq\(dq\fP is parsed as \fB\(dq a , b \(dq\fP .
+.UNINDENT
+.UNINDENT
+.sp
+RecordDelimiter \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+A single character used to separate individual records in the input. Instead of the default value, you can specify an arbitrary delimiter.
+.UNINDENT
+.UNINDENT
+.sp
+FieldDelimiter \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+A single character used to separate individual fields in a record. You can specify an arbitrary delimiter.
+.UNINDENT
+.UNINDENT
+.sp
+QuoteCharacter \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+A single character used for escaping when the field delimiter is part of the value. For example, if the value is \fBa, b\fP , Amazon S3 wraps this field value in quotation marks, as follows: \fB\(dq a , b \(dq\fP .
+.sp
+Type: String
+.sp
+Default: \fB\(dq\fP
+.sp
+Ancestors: \fBCSV\fP
+.UNINDENT
+.UNINDENT
+.sp
+AllowQuotedRecordDelimiter \-> (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Specifies that CSV field values may contain quoted record delimiters and such records should be allowed. Default value is FALSE. Setting this value to TRUE may lower performance.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+CompressionType \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies object\(aqs compression format. Valid values: NONE, GZIP, BZIP2. Default Value: NONE.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBNONE\fP
+.IP \(bu 2
+\fBGZIP\fP
+.IP \(bu 2
+\fBBZIP2\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+JSON \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies JSON as object\(aqs input serialization format.
+.sp
+Type \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The type of JSON. Valid values: Document, Lines.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBDOCUMENT\fP
+.IP \(bu 2
+\fBLINES\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Parquet \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies Parquet as object\(aqs input serialization format.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Shorthand Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+CSV={FileHeaderInfo=string,Comments=string,QuoteEscapeCharacter=string,RecordDelimiter=string,FieldDelimiter=string,QuoteCharacter=string,AllowQuotedRecordDelimiter=boolean},CompressionType=string,JSON={Type=string},Parquet={}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+JSON Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+  \(dqCSV\(dq: {
+    \(dqFileHeaderInfo\(dq: \(dqUSE\(dq|\(dqIGNORE\(dq|\(dqNONE\(dq,
+    \(dqComments\(dq: \(dqstring\(dq,
+    \(dqQuoteEscapeCharacter\(dq: \(dqstring\(dq,
+    \(dqRecordDelimiter\(dq: \(dqstring\(dq,
+    \(dqFieldDelimiter\(dq: \(dqstring\(dq,
+    \(dqQuoteCharacter\(dq: \(dqstring\(dq,
+    \(dqAllowQuotedRecordDelimiter\(dq: true|false
+  },
+  \(dqCompressionType\(dq: \(dqNONE\(dq|\(dqGZIP\(dq|\(dqBZIP2\(dq,
+  \(dqJSON\(dq: {
+    \(dqType\(dq: \(dqDOCUMENT\(dq|\(dqLINES\(dq
+  },
+  \(dqParquet\(dq: {
+
+  }
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-output\-serialization\fP (structure) [required]
+.INDENT 0.0
+.INDENT 3.5
+Describes the format of the data that you want Amazon S3 to return in response.
+.sp
+CSV \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Describes the serialization of CSV\-encoded Select results.
+.sp
+QuoteFields \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Indicates whether to use quotation marks around output fields.
+.INDENT 0.0
+.IP \(bu 2
+\fBALWAYS\fP : Always use quotation marks for output fields.
+.IP \(bu 2
+\fBASNEEDED\fP : Use quotation marks for output fields when needed.
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBALWAYS\fP
+.IP \(bu 2
+\fBASNEEDED\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+QuoteEscapeCharacter \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The single character used for escaping the quote character inside an already escaped value.
+.UNINDENT
+.UNINDENT
+.sp
+RecordDelimiter \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+A single character used to separate individual records in the output. Instead of the default value, you can specify an arbitrary delimiter.
+.UNINDENT
+.UNINDENT
+.sp
+FieldDelimiter \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The value used to separate individual fields in a record. You can specify an arbitrary delimiter.
+.UNINDENT
+.UNINDENT
+.sp
+QuoteCharacter \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+A single character used for escaping when the field delimiter is part of the value. For example, if the value is \fBa, b\fP , Amazon S3 wraps this field value in quotation marks, as follows: \fB\(dq a , b \(dq\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+JSON \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies JSON as request\(aqs output serialization format.
+.sp
+RecordDelimiter \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The value used to separate individual records in the output. If no value is specified, Amazon S3 uses a newline character (\(aqn\(aq).
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Shorthand Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+CSV={QuoteFields=string,QuoteEscapeCharacter=string,RecordDelimiter=string,FieldDelimiter=string,QuoteCharacter=string},JSON={RecordDelimiter=string}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+JSON Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+  \(dqCSV\(dq: {
+    \(dqQuoteFields\(dq: \(dqALWAYS\(dq|\(dqASNEEDED\(dq,
+    \(dqQuoteEscapeCharacter\(dq: \(dqstring\(dq,
+    \(dqRecordDelimiter\(dq: \(dqstring\(dq,
+    \(dqFieldDelimiter\(dq: \(dqstring\(dq,
+    \(dqQuoteCharacter\(dq: \(dqstring\(dq
+  },
+  \(dqJSON\(dq: {
+    \(dqRecordDelimiter\(dq: \(dqstring\(dq
+  }
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-scan\-range\fP (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the byte range of the object to get the records from. A record is processed when its first byte is contained by the range. This parameter is optional, but when specified, it must not be empty. See RFC 2616, Section 14.35.1 about how to specify the start and end of the range.
+.INDENT 0.0
+.INDENT 3.5
+\fBScanRange\fP may be used in the following ways:
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+\fB<scanrange><start>50</start><end>100</end></scanrange>\fP \- process only the records starting between the bytes 50 and 100 (inclusive, counting from zero)
+.IP \(bu 2
+\fB<scanrange><start>50</start></scanrange>\fP \- process only the records starting after the byte 50
+.IP \(bu 2
+\fB<scanrange><end>50</end></scanrange>\fP \- process only the records within the last 50 bytes of the file.
+.UNINDENT
+.sp
+Start \-> (long)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the start of the byte range. This parameter is optional. Valid values: non\-negative integers. The default value is 0. If only \fBstart\fP is supplied, it means scan from that point to the end of the file. For example, \fB<scanrange><start>50</start></scanrange>\fP means scan from byte 50 until the end of the file.
+.UNINDENT
+.UNINDENT
+.sp
+End \-> (long)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the end of the byte range. This parameter is optional. Valid values: non\-negative integers. The default value is one less than the size of the object being queried. If only the End parameter is supplied, it is interpreted to mean scan the last N bytes of the file. For example, \fB<scanrange><end>50</end></scanrange>\fP means scan the last 50 bytes.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Shorthand Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Start=long,End=long
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+JSON Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+  \(dqStart\(dq: long,
+  \(dqEnd\(dq: long
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expected\-bucket\-owner\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The account ID of the expected bucket owner. If the account ID that you provide does not match the actual owner of the bucket, the request fails with the HTTP status code \fB403 Forbidden\fP (access denied).
+.UNINDENT
+.UNINDENT
+.sp
+\fBoutfile\fP (string) [required]
+Filename where the records will be saved
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH EXAMPLES
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use the following examples, you must have the AWS CLI installed and configured. See the \fI\%Getting started guide\fP in the \fIAWS CLI User Guide\fP for more information.
+.sp
+Unless otherwise stated, all examples have unix\-like quotation rules. These examples will need to be adapted to your terminal\(aqs quoting rules. See \fI\%Using quotation marks with strings\fP in the \fIAWS CLI User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBTo filter the contents of an Amazon S3 object based on an SQL statement\fP
+.sp
+The following \fBselect\-object\-content\fP example filters the object \fBmy\-data\-file.csv\fP with the specified SQL statement and sends output to a file.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api select\-object\-content \e
+    \-\-bucket amzn\-s3\-demo\-bucket \e
+    \-\-key my\-data\-file.csv \e
+    \-\-expression \(dqselect * from s3object limit 100\(dq \e
+    \-\-expression\-type \(aqSQL\(aq \e
+    \-\-input\-serialization \(aq{\(dqCSV\(dq: {}, \(dqCompressionType\(dq: \(dqNONE\(dq}\(aq \e
+    \-\-output\-serialization \(aq{\(dqCSV\(dq: {}}\(aq \(dqoutput.csv\(dq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command produces no output.
+.SH OUTPUT
+.sp
+This command generates no output.  The selected object content is written to the specified outfile.
+.\" Generated by docutils manpage writer.
+.

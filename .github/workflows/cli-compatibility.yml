@@ -1,0 +1,257 @@
+name: CLI compatibility
+
+on:
+  push:
+    paths:
+      - "apps/ex_storage_service_cli/**"
+      - "docs/cli/**"
+      - "scripts/cli_compatibility/**"
+      - "mix.lock"
+      - ".github/workflows/cli-compatibility.yml"
+      - ".github/workflows/publish-cli.yml"
+  pull_request:
+    paths:
+      - "apps/ex_storage_service_cli/**"
+      - "docs/cli/**"
+      - "scripts/cli_compatibility/**"
+      - "mix.lock"
+      - ".github/workflows/cli-compatibility.yml"
+      - ".github/workflows/publish-cli.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cli-compatibility-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: apps/ex_storage_service_cli
+
+env:
+  PAGER: cat
+  MIX_ENV: test
+
+jobs:
+  unit-wire-executable:
+    name: CLI unit, wire and executable contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.19"
+          otp-version: "28"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check immutable inventories and evidence links
+        working-directory: .
+        run: |
+          python3 scripts/cli_compatibility/generate.py --check
+          python3 -m unittest discover -s scripts/cli_compatibility -p 'test_*.py'
+      - run: mix deps.get
+      - run: mix format --check-formatted
+      - run: mix compile --warnings-as-errors
+      - run: mix test --exclude resource
+
+  resources:
+    name: CLI throttled 2 GiB resource acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.19"
+          otp-version: "28"
+      - run: mix deps.get
+      - name: Measure completed upload and download under a 1 MiB budget
+        run: mix test test/ex_storage_service_cli/transfer/resource_acceptance_test.exs | tee "$RUNNER_TEMP/cli-resource.log"
+        env:
+          ESS_RESOURCE_LARGE_BYTES: "2147483648"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cli-resource-evidence
+          path: ${{ runner.temp }}/cli-resource.log
+          if-no-files-found: error
+
+  standalone-package:
+    name: CLI package / ${{ matrix.os }} / Elixir ${{ matrix.elixir }} / OTP ${{ matrix.otp }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            elixir: "1.18.0"
+            otp: "27"
+          - os: ubuntu-latest
+            elixir: "1.18.5"
+            otp: "28"
+          - os: ubuntu-latest
+            elixir: "1.19"
+            otp: "28"
+          - os: macos-14
+            elixir: "1.19"
+            otp: "28"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: mix local.hex --force
+      - run: mix local.rebar --force
+      - name: Build actual source tar and run an isolated installed consumer
+        working-directory: .
+        run: python3 scripts/cli_compatibility/package_probe.py --output-dir "$RUNNER_TEMP/cli-package"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cli-package-${{ matrix.os }}-elixir-${{ matrix.elixir }}-otp${{ matrix.otp }}
+          path: |
+            ${{ runner.temp }}/cli-package/ess
+            ${{ runner.temp }}/cli-package/ex_storage_service_cli.tar
+            ${{ runner.temp }}/cli-package/manifest.json
+            ${{ runner.temp }}/cli-package/commands.json
+          if-no-files-found: error
+
+  providers:
+    name: CLI independent ESS and RustFS contracts with recorded provider limitations
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ESS_CONTAINER: ess-cli-ci-server-${{ github.run_id }}-${{ github.run_attempt }}
+      RUSTFS_CONTAINER: ess-cli-ci-rustfs-${{ github.run_id }}-${{ github.run_attempt }}
+      ESS_IMAGE: ghcr.io/gsmlg-dev/ess@sha256:59c6b85d2bc60a18660b1304c62b41479138c55aebb4078682f6b307fc85fb02
+      RUSTFS_IMAGE: rustfs/rustfs@sha256:1803faef57627e2d9c2e7d89d655d712ddded5389040054987163043fecb6a3c
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.19"
+          otp-version: "28"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the CLI artifact
+        run: |
+          mix deps.get
+          mix escript.build
+          cp ess "$RUNNER_TEMP/ess-provider"
+      - name: Download and verify the locked independent AWS executable
+        working-directory: .
+        run: |
+          python3 - <<'PY'
+          import hashlib, io, json, os, pathlib, urllib.request, zipfile
+          lock = json.loads(pathlib.Path('docs/cli/compatibility/reference-lock.json').read_text())['aws_cli']
+          with urllib.request.urlopen(lock['archive_url'], timeout=60) as response:
+              payload = response.read(100 * 1024 * 1024 + 1)
+          if len(payload) > 100 * 1024 * 1024 or hashlib.sha256(payload).hexdigest() != lock['archive_sha256']:
+              raise SystemExit('AWS reference archive digest mismatch')
+          root = pathlib.Path(os.environ['RUNNER_TEMP']) / 'aws-reference'
+          with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+              archive.extractall(root)
+              for member in archive.infolist():
+                  path = root / member.filename
+                  if path.is_file() and (member.external_attr >> 16) & 0o111:
+                      path.chmod(0o755)
+          binary = root / 'aws/dist/aws'
+          with binary.open('rb') as stream:
+              if hashlib.file_digest(stream, 'sha256').hexdigest() != lock['binary_sha256']:
+                  raise SystemExit('AWS executable digest mismatch')
+          PY
+      - name: Start isolated authenticated providers
+        working-directory: .
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, pathlib, secrets
+          values = {
+              'ESS_MASTER_KEY': secrets.token_hex(32),
+              'SECRET_KEY_BASE': secrets.token_hex(64),
+              'ESS_ADMIN_PASSWORD_HASH': hashlib.sha256(secrets.token_bytes(32)).hexdigest(),
+          }
+          with pathlib.Path(os.environ['GITHUB_ENV']).open('a') as stream:
+              for key, value in values.items():
+                  stream.write(f'{key}={value}\n')
+          PY
+      - name: Launch loopback containers without host mounts
+        working-directory: .
+        run: |
+          docker run -d --name "$ESS_CONTAINER" -p 127.0.0.1::9000 \
+            -e ESS_S3_AUTH_ENABLED=true -e ESS_WEB_ENABLED=false \
+            -e ESS_MASTER_KEY -e SECRET_KEY_BASE -e ESS_ADMIN_PASSWORD_HASH "$ESS_IMAGE"
+          docker run -d --name "$RUSTFS_CONTAINER" -p 127.0.0.1::9000 \
+            -e RUSTFS_ACCESS_KEY=fixture-access -e RUSTFS_SECRET_KEY=fixture-secret-long-enough "$RUSTFS_IMAGE"
+          printf 'ESS_ENDPOINT=http://%s\n' "$(docker port "$ESS_CONTAINER" 9000/tcp)" >> "$GITHUB_ENV"
+          printf 'RUSTFS_ENDPOINT=http://%s\n' "$(docker port "$RUSTFS_CONTAINER" 9000/tcp)" >> "$GITHUB_ENV"
+      - name: Wait for both S3 listeners
+        working-directory: .
+        run: |
+          python3 - <<'PY'
+          import os, time, urllib.request
+          for key in ['ESS_ENDPOINT', 'RUSTFS_ENDPOINT']:
+              endpoint = os.environ[key]
+              for attempt in range(60):
+                  try:
+                      with urllib.request.urlopen(endpoint + '/health', timeout=2) as response:
+                          if response.status == 200:
+                              break
+                  except OSError:
+                      pass
+                  time.sleep(1)
+              else:
+                  raise SystemExit(key + ' failed to start')
+          PY
+      - name: Run independent provider probes and retain raw failures
+        working-directory: .
+        run: |
+          set +e
+          python3 scripts/cli_compatibility/provider_probe.py \
+            --runtime docker \
+            --escript "$RUNNER_TEMP/ess-provider" \
+            --aws-executable "$RUNNER_TEMP/aws-reference/aws/dist/aws" \
+            --ess-endpoint "$ESS_ENDPOINT" --ess-container "$ESS_CONTAINER" \
+            --rustfs-endpoint "$RUSTFS_ENDPOINT" --rustfs-container "$RUSTFS_CONTAINER" \
+            --output-dir "$RUNNER_TEMP/cli-providers" --keep-containers \
+            > "$RUNNER_TEMP/cli-provider.log" 2>&1
+          probe_status=$?
+          set -e
+          cat "$RUNNER_TEMP/cli-provider.log"
+          printf '%s\n' "$probe_status" > "$RUNNER_TEMP/cli-providers/exit-status.txt"
+          python3 scripts/cli_compatibility/provider_policy.py \
+            --report "$RUNNER_TEMP/cli-providers/provider-report.json" \
+            --escript "$RUNNER_TEMP/ess-provider"
+          test "$probe_status" -eq 1
+      - name: Capture logs and remove only the owned containers and volumes
+        if: always()
+        working-directory: .
+        run: |
+          docker logs "$ESS_CONTAINER" > "$RUNNER_TEMP/cli-ess.log" 2>&1 || true
+          docker logs "$RUSTFS_CONTAINER" > "$RUNNER_TEMP/cli-rustfs.log" 2>&1 || true
+          for container in "$ESS_CONTAINER" "$RUSTFS_CONTAINER"; do
+            if docker container inspect "$container" > /dev/null 2>&1; then
+              docker rm -fv "$container"
+              if docker container inspect "$container" > /dev/null 2>&1; then
+                exit 1
+              fi
+            fi
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cli-independent-provider-evidence
+          path: |
+            ${{ runner.temp }}/cli-providers/*
+            ${{ runner.temp }}/cli-provider.log
+            ${{ runner.temp }}/cli-ess.log
+            ${{ runner.temp }}/cli-rustfs.log
+          if-no-files-found: error

@@ -1,0 +1,11 @@
+{
+    "Bucket": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "MFA": "",
+    "VersioningConfiguration": {
+        "MFADelete": "Enabled",
+        "Status": "Enabled"
+    },
+    "ExpectedBucketOwner": ""
+}

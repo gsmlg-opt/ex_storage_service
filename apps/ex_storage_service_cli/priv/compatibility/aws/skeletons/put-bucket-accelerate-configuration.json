@@ -1,0 +1,8 @@
+{
+    "Bucket": "",
+    "AccelerateConfiguration": {
+        "Status": "Enabled"
+    },
+    "ExpectedBucketOwner": "",
+    "ChecksumAlgorithm": "CRC32"
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "dispatch": "positional action switch",
+    "parent": [
+      "anonymous"
+    ],
+    "path": [
+      "anonymous",
+      "get"
+    ],
+    "source_file": "cmd/anonymous-main.go",
+    "source_sha256": "4baabf7f975ce977106ffbc01d28ec021e9f57a4a6846b147729ec81df77fcb6"
+  },
+  {
+    "dispatch": "positional action switch",
+    "parent": [
+      "anonymous"
+    ],
+    "path": [
+      "anonymous",
+      "get-json"
+    ],
+    "source_file": "cmd/anonymous-main.go",
+    "source_sha256": "4baabf7f975ce977106ffbc01d28ec021e9f57a4a6846b147729ec81df77fcb6"
+  },
+  {
+    "dispatch": "positional action switch",
+    "parent": [
+      "anonymous"
+    ],
+    "path": [
+      "anonymous",
+      "links"
+    ],
+    "source_file": "cmd/anonymous-main.go",
+    "source_sha256": "4baabf7f975ce977106ffbc01d28ec021e9f57a4a6846b147729ec81df77fcb6"
+  },
+  {
+    "dispatch": "positional action switch",
+    "parent": [
+      "anonymous"
+    ],
+    "path": [
+      "anonymous",
+      "list"
+    ],
+    "source_file": "cmd/anonymous-main.go",
+    "source_sha256": "4baabf7f975ce977106ffbc01d28ec021e9f57a4a6846b147729ec81df77fcb6"
+  },
+  {
+    "dispatch": "positional action switch",
+    "parent": [
+      "anonymous"
+    ],
+    "path": [
+      "anonymous",
+      "set"
+    ],
+    "source_file": "cmd/anonymous-main.go",
+    "source_sha256": "4baabf7f975ce977106ffbc01d28ec021e9f57a4a6846b147729ec81df77fcb6"
+  },
+  {
+    "dispatch": "positional action switch",
+    "parent": [
+      "anonymous"
+    ],
+    "path": [
+      "anonymous",
+      "set-json"
+    ],
+    "source_file": "cmd/anonymous-main.go",
+    "source_sha256": "4baabf7f975ce977106ffbc01d28ec021e9f57a4a6846b147729ec81df77fcb6"
+  }
+]

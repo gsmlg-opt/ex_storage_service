@@ -1,0 +1,16 @@
+NAME:
+  mc share list COMMAND - list previously shared objects
+
+USAGE:
+  mc share list COMMAND
+
+COMMAND:
+  upload:   list previously shared access to uploads.
+  download: list previously shared access to downloads.
+
+EXAMPLES:
+  1. List previously shared downloads, that haven't expired yet.
+      $ mc share list download
+
+  2. List previously shared uploads, that haven't expired yet.
+      $ mc share list upload

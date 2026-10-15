@@ -5,6 +5,7 @@ defmodule ExStorageServiceCli.Commands.Ls do
 
   alias ExStorageServiceCli.S3Client
   alias ExStorageServiceCli.Output
+  alias ExStorageServiceCli.Commands.Failure
 
   def run(_command, args, ctx) do
     {opts, rest, _} =
@@ -39,29 +40,29 @@ defmodule ExStorageServiceCli.Commands.Ls do
         _ ->
           Output.error("Too many arguments")
           help("ls")
-          System.halt(1)
+          Failure.reported()
       end
     end
   end
 
   def help(_command) do
     IO.puts("""
-    #{IO.ANSI.bright()}ess ls#{IO.ANSI.reset()} — List buckets or objects
+    #{Output.color(IO.ANSI.bright())}ess ls#{Output.color(IO.ANSI.reset())} — List buckets or objects
 
-    #{IO.ANSI.bright()}USAGE#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}USAGE#{Output.color(IO.ANSI.reset())}
         ess ls                       List all buckets
         ess ls <bucket>              List objects in bucket (folder view)
         ess ls <bucket>/<prefix>     List objects with prefix
         ess ls s3://<bucket>/<prefix>
 
-    #{IO.ANSI.bright()}OPTIONS#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}OPTIONS#{Output.color(IO.ANSI.reset())}
         --prefix <prefix>     Filter by prefix
         --delimiter <delim>   Delimiter (default: "/")
         -r, --recursive       List all objects recursively (no delimiter)
         --max-keys <n>        Maximum keys to return (default: 1000)
         --json                Output in JSON format
 
-    #{IO.ANSI.bright()}EXAMPLES#{IO.ANSI.reset()}
+    #{Output.color(IO.ANSI.bright())}EXAMPLES#{Output.color(IO.ANSI.reset())}
         ess ls
         ess ls my-bucket
         ess ls my-bucket/images/
@@ -89,7 +90,7 @@ defmodule ExStorageServiceCli.Commands.Ls do
 
       {:error, reason} ->
         Output.error("Failed to list buckets: #{Output.format_error(reason)}")
-        System.halt(1)
+        Failure.reported()
     end
   end
 
@@ -127,7 +128,7 @@ defmodule ExStorageServiceCli.Commands.Ls do
 
       {:error, reason} ->
         Output.error("Failed to list objects in '#{bucket}': #{Output.format_error(reason)}")
-        System.halt(1)
+        Failure.reported()
     end
   end
 

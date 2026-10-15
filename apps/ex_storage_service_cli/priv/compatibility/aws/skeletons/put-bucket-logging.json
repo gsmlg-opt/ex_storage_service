@@ -1,0 +1,30 @@
+{
+    "Bucket": "",
+    "BucketLoggingStatus": {
+        "LoggingEnabled": {
+            "TargetBucket": "",
+            "TargetGrants": [
+                {
+                    "Grantee": {
+                        "DisplayName": "",
+                        "EmailAddress": "",
+                        "ID": "",
+                        "Type": "CanonicalUser",
+                        "URI": ""
+                    },
+                    "Permission": "FULL_CONTROL"
+                }
+            ],
+            "TargetPrefix": "",
+            "TargetObjectKeyFormat": {
+                "SimplePrefix": {},
+                "PartitionedPrefix": {
+                    "PartitionDateSource": "EventTime"
+                }
+            }
+        }
+    },
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "ExpectedBucketOwner": ""
+}

@@ -1,0 +1,2050 @@
+{
+  "aws_cli_version": "2.31.18",
+  "aws_cli_source_revision": "f4f66e65e70f23f1bf232ecb4a6d8696f4dda3bc",
+  "source_sha256": {
+    "formatter": "b7754fca42770a1449a22a2ba1744a27aac1fc18101c21766bb95376c67135c2",
+    "text": "6a901025a95957e2b6a2ca14aebcf68b2698b77f05b8b5c1de987093864f5b8f",
+    "table": "da39ecccb9ee7858ff934b3fcd1fa9b65097ba6b65d08ff9e509e6d3b1658eb7"
+  },
+  "unicode_version": "15.1.0",
+  "vectors": [
+    {
+      "name": "json-0",
+      "output": "json",
+      "data": {},
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": ""
+    },
+    {
+      "name": "text-0",
+      "output": "text",
+      "data": {},
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": ""
+    },
+    {
+      "name": "table-0",
+      "output": "table",
+      "data": {},
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": ""
+    },
+    {
+      "name": "yaml-0",
+      "output": "yaml",
+      "data": {},
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": ""
+    },
+    {
+      "name": "yaml-stream-0",
+      "output": "yaml-stream",
+      "data": {},
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": ""
+    },
+    {
+      "name": "json-1",
+      "output": "json",
+      "data": [],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "[]\n"
+    },
+    {
+      "name": "text-1",
+      "output": "text",
+      "data": [],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": ""
+    },
+    {
+      "name": "table-1",
+      "output": "table",
+      "data": [],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": ""
+    },
+    {
+      "name": "yaml-1",
+      "output": "yaml",
+      "data": [],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "[]\n"
+    },
+    {
+      "name": "yaml-stream-1",
+      "output": "yaml-stream",
+      "data": [],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- []\n"
+    },
+    {
+      "name": "json-2",
+      "output": "json",
+      "data": {
+        "Root": null
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "null\n"
+    },
+    {
+      "name": "text-2",
+      "output": "text",
+      "data": {
+        "Root": null
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "None\n"
+    },
+    {
+      "name": "table-2",
+      "output": "table",
+      "data": {
+        "Root": null
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": ""
+    },
+    {
+      "name": "yaml-2",
+      "output": "yaml",
+      "data": {
+        "Root": null
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "null\n"
+    },
+    {
+      "name": "yaml-stream-2",
+      "output": "yaml-stream",
+      "data": {
+        "Root": null
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- null\n"
+    },
+    {
+      "name": "json-3",
+      "output": "json",
+      "data": {
+        "Root": false
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "false\n"
+    },
+    {
+      "name": "text-3",
+      "output": "text",
+      "data": {
+        "Root": false
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "False\n"
+    },
+    {
+      "name": "table-3",
+      "output": "table",
+      "data": {
+        "Root": false
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": ""
+    },
+    {
+      "name": "yaml-3",
+      "output": "yaml",
+      "data": {
+        "Root": false
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "false\n"
+    },
+    {
+      "name": "yaml-stream-3",
+      "output": "yaml-stream",
+      "data": {
+        "Root": false
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- false\n"
+    },
+    {
+      "name": "json-4",
+      "output": "json",
+      "data": {
+        "Root": true
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "true\n"
+    },
+    {
+      "name": "text-4",
+      "output": "text",
+      "data": {
+        "Root": true
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "True\n"
+    },
+    {
+      "name": "table-4",
+      "output": "table",
+      "data": {
+        "Root": true
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "---------------\n|ListObjectsV2|\n+-------------+\n"
+    },
+    {
+      "name": "yaml-4",
+      "output": "yaml",
+      "data": {
+        "Root": true
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "true\n"
+    },
+    {
+      "name": "yaml-stream-4",
+      "output": "yaml-stream",
+      "data": {
+        "Root": true
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- true\n"
+    },
+    {
+      "name": "json-5",
+      "output": "json",
+      "data": {
+        "Root": 0
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "0\n"
+    },
+    {
+      "name": "text-5",
+      "output": "text",
+      "data": {
+        "Root": 0
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "0\n"
+    },
+    {
+      "name": "table-5",
+      "output": "table",
+      "data": {
+        "Root": 0
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": ""
+    },
+    {
+      "name": "yaml-5",
+      "output": "yaml",
+      "data": {
+        "Root": 0
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "0\n"
+    },
+    {
+      "name": "yaml-stream-5",
+      "output": "yaml-stream",
+      "data": {
+        "Root": 0
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- 0\n"
+    },
+    {
+      "name": "json-6",
+      "output": "json",
+      "data": {
+        "Root": 42
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "42\n"
+    },
+    {
+      "name": "text-6",
+      "output": "text",
+      "data": {
+        "Root": 42
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "42\n"
+    },
+    {
+      "name": "table-6",
+      "output": "table",
+      "data": {
+        "Root": 42
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "---------------\n|ListObjectsV2|\n+-------------+\n"
+    },
+    {
+      "name": "yaml-6",
+      "output": "yaml",
+      "data": {
+        "Root": 42
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "42\n"
+    },
+    {
+      "name": "yaml-stream-6",
+      "output": "yaml-stream",
+      "data": {
+        "Root": 42
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- 42\n"
+    },
+    {
+      "name": "json-7",
+      "output": "json",
+      "data": {
+        "Root": 1.5
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "1.5\n"
+    },
+    {
+      "name": "text-7",
+      "output": "text",
+      "data": {
+        "Root": 1.5
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "1.5\n"
+    },
+    {
+      "name": "table-7",
+      "output": "table",
+      "data": {
+        "Root": 1.5
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "---------------\n|ListObjectsV2|\n+-------------+\n"
+    },
+    {
+      "name": "yaml-7",
+      "output": "yaml",
+      "data": {
+        "Root": 1.5
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "1.5\n"
+    },
+    {
+      "name": "yaml-stream-7",
+      "output": "yaml-stream",
+      "data": {
+        "Root": 1.5
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- 1.5\n"
+    },
+    {
+      "name": "json-8",
+      "output": "json",
+      "data": {
+        "Root": ""
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "\"\"\n"
+    },
+    {
+      "name": "text-8",
+      "output": "text",
+      "data": {
+        "Root": ""
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "\n"
+    },
+    {
+      "name": "table-8",
+      "output": "table",
+      "data": {
+        "Root": ""
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": ""
+    },
+    {
+      "name": "yaml-8",
+      "output": "yaml",
+      "data": {
+        "Root": ""
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "\"\"\n"
+    },
+    {
+      "name": "yaml-stream-8",
+      "output": "yaml-stream",
+      "data": {
+        "Root": ""
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- ''\n"
+    },
+    {
+      "name": "json-9",
+      "output": "json",
+      "data": {
+        "Root": "hello"
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "\"hello\"\n"
+    },
+    {
+      "name": "text-9",
+      "output": "text",
+      "data": {
+        "Root": "hello"
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "hello\n"
+    },
+    {
+      "name": "table-9",
+      "output": "table",
+      "data": {
+        "Root": "hello"
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "---------------\n|ListObjectsV2|\n+-------------+\n"
+    },
+    {
+      "name": "yaml-9",
+      "output": "yaml",
+      "data": {
+        "Root": "hello"
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "\"hello\"\n"
+    },
+    {
+      "name": "yaml-stream-9",
+      "output": "yaml-stream",
+      "data": {
+        "Root": "hello"
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- hello\n"
+    },
+    {
+      "name": "json-10",
+      "output": "json",
+      "data": {
+        "Root": "☃"
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "\"☃\"\n"
+    },
+    {
+      "name": "text-10",
+      "output": "text",
+      "data": {
+        "Root": "☃"
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "☃\n"
+    },
+    {
+      "name": "table-10",
+      "output": "table",
+      "data": {
+        "Root": "☃"
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "---------------\n|ListObjectsV2|\n+-------------+\n"
+    },
+    {
+      "name": "yaml-10",
+      "output": "yaml",
+      "data": {
+        "Root": "☃"
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "\"☃\"\n"
+    },
+    {
+      "name": "yaml-stream-10",
+      "output": "yaml-stream",
+      "data": {
+        "Root": "☃"
+      },
+      "query": "Root",
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- ☃\n"
+    },
+    {
+      "name": "json-11",
+      "output": "json",
+      "data": [
+        1,
+        2,
+        null,
+        false
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "[\n    1,\n    2,\n    null,\n    false\n]\n"
+    },
+    {
+      "name": "text-11",
+      "output": "text",
+      "data": [
+        1,
+        2,
+        null,
+        false
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "1\t2\tNone\tFalse\n"
+    },
+    {
+      "name": "table-11",
+      "output": "table",
+      "data": [
+        1,
+        2,
+        null,
+        false
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "---------------\n|ListObjectsV2|\n+-------------+\n|  1          |\n|  2          |\n|  None       |\n|  False      |\n+-------------+\n"
+    },
+    {
+      "name": "yaml-11",
+      "output": "yaml",
+      "data": [
+        1,
+        2,
+        null,
+        false
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- 1\n- 2\n- null\n- false\n"
+    },
+    {
+      "name": "yaml-stream-11",
+      "output": "yaml-stream",
+      "data": [
+        1,
+        2,
+        null,
+        false
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- - 1\n  - 2\n  - null\n  - false\n"
+    },
+    {
+      "name": "json-12",
+      "output": "json",
+      "data": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "[\n    [\n        1,\n        2\n    ],\n    [\n        3,\n        4\n    ]\n]\n"
+    },
+    {
+      "name": "text-12",
+      "output": "text",
+      "data": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "1\t2\n3\t4\n"
+    },
+    {
+      "name": "table-12",
+      "output": "table",
+      "data": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "---------------\n|ListObjectsV2|\n+-----+-------+\n|  1  |  2    |\n|  3  |  4    |\n+-----+-------+\n"
+    },
+    {
+      "name": "yaml-12",
+      "output": "yaml",
+      "data": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- - 1\n  - 2\n- - 3\n  - 4\n"
+    },
+    {
+      "name": "yaml-stream-12",
+      "output": "yaml-stream",
+      "data": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- - - 1\n    - 2\n  - - 3\n    - 4\n"
+    },
+    {
+      "name": "json-13",
+      "output": "json",
+      "data": [
+        1,
+        [
+          2,
+          3
+        ],
+        4,
+        []
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "[\n    1,\n    [\n        2,\n        3\n    ],\n    4,\n    []\n]\n"
+    },
+    {
+      "name": "text-13",
+      "output": "text",
+      "data": [
+        1,
+        [
+          2,
+          3
+        ],
+        4,
+        []
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "1\t4\n2\t3\n"
+    },
+    {
+      "name": "table-13",
+      "output": "table",
+      "data": [
+        1,
+        [
+          2,
+          3
+        ],
+        4,
+        []
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "error": "ValueError"
+    },
+    {
+      "name": "yaml-13",
+      "output": "yaml",
+      "data": [
+        1,
+        [
+          2,
+          3
+        ],
+        4,
+        []
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- 1\n- - 2\n  - 3\n- 4\n- []\n"
+    },
+    {
+      "name": "yaml-stream-13",
+      "output": "yaml-stream",
+      "data": [
+        1,
+        [
+          2,
+          3
+        ],
+        4,
+        []
+      ],
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- - 1\n  - - 2\n    - 3\n  - 4\n  - []\n"
+    },
+    {
+      "name": "json-14",
+      "output": "json",
+      "data": {
+        "Names": [
+          "alice",
+          "bob"
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "{\n    \"Names\": [\n        \"alice\",\n        \"bob\"\n    ]\n}\n"
+    },
+    {
+      "name": "text-14",
+      "output": "text",
+      "data": {
+        "Names": [
+          "alice",
+          "bob"
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "NAMES\talice\nNAMES\tbob\n"
+    },
+    {
+      "name": "table-14",
+      "output": "table",
+      "data": {
+        "Names": [
+          "alice",
+          "bob"
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "---------------\n|ListObjectsV2|\n+-------------+\n||   Names   ||\n|+-----------+|\n||  alice    ||\n||  bob      ||\n|+-----------+|\n"
+    },
+    {
+      "name": "yaml-14",
+      "output": "yaml",
+      "data": {
+        "Names": [
+          "alice",
+          "bob"
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "Names:\n- alice\n- bob\n"
+    },
+    {
+      "name": "yaml-stream-14",
+      "output": "yaml-stream",
+      "data": {
+        "Names": [
+          "alice",
+          "bob"
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- Names:\n  - alice\n  - bob\n"
+    },
+    {
+      "name": "json-15",
+      "output": "json",
+      "data": {
+        "A": null,
+        "B": true,
+        "C": "☃"
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "{\n    \"A\": null,\n    \"B\": true,\n    \"C\": \"☃\"\n}\n"
+    },
+    {
+      "name": "text-15",
+      "output": "text",
+      "data": {
+        "A": null,
+        "B": true,
+        "C": "☃"
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "None\tTrue\t☃\n"
+    },
+    {
+      "name": "table-15",
+      "output": "table",
+      "data": {
+        "A": null,
+        "B": true,
+        "C": "☃"
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "-----------------------\n|    ListObjectsV2    |\n+-------+--------+----+\n|   A   |   B    | C  |\n+-------+--------+----+\n|  None |  True  |  ☃ |\n+-------+--------+----+\n"
+    },
+    {
+      "name": "yaml-15",
+      "output": "yaml",
+      "data": {
+        "A": null,
+        "B": true,
+        "C": "☃"
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "A: null\nB: true\nC: ☃\n"
+    },
+    {
+      "name": "yaml-stream-15",
+      "output": "yaml-stream",
+      "data": {
+        "A": null,
+        "B": true,
+        "C": "☃"
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- A: null\n  B: true\n  C: ☃\n"
+    },
+    {
+      "name": "json-16",
+      "output": "json",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "B": "first"
+          },
+          {
+            "B": "second",
+            "C": false
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "{\n    \"Items\": [\n        {\n            \"A\": 1,\n            \"B\": \"first\"\n        },\n        {\n            \"B\": \"second\",\n            \"C\": false\n        }\n    ]\n}\n"
+    },
+    {
+      "name": "text-16",
+      "output": "text",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "B": "first"
+          },
+          {
+            "B": "second",
+            "C": false
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "ITEMS\t1\tfirst\t\nITEMS\t\tsecond\tFalse\n"
+    },
+    {
+      "name": "table-16",
+      "output": "table",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "B": "first"
+          },
+          {
+            "B": "second",
+            "C": false
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "----------------------------\n|       ListObjectsV2      |\n+--------------------------+\n||          Items         ||\n|+---+----------+---------+|\n|| A |    B     |    C    ||\n|+---+----------+---------+|\n||  1|  first   |         ||\n||   |  second  |  False  ||\n|+---+----------+---------+|\n"
+    },
+    {
+      "name": "yaml-16",
+      "output": "yaml",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "B": "first"
+          },
+          {
+            "B": "second",
+            "C": false
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "Items:\n- A: 1\n  B: first\n- B: second\n  C: false\n"
+    },
+    {
+      "name": "yaml-stream-16",
+      "output": "yaml-stream",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "B": "first"
+          },
+          {
+            "B": "second",
+            "C": false
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- Items:\n  - A: 1\n    B: first\n  - B: second\n    C: false\n"
+    },
+    {
+      "name": "json-17",
+      "output": "json",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "Child": {
+              "Name": "one"
+            }
+          },
+          {
+            "B": 2,
+            "Child": {
+              "Name": "two"
+            }
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "{\n    \"Items\": [\n        {\n            \"A\": 1,\n            \"Child\": {\n                \"Name\": \"one\"\n            }\n        },\n        {\n            \"B\": 2,\n            \"Child\": {\n                \"Name\": \"two\"\n            }\n        }\n    ]\n}\n"
+    },
+    {
+      "name": "text-17",
+      "output": "text",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "Child": {
+              "Name": "one"
+            }
+          },
+          {
+            "B": 2,
+            "Child": {
+              "Name": "two"
+            }
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "ITEMS\t1\t\nCHILD\tone\nITEMS\t\t2\nCHILD\ttwo\n"
+    },
+    {
+      "name": "table-17",
+      "output": "table",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "Child": {
+              "Name": "one"
+            }
+          },
+          {
+            "B": 2,
+            "Child": {
+              "Name": "two"
+            }
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "---------------------\n|   ListObjectsV2   |\n+-------------------+\n||      Items      ||\n|+-------+---------+|\n||   A   |    B    ||\n|+-------+---------+|\n||  1    |         ||\n|+-------+---------+|\n|||     Child     |||\n||+-------+-------+||\n|||  Name |  one  |||\n||+-------+-------+||\n||      Items      ||\n|+-------+---------+|\n||   A   |    B    ||\n|+-------+---------+|\n||       |  2      ||\n|+-------+---------+|\n|||     Child     |||\n||+-------+-------+||\n|||  Name |  two  |||\n||+-------+-------+||\n"
+    },
+    {
+      "name": "yaml-17",
+      "output": "yaml",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "Child": {
+              "Name": "one"
+            }
+          },
+          {
+            "B": 2,
+            "Child": {
+              "Name": "two"
+            }
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "Items:\n- A: 1\n  Child:\n    Name: one\n- B: 2\n  Child:\n    Name: two\n"
+    },
+    {
+      "name": "yaml-stream-17",
+      "output": "yaml-stream",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "Child": {
+              "Name": "one"
+            }
+          },
+          {
+            "B": 2,
+            "Child": {
+              "Name": "two"
+            }
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- Items:\n  - A: 1\n    Child:\n      Name: one\n  - B: 2\n    Child:\n      Name: two\n"
+    },
+    {
+      "name": "json-18",
+      "output": "json",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "Child": []
+          },
+          {
+            "A": 2
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "{\n    \"Items\": [\n        {\n            \"A\": 1,\n            \"Child\": []\n        },\n        {\n            \"A\": 2\n        }\n    ]\n}\n"
+    },
+    {
+      "name": "text-18",
+      "output": "text",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "Child": []
+          },
+          {
+            "A": 2
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "ITEMS\t1\nITEMS\t2\n"
+    },
+    {
+      "name": "table-18",
+      "output": "table",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "Child": []
+          },
+          {
+            "A": 2
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "---------------\n|ListObjectsV2|\n+-------------+\n||   Items   ||\n|+-----------+|\n||     A     ||\n|+-----------+|\n||  1        ||\n|+-----------+|\n||   Items   ||\n|+-----------+|\n||     A     ||\n|+-----------+|\n||  2        ||\n|+-----------+|\n"
+    },
+    {
+      "name": "yaml-18",
+      "output": "yaml",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "Child": []
+          },
+          {
+            "A": 2
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "Items:\n- A: 1\n  Child: []\n- A: 2\n"
+    },
+    {
+      "name": "yaml-stream-18",
+      "output": "yaml-stream",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "Child": []
+          },
+          {
+            "A": 2
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- Items:\n  - A: 1\n    Child: []\n  - A: 2\n"
+    },
+    {
+      "name": "json-19",
+      "output": "json",
+      "data": {
+        "A": [],
+        "B": {},
+        "C": "value"
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "{\n    \"A\": [],\n    \"B\": {},\n    \"C\": \"value\"\n}\n"
+    },
+    {
+      "name": "text-19",
+      "output": "text",
+      "data": {
+        "A": [],
+        "B": {},
+        "C": "value"
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "value\n"
+    },
+    {
+      "name": "table-19",
+      "output": "table",
+      "data": {
+        "A": [],
+        "B": {},
+        "C": "value"
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "----------------\n| ListObjectsV2|\n+----+---------+\n|  C |  value  |\n+----+---------+\n"
+    },
+    {
+      "name": "yaml-19",
+      "output": "yaml",
+      "data": {
+        "A": [],
+        "B": {},
+        "C": "value"
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "A: []\nB: {}\nC: value\n"
+    },
+    {
+      "name": "yaml-stream-19",
+      "output": "yaml-stream",
+      "data": {
+        "A": [],
+        "B": {},
+        "C": "value"
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- A: []\n  B: {}\n  C: value\n"
+    },
+    {
+      "name": "json-20",
+      "output": "json",
+      "data": {
+        "Contents": [
+          {
+            "Key": "first",
+            "Size": 10
+          },
+          {
+            "Key": "second",
+            "Size": 20
+          }
+        ],
+        "IsTruncated": false
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "{\n    \"Contents\": [\n        {\n            \"Key\": \"first\",\n            \"Size\": 10\n        },\n        {\n            \"Key\": \"second\",\n            \"Size\": 20\n        }\n    ],\n    \"IsTruncated\": false\n}\n"
+    },
+    {
+      "name": "text-20",
+      "output": "text",
+      "data": {
+        "Contents": [
+          {
+            "Key": "first",
+            "Size": 10
+          },
+          {
+            "Key": "second",
+            "Size": 20
+          }
+        ],
+        "IsTruncated": false
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "False\nCONTENTS\tfirst\t10\nCONTENTS\tsecond\t20\n"
+    },
+    {
+      "name": "table-20",
+      "output": "table",
+      "data": {
+        "Contents": [
+          {
+            "Key": "first",
+            "Size": 10
+          },
+          {
+            "Key": "second",
+            "Size": 20
+          }
+        ],
+        "IsTruncated": false
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "--------------------------\n|      ListObjectsV2     |\n+--------------+---------+\n|  IsTruncated |  False  |\n+--------------+---------+\n||       Contents       ||\n|+-----------+----------+|\n||    Key    |  Size    ||\n|+-----------+----------+|\n||  first    |  10      ||\n||  second   |  20      ||\n|+-----------+----------+|\n"
+    },
+    {
+      "name": "yaml-20",
+      "output": "yaml",
+      "data": {
+        "Contents": [
+          {
+            "Key": "first",
+            "Size": 10
+          },
+          {
+            "Key": "second",
+            "Size": 20
+          }
+        ],
+        "IsTruncated": false
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "Contents:\n- Key: first\n  Size: 10\n- Key: second\n  Size: 20\nIsTruncated: false\n"
+    },
+    {
+      "name": "yaml-stream-20",
+      "output": "yaml-stream",
+      "data": {
+        "Contents": [
+          {
+            "Key": "first",
+            "Size": 10
+          },
+          {
+            "Key": "second",
+            "Size": 20
+          }
+        ],
+        "IsTruncated": false
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- Contents:\n  - Key: first\n    Size: 10\n  - Key: second\n    Size: 20\n  IsTruncated: false\n"
+    },
+    {
+      "name": "json-21",
+      "output": "json",
+      "data": {
+        "ResponseMetadata": {
+          "RequestId": "secret-id"
+        },
+        "Value": 7
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "{\n    \"Value\": 7\n}\n"
+    },
+    {
+      "name": "text-21",
+      "output": "text",
+      "data": {
+        "ResponseMetadata": {
+          "RequestId": "secret-id"
+        },
+        "Value": 7
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "7\n"
+    },
+    {
+      "name": "table-21",
+      "output": "table",
+      "data": {
+        "ResponseMetadata": {
+          "RequestId": "secret-id"
+        },
+        "Value": 7
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "----------------\n| ListObjectsV2|\n+--------+-----+\n|  Value |  7  |\n+--------+-----+\n"
+    },
+    {
+      "name": "yaml-21",
+      "output": "yaml",
+      "data": {
+        "ResponseMetadata": {
+          "RequestId": "secret-id"
+        },
+        "Value": 7
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "Value: 7\n"
+    },
+    {
+      "name": "yaml-stream-21",
+      "output": "yaml-stream",
+      "data": {
+        "ResponseMetadata": {
+          "RequestId": "secret-id"
+        },
+        "Value": 7
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- Value: 7\n"
+    },
+    {
+      "name": "json-22",
+      "output": "json",
+      "data": {
+        "Description": "long long long long long long long long long long long long long long long long long long long long ",
+        "Name": "sample",
+        "Number": 4
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "{\n    \"Description\": \"long long long long long long long long long long long long long long long long long long long long \",\n    \"Name\": \"sample\",\n    \"Number\": 4\n}\n"
+    },
+    {
+      "name": "text-22",
+      "output": "text",
+      "data": {
+        "Description": "long long long long long long long long long long long long long long long long long long long long ",
+        "Name": "sample",
+        "Number": 4
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "long long long long long long long long long long long long long long long long long long long long \tsample\t4\n"
+    },
+    {
+      "name": "table-22",
+      "output": "table",
+      "data": {
+        "Description": "long long long long long long long long long long long long long long long long long long long long ",
+        "Name": "sample",
+        "Number": 4
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "-------------------------------------------------------------------------------------------------------------------------\n|                                                     ListObjectsV2                                                     |\n+-------------+---------------------------------------------------------------------------------------------------------+\n|  Description|  long long long long long long long long long long long long long long long long long long long long    |\n|  Name       |  sample                                                                                                 |\n|  Number     |  4                                                                                                      |\n+-------------+---------------------------------------------------------------------------------------------------------+\n"
+    },
+    {
+      "name": "yaml-22",
+      "output": "yaml",
+      "data": {
+        "Description": "long long long long long long long long long long long long long long long long long long long long ",
+        "Name": "sample",
+        "Number": 4
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "Description: 'long long long long long long long long long long long long long long\n  long long long long long long '\nName: sample\nNumber: 4\n"
+    },
+    {
+      "name": "yaml-stream-22",
+      "output": "yaml-stream",
+      "data": {
+        "Description": "long long long long long long long long long long long long long long long long long long long long ",
+        "Name": "sample",
+        "Number": 4
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- Description: 'long long long long long long long long long long long long long long\n    long long long long long long '\n  Name: sample\n  Number: 4\n"
+    },
+    {
+      "name": "json-23",
+      "output": "json",
+      "data": {
+        "Columns": [
+          {
+            "Key": "é·中文😀",
+            "Name": "é"
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "{\n    \"Columns\": [\n        {\n            \"Key\": \"é·中文😀\",\n            \"Name\": \"é\"\n        }\n    ]\n}\n"
+    },
+    {
+      "name": "text-23",
+      "output": "text",
+      "data": {
+        "Columns": [
+          {
+            "Key": "é·中文😀",
+            "Name": "é"
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "COLUMNS\té·中文😀\té\n"
+    },
+    {
+      "name": "table-23",
+      "output": "table",
+      "data": {
+        "Columns": [
+          {
+            "Key": "é·中文😀",
+            "Name": "é"
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "--------------------------\n|      ListObjectsV2     |\n+------------------------+\n||        Columns       ||\n|+-------------+--------+|\n||     Key     | Name   ||\n|+-------------+--------+|\n||  é·中文😀 |  é   ||\n|+-------------+--------+|\n"
+    },
+    {
+      "name": "yaml-23",
+      "output": "yaml",
+      "data": {
+        "Columns": [
+          {
+            "Key": "é·中文😀",
+            "Name": "é"
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "Columns:\n- Key: \"é·中文\\U0001F600\"\n  Name: é\n"
+    },
+    {
+      "name": "yaml-stream-23",
+      "output": "yaml-stream",
+      "data": {
+        "Columns": [
+          {
+            "Key": "é·中文😀",
+            "Name": "é"
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- Columns:\n  - Key: \"é·中文\\U0001F600\"\n    Name: é\n"
+    },
+    {
+      "name": "json-24",
+      "output": "json",
+      "data": {
+        "Values": [
+          1e-05,
+          0.0001,
+          1000000000000000.0,
+          1e+16,
+          1e+20,
+          -0.0
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "{\n    \"Values\": [\n        1e-05,\n        0.0001,\n        1000000000000000.0,\n        1e+16,\n        1e+20,\n        -0.0\n    ]\n}\n"
+    },
+    {
+      "name": "text-24",
+      "output": "text",
+      "data": {
+        "Values": [
+          1e-05,
+          0.0001,
+          1000000000000000.0,
+          1e+16,
+          1e+20,
+          -0.0
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "VALUES\t1e-05\nVALUES\t0.0001\nVALUES\t1000000000000000.0\nVALUES\t1e+16\nVALUES\t1e+20\nVALUES\t-0.0\n"
+    },
+    {
+      "name": "table-24",
+      "output": "table",
+      "data": {
+        "Values": [
+          1e-05,
+          0.0001,
+          1000000000000000.0,
+          1e+16,
+          1e+20,
+          -0.0
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "--------------------------\n|      ListObjectsV2     |\n+------------------------+\n||        Values        ||\n|+----------------------+|\n||  1e-05               ||\n||  0.0001              ||\n||  1000000000000000.0  ||\n||  1e+16               ||\n||  1e+20               ||\n||  -0.0                ||\n|+----------------------+|\n"
+    },
+    {
+      "name": "yaml-24",
+      "output": "yaml",
+      "data": {
+        "Values": [
+          1e-05,
+          0.0001,
+          1000000000000000.0,
+          1e+16,
+          1e+20,
+          -0.0
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "Values:\n- 1e-05\n- 0.0001\n- 1000000000000000.0\n- 1e+16\n- 1e+20\n- -0.0\n"
+    },
+    {
+      "name": "yaml-stream-24",
+      "output": "yaml-stream",
+      "data": {
+        "Values": [
+          1e-05,
+          0.0001,
+          1000000000000000.0,
+          1e+16,
+          1e+20,
+          -0.0
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- Values:\n  - 1e-05\n  - 0.0001\n  - 1000000000000000.0\n  - 1e+16\n  - 1e+20\n  - -0.0\n"
+    },
+    {
+      "name": "json-25",
+      "output": "json",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "B": [
+              2,
+              3
+            ]
+          },
+          {
+            "A": 2,
+            "B": [
+              4,
+              5
+            ]
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "{\n    \"Items\": [\n        {\n            \"A\": 1,\n            \"B\": [\n                2,\n                3\n            ]\n        },\n        {\n            \"A\": 2,\n            \"B\": [\n                4,\n                5\n            ]\n        }\n    ]\n}\n"
+    },
+    {
+      "name": "text-25",
+      "output": "text",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "B": [
+              2,
+              3
+            ]
+          },
+          {
+            "A": 2,
+            "B": [
+              4,
+              5
+            ]
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "ITEMS\t1\nB\t2\nB\t3\nITEMS\t2\nB\t4\nB\t5\n"
+    },
+    {
+      "name": "table-25",
+      "output": "table",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "B": [
+              2,
+              3
+            ]
+          },
+          {
+            "A": 2,
+            "B": [
+              4,
+              5
+            ]
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "---------------\n|ListObjectsV2|\n+-------------+\n||   Items   ||\n|+-----------+|\n||     A     ||\n|+-----------+|\n||  1        ||\n|+-----------+|\n|||    B    |||\n||+---------+||\n|||  2      |||\n|||  3      |||\n||+---------+||\n||   Items   ||\n|+-----------+|\n||     A     ||\n|+-----------+|\n||  2        ||\n|+-----------+|\n|||    B    |||\n||+---------+||\n|||  4      |||\n|||  5      |||\n||+---------+||\n"
+    },
+    {
+      "name": "yaml-25",
+      "output": "yaml",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "B": [
+              2,
+              3
+            ]
+          },
+          {
+            "A": 2,
+            "B": [
+              4,
+              5
+            ]
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "Items:\n- A: 1\n  B:\n  - 2\n  - 3\n- A: 2\n  B:\n  - 4\n  - 5\n"
+    },
+    {
+      "name": "yaml-stream-25",
+      "output": "yaml-stream",
+      "data": {
+        "Items": [
+          {
+            "A": 1,
+            "B": [
+              2,
+              3
+            ]
+          },
+          {
+            "A": 2,
+            "B": [
+              4,
+              5
+            ]
+          }
+        ]
+      },
+      "query": null,
+      "color": "off",
+      "terminal_width": 80,
+      "text": "- Items:\n  - A: 1\n    B:\n    - 2\n    - 3\n  - A: 2\n    B:\n    - 4\n    - 5\n"
+    },
+    {
+      "name": "json-query",
+      "output": "json",
+      "data": {
+        "Contents": [
+          {
+            "Key": "a",
+            "Size": 4
+          },
+          {
+            "Key": "b",
+            "Size": 8
+          }
+        ],
+        "ResponseMetadata": {
+          "RequestId": "x"
+        }
+      },
+      "query": "Contents[?Size > `4`].Key",
+      "text": "[\n    \"b\"\n]\n"
+    },
+    {
+      "name": "text-query",
+      "output": "text",
+      "data": {
+        "Contents": [
+          {
+            "Key": "a",
+            "Size": 4
+          },
+          {
+            "Key": "b",
+            "Size": 8
+          }
+        ],
+        "ResponseMetadata": {
+          "RequestId": "x"
+        }
+      },
+      "query": "Contents[?Size > `4`].Key",
+      "text": "b\n"
+    },
+    {
+      "name": "table-query",
+      "output": "table",
+      "data": {
+        "Contents": [
+          {
+            "Key": "a",
+            "Size": 4
+          },
+          {
+            "Key": "b",
+            "Size": 8
+          }
+        ],
+        "ResponseMetadata": {
+          "RequestId": "x"
+        }
+      },
+      "query": "Contents[?Size > `4`].Key",
+      "text": "---------------\n|ListObjectsV2|\n+-------------+\n|  b          |\n+-------------+\n"
+    },
+    {
+      "name": "yaml-query",
+      "output": "yaml",
+      "data": {
+        "Contents": [
+          {
+            "Key": "a",
+            "Size": 4
+          },
+          {
+            "Key": "b",
+            "Size": 8
+          }
+        ],
+        "ResponseMetadata": {
+          "RequestId": "x"
+        }
+      },
+      "query": "Contents[?Size > `4`].Key",
+      "text": "- b\n"
+    },
+    {
+      "name": "yaml-stream-query",
+      "output": "yaml-stream",
+      "data": {
+        "Contents": [
+          {
+            "Key": "a",
+            "Size": 4
+          },
+          {
+            "Key": "b",
+            "Size": 8
+          }
+        ],
+        "ResponseMetadata": {
+          "RequestId": "x"
+        }
+      },
+      "query": "Contents[?Size > `4`].Key",
+      "text": "- - b\n"
+    },
+    {
+      "name": "table-color-on",
+      "output": "table",
+      "color": "on",
+      "data": {
+        "Items": [
+          {
+            "Name": "first",
+            "Child": {
+              "Name": "one"
+            }
+          }
+        ]
+      },
+      "text": "---------------------\n|   ListObjectsV2   |\n+-------------------+\n\u001b[2m\u001b[33m|\u001b[0m|      Items      |\u001b[2m\u001b[33m|\u001b[0m\n\u001b[2m\u001b[33m|\u001b[0m+-----------------+\u001b[2m\u001b[33m|\u001b[0m\n\u001b[2m\u001b[33m|\u001b[0m|      Name       |\u001b[2m\u001b[33m|\u001b[0m\n\u001b[2m\u001b[33m|\u001b[0m+-----------------+\u001b[2m\u001b[33m|\u001b[0m\n\u001b[2m\u001b[33m|\u001b[0m|  \u001b[1m\u001b[34mfirst\u001b[0m          |\u001b[2m\u001b[33m|\u001b[0m\n\u001b[2m\u001b[33m|\u001b[0m+-----------------+\u001b[2m\u001b[33m|\u001b[0m\n\u001b[2m\u001b[33m|\u001b[0m\u001b[2m\u001b[33m|\u001b[0m|     Child     |\u001b[2m\u001b[33m|\u001b[0m\u001b[2m\u001b[33m|\u001b[0m\n\u001b[2m\u001b[33m|\u001b[0m\u001b[2m\u001b[33m|\u001b[0m+-------+-------+\u001b[2m\u001b[33m|\u001b[0m\u001b[2m\u001b[33m|\u001b[0m\n\u001b[2m\u001b[33m|\u001b[0m\u001b[2m\u001b[33m|\u001b[0m|  \u001b[1m\u001b[34mName\u001b[0m |  \u001b[1m\u001b[34mone\u001b[0m  |\u001b[2m\u001b[33m|\u001b[0m\u001b[2m\u001b[33m|\u001b[0m\n\u001b[2m\u001b[33m|\u001b[0m\u001b[2m\u001b[33m|\u001b[0m+-------+-------+\u001b[2m\u001b[33m|\u001b[0m\u001b[2m\u001b[33m|\u001b[0m\n"
+    },
+    {
+      "name": "table-color-off",
+      "output": "table",
+      "color": "off",
+      "data": {
+        "Items": [
+          {
+            "Name": "first",
+            "Child": {
+              "Name": "one"
+            }
+          }
+        ]
+      },
+      "text": "---------------------\n|   ListObjectsV2   |\n+-------------------+\n||      Items      ||\n|+-----------------+|\n||      Name       ||\n|+-----------------+|\n||  first          ||\n|+-----------------+|\n|||     Child     |||\n||+-------+-------+||\n|||  Name |  one  |||\n||+-------+-------+||\n"
+    },
+    {
+      "name": "table-color-auto",
+      "output": "table",
+      "color": "auto",
+      "data": {
+        "Items": [
+          {
+            "Name": "first",
+            "Child": {
+              "Name": "one"
+            }
+          }
+        ]
+      },
+      "text": "---------------------\n|   ListObjectsV2   |\n+-------------------+\n||      Items      ||\n|+-----------------+|\n||      Name       ||\n|+-----------------+|\n||  first          ||\n|+-----------------+|\n|||     Child     |||\n||+-------+-------+||\n|||  Name |  one  |||\n||+-------+-------+||\n"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+    "Bucket": "",
+    "Delimiter": "",
+    "EncodingType": "url",
+    "KeyMarker": "",
+    "MaxUploads": 0,
+    "Prefix": "",
+    "UploadIdMarker": "",
+    "ExpectedBucketOwner": "",
+    "RequestPayer": "requester"
+}

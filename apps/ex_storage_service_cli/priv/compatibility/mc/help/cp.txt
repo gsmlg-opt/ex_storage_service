@@ -1,0 +1,102 @@
+NAME:
+  mc cp - copy objects
+
+USAGE:
+  mc cp [FLAGS] SOURCE [SOURCE...] TARGET
+
+FLAGS:
+  --rewind value                     roll back object(s) to current version at specified time
+  --version-id value, --vid value    select an object version to copy
+  --recursive, -r                    copy recursively
+  --older-than value                 copy objects older than value in duration string (e.g. 7d10h31s)
+  --newer-than value                 copy objects newer than value in duration string (e.g. 7d10h31s)
+  --storage-class value, --sc value  set storage class for new object(s) on target
+  --attr value                       add custom metadata for the object
+  --preserve, -a                     preserve filesystem attributes (mode, ownership, timestamps)
+  --disable-multipart                disable multipart upload feature
+  --tags value                       apply one or more tags to the uploaded objects
+  --retention-mode value             retention mode to be applied on the object (governance, compliance)
+  --retention-duration value         retention duration for the object in d days or y years
+  --legal-hold value                 apply legal hold to the copied object (on, off)
+  --zip                              Extract from remote zip file (MinIO server source only)
+  --max-workers value                maximum number of concurrent copies (default: autodetect) (default: 0)
+  --checksum value                   Add checksum to uploaded object. Values: CRC64NVME, CRC32, CRC32C, SHA1 or SHA256. Requires server trailing headers (AWS, MinIO)
+  --enc-c value                      encrypt/decrypt objects using client provided keys. (multiple keys can be provided) Formats: RawBase64 or Hex.
+  --enc-kms value                    encrypt/decrypt objects using specific server-side encryption keys. (multiple keys can be provided) [$MC_ENC_KMS]
+  --enc-s3 value                     encrypt/decrypt objects using server-side default keys and configurations. (multiple keys can be provided). [$MC_ENC_S3]
+  --config-dir value, -C value       path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                        disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp              disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                         disable color theme [$MC_NO_COLOR]
+  --json                             enable JSON lines formatted output [$MC_JSON]
+  --debug                            enable debug output [$MC_DEBUG]
+  --resolve value                    resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                         disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value               limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value             limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value    add custom HTTP header to the request. 'key:value' format.
+  --help, -h                         show help
+  
+
+ENVIRONMENT VARIABLES:
+  MC_ENC_KMS: KMS encryption key in the form of (alias/prefix=key).
+  MC_ENC_S3: S3 encryption key in the form of (alias/prefix=key).
+
+EXAMPLES:
+  01. Copy a list of objects from local file system to Amazon S3 cloud storage.
+      $ mc cp Music/*.ogg s3/jukebox/
+
+  02. Copy a folder recursively from MinIO cloud storage to Amazon S3 cloud storage.
+      $ mc cp --recursive play/mybucket/myfolder/ s3/mybucket/
+
+  03. Copy multiple local folders recursively to MinIO cloud storage.
+      $ mc cp --recursive backup/2014/ backup/2015/ play/archive/
+
+  04. Copy a bucket recursively from aliased Amazon S3 cloud storage to local filesystem on Windows.
+      $ mc cp --recursive s3\documents\2014\ C:\Backups\2014
+
+  05. Copy files older than 7 days and 10 hours from MinIO cloud storage to Amazon S3 cloud storage.
+      $ mc cp --older-than 7d10h play/mybucket/myfolder/ s3/mybucket/
+
+  06. Copy files newer than 7 days and 10 hours from MinIO cloud storage to a local path.
+      $ mc cp --newer-than 7d10h play/mybucket/myfolder/ ~/latest/
+
+  07. Copy an object with name containing unicode characters to Amazon S3 cloud storage.
+      $ mc cp 本語 s3/andoria/
+
+  08. Copy a local folder with space separated characters to Amazon S3 cloud storage.
+      $ mc cp --recursive 'workdir/documents/May 2014/' s3/miniocloud
+
+  09. Copy a folder with encrypted objects recursively from Amazon S3 to MinIO cloud storage using s3 encryption.
+      $ mc cp --recursive --enc-s3 "s3/documents" --enc-s3 "myminio/documents" s3/documents/ myminio/documents/
+
+  10. Copy a folder with encrypted objects recursively from Amazon S3 to MinIO cloud storage.
+      $ mc cp --recursive --enc-c "s3/documents/=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDA" --enc-c "myminio/documents/=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5BBB" s3/documents/ myminio/documents/
+
+  11. Copy a list of objects from local file system to MinIO cloud storage with specified metadata, separated by ";"
+      $ mc cp --attr "key1=value1;key2=value2" Music/*.mp4 play/mybucket/
+
+  12. Copy a folder recursively from MinIO cloud storage to Amazon S3 cloud storage with Cache-Control and custom metadata, separated by ";".
+      $ mc cp --attr "Cache-Control=max-age=90000,min-fresh=9000;key1=value1;key2=value2" --recursive play/mybucket/myfolder/ s3/mybucket/
+
+  13. Copy a text file to an object storage and assign REDUCED_REDUNDANCY storage-class to the uploaded object.
+      $ mc cp --storage-class REDUCED_REDUNDANCY myobject.txt play/mybucket
+
+  14. Copy a text file to an object storage and preserve the file system attribute as metadata.
+      $ mc cp -a myobject.txt play/mybucket
+
+  15. Copy a text file to an object storage with object lock mode set to 'GOVERNANCE' with retention duration 1 day.
+      $ mc cp --retention-mode governance --retention-duration 1d locked.txt play/locked-bucket/
+
+  16. Copy a text file to an object storage with legal-hold enabled.
+      $ mc cp --legal-hold on locked.txt play/locked-bucket/
+
+  17. Copy a text file to an object storage and disable multipart upload feature.
+      $ mc cp --disable-multipart myobject.txt play/mybucket
+
+  18. Roll back 10 days in the past to copy the content of 'mybucket'
+      $ mc cp --rewind 10d -r play/mybucket/ /tmp/dest/
+
+  19. Set tags to the uploaded objects
+      $ mc cp -r --tags "category=prod&type=backup" ./data/ play/another-bucket/
+

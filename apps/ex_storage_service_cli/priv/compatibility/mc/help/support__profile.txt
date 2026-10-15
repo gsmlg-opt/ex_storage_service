@@ -1,0 +1,36 @@
+NAME:
+  mc support profile - upload profile data for debugging
+
+USAGE:
+  mc support profile [FLAGS] TARGET
+
+FLAGS:
+  --duration value                 profile for the specified duration in seconds (default: 15)
+  --type value                     profiler type, possible values are 'cpu', 'cpuio', 'mem', 'block', 'mutex', 'trace', 'threads', 'goroutines' and 'runtime' (default: "cpu,mem,goroutines,runtime")
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --airgap                         use in environments without network access to SUBNET (e.g. airgapped, firewalled, etc.)
+  --api-key value                  API Key of the account on SUBNET [$_MC_SUBNET_API_KEY]
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Profile CPU for 10 seconds on cluster with alias 'myminio' and upload results to SUBNET
+     $ mc support profile --type cpu myminio
+
+  2. Profile CPU, Memory, Goroutines for 10 seconds on cluster with alias 'myminio' and upload results to SUBNET
+     $ mc support profile --type cpu,mem,goroutines myminio
+
+  3. Profile CPU, Memory, Goroutines for 10 minutes on cluster with alias 'myminio' and upload results to SUBNET
+     $ mc support profile --type cpu,mem,goroutines --duration 600 myminio
+
+  4. Profile CPU for 10 seconds on cluster with alias 'myminio', save and upload to SUBNET manually
+     $ mc support profile --type cpu --airgap myminio

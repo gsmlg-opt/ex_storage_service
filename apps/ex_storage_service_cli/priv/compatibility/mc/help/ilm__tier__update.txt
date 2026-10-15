@@ -1,0 +1,40 @@
+NAME:
+  mc ilm tier update - update an existing remote tier configuration
+
+USAGE:
+  mc ilm tier update ALIAS NAME
+
+NAME:
+  Name of remote tier. e.g WARM-TIER
+
+FLAGS:
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --access-key value               AWS S3 or compatible object storage access-key
+  --secret-key value               AWS S3 or compatible object storage secret-key
+  --use-aws-role                   use AWS S3 role
+  --account-key value              Azure Blob Storage account key
+  --az-sp-tenant-id value          Directory ID for the Azure service principal account
+  --az-sp-client-id value          The client ID of the Azure service principal account
+  --az-sp-client-secret value      The client secret of the Azure service principal account
+  --credentials-file value         path to Google Cloud Storage credentials file
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Update credentials for an existing Azure Blob Storage remote tier:
+     $ mc ilm tier update myminio AZTIER --account-key ACCOUNT-KEY
+
+  2. Update credentials for an existing AWS S3 compatible remote tier:
+     $ mc ilm tier update myminio S3TIER --access-key ACCESS-KEY --secret-key SECRET-KEY
+
+  3. Update credentials for an existing Google Cloud Storage remote tier:
+     $ mc ilm tier update myminio GCSTIER --credentials-file /path/to/credentials.json

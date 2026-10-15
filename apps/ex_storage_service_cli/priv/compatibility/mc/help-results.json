@@ -1,0 +1,2613 @@
+[
+  {
+    "exit_code": 0,
+    "path": [
+      "alias"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "alias",
+      "set"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "alias",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "alias",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "alias",
+      "import"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "alias",
+      "export"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "service"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "service",
+      "restart"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "service",
+      "stop"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "service",
+      "unfreeze"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "service",
+      "freeze"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "update"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "inspect"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "add"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "disable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "enable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "policy"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "svcacct"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "svcacct",
+      "add"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "svcacct",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "svcacct",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "svcacct",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "svcacct",
+      "edit"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "svcacct",
+      "enable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "svcacct",
+      "disable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "sts"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "user",
+      "sts",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "group"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "group",
+      "add"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "group",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "group",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "group",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "group",
+      "enable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "group",
+      "disable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "policy"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "policy",
+      "create"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "policy",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "policy",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "policy",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "policy",
+      "attach"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "policy",
+      "detach"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "policy",
+      "entities"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "policy",
+      "add"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "policy",
+      "set"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "policy",
+      "unset"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "policy",
+      "update"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "replicate"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "replicate",
+      "add"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "replicate",
+      "update"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "replicate",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "replicate",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "replicate",
+      "status"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "replicate",
+      "resync"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "replicate",
+      "resync",
+      "start"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "replicate",
+      "resync",
+      "status"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "replicate",
+      "resync",
+      "cancel"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "idp"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "config"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "config",
+      "get"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "config",
+      "set"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "config",
+      "reset"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "config",
+      "history"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "config",
+      "restore"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "config",
+      "export"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "config",
+      "import"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "decommission"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "decommission",
+      "start"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "decommission",
+      "status"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "decommission",
+      "cancel"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "heal"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "prometheus"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "prometheus",
+      "generate"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "prometheus",
+      "metrics"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "kms"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "kms",
+      "key"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "kms",
+      "key",
+      "create"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "kms",
+      "key",
+      "status"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "kms",
+      "key",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "health"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "subnet"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "subnet",
+      "health"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "subnet",
+      "register"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "bucket"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "bucket",
+      "remote"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 1,
+    "path": [
+      "admin",
+      "bucket",
+      "remote",
+      "add"
+    ],
+    "stderr": true
+  },
+  {
+    "exit_code": 1,
+    "path": [
+      "admin",
+      "bucket",
+      "remote",
+      "edit"
+    ],
+    "stderr": true
+  },
+  {
+    "exit_code": 1,
+    "path": [
+      "admin",
+      "bucket",
+      "remote",
+      "remove"
+    ],
+    "stderr": true
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "bucket",
+      "quota"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "bucket",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "tier"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "tier",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "tier",
+      "ls"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "tier",
+      "add"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "tier",
+      "edit"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "tier",
+      "verify"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "tier",
+      "rm"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "speedtest"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "profile"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "profile",
+      "start"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "profile",
+      "stop"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "scanner"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "scanner",
+      "status"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "scanner",
+      "trace"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "top"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "top",
+      "api"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "top",
+      "locks"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "trace"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "console"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "cluster"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "cluster",
+      "bucket"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "cluster",
+      "bucket",
+      "import"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "cluster",
+      "bucket",
+      "export"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "cluster",
+      "iam"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "cluster",
+      "iam",
+      "import"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "cluster",
+      "iam",
+      "export"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "rebalance"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "rebalance",
+      "start"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "rebalance",
+      "status"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "rebalance",
+      "stop"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "logs"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "accesskey"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "accesskey",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "accesskey",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "accesskey",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "accesskey",
+      "create"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "accesskey",
+      "edit"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "accesskey",
+      "enable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "accesskey",
+      "disable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "admin",
+      "accesskey",
+      "sts-revoke"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "anonymous"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "batch"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "batch",
+      "generate"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "batch",
+      "start"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "batch",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "batch",
+      "status"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "batch",
+      "describe"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "batch",
+      "cancel"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "cp"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "cat"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "cors"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "cors",
+      "set"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "cors",
+      "get"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "cors",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "diff"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "du"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "encrypt"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "encrypt",
+      "set"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "encrypt",
+      "clear"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "encrypt",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "event"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "event",
+      "add"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "event",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "event",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "find"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "get"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "head"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "rule"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "rule",
+      "add"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "rule",
+      "edit"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "rule",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "rule",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "rule",
+      "export"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "rule",
+      "import"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "tier"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "tier",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "tier",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "tier",
+      "add"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "tier",
+      "edit"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "tier",
+      "update"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "tier",
+      "verify"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "tier",
+      "check"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "tier",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "restore"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "add"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "edit"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "ls"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "rm"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "export"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ilm",
+      "import"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid",
+      "add"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid",
+      "update"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid",
+      "enable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid",
+      "disable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid",
+      "accesskey"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid",
+      "accesskey",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid",
+      "accesskey",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid",
+      "accesskey",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid",
+      "accesskey",
+      "edit"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid",
+      "accesskey",
+      "enable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "openid",
+      "accesskey",
+      "disable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "add"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "update"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "enable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "disable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "policy"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "policy",
+      "attach"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "policy",
+      "detach"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "policy",
+      "entities"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "accesskey"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "accesskey",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "accesskey",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "accesskey",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "accesskey",
+      "create"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "accesskey",
+      "create-with-login"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "accesskey",
+      "edit"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "accesskey",
+      "enable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "accesskey",
+      "disable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "idp",
+      "ldap",
+      "accesskey",
+      "sts-revoke"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "license"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "license",
+      "register"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "license",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "license",
+      "update"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "license",
+      "unregister"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "legalhold"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "legalhold",
+      "set"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "legalhold",
+      "clear"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "legalhold",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ls"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "mb"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "mv"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "mirror"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "od"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ping"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "policy"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "pipe"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "put"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "quota"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "quota",
+      "set"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "quota",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "quota",
+      "clear"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "rm"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "retention"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "retention",
+      "set"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "retention",
+      "clear"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "retention",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "rb"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "replicate"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "replicate",
+      "add"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "replicate",
+      "update"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "replicate",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "replicate",
+      "status"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "replicate",
+      "resync"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "replicate",
+      "resync",
+      "start"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "replicate",
+      "resync",
+      "status"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "replicate",
+      "export"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "replicate",
+      "import"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "replicate",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "replicate",
+      "backlog"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "ready"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "sql"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "stat"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "register"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "callhome"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "diag"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "perf"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "inspect"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "profile"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "top"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "top",
+      "api"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "top",
+      "drive"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "top",
+      "locks"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "top",
+      "net"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "top",
+      "rpc"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "proxy"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "proxy",
+      "set"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "proxy",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "proxy",
+      "show"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "support",
+      "upload"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "share"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "share",
+      "download"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "share",
+      "upload"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "share",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "tree"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "tag"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "tag",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "tag",
+      "remove"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "tag",
+      "set"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "undo"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "update"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "version"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "version",
+      "enable"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "version",
+      "suspend"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "version",
+      "info"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "watch"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "anonymous",
+      "get"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "anonymous",
+      "get-json"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "anonymous",
+      "links"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "anonymous",
+      "list"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "anonymous",
+      "set"
+    ],
+    "stderr": false
+  },
+  {
+    "exit_code": 0,
+    "path": [
+      "anonymous",
+      "set-json"
+    ],
+    "stderr": false
+  }
+]

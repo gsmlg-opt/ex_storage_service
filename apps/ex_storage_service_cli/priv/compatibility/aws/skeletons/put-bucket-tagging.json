@@ -1,0 +1,14 @@
+{
+    "Bucket": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "Tagging": {
+        "TagSet": [
+            {
+                "Key": "",
+                "Value": ""
+            }
+        ]
+    },
+    "ExpectedBucketOwner": ""
+}

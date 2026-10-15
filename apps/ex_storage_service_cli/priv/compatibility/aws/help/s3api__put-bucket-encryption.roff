@@ -1,0 +1,519 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "PUT-BUCKET-ENCRYPTION"  "" "" ""
+.SH NAME
+put-bucket-encryption \- 
+.SH DESCRIPTION
+.sp
+This operation configures default encryption and Amazon S3 Bucket Keys for an existing bucket.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- For directory buckets, you must make requests for this API operation to the Regional endpoint. These endpoints support path\-style requests in the format 
+.nf
+\(ga\(ga
+.fi
+\fI\%https://s3express\-control.*region\-code*\fP .amazonaws.com/\fIbucket\-name\fP \(ga\(ga . Virtual\-hosted\-style requests aren\(aqt supported. For more information about endpoints in Availability Zones, see \fI\%Regional and Zonal endpoints for directory buckets in Availability Zones\fP in the \fIAmazon S3 User Guide\fP . For more information about endpoints in Local Zones, see \fI\%Concepts for directory buckets in Local Zones\fP in the \fIAmazon S3 User Guide\fP .
+.IP "System Message: WARNING/2 (<string>:, line 26)"
+Inline literal start\-string without end\-string.
+.UNINDENT
+.UNINDENT
+.sp
+By default, all buckets have a default encryption configuration that uses server\-side encryption with Amazon S3 managed keys (SSE\-S3).
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+\fBGeneral purpose buckets\fP
+.INDENT 2.0
+.IP \(bu 2
+You can optionally configure default encryption for a bucket by using server\-side encryption with Key Management Service (KMS) keys (SSE\-KMS) or dual\-layer server\-side encryption with Amazon Web Services KMS keys (DSSE\-KMS). If you specify default encryption by using SSE\-KMS, you can also configure \fI\%Amazon S3 Bucket Keys\fP . For information about the bucket default encryption feature, see \fI\%Amazon S3 Bucket Default Encryption\fP in the \fIAmazon S3 User Guide\fP .
+.IP \(bu 2
+If you use PutBucketEncryption to set your \fI\%default bucket encryption\fP to SSE\-KMS, you should verify that your KMS key ID is correct. Amazon S3 doesn\(aqt validate the KMS key ID provided in PutBucketEncryption requests.
+.UNINDENT
+.IP \(bu 2
+\fBDirectory buckets\fP \- You can optionally configure default encryption for a bucket by using server\-side encryption with Key Management Service (KMS) keys (SSE\-KMS).
+.INDENT 2.0
+.IP \(bu 2
+We recommend that the bucket\(aqs default encryption uses the desired encryption configuration and you don\(aqt override the bucket default encryption in your \fBCreateSession\fP requests or \fBPUT\fP object requests. Then, new objects are automatically encrypted with the desired encryption settings. For more information about the encryption overriding behaviors in directory buckets, see \fI\%Specifying server\-side encryption with KMS for new object uploads\fP .
+.IP \(bu 2
+Your SSE\-KMS configuration can only support 1 \fI\%customer managed key\fP per directory bucket\(aqs lifetime. The \fI\%Amazon Web Services managed key\fP (\fBaws/s3\fP ) isn\(aqt supported.
+.IP \(bu 2
+S3 Bucket Keys are always enabled for \fBGET\fP and \fBPUT\fP operations in a directory bucket and can’t be disabled. S3 Bucket Keys aren\(aqt supported, when you copy SSE\-KMS encrypted objects from general purpose buckets to directory buckets, from directory buckets to general purpose buckets, or between directory buckets, through \fI\%CopyObject\fP , \fI\%UploadPartCopy\fP , \fI\%the Copy operation in Batch Operations\fP , or \fI\%the import jobs\fP . In this case, Amazon S3 makes a call to KMS every time a copy request is made for a KMS\-encrypted object.
+.IP \(bu 2
+When you specify an \fI\%KMS customer managed key\fP for encryption in your directory bucket, only use the key ID or key ARN. The key alias format of the KMS key isn\(aqt supported.
+.IP \(bu 2
+For directory buckets, if you use PutBucketEncryption to set your \fI\%default bucket encryption\fP to SSE\-KMS, Amazon S3 validates the KMS key ID provided in PutBucketEncryption requests.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+If you\(aqre specifying a customer managed KMS key, we recommend using a fully qualified KMS key ARN. If you use a KMS key alias instead, then KMS resolves the key within the requester’s account. This behavior can result in data that\(aqs encrypted with a KMS key that belongs to the requester, and not the bucket owner.
+.sp
+Also, this action requires Amazon Web Services Signature Version 4. For more information, see \fI\%Authenticating Requests (Amazon Web Services Signature Version 4)\fP .
+.sp
+Permissions
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+\fBGeneral purpose bucket permissions\fP \- The \fBs3:PutEncryptionConfiguration\fP permission is required in a policy. The bucket owner has this permission by default. The bucket owner can grant this permission to others. For more information about permissions, see \fI\%Permissions Related to Bucket Operations\fP and \fI\%Managing Access Permissions to Your Amazon S3 Resources\fP in the \fIAmazon S3 User Guide\fP .
+.IP \(bu 2
+\fBDirectory bucket permissions\fP \- To grant access to this API operation, you must have the \fBs3express:PutEncryptionConfiguration\fP permission in an IAM identity\-based policy instead of a bucket policy. Cross\-account access to this API operation isn\(aqt supported. This operation can only be performed by the Amazon Web Services account that owns the resource. For more information about directory bucket policies and permissions, see \fI\%Amazon Web Services Identity and Access Management (IAM) for S3 Express One Zone\fP in the \fIAmazon S3 User Guide\fP . To set a directory bucket default encryption with SSE\-KMS, you must also have the \fBkms:GenerateDataKey\fP and the \fBkms:Decrypt\fP permissions in IAM identity\-based policies and KMS key policies for the target KMS key.
+.sp
+HTTP Host header syntax
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- The HTTP Host header syntax is \fBs3express\-control.*region\-code* .amazonaws.com\fP .
+.UNINDENT
+.UNINDENT
+.sp
+The following operations are related to \fBPutBucketEncryption\fP :
+.INDENT 0.0
+.IP \(bu 2
+\fI\%GetBucketEncryption\fP
+.IP \(bu 2
+\fI\%DeleteBucketEncryption\fP
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  put\-bucket\-encryption
+\-\-bucket <value>
+[\-\-content\-md5 <value>]
+[\-\-checksum\-algorithm <value>]
+\-\-server\-side\-encryption\-configuration <value>
+[\-\-expected\-bucket\-owner <value>]
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Specifies default encryption for a bucket using server\-side encryption with different key options.
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- When you use this operation with a directory bucket, you must use path\-style requests in the format \fBhttps://s3express\-control.*region\-code* .amazonaws.com/*bucket\-name* \(ga\(ga . Virtual\-hosted\-style requests aren\(aqt supported. Directory bucket names must be unique in the chosen Zone (Availability Zone or Local Zone). Bucket names must also follow the format \(ga\(ga *bucket\-base\-name* \-\-*zone\-id* \-\-x\-s3\fP (for example, \(ga\(ga \fIDOC\-EXAMPLE\-BUCKET\fP \-\-\fIusw2\-az1\fP \-\-x\-s3\(ga\(ga ). For information about bucket naming restrictions, see \fI\%Directory bucket naming rules\fP in the \fIAmazon S3 User Guide\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-content\-md5\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded 128\-bit \fBMD5\fP digest of the server\-side encryption configuration.
+.sp
+For requests made using the Amazon Web Services Command Line Interface (CLI) or Amazon Web Services SDKs, this field is calculated automatically.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-checksum\-algorithm\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Indicates the algorithm used to create the checksum for the request when you use the SDK. This header will not provide any additional functionality if you don\(aqt use the SDK. When you send this header, there must be a corresponding \fBx\-amz\-checksum\fP or \fBx\-amz\-trailer\fP header sent. Otherwise, Amazon S3 fails the request with the HTTP status code \fB400 Bad Request\fP . For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+If you provide an individual checksum, Amazon S3 ignores any provided \fBChecksumAlgorithm\fP parameter.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+For directory buckets, when you use Amazon Web Services SDKs, \fBCRC32\fP is the default checksum algorithm that\(aqs used for performance.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBCRC32\fP
+.IP \(bu 2
+\fBCRC32C\fP
+.IP \(bu 2
+\fBSHA1\fP
+.IP \(bu 2
+\fBSHA256\fP
+.IP \(bu 2
+\fBCRC64NVME\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-server\-side\-encryption\-configuration\fP (structure) [required]
+.INDENT 0.0
+.INDENT 3.5
+Specifies the default server\-side\-encryption configuration.
+.sp
+Rules \-> (list) [required]
+.INDENT 0.0
+.INDENT 3.5
+Container for information about a particular server\-side encryption configuration rule.
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the default server\-side encryption configuration.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+\fBGeneral purpose buckets\fP \- If you\(aqre specifying a customer managed KMS key, we recommend using a fully qualified KMS key ARN. If you use a KMS key alias instead, then KMS resolves the key within the requester’s account. This behavior can result in data that\(aqs encrypted with a KMS key that belongs to the requester, and not the bucket owner.
+.IP \(bu 2
+\fBDirectory buckets\fP \- When you specify an \fI\%KMS customer managed key\fP for encryption in your directory bucket, only use the key ID or key ARN. The key alias format of the KMS key isn\(aqt supported.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ApplyServerSideEncryptionByDefault \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the default server\-side encryption to apply to new objects in the bucket. If a PUT Object request doesn\(aqt specify any server\-side encryption, this default encryption will be applied.
+.sp
+SSEAlgorithm \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Server\-side encryption algorithm to use for the default encryption.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+For directory buckets, there are only two supported values for server\-side encryption: \fBAES256\fP and \fBaws:kms\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBAES256\fP
+.IP \(bu 2
+\fBaws:fsx\fP
+.IP \(bu 2
+\fBaws:kms\fP
+.IP \(bu 2
+\fBaws:kms:dsse\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+KMSMasterKeyID \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Amazon Web Services Key Management Service (KMS) customer managed key ID to use for the default encryption.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+\fBGeneral purpose buckets\fP \- This parameter is allowed if and only if \fBSSEAlgorithm\fP is set to \fBaws:kms\fP or \fBaws:kms:dsse\fP .
+.IP \(bu 2
+\fBDirectory buckets\fP \- This parameter is allowed if and only if \fBSSEAlgorithm\fP is set to \fBaws:kms\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+You can specify the key ID, key alias, or the Amazon Resource Name (ARN) of the KMS key.
+.INDENT 0.0
+.IP \(bu 2
+Key ID: \fB1234abcd\-12ab\-34cd\-56ef\-1234567890ab\fP
+.IP \(bu 2
+Key ARN: \fBarn:aws:kms:us\-east\-2:111122223333:key/1234abcd\-12ab\-34cd\-56ef\-1234567890ab\fP
+.IP \(bu 2
+Key Alias: \fBalias/alias\-name\fP
+.UNINDENT
+.sp
+If you are using encryption with cross\-account or Amazon Web Services service operations, you must use a fully qualified KMS key ARN. For more information, see \fI\%Using encryption for cross\-account operations\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+\fBGeneral purpose buckets\fP \- If you\(aqre specifying a customer managed KMS key, we recommend using a fully qualified KMS key ARN. If you use a KMS key alias instead, then KMS resolves the key within the requester’s account. This behavior can result in data that\(aqs encrypted with a KMS key that belongs to the requester, and not the bucket owner. Also, if you use a key ID, you can run into a LogDestination undeliverable error when creating a VPC flow log.
+.IP \(bu 2
+\fBDirectory buckets\fP \- When you specify an \fI\%KMS customer managed key\fP for encryption in your directory bucket, only use the key ID or key ARN. The key alias format of the KMS key isn\(aqt supported.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+Amazon S3 only supports symmetric encryption KMS keys. For more information, see \fI\%Asymmetric keys in Amazon Web Services KMS\fP in the \fIAmazon Web Services Key Management Service Developer Guide\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+BucketKeyEnabled \-> (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether Amazon S3 should use an S3 Bucket Key with server\-side encryption using KMS (SSE\-KMS) for new objects in the bucket. Existing objects are not affected. Setting the \fBBucketKeyEnabled\fP element to \fBtrue\fP causes Amazon S3 to use an S3 Bucket Key.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+\fBGeneral purpose buckets\fP \- By default, S3 Bucket Key is not enabled. For more information, see \fI\%Amazon S3 Bucket Keys\fP in the \fIAmazon S3 User Guide\fP .
+.IP \(bu 2
+\fBDirectory buckets\fP \- S3 Bucket Keys are always enabled for \fBGET\fP and \fBPUT\fP operations in a directory bucket and can’t be disabled. S3 Bucket Keys aren\(aqt supported, when you copy SSE\-KMS encrypted objects from general purpose buckets to directory buckets, from directory buckets to general purpose buckets, or between directory buckets, through \fI\%CopyObject\fP , \fI\%UploadPartCopy\fP , \fI\%the Copy operation in Batch Operations\fP , or \fI\%the import jobs\fP . In this case, Amazon S3 makes a call to KMS every time a copy request is made for a KMS\-encrypted object.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+JSON Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+  \(dqRules\(dq: [
+    {
+      \(dqApplyServerSideEncryptionByDefault\(dq: {
+        \(dqSSEAlgorithm\(dq: \(dqAES256\(dq|\(dqaws:fsx\(dq|\(dqaws:kms\(dq|\(dqaws:kms:dsse\(dq,
+        \(dqKMSMasterKeyID\(dq: \(dqstring\(dq
+      },
+      \(dqBucketKeyEnabled\(dq: true|false
+    }
+    ...
+  ]
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expected\-bucket\-owner\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The account ID of the expected bucket owner. If the account ID that you provide does not match the actual owner of the bucket, the request fails with the HTTP status code \fB403 Forbidden\fP (access denied).
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+For directory buckets, this header is not supported in this API operation. If you specify this header, the request fails with the HTTP status code \fB501 Not Implemented\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH EXAMPLES
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use the following examples, you must have the AWS CLI installed and configured. See the \fI\%Getting started guide\fP in the \fIAWS CLI User Guide\fP for more information.
+.sp
+Unless otherwise stated, all examples have unix\-like quotation rules. These examples will need to be adapted to your terminal\(aqs quoting rules. See \fI\%Using quotation marks with strings\fP in the \fIAWS CLI User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBTo configure server\-side encryption for a bucket\fP
+.sp
+The following \fBput\-bucket\-encryption\fP example sets AES256 encryption as the default for the specified bucket.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api put\-bucket\-encryption \e
+    \-\-bucket amzn\-s3\-demo\-bucket \e
+    \-\-server\-side\-encryption\-configuration \(aq{\(dqRules\(dq: [{\(dqApplyServerSideEncryptionByDefault\(dq: {\(dqSSEAlgorithm\(dq: \(dqAES256\(dq}}]}\(aq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command produces no output.
+.SH OUTPUT
+.sp
+None
+.\" Generated by docutils manpage writer.
+.

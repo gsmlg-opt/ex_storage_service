@@ -1,0 +1,12 @@
+{
+    "Bucket": "",
+    "Key": "",
+    "MFA": "",
+    "VersionId": "",
+    "RequestPayer": "requester",
+    "BypassGovernanceRetention": true,
+    "ExpectedBucketOwner": "",
+    "IfMatch": "",
+    "IfMatchLastModifiedTime": "1970-01-01T00:00:00",
+    "IfMatchSize": 0
+}

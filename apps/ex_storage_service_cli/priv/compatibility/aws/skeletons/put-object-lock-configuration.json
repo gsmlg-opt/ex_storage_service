@@ -1,0 +1,18 @@
+{
+    "Bucket": "",
+    "ObjectLockConfiguration": {
+        "ObjectLockEnabled": "Enabled",
+        "Rule": {
+            "DefaultRetention": {
+                "Mode": "GOVERNANCE",
+                "Days": 0,
+                "Years": 0
+            }
+        }
+    },
+    "RequestPayer": "requester",
+    "Token": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "ExpectedBucketOwner": ""
+}

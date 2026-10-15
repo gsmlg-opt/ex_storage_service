@@ -1,0 +1,524 @@
+{
+  "schema_version": 1,
+  "source_baseline": "9b8661e58107eddb24cb8f15495cee4ac979219a",
+  "platform": "linux/x86_64",
+  "aws_cli": {
+    "archive_sha256": "4a1257f6eca864dcdee1b98e29e9428466ed365398c50032ddf5e4b4d3728e32",
+    "archive_url": "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.31.18.zip",
+    "binary_sha256": "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a",
+    "binary_version": "aws-cli/2.31.18 Python/3.13.7 Linux/6.18.33 exe/x86_64.nixos.26",
+    "customizations": "matching source tag; reference only",
+    "help_format": "binary-generated roff captured with pass-through groff; no rendering changes",
+    "repository": "https://github.com/aws/aws-cli",
+    "service_model": "bundled S3 2006-03-01",
+    "source_archive_sha256": "0e164de8e225122efccfae85c989e5b47c2de8a3d1efc4e7bdfe02ac29827d73",
+    "source_revision": "f4f66e65e70f23f1bf232ecb4a6d8696f4dda3bc",
+    "source_tag": "2.31.18",
+    "version": "2.31.18"
+  },
+  "mc": {
+    "binary_sha256": "a62c4c85f9efbe5d07e03e2ff9923625fbf659a9f272a077a0cd846279f1ccc2",
+    "binary_version": "mc version DEVELOPMENT.GOGET (commit-id=77f82e18b5401a65958f1619df6ebb994634bd88)\nRuntime: go1.26.6 linux/amd64\nCopyright (c) 2015-0000 MinIO, Inc.\nLicense GNU AGPLv3 <https://www.gnu.org/licenses/agpl-3.0.html>",
+    "build": {
+      "flags": [
+        "-trimpath",
+        "-buildvcs=false",
+        "-ldflags",
+        "-X github.com/minio/mc/cmd.CommitID=77f82e18b5401a65958f1619df6ebb994634bd88"
+      ],
+      "go_version": "go version go1.26.6 linux/amd64"
+    },
+    "help_format": "plain text; HOME paths normalized",
+    "repository": "https://github.com/minio/mc",
+    "source_archive_sha256": "167415edd21bc29f5360943dac64272aa5cda0a39f3070b15cfeca671c43d975",
+    "source_revision": "77f82e18b5401a65958f1619df6ebb994634bd88"
+  },
+  "cases": [
+    {
+      "name": "cp-access-denied",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/key",
+        "@HOME@/denied",
+        "--no-progress",
+        "--only-show-errors"
+      ],
+      "results": {
+        "aws": {
+          "status": 1,
+          "stdout": "",
+          "stderr": "fatal error: An error occurred (403) when calling the HeadObject operation (reached max retries: 0): Forbidden\n",
+          "requests": [
+            {
+              "method": "HEAD",
+              "target": "/bucket/key",
+              "headers": {
+                "accept-encoding": "identity",
+                "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "body": ""
+            }
+          ],
+          "server_errors": []
+        },
+        "ess": {
+          "status": 254,
+          "stdout": "",
+          "stderr": "\u001b[31m✗ Error:\u001b[0m HTTP403: Storage service returned HTTP 403 (HTTP 403)\n",
+          "requests": [
+            {
+              "method": "HEAD",
+              "target": "/bucket/key",
+              "headers": {
+                "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "connection": "close"
+              },
+              "body": ""
+            }
+          ],
+          "server_errors": []
+        }
+      },
+      "response": [
+        403,
+        {
+          "x-amz-request-id": "fixture-denied"
+        },
+        "<Error><Code>AccessDenied</Code><Message>Denied by fixture</Message></Error>"
+      ]
+    },
+    {
+      "name": "delete-objects",
+      "args": [
+        "s3api",
+        "delete-objects",
+        "--bucket",
+        "bucket",
+        "--delete",
+        "{\"Objects\": [{\"Key\": \"a% +?\\u96ea\", \"VersionId\": \"v/1\"}, {\"Key\": \"b\", \"VersionId\": \"null\"}], \"Quiet\": false}",
+        "--checksum-algorithm",
+        "CRC32C",
+        "--bypass-governance-retention",
+        "--request-payer",
+        "requester"
+      ],
+      "results": {
+        "aws": {
+          "status": 0,
+          "stdout": "{\n    \"Deleted\": [\n        {\n            \"Key\": \"a% +?雪\",\n            \"VersionId\": \"v/1\"\n        }\n    ],\n    \"Errors\": [\n        {\n            \"Key\": \"b\",\n            \"VersionId\": \"null\",\n            \"Code\": \"AccessDenied\",\n            \"Message\": \"Denied by fixture\"\n        }\n    ]\n}\n",
+          "stderr": "",
+          "requests": [
+            {
+              "method": "POST",
+              "target": "/bucket?delete",
+              "headers": {
+                "accept-encoding": "identity",
+                "x-amz-request-payer": "requester",
+                "x-amz-bypass-governance-retention": "true",
+                "x-amz-sdk-checksum-algorithm": "CRC32C",
+                "x-amz-checksum-crc32c": "A1U2lA==",
+                "x-amz-content-sha256": "678914d4e7facdf8b6b2a104a0ffa36adc77b60c0439188f91ec4a5ce708f91b",
+                "content-length": "203"
+              },
+              "body": "<Delete xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><Object><Key>a% +?雪</Key><VersionId>v/1</VersionId></Object><Object><Key>b</Key><VersionId>null</VersionId></Object><Quiet>false</Quiet></Delete>"
+            }
+          ],
+          "server_errors": []
+        },
+        "ess": {
+          "status": 0,
+          "stdout": "{\n    \"Deleted\": [\n        {\n            \"Key\": \"a% +?雪\",\n            \"VersionId\": \"v/1\"\n        }\n    ],\n    \"Errors\": [\n        {\n            \"Code\": \"AccessDenied\",\n            \"Key\": \"b\",\n            \"Message\": \"Denied by fixture\",\n            \"VersionId\": \"null\"\n        }\n    ]\n}\n",
+          "stderr": "",
+          "requests": [
+            {
+              "method": "POST",
+              "target": "/bucket?delete=",
+              "headers": {
+                "content-type": "application/octet-stream",
+                "x-amz-bypass-governance-retention": "true",
+                "x-amz-request-payer": "requester",
+                "x-amz-checksum-crc32c": "A1U2lA==",
+                "x-amz-sdk-checksum-algorithm": "CRC32C",
+                "x-amz-content-sha256": "678914d4e7facdf8b6b2a104a0ffa36adc77b60c0439188f91ec4a5ce708f91b",
+                "connection": "close",
+                "content-length": "203"
+              },
+              "body": "<Delete xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><Object><Key>a% +?雪</Key><VersionId>v/1</VersionId></Object><Object><Key>b</Key><VersionId>null</VersionId></Object><Quiet>false</Quiet></Delete>"
+            }
+          ],
+          "server_errors": []
+        }
+      },
+      "response": [
+        200,
+        {},
+        "<DeleteResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><Deleted><Key>a% +?雪</Key><VersionId>v/1</VersionId></Deleted><Error><Key>b</Key><VersionId>null</VersionId><Code>AccessDenied</Code><Message>Denied by fixture</Message></Error></DeleteResult>"
+      ]
+    },
+    {
+      "name": "mc-list",
+      "args": [
+        "ls",
+        "fixture/bucket/p/"
+      ],
+      "results": {
+        "mc": {
+          "status": 0,
+          "stdout": "{\"status\":\"success\",\"type\":\"file\",\"lastModified\":\"2026-01-01T08:00:00+08:00\",\"size\":2,\"key\":\"extra.txt\",\"etag\":\"extra\",\"url\":\"http://127.0.0.1:42145/bucket/p/\",\"versionOrdinal\":1}\n{\"status\":\"success\",\"type\":\"file\",\"lastModified\":\"2026-01-01T08:00:00+08:00\",\"size\":6,\"key\":\"ignored.bin\",\"etag\":\"ignore\",\"url\":\"http://127.0.0.1:42145/bucket/p/\",\"versionOrdinal\":1}\n",
+          "stderr": "",
+          "requests": [
+            {
+              "method": "GET",
+              "target": "/bucket/?delimiter=%2F&encoding-type=url&fetch-owner=true&list-type=2&prefix=p%2F",
+              "headers": {
+                "accept-encoding": "zstd,gzip",
+                "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "body": ""
+            }
+          ],
+          "server_errors": []
+        }
+      },
+      "response": [
+        200,
+        {},
+        "<ListBucketResult><Name>bucket</Name><Prefix>p/</Prefix><KeyCount>2</KeyCount><IsTruncated>false</IsTruncated><Contents><Key>p/extra.txt</Key><Size>2</Size><ETag>\"extra\"</ETag><LastModified>2026-01-01T00:00:00Z</LastModified></Contents><Contents><Key>p/ignored.bin</Key><Size>6</Size><ETag>\"ignore\"</ETag><LastModified>2026-01-01T00:00:00Z</LastModified></Contents></ListBucketResult>"
+      ]
+    },
+    {
+      "name": "notification-get",
+      "args": [
+        "s3api",
+        "get-bucket-notification-configuration",
+        "--bucket",
+        "bucket"
+      ],
+      "results": {
+        "aws": {
+          "status": 0,
+          "stdout": "{\n    \"LambdaFunctionConfigurations\": [\n        {\n            \"Id\": \"lambda\",\n            \"LambdaFunctionArn\": \"arn:aws:lambda:us-east-1:123456789012:function:test\",\n            \"Events\": [\n                \"s3:ObjectCreated:*\"\n            ],\n            \"Filter\": {\n                \"Key\": {\n                    \"FilterRules\": [\n                        {\n                            \"Name\": \"prefix\",\n                            \"Value\": \"uploads/&雪/\"\n                        },\n                        {\n                            \"Name\": \"suffix\",\n                            \"Value\": \".json\"\n                        }\n                    ]\n                }\n            }\n        }\n    ],\n    \"EventBridgeConfiguration\": {}\n}\n",
+          "stderr": "",
+          "requests": [
+            {
+              "method": "GET",
+              "target": "/bucket?notification",
+              "headers": {
+                "accept-encoding": "identity",
+                "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "body": ""
+            }
+          ],
+          "server_errors": []
+        },
+        "ess": {
+          "status": 0,
+          "stdout": "{\n    \"EventBridgeConfiguration\": {},\n    \"LambdaFunctionConfigurations\": [\n        {\n            \"Events\": [\n                \"s3:ObjectCreated:*\"\n            ],\n            \"Filter\": {\n                \"Key\": {\n                    \"FilterRules\": [\n                        {\n                            \"Name\": \"prefix\",\n                            \"Value\": \"uploads/&雪/\"\n                        },\n                        {\n                            \"Name\": \"suffix\",\n                            \"Value\": \".json\"\n                        }\n                    ]\n                }\n            },\n            \"Id\": \"lambda\",\n            \"LambdaFunctionArn\": \"arn:aws:lambda:us-east-1:123456789012:function:test\"\n        }\n    ]\n}\n",
+          "stderr": "",
+          "requests": [
+            {
+              "method": "GET",
+              "target": "/bucket?notification=",
+              "headers": {
+                "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "connection": "close"
+              },
+              "body": ""
+            }
+          ],
+          "server_errors": []
+        }
+      },
+      "response": [
+        200,
+        {},
+        "<NotificationConfiguration xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><CloudFunctionConfiguration><Id>lambda</Id><CloudFunction>arn:aws:lambda:us-east-1:123456789012:function:test</CloudFunction><Event>s3:ObjectCreated:*</Event><Filter><S3Key><FilterRule><Name>prefix</Name><Value>uploads/&amp;雪/</Value></FilterRule><FilterRule><Name>suffix</Name><Value>.json</Value></FilterRule></S3Key></Filter></CloudFunctionConfiguration><EventBridgeConfiguration /></NotificationConfiguration>"
+      ]
+    },
+    {
+      "name": "notification-put",
+      "args": [
+        "s3api",
+        "put-bucket-notification-configuration",
+        "--bucket",
+        "bucket",
+        "--notification-configuration",
+        "{\"LambdaFunctionConfigurations\": [{\"Id\": \"lambda\", \"LambdaFunctionArn\": \"arn:aws:lambda:us-east-1:123456789012:function:test\", \"Events\": [\"s3:ObjectCreated:*\"], \"Filter\": {\"Key\": {\"FilterRules\": [{\"Name\": \"prefix\", \"Value\": \"uploads/&\\u96ea/\"}, {\"Name\": \"suffix\", \"Value\": \".json\"}]}}}], \"EventBridgeConfiguration\": {}}",
+        "--skip-destination-validation"
+      ],
+      "results": {
+        "aws": {
+          "status": 0,
+          "stdout": "",
+          "stderr": "",
+          "requests": [
+            {
+              "method": "PUT",
+              "target": "/bucket?notification",
+              "headers": {
+                "accept-encoding": "identity",
+                "x-amz-skip-destination-validation": "true",
+                "x-amz-content-sha256": "59289d401d4eb44486ca14015604e449d91fed5991cdc727a2aa3738ce04468d",
+                "content-length": "490"
+              },
+              "body": "<NotificationConfiguration xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><CloudFunctionConfiguration><Id>lambda</Id><CloudFunction>arn:aws:lambda:us-east-1:123456789012:function:test</CloudFunction><Event>s3:ObjectCreated:*</Event><Filter><S3Key><FilterRule><Name>prefix</Name><Value>uploads/&amp;雪/</Value></FilterRule><FilterRule><Name>suffix</Name><Value>.json</Value></FilterRule></S3Key></Filter></CloudFunctionConfiguration><EventBridgeConfiguration /></NotificationConfiguration>"
+            }
+          ],
+          "server_errors": []
+        },
+        "ess": {
+          "status": 0,
+          "stdout": "",
+          "stderr": "",
+          "requests": [
+            {
+              "method": "PUT",
+              "target": "/bucket?notification=",
+              "headers": {
+                "content-type": "application/octet-stream",
+                "x-amz-skip-destination-validation": "true",
+                "x-amz-content-sha256": "48b2a3260c8a9aa96d7b64f7904e08362e30a4c851ba98f6cc52bd09b81ba1ea",
+                "connection": "close",
+                "content-length": "515"
+              },
+              "body": "<NotificationConfiguration xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><EventBridgeConfiguration></EventBridgeConfiguration><CloudFunctionConfiguration><Event>s3:ObjectCreated:*</Event><Filter><S3Key><FilterRule><Name>prefix</Name><Value>uploads/&amp;雪/</Value></FilterRule><FilterRule><Name>suffix</Name><Value>.json</Value></FilterRule></S3Key></Filter><Id>lambda</Id><CloudFunction>arn:aws:lambda:us-east-1:123456789012:function:test</CloudFunction></CloudFunctionConfiguration></NotificationConfiguration>"
+            }
+          ],
+          "server_errors": []
+        }
+      },
+      "response": [
+        204,
+        {},
+        ""
+      ]
+    },
+    {
+      "name": "put-checksum",
+      "args": [
+        "s3api",
+        "put-object",
+        "--bucket",
+        "bucket",
+        "--key",
+        "a% +?雪",
+        "--body",
+        "@HOME@/source.gz",
+        "--checksum-algorithm",
+        "SHA256",
+        "--content-encoding",
+        "gzip",
+        "--metadata",
+        "owner=test,note=hello",
+        "--server-side-encryption",
+        "AES256"
+      ],
+      "results": {
+        "aws": {
+          "status": 0,
+          "stdout": "{\n    \"ETag\": \"\\\"uploaded\\\"\",\n    \"ChecksumSHA256\": \"ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=\"\n}\n",
+          "stderr": "",
+          "requests": [
+            {
+              "method": "PUT",
+              "target": "/bucket/a%25%20%2B%3F%E9%9B%AA",
+              "headers": {
+                "accept-encoding": "identity",
+                "content-encoding": "gzip",
+                "x-amz-sdk-checksum-algorithm": "SHA256",
+                "x-amz-meta-owner": "test",
+                "x-amz-meta-note": "hello",
+                "x-amz-server-side-encryption": "AES256",
+                "expect": "100-continue",
+                "x-amz-checksum-sha256": "ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=",
+                "x-amz-content-sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+                "content-length": "3"
+              },
+              "body": "abc"
+            }
+          ],
+          "server_errors": []
+        },
+        "ess": {
+          "status": 0,
+          "stdout": "{\n    \"ChecksumSHA256\": \"ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=\",\n    \"ETag\": \"\\\"uploaded\\\"\"\n}\n",
+          "stderr": "",
+          "requests": [
+            {
+              "method": "PUT",
+              "target": "/bucket/a%25%20%2B%3F%E9%9B%AA",
+              "headers": {
+                "content-type": "application/octet-stream",
+                "content-encoding": "gzip",
+                "x-amz-meta-note": "hello",
+                "x-amz-meta-owner": "test",
+                "x-amz-server-side-encryption": "AES256",
+                "x-amz-checksum-sha256": "ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=",
+                "x-amz-sdk-checksum-algorithm": "SHA256",
+                "x-amz-content-sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+                "connection": "close",
+                "content-length": "3"
+              },
+              "body": "abc"
+            }
+          ],
+          "server_errors": []
+        }
+      },
+      "response": [
+        200,
+        {
+          "ETag": "\"uploaded\"",
+          "x-amz-checksum-sha256": "ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0="
+        },
+        ""
+      ]
+    },
+    {
+      "name": "sync-filter-delete-dryrun",
+      "args": [
+        "s3",
+        "sync",
+        "@HOME@/local/",
+        "s3://bucket/p/",
+        "--exclude",
+        "*",
+        "--include",
+        "*.txt",
+        "--exclude",
+        "secret/*",
+        "--delete",
+        "--dryrun",
+        "--no-progress"
+      ],
+      "results": {
+        "aws": {
+          "status": 0,
+          "stdout": "(dryrun) upload: @RELATIVE_HOME@/local/a.txt to s3://bucket/p/a.txt\n(dryrun) delete: s3://bucket/p/extra.txt\n",
+          "stderr": "",
+          "requests": [
+            {
+              "method": "GET",
+              "target": "/bucket?list-type=2&prefix=p%2F&encoding-type=url",
+              "headers": {
+                "accept-encoding": "identity",
+                "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "body": ""
+            }
+          ],
+          "server_errors": []
+        },
+        "ess": {
+          "status": 0,
+          "stdout": "(dryrun) upload: @HOME@/local/a.txt to s3://bucket/p/a.txt\n(dryrun) delete: s3://bucket/p/extra.txt\n",
+          "stderr": "",
+          "requests": [
+            {
+              "method": "GET",
+              "target": "/bucket?list-type=2&max-keys=1000&prefix=p%2F",
+              "headers": {
+                "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "connection": "close"
+              },
+              "body": ""
+            }
+          ],
+          "server_errors": []
+        }
+      },
+      "response": [
+        200,
+        {},
+        "<ListBucketResult><Name>bucket</Name><Prefix>p/</Prefix><KeyCount>2</KeyCount><IsTruncated>false</IsTruncated><Contents><Key>p/extra.txt</Key><Size>2</Size><ETag>\"extra\"</ETag><LastModified>2026-01-01T00:00:00Z</LastModified></Contents><Contents><Key>p/ignored.bin</Key><Size>6</Size><ETag>\"ignore\"</ETag><LastModified>2026-01-01T00:00:00Z</LastModified></Contents></ListBucketResult>"
+      ]
+    },
+    {
+      "name": "mc-find",
+      "args": [
+        "find",
+        "fixture/bucket/p/",
+        "--name",
+        "*.txt"
+      ],
+      "results": {
+        "mc": {
+          "status": 0,
+          "stdout": "{\"status\":\"success\",\"type\":\"\",\"lastModified\":\"2026-01-01T08:00:00+08:00\",\"size\":2,\"key\":\"fixture/bucket/p/extra.txt\",\"etag\":\"\"}\n",
+          "stderr": "",
+          "requests": [
+            {
+              "method": "GET",
+              "target": "/bucket/?delimiter=%2F&encoding-type=url&fetch-owner=true&list-type=2&max-keys=1&prefix=p%2F",
+              "headers": {
+                "accept-encoding": "zstd,gzip",
+                "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "body": ""
+            },
+            {
+              "method": "GET",
+              "target": "/bucket/?delimiter=&encoding-type=url&fetch-owner=true&list-type=2&prefix=p%2F",
+              "headers": {
+                "accept-encoding": "zstd,gzip",
+                "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "body": ""
+            }
+          ],
+          "server_errors": []
+        }
+      },
+      "response": [
+        200,
+        {},
+        "<ListBucketResult><Name>bucket</Name><Prefix>p/</Prefix><KeyCount>2</KeyCount><IsTruncated>false</IsTruncated><Contents><Key>p/extra.txt</Key><Size>2</Size><ETag>\"extra\"</ETag><LastModified>2026-01-01T00:00:00Z</LastModified></Contents><Contents><Key>p/ignored.bin</Key><Size>6</Size><ETag>\"ignore\"</ETag><LastModified>2026-01-01T00:00:00Z</LastModified></Contents></ListBucketResult>"
+      ]
+    },
+    {
+      "name": "mc-du",
+      "args": [
+        "du",
+        "fixture/bucket/p/"
+      ],
+      "results": {
+        "mc": {
+          "status": 0,
+          "stdout": "{\"prefix\":\"bucket/p\",\"size\":8,\"objects\":2,\"status\":\"success\",\"isVersions\":false}\n",
+          "stderr": "",
+          "requests": [
+            {
+              "method": "GET",
+              "target": "/bucket/?delimiter=%2F&encoding-type=url&fetch-owner=true&list-type=2&max-keys=1&prefix=p%2F",
+              "headers": {
+                "accept-encoding": "zstd,gzip",
+                "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "body": ""
+            },
+            {
+              "method": "GET",
+              "target": "/bucket/?delimiter=&encoding-type=url&fetch-owner=true&list-type=2&prefix=p%2F",
+              "headers": {
+                "accept-encoding": "zstd,gzip",
+                "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "body": ""
+            }
+          ],
+          "server_errors": []
+        }
+      },
+      "response": [
+        200,
+        {},
+        "<ListBucketResult><Name>bucket</Name><Prefix>p/</Prefix><KeyCount>2</KeyCount><IsTruncated>false</IsTruncated><Contents><Key>p/extra.txt</Key><Size>2</Size><ETag>\"extra\"</ETag><LastModified>2026-01-01T00:00:00Z</LastModified></Contents><Contents><Key>p/ignored.bin</Key><Size>6</Size><ETag>\"ignore\"</ETag><LastModified>2026-01-01T00:00:00Z</LastModified></Contents></ListBucketResult>"
+      ]
+    }
+  ],
+  "ess_artifact_sha256": "95756a1b078dff7891af285f2c100ed638b3c666c0e42630d8bb7868d1e7de29",
+  "ess_artifact_state": "in-progress CLI implementation; source baseline plus uncommitted task changes",
+  "capture_date": "2026-10-15"
+}

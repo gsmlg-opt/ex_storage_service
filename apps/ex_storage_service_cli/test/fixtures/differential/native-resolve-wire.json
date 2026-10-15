@@ -1,0 +1,45 @@
+{
+  "binary_sha256": "a62c4c85f9efbe5d07e03e2ff9923625fbf659a9f272a077a0cd846279f1ccc2",
+  "cases": [
+    {
+      "exit_status": 0,
+      "id": "exact-authority",
+      "resolve": [
+        "pin.invalid:PORT=127.0.0.1"
+      ],
+      "wire": [
+        {
+          "host": "pin.invalid:PORT",
+          "method": "GET",
+          "target": "/bucket/?delimiter=%2F&encoding-type=url&fetch-owner=true&list-type=2&prefix=key"
+        },
+        {
+          "host": "pin.invalid:PORT",
+          "method": "HEAD",
+          "target": "/bucket/key"
+        }
+      ]
+    },
+    {
+      "exit_status": 0,
+      "id": "last-entry-wins",
+      "resolve": [
+        "pin.invalid:PORT=127.0.0.2",
+        "pin.invalid:PORT=127.0.0.1"
+      ],
+      "wire": [
+        {
+          "host": "pin.invalid:PORT",
+          "method": "GET",
+          "target": "/bucket/?delimiter=%2F&encoding-type=url&fetch-owner=true&list-type=2&prefix=key"
+        },
+        {
+          "host": "pin.invalid:PORT",
+          "method": "HEAD",
+          "target": "/bucket/key"
+        }
+      ]
+    }
+  ],
+  "reference": "minio/mc@77f82e18b5401a65958f1619df6ebb994634bd88"
+}

@@ -1,0 +1,306 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "S3"  "" "" ""
+.SH NAME
+s3 \- 
+.SH DESCRIPTION
+.sp
+This section explains prominent concepts and notations in the set of high\-level S3 commands provided.
+.sp
+If you are looking for the low level S3 commands for the CLI, please see the
+\fBs3api\fP command \fI\%reference page\fP\&.
+.SS Path Argument Type
+.sp
+Whenever using a command, at least one path argument must be specified.  There
+are two types of path arguments: \fBLocalPath\fP and \fBS3Uri\fP\&.
+.sp
+\fBLocalPath\fP: represents the path of a local file or directory.  It can be
+written as an absolute path or relative path.
+.sp
+\fBS3Uri\fP: represents the location of a S3 object, prefix, or bucket.  This
+must be written in the form \fBs3://amzn\-s3\-demo\-bucket/mykey\fP where \fBamzn\-s3\-demo\-bucket\fP is
+the specified S3 bucket, \fBmykey\fP is the specified S3 key.  The path argument
+must begin with \fBs3://\fP in order to denote that the path argument refers to
+a S3 object. Note that prefixes are separated by forward slashes. For
+example, if the S3 object \fBmyobject\fP had the prefix \fBmyprefix\fP, the
+S3 key would be \fBmyprefix/myobject\fP, and if the object was in the bucket
+\fBamzn\-s3\-demo\-bucket\fP, the \fBS3Uri\fP would be \fBs3://amzn\-s3\-demo\-bucket/myprefix/myobject\fP\&.
+.sp
+\fBS3Uri\fP also supports S3 access points. To specify an access point, this
+value must be of the form \fBs3://<access\-point\-arn>/<key>\fP\&. For example if
+the access point \fBmyaccesspoint\fP to be used has the ARN:
+\fBarn:aws:s3:us\-west\-2:123456789012:accesspoint/myaccesspoint\fP and the object
+being accessed has the key \fBmykey\fP, then the \fBS3URI\fP used must be:
+\fBs3://arn:aws:s3:us\-west\-2:123456789012:accesspoint/myaccesspoint/mykey\fP\&.
+Similar to bucket names, you can also use prefixes with access point ARNs for
+the \fBS3Uri\fP\&. For example:
+\fBs3://arn:aws:s3:us\-west\-2:123456789012:accesspoint/myaccesspoint/myprefix/\fP
+.SS Order of Path Arguments
+.sp
+Every command takes one or two positional path arguments.  The first path
+argument represents the source, which is the local file/directory or S3
+object/prefix/bucket that is being referenced.  If there is a second path
+argument, it represents the destination, which is the local file/directory
+or S3 object/prefix/bucket that is being operated on.  Commands with only
+one path argument do not have a destination because the operation is being
+performed only on the source.
+.SS Single Local File and S3 Object Operations
+.sp
+Some commands perform operations only on single files and S3 objects.  The
+following commands are single file/object operations if no \fB\-\-recursive\fP
+flag is provided.
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+\fBcp\fP
+.IP \(bu 2
+\fBmv\fP
+.IP \(bu 2
+\fBrm\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+For this type of operation, the first path argument, the source, must exist
+and be a local file or S3 object.  The second path argument, the destination,
+can be the name of a local file, local directory, S3 object, S3 prefix,
+or S3 bucket.
+.sp
+The destination is indicated as a local directory, S3 prefix, or S3 bucket
+if it ends with a forward slash or back slash.  The use of slash depends
+on the path argument type.  If the path argument is a \fBLocalPath\fP,
+the type of slash is the separator used by the operating system.  If the
+path is a \fBS3Uri\fP, the forward slash must always be used.  If a slash
+is at the end of the destination, the destination file or object will
+adopt the name of the source file or object.  Otherwise, if there is no
+slash at the end, the file or object will be saved under the name provided.
+See examples in \fBcp\fP and \fBmv\fP to illustrate this description.
+.SS Directory and S3 Prefix Operations
+.sp
+Some commands only perform operations on the contents of a local directory
+or S3 prefix/bucket.  Adding or omitting a forward slash or back slash to
+the end of any path argument, depending on its type, does not affect the
+results of the operation.  The following commands will always result in
+a directory or S3 prefix/bucket operation:
+.INDENT 0.0
+.IP \(bu 2
+\fBsync\fP
+.IP \(bu 2
+\fBmb\fP
+.IP \(bu 2
+\fBrb\fP
+.IP \(bu 2
+\fBls\fP
+.UNINDENT
+.SS Use of Exclude and Include Filters
+.sp
+Currently, there is no support for the use of UNIX style wildcards in
+a command\(aqs path arguments.  However, most commands have \fB\-\-exclude \(dq<value>\(dq\fP
+and \fB\-\-include \(dq<value>\(dq\fP parameters that can achieve the desired result.
+These parameters perform pattern matching to either exclude or include
+a particular file or object.  The following pattern symbols are supported.
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+\fB*\fP: Matches everything
+.IP \(bu 2
+\fB?\fP: Matches any single character
+.IP \(bu 2
+\fB[sequence]\fP: Matches any character in \fBsequence\fP
+.IP \(bu 2
+\fB[!sequence]\fP: Matches any character not in \fBsequence\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Any number of these parameters can be passed to a command.  You can do this by
+providing an \fB\-\-exclude\fP or \fB\-\-include\fP argument multiple times, e.g.
+\fB\-\-include \(dq*.txt\(dq \-\-include \(dq*.png\(dq\fP\&.
+When there are multiple filters, the rule is the filters that appear later in
+the command take precedence over filters that appear earlier in the command.
+For example, if the filter parameters passed to the command were
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\-\-exclude \(dq*\(dq \-\-include \(dq*.txt\(dq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+All files will be excluded from the command except for files ending with
+\fB\&.txt\fP  However, if the order of the filter parameters was changed to
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\-\-include \(dq*.txt\(dq \-\-exclude \(dq*\(dq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+All files will be excluded from the command.
+.sp
+Each filter is evaluated against the \fBsource directory\fP\&.  If the source
+location is a file instead of a directory, the directory containing the file is
+used as the source directory.  For example, suppose you had the following
+directory structure:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+/tmp/foo/
+  .git/
+  |\-\-\-config
+  |\-\-\-description
+  foo.txt
+  bar.txt
+  baz.jpg
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+In the command \fBaws s3 sync /tmp/foo s3://bucket/\fP the source directory is
+\fB/tmp/foo\fP\&.  Any include/exclude filters will be evaluated with the source
+directory prepended.  Below are several examples to demonstrate this.
+.sp
+Given the directory structure above and the command
+\fBaws s3 cp /tmp/foo s3://bucket/ \-\-recursive \-\-exclude \(dq.git/*\(dq\fP, the
+files \fB\&.git/config\fP and \fB\&.git/description\fP will be excluded from the
+files to upload because the exclude filter \fB\&.git/*\fP will have the source
+prepended to the filter.  This means that:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+/tmp/foo/.git/* \-> /tmp/foo/.git/config       (matches, should exclude)
+/tmp/foo/.git/* \-> /tmp/foo/.git/description  (matches, should exclude)
+/tmp/foo/.git/* \-> /tmp/foo/foo.txt  (does not match, should include)
+/tmp/foo/.git/* \-> /tmp/foo/bar.txt  (does not match, should include)
+/tmp/foo/.git/* \-> /tmp/foo/baz.jpg  (does not match, should include)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+The command \fBaws s3 cp /tmp/foo/ s3://bucket/ \-\-recursive \-\-exclude \(dqba*\(dq\fP
+will exclude \fB/tmp/foo/bar.txt\fP and \fB/tmp/foo/baz.jpg\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+/tmp/foo/ba* \-> /tmp/foo/.git/config      (does not match, should include)
+/tmp/foo/ba* \-> /tmp/foo/.git/description (does not match, should include)
+/tmp/foo/ba* \-> /tmp/foo/foo.txt          (does not match, should include)
+/tmp/foo/ba* \-> /tmp/foo/bar.txt  (matches, should exclude)
+/tmp/foo/ba* \-> /tmp/foo/baz.jpg  (matches, should exclude)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Note that, by default, \fIall files are included\fP\&.  This means that
+providing \fBonly\fP an \fB\-\-include\fP filter will not change what
+files are transferred.  \fB\-\-include\fP will only re\-include files that
+have been excluded from an \fB\-\-exclude\fP filter.  If you only want
+to upload files with a particular extension, you need to first exclude
+all files, then re\-include the files with the particular extension.
+This command will upload \fBonly\fP files ending with \fB\&.jpg\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3 cp /tmp/foo/ s3://bucket/ \-\-recursive \-\-exclude \(dq*\(dq \-\-include \(dq*.jpg\(dq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+If you wanted to include both \fB\&.jpg\fP files as well as \fB\&.txt\fP files you
+can run:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3 cp /tmp/foo/ s3://bucket/ \-\-recursive \e
+    \-\-exclude \(dq*\(dq \-\-include \(dq*.jpg\(dq \-\-include \(dq*.txt\(dq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3 <Command> [<Arg> ...]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fINone\fP
+.SH AVAILABLE COMMANDS
+.INDENT 0.0
+.IP \(bu 2
+cp
+.IP \(bu 2
+ls
+.IP \(bu 2
+mb
+.IP \(bu 2
+mv
+.IP \(bu 2
+presign
+.IP \(bu 2
+rb
+.IP \(bu 2
+rm
+.IP \(bu 2
+sync
+.IP \(bu 2
+website
+.UNINDENT
+.\" Generated by docutils manpage writer.
+.

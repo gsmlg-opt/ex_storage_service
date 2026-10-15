@@ -1,0 +1,851 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "CREATE-BUCKET"  "" "" ""
+.SH NAME
+create-bucket \- 
+.SH DESCRIPTION
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+End of support notice: Beginning October 1, 2025, Amazon S3 will discontinue support for creating new Email Grantee Access Control Lists (ACL). Email Grantee ACLs created prior to this date will continue to work and remain accessible through the Amazon Web Services Management Console, Command Line Interface (CLI), SDKs, and REST API. However, you will no longer be able to create new Email Grantee ACLs.
+.sp
+This change affects the following Amazon Web Services Regions: US East (N. Virginia) Region, US West (N. California) Region, US West (Oregon) Region, Asia Pacific (Singapore) Region, Asia Pacific (Sydney) Region, Asia Pacific (Tokyo) Region, Europe (Ireland) Region, and South America (São Paulo) Region.
+.UNINDENT
+.UNINDENT
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+End of support notice: Beginning October 1, 2025, Amazon S3 will stop returning \fBDisplayName\fP . Update your applications to use canonical IDs (unique identifier for Amazon Web Services accounts), Amazon Web Services account ID (12 digit identifier) or IAM ARNs (full resource naming) as a direct replacement of \fBDisplayName\fP .
+.sp
+This change affects the following Amazon Web Services Regions: US East (N. Virginia) Region, US West (N. California) Region, US West (Oregon) Region, Asia Pacific (Singapore) Region, Asia Pacific (Sydney) Region, Asia Pacific (Tokyo) Region, Europe (Ireland) Region, and South America (São Paulo) Region.
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This action creates an Amazon S3 bucket. To create an Amazon S3 on Outposts bucket, see \(ga \fBCreateBucket\fP \fI\%https://docs.aws.amazon.com/AmazonS3/latest/API/API_control_CreateBucket\fP\&.html\(ga__ .
+.UNINDENT
+.UNINDENT
+.sp
+Creates a new S3 bucket. To create a bucket, you must set up Amazon S3 and have a valid Amazon Web Services Access Key ID to authenticate requests. Anonymous requests are never allowed to create buckets. By creating the bucket, you become the bucket owner.
+.sp
+There are two types of buckets: general purpose buckets and directory buckets. For more information about these bucket types, see \fI\%Creating, configuring, and working with Amazon S3 buckets\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+\fBGeneral purpose buckets\fP \- If you send your \fBCreateBucket\fP request to the \fBs3.amazonaws.com\fP global endpoint, the request goes to the \fBus\-east\-1\fP Region. So the signature calculations in Signature Version 4 must use \fBus\-east\-1\fP as the Region, even if the location constraint in the request specifies another Region where the bucket is to be created. If you create a bucket in a Region other than US East (N. Virginia), your application must be able to handle 307 redirect. For more information, see \fI\%Virtual hosting of buckets\fP in the \fIAmazon S3 User Guide\fP .
+.IP \(bu 2
+\fBDirectory buckets\fP \- For directory buckets, you must make requests for this API operation to the Regional endpoint. These endpoints support path\-style requests in the format 
+.nf
+\(ga\(ga
+.fi
+\fI\%https://s3express\-control.*region\-code*\fP .amazonaws.com/\fIbucket\-name\fP \(ga\(ga . Virtual\-hosted\-style requests aren\(aqt supported. For more information about endpoints in Availability Zones, see \fI\%Regional and Zonal endpoints for directory buckets in Availability Zones\fP in the \fIAmazon S3 User Guide\fP . For more information about endpoints in Local Zones, see \fI\%Concepts for directory buckets in Local Zones\fP in the \fIAmazon S3 User Guide\fP .
+.IP "System Message: WARNING/2 (<string>:, line 71)"
+Inline literal start\-string without end\-string.
+.UNINDENT
+.sp
+Permissions
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+\fBGeneral purpose bucket permissions\fP \- In addition to the \fBs3:CreateBucket\fP permission, the following permissions are required in a policy when your \fBCreateBucket\fP request includes specific headers:
+.INDENT 2.0
+.IP \(bu 2
+\fBAccess control lists (ACLs)\fP \- In your \fBCreateBucket\fP request, if you specify an access control list (ACL) and set it to \fBpublic\-read\fP , \fBpublic\-read\-write\fP , \fBauthenticated\-read\fP , or if you explicitly specify any other custom ACLs, both \fBs3:CreateBucket\fP and \fBs3:PutBucketAcl\fP permissions are required. In your \fBCreateBucket\fP request, if you set the ACL to \fBprivate\fP , or if you don\(aqt specify any ACLs, only the \fBs3:CreateBucket\fP permission is required.
+.IP \(bu 2
+\fBObject Lock\fP \- In your \fBCreateBucket\fP request, if you set \fBx\-amz\-bucket\-object\-lock\-enabled\fP to true, the \fBs3:PutBucketObjectLockConfiguration\fP and \fBs3:PutBucketVersioning\fP permissions are required.
+.IP \(bu 2
+\fBS3 Object Ownership\fP \- If your \fBCreateBucket\fP request includes the \fBx\-amz\-object\-ownership\fP header, then the \fBs3:PutBucketOwnershipControls\fP permission is required.
+.UNINDENT
+.sp
+\fBWARNING:\fP
+.INDENT 2.0
+.INDENT 3.5
+To set an ACL on a bucket as part of a \fBCreateBucket\fP request, you must explicitly set S3 Object Ownership for the bucket to a different value than the default, \fBBucketOwnerEnforced\fP . Additionally, if your desired bucket ACL grants public access, you must first create the bucket (without the bucket ACL) and then explicitly disable Block Public Access on the bucket before using \fBPutBucketAcl\fP to set the ACL. If you try to create a bucket with a public ACL, the request will fail.  For the majority of modern use cases in S3, we recommend that you keep all Block Public Access settings enabled and keep ACLs disabled. If you would like to share data with users outside of your account, you can use bucket policies as needed. For more information, see \fI\%Controlling ownership of objects and disabling ACLs for your bucket\fP and \fI\%Blocking public access to your Amazon S3 storage\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.INDENT 2.0
+.IP \(bu 2
+\fBS3 Block Public Access\fP \- If your specific use case requires granting public access to your S3 resources, you can disable Block Public Access. Specifically, you can create a new bucket with Block Public Access enabled, then separately call the \(ga \fBDeletePublicAccessBlock\fP \fI\%https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeletePublicAccessBlock\fP\&.html\(ga__ API. To use this operation, you must have the \fBs3:PutBucketPublicAccessBlock\fP permission. For more information about S3 Block Public Access, see \fI\%Blocking public access to your Amazon S3 storage\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.IP \(bu 2
+\fBDirectory bucket permissions\fP \- You must have the \fBs3express:CreateBucket\fP permission in an IAM identity\-based policy instead of a bucket policy. Cross\-account access to this API operation isn\(aqt supported. This operation can only be performed by the Amazon Web Services account that owns the resource. For more information about directory bucket policies and permissions, see \fI\%Amazon Web Services Identity and Access Management (IAM) for S3 Express One Zone\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+The permissions for ACLs, Object Lock, S3 Object Ownership, and S3 Block Public Access are not supported for directory buckets. For directory buckets, all Block Public Access settings are enabled at the bucket level and S3 Object Ownership is set to Bucket owner enforced (ACLs disabled). These settings can\(aqt be modified.  For more information about permissions for creating and working with directory buckets, see \fI\%Directory buckets\fP in the \fIAmazon S3 User Guide\fP . For more information about supported S3 features for directory buckets, see \fI\%Features of S3 Express One Zone\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+HTTP Host header syntax
+.UNINDENT
+.UNINDENT
+.sp
+\fBDirectory buckets\fP \- The HTTP Host header syntax is \fBs3express\-control.*region\-code* .amazonaws.com\fP .
+.UNINDENT
+.UNINDENT
+.sp
+The following operations are related to \fBCreateBucket\fP :
+.INDENT 0.0
+.IP \(bu 2
+\fI\%PutObject\fP
+.IP \(bu 2
+\fI\%DeleteBucket\fP
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  create\-bucket
+[\-\-acl <value>]
+\-\-bucket <value>
+[\-\-create\-bucket\-configuration <value>]
+[\-\-grant\-full\-control <value>]
+[\-\-grant\-read <value>]
+[\-\-grant\-read\-acp <value>]
+[\-\-grant\-write <value>]
+[\-\-grant\-write\-acp <value>]
+[\-\-object\-lock\-enabled\-for\-bucket | \-\-no\-object\-lock\-enabled\-for\-bucket]
+[\-\-object\-ownership <value>]
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-acl\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The canned ACL to apply to the bucket.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBprivate\fP
+.IP \(bu 2
+\fBpublic\-read\fP
+.IP \(bu 2
+\fBpublic\-read\-write\fP
+.IP \(bu 2
+\fBauthenticated\-read\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The name of the bucket to create.
+.INDENT 0.0
+.INDENT 3.5
+\fBGeneral purpose buckets\fP \- For information about bucket naming restrictions, see \fI\%Bucket naming rules\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBDirectory buckets\fP \- When you use this operation with a directory bucket, you must use path\-style requests in the format \fBhttps://s3express\-control.*region\-code* .amazonaws.com/*bucket\-name* \(ga\(ga . Virtual\-hosted\-style requests aren\(aqt supported. Directory bucket names must be unique in the chosen Zone (Availability Zone or Local Zone). Bucket names must also follow the format \(ga\(ga *bucket\-base\-name* \-\-*zone\-id* \-\-x\-s3\fP (for example, \(ga\(ga \fIDOC\-EXAMPLE\-BUCKET\fP \-\-\fIusw2\-az1\fP \-\-x\-s3\(ga\(ga ). For information about bucket naming restrictions, see \fI\%Directory bucket naming rules\fP in the \fIAmazon S3 User Guide\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-create\-bucket\-configuration\fP (structure)
+.INDENT 0.0
+.INDENT 3.5
+The configuration information for the bucket.
+.sp
+LocationConstraint \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the Region where the bucket will be created. You might choose a Region to optimize latency, minimize costs, or address regulatory requirements. For example, if you reside in Europe, you will probably find it advantageous to create buckets in the Europe (Ireland) Region.
+.sp
+If you don\(aqt specify a Region, the bucket is created in the US East (N. Virginia) Region (us\-east\-1) by default. Configurations using the value \fBEU\fP will create a bucket in \fBeu\-west\-1\fP .
+.sp
+For a list of the valid values for all of the Amazon Web Services Regions, see \fI\%Regions and Endpoints\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBaf\-south\-1\fP
+.IP \(bu 2
+\fBap\-east\-1\fP
+.IP \(bu 2
+\fBap\-northeast\-1\fP
+.IP \(bu 2
+\fBap\-northeast\-2\fP
+.IP \(bu 2
+\fBap\-northeast\-3\fP
+.IP \(bu 2
+\fBap\-south\-1\fP
+.IP \(bu 2
+\fBap\-south\-2\fP
+.IP \(bu 2
+\fBap\-southeast\-1\fP
+.IP \(bu 2
+\fBap\-southeast\-2\fP
+.IP \(bu 2
+\fBap\-southeast\-3\fP
+.IP \(bu 2
+\fBap\-southeast\-4\fP
+.IP \(bu 2
+\fBap\-southeast\-5\fP
+.IP \(bu 2
+\fBca\-central\-1\fP
+.IP \(bu 2
+\fBcn\-north\-1\fP
+.IP \(bu 2
+\fBcn\-northwest\-1\fP
+.IP \(bu 2
+\fBEU\fP
+.IP \(bu 2
+\fBeu\-central\-1\fP
+.IP \(bu 2
+\fBeu\-central\-2\fP
+.IP \(bu 2
+\fBeu\-north\-1\fP
+.IP \(bu 2
+\fBeu\-south\-1\fP
+.IP \(bu 2
+\fBeu\-south\-2\fP
+.IP \(bu 2
+\fBeu\-west\-1\fP
+.IP \(bu 2
+\fBeu\-west\-2\fP
+.IP \(bu 2
+\fBeu\-west\-3\fP
+.IP \(bu 2
+\fBil\-central\-1\fP
+.IP \(bu 2
+\fBme\-central\-1\fP
+.IP \(bu 2
+\fBme\-south\-1\fP
+.IP \(bu 2
+\fBsa\-east\-1\fP
+.IP \(bu 2
+\fBus\-east\-2\fP
+.IP \(bu 2
+\fBus\-gov\-east\-1\fP
+.IP \(bu 2
+\fBus\-gov\-west\-1\fP
+.IP \(bu 2
+\fBus\-west\-1\fP
+.IP \(bu 2
+\fBus\-west\-2\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Location \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the location where the bucket will be created.
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- The location type is Availability Zone or Local Zone. To use the Local Zone location type, your account must be enabled for Local Zones. Otherwise, you get an HTTP \fB403 Forbidden\fP error with the error code \fBAccessDenied\fP . To learn more, see \fI\%Enable accounts for Local Zones\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is only supported by directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Type \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The type of location where the bucket will be created.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBAvailabilityZone\fP
+.IP \(bu 2
+\fBLocalZone\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Name \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The name of the location where the bucket will be created.
+.sp
+For directory buckets, the name of the location is the Zone ID of the Availability Zone (AZ) or Local Zone (LZ) where the bucket will be created. An example AZ ID value is \fBusw2\-az1\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Bucket \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the information about the bucket that will be created.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is only supported by directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+DataRedundancy \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The number of Zone (Availability Zone or Local Zone) that\(aqs used for redundancy for the bucket.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBSingleAvailabilityZone\fP
+.IP \(bu 2
+\fBSingleLocalZone\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Type \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The type of bucket.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBDirectory\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Tags \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+An array of tags that you can apply to the bucket that you\(aqre creating. Tags are key\-value pairs of metadata used to categorize and organize your buckets, track costs, and control access.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This parameter is only supported for S3 directory buckets. For more information, see \fI\%Using tags with directory buckets\fP .
+.UNINDENT
+.UNINDENT
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+A container of a key value name pair.
+.sp
+Key \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Name of the object key.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Value \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Value of the tag.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Shorthand Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+LocationConstraint=string,Location={Type=string,Name=string},Bucket={DataRedundancy=string,Type=string},Tags=[{Key=string,Value=string},{Key=string,Value=string}]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+JSON Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+  \(dqLocationConstraint\(dq: \(dqaf\-south\-1\(dq|\(dqap\-east\-1\(dq|\(dqap\-northeast\-1\(dq|\(dqap\-northeast\-2\(dq|\(dqap\-northeast\-3\(dq|\(dqap\-south\-1\(dq|\(dqap\-south\-2\(dq|\(dqap\-southeast\-1\(dq|\(dqap\-southeast\-2\(dq|\(dqap\-southeast\-3\(dq|\(dqap\-southeast\-4\(dq|\(dqap\-southeast\-5\(dq|\(dqca\-central\-1\(dq|\(dqcn\-north\-1\(dq|\(dqcn\-northwest\-1\(dq|\(dqEU\(dq|\(dqeu\-central\-1\(dq|\(dqeu\-central\-2\(dq|\(dqeu\-north\-1\(dq|\(dqeu\-south\-1\(dq|\(dqeu\-south\-2\(dq|\(dqeu\-west\-1\(dq|\(dqeu\-west\-2\(dq|\(dqeu\-west\-3\(dq|\(dqil\-central\-1\(dq|\(dqme\-central\-1\(dq|\(dqme\-south\-1\(dq|\(dqsa\-east\-1\(dq|\(dqus\-east\-2\(dq|\(dqus\-gov\-east\-1\(dq|\(dqus\-gov\-west\-1\(dq|\(dqus\-west\-1\(dq|\(dqus\-west\-2\(dq,
+  \(dqLocation\(dq: {
+    \(dqType\(dq: \(dqAvailabilityZone\(dq|\(dqLocalZone\(dq,
+    \(dqName\(dq: \(dqstring\(dq
+  },
+  \(dqBucket\(dq: {
+    \(dqDataRedundancy\(dq: \(dqSingleAvailabilityZone\(dq|\(dqSingleLocalZone\(dq,
+    \(dqType\(dq: \(dqDirectory\(dq
+  },
+  \(dqTags\(dq: [
+    {
+      \(dqKey\(dq: \(dqstring\(dq,
+      \(dqValue\(dq: \(dqstring\(dq
+    }
+    ...
+  ]
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-grant\-full\-control\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Allows grantee the read, write, read ACP, and write ACP permissions on the bucket.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-grant\-read\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Allows grantee to list the objects in the bucket.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-grant\-read\-acp\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Allows grantee to read the bucket ACL.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-grant\-write\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Allows grantee to create new objects in the bucket.
+.sp
+For the bucket and object owners of existing objects, also allows deletions and overwrites of those objects.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-grant\-write\-acp\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Allows grantee to write the ACL for the applicable bucket.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-object\-lock\-enabled\-for\-bucket\fP | \fB\-\-no\-object\-lock\-enabled\-for\-bucket\fP (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether you want S3 Object Lock to be enabled for the new bucket.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-object\-ownership\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The container element for object ownership for a bucket\(aqs ownership controls.
+.INDENT 0.0
+.INDENT 3.5
+\fBBucketOwnerPreferred\fP \- Objects uploaded to the bucket change ownership to the bucket owner if the objects are uploaded with the \fBbucket\-owner\-full\-control\fP canned ACL.
+.sp
+\fBObjectWriter\fP \- The uploading account will own the object if the object is uploaded with the \fBbucket\-owner\-full\-control\fP canned ACL.
+.sp
+\fBBucketOwnerEnforced\fP \- Access control lists (ACLs) are disabled and no longer affect permissions. The bucket owner automatically owns and has full control over every object in the bucket. The bucket only accepts PUT requests that don\(aqt specify an ACL or specify bucket owner full control ACLs (such as the predefined \fBbucket\-owner\-full\-control\fP canned ACL or a custom ACL in XML format that grants the same permissions).
+.UNINDENT
+.UNINDENT
+.sp
+By default, \fBObjectOwnership\fP is set to \fBBucketOwnerEnforced\fP and ACLs are disabled. We recommend keeping ACLs disabled, except in uncommon use cases where you must control access for each object individually. For more information about S3 Object Ownership, see \fI\%Controlling ownership of objects and disabling ACLs for your bucket\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets. Directory buckets use the bucket owner enforced setting for S3 Object Ownership.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBBucketOwnerPreferred\fP
+.IP \(bu 2
+\fBObjectWriter\fP
+.IP \(bu 2
+\fBBucketOwnerEnforced\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH EXAMPLES
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use the following examples, you must have the AWS CLI installed and configured. See the \fI\%Getting started guide\fP in the \fIAWS CLI User Guide\fP for more information.
+.sp
+Unless otherwise stated, all examples have unix\-like quotation rules. These examples will need to be adapted to your terminal\(aqs quoting rules. See \fI\%Using quotation marks with strings\fP in the \fIAWS CLI User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBExample 1: To create a bucket\fP
+.sp
+The following \fBcreate\-bucket\fP example creates a bucket named \fBamzn\-s3\-demo\-bucket\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api create\-bucket \e
+    \-\-bucket amzn\-s3\-demo\-bucket \e
+    \-\-region us\-east\-1
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+    \(dqLocation\(dq: \(dq/amzn\-s3\-demo\-bucket\(dq
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+For more information, see \fI\%Creating a bucket\fP in the \fIAmazon S3 User Guide\fP\&.
+.sp
+\fBExample 2: To create a bucket with owner enforced\fP
+.sp
+The following \fBcreate\-bucket\fP example creates a bucket named \fBamzn\-s3\-demo\-bucket\fP that uses the bucket owner enforced setting for S3 Object Ownership.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api create\-bucket \e
+    \-\-bucket amzn\-s3\-demo\-bucket \e
+    \-\-region us\-east\-1 \e
+    \-\-object\-ownership BucketOwnerEnforced
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+    \(dqLocation\(dq: \(dq/amzn\-s3\-demo\-bucket\(dq
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+For more information, see \fI\%Controlling ownership of objects and disabling ACLs\fP in the \fIAmazon S3 User Guide\fP\&.
+.sp
+\fBExample 3: To create a bucket outside of the \(ga\(gaus\-east\-1\(ga\(ga region\fP
+.sp
+The following \fBcreate\-bucket\fP example creates a bucket named \fBamzn\-s3\-demo\-bucket\fP in the
+\fBeu\-west\-1\fP region. Regions outside of \fBus\-east\-1\fP require the appropriate
+\fBLocationConstraint\fP to be specified in order to create the bucket in the
+desired region.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api create\-bucket \e
+    \-\-bucket amzn\-s3\-demo\-bucket \e
+    \-\-region eu\-west\-1 \e
+    \-\-create\-bucket\-configuration LocationConstraint=eu\-west\-1
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+    \(dqLocation\(dq: \(dqhttp://amzn\-s3\-demo\-bucket.s3.amazonaws.com/\(dq
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+For more information, see \fI\%Creating a bucket\fP in the \fIAmazon S3 User Guide\fP\&.
+.SH OUTPUT
+.sp
+Location \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+A forward slash followed by the name of the bucket.
+.UNINDENT
+.UNINDENT
+.sp
+BucketArn \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Amazon Resource Name (ARN) of the S3 bucket. ARNs uniquely identify Amazon Web Services resources across all of Amazon Web Services.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This parameter is only supported for S3 directory buckets. For more information, see \fI\%Using tags with directory buckets\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.IP \(bu 2
+max: \fB128\fP
+.IP \(bu 2
+pattern: \fBarn:[^:]+:(s3|s3express):.*\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.\" Generated by docutils manpage writer.
+.

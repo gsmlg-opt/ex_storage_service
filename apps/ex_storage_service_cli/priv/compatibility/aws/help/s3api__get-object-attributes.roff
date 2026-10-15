@@ -1,0 +1,851 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "GET-OBJECT-ATTRIBUTES"  "" "" ""
+.SH NAME
+get-object-attributes \- 
+.SH DESCRIPTION
+.sp
+Retrieves all of the metadata from an object without returning the object itself. This operation is useful if you\(aqre interested only in an object\(aqs metadata.
+.INDENT 0.0
+.INDENT 3.5
+\fBGetObjectAttributes\fP combines the functionality of \fBHeadObject\fP and \fBListParts\fP . All of the data returned with both of those individual calls can be returned with a single call to \fBGetObjectAttributes\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- For directory buckets, you must make requests for this API operation to the Zonal endpoint. These endpoints support virtual\-hosted\-style requests in the format 
+.nf
+\(ga\(ga
+.fi
+\fI\%https://\fP\fIamzn\-s3\-demo\-bucket\fP .s3express\-\fIzone\-id\fP .*region\-code* .amazonaws.com/\fIkey\-name\fP \(ga\(ga . Path\-style requests are not supported. For more information about endpoints in Availability Zones, see \fI\%Regional and Zonal endpoints for directory buckets in Availability Zones\fP in the \fIAmazon S3 User Guide\fP . For more information about endpoints in Local Zones, see \fI\%Concepts for directory buckets in Local Zones\fP in the \fIAmazon S3 User Guide\fP .
+.IP "System Message: WARNING/2 (<string>:, line 30)"
+Inline literal start\-string without end\-string.
+.UNINDENT
+.UNINDENT
+.sp
+Permissions
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+\fBGeneral purpose bucket permissions\fP \- To use \fBGetObjectAttributes\fP , you must have READ access to the object. The other permissions that you need to use this operation depend on whether the bucket is versioned and if a version ID is passed in the \fBGetObjectAttributes\fP request.
+.INDENT 2.0
+.IP \(bu 2
+If you pass a version ID in your request, you need both the \fBs3:GetObjectVersion\fP and \fBs3:GetObjectVersionAttributes\fP permissions.
+.IP \(bu 2
+If you do not pass a version ID in your request, you need the \fBs3:GetObject\fP and \fBs3:GetObjectAttributes\fP permissions.
+.UNINDENT
+.UNINDENT
+.sp
+For more information, see \fI\%Specifying Permissions in a Policy\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+If the object that you request does not exist, the error Amazon S3 returns depends on whether you also have the \fBs3:ListBucket\fP permission.
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+If you have the \fBs3:ListBucket\fP permission on the bucket, Amazon S3 returns an HTTP status code \fB404 Not Found\fP (\(dqno such key\(dq) error.
+.IP \(bu 2
+If you don\(aqt have the \fBs3:ListBucket\fP permission, Amazon S3 returns an HTTP status code \fB403 Forbidden\fP (\(dqaccess denied\(dq) error.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+\fBDirectory bucket permissions\fP \- To grant access to this API operation on a directory bucket, we recommend that you use the \(ga \fBCreateSession\fP \fI\%https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateSession\fP\&.html\(ga__ API operation for session\-based authorization. Specifically, you grant the \fBs3express:CreateSession\fP permission to the directory bucket in a bucket policy or an IAM identity\-based policy. Then, you make the \fBCreateSession\fP API call on the bucket to obtain a session token. With the session token in your request header, you can make API requests to this operation. After the session token expires, you make another \fBCreateSession\fP API call to generate a new session token for use. Amazon Web Services CLI or SDKs create session and refresh the session token automatically to avoid service interruptions when a session expires. For more information about authorization, see \(ga \fBCreateSession\fP \fI\%https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateSession\fP\&.html\(ga__ . If the object is encrypted with SSE\-KMS, you must also have the \fBkms:GenerateDataKey\fP and \fBkms:Decrypt\fP permissions in IAM identity\-based policies and KMS key policies for the KMS key.
+.sp
+Encryption
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+Encryption request headers, like \fBx\-amz\-server\-side\-encryption\fP , should not be sent for \fBHEAD\fP requests if your object uses server\-side encryption with Key Management Service (KMS) keys (SSE\-KMS), dual\-layer server\-side encryption with Amazon Web Services KMS keys (DSSE\-KMS), or server\-side encryption with Amazon S3 managed encryption keys (SSE\-S3). The \fBx\-amz\-server\-side\-encryption\fP header is used when you \fBPUT\fP an object to S3 and want to specify the encryption method. If you include this header in a \fBGET\fP request for an object that uses these types of keys, you’ll get an HTTP \fB400 Bad Request\fP error. It\(aqs because the encryption method can\(aqt be changed when you retrieve the object.
+.UNINDENT
+.UNINDENT
+.sp
+If you encrypted an object when you stored the object in Amazon S3 by using server\-side encryption with customer\-provided encryption keys (SSE\-C), then when you retrieve the metadata from the object, you must use the following headers. These headers provide the server with the encryption key required to retrieve the object\(aqs metadata. The headers are:
+.INDENT 0.0
+.IP \(bu 2
+\fBx\-amz\-server\-side\-encryption\-customer\-algorithm\fP
+.IP \(bu 2
+\fBx\-amz\-server\-side\-encryption\-customer\-key\fP
+.IP \(bu 2
+\fBx\-amz\-server\-side\-encryption\-customer\-key\-MD5\fP
+.UNINDENT
+.sp
+For more information about SSE\-C, see \fI\%Server\-Side Encryption (Using Customer\-Provided Encryption Keys)\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory bucket permissions\fP \- For directory buckets, there are only two supported options for server\-side encryption: server\-side encryption with Amazon S3 managed keys (SSE\-S3) (\fBAES256\fP ) and server\-side encryption with KMS keys (SSE\-KMS) (\fBaws:kms\fP ). We recommend that the bucket\(aqs default encryption uses the desired encryption configuration and you don\(aqt override the bucket default encryption in your \fBCreateSession\fP requests or \fBPUT\fP object requests. Then, new objects are automatically encrypted with the desired encryption settings. For more information, see \fI\%Protecting data with server\-side encryption\fP in the \fIAmazon S3 User Guide\fP . For more information about the encryption overriding behaviors in directory buckets, see \fI\%Specifying server\-side encryption with KMS for new object uploads\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Versioning
+.UNINDENT
+.UNINDENT
+.sp
+\fBDirectory buckets\fP \- S3 Versioning isn\(aqt enabled and supported for directory buckets. For this API operation, only the \fBnull\fP value of the version ID is supported by directory buckets. You can only specify \fBnull\fP to the \fBversionId\fP query parameter in the request.
+.INDENT 0.0
+.INDENT 3.5
+Conditional request headers
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Consider the following when using request headers:
+.INDENT 0.0
+.IP \(bu 2
+If both of the \fBIf\-Match\fP and \fBIf\-Unmodified\-Since\fP headers are present in the request as follows, then Amazon S3 returns the HTTP status code \fB200 OK\fP and the data requested:
+.INDENT 2.0
+.IP \(bu 2
+\fBIf\-Match\fP condition evaluates to \fBtrue\fP .
+.IP \(bu 2
+\fBIf\-Unmodified\-Since\fP condition evaluates to \fBfalse\fP .
+.UNINDENT
+.UNINDENT
+.sp
+For more information about conditional requests, see \fI\%RFC 7232\fP .
+.INDENT 0.0
+.IP \(bu 2
+If both of the \fBIf\-None\-Match\fP and \fBIf\-Modified\-Since\fP headers are present in the request as follows, then Amazon S3 returns the HTTP status code \fB304 Not Modified\fP :
+.INDENT 2.0
+.IP \(bu 2
+\fBIf\-None\-Match\fP condition evaluates to \fBfalse\fP .
+.IP \(bu 2
+\fBIf\-Modified\-Since\fP condition evaluates to \fBtrue\fP .
+.UNINDENT
+.UNINDENT
+.sp
+For more information about conditional requests, see \fI\%RFC 7232\fP .
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+HTTP Host header syntax
+.UNINDENT
+.UNINDENT
+.sp
+\fBDirectory buckets\fP \- The HTTP Host header syntax is \(ga\(ga \fIBucket\-name\fP .s3express\-\fIzone\-id\fP .*region\-code* .amazonaws.com\(ga\(ga .
+.UNINDENT
+.UNINDENT
+.sp
+The following actions are related to \fBGetObjectAttributes\fP :
+.INDENT 0.0
+.IP \(bu 2
+\fI\%GetObject\fP
+.IP \(bu 2
+\fI\%GetObjectAcl\fP
+.IP \(bu 2
+\fI\%GetObjectLegalHold\fP
+.IP \(bu 2
+\fI\%GetObjectLockConfiguration\fP
+.IP \(bu 2
+\fI\%GetObjectRetention\fP
+.IP \(bu 2
+\fI\%GetObjectTagging\fP
+.IP \(bu 2
+\fI\%HeadObject\fP
+.IP \(bu 2
+\fI\%ListParts\fP
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  get\-object\-attributes
+\-\-bucket <value>
+\-\-key <value>
+[\-\-version\-id <value>]
+[\-\-max\-parts <value>]
+[\-\-part\-number\-marker <value>]
+[\-\-sse\-customer\-algorithm <value>]
+[\-\-sse\-customer\-key <value>]
+[\-\-sse\-customer\-key\-md5 <value>]
+[\-\-request\-payer <value>]
+[\-\-expected\-bucket\-owner <value>]
+\-\-object\-attributes <value>
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The name of the bucket that contains the object.
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- When you use this operation with a directory bucket, you must use virtual\-hosted\-style requests in the format \(ga\(ga \fIBucket\-name\fP .s3express\-\fIzone\-id\fP .*region\-code* .amazonaws.com\(ga\(ga . Path\-style requests are not supported. Directory bucket names must be unique in the chosen Zone (Availability Zone or Local Zone). Bucket names must follow the format \(ga\(ga \fIbucket\-base\-name\fP \-\-\fIzone\-id\fP \-\-x\-s3\(ga\(ga (for example, \(ga\(ga \fIamzn\-s3\-demo\-bucket\fP \-\-\fIusw2\-az1\fP \-\-x\-s3\(ga\(ga ). For information about bucket naming restrictions, see \fI\%Directory bucket naming rules\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBAccess points\fP \- When you use this action with an access point for general purpose buckets, you must provide the alias of the access point in place of the bucket name or specify the access point ARN. When you use this action with an access point for directory buckets, you must provide the access point name in place of the bucket name. When using the access point ARN, you must direct requests to the access point hostname. The access point hostname takes the form \fIAccessPointName\fP \-\fIAccountId\fP .s3\-accesspoint.*Region* .amazonaws.com. When using this action with an access point through the Amazon Web Services SDKs, you provide the access point ARN in place of the bucket name. For more information about access point ARNs, see \fI\%Using access points\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+Object Lambda access points are not supported by directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+\fBS3 on Outposts\fP \- When you use this action with S3 on Outposts, you must direct requests to the S3 on Outposts hostname. The S3 on Outposts hostname takes the form \(ga\(ga \fIAccessPointName\fP \-\fIAccountId\fP .*outpostID* .s3\-outposts.*Region* .amazonaws.com\(ga\(ga . When you use this action with S3 on Outposts, the destination bucket must be the Outposts access point ARN or the access point alias. For more information about S3 on Outposts, see \fI\%What is S3 on Outposts?\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-key\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The object key.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-version\-id\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The version ID used to reference a specific version of the object.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+S3 Versioning isn\(aqt enabled and supported for directory buckets. For this API operation, only the \fBnull\fP value of the version ID is supported by directory buckets. You can only specify \fBnull\fP to the \fBversionId\fP query parameter in the request.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-max\-parts\fP (integer)
+.INDENT 0.0
+.INDENT 3.5
+Sets the maximum number of parts to return. For more information, see \fI\%Uploading and copying objects using multipart upload in Amazon S3\fP in the \fIAmazon Simple Storage Service user guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-part\-number\-marker\fP (integer)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the part after which listing should begin. Only parts with higher part numbers will be listed. For more information, see \fI\%Uploading and copying objects using multipart upload in Amazon S3\fP in the \fIAmazon Simple Storage Service user guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-sse\-customer\-algorithm\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the algorithm to use when encrypting the object (for example, AES256).
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-sse\-customer\-key\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the customer\-provided encryption key for Amazon S3 to use in encrypting data. This value is used to store the object and then it is discarded; Amazon S3 does not store the encryption key. The key must be appropriate for use with the algorithm specified in the \fBx\-amz\-server\-side\-encryption\-customer\-algorithm\fP header.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-sse\-customer\-key\-md5\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the 128\-bit MD5 digest of the encryption key according to RFC 1321. Amazon S3 uses this header for a message integrity check to ensure that the encryption key was transmitted without error.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-request\-payer\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Confirms that the requester knows that they will be charged for the request. Bucket owners need not specify this parameter in their requests. If either the source or destination S3 bucket has Requester Pays enabled, the requester will pay for corresponding charges to copy the object. For information about downloading objects from Requester Pays buckets, see \fI\%Downloading Objects in Requester Pays Buckets\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBrequester\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expected\-bucket\-owner\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The account ID of the expected bucket owner. If the account ID that you provide does not match the actual owner of the bucket, the request fails with the HTTP status code \fB403 Forbidden\fP (access denied).
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-object\-attributes\fP (list) [required]
+.INDENT 0.0
+.INDENT 3.5
+Specifies the fields at the root level that you want returned in the response. Fields that you do not specify are not returned.
+.sp
+(string)
+.INDENT 0.0
+.INDENT 3.5
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBETag\fP
+.IP \(bu 2
+\fBChecksum\fP
+.IP \(bu 2
+\fBObjectParts\fP
+.IP \(bu 2
+\fBStorageClass\fP
+.IP \(bu 2
+\fBObjectSize\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+\(dqstring\(dq \(dqstring\(dq ...
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH EXAMPLES
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use the following examples, you must have the AWS CLI installed and configured. See the \fI\%Getting started guide\fP in the \fIAWS CLI User Guide\fP for more information.
+.sp
+Unless otherwise stated, all examples have unix\-like quotation rules. These examples will need to be adapted to your terminal\(aqs quoting rules. See \fI\%Using quotation marks with strings\fP in the \fIAWS CLI User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBTo retrieves metadata from an object without returning the object itself\fP
+.sp
+The following \fBget\-object\-attributes\fP example retrieves metadata from the object \fBdoc1.rtf\fP\&.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api get\-object\-attributes \e
+    \-\-bucket amzn\-s3\-demo\-bucket \e
+    \-\-key doc1.rtf \e
+    \-\-object\-attributes \(dqStorageClass\(dq \(dqETag\(dq \(dqObjectSize\(dq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+    \(dqLastModified\(dq: \(dq2022\-03\-15T19:37:31+00:00\(dq,
+    \(dqVersionId\(dq: \(dqIuCPjXTDzHNfldAuitVBIKJpF2p1fg4P\(dq,
+    \(dqETag\(dq: \(dqb662d79adeb7c8d787ea7eafb9ef6207\(dq,
+    \(dqStorageClass\(dq: \(dqSTANDARD\(dq,
+    \(dqObjectSize\(dq: 405
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+For more information, see \fI\%GetObjectAttributes\fP in the Amazon S3 API Reference.
+.SH OUTPUT
+.sp
+DeleteMarker \-> (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether the object retrieved was (\fBtrue\fP ) or was not (\fBfalse\fP ) a delete marker. If \fBfalse\fP , this response header does not appear in the response. To learn more about delete markers, see \fI\%Working with delete markers\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+LastModified \-> (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Date and time when the object was last modified.
+.UNINDENT
+.UNINDENT
+.sp
+VersionId \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The version ID of the object.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+RequestCharged \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If present, indicates that the requester was successfully charged for the request. For more information, see \fI\%Using Requester Pays buckets for storage transfers and usage\fP in the \fIAmazon Simple Storage Service user guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This functionality is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBrequester\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ETag \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+An ETag is an opaque identifier assigned by a web server to a specific version of a resource found at a URL.
+.UNINDENT
+.UNINDENT
+.sp
+Checksum \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+The checksum or digest of the object.
+.sp
+ChecksumCRC32 \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 32\-bit \fBCRC32 checksum\fP of the object. This checksum is only be present if the checksum was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it\(aqs a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumCRC32C \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 32\-bit \fBCRC32C\fP checksum of the object. This checksum is only present if the checksum was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it\(aqs a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumCRC64NVME \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 64\-bit \fBCRC64NVME\fP checksum of the object. This checksum is present if the object was uploaded with the \fBCRC64NVME\fP checksum algorithm, or if the object was uploaded without a checksum (and Amazon S3 added the default checksum, \fBCRC64NVME\fP , to the uploaded object). For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumSHA1 \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 160\-bit \fBSHA1\fP digest of the object. This will only be present if the object was uploaded with the object. When you use the API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it\(aqs a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumSHA256 \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 256\-bit \fBSHA256\fP digest of the object. This will only be present if the object was uploaded with the object. When you use an API operation on an object that was uploaded using multipart uploads, this value may not be a direct checksum value of the full object. Instead, it\(aqs a calculation based on the checksum values of each individual part. For more information about how checksums are calculated with multipart uploads, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumType \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The checksum type that is used to calculate the object’s checksum value. For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBCOMPOSITE\fP
+.IP \(bu 2
+\fBFULL_OBJECT\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ObjectParts \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+A collection of parts associated with a multipart upload.
+.sp
+TotalPartsCount \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+The total number of parts.
+.UNINDENT
+.UNINDENT
+.sp
+PartNumberMarker \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+The marker for the current part.
+.UNINDENT
+.UNINDENT
+.sp
+NextPartNumberMarker \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+When a list is truncated, this element specifies the last part in the list, as well as the value to use for the \fBPartNumberMarker\fP request parameter in a subsequent request.
+.UNINDENT
+.UNINDENT
+.sp
+MaxParts \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+The maximum number of parts allowed in the response.
+.UNINDENT
+.UNINDENT
+.sp
+IsTruncated \-> (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Indicates whether the returned list of parts is truncated. A value of \fBtrue\fP indicates that the list was truncated. A list can be truncated if the number of parts exceeds the limit returned in the \fBMaxParts\fP element.
+.UNINDENT
+.UNINDENT
+.sp
+Parts \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+A container for elements related to a particular part. A response can contain zero or more \fBParts\fP elements.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+\fBGeneral purpose buckets\fP \- For \fBGetObjectAttributes\fP , if an additional checksum (including \fBx\-amz\-checksum\-crc32\fP , \fBx\-amz\-checksum\-crc32c\fP , \fBx\-amz\-checksum\-sha1\fP , or \fBx\-amz\-checksum\-sha256\fP ) isn\(aqt applied to the object specified in the request, the response doesn\(aqt return the \fBPart\fP element.
+.IP \(bu 2
+\fBDirectory buckets\fP \- For \fBGetObjectAttributes\fP , regardless of whether an additional checksum is applied to the object specified in the request, the response returns the \fBPart\fP element.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+A container for elements related to an individual part.
+.sp
+PartNumber \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+The part number identifying the part. This value is a positive integer between 1 and 10,000.
+.UNINDENT
+.UNINDENT
+.sp
+Size \-> (long)
+.INDENT 0.0
+.INDENT 3.5
+The size of the uploaded part in bytes.
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumCRC32 \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 32\-bit \fBCRC32\fP checksum of the part. This checksum is present if the multipart upload request was created with the \fBCRC32\fP checksum algorithm. For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumCRC32C \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 32\-bit \fBCRC32C\fP checksum of the part. This checksum is present if the multipart upload request was created with the \fBCRC32C\fP checksum algorithm. For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumCRC64NVME \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 64\-bit \fBCRC64NVME\fP checksum of the part. This checksum is present if the multipart upload request was created with the \fBCRC64NVME\fP checksum algorithm, or if the object was uploaded without a checksum (and Amazon S3 added the default checksum, \fBCRC64NVME\fP , to the uploaded object). For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumSHA1 \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 160\-bit \fBSHA1\fP checksum of the part. This checksum is present if the multipart upload request was created with the \fBSHA1\fP checksum algorithm. For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+ChecksumSHA256 \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The Base64 encoded, 256\-bit \fBSHA256\fP checksum of the part. This checksum is present if the multipart upload request was created with the \fBSHA256\fP checksum algorithm. For more information, see \fI\%Checking object integrity\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+StorageClass \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Provides the storage class information of the object. Amazon S3 returns this header for all objects except for S3 Standard storage class objects.
+.sp
+For more information, see \fI\%Storage Classes\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- Directory buckets only support \fBEXPRESS_ONEZONE\fP (the S3 Express One Zone storage class) in Availability Zones and \fBONEZONE_IA\fP (the S3 One Zone\-Infrequent Access storage class) in Dedicated Local Zones.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBSTANDARD\fP
+.IP \(bu 2
+\fBREDUCED_REDUNDANCY\fP
+.IP \(bu 2
+\fBSTANDARD_IA\fP
+.IP \(bu 2
+\fBONEZONE_IA\fP
+.IP \(bu 2
+\fBINTELLIGENT_TIERING\fP
+.IP \(bu 2
+\fBGLACIER\fP
+.IP \(bu 2
+\fBDEEP_ARCHIVE\fP
+.IP \(bu 2
+\fBOUTPOSTS\fP
+.IP \(bu 2
+\fBGLACIER_IR\fP
+.IP \(bu 2
+\fBSNOW\fP
+.IP \(bu 2
+\fBEXPRESS_ONEZONE\fP
+.IP \(bu 2
+\fBFSX_OPENZFS\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ObjectSize \-> (long)
+.INDENT 0.0
+.INDENT 3.5
+The size of the object in bytes.
+.UNINDENT
+.UNINDENT
+.\" Generated by docutils manpage writer.
+.

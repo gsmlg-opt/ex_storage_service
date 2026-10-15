@@ -1,0 +1,12 @@
+{
+    "Bucket": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "MetadataTableConfiguration": {
+        "S3TablesDestination": {
+            "TableBucketArn": "",
+            "TableName": ""
+        }
+    },
+    "ExpectedBucketOwner": ""
+}

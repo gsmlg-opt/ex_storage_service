@@ -1,0 +1,51 @@
+NAME:
+  mc tag list - list tags of a bucket or an object
+
+USAGE:
+  mc tag list [COMMAND FLAGS] TARGET
+
+FLAGS:
+  --version-id value, --vid value  list tags of particular object version
+  --rewind value                   list tags of particular object version at specified time
+  --versions                       list tags on all versions for an object
+  --recursive, -r                  recursivley show tags for all objects
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+DESCRIPTION:
+   List tags assigned to a bucket or an object
+
+EXAMPLES:
+  1. List the tags assigned to an object.
+     $ mc tag list myminio/testbucket/testobject
+
+  2. List the tags assigned to particular version of an object.
+     $ mc tag list --version-id "ieQq7aXsyhlhDt47YURGlrucYY3GxWHa" myminio/testbucket/testobject
+
+  3. List the tags assigned to an object versions that are older than one week.
+     $ mc tag list --versions --rewind 7d myminio/testbucket/testobject
+
+  4. List the tags assigned to an object in JSON format.
+     $ mc tag list --json myminio/testbucket/testobject
+
+  5. List the tags assigned to a bucket.
+     $ mc tag list myminio/testbucket
+
+  6. List the tags assigned to a bucket in JSON format.
+     $ mc tag list --json s3/testbucket
+
+  7. List the tags recursively for all the objects of subdirs of bucket.
+     $ mc tag list --recursive myminio/testbucket
+
+  8. Show the tags recursively for all versions of all objects of subdirs of bucket.
+     $ mc tag list --recursive --versions myminio/testbucket

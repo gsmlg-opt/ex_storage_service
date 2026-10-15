@@ -1,0 +1,83 @@
+NAME:
+  mc admin prometheus generate - generates prometheus config
+
+USAGE:
+  mc admin prometheus generate TARGET [METRIC-TYPE]
+
+METRIC-TYPE:
+  valid values are
+    api-version v2 ['cluster', 'node', 'bucket', 'resource']. defaults to 'cluster' if not specified.
+    api-version v3 ["api", "system", "debug", "cluster", "ilm", "audit", "logger", "replication", "notification", "scanner"]. defaults to all if not specified.
+
+FLAGS:
+  --bucket value                   bucket name to list metrics for. only applicable with api version v3 for metric type 'api, replication'
+  --api-version value              version of metrics api to use. valid values are ['v2', 'v3']. defaults to 'v2' if not specified. (default: "v2")
+  --public                         disable bearer token generation for scrape_configs
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+EXAMPLES (v3):
+  1. Generate a default prometheus config.
+     $ mc admin prometheus generate play --api-version v3
+
+  2. Generate prometheus config for api metrics.
+     $ mc admin prometheus generate play api --api-version v3
+
+  3. Generate prometheus config for api metrics of bucket 'mybucket'.
+     $ mc admin prometheus generate play api --bucket mybucket --api-version v3
+
+  4. Generate prometheus config for system metrics.
+     $ mc admin prometheus generate play system --api-version v3
+
+  5. Generate prometheus config for debug metrics.
+     $ mc admin prometheus generate play debug --api-version v3
+
+  6. Generate prometheus config for cluster metrics.
+     $ mc admin prometheus generate play cluster --api-version v3
+
+  7. Generate prometheus config for ilm metrics.
+     $ mc admin prometheus generate play ilm --api-version v3
+
+  8. Generate prometheus config for audit metrics.
+     $ mc admin prometheus generate play audit --api-version v3
+
+  9. Generate prometheus config for logger metrics.
+     $ mc admin prometheus generate play logger --api-version v3
+
+  10. Generate prometheus config for replication metrics.
+     $ mc admin prometheus generate play replication --api-version v3
+
+  11. Generate prometheus config for replication metrics of bucket 'mybucket'.
+     $ mc admin prometheus generate play replication --bucket mybucket --api-version v3
+
+  12. Generate prometheus config for notification metrics.
+     $ mc admin prometheus generate play notification --api-version v3
+
+  13. Generate prometheus config for scanner metrics.
+     $ mc admin prometheus generate play scanner --api-version v3
+
+EXAMPLES (v2):
+  1. Generate a default prometheus config.
+     $ mc admin prometheus generate play
+
+  2. Generate prometheus config for node metrics.
+     $ mc admin prometheus generate play node
+
+  3. Generate prometheus config for bucket metrics.
+     $ mc admin prometheus generate play bucket
+
+  4. Generate prometheus config for resource metrics.
+     $ mc admin prometheus generate play resource
+
+  5. Generate prometheus config for cluster metrics.
+     $ mc admin prometheus generate play cluster

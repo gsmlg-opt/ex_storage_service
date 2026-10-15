@@ -1,0 +1,50 @@
+NAME:
+  mc stat - show object metadata
+
+USAGE:
+  mc stat [FLAGS] TARGET [TARGET ...]
+
+FLAGS:
+  --rewind value                   stat on older version(s)
+  --versions                       stat all versions
+  --version-id value, --vid value  stat a specific object version
+  --recursive, -r                  stat all objects recursively
+  --verbose, -v                    show extended bucket(s) stat
+  --no-list                        disable all LIST operations for stat
+  --enc-c value                    encrypt/decrypt objects using client provided keys. (multiple keys can be provided) Formats: RawBase64 or Hex.
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+
+EXAMPLES:
+  1. Stat all contents of mybucket on Amazon S3 cloud storage.
+     $ mc stat s3/mybucket/
+
+  2. Stat all contents of all buckets on Amazon S3 cloud storage.
+     $ mc stat s3 --verbose
+
+  3. Stat all contents of mybucket on Amazon S3 cloud storage on Microsoft Windows.
+     $ mc stat s3\mybucket\
+
+  4. Stat files recursively on a local filesystem on Microsoft Windows.
+     $ mc stat --recursive C:\Users\mydocuments\
+
+  5. Stat encrypted files on Amazon S3 cloud storage. In case the encryption key contains non-printable character like tab, pass the
+     base64 encoded string as key.
+     $ mc stat --enc-c "s3/personal-document/=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDA" s3/personal-document/2019-account_report.docx
+
+  6. Stat a specific object version.
+     $ mc stat --version-id "CL3sWgdSN2pNntSf6UnZAuh2kcu8E8si" s3/personal-docs/2018-account_report.docx
+
+  7. Stat all objects versions recursively created before 1st January 2020.
+     $ mc stat --versions --rewind 2020.01.01T00:00 s3/personal-docs/

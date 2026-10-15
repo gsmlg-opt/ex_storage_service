@@ -1,0 +1,33 @@
+{
+    "Bucket": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "WebsiteConfiguration": {
+        "ErrorDocument": {
+            "Key": ""
+        },
+        "IndexDocument": {
+            "Suffix": ""
+        },
+        "RedirectAllRequestsTo": {
+            "HostName": "",
+            "Protocol": "http"
+        },
+        "RoutingRules": [
+            {
+                "Condition": {
+                    "HttpErrorCodeReturnedEquals": "",
+                    "KeyPrefixEquals": ""
+                },
+                "Redirect": {
+                    "HostName": "",
+                    "HttpRedirectCode": "",
+                    "Protocol": "http",
+                    "ReplaceKeyPrefixWith": "",
+                    "ReplaceKeyWith": ""
+                }
+            }
+        ]
+    },
+    "ExpectedBucketOwner": ""
+}

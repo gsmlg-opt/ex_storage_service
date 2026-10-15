@@ -1,0 +1,74 @@
+NAME:
+  mc - MinIO Client for object storage and filesystems.
+
+USAGE:
+  mc [FLAGS] COMMAND [COMMAND FLAGS | -h] [ARGUMENTS...]
+
+COMMANDS:
+  alias      manage server credentials in configuration file
+  admin      manage MinIO servers
+  anonymous  manage anonymous access to buckets and objects
+  batch      manage batch jobs
+  cp         copy objects
+  cat        display object contents
+  cors       manage bucket CORS configuration
+  diff       list differences in object name, size, and date between two buckets
+  du         summarize disk usage recursively
+  encrypt    manage bucket encryption config
+  event      manage object notifications
+  find       search for objects
+  get        get s3 object to local
+  head       display first 'n' lines of an object
+  ilm        manage bucket lifecycle
+  idp        manage MinIO IDentity Provider server configuration
+  license    license related commands
+  legalhold  manage legal hold for object(s)
+  ls         list buckets and objects
+  mb         make a bucket
+  mv         move objects
+  mirror     synchronize object(s) to a remote site
+  od         measure single stream upload and download
+  ping       perform liveness check
+  pipe       stream STDIN to an object
+  put        upload an object to a bucket
+  quota      manage bucket quota
+  rm         remove object(s)
+  retention  set retention for object(s)
+  rb         remove a bucket
+  replicate  configure server side bucket replication
+  ready      checks if the cluster is ready or not
+  sql        run sql queries on objects
+  stat       show object metadata
+  support    support related commands
+  share      generate URL for temporary access to an object
+  tree       list buckets and objects in a tree format
+  tag        manage tags for bucket and object(s)
+  undo       undo PUT/DELETE operations
+  update     update mc to latest release
+  version    manage bucket versioning
+  watch      listen for object notification events
+  
+GLOBAL FLAGS:
+  --autocompletion                 install auto-completion for your shell
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  --version, -v                    print the version
+  
+TIP:
+  Use 'mc --autocompletion' to enable shell autocompletion
+
+COPYRIGHT:
+  Copyright (c) 2015-0000 MinIO, Inc.
+
+LICENSE:
+  GNU AGPLv3 <https://www.gnu.org/licenses/agpl-3.0.html>

@@ -1,0 +1,32 @@
+NAME:
+  mc idp ldap policy detach - detach a policy from an entity
+
+USAGE:
+  mc idp ldap policy detach [FLAGS] TARGET POLICY [POLICY...] [ --user=USER | --group=GROUP ]
+
+  Exactly one of "--user" or "--group" is required.
+
+POLICY:
+  Name of a policy on the MinIO server.
+
+FLAGS:
+  --user value, -u value           attach policy to user by DN or by login name
+  --group value, -g value          attach policy to LDAP Group DN
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Detach policy "mypolicy" from a user
+     $ mc idp ldap policy detach play/ mypolicy --user='uid=bobfisher,ou=people,ou=hwengg,dc=min,dc=io'
+  2. Detach policies "policy1" and "policy2" from a group
+     $ mc idp ldap policy detach play/ policy1 policy2 --group='cn=projectb,ou=groups,ou=swengg,dc=min,dc=io'

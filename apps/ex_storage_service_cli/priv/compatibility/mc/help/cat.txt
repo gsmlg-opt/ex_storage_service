@@ -1,0 +1,50 @@
+NAME:
+  mc cat - display object contents
+
+USAGE:
+  mc cat [FLAGS] TARGET [TARGET...]
+
+FLAGS:
+  --rewind value                   display an earlier object version
+  --version-id value, --vid value  display a specific version of an object
+  --zip                            extract from remote zip file (MinIO server source only)
+  --offset value                   start offset (default: 0)
+  --tail value                     tail number of bytes at ending of file (default: 0)
+  --part-number value              download only a specific part number (default: 0)
+  --enc-c value                    encrypt/decrypt objects using client provided keys. (multiple keys can be provided) Formats: RawBase64 or Hex.
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+
+EXAMPLES:
+  1. Stream an object from Amazon S3 cloud storage to mplayer standard input.
+     $ mc cat s3/mysql-backups/kubecon-mysql-operator.mpv | mplayer -
+
+  2. Concatenate contents of file1.txt and stdin to standard output.
+     $ mc cat file1.txt - > file.txt
+
+  3. Concatenate multiple files to one.
+     $ mc cat part.* > complete.img
+
+  4. Save an encrypted object from Amazon S3 cloud storage to a local file.
+     $ mc cat --enc-c "play/my-bucket/=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDA" s3/mysql-backups/backups-201810.gz > /mnt/data/recent.gz
+
+  5. Display the content of encrypted object. In case the encryption key contains non-printable character like tab, pass the
+     base64 encoded string as key.
+     $ mc cat --enc-c "play/my-bucket/=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDA" play/my-bucket/my-object
+
+  6. Display the content of an object 10 days earlier
+     $ mc cat --rewind 10d play/my-bucket/my-object
+
+  7. Display the content of a particular object version
+     $ mc cat --vid "3ddac055-89a7-40fa-8cd3-530a5581b6b8" play/my-bucket/my-object

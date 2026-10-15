@@ -1,0 +1,45 @@
+NAME:
+  mc tag remove - remove tags assigned to a bucket or an object
+
+USAGE:
+  mc tag remove [COMMAND FLAGS] TARGET
+
+FLAGS:
+  --version-id value, --vid value  remove tags on a specific object version
+  --rewind value                   remove tags on an object version at specified time
+  --versions                       remove tags on multiple versions of an object
+  --recursive, -r                  recursivley remove tags for all objects
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+DESCRIPTION:
+  Remove tags assigned to a bucket or an object.
+
+EXAMPLES:
+  1. Remove the tags assigned to an object.
+     $ mc tag remove myminio/testbucket/testobject
+
+  2. Remove the tags assigned to a particular version of an object.
+     $ mc tag remove --version-id "ieQq7aXsyhlhDt47YURGlrucYY3GxWHa" myminio/testbucket/testobject
+
+  3. Remove the tags assigned to an object versions that are older than one week
+     $ mc tag remove --versions --rewind 7d myminio/testbucket/testobject
+
+  4. Remove the tags assigned to a bucket.
+     $ mc tag remove play/testbucket
+
+  5. Remove the tags recursively for all the objects of subdirs of bucket.
+     $ mc tag remove --recursive myminio/testbucket
+
+  6. Remove the tags recursively for all versions of all objects of subdirs of bucket.
+     $ mc tag remove --recursive --versions myminio/testbucket

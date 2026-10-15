@@ -6,6 +6,25 @@ defmodule ExStorageServiceCli.Output do
   machine-readable JSON output.
   """
 
+  @color_key {__MODULE__, :color}
+
+  @doc "Applies native styling options only for the current invocation process."
+  def with_options(options, function) when is_function(function, 0) do
+    previous = Process.get(@color_key)
+    Process.put(@color_key, options[:no_color] != true)
+
+    try do
+      function.()
+    after
+      if previous == nil,
+        do: Process.delete(@color_key),
+        else: Process.put(@color_key, previous)
+    end
+  end
+
+  @doc "Selects an application-owned ANSI styling token without filtering user data."
+  def color(sequence), do: if(Process.get(@color_key, true), do: sequence, else: "")
+
   @doc """
   Prints an informational message to stdout.
   """
@@ -17,21 +36,21 @@ defmodule ExStorageServiceCli.Output do
   Prints a success message to stdout with green color.
   """
   def success(message) do
-    IO.puts("#{IO.ANSI.green()}✓#{IO.ANSI.reset()} #{message}")
+    IO.puts("#{color(IO.ANSI.green())}✓#{color(IO.ANSI.reset())} #{message}")
   end
 
   @doc """
   Prints a warning message to stderr with yellow color.
   """
   def warn(message) do
-    IO.puts(:stderr, "#{IO.ANSI.yellow()}⚠#{IO.ANSI.reset()} #{message}")
+    IO.puts(:stderr, "#{color(IO.ANSI.yellow())}⚠#{color(IO.ANSI.reset())} #{message}")
   end
 
   @doc """
   Prints an error message to stderr with red color.
   """
   def error(message) do
-    IO.puts(:stderr, "#{IO.ANSI.red()}✗ Error:#{IO.ANSI.reset()} #{message}")
+    IO.puts(:stderr, "#{color(IO.ANSI.red())}✗ Error:#{color(IO.ANSI.reset())} #{message}")
   end
 
   @doc """
@@ -41,11 +60,19 @@ defmodule ExStorageServiceCli.Output do
   provided formatter function for human-readable output.
   """
   def render(data, ctx, formatter) do
-    if ctx[:json] do
-      # Kept on Jason: the built-in JSON module has no pretty-print option.
-      IO.puts(Jason.encode!(data, pretty: true))
-    else
-      formatter.(data)
+    cond do
+      get_in(ctx, [:options, :output]) == "ndjson" ->
+        ExStorageServiceCli.CLI.NativeEvents.item(data, ctx.options)
+
+      get_in(ctx, [:options, :output]) != nil ->
+        ExStorageServiceCli.Presenter.write(data, ctx.options)
+
+      ctx[:json] ->
+        # Kept on Jason: the built-in JSON module has no pretty-print option.
+        IO.puts(Jason.encode!(data, pretty: true))
+
+      true ->
+        formatter.(data)
     end
   end
 
@@ -82,7 +109,7 @@ defmodule ExStorageServiceCli.Output do
       end)
       |> Enum.join("  ")
 
-    IO.puts("#{IO.ANSI.bright()}#{header_line}#{IO.ANSI.reset()}")
+    IO.puts("#{color(IO.ANSI.bright())}#{header_line}#{color(IO.ANSI.reset())}")
 
     # Print separator
     separator =
@@ -90,7 +117,7 @@ defmodule ExStorageServiceCli.Output do
       |> Enum.map(fn width -> String.duplicate("─", width) end)
       |> Enum.join("──")
 
-    IO.puts("#{IO.ANSI.faint()}#{separator}#{IO.ANSI.reset()}")
+    IO.puts("#{color(IO.ANSI.faint())}#{separator}#{color(IO.ANSI.reset())}")
 
     # Print rows
     Enum.each(rows, fn row ->
@@ -148,6 +175,7 @@ defmodule ExStorageServiceCli.Output do
 
   Handles exceptions, strings, atoms, and arbitrary terms.
   """
+  def format_error(%ExStorageServiceCli.Error{message: message}), do: message
   def format_error(reason) when is_exception(reason), do: Exception.message(reason)
   def format_error(reason) when is_binary(reason), do: reason
   def format_error(reason) when is_atom(reason), do: to_string(reason)

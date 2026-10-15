@@ -1,0 +1,37 @@
+{
+    "Bucket": "",
+    "Id": "",
+    "AnalyticsConfiguration": {
+        "Id": "",
+        "Filter": {
+            "Prefix": "",
+            "Tag": {
+                "Key": "",
+                "Value": ""
+            },
+            "And": {
+                "Prefix": "",
+                "Tags": [
+                    {
+                        "Key": "",
+                        "Value": ""
+                    }
+                ]
+            }
+        },
+        "StorageClassAnalysis": {
+            "DataExport": {
+                "OutputSchemaVersion": "V_1",
+                "Destination": {
+                    "S3BucketDestination": {
+                        "Format": "CSV",
+                        "BucketAccountId": "",
+                        "Bucket": "",
+                        "Prefix": ""
+                    }
+                }
+            }
+        }
+    },
+    "ExpectedBucketOwner": ""
+}

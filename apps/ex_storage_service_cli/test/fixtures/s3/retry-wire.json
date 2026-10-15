@@ -1,0 +1,113 @@
+[
+  {
+    "case": "default-slowdown",
+    "reference": "AWS CLI 2.31.18",
+    "status": 503,
+    "code": "SlowDown",
+    "environment": {},
+    "exit_status": 254,
+    "requests": [
+      {
+        "method": "GET",
+        "path": "/"
+      },
+      {
+        "method": "GET",
+        "path": "/"
+      },
+      {
+        "method": "GET",
+        "path": "/"
+      }
+    ],
+    "error": null
+  },
+  {
+    "case": "max-attempts-one",
+    "reference": "AWS CLI 2.31.18",
+    "status": 503,
+    "code": "SlowDown",
+    "environment": {
+      "AWS_MAX_ATTEMPTS": "1"
+    },
+    "exit_status": 254,
+    "requests": [
+      {
+        "method": "GET",
+        "path": "/"
+      }
+    ],
+    "error": null
+  },
+  {
+    "case": "standard-bare-429",
+    "reference": "AWS CLI 2.31.18",
+    "status": 429,
+    "code": "",
+    "environment": {},
+    "exit_status": 254,
+    "requests": [
+      {
+        "method": "GET",
+        "path": "/"
+      }
+    ],
+    "error": null
+  },
+  {
+    "case": "standard-throttled-429",
+    "reference": "AWS CLI 2.31.18",
+    "status": 429,
+    "code": "SlowDown",
+    "environment": {},
+    "exit_status": 254,
+    "requests": [
+      {
+        "method": "GET",
+        "path": "/"
+      },
+      {
+        "method": "GET",
+        "path": "/"
+      },
+      {
+        "method": "GET",
+        "path": "/"
+      }
+    ],
+    "error": null
+  },
+  {
+    "case": "legacy-mode",
+    "reference": "AWS CLI 2.31.18",
+    "status": 503,
+    "code": "SlowDown",
+    "environment": {
+      "AWS_RETRY_MODE": "legacy"
+    },
+    "exit_status": 255,
+    "requests": [],
+    "error": "Invalid value provided to \"mode\": \"legacy\" must be one of: \"standard\" or \"adaptive\""
+  },
+  {
+    "case": "custom-endpoint-region",
+    "reference": "AWS CLI 2.31.18",
+    "status": 400,
+    "code": "",
+    "environment": {},
+    "exit_status": 0,
+    "requests": [
+      {
+        "method": "HEAD",
+        "path": "/my-bucket",
+        "signing_region": "us-east-1"
+      },
+      {
+        "method": "HEAD",
+        "path": "/my-bucket",
+        "signing_region": "us-west-2"
+      }
+    ],
+    "error": null
+  }
+]

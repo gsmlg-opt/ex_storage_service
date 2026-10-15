@@ -1,0 +1,35 @@
+{
+  "source": "https://raw.githubusercontent.com/awslabs/aws-c-auth/dd505b55fd46222834f35c6e54165d8cbebbfaaa/tests/test_chunked_signing.c",
+  "revision": "dd505b55fd46222834f35c6e54165d8cbebbfaaa",
+  "sha256": "7b594758107384c1c9eeaafb4012d2e97e046abd83534ea0d9145d22ce2b4a4a",
+  "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+  "region": "us-east-1",
+  "service": "s3",
+  "timestamp": "2013-05-24T00:00:00Z",
+  "chunk_sizes": [
+    65536,
+    1024
+  ],
+  "chunk_byte": "a",
+  "signatures": {
+    "request": "4f232c4386841ef735655705268965c44a0e4690baa4adea153f7db9fa80a0a9",
+    "first_chunk": "ad80c730a21e5b8d04586a2213dd63b9a0e99e0e2307b0ade35a65485a288648",
+    "second_chunk": "0055627c9e194cb4542bae2aa5492e3c1575bbb81b612b7d234b86a503ef5497",
+    "final_chunk": "b6c6ea8a5354eaf15b3cb7646744f4275b71ea724fed81ceb9323e279d449df9",
+    "trailing_headers": "df5735bd9f3295cd9386572292562fefc93ba94e80a0a1ddcbd652c4e0a75e6c"
+  },
+  "trailer_headers": [
+    [
+      "first",
+      "1st"
+    ],
+    [
+      "second",
+      "2nd"
+    ],
+    [
+      "third",
+      "3rd"
+    ]
+  ]
+}

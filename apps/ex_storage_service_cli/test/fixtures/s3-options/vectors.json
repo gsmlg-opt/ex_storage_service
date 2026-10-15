@@ -1,0 +1,2104 @@
+{
+  "aws_cli_version": "2.31.18",
+  "source_sha256": {
+    "argparser": "a1ad2e4b658150c214bd9125a91071728ef10bd1c9ccbc3516d417ba17fdb588",
+    "subcommands": "20d87a3470d7f9ebd3958a6722a39036679dfcd56984479d0f86746528672bb1"
+  },
+  "vectors": [
+    {
+      "command": "cp",
+      "flag": "dryrun",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--dryrun"
+      ],
+      "key": "dryrun",
+      "value": true
+    },
+    {
+      "command": "cp",
+      "flag": "quiet",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--quiet"
+      ],
+      "key": "quiet",
+      "value": true
+    },
+    {
+      "command": "cp",
+      "flag": "include",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--include",
+        "sample-value"
+      ],
+      "key": "include",
+      "value": "sample-value"
+    },
+    {
+      "command": "cp",
+      "flag": "exclude",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--exclude",
+        "sample-value"
+      ],
+      "key": "exclude",
+      "value": "sample-value"
+    },
+    {
+      "command": "cp",
+      "flag": "acl",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--acl",
+        "private"
+      ],
+      "key": "acl",
+      "value": "private"
+    },
+    {
+      "command": "cp",
+      "flag": "acl-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--acl",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "cp",
+      "flag": "follow-symlinks",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--follow-symlinks"
+      ],
+      "key": "follow_symlinks",
+      "value": true
+    },
+    {
+      "command": "cp",
+      "flag": "no-follow-symlinks",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--no-follow-symlinks"
+      ],
+      "key": "follow_symlinks",
+      "value": false
+    },
+    {
+      "command": "cp",
+      "flag": "no-guess-mime-type",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--no-guess-mime-type"
+      ],
+      "key": "guess_mime_type",
+      "value": false
+    },
+    {
+      "command": "cp",
+      "flag": "sse",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse",
+        "AES256"
+      ],
+      "key": "sse",
+      "value": "AES256"
+    },
+    {
+      "command": "cp",
+      "flag": "sse-default",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse"
+      ],
+      "key": "sse",
+      "value": "AES256"
+    },
+    {
+      "command": "cp",
+      "flag": "sse-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "cp",
+      "flag": "sse-c",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c",
+        "AES256"
+      ],
+      "key": "sse_c",
+      "value": "AES256"
+    },
+    {
+      "command": "cp",
+      "flag": "sse-c-default",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c"
+      ],
+      "key": "sse_c",
+      "value": "AES256"
+    },
+    {
+      "command": "cp",
+      "flag": "sse-c-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "cp",
+      "flag": "sse-c-key",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-key",
+        "sample-value"
+      ],
+      "key": "sse_c_key",
+      "value": "sample-value"
+    },
+    {
+      "command": "cp",
+      "flag": "sse-kms-key-id",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-kms-key-id",
+        "sample-value"
+      ],
+      "key": "sse_kms_key_id",
+      "value": "sample-value"
+    },
+    {
+      "command": "cp",
+      "flag": "sse-c-copy-source",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-copy-source",
+        "AES256"
+      ],
+      "key": "sse_c_copy_source",
+      "value": "AES256"
+    },
+    {
+      "command": "cp",
+      "flag": "sse-c-copy-source-default",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-copy-source"
+      ],
+      "key": "sse_c_copy_source",
+      "value": "AES256"
+    },
+    {
+      "command": "cp",
+      "flag": "sse-c-copy-source-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-copy-source",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "cp",
+      "flag": "sse-c-copy-source-key",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-copy-source-key",
+        "sample-value"
+      ],
+      "key": "sse_c_copy_source_key",
+      "value": "sample-value"
+    },
+    {
+      "command": "cp",
+      "flag": "storage-class",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--storage-class",
+        "STANDARD"
+      ],
+      "key": "storage_class",
+      "value": "STANDARD"
+    },
+    {
+      "command": "cp",
+      "flag": "storage-class-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--storage-class",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "cp",
+      "flag": "grants",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--grants",
+        "read=id=first",
+        "full=uri=second"
+      ],
+      "key": "grants",
+      "value": [
+        "read=id=first",
+        "full=uri=second"
+      ]
+    },
+    {
+      "command": "cp",
+      "flag": "website-redirect",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--website-redirect",
+        "sample-value"
+      ],
+      "key": "website_redirect",
+      "value": "sample-value"
+    },
+    {
+      "command": "cp",
+      "flag": "content-type",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--content-type",
+        "sample-value"
+      ],
+      "key": "content_type",
+      "value": "sample-value"
+    },
+    {
+      "command": "cp",
+      "flag": "cache-control",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--cache-control",
+        "sample-value"
+      ],
+      "key": "cache_control",
+      "value": "sample-value"
+    },
+    {
+      "command": "cp",
+      "flag": "content-disposition",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--content-disposition",
+        "sample-value"
+      ],
+      "key": "content_disposition",
+      "value": "sample-value"
+    },
+    {
+      "command": "cp",
+      "flag": "content-encoding",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--content-encoding",
+        "sample-value"
+      ],
+      "key": "content_encoding",
+      "value": "sample-value"
+    },
+    {
+      "command": "cp",
+      "flag": "content-language",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--content-language",
+        "sample-value"
+      ],
+      "key": "content_language",
+      "value": "sample-value"
+    },
+    {
+      "command": "cp",
+      "flag": "expires",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--expires",
+        "sample-value"
+      ],
+      "key": "expires",
+      "value": "sample-value"
+    },
+    {
+      "command": "cp",
+      "flag": "source-region",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--source-region",
+        "sample-value"
+      ],
+      "key": "source_region",
+      "value": "sample-value"
+    },
+    {
+      "command": "cp",
+      "flag": "only-show-errors",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--only-show-errors"
+      ],
+      "key": "only_show_errors",
+      "value": true
+    },
+    {
+      "command": "cp",
+      "flag": "no-progress",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--no-progress"
+      ],
+      "key": "progress",
+      "value": false
+    },
+    {
+      "command": "cp",
+      "flag": "progress-frequency",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--progress-frequency",
+        "7"
+      ],
+      "key": "progress_frequency",
+      "value": 7
+    },
+    {
+      "command": "cp",
+      "flag": "progress-multiline",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--progress-multiline"
+      ],
+      "key": "progress_multiline",
+      "value": true
+    },
+    {
+      "command": "cp",
+      "flag": "page-size",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--page-size",
+        "7"
+      ],
+      "key": "page_size",
+      "value": 7
+    },
+    {
+      "command": "cp",
+      "flag": "ignore-glacier-warnings",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--ignore-glacier-warnings"
+      ],
+      "key": "ignore_glacier_warnings",
+      "value": true
+    },
+    {
+      "command": "cp",
+      "flag": "force-glacier-transfer",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--force-glacier-transfer"
+      ],
+      "key": "force_glacier_transfer",
+      "value": true
+    },
+    {
+      "command": "cp",
+      "flag": "request-payer",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--request-payer",
+        "requester"
+      ],
+      "key": "request_payer",
+      "value": "requester"
+    },
+    {
+      "command": "cp",
+      "flag": "request-payer-default",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--request-payer"
+      ],
+      "key": "request_payer",
+      "value": "requester"
+    },
+    {
+      "command": "cp",
+      "flag": "request-payer-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--request-payer",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "cp",
+      "flag": "checksum-mode",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--checksum-mode",
+        "ENABLED"
+      ],
+      "key": "checksum_mode",
+      "value": "ENABLED"
+    },
+    {
+      "command": "cp",
+      "flag": "checksum-mode-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--checksum-mode",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "cp",
+      "flag": "checksum-algorithm",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--checksum-algorithm",
+        "CRC64NVME"
+      ],
+      "key": "checksum_algorithm",
+      "value": "CRC64NVME"
+    },
+    {
+      "command": "cp",
+      "flag": "checksum-algorithm-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--checksum-algorithm",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "cp",
+      "flag": "metadata",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--metadata",
+        "first=one,second=two"
+      ],
+      "key": "metadata",
+      "value": "first=one,second=two"
+    },
+    {
+      "command": "cp",
+      "flag": "copy-props",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--copy-props",
+        "none"
+      ],
+      "key": "copy_props",
+      "value": "none"
+    },
+    {
+      "command": "cp",
+      "flag": "copy-props-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--copy-props",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "cp",
+      "flag": "metadata-directive",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--metadata-directive",
+        "COPY"
+      ],
+      "key": "metadata_directive",
+      "value": "COPY"
+    },
+    {
+      "command": "cp",
+      "flag": "metadata-directive-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--metadata-directive",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "cp",
+      "flag": "expected-size",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--expected-size",
+        "sample-value"
+      ],
+      "key": "expected_size",
+      "value": "sample-value"
+    },
+    {
+      "command": "cp",
+      "flag": "recursive",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--recursive"
+      ],
+      "key": "recursive",
+      "value": true
+    },
+    {
+      "command": "ls",
+      "flag": "recursive",
+      "argv": [
+        "s3://bucket/key",
+        "--recursive"
+      ],
+      "key": "recursive",
+      "value": true
+    },
+    {
+      "command": "ls",
+      "flag": "page-size",
+      "argv": [
+        "s3://bucket/key",
+        "--page-size",
+        "7"
+      ],
+      "key": "page_size",
+      "value": 7
+    },
+    {
+      "command": "ls",
+      "flag": "human-readable",
+      "argv": [
+        "s3://bucket/key",
+        "--human-readable"
+      ],
+      "key": "human_readable",
+      "value": true
+    },
+    {
+      "command": "ls",
+      "flag": "summarize",
+      "argv": [
+        "s3://bucket/key",
+        "--summarize"
+      ],
+      "key": "summarize",
+      "value": true
+    },
+    {
+      "command": "ls",
+      "flag": "request-payer",
+      "argv": [
+        "s3://bucket/key",
+        "--request-payer",
+        "requester"
+      ],
+      "key": "request_payer",
+      "value": "requester"
+    },
+    {
+      "command": "ls",
+      "flag": "request-payer-default",
+      "argv": [
+        "s3://bucket/key",
+        "--request-payer"
+      ],
+      "key": "request_payer",
+      "value": "requester"
+    },
+    {
+      "command": "ls",
+      "flag": "request-payer-invalid",
+      "argv": [
+        "s3://bucket/key",
+        "--request-payer",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "ls",
+      "flag": "bucket-name-prefix",
+      "argv": [
+        "s3://bucket/key",
+        "--bucket-name-prefix",
+        "sample-value"
+      ],
+      "key": "bucket_name_prefix",
+      "value": "sample-value"
+    },
+    {
+      "command": "ls",
+      "flag": "bucket-region",
+      "argv": [
+        "s3://bucket/key",
+        "--bucket-region",
+        "sample-value"
+      ],
+      "key": "bucket_region",
+      "value": "sample-value"
+    },
+    {
+      "command": "mv",
+      "flag": "dryrun",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--dryrun"
+      ],
+      "key": "dryrun",
+      "value": true
+    },
+    {
+      "command": "mv",
+      "flag": "quiet",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--quiet"
+      ],
+      "key": "quiet",
+      "value": true
+    },
+    {
+      "command": "mv",
+      "flag": "include",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--include",
+        "sample-value"
+      ],
+      "key": "include",
+      "value": "sample-value"
+    },
+    {
+      "command": "mv",
+      "flag": "exclude",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--exclude",
+        "sample-value"
+      ],
+      "key": "exclude",
+      "value": "sample-value"
+    },
+    {
+      "command": "mv",
+      "flag": "acl",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--acl",
+        "private"
+      ],
+      "key": "acl",
+      "value": "private"
+    },
+    {
+      "command": "mv",
+      "flag": "acl-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--acl",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "mv",
+      "flag": "follow-symlinks",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--follow-symlinks"
+      ],
+      "key": "follow_symlinks",
+      "value": true
+    },
+    {
+      "command": "mv",
+      "flag": "no-follow-symlinks",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--no-follow-symlinks"
+      ],
+      "key": "follow_symlinks",
+      "value": false
+    },
+    {
+      "command": "mv",
+      "flag": "no-guess-mime-type",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--no-guess-mime-type"
+      ],
+      "key": "guess_mime_type",
+      "value": false
+    },
+    {
+      "command": "mv",
+      "flag": "sse",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse",
+        "AES256"
+      ],
+      "key": "sse",
+      "value": "AES256"
+    },
+    {
+      "command": "mv",
+      "flag": "sse-default",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse"
+      ],
+      "key": "sse",
+      "value": "AES256"
+    },
+    {
+      "command": "mv",
+      "flag": "sse-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "mv",
+      "flag": "sse-c",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c",
+        "AES256"
+      ],
+      "key": "sse_c",
+      "value": "AES256"
+    },
+    {
+      "command": "mv",
+      "flag": "sse-c-default",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c"
+      ],
+      "key": "sse_c",
+      "value": "AES256"
+    },
+    {
+      "command": "mv",
+      "flag": "sse-c-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "mv",
+      "flag": "sse-c-key",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-key",
+        "sample-value"
+      ],
+      "key": "sse_c_key",
+      "value": "sample-value"
+    },
+    {
+      "command": "mv",
+      "flag": "sse-kms-key-id",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-kms-key-id",
+        "sample-value"
+      ],
+      "key": "sse_kms_key_id",
+      "value": "sample-value"
+    },
+    {
+      "command": "mv",
+      "flag": "sse-c-copy-source",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-copy-source",
+        "AES256"
+      ],
+      "key": "sse_c_copy_source",
+      "value": "AES256"
+    },
+    {
+      "command": "mv",
+      "flag": "sse-c-copy-source-default",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-copy-source"
+      ],
+      "key": "sse_c_copy_source",
+      "value": "AES256"
+    },
+    {
+      "command": "mv",
+      "flag": "sse-c-copy-source-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-copy-source",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "mv",
+      "flag": "sse-c-copy-source-key",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-copy-source-key",
+        "sample-value"
+      ],
+      "key": "sse_c_copy_source_key",
+      "value": "sample-value"
+    },
+    {
+      "command": "mv",
+      "flag": "storage-class",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--storage-class",
+        "STANDARD"
+      ],
+      "key": "storage_class",
+      "value": "STANDARD"
+    },
+    {
+      "command": "mv",
+      "flag": "storage-class-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--storage-class",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "mv",
+      "flag": "grants",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--grants",
+        "read=id=first",
+        "full=uri=second"
+      ],
+      "key": "grants",
+      "value": [
+        "read=id=first",
+        "full=uri=second"
+      ]
+    },
+    {
+      "command": "mv",
+      "flag": "website-redirect",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--website-redirect",
+        "sample-value"
+      ],
+      "key": "website_redirect",
+      "value": "sample-value"
+    },
+    {
+      "command": "mv",
+      "flag": "content-type",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--content-type",
+        "sample-value"
+      ],
+      "key": "content_type",
+      "value": "sample-value"
+    },
+    {
+      "command": "mv",
+      "flag": "cache-control",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--cache-control",
+        "sample-value"
+      ],
+      "key": "cache_control",
+      "value": "sample-value"
+    },
+    {
+      "command": "mv",
+      "flag": "content-disposition",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--content-disposition",
+        "sample-value"
+      ],
+      "key": "content_disposition",
+      "value": "sample-value"
+    },
+    {
+      "command": "mv",
+      "flag": "content-encoding",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--content-encoding",
+        "sample-value"
+      ],
+      "key": "content_encoding",
+      "value": "sample-value"
+    },
+    {
+      "command": "mv",
+      "flag": "content-language",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--content-language",
+        "sample-value"
+      ],
+      "key": "content_language",
+      "value": "sample-value"
+    },
+    {
+      "command": "mv",
+      "flag": "expires",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--expires",
+        "sample-value"
+      ],
+      "key": "expires",
+      "value": "sample-value"
+    },
+    {
+      "command": "mv",
+      "flag": "source-region",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--source-region",
+        "sample-value"
+      ],
+      "key": "source_region",
+      "value": "sample-value"
+    },
+    {
+      "command": "mv",
+      "flag": "only-show-errors",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--only-show-errors"
+      ],
+      "key": "only_show_errors",
+      "value": true
+    },
+    {
+      "command": "mv",
+      "flag": "no-progress",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--no-progress"
+      ],
+      "key": "progress",
+      "value": false
+    },
+    {
+      "command": "mv",
+      "flag": "progress-frequency",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--progress-frequency",
+        "7"
+      ],
+      "key": "progress_frequency",
+      "value": 7
+    },
+    {
+      "command": "mv",
+      "flag": "progress-multiline",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--progress-multiline"
+      ],
+      "key": "progress_multiline",
+      "value": true
+    },
+    {
+      "command": "mv",
+      "flag": "page-size",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--page-size",
+        "7"
+      ],
+      "key": "page_size",
+      "value": 7
+    },
+    {
+      "command": "mv",
+      "flag": "ignore-glacier-warnings",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--ignore-glacier-warnings"
+      ],
+      "key": "ignore_glacier_warnings",
+      "value": true
+    },
+    {
+      "command": "mv",
+      "flag": "force-glacier-transfer",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--force-glacier-transfer"
+      ],
+      "key": "force_glacier_transfer",
+      "value": true
+    },
+    {
+      "command": "mv",
+      "flag": "request-payer",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--request-payer",
+        "requester"
+      ],
+      "key": "request_payer",
+      "value": "requester"
+    },
+    {
+      "command": "mv",
+      "flag": "request-payer-default",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--request-payer"
+      ],
+      "key": "request_payer",
+      "value": "requester"
+    },
+    {
+      "command": "mv",
+      "flag": "request-payer-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--request-payer",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "mv",
+      "flag": "checksum-mode",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--checksum-mode",
+        "ENABLED"
+      ],
+      "key": "checksum_mode",
+      "value": "ENABLED"
+    },
+    {
+      "command": "mv",
+      "flag": "checksum-mode-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--checksum-mode",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "mv",
+      "flag": "checksum-algorithm",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--checksum-algorithm",
+        "CRC64NVME"
+      ],
+      "key": "checksum_algorithm",
+      "value": "CRC64NVME"
+    },
+    {
+      "command": "mv",
+      "flag": "checksum-algorithm-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--checksum-algorithm",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "mv",
+      "flag": "metadata",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--metadata",
+        "first=one,second=two"
+      ],
+      "key": "metadata",
+      "value": "first=one,second=two"
+    },
+    {
+      "command": "mv",
+      "flag": "copy-props",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--copy-props",
+        "none"
+      ],
+      "key": "copy_props",
+      "value": "none"
+    },
+    {
+      "command": "mv",
+      "flag": "copy-props-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--copy-props",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "mv",
+      "flag": "metadata-directive",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--metadata-directive",
+        "COPY"
+      ],
+      "key": "metadata_directive",
+      "value": "COPY"
+    },
+    {
+      "command": "mv",
+      "flag": "metadata-directive-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--metadata-directive",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "mv",
+      "flag": "recursive",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--recursive"
+      ],
+      "key": "recursive",
+      "value": true
+    },
+    {
+      "command": "mv",
+      "flag": "validate-same-s3-paths",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--validate-same-s3-paths"
+      ],
+      "key": "validate_same_s3_paths",
+      "value": true
+    },
+    {
+      "command": "presign",
+      "flag": "expires-in",
+      "argv": [
+        "s3://bucket/key",
+        "--expires-in",
+        "7"
+      ],
+      "key": "expires_in",
+      "value": 7
+    },
+    {
+      "command": "rb",
+      "flag": "force",
+      "argv": [
+        "s3://bucket/key",
+        "--force"
+      ],
+      "key": "force",
+      "value": true
+    },
+    {
+      "command": "rm",
+      "flag": "dryrun",
+      "argv": [
+        "s3://bucket/key",
+        "--dryrun"
+      ],
+      "key": "dryrun",
+      "value": true
+    },
+    {
+      "command": "rm",
+      "flag": "quiet",
+      "argv": [
+        "s3://bucket/key",
+        "--quiet"
+      ],
+      "key": "quiet",
+      "value": true
+    },
+    {
+      "command": "rm",
+      "flag": "recursive",
+      "argv": [
+        "s3://bucket/key",
+        "--recursive"
+      ],
+      "key": "recursive",
+      "value": true
+    },
+    {
+      "command": "rm",
+      "flag": "request-payer",
+      "argv": [
+        "s3://bucket/key",
+        "--request-payer",
+        "requester"
+      ],
+      "key": "request_payer",
+      "value": "requester"
+    },
+    {
+      "command": "rm",
+      "flag": "request-payer-default",
+      "argv": [
+        "s3://bucket/key",
+        "--request-payer"
+      ],
+      "key": "request_payer",
+      "value": "requester"
+    },
+    {
+      "command": "rm",
+      "flag": "request-payer-invalid",
+      "argv": [
+        "s3://bucket/key",
+        "--request-payer",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "rm",
+      "flag": "include",
+      "argv": [
+        "s3://bucket/key",
+        "--include",
+        "sample-value"
+      ],
+      "key": "include",
+      "value": "sample-value"
+    },
+    {
+      "command": "rm",
+      "flag": "exclude",
+      "argv": [
+        "s3://bucket/key",
+        "--exclude",
+        "sample-value"
+      ],
+      "key": "exclude",
+      "value": "sample-value"
+    },
+    {
+      "command": "rm",
+      "flag": "only-show-errors",
+      "argv": [
+        "s3://bucket/key",
+        "--only-show-errors"
+      ],
+      "key": "only_show_errors",
+      "value": true
+    },
+    {
+      "command": "rm",
+      "flag": "page-size",
+      "argv": [
+        "s3://bucket/key",
+        "--page-size",
+        "7"
+      ],
+      "key": "page_size",
+      "value": 7
+    },
+    {
+      "command": "sync",
+      "flag": "dryrun",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--dryrun"
+      ],
+      "key": "dryrun",
+      "value": true
+    },
+    {
+      "command": "sync",
+      "flag": "quiet",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--quiet"
+      ],
+      "key": "quiet",
+      "value": true
+    },
+    {
+      "command": "sync",
+      "flag": "include",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--include",
+        "sample-value"
+      ],
+      "key": "include",
+      "value": "sample-value"
+    },
+    {
+      "command": "sync",
+      "flag": "exclude",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--exclude",
+        "sample-value"
+      ],
+      "key": "exclude",
+      "value": "sample-value"
+    },
+    {
+      "command": "sync",
+      "flag": "acl",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--acl",
+        "private"
+      ],
+      "key": "acl",
+      "value": "private"
+    },
+    {
+      "command": "sync",
+      "flag": "acl-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--acl",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "sync",
+      "flag": "follow-symlinks",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--follow-symlinks"
+      ],
+      "key": "follow_symlinks",
+      "value": true
+    },
+    {
+      "command": "sync",
+      "flag": "no-follow-symlinks",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--no-follow-symlinks"
+      ],
+      "key": "follow_symlinks",
+      "value": false
+    },
+    {
+      "command": "sync",
+      "flag": "no-guess-mime-type",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--no-guess-mime-type"
+      ],
+      "key": "guess_mime_type",
+      "value": false
+    },
+    {
+      "command": "sync",
+      "flag": "sse",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse",
+        "AES256"
+      ],
+      "key": "sse",
+      "value": "AES256"
+    },
+    {
+      "command": "sync",
+      "flag": "sse-default",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse"
+      ],
+      "key": "sse",
+      "value": "AES256"
+    },
+    {
+      "command": "sync",
+      "flag": "sse-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "sync",
+      "flag": "sse-c",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c",
+        "AES256"
+      ],
+      "key": "sse_c",
+      "value": "AES256"
+    },
+    {
+      "command": "sync",
+      "flag": "sse-c-default",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c"
+      ],
+      "key": "sse_c",
+      "value": "AES256"
+    },
+    {
+      "command": "sync",
+      "flag": "sse-c-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "sync",
+      "flag": "sse-c-key",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-key",
+        "sample-value"
+      ],
+      "key": "sse_c_key",
+      "value": "sample-value"
+    },
+    {
+      "command": "sync",
+      "flag": "sse-kms-key-id",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-kms-key-id",
+        "sample-value"
+      ],
+      "key": "sse_kms_key_id",
+      "value": "sample-value"
+    },
+    {
+      "command": "sync",
+      "flag": "sse-c-copy-source",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-copy-source",
+        "AES256"
+      ],
+      "key": "sse_c_copy_source",
+      "value": "AES256"
+    },
+    {
+      "command": "sync",
+      "flag": "sse-c-copy-source-default",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-copy-source"
+      ],
+      "key": "sse_c_copy_source",
+      "value": "AES256"
+    },
+    {
+      "command": "sync",
+      "flag": "sse-c-copy-source-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-copy-source",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "sync",
+      "flag": "sse-c-copy-source-key",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--sse-c-copy-source-key",
+        "sample-value"
+      ],
+      "key": "sse_c_copy_source_key",
+      "value": "sample-value"
+    },
+    {
+      "command": "sync",
+      "flag": "storage-class",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--storage-class",
+        "STANDARD"
+      ],
+      "key": "storage_class",
+      "value": "STANDARD"
+    },
+    {
+      "command": "sync",
+      "flag": "storage-class-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--storage-class",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "sync",
+      "flag": "grants",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--grants",
+        "read=id=first",
+        "full=uri=second"
+      ],
+      "key": "grants",
+      "value": [
+        "read=id=first",
+        "full=uri=second"
+      ]
+    },
+    {
+      "command": "sync",
+      "flag": "website-redirect",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--website-redirect",
+        "sample-value"
+      ],
+      "key": "website_redirect",
+      "value": "sample-value"
+    },
+    {
+      "command": "sync",
+      "flag": "content-type",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--content-type",
+        "sample-value"
+      ],
+      "key": "content_type",
+      "value": "sample-value"
+    },
+    {
+      "command": "sync",
+      "flag": "cache-control",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--cache-control",
+        "sample-value"
+      ],
+      "key": "cache_control",
+      "value": "sample-value"
+    },
+    {
+      "command": "sync",
+      "flag": "content-disposition",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--content-disposition",
+        "sample-value"
+      ],
+      "key": "content_disposition",
+      "value": "sample-value"
+    },
+    {
+      "command": "sync",
+      "flag": "content-encoding",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--content-encoding",
+        "sample-value"
+      ],
+      "key": "content_encoding",
+      "value": "sample-value"
+    },
+    {
+      "command": "sync",
+      "flag": "content-language",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--content-language",
+        "sample-value"
+      ],
+      "key": "content_language",
+      "value": "sample-value"
+    },
+    {
+      "command": "sync",
+      "flag": "expires",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--expires",
+        "sample-value"
+      ],
+      "key": "expires",
+      "value": "sample-value"
+    },
+    {
+      "command": "sync",
+      "flag": "source-region",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--source-region",
+        "sample-value"
+      ],
+      "key": "source_region",
+      "value": "sample-value"
+    },
+    {
+      "command": "sync",
+      "flag": "only-show-errors",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--only-show-errors"
+      ],
+      "key": "only_show_errors",
+      "value": true
+    },
+    {
+      "command": "sync",
+      "flag": "no-progress",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--no-progress"
+      ],
+      "key": "progress",
+      "value": false
+    },
+    {
+      "command": "sync",
+      "flag": "progress-frequency",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--progress-frequency",
+        "7"
+      ],
+      "key": "progress_frequency",
+      "value": 7
+    },
+    {
+      "command": "sync",
+      "flag": "progress-multiline",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--progress-multiline"
+      ],
+      "key": "progress_multiline",
+      "value": true
+    },
+    {
+      "command": "sync",
+      "flag": "page-size",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--page-size",
+        "7"
+      ],
+      "key": "page_size",
+      "value": 7
+    },
+    {
+      "command": "sync",
+      "flag": "ignore-glacier-warnings",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--ignore-glacier-warnings"
+      ],
+      "key": "ignore_glacier_warnings",
+      "value": true
+    },
+    {
+      "command": "sync",
+      "flag": "force-glacier-transfer",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--force-glacier-transfer"
+      ],
+      "key": "force_glacier_transfer",
+      "value": true
+    },
+    {
+      "command": "sync",
+      "flag": "request-payer",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--request-payer",
+        "requester"
+      ],
+      "key": "request_payer",
+      "value": "requester"
+    },
+    {
+      "command": "sync",
+      "flag": "request-payer-default",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--request-payer"
+      ],
+      "key": "request_payer",
+      "value": "requester"
+    },
+    {
+      "command": "sync",
+      "flag": "request-payer-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--request-payer",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "sync",
+      "flag": "checksum-mode",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--checksum-mode",
+        "ENABLED"
+      ],
+      "key": "checksum_mode",
+      "value": "ENABLED"
+    },
+    {
+      "command": "sync",
+      "flag": "checksum-mode-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--checksum-mode",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "sync",
+      "flag": "checksum-algorithm",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--checksum-algorithm",
+        "CRC64NVME"
+      ],
+      "key": "checksum_algorithm",
+      "value": "CRC64NVME"
+    },
+    {
+      "command": "sync",
+      "flag": "checksum-algorithm-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--checksum-algorithm",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "sync",
+      "flag": "metadata",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--metadata",
+        "first=one,second=two"
+      ],
+      "key": "metadata",
+      "value": "first=one,second=two"
+    },
+    {
+      "command": "sync",
+      "flag": "copy-props",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--copy-props",
+        "none"
+      ],
+      "key": "copy_props",
+      "value": "none"
+    },
+    {
+      "command": "sync",
+      "flag": "copy-props-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--copy-props",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "sync",
+      "flag": "metadata-directive",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--metadata-directive",
+        "COPY"
+      ],
+      "key": "metadata_directive",
+      "value": "COPY"
+    },
+    {
+      "command": "sync",
+      "flag": "metadata-directive-invalid",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--metadata-directive",
+        "invalid-private-value"
+      ],
+      "error": true
+    },
+    {
+      "command": "sync",
+      "flag": "size-only",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--size-only"
+      ],
+      "key": "size_only",
+      "value": true
+    },
+    {
+      "command": "sync",
+      "flag": "exact-timestamps",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--exact-timestamps"
+      ],
+      "key": "exact_timestamps",
+      "value": true
+    },
+    {
+      "command": "sync",
+      "flag": "delete",
+      "argv": [
+        "./source",
+        "s3://bucket/key",
+        "--delete"
+      ],
+      "key": "delete",
+      "value": true
+    },
+    {
+      "command": "website",
+      "flag": "index-document",
+      "argv": [
+        "s3://bucket/key",
+        "--index-document",
+        "sample-value"
+      ],
+      "key": "index_document",
+      "value": "sample-value"
+    },
+    {
+      "command": "website",
+      "flag": "error-document",
+      "argv": [
+        "s3://bucket/key",
+        "--error-document",
+        "sample-value"
+      ],
+      "key": "error_document",
+      "value": "sample-value"
+    }
+  ]
+}

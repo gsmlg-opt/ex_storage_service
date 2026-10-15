@@ -1,0 +1,63 @@
+NAME:
+  mc replicate update - modify an existing server side replication configuration rule
+
+USAGE:
+  mc replicate update TARGET --id=RULE-ID [FLAGS]
+
+FLAGS:
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --id value                       id for the rule, should be a unique value
+  --tags value                     format '<key1>=<value1>&<key2>=<value2>&<key3>=<value3>', multiple values allowed for multiple key/value pairs
+  --storage-class value            storage class for destination, valid values are ['STANDARD', 'REDUCED_REDUNDANCY']
+  --state value                    change rule status, valid values are ['enable', 'disable']
+  --priority value                 priority of the rule, should be unique and is a required field (default: 0)
+  --remote-bucket value            destination bucket, should be a unique value for the configuration
+  --replicate value                comma separated list to enable replication of soft deletes, permanent deletes, existing objects and metadata sync. Valid options are "delete-marker","delete","existing-objects","metadata-sync" and ""'
+  --sync value                     enable synchronous replication for this target, valid values are ['enable', 'disable']. (default: "disable")
+  --proxy value                    enable proxying in active-active replication, valid values are ['enable', 'disable'] (default: "enable")
+  --bandwidth value                Set bandwidth limit in bytes per second (K,B,G,T for metric and Ki,Bi,Gi,Ti for IEC units)
+  --healthcheck-seconds value      health check duration in seconds (default: 60)
+  --path value                     bucket path lookup supported by the server, valid options are ['on', 'off', 'auto'] (default: "auto")
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Change priority of rule with rule ID "bsibgh8t874dnjst8hkg" on bucket "mybucket" for alias "myminio".
+     $ mc replicate update myminio/mybucket --id "bsibgh8t874dnjst8hkg"  --priority 3
+
+  2. Disable a replication configuration rule with rule ID "bsibgh8t874dnjst8hkg" on target myminio/bucket
+     $ mc replicate update myminio/mybucket --id "bsibgh8t874dnjst8hkg" --state disable
+
+  3. Set tags and storage class on a replication configuration with rule ID "kMYD.491" on target myminio/bucket/prefix.
+     $ mc replicate update myminio/mybucket --id "kMYD.491" --tags "key1=value1&key2=value2" \
+          --storage-class "STANDARD" --priority 2
+  4. Clear tags for replication configuration rule with ID "kMYD.491" on a target myminio/bucket.
+     $ mc replicate update myminio/mybucket --id "kMYD.491" --tags ""
+
+  5. Enable delete marker replication on a replication configuration rule with ID "kxYD.491" on a target myminio/bucket.
+     $ mc replicate update myminio/mybucket --id "kxYD.491" --replicate "delete-marker"
+
+  6. Disable delete marker and versioned delete replication on a replication configuration rule with ID "kxYD.491" on a target myminio/bucket.
+     $ mc replicate update myminio/mybucket --id "kxYD.491" --replicate ""
+
+  7. Enable existing object replication on a configuration rule with ID "kxYD.491" on a target myminio/bucket. Rule previously had enabled delete marker and versioned delete replication.
+     $ mc replicate update myminio/mybucket --id "kxYD.491" --replicate "existing-objects,delete-marker,delete"
+
+  8. Edit credentials for remote target with replication rule ID kxYD.491
+     $ mc replicate update myminio/mybucket --id "kxYD.491" --remote-bucket  https://foobar:newpassword@minio.siteb.example.com/targetbucket
+  
+  9. Edit credentials with alias "targetminio" for remote target with replication rule ID kxYD.491
+     $ mc replicate update myminio/mybucket --id "kxYD.491" --remote-bucket  targetminio/targetbucket
+
+  10. Disable proxying and enable synchronous replication for remote target of bucket mybucket with rule ID kxYD.492
+     $ mc replicate update myminio/mybucket --id "kxYD.492" --remote-bucket https://foobar:newpassword@minio.siteb.example.com/targetbucket \
+         --sync "enable" --proxy "disable"

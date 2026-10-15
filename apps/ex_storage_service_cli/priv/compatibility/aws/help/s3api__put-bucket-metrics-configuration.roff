@@ -1,0 +1,419 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "PUT-BUCKET-METRICS-CONFIGURATION"  "" "" ""
+.SH NAME
+put-bucket-metrics-configuration \- 
+.SH DESCRIPTION
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This operation is not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Sets a metrics configuration (specified by the metrics configuration ID) for the bucket. You can have up to 1,000 metrics configurations per bucket. If you\(aqre updating an existing metrics configuration, note that this is a full replacement of the existing metrics configuration. If you don\(aqt include the elements you want to keep, they are erased.
+.sp
+To use this operation, you must have permissions to perform the \fBs3:PutMetricsConfiguration\fP action. The bucket owner has this permission by default. The bucket owner can grant this permission to others. For more information about permissions, see \fI\%Permissions Related to Bucket Subresource Operations\fP and \fI\%Managing Access Permissions to Your Amazon S3 Resources\fP .
+.sp
+For information about CloudWatch request metrics for Amazon S3, see \fI\%Monitoring Metrics with Amazon CloudWatch\fP .
+.sp
+The following operations are related to \fBPutBucketMetricsConfiguration\fP :
+.INDENT 0.0
+.IP \(bu 2
+\fI\%DeleteBucketMetricsConfiguration\fP
+.IP \(bu 2
+\fI\%GetBucketMetricsConfiguration\fP
+.IP \(bu 2
+\fI\%ListBucketMetricsConfigurations\fP
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+\fBPutBucketMetricsConfiguration\fP has the following special error:
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+Error code: \fBTooManyConfigurations\fP
+.INDENT 2.0
+.IP \(bu 2
+Description: You are attempting to create a new configuration but have already reached the 1,000\-configuration limit.
+.IP \(bu 2
+HTTP Status Code: HTTP 400 Bad Request
+.UNINDENT
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  put\-bucket\-metrics\-configuration
+\-\-bucket <value>
+\-\-id <value>
+\-\-metrics\-configuration <value>
+[\-\-expected\-bucket\-owner <value>]
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The name of the bucket for which the metrics configuration is set.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-id\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The ID used to identify the metrics configuration. The ID has a 64 character limit and can only contain letters, numbers, periods, dashes, and underscores.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-metrics\-configuration\fP (structure) [required]
+.INDENT 0.0
+.INDENT 3.5
+Specifies the metrics configuration.
+.sp
+Id \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The ID used to identify the metrics configuration. The ID has a 64 character limit and can only contain letters, numbers, periods, dashes, and underscores.
+.UNINDENT
+.UNINDENT
+.sp
+Filter \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies a metrics configuration filter. The metrics configuration will only include objects that meet the filter\(aqs criteria. A filter must be a prefix, an object tag, an access point ARN, or a conjunction (MetricsAndOperator).
+.sp
+Prefix \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The prefix used when evaluating a metrics filter.
+.UNINDENT
+.UNINDENT
+.sp
+Tag \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+The tag used when evaluating a metrics filter.
+.sp
+Key \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Name of the object key.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Value \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Value of the tag.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+AccessPointArn \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The access point ARN used when evaluating a metrics filter.
+.UNINDENT
+.UNINDENT
+.sp
+And \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+A conjunction (logical AND) of predicates, which is used in evaluating a metrics filter. The operator must have at least two predicates, and an object must match all of the predicates in order for the filter to apply.
+.sp
+Prefix \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The prefix used when evaluating an AND predicate.
+.UNINDENT
+.UNINDENT
+.sp
+Tags \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+The list of tags used when evaluating an AND predicate.
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+A container of a key value name pair.
+.sp
+Key \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Name of the object key.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Value \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Value of the tag.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+AccessPointArn \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The access point ARN used when evaluating an \fBAND\fP predicate.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+JSON Syntax:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+  \(dqId\(dq: \(dqstring\(dq,
+  \(dqFilter\(dq: {
+    \(dqPrefix\(dq: \(dqstring\(dq,
+    \(dqTag\(dq: {
+      \(dqKey\(dq: \(dqstring\(dq,
+      \(dqValue\(dq: \(dqstring\(dq
+    },
+    \(dqAccessPointArn\(dq: \(dqstring\(dq,
+    \(dqAnd\(dq: {
+      \(dqPrefix\(dq: \(dqstring\(dq,
+      \(dqTags\(dq: [
+        {
+          \(dqKey\(dq: \(dqstring\(dq,
+          \(dqValue\(dq: \(dqstring\(dq
+        }
+        ...
+      ],
+      \(dqAccessPointArn\(dq: \(dqstring\(dq
+    }
+  }
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expected\-bucket\-owner\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The account ID of the expected bucket owner. If the account ID that you provide does not match the actual owner of the bucket, the request fails with the HTTP status code \fB403 Forbidden\fP (access denied).
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH EXAMPLES
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use the following examples, you must have the AWS CLI installed and configured. See the \fI\%Getting started guide\fP in the \fIAWS CLI User Guide\fP for more information.
+.sp
+Unless otherwise stated, all examples have unix\-like quotation rules. These examples will need to be adapted to your terminal\(aqs quoting rules. See \fI\%Using quotation marks with strings\fP in the \fIAWS CLI User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fBTo set a metrics configuration for a bucket\fP
+.sp
+The following \fBput\-bucket\-metrics\-configuration\fP example sets a metric configuration with ID 123 for the specified bucket.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api put\-bucket\-metrics\-configuration \e
+    \-\-bucket amzn\-s3\-demo\-bucket \e
+    \-\-id 123 \e
+    \-\-metrics\-configuration \(aq{\(dqId\(dq: \(dq123\(dq, \(dqFilter\(dq: {\(dqPrefix\(dq: \(dqlogs\(dq}}\(aq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This command produces no output.
+.SH OUTPUT
+.sp
+None
+.\" Generated by docutils manpage writer.
+.

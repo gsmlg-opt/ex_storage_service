@@ -1,0 +1,74 @@
+NAME:
+  mc rm - remove object(s)
+
+USAGE:
+  mc rm [FLAGS] TARGET [TARGET ...]
+
+FLAGS:
+  --versions                       remove object(s) and all its versions
+  --recursive, -r                  remove recursively
+  --force                          allow a recursive remove operation
+  --dangerous                      allow site-wide removal of objects
+  --rewind value                   roll back object(s) to current version at specified time
+  --version-id value, --vid value  delete a specific version of an object
+  --incomplete, -I                 remove incomplete uploads
+  --dry-run                        perform a fake remove operation
+  --stdin                          read object names from STDIN
+  --older-than value               remove objects older than value in duration string (e.g. 7d10h31s)
+  --newer-than value               remove objects newer than value in duration string (e.g. 7d10h31s)
+  --bypass                         bypass governance
+  --non-current                    remove object(s) versions that are non-current
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+
+EXAMPLES:
+  01. Remove a file.
+      $ mc rm 1999/old-backup.tgz
+
+  02. Perform a fake remove operation.
+      $ mc rm --dry-run 1999/old-backup.tgz
+
+  03. Remove all objects recursively from bucket 'jazz-songs' matching the prefix 'louis'.
+      $ mc rm --recursive --force s3/jazz-songs/louis/
+
+  04. Remove all objects older than '90' days recursively from bucket 'jazz-songs' matching the prefix 'louis'.
+      $ mc rm --recursive --force --older-than 90d s3/jazz-songs/louis/
+
+  05. Remove all objects newer than 7 days and 10 hours recursively from bucket 'pop-songs'
+      $ mc rm --recursive --force --newer-than 7d10h s3/pop-songs/
+
+  06. Remove all objects read from STDIN.
+      $ mc rm --force --stdin
+
+  07. Remove all objects recursively from Amazon S3 cloud storage.
+      $ mc rm --recursive --force --dangerous s3
+
+  08. Remove all objects older than '90' days recursively under all buckets.
+      $ mc rm --recursive --dangerous --force --older-than 90d s3
+
+  09. Drop all incomplete uploads on the bucket 'jazz-songs'.
+      $ mc rm --incomplete --recursive --force s3/jazz-songs/
+
+  10. Bypass object retention in governance mode and delete the object.
+      $ mc rm --bypass s3/pop-songs/
+
+  11. Remove a particular version ID.
+      $ mc rm s3/docs/money.xls --version-id "f20f3792-4bd4-4288-8d3c-b9d05b3b62f6"
+
+  12. Remove all object versions older than one year.
+      $ mc rm s3/docs/ --recursive --versions --rewind 365d
+
+  14. Perform a fake removal of object(s) versions that are non-current and older than 10 days. If top-level version is a delete 
+  marker, this will also be deleted when --non-current flag is specified.
+      $ mc rm s3/docs/ --recursive --force --versions --non-current --older-than 10d --dry-run

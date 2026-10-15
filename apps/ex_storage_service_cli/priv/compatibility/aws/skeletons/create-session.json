@@ -1,0 +1,8 @@
+{
+    "SessionMode": "ReadOnly",
+    "Bucket": "",
+    "ServerSideEncryption": "AES256",
+    "SSEKMSKeyId": "",
+    "SSEKMSEncryptionContext": "",
+    "BucketKeyEnabled": true
+}

@@ -1,0 +1,12 @@
+{
+    "Bucket": "",
+    "Key": "",
+    "MaxParts": 0,
+    "PartNumberMarker": 0,
+    "UploadId": "",
+    "RequestPayer": "requester",
+    "ExpectedBucketOwner": "",
+    "SSECustomerAlgorithm": "",
+    "SSECustomerKey": "",
+    "SSECustomerKeyMD5": ""
+}

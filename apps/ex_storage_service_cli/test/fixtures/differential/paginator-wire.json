@@ -1,0 +1,1876 @@
+{
+  "aws_sha256": "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a",
+  "model_sha256": "6be3b05aac4ff8719e9a30a376de413523e9eab28a248195c8ab1cf9baacac80",
+  "cases": [
+    {
+      "operation": "ListMultipartUploads",
+      "scenario": "aggregate",
+      "args": [
+        "s3api",
+        "list-multipart-uploads",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Uploads\": [\n        {\n            \"UploadId\": \"upload%2F+==\",\n            \"Key\": \"key%2F+ 雪\"\n        },\n        {\n            \"UploadId\": \"upload%2F+==\",\n            \"Key\": \"second/雪\"\n        },\n        {\n            \"UploadId\": \"upload%2F+==\",\n            \"Key\": \"third/雪\"\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        },\n        {\n            \"Prefix\": \"common/1/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?uploads&max-uploads=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket?uploads&max-uploads=2&key-marker=next%252F%2B%20%E9%9B%AA&upload-id-marker=upload-marker%252F%2B%3D%3D",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxQcmVmaXg+cHJlZml4JTJGKy/pm6o8L1ByZWZpeD48RGVsaW1pdGVyPi88L0RlbGltaXRlcj48VXBsb2FkPjxLZXk+a2V5JTJGKyDpm6o8L0tleT48VXBsb2FkSWQ+dXBsb2FkJTJGKz09PC9VcGxvYWRJZD48L1VwbG9hZD48VXBsb2FkPjxLZXk+c2Vjb25kL+mbqjwvS2V5PjxVcGxvYWRJZD51cGxvYWQlMkYrPT08L1VwbG9hZElkPjwvVXBsb2FkPjxOZXh0S2V5TWFya2VyPm5leHQlMkYrIOmbqjwvTmV4dEtleU1hcmtlcj48TmV4dFVwbG9hZElkTWFya2VyPnVwbG9hZC1tYXJrZXIlMkYrPT08L05leHRVcGxvYWRJZE1hcmtlcj48Q29tbW9uUHJlZml4ZXM+PFByZWZpeD5jb21tb24vMC88L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPjwvTGlzdFJlc3VsdD4="
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48UHJlZml4PnByZWZpeCUyRisv6ZuqPC9QcmVmaXg+PERlbGltaXRlcj4vPC9EZWxpbWl0ZXI+PFVwbG9hZD48S2V5PnRoaXJkL+mbqjwvS2V5PjxVcGxvYWRJZD51cGxvYWQlMkYrPT08L1VwbG9hZElkPjwvVXBsb2FkPjxDb21tb25QcmVmaXhlcz48UHJlZml4PmNvbW1vbi8xLzwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PC9MaXN0UmVzdWx0Pg=="
+        }
+      ]
+    },
+    {
+      "operation": "ListMultipartUploads",
+      "scenario": "truncate-within",
+      "args": [
+        "s3api",
+        "list-multipart-uploads",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--max-items",
+        "1"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Uploads\": [\n        {\n            \"UploadId\": \"upload%2F+==\",\n            \"Key\": \"key%2F+ 雪\"\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\",\n    \"NextToken\": \"eyJLZXlNYXJrZXIiOiBudWxsLCAiVXBsb2FkSWRNYXJrZXIiOiBudWxsLCAiYm90b190cnVuY2F0ZV9hbW91bnQiOiAxfQ==\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?uploads&max-uploads=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxQcmVmaXg+cHJlZml4JTJGKy/pm6o8L1ByZWZpeD48RGVsaW1pdGVyPi88L0RlbGltaXRlcj48VXBsb2FkPjxLZXk+a2V5JTJGKyDpm6o8L0tleT48VXBsb2FkSWQ+dXBsb2FkJTJGKz09PC9VcGxvYWRJZD48L1VwbG9hZD48VXBsb2FkPjxLZXk+c2Vjb25kL+mbqjwvS2V5PjxVcGxvYWRJZD51cGxvYWQlMkYrPT08L1VwbG9hZElkPjwvVXBsb2FkPjxOZXh0S2V5TWFya2VyPm5leHQlMkYrIOmbqjwvTmV4dEtleU1hcmtlcj48TmV4dFVwbG9hZElkTWFya2VyPnVwbG9hZC1tYXJrZXIlMkYrPT08L05leHRVcGxvYWRJZE1hcmtlcj48Q29tbW9uUHJlZml4ZXM+PFByZWZpeD5jb21tb24vMC88L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPjwvTGlzdFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "operation": "ListMultipartUploads",
+      "scenario": "resume-within",
+      "args": [
+        "s3api",
+        "list-multipart-uploads",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--starting-token",
+        "eyJLZXlNYXJrZXIiOiBudWxsLCAiVXBsb2FkSWRNYXJrZXIiOiBudWxsLCAiYm90b190cnVuY2F0ZV9hbW91bnQiOiAxfQ=="
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Uploads\": [\n        {\n            \"UploadId\": \"upload%2F+==\",\n            \"Key\": \"second/雪\"\n        },\n        {\n            \"UploadId\": \"upload%2F+==\",\n            \"Key\": \"third/雪\"\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/1/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?uploads&max-uploads=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket?uploads&max-uploads=2&key-marker=next%252F%2B%20%E9%9B%AA&upload-id-marker=upload-marker%252F%2B%3D%3D",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxQcmVmaXg+cHJlZml4JTJGKy/pm6o8L1ByZWZpeD48RGVsaW1pdGVyPi88L0RlbGltaXRlcj48VXBsb2FkPjxLZXk+a2V5JTJGKyDpm6o8L0tleT48VXBsb2FkSWQ+dXBsb2FkJTJGKz09PC9VcGxvYWRJZD48L1VwbG9hZD48VXBsb2FkPjxLZXk+c2Vjb25kL+mbqjwvS2V5PjxVcGxvYWRJZD51cGxvYWQlMkYrPT08L1VwbG9hZElkPjwvVXBsb2FkPjxOZXh0S2V5TWFya2VyPm5leHQlMkYrIOmbqjwvTmV4dEtleU1hcmtlcj48TmV4dFVwbG9hZElkTWFya2VyPnVwbG9hZC1tYXJrZXIlMkYrPT08L05leHRVcGxvYWRJZE1hcmtlcj48Q29tbW9uUHJlZml4ZXM+PFByZWZpeD5jb21tb24vMC88L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPjwvTGlzdFJlc3VsdD4="
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48UHJlZml4PnByZWZpeCUyRisv6ZuqPC9QcmVmaXg+PERlbGltaXRlcj4vPC9EZWxpbWl0ZXI+PFVwbG9hZD48S2V5PnRoaXJkL+mbqjwvS2V5PjxVcGxvYWRJZD51cGxvYWQlMkYrPT08L1VwbG9hZElkPjwvVXBsb2FkPjxDb21tb25QcmVmaXhlcz48UHJlZml4PmNvbW1vbi8xLzwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PC9MaXN0UmVzdWx0Pg=="
+        }
+      ]
+    },
+    {
+      "operation": "ListMultipartUploads",
+      "scenario": "truncate-boundary",
+      "args": [
+        "s3api",
+        "list-multipart-uploads",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--max-items",
+        "2"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Uploads\": [\n        {\n            \"UploadId\": \"upload%2F+==\",\n            \"Key\": \"key%2F+ 雪\"\n        },\n        {\n            \"UploadId\": \"upload%2F+==\",\n            \"Key\": \"second/雪\"\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\",\n    \"NextToken\": \"eyJLZXlNYXJrZXIiOiAibmV4dCUyRisgXHU5NmVhIiwgIlVwbG9hZElkTWFya2VyIjogInVwbG9hZC1tYXJrZXIlMkYrPT0ifQ==\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?uploads&max-uploads=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxQcmVmaXg+cHJlZml4JTJGKy/pm6o8L1ByZWZpeD48RGVsaW1pdGVyPi88L0RlbGltaXRlcj48VXBsb2FkPjxLZXk+a2V5JTJGKyDpm6o8L0tleT48VXBsb2FkSWQ+dXBsb2FkJTJGKz09PC9VcGxvYWRJZD48L1VwbG9hZD48VXBsb2FkPjxLZXk+c2Vjb25kL+mbqjwvS2V5PjxVcGxvYWRJZD51cGxvYWQlMkYrPT08L1VwbG9hZElkPjwvVXBsb2FkPjxOZXh0S2V5TWFya2VyPm5leHQlMkYrIOmbqjwvTmV4dEtleU1hcmtlcj48TmV4dFVwbG9hZElkTWFya2VyPnVwbG9hZC1tYXJrZXIlMkYrPT08L05leHRVcGxvYWRJZE1hcmtlcj48Q29tbW9uUHJlZml4ZXM+PFByZWZpeD5jb21tb24vMC88L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPjwvTGlzdFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "operation": "ListMultipartUploads",
+      "scenario": "resume-boundary",
+      "args": [
+        "s3api",
+        "list-multipart-uploads",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--starting-token",
+        "eyJLZXlNYXJrZXIiOiAibmV4dCUyRisgXHU5NmVhIiwgIlVwbG9hZElkTWFya2VyIjogInVwbG9hZC1tYXJrZXIlMkYrPT0ifQ=="
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Uploads\": [\n        {\n            \"UploadId\": \"upload%2F+==\",\n            \"Key\": \"third/雪\"\n        }\n    ],\n    \"CommonPrefixes\": [],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?uploads&key-marker=next%252F%2B%20%E9%9B%AA&upload-id-marker=upload-marker%252F%2B%3D%3D&max-uploads=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48UHJlZml4PnByZWZpeCUyRisv6ZuqPC9QcmVmaXg+PERlbGltaXRlcj4vPC9EZWxpbWl0ZXI+PFVwbG9hZD48S2V5PnRoaXJkL+mbqjwvS2V5PjxVcGxvYWRJZD51cGxvYWQlMkYrPT08L1VwbG9hZElkPjwvVXBsb2FkPjxDb21tb25QcmVmaXhlcz48UHJlZml4PmNvbW1vbi8xLzwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PC9MaXN0UmVzdWx0Pg=="
+        }
+      ]
+    },
+    {
+      "operation": "ListMultipartUploads",
+      "scenario": "no-paginate",
+      "args": [
+        "s3api",
+        "list-multipart-uploads",
+        "--bucket",
+        "bucket",
+        "--no-paginate"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"RequestCharged\": \"requester\",\n    \"NextKeyMarker\": \"next%2F+ 雪\",\n    \"Prefix\": \"prefix%2F+/雪\",\n    \"Delimiter\": \"/\",\n    \"NextUploadIdMarker\": \"upload-marker%2F+==\",\n    \"IsTruncated\": true,\n    \"Uploads\": [\n        {\n            \"UploadId\": \"upload%2F+==\",\n            \"Key\": \"key%2F+ 雪\"\n        },\n        {\n            \"UploadId\": \"upload%2F+==\",\n            \"Key\": \"second/雪\"\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        }\n    ]\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?uploads",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxQcmVmaXg+cHJlZml4JTJGKy/pm6o8L1ByZWZpeD48RGVsaW1pdGVyPi88L0RlbGltaXRlcj48VXBsb2FkPjxLZXk+a2V5JTJGKyDpm6o8L0tleT48VXBsb2FkSWQ+dXBsb2FkJTJGKz09PC9VcGxvYWRJZD48L1VwbG9hZD48VXBsb2FkPjxLZXk+c2Vjb25kL+mbqjwvS2V5PjxVcGxvYWRJZD51cGxvYWQlMkYrPT08L1VwbG9hZElkPjwvVXBsb2FkPjxOZXh0S2V5TWFya2VyPm5leHQlMkYrIOmbqjwvTmV4dEtleU1hcmtlcj48TmV4dFVwbG9hZElkTWFya2VyPnVwbG9hZC1tYXJrZXIlMkYrPT08L05leHRVcGxvYWRJZE1hcmtlcj48Q29tbW9uUHJlZml4ZXM+PFByZWZpeD5jb21tb24vMC88L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPjwvTGlzdFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "operation": "ListObjectVersions",
+      "scenario": "aggregate",
+      "args": [
+        "s3api",
+        "list-object-versions",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Versions\": [\n        {\n            \"Key\": \"key%2F+ 雪\",\n            \"VersionId\": \"version%2F+==\",\n            \"IsLatest\": true\n        },\n        {\n            \"Key\": \"second/雪\",\n            \"VersionId\": \"version%2F+==\",\n            \"IsLatest\": true\n        },\n        {\n            \"Key\": \"third/雪\",\n            \"VersionId\": \"version%2F+==\",\n            \"IsLatest\": true\n        }\n    ],\n    \"DeleteMarkers\": [\n        {\n            \"Key\": \"deleted/0\",\n            \"VersionId\": \"delete%2F+==\"\n        },\n        {\n            \"Key\": \"deleted/1\",\n            \"VersionId\": \"delete%2F+==\"\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        },\n        {\n            \"Prefix\": \"common/1/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?versions&max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket?versions&max-keys=2&key-marker=next%252F%2B%20%E9%9B%AA&version-id-marker=version-marker%252F%2B%3D%3D&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48VmVyc2lvbj48S2V5PmtleSUyNTJGJTJCJTIwJUU5JTlCJUFBPC9LZXk+PFZlcnNpb25JZD52ZXJzaW9uJTJGKz09PC9WZXJzaW9uSWQ+PElzTGF0ZXN0PnRydWU8L0lzTGF0ZXN0PjwvVmVyc2lvbj48VmVyc2lvbj48S2V5PnNlY29uZCUyRiVFOSU5QiVBQTwvS2V5PjxWZXJzaW9uSWQ+dmVyc2lvbiUyRis9PTwvVmVyc2lvbklkPjxJc0xhdGVzdD50cnVlPC9Jc0xhdGVzdD48L1ZlcnNpb24+PERlbGV0ZU1hcmtlcj48S2V5PmRlbGV0ZWQlMkYwPC9LZXk+PFZlcnNpb25JZD5kZWxldGUlMkYrPT08L1ZlcnNpb25JZD48L0RlbGV0ZU1hcmtlcj48TmV4dEtleU1hcmtlcj5uZXh0JTI1MkYlMkIlMjAlRTklOUIlQUE8L05leHRLZXlNYXJrZXI+PE5leHRWZXJzaW9uSWRNYXJrZXI+dmVyc2lvbi1tYXJrZXIlMkYrPT08L05leHRWZXJzaW9uSWRNYXJrZXI+PENvbW1vblByZWZpeGVzPjxQcmVmaXg+Y29tbW9uJTJGMCUyRjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PEVuY29kaW5nVHlwZT51cmw8L0VuY29kaW5nVHlwZT48L0xpc3RSZXN1bHQ+"
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48TmFtZT5idWNrZXQ8L05hbWU+PFByZWZpeD5wcmVmaXglMjUyRiUyQiUyRiVFOSU5QiVBQTwvUHJlZml4PjxEZWxpbWl0ZXI+JTJGPC9EZWxpbWl0ZXI+PFZlcnNpb24+PEtleT50aGlyZCUyRiVFOSU5QiVBQTwvS2V5PjxWZXJzaW9uSWQ+dmVyc2lvbiUyRis9PTwvVmVyc2lvbklkPjxJc0xhdGVzdD50cnVlPC9Jc0xhdGVzdD48L1ZlcnNpb24+PERlbGV0ZU1hcmtlcj48S2V5PmRlbGV0ZWQlMkYxPC9LZXk+PFZlcnNpb25JZD5kZWxldGUlMkYrPT08L1ZlcnNpb25JZD48L0RlbGV0ZU1hcmtlcj48Q29tbW9uUHJlZml4ZXM+PFByZWZpeD5jb21tb24lMkYxJTJGPC9QcmVmaXg+PC9Db21tb25QcmVmaXhlcz48RW5jb2RpbmdUeXBlPnVybDwvRW5jb2RpbmdUeXBlPjwvTGlzdFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "operation": "ListObjectVersions",
+      "scenario": "truncate-within",
+      "args": [
+        "s3api",
+        "list-object-versions",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--max-items",
+        "1"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Versions\": [\n        {\n            \"Key\": \"key%2F+ 雪\",\n            \"VersionId\": \"version%2F+==\",\n            \"IsLatest\": true\n        }\n    ],\n    \"DeleteMarkers\": [\n        {\n            \"Key\": \"deleted/0\",\n            \"VersionId\": \"delete%2F+==\"\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\",\n    \"NextToken\": \"eyJLZXlNYXJrZXIiOiBudWxsLCAiVmVyc2lvbklkTWFya2VyIjogbnVsbCwgImJvdG9fdHJ1bmNhdGVfYW1vdW50IjogMX0=\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?versions&max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48VmVyc2lvbj48S2V5PmtleSUyNTJGJTJCJTIwJUU5JTlCJUFBPC9LZXk+PFZlcnNpb25JZD52ZXJzaW9uJTJGKz09PC9WZXJzaW9uSWQ+PElzTGF0ZXN0PnRydWU8L0lzTGF0ZXN0PjwvVmVyc2lvbj48VmVyc2lvbj48S2V5PnNlY29uZCUyRiVFOSU5QiVBQTwvS2V5PjxWZXJzaW9uSWQ+dmVyc2lvbiUyRis9PTwvVmVyc2lvbklkPjxJc0xhdGVzdD50cnVlPC9Jc0xhdGVzdD48L1ZlcnNpb24+PERlbGV0ZU1hcmtlcj48S2V5PmRlbGV0ZWQlMkYwPC9LZXk+PFZlcnNpb25JZD5kZWxldGUlMkYrPT08L1ZlcnNpb25JZD48L0RlbGV0ZU1hcmtlcj48TmV4dEtleU1hcmtlcj5uZXh0JTI1MkYlMkIlMjAlRTklOUIlQUE8L05leHRLZXlNYXJrZXI+PE5leHRWZXJzaW9uSWRNYXJrZXI+dmVyc2lvbi1tYXJrZXIlMkYrPT08L05leHRWZXJzaW9uSWRNYXJrZXI+PENvbW1vblByZWZpeGVzPjxQcmVmaXg+Y29tbW9uJTJGMCUyRjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PEVuY29kaW5nVHlwZT51cmw8L0VuY29kaW5nVHlwZT48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListObjectVersions",
+      "scenario": "resume-within",
+      "args": [
+        "s3api",
+        "list-object-versions",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--starting-token",
+        "eyJLZXlNYXJrZXIiOiBudWxsLCAiVmVyc2lvbklkTWFya2VyIjogbnVsbCwgImJvdG9fdHJ1bmNhdGVfYW1vdW50IjogMX0="
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Versions\": [\n        {\n            \"Key\": \"second/雪\",\n            \"VersionId\": \"version%2F+==\",\n            \"IsLatest\": true\n        },\n        {\n            \"Key\": \"third/雪\",\n            \"VersionId\": \"version%2F+==\",\n            \"IsLatest\": true\n        }\n    ],\n    \"DeleteMarkers\": [\n        {\n            \"Key\": \"deleted/1\",\n            \"VersionId\": \"delete%2F+==\"\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/1/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?versions&max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket?versions&max-keys=2&key-marker=next%252F%2B%20%E9%9B%AA&version-id-marker=version-marker%252F%2B%3D%3D&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48VmVyc2lvbj48S2V5PmtleSUyNTJGJTJCJTIwJUU5JTlCJUFBPC9LZXk+PFZlcnNpb25JZD52ZXJzaW9uJTJGKz09PC9WZXJzaW9uSWQ+PElzTGF0ZXN0PnRydWU8L0lzTGF0ZXN0PjwvVmVyc2lvbj48VmVyc2lvbj48S2V5PnNlY29uZCUyRiVFOSU5QiVBQTwvS2V5PjxWZXJzaW9uSWQ+dmVyc2lvbiUyRis9PTwvVmVyc2lvbklkPjxJc0xhdGVzdD50cnVlPC9Jc0xhdGVzdD48L1ZlcnNpb24+PERlbGV0ZU1hcmtlcj48S2V5PmRlbGV0ZWQlMkYwPC9LZXk+PFZlcnNpb25JZD5kZWxldGUlMkYrPT08L1ZlcnNpb25JZD48L0RlbGV0ZU1hcmtlcj48TmV4dEtleU1hcmtlcj5uZXh0JTI1MkYlMkIlMjAlRTklOUIlQUE8L05leHRLZXlNYXJrZXI+PE5leHRWZXJzaW9uSWRNYXJrZXI+dmVyc2lvbi1tYXJrZXIlMkYrPT08L05leHRWZXJzaW9uSWRNYXJrZXI+PENvbW1vblByZWZpeGVzPjxQcmVmaXg+Y29tbW9uJTJGMCUyRjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PEVuY29kaW5nVHlwZT51cmw8L0VuY29kaW5nVHlwZT48L0xpc3RSZXN1bHQ+"
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48TmFtZT5idWNrZXQ8L05hbWU+PFByZWZpeD5wcmVmaXglMjUyRiUyQiUyRiVFOSU5QiVBQTwvUHJlZml4PjxEZWxpbWl0ZXI+JTJGPC9EZWxpbWl0ZXI+PFZlcnNpb24+PEtleT50aGlyZCUyRiVFOSU5QiVBQTwvS2V5PjxWZXJzaW9uSWQ+dmVyc2lvbiUyRis9PTwvVmVyc2lvbklkPjxJc0xhdGVzdD50cnVlPC9Jc0xhdGVzdD48L1ZlcnNpb24+PERlbGV0ZU1hcmtlcj48S2V5PmRlbGV0ZWQlMkYxPC9LZXk+PFZlcnNpb25JZD5kZWxldGUlMkYrPT08L1ZlcnNpb25JZD48L0RlbGV0ZU1hcmtlcj48Q29tbW9uUHJlZml4ZXM+PFByZWZpeD5jb21tb24lMkYxJTJGPC9QcmVmaXg+PC9Db21tb25QcmVmaXhlcz48RW5jb2RpbmdUeXBlPnVybDwvRW5jb2RpbmdUeXBlPjwvTGlzdFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "operation": "ListObjectVersions",
+      "scenario": "truncate-boundary",
+      "args": [
+        "s3api",
+        "list-object-versions",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--max-items",
+        "2"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Versions\": [\n        {\n            \"Key\": \"key%2F+ 雪\",\n            \"VersionId\": \"version%2F+==\",\n            \"IsLatest\": true\n        },\n        {\n            \"Key\": \"second/雪\",\n            \"VersionId\": \"version%2F+==\",\n            \"IsLatest\": true\n        }\n    ],\n    \"DeleteMarkers\": [\n        {\n            \"Key\": \"deleted/0\",\n            \"VersionId\": \"delete%2F+==\"\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\",\n    \"NextToken\": \"eyJLZXlNYXJrZXIiOiAibmV4dCUyRisgXHU5NmVhIiwgIlZlcnNpb25JZE1hcmtlciI6ICJ2ZXJzaW9uLW1hcmtlciUyRis9PSJ9\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?versions&max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48VmVyc2lvbj48S2V5PmtleSUyNTJGJTJCJTIwJUU5JTlCJUFBPC9LZXk+PFZlcnNpb25JZD52ZXJzaW9uJTJGKz09PC9WZXJzaW9uSWQ+PElzTGF0ZXN0PnRydWU8L0lzTGF0ZXN0PjwvVmVyc2lvbj48VmVyc2lvbj48S2V5PnNlY29uZCUyRiVFOSU5QiVBQTwvS2V5PjxWZXJzaW9uSWQ+dmVyc2lvbiUyRis9PTwvVmVyc2lvbklkPjxJc0xhdGVzdD50cnVlPC9Jc0xhdGVzdD48L1ZlcnNpb24+PERlbGV0ZU1hcmtlcj48S2V5PmRlbGV0ZWQlMkYwPC9LZXk+PFZlcnNpb25JZD5kZWxldGUlMkYrPT08L1ZlcnNpb25JZD48L0RlbGV0ZU1hcmtlcj48TmV4dEtleU1hcmtlcj5uZXh0JTI1MkYlMkIlMjAlRTklOUIlQUE8L05leHRLZXlNYXJrZXI+PE5leHRWZXJzaW9uSWRNYXJrZXI+dmVyc2lvbi1tYXJrZXIlMkYrPT08L05leHRWZXJzaW9uSWRNYXJrZXI+PENvbW1vblByZWZpeGVzPjxQcmVmaXg+Y29tbW9uJTJGMCUyRjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PEVuY29kaW5nVHlwZT51cmw8L0VuY29kaW5nVHlwZT48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListObjectVersions",
+      "scenario": "resume-boundary",
+      "args": [
+        "s3api",
+        "list-object-versions",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--starting-token",
+        "eyJLZXlNYXJrZXIiOiAibmV4dCUyRisgXHU5NmVhIiwgIlZlcnNpb25JZE1hcmtlciI6ICJ2ZXJzaW9uLW1hcmtlciUyRis9PSJ9"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Versions\": [\n        {\n            \"Key\": \"third/雪\",\n            \"VersionId\": \"version%2F+==\",\n            \"IsLatest\": true\n        }\n    ],\n    \"DeleteMarkers\": [],\n    \"CommonPrefixes\": [],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?versions&key-marker=next%252F%2B%20%E9%9B%AA&version-id-marker=version-marker%252F%2B%3D%3D&max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48TmFtZT5idWNrZXQ8L05hbWU+PFByZWZpeD5wcmVmaXglMjUyRiUyQiUyRiVFOSU5QiVBQTwvUHJlZml4PjxEZWxpbWl0ZXI+JTJGPC9EZWxpbWl0ZXI+PFZlcnNpb24+PEtleT50aGlyZCUyRiVFOSU5QiVBQTwvS2V5PjxWZXJzaW9uSWQ+dmVyc2lvbiUyRis9PTwvVmVyc2lvbklkPjxJc0xhdGVzdD50cnVlPC9Jc0xhdGVzdD48L1ZlcnNpb24+PERlbGV0ZU1hcmtlcj48S2V5PmRlbGV0ZWQlMkYxPC9LZXk+PFZlcnNpb25JZD5kZWxldGUlMkYrPT08L1ZlcnNpb25JZD48L0RlbGV0ZU1hcmtlcj48Q29tbW9uUHJlZml4ZXM+PFByZWZpeD5jb21tb24lMkYxJTJGPC9QcmVmaXg+PC9Db21tb25QcmVmaXhlcz48RW5jb2RpbmdUeXBlPnVybDwvRW5jb2RpbmdUeXBlPjwvTGlzdFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "operation": "ListObjectVersions",
+      "scenario": "no-paginate",
+      "args": [
+        "s3api",
+        "list-object-versions",
+        "--bucket",
+        "bucket",
+        "--no-paginate"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"RequestCharged\": \"requester\",\n    \"IsTruncated\": true,\n    \"NextKeyMarker\": \"next%2F+ 雪\",\n    \"NextVersionIdMarker\": \"version-marker%2F+==\",\n    \"Versions\": [\n        {\n            \"Key\": \"key%2F+ 雪\",\n            \"VersionId\": \"version%2F+==\",\n            \"IsLatest\": true\n        },\n        {\n            \"Key\": \"second/雪\",\n            \"VersionId\": \"version%2F+==\",\n            \"IsLatest\": true\n        }\n    ],\n    \"DeleteMarkers\": [\n        {\n            \"Key\": \"deleted/0\",\n            \"VersionId\": \"delete%2F+==\"\n        }\n    ],\n    \"Name\": \"bucket\",\n    \"Prefix\": \"prefix%2F+/雪\",\n    \"Delimiter\": \"/\",\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        }\n    ],\n    \"EncodingType\": \"url\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?versions&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48VmVyc2lvbj48S2V5PmtleSUyNTJGJTJCJTIwJUU5JTlCJUFBPC9LZXk+PFZlcnNpb25JZD52ZXJzaW9uJTJGKz09PC9WZXJzaW9uSWQ+PElzTGF0ZXN0PnRydWU8L0lzTGF0ZXN0PjwvVmVyc2lvbj48VmVyc2lvbj48S2V5PnNlY29uZCUyRiVFOSU5QiVBQTwvS2V5PjxWZXJzaW9uSWQ+dmVyc2lvbiUyRis9PTwvVmVyc2lvbklkPjxJc0xhdGVzdD50cnVlPC9Jc0xhdGVzdD48L1ZlcnNpb24+PERlbGV0ZU1hcmtlcj48S2V5PmRlbGV0ZWQlMkYwPC9LZXk+PFZlcnNpb25JZD5kZWxldGUlMkYrPT08L1ZlcnNpb25JZD48L0RlbGV0ZU1hcmtlcj48TmV4dEtleU1hcmtlcj5uZXh0JTI1MkYlMkIlMjAlRTklOUIlQUE8L05leHRLZXlNYXJrZXI+PE5leHRWZXJzaW9uSWRNYXJrZXI+dmVyc2lvbi1tYXJrZXIlMkYrPT08L05leHRWZXJzaW9uSWRNYXJrZXI+PENvbW1vblByZWZpeGVzPjxQcmVmaXg+Y29tbW9uJTJGMCUyRjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PEVuY29kaW5nVHlwZT51cmw8L0VuY29kaW5nVHlwZT48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListObjects",
+      "scenario": "aggregate",
+      "args": [
+        "s3api",
+        "list-objects",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Contents\": [\n        {\n            \"Key\": \"key%2F+ 雪\",\n            \"Size\": 1\n        },\n        {\n            \"Key\": \"second/雪\",\n            \"Size\": 2\n        },\n        {\n            \"Key\": \"third/雪\",\n            \"Size\": 1\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        },\n        {\n            \"Prefix\": \"common/1/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%252F%2B%2F%E9%9B%AA\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket?max-keys=2&marker=second%2F%E9%9B%AA&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48Q29udGVudHM+PEtleT5rZXklMjUyRiUyQiUyMCVFOSU5QiVBQTwvS2V5PjxTaXplPjE8L1NpemU+PC9Db250ZW50cz48Q29udGVudHM+PEtleT5zZWNvbmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4yPC9TaXplPjwvQ29udGVudHM+PENvbW1vblByZWZpeGVzPjxQcmVmaXg+Y29tbW9uJTJGMCUyRjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PEVuY29kaW5nVHlwZT51cmw8L0VuY29kaW5nVHlwZT48L0xpc3RSZXN1bHQ+"
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48TmFtZT5idWNrZXQ8L05hbWU+PFByZWZpeD5wcmVmaXglMjUyRiUyQiUyRiVFOSU5QiVBQTwvUHJlZml4PjxEZWxpbWl0ZXI+JTJGPC9EZWxpbWl0ZXI+PENvbnRlbnRzPjxLZXk+dGhpcmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4xPC9TaXplPjwvQ29udGVudHM+PENvbW1vblByZWZpeGVzPjxQcmVmaXg+Y29tbW9uJTJGMSUyRjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PEVuY29kaW5nVHlwZT51cmw8L0VuY29kaW5nVHlwZT48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListObjects",
+      "scenario": "truncate-within",
+      "args": [
+        "s3api",
+        "list-objects",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--max-items",
+        "1"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Contents\": [\n        {\n            \"Key\": \"key%2F+ 雪\",\n            \"Size\": 1\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%252F%2B%2F%E9%9B%AA\",\n    \"NextToken\": \"eyJNYXJrZXIiOiBudWxsLCAiYm90b190cnVuY2F0ZV9hbW91bnQiOiAxfQ==\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48Q29udGVudHM+PEtleT5rZXklMjUyRiUyQiUyMCVFOSU5QiVBQTwvS2V5PjxTaXplPjE8L1NpemU+PC9Db250ZW50cz48Q29udGVudHM+PEtleT5zZWNvbmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4yPC9TaXplPjwvQ29udGVudHM+PENvbW1vblByZWZpeGVzPjxQcmVmaXg+Y29tbW9uJTJGMCUyRjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PEVuY29kaW5nVHlwZT51cmw8L0VuY29kaW5nVHlwZT48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListObjects",
+      "scenario": "resume-within",
+      "args": [
+        "s3api",
+        "list-objects",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--starting-token",
+        "eyJNYXJrZXIiOiBudWxsLCAiYm90b190cnVuY2F0ZV9hbW91bnQiOiAxfQ=="
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Contents\": [\n        {\n            \"Key\": \"second/雪\",\n            \"Size\": 2\n        },\n        {\n            \"Key\": \"third/雪\",\n            \"Size\": 1\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/1/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%252F%2B%2F%E9%9B%AA\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket?max-keys=2&marker=second%2F%E9%9B%AA&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48Q29udGVudHM+PEtleT5rZXklMjUyRiUyQiUyMCVFOSU5QiVBQTwvS2V5PjxTaXplPjE8L1NpemU+PC9Db250ZW50cz48Q29udGVudHM+PEtleT5zZWNvbmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4yPC9TaXplPjwvQ29udGVudHM+PENvbW1vblByZWZpeGVzPjxQcmVmaXg+Y29tbW9uJTJGMCUyRjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PEVuY29kaW5nVHlwZT51cmw8L0VuY29kaW5nVHlwZT48L0xpc3RSZXN1bHQ+"
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48TmFtZT5idWNrZXQ8L05hbWU+PFByZWZpeD5wcmVmaXglMjUyRiUyQiUyRiVFOSU5QiVBQTwvUHJlZml4PjxEZWxpbWl0ZXI+JTJGPC9EZWxpbWl0ZXI+PENvbnRlbnRzPjxLZXk+dGhpcmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4xPC9TaXplPjwvQ29udGVudHM+PENvbW1vblByZWZpeGVzPjxQcmVmaXg+Y29tbW9uJTJGMSUyRjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PEVuY29kaW5nVHlwZT51cmw8L0VuY29kaW5nVHlwZT48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListObjects",
+      "scenario": "truncate-boundary",
+      "args": [
+        "s3api",
+        "list-objects",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--max-items",
+        "2"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Contents\": [\n        {\n            \"Key\": \"key%2F+ 雪\",\n            \"Size\": 1\n        },\n        {\n            \"Key\": \"second/雪\",\n            \"Size\": 2\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%252F%2B%2F%E9%9B%AA\",\n    \"NextToken\": \"eyJNYXJrZXIiOiAic2Vjb25kL1x1OTZlYSJ9\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48Q29udGVudHM+PEtleT5rZXklMjUyRiUyQiUyMCVFOSU5QiVBQTwvS2V5PjxTaXplPjE8L1NpemU+PC9Db250ZW50cz48Q29udGVudHM+PEtleT5zZWNvbmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4yPC9TaXplPjwvQ29udGVudHM+PENvbW1vblByZWZpeGVzPjxQcmVmaXg+Y29tbW9uJTJGMCUyRjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PEVuY29kaW5nVHlwZT51cmw8L0VuY29kaW5nVHlwZT48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListObjects",
+      "scenario": "resume-boundary",
+      "args": [
+        "s3api",
+        "list-objects",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--starting-token",
+        "eyJNYXJrZXIiOiAic2Vjb25kL1x1OTZlYSJ9"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Contents\": [\n        {\n            \"Key\": \"third/雪\",\n            \"Size\": 1\n        }\n    ],\n    \"CommonPrefixes\": [],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%252F%2B%2F%E9%9B%AA\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?marker=second%2F%E9%9B%AA&max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48TmFtZT5idWNrZXQ8L05hbWU+PFByZWZpeD5wcmVmaXglMjUyRiUyQiUyRiVFOSU5QiVBQTwvUHJlZml4PjxEZWxpbWl0ZXI+JTJGPC9EZWxpbWl0ZXI+PENvbnRlbnRzPjxLZXk+dGhpcmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4xPC9TaXplPjwvQ29udGVudHM+PENvbW1vblByZWZpeGVzPjxQcmVmaXg+Y29tbW9uJTJGMSUyRjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PEVuY29kaW5nVHlwZT51cmw8L0VuY29kaW5nVHlwZT48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListObjects",
+      "scenario": "no-paginate",
+      "args": [
+        "s3api",
+        "list-objects",
+        "--bucket",
+        "bucket",
+        "--no-paginate"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"RequestCharged\": \"requester\",\n    \"IsTruncated\": true,\n    \"Contents\": [\n        {\n            \"Key\": \"key%2F+ 雪\",\n            \"Size\": 1\n        },\n        {\n            \"Key\": \"second/雪\",\n            \"Size\": 2\n        }\n    ],\n    \"Name\": \"bucket\",\n    \"Prefix\": \"prefix%252F%2B%2F%E9%9B%AA\",\n    \"Delimiter\": \"/\",\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        }\n    ],\n    \"EncodingType\": \"url\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48Q29udGVudHM+PEtleT5rZXklMjUyRiUyQiUyMCVFOSU5QiVBQTwvS2V5PjxTaXplPjE8L1NpemU+PC9Db250ZW50cz48Q29udGVudHM+PEtleT5zZWNvbmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4yPC9TaXplPjwvQ29udGVudHM+PENvbW1vblByZWZpeGVzPjxQcmVmaXg+Y29tbW9uJTJGMCUyRjwvUHJlZml4PjwvQ29tbW9uUHJlZml4ZXM+PEVuY29kaW5nVHlwZT51cmw8L0VuY29kaW5nVHlwZT48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListObjectsV2",
+      "scenario": "aggregate",
+      "args": [
+        "s3api",
+        "list-objects-v2",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Contents\": [\n        {\n            \"Key\": \"key%2F+ 雪\",\n            \"Size\": 1\n        },\n        {\n            \"Key\": \"second/雪\",\n            \"Size\": 2\n        },\n        {\n            \"Key\": \"third/雪\",\n            \"Size\": 1\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        },\n        {\n            \"Prefix\": \"common/1/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&max-keys=2&continuation-token=opaque%252F%2B%3D%3D%2F%E9%9B%AA&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48Q29udGVudHM+PEtleT5rZXklMjUyRiUyQiUyMCVFOSU5QiVBQTwvS2V5PjxTaXplPjE8L1NpemU+PC9Db250ZW50cz48Q29udGVudHM+PEtleT5zZWNvbmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4yPC9TaXplPjwvQ29udGVudHM+PEtleUNvdW50PjI8L0tleUNvdW50PjxOZXh0Q29udGludWF0aW9uVG9rZW4+b3BhcXVlJTJGKz09L+mbqjwvTmV4dENvbnRpbnVhdGlvblRva2VuPjxDb21tb25QcmVmaXhlcz48UHJlZml4PmNvbW1vbiUyRjAlMkY8L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPjxFbmNvZGluZ1R5cGU+dXJsPC9FbmNvZGluZ1R5cGU+PC9MaXN0UmVzdWx0Pg=="
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48TmFtZT5idWNrZXQ8L05hbWU+PFByZWZpeD5wcmVmaXglMjUyRiUyQiUyRiVFOSU5QiVBQTwvUHJlZml4PjxEZWxpbWl0ZXI+JTJGPC9EZWxpbWl0ZXI+PENvbnRlbnRzPjxLZXk+dGhpcmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4xPC9TaXplPjwvQ29udGVudHM+PEtleUNvdW50PjE8L0tleUNvdW50PjxDb21tb25QcmVmaXhlcz48UHJlZml4PmNvbW1vbiUyRjElMkY8L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPjxFbmNvZGluZ1R5cGU+dXJsPC9FbmNvZGluZ1R5cGU+PC9MaXN0UmVzdWx0Pg=="
+        }
+      ]
+    },
+    {
+      "operation": "ListObjectsV2",
+      "scenario": "truncate-within",
+      "args": [
+        "s3api",
+        "list-objects-v2",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--max-items",
+        "1"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Contents\": [\n        {\n            \"Key\": \"key%2F+ 雪\",\n            \"Size\": 1\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\",\n    \"NextToken\": \"eyJDb250aW51YXRpb25Ub2tlbiI6IG51bGwsICJib3RvX3RydW5jYXRlX2Ftb3VudCI6IDF9\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48Q29udGVudHM+PEtleT5rZXklMjUyRiUyQiUyMCVFOSU5QiVBQTwvS2V5PjxTaXplPjE8L1NpemU+PC9Db250ZW50cz48Q29udGVudHM+PEtleT5zZWNvbmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4yPC9TaXplPjwvQ29udGVudHM+PEtleUNvdW50PjI8L0tleUNvdW50PjxOZXh0Q29udGludWF0aW9uVG9rZW4+b3BhcXVlJTJGKz09L+mbqjwvTmV4dENvbnRpbnVhdGlvblRva2VuPjxDb21tb25QcmVmaXhlcz48UHJlZml4PmNvbW1vbiUyRjAlMkY8L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPjxFbmNvZGluZ1R5cGU+dXJsPC9FbmNvZGluZ1R5cGU+PC9MaXN0UmVzdWx0Pg=="
+        }
+      ]
+    },
+    {
+      "operation": "ListObjectsV2",
+      "scenario": "resume-within",
+      "args": [
+        "s3api",
+        "list-objects-v2",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--starting-token",
+        "eyJDb250aW51YXRpb25Ub2tlbiI6IG51bGwsICJib3RvX3RydW5jYXRlX2Ftb3VudCI6IDF9"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Contents\": [\n        {\n            \"Key\": \"second/雪\",\n            \"Size\": 2\n        },\n        {\n            \"Key\": \"third/雪\",\n            \"Size\": 1\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/1/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&max-keys=2&continuation-token=opaque%252F%2B%3D%3D%2F%E9%9B%AA&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48Q29udGVudHM+PEtleT5rZXklMjUyRiUyQiUyMCVFOSU5QiVBQTwvS2V5PjxTaXplPjE8L1NpemU+PC9Db250ZW50cz48Q29udGVudHM+PEtleT5zZWNvbmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4yPC9TaXplPjwvQ29udGVudHM+PEtleUNvdW50PjI8L0tleUNvdW50PjxOZXh0Q29udGludWF0aW9uVG9rZW4+b3BhcXVlJTJGKz09L+mbqjwvTmV4dENvbnRpbnVhdGlvblRva2VuPjxDb21tb25QcmVmaXhlcz48UHJlZml4PmNvbW1vbiUyRjAlMkY8L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPjxFbmNvZGluZ1R5cGU+dXJsPC9FbmNvZGluZ1R5cGU+PC9MaXN0UmVzdWx0Pg=="
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48TmFtZT5idWNrZXQ8L05hbWU+PFByZWZpeD5wcmVmaXglMjUyRiUyQiUyRiVFOSU5QiVBQTwvUHJlZml4PjxEZWxpbWl0ZXI+JTJGPC9EZWxpbWl0ZXI+PENvbnRlbnRzPjxLZXk+dGhpcmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4xPC9TaXplPjwvQ29udGVudHM+PEtleUNvdW50PjE8L0tleUNvdW50PjxDb21tb25QcmVmaXhlcz48UHJlZml4PmNvbW1vbiUyRjElMkY8L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPjxFbmNvZGluZ1R5cGU+dXJsPC9FbmNvZGluZ1R5cGU+PC9MaXN0UmVzdWx0Pg=="
+        }
+      ]
+    },
+    {
+      "operation": "ListObjectsV2",
+      "scenario": "truncate-boundary",
+      "args": [
+        "s3api",
+        "list-objects-v2",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--max-items",
+        "2"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Contents\": [\n        {\n            \"Key\": \"key%2F+ 雪\",\n            \"Size\": 1\n        },\n        {\n            \"Key\": \"second/雪\",\n            \"Size\": 2\n        }\n    ],\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        }\n    ],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\",\n    \"NextToken\": \"eyJDb250aW51YXRpb25Ub2tlbiI6ICJvcGFxdWUlMkYrPT0vXHU5NmVhIn0=\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48Q29udGVudHM+PEtleT5rZXklMjUyRiUyQiUyMCVFOSU5QiVBQTwvS2V5PjxTaXplPjE8L1NpemU+PC9Db250ZW50cz48Q29udGVudHM+PEtleT5zZWNvbmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4yPC9TaXplPjwvQ29udGVudHM+PEtleUNvdW50PjI8L0tleUNvdW50PjxOZXh0Q29udGludWF0aW9uVG9rZW4+b3BhcXVlJTJGKz09L+mbqjwvTmV4dENvbnRpbnVhdGlvblRva2VuPjxDb21tb25QcmVmaXhlcz48UHJlZml4PmNvbW1vbiUyRjAlMkY8L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPjxFbmNvZGluZ1R5cGU+dXJsPC9FbmNvZGluZ1R5cGU+PC9MaXN0UmVzdWx0Pg=="
+        }
+      ]
+    },
+    {
+      "operation": "ListObjectsV2",
+      "scenario": "resume-boundary",
+      "args": [
+        "s3api",
+        "list-objects-v2",
+        "--bucket",
+        "bucket",
+        "--page-size",
+        "2",
+        "--starting-token",
+        "eyJDb250aW51YXRpb25Ub2tlbiI6ICJvcGFxdWUlMkYrPT0vXHU5NmVhIn0="
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Contents\": [\n        {\n            \"Key\": \"third/雪\",\n            \"Size\": 1\n        }\n    ],\n    \"CommonPrefixes\": [],\n    \"RequestCharged\": \"requester\",\n    \"Prefix\": \"prefix%2F+/雪\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&continuation-token=opaque%252F%2B%3D%3D%2F%E9%9B%AA&max-keys=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48TmFtZT5idWNrZXQ8L05hbWU+PFByZWZpeD5wcmVmaXglMjUyRiUyQiUyRiVFOSU5QiVBQTwvUHJlZml4PjxEZWxpbWl0ZXI+JTJGPC9EZWxpbWl0ZXI+PENvbnRlbnRzPjxLZXk+dGhpcmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4xPC9TaXplPjwvQ29udGVudHM+PEtleUNvdW50PjE8L0tleUNvdW50PjxDb21tb25QcmVmaXhlcz48UHJlZml4PmNvbW1vbiUyRjElMkY8L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPjxFbmNvZGluZ1R5cGU+dXJsPC9FbmNvZGluZ1R5cGU+PC9MaXN0UmVzdWx0Pg=="
+        }
+      ]
+    },
+    {
+      "operation": "ListObjectsV2",
+      "scenario": "no-paginate",
+      "args": [
+        "s3api",
+        "list-objects-v2",
+        "--bucket",
+        "bucket",
+        "--no-paginate"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"RequestCharged\": \"requester\",\n    \"IsTruncated\": true,\n    \"Contents\": [\n        {\n            \"Key\": \"key%2F+ 雪\",\n            \"Size\": 1\n        },\n        {\n            \"Key\": \"second/雪\",\n            \"Size\": 2\n        }\n    ],\n    \"Name\": \"bucket\",\n    \"Prefix\": \"prefix%2F+/雪\",\n    \"Delimiter\": \"/\",\n    \"CommonPrefixes\": [\n        {\n            \"Prefix\": \"common/0/\"\n        }\n    ],\n    \"EncodingType\": \"url\",\n    \"KeyCount\": 2,\n    \"NextContinuationToken\": \"opaque%2F+==/雪\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxOYW1lPmJ1Y2tldDwvTmFtZT48UHJlZml4PnByZWZpeCUyNTJGJTJCJTJGJUU5JTlCJUFBPC9QcmVmaXg+PERlbGltaXRlcj4lMkY8L0RlbGltaXRlcj48Q29udGVudHM+PEtleT5rZXklMjUyRiUyQiUyMCVFOSU5QiVBQTwvS2V5PjxTaXplPjE8L1NpemU+PC9Db250ZW50cz48Q29udGVudHM+PEtleT5zZWNvbmQlMkYlRTklOUIlQUE8L0tleT48U2l6ZT4yPC9TaXplPjwvQ29udGVudHM+PEtleUNvdW50PjI8L0tleUNvdW50PjxOZXh0Q29udGludWF0aW9uVG9rZW4+b3BhcXVlJTJGKz09L+mbqjwvTmV4dENvbnRpbnVhdGlvblRva2VuPjxDb21tb25QcmVmaXhlcz48UHJlZml4PmNvbW1vbiUyRjAlMkY8L1ByZWZpeD48L0NvbW1vblByZWZpeGVzPjxFbmNvZGluZ1R5cGU+dXJsPC9FbmNvZGluZ1R5cGU+PC9MaXN0UmVzdWx0Pg=="
+        }
+      ]
+    },
+    {
+      "operation": "ListParts",
+      "scenario": "aggregate",
+      "args": [
+        "s3api",
+        "list-parts",
+        "--bucket",
+        "bucket",
+        "--key",
+        "key",
+        "--upload-id",
+        "upload-id",
+        "--page-size",
+        "2"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Parts\": [\n        {\n            \"PartNumber\": 1,\n            \"ETag\": \"\\\"part\\\"\",\n            \"Size\": 3\n        },\n        {\n            \"PartNumber\": 2,\n            \"ETag\": \"\\\"part\\\"\",\n            \"Size\": 3\n        },\n        {\n            \"PartNumber\": 3,\n            \"ETag\": \"\\\"part\\\"\",\n            \"Size\": 3\n        }\n    ],\n    \"ChecksumAlgorithm\": null,\n    \"Initiator\": null,\n    \"Owner\": null,\n    \"StorageClass\": null,\n    \"ChecksumType\": null\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket/key?uploadId=upload-id&max-parts=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket/key?uploadId=upload-id&max-parts=2&part-number-marker=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxQYXJ0PjxQYXJ0TnVtYmVyPjE8L1BhcnROdW1iZXI+PEVUYWc+InBhcnQiPC9FVGFnPjxTaXplPjM8L1NpemU+PC9QYXJ0PjxQYXJ0PjxQYXJ0TnVtYmVyPjI8L1BhcnROdW1iZXI+PEVUYWc+InBhcnQiPC9FVGFnPjxTaXplPjM8L1NpemU+PC9QYXJ0PjxOZXh0UGFydE51bWJlck1hcmtlcj4yPC9OZXh0UGFydE51bWJlck1hcmtlcj48L0xpc3RSZXN1bHQ+"
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48UGFydD48UGFydE51bWJlcj4zPC9QYXJ0TnVtYmVyPjxFVGFnPiJwYXJ0IjwvRVRhZz48U2l6ZT4zPC9TaXplPjwvUGFydD48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListParts",
+      "scenario": "truncate-within",
+      "args": [
+        "s3api",
+        "list-parts",
+        "--bucket",
+        "bucket",
+        "--key",
+        "key",
+        "--upload-id",
+        "upload-id",
+        "--page-size",
+        "2",
+        "--max-items",
+        "1"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Parts\": [\n        {\n            \"PartNumber\": 1,\n            \"ETag\": \"\\\"part\\\"\",\n            \"Size\": 3\n        }\n    ],\n    \"ChecksumAlgorithm\": null,\n    \"Initiator\": null,\n    \"Owner\": null,\n    \"StorageClass\": null,\n    \"ChecksumType\": null,\n    \"NextToken\": \"eyJQYXJ0TnVtYmVyTWFya2VyIjogbnVsbCwgImJvdG9fdHJ1bmNhdGVfYW1vdW50IjogMX0=\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket/key?uploadId=upload-id&max-parts=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxQYXJ0PjxQYXJ0TnVtYmVyPjE8L1BhcnROdW1iZXI+PEVUYWc+InBhcnQiPC9FVGFnPjxTaXplPjM8L1NpemU+PC9QYXJ0PjxQYXJ0PjxQYXJ0TnVtYmVyPjI8L1BhcnROdW1iZXI+PEVUYWc+InBhcnQiPC9FVGFnPjxTaXplPjM8L1NpemU+PC9QYXJ0PjxOZXh0UGFydE51bWJlck1hcmtlcj4yPC9OZXh0UGFydE51bWJlck1hcmtlcj48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListParts",
+      "scenario": "resume-within",
+      "args": [
+        "s3api",
+        "list-parts",
+        "--bucket",
+        "bucket",
+        "--key",
+        "key",
+        "--upload-id",
+        "upload-id",
+        "--page-size",
+        "2",
+        "--starting-token",
+        "eyJQYXJ0TnVtYmVyTWFya2VyIjogbnVsbCwgImJvdG9fdHJ1bmNhdGVfYW1vdW50IjogMX0="
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Parts\": [\n        {\n            \"PartNumber\": 2,\n            \"ETag\": \"\\\"part\\\"\",\n            \"Size\": 3\n        },\n        {\n            \"PartNumber\": 3,\n            \"ETag\": \"\\\"part\\\"\",\n            \"Size\": 3\n        }\n    ],\n    \"ChecksumAlgorithm\": null,\n    \"Initiator\": null,\n    \"Owner\": null,\n    \"StorageClass\": null,\n    \"ChecksumType\": null\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket/key?uploadId=upload-id&max-parts=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket/key?uploadId=upload-id&max-parts=2&part-number-marker=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxQYXJ0PjxQYXJ0TnVtYmVyPjE8L1BhcnROdW1iZXI+PEVUYWc+InBhcnQiPC9FVGFnPjxTaXplPjM8L1NpemU+PC9QYXJ0PjxQYXJ0PjxQYXJ0TnVtYmVyPjI8L1BhcnROdW1iZXI+PEVUYWc+InBhcnQiPC9FVGFnPjxTaXplPjM8L1NpemU+PC9QYXJ0PjxOZXh0UGFydE51bWJlck1hcmtlcj4yPC9OZXh0UGFydE51bWJlck1hcmtlcj48L0xpc3RSZXN1bHQ+"
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48UGFydD48UGFydE51bWJlcj4zPC9QYXJ0TnVtYmVyPjxFVGFnPiJwYXJ0IjwvRVRhZz48U2l6ZT4zPC9TaXplPjwvUGFydD48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListParts",
+      "scenario": "truncate-boundary",
+      "args": [
+        "s3api",
+        "list-parts",
+        "--bucket",
+        "bucket",
+        "--key",
+        "key",
+        "--upload-id",
+        "upload-id",
+        "--page-size",
+        "2",
+        "--max-items",
+        "2"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Parts\": [\n        {\n            \"PartNumber\": 1,\n            \"ETag\": \"\\\"part\\\"\",\n            \"Size\": 3\n        },\n        {\n            \"PartNumber\": 2,\n            \"ETag\": \"\\\"part\\\"\",\n            \"Size\": 3\n        }\n    ],\n    \"ChecksumAlgorithm\": null,\n    \"Initiator\": null,\n    \"Owner\": null,\n    \"StorageClass\": null,\n    \"ChecksumType\": null,\n    \"NextToken\": \"eyJQYXJ0TnVtYmVyTWFya2VyIjogMn0=\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket/key?uploadId=upload-id&max-parts=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxQYXJ0PjxQYXJ0TnVtYmVyPjE8L1BhcnROdW1iZXI+PEVUYWc+InBhcnQiPC9FVGFnPjxTaXplPjM8L1NpemU+PC9QYXJ0PjxQYXJ0PjxQYXJ0TnVtYmVyPjI8L1BhcnROdW1iZXI+PEVUYWc+InBhcnQiPC9FVGFnPjxTaXplPjM8L1NpemU+PC9QYXJ0PjxOZXh0UGFydE51bWJlck1hcmtlcj4yPC9OZXh0UGFydE51bWJlck1hcmtlcj48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListParts",
+      "scenario": "resume-boundary",
+      "args": [
+        "s3api",
+        "list-parts",
+        "--bucket",
+        "bucket",
+        "--key",
+        "key",
+        "--upload-id",
+        "upload-id",
+        "--page-size",
+        "2",
+        "--starting-token",
+        "eyJQYXJ0TnVtYmVyTWFya2VyIjogMn0="
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Parts\": [\n        {\n            \"PartNumber\": 3,\n            \"ETag\": \"\\\"part\\\"\",\n            \"Size\": 3\n        }\n    ],\n    \"ChecksumAlgorithm\": null,\n    \"Initiator\": null,\n    \"Owner\": null,\n    \"StorageClass\": null,\n    \"ChecksumType\": null\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket/key?uploadId=upload-id&part-number-marker=2&max-parts=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48UGFydD48UGFydE51bWJlcj4zPC9QYXJ0TnVtYmVyPjxFVGFnPiJwYXJ0IjwvRVRhZz48U2l6ZT4zPC9TaXplPjwvUGFydD48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListParts",
+      "scenario": "no-paginate",
+      "args": [
+        "s3api",
+        "list-parts",
+        "--bucket",
+        "bucket",
+        "--key",
+        "key",
+        "--upload-id",
+        "upload-id",
+        "--no-paginate"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"RequestCharged\": \"requester\",\n    \"NextPartNumberMarker\": 2,\n    \"IsTruncated\": true,\n    \"Parts\": [\n        {\n            \"PartNumber\": 1,\n            \"ETag\": \"\\\"part\\\"\",\n            \"Size\": 3\n        },\n        {\n            \"PartNumber\": 2,\n            \"ETag\": \"\\\"part\\\"\",\n            \"Size\": 3\n        }\n    ]\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket/key?uploadId=upload-id",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxQYXJ0PjxQYXJ0TnVtYmVyPjE8L1BhcnROdW1iZXI+PEVUYWc+InBhcnQiPC9FVGFnPjxTaXplPjM8L1NpemU+PC9QYXJ0PjxQYXJ0PjxQYXJ0TnVtYmVyPjI8L1BhcnROdW1iZXI+PEVUYWc+InBhcnQiPC9FVGFnPjxTaXplPjM8L1NpemU+PC9QYXJ0PjxOZXh0UGFydE51bWJlck1hcmtlcj4yPC9OZXh0UGFydE51bWJlck1hcmtlcj48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListDirectoryBuckets",
+      "scenario": "aggregate",
+      "args": [
+        "s3api",
+        "list-directory-buckets",
+        "--page-size",
+        "2"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Buckets\": [\n        {\n            \"Name\": \"bucket-0-0\"\n        },\n        {\n            \"Name\": \"bucket-0-1\"\n        },\n        {\n            \"Name\": \"bucket-1-0\"\n        }\n    ]\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/?max-directory-buckets=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/?max-directory-buckets=2&continuation-token=opaque%252F%2B%3D%3D%2F%E9%9B%AA",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMC0wPC9OYW1lPjwvQnVja2V0PjxCdWNrZXQ+PE5hbWU+YnVja2V0LTAtMTwvTmFtZT48L0J1Y2tldD48L0J1Y2tldHM+PENvbnRpbnVhdGlvblRva2VuPm9wYXF1ZSUyRis9PS/pm6o8L0NvbnRpbnVhdGlvblRva2VuPjwvTGlzdFJlc3VsdD4="
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMS0wPC9OYW1lPjwvQnVja2V0PjwvQnVja2V0cz48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListDirectoryBuckets",
+      "scenario": "truncate-within",
+      "args": [
+        "s3api",
+        "list-directory-buckets",
+        "--page-size",
+        "2",
+        "--max-items",
+        "1"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Buckets\": [\n        {\n            \"Name\": \"bucket-0-0\"\n        }\n    ],\n    \"NextToken\": \"eyJDb250aW51YXRpb25Ub2tlbiI6IG51bGwsICJib3RvX3RydW5jYXRlX2Ftb3VudCI6IDF9\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/?max-directory-buckets=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMC0wPC9OYW1lPjwvQnVja2V0PjxCdWNrZXQ+PE5hbWU+YnVja2V0LTAtMTwvTmFtZT48L0J1Y2tldD48L0J1Y2tldHM+PENvbnRpbnVhdGlvblRva2VuPm9wYXF1ZSUyRis9PS/pm6o8L0NvbnRpbnVhdGlvblRva2VuPjwvTGlzdFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "operation": "ListDirectoryBuckets",
+      "scenario": "resume-within",
+      "args": [
+        "s3api",
+        "list-directory-buckets",
+        "--page-size",
+        "2",
+        "--starting-token",
+        "eyJDb250aW51YXRpb25Ub2tlbiI6IG51bGwsICJib3RvX3RydW5jYXRlX2Ftb3VudCI6IDF9"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Buckets\": [\n        {\n            \"Name\": \"bucket-0-1\"\n        },\n        {\n            \"Name\": \"bucket-1-0\"\n        }\n    ]\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/?max-directory-buckets=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/?max-directory-buckets=2&continuation-token=opaque%252F%2B%3D%3D%2F%E9%9B%AA",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMC0wPC9OYW1lPjwvQnVja2V0PjxCdWNrZXQ+PE5hbWU+YnVja2V0LTAtMTwvTmFtZT48L0J1Y2tldD48L0J1Y2tldHM+PENvbnRpbnVhdGlvblRva2VuPm9wYXF1ZSUyRis9PS/pm6o8L0NvbnRpbnVhdGlvblRva2VuPjwvTGlzdFJlc3VsdD4="
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMS0wPC9OYW1lPjwvQnVja2V0PjwvQnVja2V0cz48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListDirectoryBuckets",
+      "scenario": "truncate-boundary",
+      "args": [
+        "s3api",
+        "list-directory-buckets",
+        "--page-size",
+        "2",
+        "--max-items",
+        "2"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Buckets\": [\n        {\n            \"Name\": \"bucket-0-0\"\n        },\n        {\n            \"Name\": \"bucket-0-1\"\n        }\n    ],\n    \"NextToken\": \"eyJDb250aW51YXRpb25Ub2tlbiI6ICJvcGFxdWUlMkYrPT0vXHU5NmVhIn0=\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/?max-directory-buckets=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMC0wPC9OYW1lPjwvQnVja2V0PjxCdWNrZXQ+PE5hbWU+YnVja2V0LTAtMTwvTmFtZT48L0J1Y2tldD48L0J1Y2tldHM+PENvbnRpbnVhdGlvblRva2VuPm9wYXF1ZSUyRis9PS/pm6o8L0NvbnRpbnVhdGlvblRva2VuPjwvTGlzdFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "operation": "ListDirectoryBuckets",
+      "scenario": "resume-boundary",
+      "args": [
+        "s3api",
+        "list-directory-buckets",
+        "--page-size",
+        "2",
+        "--starting-token",
+        "eyJDb250aW51YXRpb25Ub2tlbiI6ICJvcGFxdWUlMkYrPT0vXHU5NmVhIn0="
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Buckets\": [\n        {\n            \"Name\": \"bucket-1-0\"\n        }\n    ]\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/?continuation-token=opaque%252F%2B%3D%3D%2F%E9%9B%AA&max-directory-buckets=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMS0wPC9OYW1lPjwvQnVja2V0PjwvQnVja2V0cz48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListDirectoryBuckets",
+      "scenario": "no-paginate",
+      "args": [
+        "s3api",
+        "list-directory-buckets",
+        "--no-paginate"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Buckets\": [\n        {\n            \"Name\": \"bucket-0-0\"\n        },\n        {\n            \"Name\": \"bucket-0-1\"\n        }\n    ],\n    \"ContinuationToken\": \"opaque%2F+==/雪\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMC0wPC9OYW1lPjwvQnVja2V0PjxCdWNrZXQ+PE5hbWU+YnVja2V0LTAtMTwvTmFtZT48L0J1Y2tldD48L0J1Y2tldHM+PENvbnRpbnVhdGlvblRva2VuPm9wYXF1ZSUyRis9PS/pm6o8L0NvbnRpbnVhdGlvblRva2VuPjwvTGlzdFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "operation": "ListBuckets",
+      "scenario": "aggregate",
+      "args": [
+        "s3api",
+        "list-buckets",
+        "--page-size",
+        "2"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Buckets\": [\n        {\n            \"Name\": \"bucket-0-0\"\n        },\n        {\n            \"Name\": \"bucket-0-1\"\n        },\n        {\n            \"Name\": \"bucket-1-0\"\n        }\n    ],\n    \"Owner\": {\n        \"ID\": \"first-owner\"\n    },\n    \"Prefix\": null\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/?max-buckets=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/?max-buckets=2&continuation-token=opaque%252F%2B%3D%3D%2F%E9%9B%AA",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMC0wPC9OYW1lPjwvQnVja2V0PjxCdWNrZXQ+PE5hbWU+YnVja2V0LTAtMTwvTmFtZT48L0J1Y2tldD48L0J1Y2tldHM+PE93bmVyPjxJRD5maXJzdC1vd25lcjwvSUQ+PC9Pd25lcj48Q29udGludWF0aW9uVG9rZW4+b3BhcXVlJTJGKz09L+mbqjwvQ29udGludWF0aW9uVG9rZW4+PC9MaXN0UmVzdWx0Pg=="
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMS0wPC9OYW1lPjwvQnVja2V0PjwvQnVja2V0cz48T3duZXI+PElEPnNlY29uZC1vd25lcjwvSUQ+PC9Pd25lcj48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListBuckets",
+      "scenario": "truncate-within",
+      "args": [
+        "s3api",
+        "list-buckets",
+        "--page-size",
+        "2",
+        "--max-items",
+        "1"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Buckets\": [\n        {\n            \"Name\": \"bucket-0-0\"\n        }\n    ],\n    \"Owner\": {\n        \"ID\": \"first-owner\"\n    },\n    \"Prefix\": null,\n    \"NextToken\": \"eyJDb250aW51YXRpb25Ub2tlbiI6IG51bGwsICJib3RvX3RydW5jYXRlX2Ftb3VudCI6IDF9\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/?max-buckets=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMC0wPC9OYW1lPjwvQnVja2V0PjxCdWNrZXQ+PE5hbWU+YnVja2V0LTAtMTwvTmFtZT48L0J1Y2tldD48L0J1Y2tldHM+PE93bmVyPjxJRD5maXJzdC1vd25lcjwvSUQ+PC9Pd25lcj48Q29udGludWF0aW9uVG9rZW4+b3BhcXVlJTJGKz09L+mbqjwvQ29udGludWF0aW9uVG9rZW4+PC9MaXN0UmVzdWx0Pg=="
+        }
+      ]
+    },
+    {
+      "operation": "ListBuckets",
+      "scenario": "resume-within",
+      "args": [
+        "s3api",
+        "list-buckets",
+        "--page-size",
+        "2",
+        "--starting-token",
+        "eyJDb250aW51YXRpb25Ub2tlbiI6IG51bGwsICJib3RvX3RydW5jYXRlX2Ftb3VudCI6IDF9"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Buckets\": [\n        {\n            \"Name\": \"bucket-0-1\"\n        },\n        {\n            \"Name\": \"bucket-1-0\"\n        }\n    ],\n    \"Owner\": {\n        \"ID\": \"first-owner\"\n    },\n    \"Prefix\": null\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/?max-buckets=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/?max-buckets=2&continuation-token=opaque%252F%2B%3D%3D%2F%E9%9B%AA",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMC0wPC9OYW1lPjwvQnVja2V0PjxCdWNrZXQ+PE5hbWU+YnVja2V0LTAtMTwvTmFtZT48L0J1Y2tldD48L0J1Y2tldHM+PE93bmVyPjxJRD5maXJzdC1vd25lcjwvSUQ+PC9Pd25lcj48Q29udGludWF0aW9uVG9rZW4+b3BhcXVlJTJGKz09L+mbqjwvQ29udGludWF0aW9uVG9rZW4+PC9MaXN0UmVzdWx0Pg=="
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMS0wPC9OYW1lPjwvQnVja2V0PjwvQnVja2V0cz48T3duZXI+PElEPnNlY29uZC1vd25lcjwvSUQ+PC9Pd25lcj48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListBuckets",
+      "scenario": "truncate-boundary",
+      "args": [
+        "s3api",
+        "list-buckets",
+        "--page-size",
+        "2",
+        "--max-items",
+        "2"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Buckets\": [\n        {\n            \"Name\": \"bucket-0-0\"\n        },\n        {\n            \"Name\": \"bucket-0-1\"\n        }\n    ],\n    \"Owner\": {\n        \"ID\": \"first-owner\"\n    },\n    \"Prefix\": null,\n    \"NextToken\": \"eyJDb250aW51YXRpb25Ub2tlbiI6ICJvcGFxdWUlMkYrPT0vXHU5NmVhIn0=\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/?max-buckets=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMC0wPC9OYW1lPjwvQnVja2V0PjxCdWNrZXQ+PE5hbWU+YnVja2V0LTAtMTwvTmFtZT48L0J1Y2tldD48L0J1Y2tldHM+PE93bmVyPjxJRD5maXJzdC1vd25lcjwvSUQ+PC9Pd25lcj48Q29udGludWF0aW9uVG9rZW4+b3BhcXVlJTJGKz09L+mbqjwvQ29udGludWF0aW9uVG9rZW4+PC9MaXN0UmVzdWx0Pg=="
+        }
+      ]
+    },
+    {
+      "operation": "ListBuckets",
+      "scenario": "resume-boundary",
+      "args": [
+        "s3api",
+        "list-buckets",
+        "--page-size",
+        "2",
+        "--starting-token",
+        "eyJDb250aW51YXRpb25Ub2tlbiI6ICJvcGFxdWUlMkYrPT0vXHU5NmVhIn0="
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Buckets\": [\n        {\n            \"Name\": \"bucket-1-0\"\n        }\n    ],\n    \"Owner\": {\n        \"ID\": \"second-owner\"\n    },\n    \"Prefix\": null\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/?continuation-token=opaque%252F%2B%3D%3D%2F%E9%9B%AA&max-buckets=2",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMS0wPC9OYW1lPjwvQnVja2V0PjwvQnVja2V0cz48T3duZXI+PElEPnNlY29uZC1vd25lcjwvSUQ+PC9Pd25lcj48L0xpc3RSZXN1bHQ+"
+        }
+      ]
+    },
+    {
+      "operation": "ListBuckets",
+      "scenario": "no-paginate",
+      "args": [
+        "s3api",
+        "list-buckets",
+        "--no-paginate"
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"Buckets\": [\n        {\n            \"Name\": \"bucket-0-0\"\n        },\n        {\n            \"Name\": \"bucket-0-1\"\n        }\n    ],\n    \"Owner\": {\n        \"ID\": \"first-owner\"\n    },\n    \"ContinuationToken\": \"opaque%2F+==/雪\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml",
+            "x-amz-request-charged": "requester"
+          },
+          "body_base64": "PExpc3RSZXN1bHQ+PEJ1Y2tldHM+PEJ1Y2tldD48TmFtZT5idWNrZXQtMC0wPC9OYW1lPjwvQnVja2V0PjxCdWNrZXQ+PE5hbWU+YnVja2V0LTAtMTwvTmFtZT48L0J1Y2tldD48L0J1Y2tldHM+PE93bmVyPjxJRD5maXJzdC1vd25lcjwvSUQ+PC9Pd25lcj48Q29udGludWF0aW9uVG9rZW4+b3BhcXVlJTJGKz09L+mbqjwvQ29udGludWF0aW9uVG9rZW4+PC9MaXN0UmVzdWx0Pg=="
+        }
+      ]
+    }
+  ],
+  "paginators_sha256": "b02b9442933b95a9bb804ff6ec9b3d3e1019f606b3d0be82228c9e2b4ed4dd3c"
+}

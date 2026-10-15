@@ -1,0 +1,25 @@
+{
+    "Bucket": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "MetadataConfiguration": {
+        "JournalTableConfiguration": {
+            "RecordExpiration": {
+                "Expiration": "ENABLED",
+                "Days": 0
+            },
+            "EncryptionConfiguration": {
+                "SseAlgorithm": "aws:kms",
+                "KmsKeyArn": ""
+            }
+        },
+        "InventoryTableConfiguration": {
+            "ConfigurationState": "ENABLED",
+            "EncryptionConfiguration": {
+                "SseAlgorithm": "aws:kms",
+                "KmsKeyArn": ""
+            }
+        }
+    },
+    "ExpectedBucketOwner": ""
+}

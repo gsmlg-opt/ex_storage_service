@@ -1,0 +1,9 @@
+{
+    "Bucket": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "RequestPaymentConfiguration": {
+        "Payer": "Requester"
+    },
+    "ExpectedBucketOwner": ""
+}

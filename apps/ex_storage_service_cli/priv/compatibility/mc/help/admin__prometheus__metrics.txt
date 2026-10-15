@@ -1,0 +1,75 @@
+NAME:
+  mc admin prometheus metrics - print prometheus metrics
+USAGE:
+  mc admin prometheus metrics TARGET [METRIC-TYPE]
+
+METRIC-TYPE:
+  valid values are
+    api-version v2 ['cluster', 'node', 'bucket', 'resource']. defaults to 'cluster' if not specified.
+    api-version v3 ["api", "system", "debug", "cluster", "ilm", "audit", "logger", "replication", "notification", "scanner"]. defaults to all if not specified.
+
+FLAGS:
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --bucket value                   bucket name to list metrics for. only applicable with api version v3 for metric type 'api, replication'
+  --api-version value              version of metrics api to use. valid values are ['v2', 'v3']. defaults to 'v2' if not specified. (default: "v2")
+  --help, -h                       show help
+  
+EXAMPLES (v3):
+  1. API metrics
+     $ mc admin prometheus metrics play api --api-version v3
+
+  2. API metrics for the bucket 'mybucket'
+     $ mc admin prometheus metrics play api --bucket mybucket --api-version v3
+
+  3. System metrics
+     $ mc admin prometheus metrics play system --api-version v3
+
+  4. Debug metrics
+     $ mc admin prometheus metrics play debug --api-version v3
+
+  5. Cluster metrics
+     $ mc admin prometheus metrics play cluster --api-version v3
+
+  6. ILM metrics
+     $ mc admin prometheus metrics play ilm --api-version v3
+
+  7. Audit metrics
+     $ mc admin prometheus metrics play audit --api-version v3
+
+  8. Logger metrics
+     $ mc admin prometheus metrics play logger --api-version v3
+
+  9. Replication metrics
+     $ mc admin prometheus metrics play replication --api-version v3
+
+  10. Replication metrics for the bucket 'mybucket'
+      $ mc admin prometheus metrics play replication --bucket mybucket --api-version v3
+
+  11. Notification metrics
+      $ mc admin prometheus metrics play notification --api-version v3
+
+  12. Scanner metrics
+      $ mc admin prometheus metrics play scanner --api-version v3
+
+EXAMPLES (v2):
+  1. Metrics reported cluster wide.
+     $ mc admin prometheus metrics play
+
+  2. Metrics reported at node level.
+     $ mc admin prometheus metrics play node
+
+  3. Metrics reported at bucket level.
+     $ mc admin prometheus metrics play bucket
+
+  4. Resource metrics.
+     $ mc admin prometheus metrics play resource

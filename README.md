@@ -205,6 +205,51 @@ CLI commands include:
 | `ess info` | Show server health information |
 | `ess version` | Print the CLI version |
 
+The client also provides AWS-style `ess s3` and model-backed `ess s3api`
+commands, native named aliases, transfer recovery, synchronization, and explicit
+IAM Identity Center login/logout. Use `ess COMMAND --help` for the accepted
+command-specific options. The [CLI guide](apps/ex_storage_service_cli/README.md)
+covers frontend selection, credentials, alias migration/restore, output, and
+safety. The pinned baseline is AWS CLI 2.31.18; see the
+[compatibility reports](docs/cli/compatibility/coverage.md) for scoped evidence
+and remaining gaps rather than assuming complete AWS or mc parity.
+
+CLI installation builds a small C11 native resource library and pager helper,
+requiring a C compiler (`CC`, otherwise `cc`) and OTP development headers.
+Escript execution requires matching Erlang/OTP, OS, and CPU; it needs no runtime
+compiler or storage-server applications. Linux x86_64 / Elixir 1.18.5 / OTP 28 is
+validated. macOS, other architectures, and the minimum-version matrix remain
+unverified; interactive paging is Linux-only.
+
+CLI environment settings supplement the server settings below:
+
+| Variable | Client behavior |
+| --- | --- |
+| `ESS_CONFIG_DIR`, `XDG_CONFIG_HOME` | Native config override, otherwise `~/.config/ess` |
+| `ESS_STATE_DIR`, `XDG_STATE_HOME` | Durable transfer state: explicit ESS root, otherwise `<XDG_STATE_HOME>/ess`, then `~/.local/state/ess` |
+| `AWS_DEFAULT_OUTPUT` | Selected structured format unless explicitly overridden |
+| `AWS_RETRY_MODE`, `AWS_MAX_ATTEMPTS` | `standard` (default) or `adaptive`; total attempts default 3 |
+| `AWS_USE_FIPS_ENDPOINT`, `AWS_USE_DUALSTACK_ENDPOINT` | Boolean AWS endpoint-resolution settings |
+| `AWS_ENDPOINT_URL_S3_CONTROL`, `AWS_ENDPOINT_URL_STS` | Independent control endpoints for AWS move access-point validation |
+| `AWS_IGNORE_CONFIGURED_ENDPOINT_URLS` | Ignore configured AWS service/global endpoints when true |
+| `AWS_CLI_S3_MV_VALIDATE_SAME_S3_PATHS` | Enable underlying AWS move path checks with exact case-insensitive `true` |
+| `AWS_S3_USE_ARN_REGION` | Applicable Outposts ARN region policy |
+| `AWS_REQUEST_CHECKSUM_CALCULATION`, `AWS_RESPONSE_CHECKSUM_VALIDATION` | `when_supported` or `when_required` checksum policy |
+| `AWS_EC2_METADATA_V1_DISABLED` | Forbid IMDSv1 fallback when true |
+| `AWS_CLI_AUTO_PROMPT` | Explicit `on`, `on-partial`, or `off` (default); terminal required |
+| `AWS_PAGER` | TTY pager; empty disables; overrides profile `cli_pager`, `PAGER`, then `less` |
+| `PAGER`, `LESS` | Pager fallback/options; default `LESS=FRX` only when absent |
+| `CC` | Build-time native C compiler executable |
+| `ESS_RESOURCE_LARGE_BYTES` | Test-only transfer acceptance object size in bytes; default `67108864`, multi-GiB acceptance `2147483648` |
+
+AWS namespaces separately honor standard AWS profile, credentials-file, region,
+endpoint, CA-bundle and provider settings; they do not load native ESS aliases.
+Profile `cli_binary_format` is read before blob decoding; explicit
+`--cli-binary-format` wins, default `base64`; `fileb://` preserves raw bytes.
+Auto-prompt uses bounded stderr questions and sensitive echo suppression, with
+a different UI from AWS's full-screen editor. Pager output uses private bounded
+spooling (64 MiB, five-minute pager deadline); raw binary output bypasses paging.
+
 ## Architecture
 
 The umbrella contains five apps:
@@ -234,8 +279,9 @@ validate headers before
 forwarding bytes with acknowledged backpressure.
 Webhook retries remain controlled by the notification worker.
 
-The core and CLI packages accept HTTP 0.17.2 or later in the 0.17 series, as well
-as 0.18.x. The umbrella locks a coordinated 0.18 family without dependency overrides.
+The core package accepts HTTP 0.17.2 or later in the 0.17 series, as well
+as 0.18.x. The CLI requires `http_fetch ~> 0.18.1` for its validated transport
+API. The umbrella locks a coordinated 0.18 family without dependency overrides.
 
 Storage requests set `decode_body: false` to preserve stored gzip/deflate object
 bytes and their Content-Encoding metadata. This uses the raw response support

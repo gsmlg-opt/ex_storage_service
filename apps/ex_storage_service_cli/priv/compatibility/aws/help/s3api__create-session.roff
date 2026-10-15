@@ -1,0 +1,404 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "CREATE-SESSION"  "" "" ""
+.SH NAME
+create-session \- 
+.SH DESCRIPTION
+.sp
+Creates a session that establishes temporary security credentials to support fast authentication and authorization for the Zonal endpoint API operations on directory buckets. For more information about Zonal endpoint API operations that include the Availability Zone in the request endpoint, see \fI\%S3 Express One Zone APIs\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+To make Zonal endpoint API requests on a directory bucket, use the \fBCreateSession\fP API operation. Specifically, you grant \fBs3express:CreateSession\fP permission to a bucket in a bucket policy or an IAM identity\-based policy. Then, you use IAM credentials to make the \fBCreateSession\fP API request on the bucket, which returns temporary security credentials that include the access key ID, secret access key, session token, and expiration. These credentials have associated permissions to access the Zonal endpoint API operations. After the session is created, you don’t need to use other policies to grant permissions to each Zonal endpoint API individually. Instead, in your Zonal endpoint API requests, you sign your requests by applying the temporary security credentials of the session to the request headers and following the SigV4 protocol for authentication. You also apply the session token to the \fBx\-amz\-s3session\-token\fP request header for authorization. Temporary security credentials are scoped to the bucket and expire after 5 minutes. After the expiration time, any calls that you make with those credentials will fail. You must use IAM credentials again to make a \fBCreateSession\fP API request that generates a new set of temporary credentials for use. Temporary credentials cannot be extended or refreshed beyond the original specified interval.
+.sp
+If you use Amazon Web Services SDKs, SDKs handle the session token refreshes automatically to avoid service interruptions when a session expires. We recommend that you use the Amazon Web Services SDKs to initiate and manage requests to the CreateSession API. For more information, see \fI\%Performance guidelines and design patterns\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+You must make requests for this API operation to the Zonal endpoint. These endpoints support virtual\-hosted\-style requests in the format \fBhttps://*bucket\-name* .s3express\-*zone\-id* .*region\-code* .amazonaws.com\fP . Path\-style requests are not supported. For more information about endpoints in Availability Zones, see \fI\%Regional and Zonal endpoints for directory buckets in Availability Zones\fP in the \fIAmazon S3 User Guide\fP . For more information about endpoints in Local Zones, see \fI\%Concepts for directory buckets in Local Zones\fP in the \fIAmazon S3 User Guide\fP .
+.IP \(bu 2
+\fB\(ga\(gaCopyObject\(ga\(ga API operation\fP \- Unlike other Zonal endpoint API operations, the \fBCopyObject\fP API operation doesn\(aqt use the temporary security credentials returned from the \fBCreateSession\fP API operation for authentication and authorization. For information about authentication and authorization of the \fBCopyObject\fP API operation on directory buckets, see \fI\%CopyObject\fP .
+.IP \(bu 2
+\fB\(ga\(gaHeadBucket\(ga\(ga API operation\fP \- Unlike other Zonal endpoint API operations, the \fBHeadBucket\fP API operation doesn\(aqt use the temporary security credentials returned from the \fBCreateSession\fP API operation for authentication and authorization. For information about authentication and authorization of the \fBHeadBucket\fP API operation on directory buckets, see \fI\%HeadBucket\fP .
+.UNINDENT
+.sp
+Permissions
+.UNINDENT
+.UNINDENT
+.sp
+To obtain temporary security credentials, you must create a bucket policy or an IAM identity\-based policy that grants \fBs3express:CreateSession\fP permission to the bucket. In a policy, you can have the \fBs3express:SessionMode\fP condition key to control who can create a \fBReadWrite\fP or \fBReadOnly\fP session. For more information about \fBReadWrite\fP or \fBReadOnly\fP sessions, see \(ga \fBx\-amz\-create\-session\-mode\fP \fI\%https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateSession\fP\&.html#API_CreateSession_RequestParameters\(ga__ . For example policies, see \fI\%Example bucket policies for S3 Express One Zone\fP and \fI\%Amazon Web Services Identity and Access Management (IAM) identity\-based policies for S3 Express One Zone\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+To grant cross\-account access to Zonal endpoint API operations, the bucket policy should also grant both accounts the \fBs3express:CreateSession\fP permission.
+.sp
+If you want to encrypt objects with SSE\-KMS, you must also have the \fBkms:GenerateDataKey\fP and the \fBkms:Decrypt\fP permissions in IAM identity\-based policies and KMS key policies for the target KMS key.
+.INDENT 0.0
+.INDENT 3.5
+Encryption
+.UNINDENT
+.UNINDENT
+.sp
+For directory buckets, there are only two supported options for server\-side encryption: server\-side encryption with Amazon S3 managed keys (SSE\-S3) (\fBAES256\fP ) and server\-side encryption with KMS keys (SSE\-KMS) (\fBaws:kms\fP ). We recommend that the bucket\(aqs default encryption uses the desired encryption configuration and you don\(aqt override the bucket default encryption in your \fBCreateSession\fP requests or \fBPUT\fP object requests. Then, new objects are automatically encrypted with the desired encryption settings. For more information, see \fI\%Protecting data with server\-side encryption\fP in the \fIAmazon S3 User Guide\fP . For more information about the encryption overriding behaviors in directory buckets, see \fI\%Specifying server\-side encryption with KMS for new object uploads\fP .
+.sp
+For \fI\%Zonal endpoint (object\-level) API operations\fP except \fI\%CopyObject\fP and \fI\%UploadPartCopy\fP , you authenticate and authorize requests through \fI\%CreateSession\fP for low latency. To encrypt new objects in a directory bucket with SSE\-KMS, you must specify SSE\-KMS as the directory bucket\(aqs default encryption configuration with a KMS key (specifically, a \fI\%customer managed key\fP ). Then, when a session is created for Zonal endpoint API operations, new objects are automatically encrypted and decrypted with SSE\-KMS and S3 Bucket Keys during the session.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+Only 1 \fI\%customer managed key\fP is supported per directory bucket for the lifetime of the bucket. The \fI\%Amazon Web Services managed key\fP (\fBaws/s3\fP ) isn\(aqt supported. After you specify SSE\-KMS as your bucket\(aqs default encryption configuration with a customer managed key, you can\(aqt change the customer managed key for the bucket\(aqs SSE\-KMS configuration.
+.UNINDENT
+.UNINDENT
+.sp
+In the Zonal endpoint API calls (except \fI\%CopyObject\fP and \fI\%UploadPartCopy\fP ) using the REST API, you can\(aqt override the values of the encryption settings (\fBx\-amz\-server\-side\-encryption\fP , \fBx\-amz\-server\-side\-encryption\-aws\-kms\-key\-id\fP , \fBx\-amz\-server\-side\-encryption\-context\fP , and \fBx\-amz\-server\-side\-encryption\-bucket\-key\-enabled\fP ) from the \fBCreateSession\fP request. You don\(aqt need to explicitly specify these encryption settings values in Zonal endpoint API calls, and Amazon S3 will use the encryption settings values from the \fBCreateSession\fP request to protect new objects in the directory bucket.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+When you use the CLI or the Amazon Web Services SDKs, for \fBCreateSession\fP , the session token refreshes automatically to avoid service interruptions when a session expires. The CLI or the Amazon Web Services SDKs use the bucket\(aqs default encryption configuration for the \fBCreateSession\fP request. It\(aqs not supported to override the encryption settings values in the \fBCreateSession\fP request. Also, in the Zonal endpoint API calls (except \fI\%CopyObject\fP and \fI\%UploadPartCopy\fP ), it\(aqs not supported to override the values of the encryption settings from the \fBCreateSession\fP request.
+.sp
+HTTP Host header syntax
+.UNINDENT
+.UNINDENT
+.sp
+\fBDirectory buckets\fP \- The HTTP Host header syntax is \(ga\(ga \fIBucket\-name\fP .s3express\-\fIzone\-id\fP .*region\-code* .amazonaws.com\(ga\(ga .
+.UNINDENT
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  create\-session
+[\-\-session\-mode <value>]
+\-\-bucket <value>
+[\-\-server\-side\-encryption <value>]
+[\-\-ssekms\-key\-id <value>]
+[\-\-ssekms\-encryption\-context <value>]
+[\-\-bucket\-key\-enabled | \-\-no\-bucket\-key\-enabled]
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-session\-mode\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the mode of the session that will be created, either \fBReadWrite\fP or \fBReadOnly\fP . By default, a \fBReadWrite\fP session is created. A \fBReadWrite\fP session is capable of executing all the Zonal endpoint API operations on a directory bucket. A \fBReadOnly\fP session is constrained to execute the following Zonal endpoint API operations: \fBGetObject\fP , \fBHeadObject\fP , \fBListObjectsV2\fP , \fBGetObjectAttributes\fP , \fBListParts\fP , and \fBListMultipartUploads\fP .
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBReadOnly\fP
+.IP \(bu 2
+\fBReadWrite\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The name of the bucket that you create a session for.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-server\-side\-encryption\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The server\-side encryption algorithm to use when you store objects in the directory bucket.
+.sp
+For directory buckets, there are only two supported options for server\-side encryption: server\-side encryption with Amazon S3 managed keys (SSE\-S3) (\fBAES256\fP ) and server\-side encryption with KMS keys (SSE\-KMS) (\fBaws:kms\fP ). By default, Amazon S3 encrypts data with SSE\-S3. For more information, see \fI\%Protecting data with server\-side encryption\fP in the \fIAmazon S3 User Guide\fP .
+.INDENT 0.0
+.INDENT 3.5
+\fBS3 access points for Amazon FSx\fP \- When accessing data stored in Amazon FSx file systems using S3 access points, the only valid server side encryption option is \fBaws:fsx\fP . All Amazon FSx file systems have encryption configured by default and are encrypted at rest. Data is automatically encrypted before being written to the file system, and automatically decrypted as it is read. These processes are handled transparently by Amazon FSx.
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBAES256\fP
+.IP \(bu 2
+\fBaws:fsx\fP
+.IP \(bu 2
+\fBaws:kms\fP
+.IP \(bu 2
+\fBaws:kms:dsse\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-ssekms\-key\-id\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+If you specify \fBx\-amz\-server\-side\-encryption\fP with \fBaws:kms\fP , you must specify the \fBx\-amz\-server\-side\-encryption\-aws\-kms\-key\-id\fP header with the ID (Key ID or Key ARN) of the KMS symmetric encryption customer managed key to use. Otherwise, you get an HTTP \fB400 Bad Request\fP error. Only use the key ID or key ARN. The key alias format of the KMS key isn\(aqt supported. Also, if the KMS key doesn\(aqt exist in the same account that\(aqt issuing the command, you must use the full Key ARN not the Key ID.
+.sp
+Your SSE\-KMS configuration can only support 1 \fI\%customer managed key\fP per directory bucket\(aqs lifetime. The \fI\%Amazon Web Services managed key\fP (\fBaws/s3\fP ) isn\(aqt supported.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-ssekms\-encryption\-context\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the Amazon Web Services KMS Encryption Context as an additional encryption context to use for object encryption. The value of this header is a Base64 encoded string of a UTF\-8 encoded JSON, which contains the encryption context as key\-value pairs. This value is stored as object metadata and automatically gets passed on to Amazon Web Services KMS for future \fBGetObject\fP operations on this object.
+.INDENT 0.0
+.INDENT 3.5
+\fBGeneral purpose buckets\fP \- This value must be explicitly added during \fBCopyObject\fP operations if you want an additional encryption context for your object. For more information, see \fI\%Encryption context\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBDirectory buckets\fP \- You can optionally provide an explicit encryption context value. The value must match the default encryption context \- the bucket Amazon Resource Name (ARN). An additional encryption context value is not supported.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-bucket\-key\-enabled\fP | \fB\-\-no\-bucket\-key\-enabled\fP (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Specifies whether Amazon S3 should use an S3 Bucket Key for object encryption with server\-side encryption using KMS keys (SSE\-KMS).
+.sp
+S3 Bucket Keys are always enabled for \fBGET\fP and \fBPUT\fP operations in a directory bucket and can’t be disabled. S3 Bucket Keys aren\(aqt supported, when you copy SSE\-KMS encrypted objects from general purpose buckets to directory buckets, from directory buckets to general purpose buckets, or between directory buckets, through \fI\%CopyObject\fP , \fI\%UploadPartCopy\fP , \fI\%the Copy operation in Batch Operations\fP , or \fI\%the import jobs\fP . In this case, Amazon S3 makes a call to KMS every time a copy request is made for a KMS\-encrypted object.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH OUTPUT
+.sp
+ServerSideEncryption \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The server\-side encryption algorithm used when you store objects in the directory bucket.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+When accessing data stored in Amazon FSx file systems using S3 access points, the only valid server side encryption option is \fBaws:fsx\fP .
+.UNINDENT
+.UNINDENT
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBAES256\fP
+.IP \(bu 2
+\fBaws:fsx\fP
+.IP \(bu 2
+\fBaws:kms\fP
+.IP \(bu 2
+\fBaws:kms:dsse\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+SSEKMSKeyId \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If you specify \fBx\-amz\-server\-side\-encryption\fP with \fBaws:kms\fP , this header indicates the ID of the KMS symmetric encryption customer managed key that was used for object encryption.
+.UNINDENT
+.UNINDENT
+.sp
+SSEKMSEncryptionContext \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+If present, indicates the Amazon Web Services KMS Encryption Context to use for object encryption. The value of this header is a Base64 encoded string of a UTF\-8 encoded JSON, which contains the encryption context as key\-value pairs. This value is stored as object metadata and automatically gets passed on to Amazon Web Services KMS for future \fBGetObject\fP operations on this object.
+.UNINDENT
+.UNINDENT
+.sp
+BucketKeyEnabled \-> (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Indicates whether to use an S3 Bucket Key for server\-side encryption with KMS keys (SSE\-KMS).
+.UNINDENT
+.UNINDENT
+.sp
+Credentials \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+The established temporary security credentials for the created session.
+.sp
+AccessKeyId \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+A unique identifier that\(aqs associated with a secret access key. The access key ID and the secret access key are used together to sign programmatic Amazon Web Services requests cryptographically.
+.UNINDENT
+.UNINDENT
+.sp
+SecretAccessKey \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+A key that\(aqs used with the access key ID to cryptographically sign programmatic Amazon Web Services requests. Signing a request identifies the sender and prevents the request from being altered.
+.UNINDENT
+.UNINDENT
+.sp
+SessionToken \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+A part of the temporary security credentials. The session token is used to validate the temporary security credentials.
+.UNINDENT
+.UNINDENT
+.sp
+Expiration \-> (timestamp) [required]
+.INDENT 0.0
+.INDENT 3.5
+Temporary security credentials expire after a specified interval. After temporary credentials expire, any calls that you make with those credentials will fail. So you must generate a new set of temporary credentials. Temporary credentials cannot be extended or refreshed beyond the original specified interval.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.\" Generated by docutils manpage writer.
+.

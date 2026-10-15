@@ -1,0 +1,88 @@
+NAME:
+  mc mv - move objects
+
+USAGE:
+  mc mv [FLAGS] SOURCE [SOURCE...] TARGET
+
+FLAGS:
+  --recursive, -r                    move recursively
+  --older-than value                 move objects older than value in duration string (e.g. 7d10h31s)
+  --newer-than value                 move objects newer than value in duration string (e.g. 7d10h31s)
+  --storage-class value, --sc value  set storage class for new object(s) on target
+  --attr value                       add custom metadata for the object
+  --preserve, -a                     preserve filesystem attributes (mode, ownership, timestamps)
+  --disable-multipart                disable multipart upload feature
+  --tags value                       apply one or more tags to the uploaded objects
+  --checksum value                   Add checksum to uploaded object. Values: CRC64NVME, CRC32, CRC32C, SHA1 or SHA256. Requires server trailing headers (AWS, MinIO)
+  --enc-c value                      encrypt/decrypt objects using client provided keys. (multiple keys can be provided) Formats: RawBase64 or Hex.
+  --enc-kms value                    encrypt/decrypt objects using specific server-side encryption keys. (multiple keys can be provided) [$MC_ENC_KMS]
+  --enc-s3 value                     encrypt/decrypt objects using server-side default keys and configurations. (multiple keys can be provided). [$MC_ENC_S3]
+  --config-dir value, -C value       path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                        disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp              disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                         disable color theme [$MC_NO_COLOR]
+  --json                             enable JSON lines formatted output [$MC_JSON]
+  --debug                            enable debug output [$MC_DEBUG]
+  --resolve value                    resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                         disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value               limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value             limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value    add custom HTTP header to the request. 'key:value' format.
+  --help, -h                         show help
+  
+
+ENVIRONMENT VARIABLES:
+  MC_ENC_KMS: KMS encryption key in the form of (alias/prefix=key).
+  MC_ENC_S3: S3 encryption key in the form of (alias/prefix=key).
+
+EXAMPLES:
+  01. Move a list of objects from local file system to Amazon S3 cloud storage.
+      $ mc mv Music/*.ogg s3/jukebox/
+
+  02. Move a folder recursively from MinIO cloud storage to Amazon S3 cloud storage.
+      $ mc mv --recursive play/mybucket/ s3/mybucket/
+
+  03. Move multiple local folders recursively to MinIO cloud storage.
+      $ mc mv --recursive backup/2014/ backup/2015/ play/archive/
+
+  04. Move a bucket recursively from aliased Amazon S3 cloud storage to local filesystem on Windows.
+      $ mc mv --recursive s3\documents\2014\ C:\Backups\2014
+
+  05. Move files older than 7 days and 10 hours from MinIO cloud storage to Amazon S3 cloud storage.
+      $ mc mv --older-than 7d10h play/mybucket/myfolder/ s3/mybucket/
+
+  06. Move files newer than 7 days and 10 hours from MinIO cloud storage to a local path.
+      $ mc mv --newer-than 7d10h play/mybucket/myfolder/ ~/latest/
+
+  07. Move an object with name containing unicode characters to Amazon S3 cloud storage.
+      $ mc mv 本語 s3/andoria/
+
+  08. Move a local folder with space separated characters to Amazon S3 cloud storage.
+      $ mc mv --recursive 'workdir/documents/May 2014/' s3/miniocloud
+
+  09. Move a list of objects from local file system to MinIO cloud storage with specified metadata, separated by ";"
+      $ mc mv --attr "key1=value1;key2=value2" Music/*.mp4 play/mybucket/
+
+  10. Move a list of objects from local file system to MinIO cloud storage and set tags to the uploaded objects
+      $ mc mv --tag "key1=value1" Music/*.mp4 play/mybucket/
+
+  11. Move a folder recursively from MinIO cloud storage to Amazon S3 cloud storage with Cache-Control and custom metadata, separated by ";".
+      $ mc mv --attr "Cache-Control=max-age=90000,min-fresh=9000;key1=value1;key2=value2" --recursive play/mybucket/myfolder/ s3/mybucket/
+
+  12. Move a text file to an object storage and assign REDUCED_REDUNDANCY storage-class to the uploaded object.
+      $ mc mv --storage-class REDUCED_REDUNDANCY myobject.txt play/mybucket
+
+  13. Move a text file to an object storage and preserve the file system attribute as metadata.
+      $ mc mv -a myobject.txt play/mybucket
+
+  14. Move a text file to an object storage and disable multipart upload feature.
+      $ mc mv --disable-multipart myobject.txt play/mybucket
+
+  15. Move a folder using client provided encryption keys from Amazon S3 to MinIO cloud storage.
+      $ mc mv --r --enc-c "s3/documents/=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MBB" --enc-c "myminio/documents/=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDA" s3/documents/ myminio/documents/
+
+  16. Move a folder using specific server managed encryption keys from Amazon S3 to MinIO cloud storage.
+      $ mc mv --r --enc-s3 "s3/documents" --enc-s3 "myminio/documents" s3/documents/ myminio/documents/
+
+  17. Add SHA256 checksum to move a text file to MinIO cloud storage.
+      $ mc mv --checksum SHA256 myobject.txt play/mybucket

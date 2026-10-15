@@ -1,0 +1,35 @@
+NAME:
+  mc share download - generate URLs for download access
+
+USAGE:
+  mc share download [FLAGS] TARGET [TARGET...]
+
+FLAGS:
+  --recursive, -r                  share all objects recursively
+  --version-id value, --vid value  share a particular object version
+  --expire value, -E value         set expiry in NN[h|m|s] (default: "168h")
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Share this object with 7 days default expiry.
+     $ mc share download s3/backup/2006-Mar-1/backup.tar.gz
+
+  2. Share this object with 10 minutes expiry.
+     $ mc share download --expire=10m s3/backup/2006-Mar-1/backup.tar.gz
+
+  3. Share all objects under this folder with 5 days expiry.
+     $ mc share download --expire=120h s3/backup/2006-Mar-1/
+
+  4. Share all objects under this bucket and all its folders and sub-folders with 5 days expiry.
+     $ mc share download --recursive --expire=120h s3/backup/

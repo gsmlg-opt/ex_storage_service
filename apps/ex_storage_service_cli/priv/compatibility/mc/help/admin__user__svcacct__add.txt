@@ -1,0 +1,44 @@
+NAME:
+  mc admin user svcacct add - add a new service account
+
+USAGE:
+  mc admin user svcacct add ALIAS ACCOUNT [FLAGS]
+
+ACCOUNT:
+  An account could be a regular MinIO user, STS or LDAP user.
+
+FLAGS:
+  --access-key value               set an access key for the service account
+  --secret-key value               set a secret key for the service account
+  --policy value                   path to a JSON policy file
+  --name value                     friendly name for the service account
+  --description value              description for the service account
+  --expiry value                   time of expiration for the service account
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+EXAMPLES:
+  1. Add a new service account for user 'foobar' to MinIO server with a name and description.
+     $ mc admin user svcacct add myminio foobar --name uploaderKey --description "foobar uploader scripts"
+
+  2. Add a new service account to MinIO server with specified access key and secret key for user 'foobar'.
+     $ mc admin user svcacct add myminio foobar --access-key "myaccesskey" --secret-key "mysecretkey"
+
+  3. Add a new service account to MinIO server with specified access key and random secret key for user 'foobar'.
+     $ mc admin user svcacct add myminio foobar --access-key "myaccesskey"
+
+  4. Add a new service account to MinIO server with specified secret key and random access key for user 'foobar'.
+     $ mc admin user svcacct add myminio foobar --secret-key "mysecretkey"
+
+  5. Add a new service account to MinIO server with specified expiry date in the future for user 'foobar'.
+     $ mc admin user svcacct add myminio foobar --expiry 2023-06-24T10:00:00-07:00

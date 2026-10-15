@@ -1,0 +1,15 @@
+{
+    "Bucket": "",
+    "Key": "",
+    "VersionId": "",
+    "MaxParts": 0,
+    "PartNumberMarker": 0,
+    "SSECustomerAlgorithm": "",
+    "SSECustomerKey": "",
+    "SSECustomerKeyMD5": "",
+    "RequestPayer": "requester",
+    "ExpectedBucketOwner": "",
+    "ObjectAttributes": [
+        "ETag"
+    ]
+}

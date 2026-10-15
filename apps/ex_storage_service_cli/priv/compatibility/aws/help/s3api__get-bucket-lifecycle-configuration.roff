@@ -1,0 +1,761 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "GET-BUCKET-LIFECYCLE-CONFIGURATION"  "" "" ""
+.SH NAME
+get-bucket-lifecycle-configuration \- 
+.SH DESCRIPTION
+.sp
+Returns the lifecycle configuration information set on the bucket. For information about lifecycle configuration, see \fI\%Object Lifecycle Management\fP .
+.sp
+Bucket lifecycle configuration now supports specifying a lifecycle rule using an object key name prefix, one or more object tags, object size, or any combination of these. Accordingly, this section describes the latest API, which is compatible with the new functionality. The previous version of the API supported filtering based only on an object key name prefix, which is supported for general purpose buckets for backward compatibility. For the related API description, see \fI\%GetBucketLifecycle\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+Lifecyle configurations for directory buckets only support expiring objects and cancelling multipart uploads. Expiring of versioned objects, transitions and tag filters are not supported.
+.sp
+Permissions
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+\fBGeneral purpose bucket permissions\fP \- By default, all Amazon S3 resources are private, including buckets, objects, and related subresources (for example, lifecycle configuration and website configuration). Only the resource owner (that is, the Amazon Web Services account that created it) can access the resource. The resource owner can optionally grant access permissions to others by writing an access policy. For this operation, a user must have the \fBs3:GetLifecycleConfiguration\fP permission. For more information about permissions, see \fI\%Managing Access Permissions to Your Amazon S3 Resources\fP .
+.IP \(bu 2
+\fBDirectory bucket permissions\fP \- You must have the \fBs3express:GetLifecycleConfiguration\fP permission in an IAM identity\-based policy to use this operation. Cross\-account access to this API operation isn\(aqt supported. The resource owner can optionally grant access permissions to others by creating a role or user for them as long as they are within the same account as the owner and resource. For more information about directory bucket policies and permissions, see \fI\%Authorizing Regional endpoint APIs with IAM\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+\fBDirectory buckets\fP \- For directory buckets, you must make requests for this API operation to the Regional endpoint. These endpoints support path\-style requests in the format 
+.nf
+\(ga\(ga
+.fi
+\fI\%https://s3express\-control.*region\-code*\fP .amazonaws.com/\fIbucket\-name\fP \(ga\(ga . Virtual\-hosted\-style requests aren\(aqt supported. For more information about endpoints in Availability Zones, see \fI\%Regional and Zonal endpoints for directory buckets in Availability Zones\fP in the \fIAmazon S3 User Guide\fP . For more information about endpoints in Local Zones, see \fI\%Concepts for directory buckets in Local Zones\fP in the \fIAmazon S3 User Guide\fP .
+.IP "System Message: WARNING/2 (<string>:, line 47)"
+Inline literal start\-string without end\-string.
+.UNINDENT
+.UNINDENT
+.sp
+HTTP Host header syntax
+.UNINDENT
+.UNINDENT
+.sp
+\fBDirectory buckets\fP \- The HTTP Host header syntax is \fBs3express\-control.*region* .amazonaws.com\fP .
+.sp
+\fBGetBucketLifecycleConfiguration\fP has the following special error:
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+Error code: \fBNoSuchLifecycleConfiguration\fP
+.INDENT 2.0
+.IP \(bu 2
+Description: The lifecycle configuration does not exist.
+.IP \(bu 2
+HTTP Status Code: 404 Not Found
+.IP \(bu 2
+SOAP Fault Code Prefix: Client
+.UNINDENT
+.UNINDENT
+.sp
+The following operations are related to \fBGetBucketLifecycleConfiguration\fP :
+.INDENT 0.0
+.IP \(bu 2
+\fI\%GetBucketLifecycle\fP
+.IP \(bu 2
+\fI\%PutBucketLifecycle\fP
+.IP \(bu 2
+\fI\%DeleteBucketLifecycle\fP
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  get\-bucket\-lifecycle\-configuration
+\-\-bucket <value>
+[\-\-expected\-bucket\-owner <value>]
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The name of the bucket for which to get the lifecycle information.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-expected\-bucket\-owner\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+The account ID of the expected bucket owner. If the account ID that you provide does not match the actual owner of the bucket, the request fails with the HTTP status code \fB403 Forbidden\fP (access denied).
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This parameter applies to general purpose buckets only. It is not supported for directory bucket lifecycle configurations.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH EXAMPLES
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+To use the following examples, you must have the AWS CLI installed and configured. See the \fI\%Getting started guide\fP in the \fIAWS CLI User Guide\fP for more information.
+.sp
+Unless otherwise stated, all examples have unix\-like quotation rules. These examples will need to be adapted to your terminal\(aqs quoting rules. See \fI\%Using quotation marks with strings\fP in the \fIAWS CLI User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+The following command retrieves the lifecycle configuration for a bucket named \fBamzn\-s3\-demo\-bucket\fP:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+aws s3api get\-bucket\-lifecycle\-configuration \-\-bucket amzn\-s3\-demo\-bucket
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Output:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+    \(dqRules\(dq: [
+        {
+            \(dqID\(dq: \(dqMove rotated logs to Glacier\(dq,
+            \(dqPrefix\(dq: \(dqrotated/\(dq,
+            \(dqStatus\(dq: \(dqEnabled\(dq,
+            \(dqTransitions\(dq: [
+                {
+                    \(dqDate\(dq: \(dq2015\-11\-10T00:00:00.000Z\(dq,
+                    \(dqStorageClass\(dq: \(dqGLACIER\(dq
+                }
+            ]
+        },
+        {
+            \(dqStatus\(dq: \(dqEnabled\(dq,
+            \(dqPrefix\(dq: \(dq\(dq,
+            \(dqNoncurrentVersionTransitions\(dq: [
+                {
+                    \(dqNoncurrentDays\(dq: 0,
+                    \(dqStorageClass\(dq: \(dqGLACIER\(dq
+                }
+            ],
+            \(dqID\(dq: \(dqMove old versions to Glacier\(dq
+        }
+    ]
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OUTPUT
+.sp
+Rules \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+Container for a lifecycle rule.
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+A lifecycle rule for individual objects in an Amazon S3 bucket.
+.sp
+For more information see, \fI\%Managing your storage lifecycle\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+Expiration \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the expiration for the lifecycle of the object in the form of date, days and, whether the object has a delete marker.
+.sp
+Date \-> (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Indicates at what date the object is to be moved or deleted. The date value must conform to the ISO 8601 format. The time is always midnight UTC.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This parameter applies to general purpose buckets only. It is not supported for directory bucket lifecycle configurations.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Days \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+Indicates the lifetime, in days, of the objects that are subject to the rule. The value must be a non\-zero positive integer.
+.UNINDENT
+.UNINDENT
+.sp
+ExpiredObjectDeleteMarker \-> (boolean)
+.INDENT 0.0
+.INDENT 3.5
+Indicates whether Amazon S3 will remove a delete marker with no noncurrent versions. If set to true, the delete marker will be expired; if set to false the policy takes no action. This cannot be specified with Days or Date in a Lifecycle Expiration Policy.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This parameter applies to general purpose buckets only. It is not supported for directory bucket lifecycle configurations.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ID \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Unique identifier for the rule. The value cannot be longer than 255 characters.
+.UNINDENT
+.UNINDENT
+.sp
+Prefix \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Prefix identifying one or more objects to which the rule applies. This is no longer used; use \fBFilter\fP instead.
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+Replacement must be made for object keys containing special characters (such as carriage returns) when using XML requests. For more information, see \fI\%XML related object key constraints\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Filter \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+The \fBFilter\fP is used to identify objects that a Lifecycle Rule applies to. A \fBFilter\fP must have exactly one of \fBPrefix\fP , \fBTag\fP , \fBObjectSizeGreaterThan\fP , \fBObjectSizeLessThan\fP , or \fBAnd\fP specified. \fBFilter\fP is required if the \fBLifecycleRule\fP does not contain a \fBPrefix\fP element.
+.sp
+For more information about \fBTag\fP filters, see \fI\%Adding filters to Lifecycle rules\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBTag\fP filters are not supported for directory buckets.
+.UNINDENT
+.UNINDENT
+.sp
+Prefix \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Prefix identifying one or more objects to which the rule applies.
+.sp
+\fBWARNING:\fP
+.INDENT 0.0
+.INDENT 3.5
+Replacement must be made for object keys containing special characters (such as carriage returns) when using XML requests. For more information, see \fI\%XML related object key constraints\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Tag \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+This tag must exist in the object\(aqs tag set in order for the rule to apply.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This parameter applies to general purpose buckets only. It is not supported for directory bucket lifecycle configurations.
+.UNINDENT
+.UNINDENT
+.sp
+Key \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Name of the object key.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Value \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Value of the tag.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ObjectSizeGreaterThan \-> (long)
+.INDENT 0.0
+.INDENT 3.5
+Minimum object size to which the rule applies.
+.UNINDENT
+.UNINDENT
+.sp
+ObjectSizeLessThan \-> (long)
+.INDENT 0.0
+.INDENT 3.5
+Maximum object size to which the rule applies.
+.UNINDENT
+.UNINDENT
+.sp
+And \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+This is used in a Lifecycle Rule Filter to apply a logical AND to two or more predicates. The Lifecycle Rule will apply to any object matching all of the predicates configured inside the And operator.
+.sp
+Prefix \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Prefix identifying one or more objects to which the rule applies.
+.UNINDENT
+.UNINDENT
+.sp
+Tags \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+All of these tags must exist in the object\(aqs tag set in order for the rule to apply.
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+A container of a key value name pair.
+.sp
+Key \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Name of the object key.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Value \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Value of the tag.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+ObjectSizeGreaterThan \-> (long)
+.INDENT 0.0
+.INDENT 3.5
+Minimum object size to which the rule applies.
+.UNINDENT
+.UNINDENT
+.sp
+ObjectSizeLessThan \-> (long)
+.INDENT 0.0
+.INDENT 3.5
+Maximum object size to which the rule applies.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Status \-> (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+If \(aqEnabled\(aq, the rule is currently being applied. If \(aqDisabled\(aq, the rule is not currently being applied.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBEnabled\fP
+.IP \(bu 2
+\fBDisabled\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Transitions \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+Specifies when an Amazon S3 object transitions to a specified storage class.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This parameter applies to general purpose buckets only. It is not supported for directory bucket lifecycle configurations.
+.UNINDENT
+.UNINDENT
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies when an object transitions to a specified storage class. For more information about Amazon S3 lifecycle configuration rules, see \fI\%Transitioning Objects Using Amazon S3 Lifecycle\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+Date \-> (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Indicates when objects are transitioned to the specified storage class. The date value must be in ISO 8601 format. The time is always midnight UTC.
+.UNINDENT
+.UNINDENT
+.sp
+Days \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+Indicates the number of days after creation when objects are transitioned to the specified storage class. If the specified storage class is \fBINTELLIGENT_TIERING\fP , \fBGLACIER_IR\fP , \fBGLACIER\fP , or \fBDEEP_ARCHIVE\fP , valid values are \fB0\fP or positive integers. If the specified storage class is \fBSTANDARD_IA\fP or \fBONEZONE_IA\fP , valid values are positive integers greater than \fB30\fP . Be aware that some storage classes have a minimum storage duration and that you\(aqre charged for transitioning objects before their minimum storage duration. For more information, see \fI\%Constraints and considerations for transitions\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+StorageClass \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The storage class to which you want the object to transition.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBGLACIER\fP
+.IP \(bu 2
+\fBSTANDARD_IA\fP
+.IP \(bu 2
+\fBONEZONE_IA\fP
+.IP \(bu 2
+\fBINTELLIGENT_TIERING\fP
+.IP \(bu 2
+\fBDEEP_ARCHIVE\fP
+.IP \(bu 2
+\fBGLACIER_IR\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+NoncurrentVersionTransitions \-> (list)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the transition rule for the lifecycle rule that describes when noncurrent objects transition to a specific storage class. If your bucket is versioning\-enabled (or versioning is suspended), you can set this action to request that Amazon S3 transition noncurrent object versions to a specific storage class at a set period in the object\(aqs lifetime.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This parameter applies to general purpose buckets only. It is not supported for directory bucket lifecycle configurations.
+.UNINDENT
+.UNINDENT
+.sp
+(structure)
+.INDENT 0.0
+.INDENT 3.5
+Container for the transition rule that describes when noncurrent objects transition to the \fBSTANDARD_IA\fP , \fBONEZONE_IA\fP , \fBINTELLIGENT_TIERING\fP , \fBGLACIER_IR\fP , \fBGLACIER\fP , or \fBDEEP_ARCHIVE\fP storage class. If your bucket is versioning\-enabled (or versioning is suspended), you can set this action to request that Amazon S3 transition noncurrent object versions to the \fBSTANDARD_IA\fP , \fBONEZONE_IA\fP , \fBINTELLIGENT_TIERING\fP , \fBGLACIER_IR\fP , \fBGLACIER\fP , or \fBDEEP_ARCHIVE\fP storage class at a specific period in the object\(aqs lifetime.
+.sp
+NoncurrentDays \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the number of days an object is noncurrent before Amazon S3 can perform the associated action. For information about the noncurrent days calculations, see \fI\%How Amazon S3 Calculates How Long an Object Has Been Noncurrent\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+StorageClass \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+The class of storage used to store the object.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBGLACIER\fP
+.IP \(bu 2
+\fBSTANDARD_IA\fP
+.IP \(bu 2
+\fBONEZONE_IA\fP
+.IP \(bu 2
+\fBINTELLIGENT_TIERING\fP
+.IP \(bu 2
+\fBDEEP_ARCHIVE\fP
+.IP \(bu 2
+\fBGLACIER_IR\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+NewerNoncurrentVersions \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+Specifies how many noncurrent versions Amazon S3 will retain in the same storage class before transitioning objects. You can specify up to 100 noncurrent versions to retain. Amazon S3 will transition any additional noncurrent versions beyond the specified number to retain. For more information about noncurrent versions, see \fI\%Lifecycle configuration elements\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+NoncurrentVersionExpiration \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies when noncurrent object versions expire. Upon expiration, Amazon S3 permanently deletes the noncurrent object versions. You set this lifecycle configuration action on a bucket that has versioning enabled (or suspended) to request that Amazon S3 delete noncurrent object versions at a specific period in the object\(aqs lifetime.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This parameter applies to general purpose buckets only. It is not supported for directory bucket lifecycle configurations.
+.UNINDENT
+.UNINDENT
+.sp
+NoncurrentDays \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the number of days an object is noncurrent before Amazon S3 can perform the associated action. The value must be a non\-zero positive integer. For information about the noncurrent days calculations, see \fI\%How Amazon S3 Calculates When an Object Became Noncurrent\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This parameter applies to general purpose buckets only. It is not supported for directory bucket lifecycle configurations.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+NewerNoncurrentVersions \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+Specifies how many noncurrent versions Amazon S3 will retain. You can specify up to 100 noncurrent versions to retain. Amazon S3 will permanently delete any additional noncurrent versions beyond the specified number to retain. For more information about noncurrent versions, see \fI\%Lifecycle configuration elements\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This parameter applies to general purpose buckets only. It is not supported for directory bucket lifecycle configurations.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+AbortIncompleteMultipartUpload \-> (structure)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the days since the initiation of an incomplete multipart upload that Amazon S3 will wait before permanently removing all parts of the upload. For more information, see \fI\%Aborting Incomplete Multipart Uploads Using a Bucket Lifecycle Configuration\fP in the \fIAmazon S3 User Guide\fP .
+.sp
+DaysAfterInitiation \-> (integer)
+.INDENT 0.0
+.INDENT 3.5
+Specifies the number of days after which Amazon S3 aborts an incomplete multipart upload.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+TransitionDefaultMinimumObjectSize \-> (string)
+.INDENT 0.0
+.INDENT 3.5
+Indicates which default minimum object size behavior is applied to the lifecycle configuration.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+This parameter applies to general purpose buckets only. It isn\(aqt supported for directory bucket lifecycle configurations.
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP \(bu 2
+\fBall_storage_classes_128K\fP \- Objects smaller than 128 KB will not transition to any storage class by default.
+.IP \(bu 2
+\fBvaries_by_storage_class\fP \- Objects smaller than 128 KB will transition to Glacier Flexible Retrieval or Glacier Deep Archive storage classes. By default, all other storage classes will prevent transitions smaller than 128 KB.
+.UNINDENT
+.sp
+To customize the minimum object size for any transition you can add a filter that specifies a custom \fBObjectSizeGreaterThan\fP or \fBObjectSizeLessThan\fP in the body of your transition rule. Custom filters always take precedence over the default transition behavior.
+.sp
+Possible values:
+.INDENT 0.0
+.IP \(bu 2
+\fBvaries_by_storage_class\fP
+.IP \(bu 2
+\fBall_storage_classes_128K\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.\" Generated by docutils manpage writer.
+.

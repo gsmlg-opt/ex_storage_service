@@ -1,0 +1,3 @@
+AWS S3 model data, S3/S3Control/STS endpoint data, and reference customization source are from AWS CLI 2.31.18, licensed under Apache-2.0; see aws/LICENSE.txt, aws/LICENSE-APACHE-2.0.txt, and aws/NOTICE-BOTOCORE.txt.
+MinIO command definitions and help are behavioral reference captures from minio/mc 77f82e18b5401a65958f1619df6ebb994634bd88, whose source is GNU AGPLv3. No MinIO implementation source is imported. ESS remains MIT licensed.
+Reference binaries are not shipped and are never invoked by ESS. Python and Go are capture-time tools only.

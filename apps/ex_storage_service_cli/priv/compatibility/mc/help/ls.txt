@@ -1,0 +1,59 @@
+NAME:
+  mc ls - list buckets and objects
+
+USAGE:
+  mc ls [FLAGS] TARGET [TARGET ...]
+
+FLAGS:
+  --rewind value                     list all object versions no later than specified date
+  --versions                         list all versions
+  --recursive, -r                    list recursively
+  --incomplete, -I                   list incomplete uploads
+  --summarize                        display summary information (number of objects, total size)
+  --storage-class value, --sc value  filter to specified storage class
+  --zip                              list files inside zip archive (MinIO servers only)
+  --config-dir value, -C value       path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                        disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp              disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                         disable color theme [$MC_NO_COLOR]
+  --json                             enable JSON lines formatted output [$MC_JSON]
+  --debug                            enable debug output [$MC_DEBUG]
+  --resolve value                    resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                         disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value               limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value             limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value    add custom HTTP header to the request. 'key:value' format.
+  --help, -h                         show help
+  
+EXAMPLES:
+  1. List buckets on Amazon S3 cloud storage.
+     $ mc ls s3
+
+  2. List buckets and all its contents from Amazon S3 cloud storage recursively.
+     $ mc ls --recursive s3
+
+  3. List all contents of mybucket on Amazon S3 cloud storage.
+     $ mc ls s3/mybucket/
+
+  4. List all contents of mybucket on Amazon S3 cloud storage on Microsoft Windows.
+     $ mc ls s3\mybucket\
+
+  5. List files recursively on a local filesystem on Microsoft Windows.
+     $ mc ls --recursive C:\Users\Worf\
+
+  6. List incomplete (previously failed) uploads of objects on Amazon S3.
+     $ mc ls --incomplete s3/mybucket
+
+  7. List contents at a specific time in the past if the bucket versioning is enabled.
+     $ mc ls --rewind 2020.01.01 s3/mybucket
+     $ mc ls --rewind 2020.01.01T11:30 s3/mybucket
+     $ mc ls --rewind 7d s3/mybucket
+
+  8. List all contents versions if the bucket versioning is enabled.
+     $ mc ls --versions s3/mybucket
+
+  9. List all objects on mybucket, summarize the number of objects and total size.
+     $ mc ls --summarize s3/mybucket/
+  
+  10. List all objects on mybucket, for the GLACIER storage class
+     $ mc ls --storage-class 'GLACIER' s3/mybucket 

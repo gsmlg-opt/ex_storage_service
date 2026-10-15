@@ -1,0 +1,33 @@
+{
+    "Bucket": "",
+    "Id": "",
+    "InventoryConfiguration": {
+        "Destination": {
+            "S3BucketDestination": {
+                "AccountId": "",
+                "Bucket": "",
+                "Format": "CSV",
+                "Prefix": "",
+                "Encryption": {
+                    "SSES3": {},
+                    "SSEKMS": {
+                        "KeyId": ""
+                    }
+                }
+            }
+        },
+        "IsEnabled": true,
+        "Filter": {
+            "Prefix": ""
+        },
+        "Id": "",
+        "IncludedObjectVersions": "All",
+        "OptionalFields": [
+            "Size"
+        ],
+        "Schedule": {
+            "Frequency": "Daily"
+        }
+    },
+    "ExpectedBucketOwner": ""
+}

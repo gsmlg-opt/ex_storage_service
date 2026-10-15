@@ -1,0 +1,193 @@
+{
+  "source": "awscrt 0.27.6",
+  "credentials": {
+    "access_key_id": "AKIDEXAMPLE",
+    "secret_access_key": "wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY"
+  },
+  "vectors": [
+    {
+      "name": "wildcard-key",
+      "presign": false,
+      "method": "GET",
+      "url": "https://example.amazonaws.com/a%25%2B%3F%23%20/%E4%B8%AD%E6%96%87//./../end?dup=z&dup=a%20%2B&empty=",
+      "region_set": "*",
+      "token": null,
+      "payload_hash": "UNSIGNED-PAYLOAD",
+      "headers": [
+        [
+          "Host",
+          "example.amazonaws.com"
+        ],
+        [
+          "x-amz-meta-name",
+          "  value   with space  "
+        ]
+      ],
+      "canonical_request": "GET\n/a%25%2B%3F%23%20/%E4%B8%AD%E6%96%87//./../end\ndup=a%20%2B&dup=z&empty=\nhost:example.amazonaws.com\nx-amz-content-sha256:UNSIGNED-PAYLOAD\nx-amz-date:20240115T120000Z\nx-amz-meta-name:value with space\nx-amz-region-set:*\n\nhost;x-amz-content-sha256;x-amz-date;x-amz-meta-name;x-amz-region-set\nUNSIGNED-PAYLOAD",
+      "string_to_sign": "AWS4-ECDSA-P256-SHA256\n20240115T120000Z\n20240115/s3/aws4_request\n54e28a2a9d84d1b8c6f9fd1c5d1e303fe52a7713a188aacc088fa043c76ceab0",
+      "signature": "3045022100fb5561af911ccd62783ffdf737c420e1af18dac68ce90272b88adcbcea2e406c022005aae696d11c0e3082c58c60c1b74f1396bd4ad283b147a0ca850beb6425f098",
+      "public_key": "04b6618f6a65740a99e650b33b6b4b5bd0d43b176d721a3edfea7e7d2d56d936b1865ed22a7eadc9c5cb9d2cbaca1b3699139fedc5043dc6661864218330c8e518"
+    },
+    {
+      "name": "wildcard-key",
+      "presign": true,
+      "method": "GET",
+      "url": "https://example.amazonaws.com/a%25%2B%3F%23%20/%E4%B8%AD%E6%96%87//./../end?dup=z&dup=a%20%2B&empty=",
+      "region_set": "*",
+      "token": null,
+      "payload_hash": "UNSIGNED-PAYLOAD",
+      "headers": [
+        [
+          "Host",
+          "example.amazonaws.com"
+        ],
+        [
+          "x-amz-meta-name",
+          "  value   with space  "
+        ]
+      ],
+      "canonical_request": "GET\n/a%25%2B%3F%23%20/%E4%B8%AD%E6%96%87//./../end\nX-Amz-Algorithm=AWS4-ECDSA-P256-SHA256&X-Amz-Credential=AKIDEXAMPLE%2F20240115%2Fs3%2Faws4_request&X-Amz-Date=20240115T120000Z&X-Amz-Expires=3600&X-Amz-Region-Set=%2A&X-Amz-SignedHeaders=host%3Bx-amz-meta-name&dup=a%20%2B&dup=z&empty=\nhost:example.amazonaws.com\nx-amz-meta-name:value with space\n\nhost;x-amz-meta-name\nUNSIGNED-PAYLOAD",
+      "string_to_sign": "AWS4-ECDSA-P256-SHA256\n20240115T120000Z\n20240115/s3/aws4_request\nf3e27614acb3fd31277e4135cc14cca324269275ea603b5554459c343f8856ce",
+      "signature": "3045022026b9f067ea00f08f38da713224c7a5588bc7c89782740d6491112837381925fe022100d7ab3de0b35552faf9b04bf6c9d4c85b0cab79d0f3fe6b09fc6dab09a963def2",
+      "public_key": "04b6618f6a65740a99e650b33b6b4b5bd0d43b176d721a3edfea7e7d2d56d936b1865ed22a7eadc9c5cb9d2cbaca1b3699139fedc5043dc6661864218330c8e518"
+    },
+    {
+      "name": "regions-token",
+      "presign": false,
+      "method": "GET",
+      "url": "https://example.amazonaws.com/a%25%2B%3F%23%20/%E4%B8%AD%E6%96%87//./../end?dup=z&dup=a%20%2B&empty=",
+      "region_set": "us-east-1,us-west-*",
+      "token": "token +/=",
+      "payload_hash": "UNSIGNED-PAYLOAD",
+      "headers": [
+        [
+          "Host",
+          "example.amazonaws.com"
+        ],
+        [
+          "x-amz-meta-name",
+          "  value   with space  "
+        ]
+      ],
+      "canonical_request": "GET\n/a%25%2B%3F%23%20/%E4%B8%AD%E6%96%87//./../end\ndup=a%20%2B&dup=z&empty=\nhost:example.amazonaws.com\nx-amz-content-sha256:UNSIGNED-PAYLOAD\nx-amz-date:20240115T120000Z\nx-amz-meta-name:value with space\nx-amz-region-set:us-east-1,us-west-*\nx-amz-security-token:token +/=\n\nhost;x-amz-content-sha256;x-amz-date;x-amz-meta-name;x-amz-region-set;x-amz-security-token\nUNSIGNED-PAYLOAD",
+      "string_to_sign": "AWS4-ECDSA-P256-SHA256\n20240115T120000Z\n20240115/s3/aws4_request\n9b65915c21bc2819790785141526ffedbf68dddbbeb60391c85db0ed8e5250b5",
+      "signature": "3046022100a97f7b1c26fc14985f833b67b077f7baa159536eaf41b5a978c6067adeaefbff022100c27a321608b3095625c2cf6f719dc3fbbc2c7c1232a6bd63c2eb4b15585f7d93",
+      "public_key": "04b6618f6a65740a99e650b33b6b4b5bd0d43b176d721a3edfea7e7d2d56d936b1865ed22a7eadc9c5cb9d2cbaca1b3699139fedc5043dc6661864218330c8e518"
+    },
+    {
+      "name": "regions-token",
+      "presign": true,
+      "method": "GET",
+      "url": "https://example.amazonaws.com/a%25%2B%3F%23%20/%E4%B8%AD%E6%96%87//./../end?dup=z&dup=a%20%2B&empty=",
+      "region_set": "us-east-1,us-west-*",
+      "token": "token +/=",
+      "payload_hash": "UNSIGNED-PAYLOAD",
+      "headers": [
+        [
+          "Host",
+          "example.amazonaws.com"
+        ],
+        [
+          "x-amz-meta-name",
+          "  value   with space  "
+        ]
+      ],
+      "canonical_request": "GET\n/a%25%2B%3F%23%20/%E4%B8%AD%E6%96%87//./../end\nX-Amz-Algorithm=AWS4-ECDSA-P256-SHA256&X-Amz-Credential=AKIDEXAMPLE%2F20240115%2Fs3%2Faws4_request&X-Amz-Date=20240115T120000Z&X-Amz-Expires=3600&X-Amz-Region-Set=us-east-1%2Cus-west-%2A&X-Amz-Security-Token=token%20%2B%2F%3D&X-Amz-SignedHeaders=host%3Bx-amz-meta-name&dup=a%20%2B&dup=z&empty=\nhost:example.amazonaws.com\nx-amz-meta-name:value with space\n\nhost;x-amz-meta-name\nUNSIGNED-PAYLOAD",
+      "string_to_sign": "AWS4-ECDSA-P256-SHA256\n20240115T120000Z\n20240115/s3/aws4_request\ne22412371bb39eb8540769a3a605ec5c471e7f5b5d57098fd3a03d43a0abbd9f",
+      "signature": "304602210092709145dc5225515ae569251a5afd781176c6f03ccaae6b9aa97e0121d4ed48022100d1983299e02ddd497e65ea79f9c479fea93c214a0f01beab896cafff82e4daff",
+      "public_key": "04b6618f6a65740a99e650b33b6b4b5bd0d43b176d721a3edfea7e7d2d56d936b1865ed22a7eadc9c5cb9d2cbaca1b3699139fedc5043dc6661864218330c8e518"
+    },
+    {
+      "name": "streaming-digest",
+      "presign": false,
+      "method": "PUT",
+      "url": "https://example.amazonaws.com/binary%00%FF",
+      "region_set": "*",
+      "token": "temporary-token",
+      "payload_hash": "06eb7d6a69ee19e5fbdf749018d3d2abfa04bcbd1365db312eb86dc7169389b8",
+      "headers": [
+        [
+          "Host",
+          "example.amazonaws.com"
+        ],
+        [
+          "x-amz-meta-name",
+          "  value   with space  "
+        ]
+      ],
+      "canonical_request": "PUT\n/binary%00%FF\n\nhost:example.amazonaws.com\nx-amz-content-sha256:06eb7d6a69ee19e5fbdf749018d3d2abfa04bcbd1365db312eb86dc7169389b8\nx-amz-date:20240115T120000Z\nx-amz-meta-name:value with space\nx-amz-region-set:*\nx-amz-security-token:temporary-token\n\nhost;x-amz-content-sha256;x-amz-date;x-amz-meta-name;x-amz-region-set;x-amz-security-token\n06eb7d6a69ee19e5fbdf749018d3d2abfa04bcbd1365db312eb86dc7169389b8",
+      "string_to_sign": "AWS4-ECDSA-P256-SHA256\n20240115T120000Z\n20240115/s3/aws4_request\n5ffd8ba9ff3951e4e6eafa5379d14eb7c5ae5962152b8fb05039b349b1578f4a",
+      "signature": "30460221008de7eaf943838a2b8b80bb6cbe97459b97ec8a61254037cb45b4ba4edbd21adc022100be94bae7baca23fac86330f37e4fb71c49b4c2f32d9e479e1fbb074e4ca71bd4",
+      "public_key": "04b6618f6a65740a99e650b33b6b4b5bd0d43b176d721a3edfea7e7d2d56d936b1865ed22a7eadc9c5cb9d2cbaca1b3699139fedc5043dc6661864218330c8e518"
+    },
+    {
+      "name": "streaming-digest",
+      "presign": true,
+      "method": "PUT",
+      "url": "https://example.amazonaws.com/binary%00%FF",
+      "region_set": "*",
+      "token": "temporary-token",
+      "payload_hash": "06eb7d6a69ee19e5fbdf749018d3d2abfa04bcbd1365db312eb86dc7169389b8",
+      "headers": [
+        [
+          "Host",
+          "example.amazonaws.com"
+        ],
+        [
+          "x-amz-meta-name",
+          "  value   with space  "
+        ]
+      ],
+      "canonical_request": "PUT\n/binary%00%FF\nX-Amz-Algorithm=AWS4-ECDSA-P256-SHA256&X-Amz-Credential=AKIDEXAMPLE%2F20240115%2Fs3%2Faws4_request&X-Amz-Date=20240115T120000Z&X-Amz-Expires=3600&X-Amz-Region-Set=%2A&X-Amz-Security-Token=temporary-token&X-Amz-SignedHeaders=host%3Bx-amz-meta-name\nhost:example.amazonaws.com\nx-amz-meta-name:value with space\n\nhost;x-amz-meta-name\n06eb7d6a69ee19e5fbdf749018d3d2abfa04bcbd1365db312eb86dc7169389b8",
+      "string_to_sign": "AWS4-ECDSA-P256-SHA256\n20240115T120000Z\n20240115/s3/aws4_request\nc7ca01c533013ea7269f7ddb5f4c784d41e6d8519f53865a821aa06a09b09465",
+      "signature": "3045022100f5c1fa160b1dfe7f4856e9eaef4f9e24bdf822062ef211830b3f931a83d90e4502206bfe05e699deeae3110618d300336ca2163d1072200b3556f0c9bb53098a5af9",
+      "public_key": "04b6618f6a65740a99e650b33b6b4b5bd0d43b176d721a3edfea7e7d2d56d936b1865ed22a7eadc9c5cb9d2cbaca1b3699139fedc5043dc6661864218330c8e518"
+    },
+    {
+      "name": "duplicate-query",
+      "presign": false,
+      "method": "GET",
+      "url": "https://example.amazonaws.com/?Param1=value2&Param1=Value1",
+      "region_set": "us-east-1",
+      "token": null,
+      "payload_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": [
+        [
+          "Host",
+          "example.amazonaws.com"
+        ],
+        [
+          "x-amz-meta-name",
+          "  value   with space  "
+        ]
+      ],
+      "canonical_request": "GET\n/\nParam1=Value1&Param1=value2\nhost:example.amazonaws.com\nx-amz-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nx-amz-date:20240115T120000Z\nx-amz-meta-name:value with space\nx-amz-region-set:us-east-1\n\nhost;x-amz-content-sha256;x-amz-date;x-amz-meta-name;x-amz-region-set\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "string_to_sign": "AWS4-ECDSA-P256-SHA256\n20240115T120000Z\n20240115/s3/aws4_request\nd0412921aab142d22dbf563398b0c8254c552944859036a179a96d2faa6acefc",
+      "signature": "3045022100e2e60f93c74bb91b032868f6f0f08a9627055044d5f0a8e967463afda3ca566e0220736170601fd29f90ef105550b8878fbe5a9cced05ed5a3f390f25fbc99bb6a62",
+      "public_key": "04b6618f6a65740a99e650b33b6b4b5bd0d43b176d721a3edfea7e7d2d56d936b1865ed22a7eadc9c5cb9d2cbaca1b3699139fedc5043dc6661864218330c8e518"
+    },
+    {
+      "name": "duplicate-query",
+      "presign": true,
+      "method": "GET",
+      "url": "https://example.amazonaws.com/?Param1=value2&Param1=Value1",
+      "region_set": "us-east-1",
+      "token": null,
+      "payload_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headers": [
+        [
+          "Host",
+          "example.amazonaws.com"
+        ],
+        [
+          "x-amz-meta-name",
+          "  value   with space  "
+        ]
+      ],
+      "canonical_request": "GET\n/\nParam1=Value1&Param1=value2&X-Amz-Algorithm=AWS4-ECDSA-P256-SHA256&X-Amz-Credential=AKIDEXAMPLE%2F20240115%2Fs3%2Faws4_request&X-Amz-Date=20240115T120000Z&X-Amz-Expires=3600&X-Amz-Region-Set=us-east-1&X-Amz-SignedHeaders=host%3Bx-amz-meta-name\nhost:example.amazonaws.com\nx-amz-meta-name:value with space\n\nhost;x-amz-meta-name\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "string_to_sign": "AWS4-ECDSA-P256-SHA256\n20240115T120000Z\n20240115/s3/aws4_request\nf1c92510c0fd828b1121062674d5028ee2a8bc683107345fd3bd1ff7658e4b1e",
+      "signature": "3045022100ab88a30ad6cdc0842c1430c5873f955866c46d69a8db3f4be89820b40406e9a702204733e90c73e58b60178c8edfabcc2ce26577c453f2ce987e2168d6c5e321e711",
+      "public_key": "04b6618f6a65740a99e650b33b6b4b5bd0d43b176d721a3edfea7e7d2d56d936b1865ed22a7eadc9c5cb9d2cbaca1b3699139fedc5043dc6661864218330c8e518"
+    }
+  ]
+}

@@ -23,7 +23,7 @@ Do not wrap or shell out to `mc`, `aws`, Python, boto3, or a running ESS server 
 
 ### 1.1 Definition of complete
 
-The final target includes all eight high-level AWS S3 commands (`ls`, `cp`, `mv`, `rm`, `mb`, `rb`, `sync`, `presign`), their applicable options, and the complete pinned `s3api` command/operation/shape inventory. It also includes the supporting credential providers, endpoint rules, pagination, waiters, input syntax, output/query behavior, transfer semantics, and return codes required to use those commands.
+The final target includes all nine high-level AWS S3 commands in the pinned AWS CLI 2.31.18 release (`ls`, `cp`, `mv`, `rm`, `mb`, `rb`, `sync`, `presign`, `website`), their applicable options, and the complete pinned `s3api` command/operation/shape inventory. M0 executable inspection identified `website`, which the initial design omitted. It also includes the supporting credential providers, endpoint rules, pagination, waiters, input syntax, output/query behavior, transfer semantics, and return codes required to use those commands.
 
 Implementing a few CRUD commands, accepting arbitrary flags, or returning `not implemented` from registered commands is not parity. Generating operation names is not sufficient: request serialization, authentication, response decoding, failure behavior, and tests must also exist.
 

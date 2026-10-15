@@ -1,0 +1,328 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "RENAME-OBJECT"  "" "" ""
+.SH NAME
+rename-object \- 
+.SH DESCRIPTION
+.sp
+Renames an existing object in a directory bucket that uses the S3 Express One Zone storage class. You can use \fBRenameObject\fP by specifying an existing object’s name as the source and the new name of the object as the destination within the same directory bucket.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBRenameObject\fP is only supported for objects stored in the S3 Express One Zone storage class.
+.UNINDENT
+.UNINDENT
+.sp
+To prevent overwriting an object, you can use the \fBIf\-None\-Match\fP conditional header.
+.INDENT 0.0
+.IP \(bu 2
+\fBIf\-None\-Match\fP \- Renames the object only if an object with the specified name does not already exist in the directory bucket. If you don\(aqt want to overwrite an existing object, you can add the \fBIf\-None\-Match\fP conditional header with the value \fB‘*’\fP in the \fBRenameObject\fP request. Amazon S3 then returns a \fB412 Precondition Failed\fP error if the object with the specified name already exists. For more information, see \fI\%RFC 7232\fP .
+.sp
+Permissions
+.UNINDENT
+.sp
+To grant access to the \fBRenameObject\fP operation on a directory bucket, we recommend that you use the \fBCreateSession\fP operation for session\-based authorization. Specifically, you grant the \fBs3express:CreateSession\fP permission to the directory bucket in a bucket policy or an IAM identity\-based policy. Then, you make the \fBCreateSession\fP API call on the directory bucket to obtain a session token. With the session token in your request header, you can make API requests to this operation. After the session token expires, you make another \fBCreateSession\fP API call to generate a new session token for use. The Amazon Web Services CLI and SDKs will create and manage your session including refreshing the session token automatically to avoid service interruptions when a session expires. In your bucket policy, you can specify the \fBs3express:SessionMode\fP condition key to control who can create a \fBReadWrite\fP or \fBReadOnly\fP session. A \fBReadWrite\fP session is required for executing all the Zonal endpoint API operations, including \fBRenameObject\fP . For more information about authorization, see \(ga \fBCreateSession\fP \fI\%https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateSession\fP\&.html\(ga__ . To learn more about Zonal endpoint API operations, see \fI\%Authorizing Zonal endpoint API operations with CreateSession\fP in the \fIAmazon S3 User Guide\fP .
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.INDENT 3.5
+HTTP Host header syntax
+.UNINDENT
+.UNINDENT
+.sp
+\fBDirectory buckets\fP \- The HTTP Host header syntax is \(ga\(ga \fIBucket\-name\fP .s3express\-\fIzone\-id\fP .*region\-code* .amazonaws.com\(ga\(ga .
+.UNINDENT
+.UNINDENT
+.sp
+See also: AWS API Documentation
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+  rename\-object
+\-\-bucket <value>
+\-\-key <value>
+\-\-rename\-source <value>
+[\-\-destination\-if\-match <value>]
+[\-\-destination\-if\-none\-match <value>]
+[\-\-destination\-if\-modified\-since <value>]
+[\-\-destination\-if\-unmodified\-since <value>]
+[\-\-source\-if\-match <value>]
+[\-\-source\-if\-none\-match <value>]
+[\-\-source\-if\-modified\-since <value>]
+[\-\-source\-if\-unmodified\-since <value>]
+[\-\-client\-token <value>]
+[\-\-cli\-input\-json | \-\-cli\-input\-yaml]
+[\-\-generate\-cli\-skeleton <value>]
+[\-\-debug]
+[\-\-endpoint\-url <value>]
+[\-\-no\-verify\-ssl]
+[\-\-no\-paginate]
+[\-\-output <value>]
+[\-\-query <value>]
+[\-\-profile <value>]
+[\-\-region <value>]
+[\-\-version <value>]
+[\-\-color <value>]
+[\-\-no\-sign\-request]
+[\-\-ca\-bundle <value>]
+[\-\-cli\-read\-timeout <value>]
+[\-\-cli\-connect\-timeout <value>]
+[\-\-cli\-binary\-format <value>]
+[\-\-no\-cli\-pager]
+[\-\-cli\-auto\-prompt]
+[\-\-no\-cli\-auto\-prompt]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH OPTIONS
+.sp
+\fB\-\-bucket\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+The bucket name of the directory bucket containing the object.
+.sp
+You must use virtual\-hosted\-style requests in the format \fBBucket\-name.s3express\-zone\-id.region\-code.amazonaws.com\fP . Path\-style requests are not supported. Directory bucket names must be unique in the chosen Availability Zone. Bucket names must follow the format \fBbucket\-base\-name\-\-zone\-id\-\-x\-s3\fP (for example, \fBamzn\-s3\-demo\-bucket\-\-usw2\-az1\-\-x\-s3\fP ). For information about bucket naming restrictions, see \fI\%Directory bucket naming rules\fP in the \fIAmazon S3 User Guide\fP .
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-key\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Key name of the object to rename.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+min: \fB1\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-rename\-source\fP (string) [required]
+.INDENT 0.0
+.INDENT 3.5
+Specifies the source for the rename operation. The value must be URL encoded.
+.sp
+Constraints:
+.INDENT 0.0
+.IP \(bu 2
+pattern: \fB\e/?.+\e/.+\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-destination\-if\-match\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Renames the object only if the ETag (entity tag) value provided during the operation matches the ETag of the object in S3. The \fBIf\-Match\fP header field makes the request method conditional on ETags. If the ETag values do not match, the operation returns a \fB412 Precondition Failed\fP error.
+.sp
+Expects the ETag value as a string.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-destination\-if\-none\-match\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Renames the object only if the destination does not already exist in the specified directory bucket. If the object does exist when you send a request with \fBIf\-None\-Match:*\fP , the S3 API will return a \fB412 Precondition Failed\fP error, preventing an overwrite. The \fBIf\-None\-Match\fP header prevents overwrites of existing data by validating that there\(aqs not an object with the same key name already in your directory bucket.
+.sp
+Expects the \fB*\fP character (asterisk).
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-destination\-if\-modified\-since\fP (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Renames the object if the destination exists and if it has been modified since the specified time.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-destination\-if\-unmodified\-since\fP (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Renames the object if it hasn\(aqt been modified since the specified time.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-source\-if\-match\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Renames the object if the source exists and if its entity tag (ETag) matches the specified ETag.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-source\-if\-none\-match\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+Renames the object if the source exists and if its entity tag (ETag) is different than the specified ETag. If an asterisk (\fB*\fP ) character is provided, the operation will fail and return a \fB412 Precondition Failed\fP error.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-source\-if\-modified\-since\fP (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Renames the object if the source exists and if it has been modified since the specified time.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-source\-if\-unmodified\-since\fP (timestamp)
+.INDENT 0.0
+.INDENT 3.5
+Renames the object if the source exists and hasn\(aqt been modified since the specified time.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-client\-token\fP (string)
+.INDENT 0.0
+.INDENT 3.5
+A unique string with a max of 64 ASCII characters in the ASCII range of 33 \- 126.
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+\fBRenameObject\fP supports idempotency using a client token. To make an idempotent API request using \fBRenameObject\fP , specify a client token in the request. You should not reuse the same client token for other API requests. If you retry a request that completed successfully using the same client token and the same parameters, the retry succeeds without performing any further actions. If you retry a successful request using the same client token, but one or more of the parameters are different, the retry fails and an \fBIdempotentParameterMismatch\fP error is returned.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-\-cli\-input\-json\fP | \fB\-\-cli\-input\-yaml\fP (string)
+Reads arguments from the JSON string provided. The JSON string follows the format provided by \fB\-\-generate\-cli\-skeleton\fP\&. If other arguments are provided on the command line, those values will override the JSON\-provided values. It is not possible to pass arbitrary binary values using a JSON\-provided value as the string will be taken literally. This may not be specified along with \fB\-\-cli\-input\-yaml\fP\&.
+.sp
+\fB\-\-generate\-cli\-skeleton\fP (string)
+Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value \fBinput\fP, prints a sample input JSON that can be used as an argument for \fB\-\-cli\-input\-json\fP\&. Similarly, if provided \fByaml\-input\fP it will print a sample input YAML that can be used with \fB\-\-cli\-input\-yaml\fP\&. If provided with the value \fBoutput\fP, it validates the command inputs and returns a sample output JSON for that command. The generated JSON skeleton is not stable between versions of the AWS CLI and there are no backwards compatibility guarantees in the JSON skeleton generated.
+.SH GLOBAL OPTIONS
+.sp
+\fB\-\-debug\fP (boolean)
+.sp
+Turn on debug logging.
+.sp
+\fB\-\-endpoint\-url\fP (string)
+.sp
+Override command\(aqs default URL with the given URL.
+.sp
+\fB\-\-no\-verify\-ssl\fP (boolean)
+.sp
+By default, the AWS CLI uses SSL when communicating with AWS services. For each SSL connection, the AWS CLI will verify SSL certificates. This option overrides the default behavior of verifying SSL certificates.
+.sp
+\fB\-\-no\-paginate\fP (boolean)
+.sp
+Disable automatic pagination. If automatic pagination is disabled, the AWS CLI will only make one call, for the first page of results.
+.sp
+\fB\-\-output\fP (string)
+.sp
+The formatting style for command output.
+.INDENT 0.0
+.IP \(bu 2
+json
+.IP \(bu 2
+text
+.IP \(bu 2
+table
+.IP \(bu 2
+yaml
+.IP \(bu 2
+yaml\-stream
+.UNINDENT
+.sp
+\fB\-\-query\fP (string)
+.sp
+A JMESPath query to use in filtering the response data.
+.sp
+\fB\-\-profile\fP (string)
+.sp
+Use a specific profile from your credential file.
+.sp
+\fB\-\-region\fP (string)
+.sp
+The region to use. Overrides config/env settings.
+.sp
+\fB\-\-version\fP (string)
+.sp
+Display the version of this tool.
+.sp
+\fB\-\-color\fP (string)
+.sp
+Turn on/off color output.
+.INDENT 0.0
+.IP \(bu 2
+on
+.IP \(bu 2
+off
+.IP \(bu 2
+auto
+.UNINDENT
+.sp
+\fB\-\-no\-sign\-request\fP (boolean)
+.sp
+Do not sign requests. Credentials will not be loaded if this argument is provided.
+.sp
+\fB\-\-ca\-bundle\fP (string)
+.sp
+The CA certificate bundle to use when verifying SSL certificates. Overrides config/env settings.
+.sp
+\fB\-\-cli\-read\-timeout\fP (int)
+.sp
+The maximum socket read time in seconds. If the value is set to 0, the socket read will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-connect\-timeout\fP (int)
+.sp
+The maximum socket connect time in seconds. If the value is set to 0, the socket connect will be blocking and not timeout. The default value is 60 seconds.
+.sp
+\fB\-\-cli\-binary\-format\fP (string)
+.sp
+The formatting style to be used for binary blobs. The default format is base64. The base64 format expects binary blobs to be provided as a base64 encoded string. The raw\-in\-base64\-out format preserves compatibility with AWS CLI V1 behavior and binary values must be passed literally. When providing contents from a file that map to a binary blob \fBfileb://\fP will always be treated as binary and use the file contents directly regardless of the \fBcli\-binary\-format\fP setting. When using \fBfile://\fP the file contents will need to properly formatted for the configured \fBcli\-binary\-format\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+base64
+.IP \(bu 2
+raw\-in\-base64\-out
+.UNINDENT
+.sp
+\fB\-\-no\-cli\-pager\fP (boolean)
+.sp
+Disable cli pager for output.
+.sp
+\fB\-\-cli\-auto\-prompt\fP (boolean)
+.sp
+Automatically prompt for CLI input parameters.
+.sp
+\fB\-\-no\-cli\-auto\-prompt\fP (boolean)
+.sp
+Disable automatically prompt for CLI input parameters.
+.SH OUTPUT
+.sp
+None
+.\" Generated by docutils manpage writer.
+.

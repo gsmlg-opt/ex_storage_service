@@ -1,0 +1,36 @@
+JMESPath evaluator and parser port
+================================
+
+Derived from the published Hex jmes 0.4.1 package.
+https://hex.pm/packages/jmes/0.4.1
+Package checksum: a16f10e87af9a1dfe829a072437d7dd89d46fc4f6c59aff936ef9ec8306f2db1
+
+Modified for CLI-private namespaces, built-in JSON, string-key-only lookups,
+correctness fixes, tagged expression references, and bounded execution.
+The generated scanner uses OTP leex DFA rules, not backtracking runtime regex.
+Token/AST names are fixed source atoms; identifier/function/map names are binaries.
+
+MIT License
+
+Copyright (c) 2019 - Stephan Florquin
+
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE
+

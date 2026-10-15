@@ -1,0 +1,51 @@
+NAME:
+  mc put - upload an object to a bucket
+
+USAGE:
+  mc put [FLAGS] SOURCE TARGET
+
+FLAGS:
+  --enc-c value                      encrypt/decrypt objects using client provided keys. (multiple keys can be provided) Formats: RawBase64 or Hex.
+  --enc-kms value                    encrypt/decrypt objects using specific server-side encryption keys. (multiple keys can be provided) [$MC_ENC_KMS]
+  --enc-s3 value                     encrypt/decrypt objects using server-side default keys and configurations. (multiple keys can be provided). [$MC_ENC_S3]
+  --config-dir value, -C value       path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                        disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp              disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                         disable color theme [$MC_NO_COLOR]
+  --json                             enable JSON lines formatted output [$MC_JSON]
+  --debug                            enable debug output [$MC_DEBUG]
+  --resolve value                    resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                         disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value               limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value             limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value    add custom HTTP header to the request. 'key:value' format.
+  --checksum value                   Add checksum to uploaded object. Values: CRC64NVME, CRC32, CRC32C, SHA1 or SHA256. Requires server trailing headers (AWS, MinIO)
+  --parallel value, -P value         upload number of parts in parallel (default: 4)
+  --part-size value, -s value        each part size (default: "16MiB")
+  --disable-multipart                disable multipart upload feature
+  --storage-class value, --sc value  set storage class for new object on target
+  --help, -h                         show help
+  
+
+ENVIRONMENT VARIABLES:
+  MC_ENC_KMS: KMS encryption key in the form of (alias/prefix=key).
+  MC_ENC_S3: S3 encryption key in the form of (alias/prefix=key).
+
+EXAMPLES:
+  1. Put an object from local file system to S3 storage
+     $ mc put path-to/object play/mybucket
+
+  2. Put an object from local file system to S3 bucket with name
+     $ mc put path-to/object play/mybucket/object
+
+  3. Put an object from local file system to S3 bucket under a prefix
+     $ mc put path-to/object play/mybucket/object-prefix/
+
+  4. Put an object to MinIO storage using sse-c encryption
+     $ mc put --enc-c "play/mybucket/object=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDA" path-to/object play/mybucket/object 
+
+  5. Put an object to MinIO storage using sse-kms encryption
+     $ mc put --enc-kms path-to/object play/mybucket/object
+
+  6. Put an object to MinIO storage and assign REDUCED_REDUNDANCY storage-class to the uploaded object.
+      $ mc put --storage-class REDUCED_REDUNDANCY myobject.txt play/mybucket

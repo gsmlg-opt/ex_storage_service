@@ -1,0 +1,53 @@
+NAME:
+  mc ilm rule add - add a lifecycle configuration rule for a bucket
+
+USAGE:
+  mc ilm rule add [COMMAND FLAGS] TARGET
+
+FLAGS:
+  --prefix value                      object prefix
+  --tags value                        key value pairs of the form '<key1>=<value1>&<key2>=<value2>&<key3>=<value3>'
+  --size-lt value                     objects with size less than this value will be selected for the lifecycle action
+  --size-gt value                     objects with size greater than this value will be selected for the lifecycle action
+  --expire-days value                 number of days to expire
+  --expire-delete-marker              expire zombie delete markers
+  --transition-days value             number of days to transition
+  --transition-tier value             remote tier name to transition
+  --noncurrent-expire-days value      number of days to expire noncurrent versions
+  --noncurrent-expire-newer value     number of newer noncurrent versions to retain (default: 0)
+  --noncurrent-transition-days value  number of days to transition noncurrent versions (default: 0)
+  --noncurrent-transition-tier value  remote tier name to transition
+  --expire-all-object-versions        expire all object versions
+  --config-dir value, -C value        path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                         disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp               disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                          disable color theme [$MC_NO_COLOR]
+  --json                              enable JSON lines formatted output [$MC_JSON]
+  --debug                             enable debug output [$MC_DEBUG]
+  --resolve value                     resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                          disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value                limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value              limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value     add custom HTTP header to the request. 'key:value' format.
+  --help, -h                          show help
+  
+DESCRIPTION:
+  Add a lifecycle configuration rule.
+
+EXAMPLES:
+  1. Add a lifecycle rule with a transition and a noncurrent version transition action for objects with prefix doc/ whose size is greater than 1MiB in mybucket.
+     Tiers must exist in MinIO. Use existing tiers or add new tiers.
+
+     $ mc ilm tier add minio myminio MINIOTIER-1 --endpoint https://warm-minio-1.com \
+         --access-key ACCESSKEY --secret-key SECRETKEY --bucket bucket1 --prefix prefix1
+
+     $ mc ilm rule add --prefix "doc/" --size-gt 1MiB --transition-days "90" --transition-tier "MINIOTIER-1" \
+         --noncurrent-transition-days "45" --noncurrent-transition-tier "MINIOTIER-1" \
+         myminio/mybucket/
+
+  2. Add a lifecycle rule with an expiration action for all objects in mybucket.
+     $ mc ilm rule add --expire-days "200" myminio/mybucket
+
+  3. Add a lifecycle rule with an expiration and a noncurrent version expiration action for all objects with prefix doc/ in mybucket.
+     $ mc ilm rule add --prefix "doc/" --expire-days "300" --noncurrent-expire-days "100" \
+          myminio/mybucket/

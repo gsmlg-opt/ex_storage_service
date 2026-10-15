@@ -1,0 +1,17 @@
+{
+    "Bucket": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "ServerSideEncryptionConfiguration": {
+        "Rules": [
+            {
+                "ApplyServerSideEncryptionByDefault": {
+                    "SSEAlgorithm": "AES256",
+                    "KMSMasterKeyID": ""
+                },
+                "BucketKeyEnabled": true
+            }
+        ]
+    },
+    "ExpectedBucketOwner": ""
+}

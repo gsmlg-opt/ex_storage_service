@@ -1,0 +1,61 @@
+{
+    "Bucket": "",
+    "ChecksumAlgorithm": "CRC32",
+    "LifecycleConfiguration": {
+        "Rules": [
+            {
+                "Expiration": {
+                    "Date": "1970-01-01T00:00:00",
+                    "Days": 0,
+                    "ExpiredObjectDeleteMarker": true
+                },
+                "ID": "",
+                "Prefix": "",
+                "Filter": {
+                    "Prefix": "",
+                    "Tag": {
+                        "Key": "",
+                        "Value": ""
+                    },
+                    "ObjectSizeGreaterThan": 0,
+                    "ObjectSizeLessThan": 0,
+                    "And": {
+                        "Prefix": "",
+                        "Tags": [
+                            {
+                                "Key": "",
+                                "Value": ""
+                            }
+                        ],
+                        "ObjectSizeGreaterThan": 0,
+                        "ObjectSizeLessThan": 0
+                    }
+                },
+                "Status": "Enabled",
+                "Transitions": [
+                    {
+                        "Date": "1970-01-01T00:00:00",
+                        "Days": 0,
+                        "StorageClass": "GLACIER"
+                    }
+                ],
+                "NoncurrentVersionTransitions": [
+                    {
+                        "NoncurrentDays": 0,
+                        "StorageClass": "GLACIER",
+                        "NewerNoncurrentVersions": 0
+                    }
+                ],
+                "NoncurrentVersionExpiration": {
+                    "NoncurrentDays": 0,
+                    "NewerNoncurrentVersions": 0
+                },
+                "AbortIncompleteMultipartUpload": {
+                    "DaysAfterInitiation": 0
+                }
+            }
+        ]
+    },
+    "ExpectedBucketOwner": "",
+    "TransitionDefaultMinimumObjectSize": "varies_by_storage_class"
+}

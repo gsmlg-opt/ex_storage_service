@@ -1,0 +1,30 @@
+{
+    "ACL": "private",
+    "AccessControlPolicy": {
+        "Grants": [
+            {
+                "Grantee": {
+                    "DisplayName": "",
+                    "EmailAddress": "",
+                    "ID": "",
+                    "Type": "CanonicalUser",
+                    "URI": ""
+                },
+                "Permission": "FULL_CONTROL"
+            }
+        ],
+        "Owner": {
+            "DisplayName": "",
+            "ID": ""
+        }
+    },
+    "Bucket": "",
+    "ContentMD5": "",
+    "ChecksumAlgorithm": "CRC32",
+    "GrantFullControl": "",
+    "GrantRead": "",
+    "GrantReadACP": "",
+    "GrantWrite": "",
+    "GrantWriteACP": "",
+    "ExpectedBucketOwner": ""
+}

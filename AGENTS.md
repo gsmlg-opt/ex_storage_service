@@ -84,8 +84,9 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
   `http_fetch` 0.17.2 or newer and set `decode_body: false` on storage requests
   to preserve Content-Encoding object bytes. Do not buffer blobs, rewrite
   headers, or re-compress objects to replace bounded raw-byte transfers.
-  Core and CLI package constraints support both the 0.17 series from 0.17.2
-  and 0.18.x; the umbrella lock uses the coordinated 0.18 family.
+  Core package constraints support both the 0.17 series from 0.17.2 and 0.18.x;
+  the CLI requires `~> 0.18.1` for its validated transport API. The umbrella lock
+  uses the coordinated 0.18 family.
 - Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
 
 ### File Organization
@@ -108,6 +109,9 @@ The codebase is structured as an umbrella project with five apps:
   (`http://localhost:9100`), `RUSTFS_ACCESS_KEY` (`rustfsadmin`),
   `RUSTFS_SECRET_KEY` (`rustfsadmin`), and `RUSTFS_BUCKET` (`upstream-e2e`).
   Preserve the Boto3 standalone and `mc` cloud-cache compatibility coverage.
+- CLI resource acceptance uses the test-only `ESS_RESOURCE_LARGE_BYTES` in bytes:
+  default `67108864` (64 MiB), explicit multi-GiB acceptance `2147483648` (2 GiB).
+  It does not configure production transfer limits.
 - Always run the specific test suite of the application you modified before committing:
   - Core app tests: `mix test apps/ex_storage_service/test`
   - S3 app tests: `mix test apps/ex_storage_service_s3/test`
@@ -204,6 +208,59 @@ The codebase is structured as an umbrella project with five apps:
   restoring the unsafe legacy multi-write sequence. Keep v1 reads, never
   migrate destructively at startup, and document that rollback after v2 writes
   requires a metadata restore for old binaries.
+
+### Standalone CLI configuration and packaging
+
+- Preserve native config lookup: `ESS_CONFIG_DIR`, then `XDG_CONFIG_HOME/ess`,
+  then `~/.config/ess`. Preserve legacy `[default]` and `[profiles.<name>]` tables.
+  Durable transfer state uses `ESS_STATE_DIR`, then `XDG_STATE_HOME/ess`, then
+  `~/.local/state/ess`; keep credentials out of transfer journals.
+- Native `--config-dir` overrides config lookup for one invocation without
+  mutating environment variables. Apply validated custom headers before signing;
+  never allow auth, framing or checksum overrides. Native upload/download limits
+  share invocation-owned endpoint/direction budgets across concurrent requests.
+  Do not substitute overall timeouts for the independent socket inactivity
+  deadlines: the main-branch fix for `gsmlg-dev/http_fetch#126` still needs a
+  compatible 0.18 release and acceptance here. AWS timeout zero separately
+  depends on compatible infinity support in `gsmlg-dev/http_fetch#123`.
+  HTTP 0.21.11 supplies those APIs but retains a separate global response-stream
+  idle limit. Request-scoped stream inactivity is blocked by
+  `gsmlg-dev/http_fetch#129`; do not mutate VM-wide configuration as a workaround.
+- AWS namespaces independently resolve AWS shared profiles. Document and test
+  `AWS_DEFAULT_OUTPUT`, `AWS_RETRY_MODE` (`standard` default or `adaptive`),
+  `AWS_MAX_ATTEMPTS` (total attempts, default 3), `AWS_USE_FIPS_ENDPOINT`,
+  `AWS_USE_DUALSTACK_ENDPOINT`, `AWS_REQUEST_CHECKSUM_CALCULATION`, and
+  `AWS_RESPONSE_CHECKSUM_VALIDATION` (`when_supported`/`when_required`).
+  `AWS_EC2_METADATA_V1_DISABLED=true` forbids IMDSv1 fallback.
+- AWS move `--validate-same-s3-paths` also honors the exact case-insensitive
+  `AWS_CLI_S3_MV_VALIDATE_SAME_S3_PATHS=true` environment value. Its bounded
+  access-point preflight uses separate `AWS_ENDPOINT_URL_S3_CONTROL` and
+  `AWS_ENDPOINT_URL_STS` endpoints; never forward the data `--endpoint-url`.
+  Respect `AWS_IGNORE_CONFIGURED_ENDPOINT_URLS` and applicable
+  `AWS_S3_USE_ARN_REGION` policy. These helper reads do not add a public STS or
+  S3 Control CLI namespace.
+- `AWS_CLI_AUTO_PROMPT` is opt-in `on`/`on-partial`/`off`; selected-profile
+  `cli_auto_prompt` is a fallback and `--no-cli-auto-prompt` overrides inherited
+  settings. Require a terminal, write prompts to stderr, and suppress sensitive
+  echo before emitting the field label. Do not claim the bounded question UI is
+  AWS's full-screen editor. Resolve selected-profile `cli_binary_format` before
+  decoding input blobs; there is no `AWS_CLI_BINARY_FORMAT` variable.
+- `AWS_PAGER` (including empty) precedes profile `cli_pager`, `PAGER`, then `less`;
+  `--no-cli-pager`, non-TTY output, and raw output bypass it. Preserve configured
+  `LESS`; otherwise use `FRX`. Pager output has a private 64 MiB spool and
+  five-minute deadline. Use literal argv and owned process groups; restore the
+  controlling terminal before reporting completion or removing spool files.
+- Native installation requires a C11 compiler (`CC`, otherwise `cc`) and OTP
+  headers. Build binaries only under build-tree `priv/native`, package own-app
+  `priv` in escripts, verify asset SHA/OS/CPU/OTP-major before extraction/loading,
+  and never load source-relative artifacts. Runtime needs matching Erlang/OTP,
+  OS and CPU, but no compiler or server applications. Linux x86_64 / Elixir
+  1.18.5 / OTP 28 is validated; Darwin/other CPUs/minimum versions are unverified.
+  Interactive pager runtime is Linux-only until real platform acceptance passes.
+- CLI-only publishing uses `publish-cli.yml`; `release.yml` additionally builds
+  and publishes the server image and core package. Inspect those boundaries and
+  require fresh standalone installation, escript assets, and real artifact
+  execution before publishing. A workflow success alone is insufficient proof.
 
 ### When to Ask for Human Input
 - Act autonomously on bug fixes, refactorings, and standard feature implementations.

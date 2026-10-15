@@ -1,0 +1,94 @@
+NAME:
+  mc find - search for objects
+
+USAGE:
+  mc find [FLAGS] TARGET
+
+FLAGS:
+  --exec value                     spawn an external process for each matching object (see FORMAT)
+  --ignore value                   exclude objects matching the wildcard pattern
+  --versions                       include all objects versions
+  --name value                     find object names matching wildcard pattern
+  --newer-than value               match all objects newer than value in duration string (e.g. 7d10h31s)
+  --older-than value               match all objects older than value in duration string (e.g. 7d10h31s)
+  --path value                     match directory names matching wildcard pattern
+  --print value                    print in custom format to STDOUT (see FORMAT)
+  --regex value                    match directory and object name with RE2 regex pattern
+  --larger value                   match all objects larger than specified size in units (see UNITS)
+  --smaller value                  match all objects smaller than specified size in units (see UNITS)
+  --maxdepth value                 limit directory navigation to specified depth (default: 0)
+  --watch                          monitor a specified path for newly created object(s)
+  --metadata value                 match metadata with RE2 regex pattern. Specify each with key=regex. MinIO server only.
+  --tags value                     match tags with RE2 regex pattern. Specify each with key=regex. MinIO server only.
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+UNITS
+  --smaller, --larger flags accept human-readable case-insensitive number
+  suffixes such as "k", "m", "g" and "t" referring to the metric units KB,
+  MB, GB and TB respectively. Adding an "i" to these prefixes, uses the IEC
+  units, so that "gi" refers to "gibibyte" or "GiB". A "b" at the end is
+  also accepted. Without suffixes the unit is bytes.
+
+  --older-than, --newer-than flags accept the string for days, hours and minutes 
+  i.e. 1d2h30m states 1 day, 2 hours and 30 minutes.
+
+FORMAT
+  Support string substitutions with special interpretations for following keywords.
+  Keywords supported if target is filesystem or object storage:
+
+     {}        --> Substitutes to full path.
+     {base}    --> Substitutes to basename of path.
+     {dir}     --> Substitutes to dirname of the path.
+     {size}    --> Substitutes to object size of the path.
+     {time}    --> Substitutes to object modified time of the path.
+     {version} --> Substitutes to object version identifier.
+
+  Keywords supported if target is object storage:
+
+     {url} --> Substitutes to a shareable URL of the path.
+
+EXAMPLES:
+  01. Find all "foo.jpg" in all buckets under "s3" account.
+      $ mc find s3 --name "foo.jpg"
+
+  02. Find all objects with ".txt" extension under "s3/mybucket".
+      $ mc find s3/mybucket --name "*.txt"
+
+  03. Find only the object names without the directory component under "s3/mybucket".
+      $ mc find s3/mybucket --name "*" -print {base}
+
+  04. Find all images with ".jpg" extension under "s3/photos", prefixed with "album".
+      $ mc find s3/photos --name "*.jpg" --path "*/album*/*"
+
+  05. Find all images with ".jpg", ".png", and ".gif" extensions, using regex under "s3/photos".
+      $ mc find s3/photos --regex "(?i)\.(jpg|png|gif)$"
+
+  06. Find all images with ".jpg" extension under "s3/bucket" and copy to "play/bucket" *continuously*.
+      $ mc find s3/bucket --name "*.jpg" --watch --exec "mc cp {} play/bucket"
+
+  07. Find and generate public URLs valid for 7 days, for all objects between 64 MB, and 1 GB in size under "s3" account.
+      $ mc find s3 --larger 64MB --smaller 1GB --print {url}
+
+  08. Find all objects created in the last week under "s3/bucket".
+      $ mc find s3/bucket --newer-than 7d
+
+  09. Find all objects which were created are older than 2 days, 5 hours and 10 minutes and exclude the ones with ".jpg"
+      extension under "s3".
+      $ mc find s3 --older-than 2d5h10m --ignore "*.jpg"
+
+  10. List all objects up to 3 levels sub-directory deep under "s3/bucket".
+      $ mc find s3/bucket --maxdepth 3
+
+  11. Copy all versions of all objects in bucket in the local machine
+      $ mc find s3/bucket --versions --exec "mc cp --version-id {version} {} /tmp/dir/{}.{version}"

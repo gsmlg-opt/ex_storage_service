@@ -1,0 +1,88 @@
+{
+    "Bucket": "",
+    "Key": "",
+    "VersionId": "",
+    "RestoreRequest": {
+        "Days": 0,
+        "GlacierJobParameters": {
+            "Tier": "Standard"
+        },
+        "Type": "SELECT",
+        "Tier": "Standard",
+        "Description": "",
+        "SelectParameters": {
+            "InputSerialization": {
+                "CSV": {
+                    "FileHeaderInfo": "USE",
+                    "Comments": "",
+                    "QuoteEscapeCharacter": "",
+                    "RecordDelimiter": "",
+                    "FieldDelimiter": "",
+                    "QuoteCharacter": "",
+                    "AllowQuotedRecordDelimiter": true
+                },
+                "CompressionType": "NONE",
+                "JSON": {
+                    "Type": "DOCUMENT"
+                },
+                "Parquet": {}
+            },
+            "ExpressionType": "SQL",
+            "Expression": "",
+            "OutputSerialization": {
+                "CSV": {
+                    "QuoteFields": "ALWAYS",
+                    "QuoteEscapeCharacter": "",
+                    "RecordDelimiter": "",
+                    "FieldDelimiter": "",
+                    "QuoteCharacter": ""
+                },
+                "JSON": {
+                    "RecordDelimiter": ""
+                }
+            }
+        },
+        "OutputLocation": {
+            "S3": {
+                "BucketName": "",
+                "Prefix": "",
+                "Encryption": {
+                    "EncryptionType": "AES256",
+                    "KMSKeyId": "",
+                    "KMSContext": ""
+                },
+                "CannedACL": "private",
+                "AccessControlList": [
+                    {
+                        "Grantee": {
+                            "DisplayName": "",
+                            "EmailAddress": "",
+                            "ID": "",
+                            "Type": "CanonicalUser",
+                            "URI": ""
+                        },
+                        "Permission": "FULL_CONTROL"
+                    }
+                ],
+                "Tagging": {
+                    "TagSet": [
+                        {
+                            "Key": "",
+                            "Value": ""
+                        }
+                    ]
+                },
+                "UserMetadata": [
+                    {
+                        "Name": "",
+                        "Value": ""
+                    }
+                ],
+                "StorageClass": "STANDARD"
+            }
+        }
+    },
+    "RequestPayer": "requester",
+    "ChecksumAlgorithm": "CRC32",
+    "ExpectedBucketOwner": ""
+}

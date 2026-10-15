@@ -1,0 +1,45 @@
+NAME:
+  mc ilm restore - restore archived objects
+
+USAGE:
+  mc ilm restore TARGET
+
+DESCRIPTION:
+  Restore a copy of one or more objects from its remote tier. This copy automatically expires
+  after the specified number of days (Default 1 day).
+
+FLAGS:
+  --days value                     keep the restored copy for N days (default: 1)
+  --recursive, -r                  apply recursively
+  --versions                       apply on versions
+  --version-id value, --vid value  select a specific version id
+  --enc-c value                    encrypt/decrypt objects using client provided keys. (multiple keys can be provided) Formats: RawBase64 or Hex.
+  --config-dir value, -C value     path to configuration folder (default: "${HOME}/.mc") [$MC_CONFIG_DIR]
+  --quiet, -q                      disable progress bar display [$MC_QUIET]
+  --disable-pager, --dp            disable mc internal pager and print to raw stdout [$MC_DISABLE_PAGER]
+  --no-color                       disable color theme [$MC_NO_COLOR]
+  --json                           enable JSON lines formatted output [$MC_JSON]
+  --debug                          enable debug output [$MC_DEBUG]
+  --resolve value                  resolves HOST[:PORT] to an IP address. Example: minio.local:9000=10.10.75.1 [$MC_RESOLVE]
+  --insecure                       disable SSL certificate verification [$MC_INSECURE]
+  --limit-upload value             limits uploads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_UPLOAD]
+  --limit-download value           limits downloads to a maximum rate in KiB/s, MiB/s, GiB/s. (default: unlimited) [$MC_LIMIT_DOWNLOAD]
+  --custom-header value, -H value  add custom HTTP header to the request. 'key:value' format.
+  --help, -h                       show help
+  
+
+EXAMPLES:
+  1. Restore one specific object
+     $ mc ilm restore myminio/mybucket/path/to/object
+
+  2. Restore a specific object version
+     $ mc ilm restore --vid "CL3sWgdSN2pNntSf6UnZAuh2kcu8E8si" myminio/mybucket/path/to/object
+
+  3. Restore all objects under a specific prefix
+     $ mc ilm restore --recursive myminio/mybucket/dir/
+
+  4. Restore all objects with all versions under a specific prefix
+     $ mc ilm restore --recursive --versions myminio/mybucket/dir/
+
+  5. Restore an SSE-C encrypted object.
+     $ mc ilm restore --enc-c "myminio/mybucket/=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDA" myminio/mybucket/myobject.txt

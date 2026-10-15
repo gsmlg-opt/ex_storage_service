@@ -1,0 +1,57 @@
+{
+  "reference": "mc",
+  "source_revision": "77f82e18b5401a65958f1619df6ebb994634bd88",
+  "executable_sha256": "a62c4c85f9efbe5d07e03e2ff9923625fbf659a9f272a077a0cd846279f1ccc2",
+  "captured_at": "2026-10-15T11:41:47Z",
+  "environment": "Linux amd64; Python stdlib loopback HTTP fixture; private temporary config; MC_HOST_fixture uses fixture-access/fixture-secret only",
+  "normalization": "Extracted semantic fields from actual JSON success output; removed loopback port, signing timestamp and signature. No real credentials or provider used.",
+  "cases": [
+    {
+      "action": "download",
+      "options": [
+        "--expire",
+        "1s",
+        "--expire",
+        "2s"
+      ],
+      "target": "fixture/bucket/folder/a",
+      "exit_code": 0,
+      "status": "success",
+      "query": {
+        "X-Amz-Expires": "2"
+      }
+    },
+    {
+      "action": "download",
+      "options": [
+        "--version-id",
+        "v +/雪",
+        "--expire",
+        "2s"
+      ],
+      "target": "fixture/bucket/folder/a",
+      "exit_code": 0,
+      "status": "success",
+      "query": {
+        "X-Amz-Expires": "2",
+        "versionId": "v +/雪"
+      }
+    },
+    {
+      "action": "upload",
+      "options": [
+        "--recursive",
+        "--expire",
+        "2s"
+      ],
+      "target": "fixture/bucket/folder/a",
+      "exit_code": 0,
+      "status": "success",
+      "policy_condition": [
+        "starts-with",
+        "$key",
+        "folder/a"
+      ]
+    }
+  ]
+}

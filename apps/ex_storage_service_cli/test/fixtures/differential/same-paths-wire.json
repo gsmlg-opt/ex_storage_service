@@ -1,0 +1,824 @@
+{
+  "aws_sha256": "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a",
+  "cases": [
+    {
+      "name": "access-point-destination",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key",
+      "flags": [
+        "--validate-same-s3-paths"
+      ],
+      "env": {},
+      "scenario": "same",
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nCannot mv a file onto itself: s3://bucket/key - s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key\n",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/accesspoint/example-ap",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PEdldEFjY2Vzc1BvaW50UmVzdWx0PjxCdWNrZXQ+YnVja2V0PC9CdWNrZXQ+PC9HZXRBY2Nlc3NQb2ludFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "name": "access-point-source-region",
+      "source": "s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key",
+      "destination": "s3://bucket/key",
+      "flags": [
+        "--validate-same-s3-paths",
+        "--source-region",
+        "eu-west-1"
+      ],
+      "env": {},
+      "scenario": "same",
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nCannot mv a file onto itself: s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key - s3://bucket/key\n",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/accesspoint/example-ap",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "eu-west-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PEdldEFjY2Vzc1BvaW50UmVzdWx0PjxCdWNrZXQ+YnVja2V0PC9CdWNrZXQ+PC9HZXRBY2Nlc3NQb2ludFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "name": "access-point-alias",
+      "source": "s3://bucket/key",
+      "destination": "s3://example-ap-s3alias/key",
+      "flags": [
+        "--validate-same-s3-paths"
+      ],
+      "env": {},
+      "scenario": "same",
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nCannot mv a file onto itself: s3://bucket/key - s3://example-ap-s3alias/key\n",
+        "requests": [
+          {
+            "method": "POST",
+            "target": "http://sts.invalid:@PORT@/",
+            "headers": {
+              "host": "sts.invalid:@PORT@",
+              "content-type": "application/x-www-form-urlencoded; charset=utf-8",
+              "content-length": "43"
+            },
+            "body_base64": "QWN0aW9uPUdldENhbGxlcklkZW50aXR5JlZlcnNpb249MjAxMS0wNi0xNQ==",
+            "signing_scope": "us-east-1/sts/aws4_request",
+            "signed_headers": "content-type;host;x-amz-date"
+          },
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/accesspoint/example-ap-s3alias",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PEdldENhbGxlcklkZW50aXR5UmVzcG9uc2U+PEdldENhbGxlcklkZW50aXR5UmVzdWx0PjxBY2NvdW50PjEyMzQ1Njc4OTAxMjwvQWNjb3VudD48QXJuPmFybjphd3M6aWFtOjoxMjM0NTY3ODkwMTI6dXNlci9maXh0dXJlPC9Bcm4+PFVzZXJJZD5maXh0dXJlPC9Vc2VySWQ+PC9HZXRDYWxsZXJJZGVudGl0eVJlc3VsdD48L0dldENhbGxlcklkZW50aXR5UmVzcG9uc2U+"
+        },
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PEdldEFjY2Vzc1BvaW50UmVzdWx0PjxCdWNrZXQ+YnVja2V0PC9CdWNrZXQ+PC9HZXRBY2Nlc3NQb2ludFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "name": "sts-access-denied",
+      "source": "s3://bucket/key",
+      "destination": "s3://example-ap-s3alias/key",
+      "flags": [
+        "--validate-same-s3-paths"
+      ],
+      "env": {},
+      "scenario": "sts-denied",
+      "aws": {
+        "status": 254,
+        "stdout": "",
+        "stderr": "\nAn error occurred (AccessDenied) when calling the GetCallerIdentity operation (reached max retries: 0): STS denied caller\n",
+        "requests": [
+          {
+            "method": "POST",
+            "target": "http://sts.invalid:@PORT@/",
+            "headers": {
+              "host": "sts.invalid:@PORT@",
+              "content-type": "application/x-www-form-urlencoded; charset=utf-8",
+              "content-length": "43"
+            },
+            "body_base64": "QWN0aW9uPUdldENhbGxlcklkZW50aXR5JlZlcnNpb249MjAxMS0wNi0xNQ==",
+            "signing_scope": "us-east-1/sts/aws4_request",
+            "signed_headers": "content-type;host;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 403,
+          "headers": {},
+          "body_base64": "PEVycm9yUmVzcG9uc2UgeG1sbnM9Imh0dHBzOi8vc3RzLmFtYXpvbmF3cy5jb20vZG9jLzIwMTEtMDYtMTUvIj48RXJyb3I+PFR5cGU+U2VuZGVyPC9UeXBlPjxDb2RlPkFjY2Vzc0RlbmllZDwvQ29kZT48TWVzc2FnZT5TVFMgZGVuaWVkIGNhbGxlcjwvTWVzc2FnZT48L0Vycm9yPjxSZXF1ZXN0SWQ+Zml4dHVyZS1zdHMtcmVxdWVzdDwvUmVxdWVzdElkPjwvRXJyb3JSZXNwb25zZT4="
+        }
+      ]
+    },
+    {
+      "name": "sts-invalid-token",
+      "source": "s3://bucket/key",
+      "destination": "s3://example-ap-s3alias/key",
+      "flags": [
+        "--validate-same-s3-paths"
+      ],
+      "env": {},
+      "scenario": "sts-invalid-token",
+      "aws": {
+        "status": 254,
+        "stdout": "",
+        "stderr": "\nAn error occurred (InvalidClientTokenId) when calling the GetCallerIdentity operation (reached max retries: 0): The security token included in the request is invalid\n",
+        "requests": [
+          {
+            "method": "POST",
+            "target": "http://sts.invalid:@PORT@/",
+            "headers": {
+              "host": "sts.invalid:@PORT@",
+              "content-type": "application/x-www-form-urlencoded; charset=utf-8",
+              "content-length": "43"
+            },
+            "body_base64": "QWN0aW9uPUdldENhbGxlcklkZW50aXR5JlZlcnNpb249MjAxMS0wNi0xNQ==",
+            "signing_scope": "us-east-1/sts/aws4_request",
+            "signed_headers": "content-type;host;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 403,
+          "headers": {},
+          "body_base64": "PEVycm9yUmVzcG9uc2UgeG1sbnM9Imh0dHBzOi8vc3RzLmFtYXpvbmF3cy5jb20vZG9jLzIwMTEtMDYtMTUvIj48RXJyb3I+PFR5cGU+U2VuZGVyPC9UeXBlPjxDb2RlPkludmFsaWRDbGllbnRUb2tlbklkPC9Db2RlPjxNZXNzYWdlPlRoZSBzZWN1cml0eSB0b2tlbiBpbmNsdWRlZCBpbiB0aGUgcmVxdWVzdCBpcyBpbnZhbGlkPC9NZXNzYWdlPjwvRXJyb3I+PFJlcXVlc3RJZD5maXh0dXJlLXN0cy1yZXF1ZXN0PC9SZXF1ZXN0SWQ+PC9FcnJvclJlc3BvbnNlPg=="
+        }
+      ]
+    },
+    {
+      "name": "mrap-checksum-when-required",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3::123456789012:accesspoint/example.mrap/key",
+      "flags": [
+        "--validate-same-s3-paths"
+      ],
+      "env": {
+        "AWS_REQUEST_CHECKSUM_CALCULATION": "when_required"
+      },
+      "scenario": "mrap-pages",
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nCannot mv a file onto itself: s3://bucket/key - s3://arn:aws:s3::123456789012:accesspoint/example.mrap/key\n",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/mrap/instances",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-checksum-crc64nvme": "AAAAAAAAAAA=",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-checksum-crc64nvme;x-amz-content-sha256;x-amz-date"
+          },
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/mrap/instances?nextToken=page%2B%2F%3D2",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-checksum-crc64nvme": "AAAAAAAAAAA=",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-checksum-crc64nvme;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PExpc3RNdWx0aVJlZ2lvbkFjY2Vzc1BvaW50c1Jlc3VsdD48QWNjZXNzUG9pbnRzLz48TmV4dFRva2VuPnBhZ2UrLz0yPC9OZXh0VG9rZW4+PC9MaXN0TXVsdGlSZWdpb25BY2Nlc3NQb2ludHNSZXN1bHQ+"
+        },
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PExpc3RNdWx0aVJlZ2lvbkFjY2Vzc1BvaW50c1Jlc3VsdD48QWNjZXNzUG9pbnRzPjxBY2Nlc3NQb2ludD48QWxpYXM+ZXhhbXBsZS5tcmFwPC9BbGlhcz48UmVnaW9ucz48UmVnaW9uPjxCdWNrZXQ+ZGlmZmVyZW50PC9CdWNrZXQ+PC9SZWdpb24+PFJlZ2lvbj48QnVja2V0PmJ1Y2tldDwvQnVja2V0PjwvUmVnaW9uPjwvUmVnaW9ucz48L0FjY2Vzc1BvaW50PjwvQWNjZXNzUG9pbnRzPjwvTGlzdE11bHRpUmVnaW9uQWNjZXNzUG9pbnRzUmVzdWx0Pg=="
+        }
+      ]
+    },
+    {
+      "name": "outposts-arn",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3-outposts:us-east-1:123456789012:outpost/op-123/accesspoint/example-ap/key",
+      "flags": [
+        "--validate-same-s3-paths"
+      ],
+      "env": {},
+      "scenario": "same",
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nCannot mv a file onto itself: s3://bucket/key - s3://arn:aws:s3-outposts:us-east-1:123456789012:outpost/op-123/accesspoint/example-ap/key\n",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "http://control.invalid:@PORT@/v20180820/accesspoint/arn%3Aaws%3As3-outposts%3Aus-east-1%3A123456789012%3Aoutpost%2Fop-123%2Faccesspoint%2Fexample-ap",
+            "headers": {
+              "host": "control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-outpost-id": "op-123",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3-outposts/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-content-sha256;x-amz-date;x-amz-outpost-id"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PEdldEFjY2Vzc1BvaW50UmVzdWx0PjxCdWNrZXQ+YnVja2V0PC9CdWNrZXQ+PC9HZXRBY2Nlc3NQb2ludFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "name": "outposts-region-mismatch",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3-outposts:us-west-2:123456789012:outpost/op-123/accesspoint/example-ap/key",
+      "flags": [
+        "--validate-same-s3-paths"
+      ],
+      "env": {},
+      "scenario": "same",
+      "aws": {
+        "status": 255,
+        "stdout": "",
+        "stderr": "\nUnsupported configuration when using S3 Control: Invalid configuration: region from ARN `us-west-2` does not match client region `us-east-1` and UseArnRegion is `false`\n",
+        "requests": []
+      },
+      "responses": []
+    },
+    {
+      "name": "outposts-alias",
+      "source": "s3://bucket/key",
+      "destination": "s3://example-ap--op-s3/key",
+      "flags": [
+        "--validate-same-s3-paths"
+      ],
+      "env": {},
+      "scenario": "same",
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nCan't resolve underlying bucket name of s3 outposts access point alias. Use arn instead to resolve the bucket name and validate the mv command.\n",
+        "requests": []
+      },
+      "responses": []
+    },
+    {
+      "name": "mrap-second-page",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3::123456789012:accesspoint/example.mrap/key",
+      "flags": [
+        "--validate-same-s3-paths"
+      ],
+      "env": {},
+      "scenario": "mrap-pages",
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nCannot mv a file onto itself: s3://bucket/key - s3://arn:aws:s3::123456789012:accesspoint/example.mrap/key\n",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/mrap/instances",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-checksum-crc64nvme": "AAAAAAAAAAA=",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-checksum-crc64nvme;x-amz-content-sha256;x-amz-date"
+          },
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/mrap/instances?nextToken=page%2B%2F%3D2",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-checksum-crc64nvme": "AAAAAAAAAAA=",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-checksum-crc64nvme;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PExpc3RNdWx0aVJlZ2lvbkFjY2Vzc1BvaW50c1Jlc3VsdD48QWNjZXNzUG9pbnRzLz48TmV4dFRva2VuPnBhZ2UrLz0yPC9OZXh0VG9rZW4+PC9MaXN0TXVsdGlSZWdpb25BY2Nlc3NQb2ludHNSZXN1bHQ+"
+        },
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PExpc3RNdWx0aVJlZ2lvbkFjY2Vzc1BvaW50c1Jlc3VsdD48QWNjZXNzUG9pbnRzPjxBY2Nlc3NQb2ludD48QWxpYXM+ZXhhbXBsZS5tcmFwPC9BbGlhcz48UmVnaW9ucz48UmVnaW9uPjxCdWNrZXQ+ZGlmZmVyZW50PC9CdWNrZXQ+PC9SZWdpb24+PFJlZ2lvbj48QnVja2V0PmJ1Y2tldDwvQnVja2V0PjwvUmVnaW9uPjwvUmVnaW9ucz48L0FjY2Vzc1BvaW50PjwvQWNjZXNzUG9pbnRzPjwvTGlzdE11bHRpUmVnaW9uQWNjZXNzUG9pbnRzUmVzdWx0Pg=="
+        }
+      ]
+    },
+    {
+      "name": "mrap-missing",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3::123456789012:accesspoint/example.mrap/key",
+      "flags": [
+        "--validate-same-s3-paths"
+      ],
+      "env": {},
+      "scenario": "mrap-missing",
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nCouldn't find multi-region access point with alias example.mrap in account 123456789012\n",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/mrap/instances",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-checksum-crc64nvme": "AAAAAAAAAAA=",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-checksum-crc64nvme;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PExpc3RNdWx0aVJlZ2lvbkFjY2Vzc1BvaW50c1Jlc3VsdD48QWNjZXNzUG9pbnRzPjxBY2Nlc3NQb2ludD48QWxpYXM+b3RoZXIubXJhcDwvQWxpYXM+PFJlZ2lvbnM+PFJlZ2lvbj48QnVja2V0PmRpZmZlcmVudDwvQnVja2V0PjwvUmVnaW9uPjxSZWdpb24+PEJ1Y2tldD5idWNrZXQ8L0J1Y2tldD48L1JlZ2lvbj48L1JlZ2lvbnM+PC9BY2Nlc3NQb2ludD48L0FjY2Vzc1BvaW50cz48L0xpc3RNdWx0aVJlZ2lvbkFjY2Vzc1BvaW50c1Jlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "name": "environment-true",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key",
+      "flags": [],
+      "env": {
+        "AWS_CLI_S3_MV_VALIDATE_SAME_S3_PATHS": "TrUe"
+      },
+      "scenario": "same",
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nCannot mv a file onto itself: s3://bucket/key - s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key\n",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/accesspoint/example-ap",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PEdldEFjY2Vzc1BvaW50UmVzdWx0PjxCdWNrZXQ+YnVja2V0PC9CdWNrZXQ+PC9HZXRBY2Nlc3NQb2ludFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "name": "environment-space-false",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key",
+      "flags": [
+        "--dryrun"
+      ],
+      "env": {
+        "AWS_CLI_S3_MV_VALIDATE_SAME_S3_PATHS": " true "
+      },
+      "scenario": "same",
+      "aws": {
+        "status": 0,
+        "stdout": "(dryrun) move: s3://bucket/key to s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key\n",
+        "stderr": "warning: Provided s3 paths may resolve to same underlying s3 object(s) and result in deletion instead of being moved. To resolve and validate underlying s3 paths are not the same, specify the --validate-same-s3-paths flag or set the AWS_CLI_S3_MV_VALIDATE_SAME_S3_PATHS environment variable to true. To resolve s3 outposts access point path, the arn must be used instead of the alias.\n",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "http://data.invalid:@PORT@/bucket/key",
+            "headers": {
+              "host": "data.invalid:@PORT@",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "0",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "etag": "\"fixture\""
+          },
+          "body_base64": ""
+        }
+      ]
+    },
+    {
+      "name": "different-key",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key2",
+      "flags": [
+        "--validate-same-s3-paths",
+        "--dryrun"
+      ],
+      "env": {},
+      "scenario": "same",
+      "aws": {
+        "status": 0,
+        "stdout": "(dryrun) move: s3://bucket/key to s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key2\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "http://data.invalid:@PORT@/bucket/key",
+            "headers": {
+              "host": "data.invalid:@PORT@",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "0",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "etag": "\"fixture\""
+          },
+          "body_base64": ""
+        }
+      ]
+    },
+    {
+      "name": "different-bucket",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key",
+      "flags": [
+        "--validate-same-s3-paths",
+        "--dryrun"
+      ],
+      "env": {},
+      "scenario": "different",
+      "aws": {
+        "status": 0,
+        "stdout": "(dryrun) move: s3://bucket/key to s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/accesspoint/example-ap",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-content-sha256;x-amz-date"
+          },
+          {
+            "method": "HEAD",
+            "target": "http://data.invalid:@PORT@/bucket/key",
+            "headers": {
+              "host": "data.invalid:@PORT@",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PEdldEFjY2Vzc1BvaW50UmVzdWx0PjxCdWNrZXQ+ZGlmZmVyZW50PC9CdWNrZXQ+PC9HZXRBY2Nlc3NQb2ludFJlc3VsdD4="
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "0",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "etag": "\"fixture\""
+          },
+          "body_base64": ""
+        }
+      ]
+    },
+    {
+      "name": "access-denied",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key",
+      "flags": [
+        "--validate-same-s3-paths"
+      ],
+      "env": {},
+      "scenario": "denied",
+      "aws": {
+        "status": 254,
+        "stdout": "",
+        "stderr": "\nAn error occurred (AccessDenied) when calling the GetAccessPoint operation (reached max retries: 0): Denied\n",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/accesspoint/example-ap",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 403,
+          "headers": {},
+          "body_base64": "PEVycm9yPjxDb2RlPkFjY2Vzc0RlbmllZDwvQ29kZT48TWVzc2FnZT5EZW5pZWQ8L01lc3NhZ2U+PC9FcnJvcj4="
+        }
+      ]
+    },
+    {
+      "name": "fips-custom-endpoint",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key",
+      "flags": [
+        "--validate-same-s3-paths"
+      ],
+      "env": {
+        "AWS_USE_FIPS_ENDPOINT": "true"
+      },
+      "scenario": "same",
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nCannot mv a file onto itself: s3://bucket/key - s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key\n",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/accesspoint/example-ap",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PEdldEFjY2Vzc1BvaW50UmVzdWx0PjxCdWNrZXQ+YnVja2V0PC9CdWNrZXQ+PC9HZXRBY2Nlc3NQb2ludFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "name": "dualstack-custom-endpoint",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key",
+      "flags": [
+        "--validate-same-s3-paths"
+      ],
+      "env": {
+        "AWS_USE_DUALSTACK_ENDPOINT": "true"
+      },
+      "scenario": "same",
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nCannot mv a file onto itself: s3://bucket/key - s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key\n",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/accesspoint/example-ap",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PEdldEFjY2Vzc1BvaW50UmVzdWx0PjxCdWNrZXQ+YnVja2V0PC9CdWNrZXQ+PC9HZXRBY2Nlc3NQb2ludFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "name": "profile-fips",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key",
+      "flags": [
+        "--validate-same-s3-paths",
+        "--profile",
+        "selected"
+      ],
+      "env": {},
+      "scenario": "profile-fips",
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nCannot mv a file onto itself: s3://bucket/key - s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key\n",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/accesspoint/example-ap",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PEdldEFjY2Vzc1BvaW50UmVzdWx0PjxCdWNrZXQ+YnVja2V0PC9CdWNrZXQ+PC9HZXRBY2Nlc3NQb2ludFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "name": "profile-dualstack",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key",
+      "flags": [
+        "--validate-same-s3-paths",
+        "--profile",
+        "selected"
+      ],
+      "env": {},
+      "scenario": "profile-dualstack",
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nCannot mv a file onto itself: s3://bucket/key - s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key\n",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/accesspoint/example-ap",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PEdldEFjY2Vzc1BvaW50UmVzdWx0PjxCdWNrZXQ+YnVja2V0PC9CdWNrZXQ+PC9HZXRBY2Nlc3NQb2ludFJlc3VsdD4="
+        }
+      ]
+    },
+    {
+      "name": "profile-service-endpoint",
+      "source": "s3://bucket/key",
+      "destination": "s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key",
+      "flags": [
+        "--validate-same-s3-paths",
+        "--profile",
+        "selected"
+      ],
+      "env": {},
+      "scenario": "profile",
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nCannot mv a file onto itself: s3://bucket/key - s3://arn:aws:s3:us-west-2:123456789012:accesspoint/example-ap/key\n",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "http://123456789012.control.invalid:@PORT@/v20180820/accesspoint/example-ap",
+            "headers": {
+              "host": "123456789012.control.invalid:@PORT@",
+              "x-amz-account-id": "123456789012",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": "",
+            "signing_scope": "us-east-1/s3/aws4_request",
+            "signed_headers": "host;x-amz-account-id;x-amz-content-sha256;x-amz-date"
+          }
+        ]
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PEdldEFjY2Vzc1BvaW50UmVzdWx0PjxCdWNrZXQ+YnVja2V0PC9CdWNrZXQ+PC9HZXRBY2Nlc3NQb2ludFJlc3VsdD4="
+        }
+      ]
+    }
+  ]
+}
