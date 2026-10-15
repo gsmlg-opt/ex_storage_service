@@ -1,6 +1,6 @@
 # Standalone packaging and platform evidence
 
-Validation date: 2026-10-15. Source baseline: `9b8661e58107eddb24cb8f15495cee4ac979219a` plus the CLI implementation working tree. This is a local pre-release snapshot, not a published package or immutable final-release mapping. The package still reports version `0.6.7`; release/version changes belong to the coordinating release step.
+Validation date: 2026-10-15. The initial sections retain local snapshots based on `9b8661e58107eddb24cb8f15495cee4ac979219a` plus the implementation diff. The final section records clean committed-source and remote package evidence. None is a published next-version package. The package still reports version `0.6.7`; release/version changes belong to the coordinating release step.
 
 ## Package and installation
 
@@ -33,13 +33,13 @@ This verifies installation from the freshly built local Hex source package, depe
 
 Actual environment: Linux x86_64, Elixir 1.18.5, OTP 28. Building/installing requires C11 compiler (`CC`, otherwise `cc`) and OTP headers. Runtime escripts require Erlang/OTP and matching OS/CPU/OTP-major native assets; they are not self-contained operating-system binaries. No runtime C compiler, repository checkout, or server application is required.
 
-The NIF retains Darwin build flags and guarded source. Both normal Linux and non-Linux-guarded C (`cc -U__linux__ -Wall -Wextra -Werror`) compiled successfully on this Linux host. That guard check is not a macOS ABI or execution test. Darwin, ARM64/other CPU targets, and the minimum OTP/Elixir runtime matrix have not run. Interactive paging remains Linux-only. Do not mark the plan's supported Linux/macOS architecture gate complete from this evidence.
+The initial NIF checks compiled both normal Linux and non-Linux-guarded C (`cc -U__linux__ -Wall -Wextra -Werror`) on this Linux host. That guard check alone is not a macOS ABI or execution test. The later remote matrix below supplies actual Darwin arm64 and Linux minimum-runtime package evidence. Interactive paging remains Linux-only; other platform/runtime combinations are unverified.
 
 The updated `publish-cli.yml` uses Ubuntu with Elixir 1.19/OTP 28 and validates only the CLI and its dependency closure. It requires the requested version to be committed before dispatch; it does not make a hidden workflow version bump. It runs the source-package probe, publishes Hex source/docs, verifies the exact public Hex payload against the validated tar, and runs another extracted published consumer. It prepares the downloadable `ess-linux-x86_64-otp28` escript, SHA256SUMS, source/platform manifests, reference lock, coverage, and README. CLI-only dispatch uses `cli-v<version>`; a root release call attaches artifacts to its supplied version tag. The root `release.yml` also publishes the server image and core package, so it is not a CLI-only release path. No release workflow has been triggered for this implementation.
 
 `scripts/cli_compatibility/package_probe.py` makes the standalone checks repeatable. In addition to required source/escript assets, it recomputes Hex v3 payload integrity and executes all byte values through native cat in the installed artifact. The release probe now also requires both pager assets and runs the installed Linux artifact through a controlling PTY, checking exact Unicode output, literal pager arguments, restored terminal settings and owned temporary cleanup. Injected server-app ZIP entries are rejected for unversioned and versioned application roots. Supplied public tars record the checkout used to run the probe separately from package provenance. `verify_published.py` rejects a public payload that differs from the validated source package, even if its untrusted CHECKSUM entry claims otherwise.
 
-`cli-compatibility.yml` adds separate unit/wire/executable, 2 GiB resource, disposable ESS/RustFS, and platform package jobs. The proposed package matrix includes Linux Elixir 1.18.0/OTP 27, 1.18.5/OTP 28, 1.19/OTP 28 and macOS Elixir 1.19/OTP 28. Those new remote jobs have not yet run; their presence is not execution evidence. The three affected workflows pass actionlint locally. CLI compatibility uses explicit Bash/pipefail so tee cannot mask a resource-test failure. The server image push trigger skips CLI/documentation-only changes; build-workflow-only changes still have PR and explicit-dispatch coverage. Metadata-only Docker dependency resolution can load the CLI project without the not-yet-copied native compiler task, while actual compilation still requires that task. The provider job retains the four independent server failures and checks them through the exact pinned provider policy rather than treating their raw exit 1 as complete compatibility.
+`cli-compatibility.yml` adds separate unit/wire/executable, 2 GiB resource, disposable ESS/RustFS, and platform package jobs. The actual package matrix results appear below. The three initially affected workflows pass actionlint locally. CLI compatibility uses explicit Bash/pipefail so tee cannot mask a resource-test failure. The server image push trigger skips CLI/documentation-only changes; build-workflow-only changes still have PR and explicit-dispatch coverage. Metadata-only Docker dependency resolution can load the CLI project without the not-yet-copied native compiler task, while actual compilation still requires that task. The provider job retains the four independent server failures and checks them through the exact pinned provider policy rather than treating their raw exit 1 as complete compatibility.
 
 Release remains subject to final source checks, the complete scoped CLI acceptance suite, independent provider/AWS evidence, supported platform matrix, and the documented http_fetch 0.18 infinite-timeout upstream blocker (`gsmlg-dev/http_fetch#123`). A passing local package build does not close those gates.
 
@@ -117,7 +117,40 @@ The local successful probe above does not supersede those remote failures.
 The ensuing CLI repair preserves the nonblocking signal pipe and real no-follow
 flag: inspect write results, retry EINTR, coalesce EAGAIN/EWOULDBLOCK, and enable
 Darwin declarations before headers. Fortified Linux and non-Linux guarded builds
-pass; actual Darwin remains a remote gate. Two expressions now format identically
+pass; the actual Darwin result is recorded below. Two expressions now format identically
 on Elixir 1.18.5 and 1.19.6. The affected 46-test suite and strict compile pass.
-These changes require fresh package/platform results; the b1df845 artifact above
-remains the exact earlier snapshot.
+The b1df845 artifact above remains the exact earlier snapshot; subsequent
+package/platform results are recorded below.
+
+## Clean portability checkpoint packages
+
+The local probe for clean source
+`2380deac68b3181c6192c7047364390d6cd607c9` passed all eleven contracts at
+`/tmp/ess-cli-package-pager-final`. Its tar SHA256 is
+`aad74c878006c27b8d62710190a7a8a3bf5cd55e859279c9b83d96acb101627d`,
+computed Hex payload checksum
+`a46a615f695734448cd3cace92189913a9192b5a0a1e19e3c1c258f7ac67c843`,
+and escript SHA256
+`a7b26fff17a96e248ad61e50415ba0c3a12a0afac2ac11a8661e8e37e388c4fb`
+(1,344 ZIP entries).
+
+All four package jobs in [run 38739026057](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38739026057)
+also passed with that exact clean source and version 0.6.7. Their common source
+tar SHA256 is
+`73ebea1d290b4ffebf6bc12cecf99c96f8a69d9e548fd8d193cd6d4439476d1e`.
+Downloaded tar/escript bytes were independently hashed against each manifest.
+
+| Runtime platform | Elixir / OTP | Escript SHA256 |
+| --- | --- | --- |
+| Linux x86_64 | 1.18.0 / 27 | `efda3ac07528712f8244ff23b7e7fcd61e7a7026eb4455797f99854c9b0b5bc6` |
+| Linux x86_64 | 1.18.5 / 28 | `1f8ade53387121df9a9ac3e7e7e3d91751a867b042b309e2bb98ce3ea9a5bbce` |
+| Linux x86_64 | 1.19.6 / 28 | `30787fe25ebf8343cc68c2c6e1cbd2994882d08153fbbacf4d4d6969a9180688` |
+| Darwin arm64 | 1.19.6 / 28 | `18229d64d0af37fe1f78e080aa6681018328d4d9b1580862155a1f8a04396752` |
+
+Linux ran eleven package contracts, including installed pager PTY cleanup;
+Darwin ran ten, with no interactive pager claim. These are standalone
+source-package/runtime probes, not complete per-platform unit suites. The
+overall remote run failed its separate full test job; see
+integration-validation.md. These artifacts are CI evidence, not public release
+artifacts. The deadline blocker, complete-suite and publication gates remain
+open, including http_fetch#129; no next-version release has been attempted.

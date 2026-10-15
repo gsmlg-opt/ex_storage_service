@@ -63,3 +63,21 @@ PAGER=cat python3 scripts/cli_compatibility/provider_probe.py \
 The harness returns 1 for any recorded failure or failed fixture cleanup, including independently confirmed server limitations. It does not turn those into passing tests. Without an independent AWS executable, reports say `independent_aws: false`; same-artifact verification cannot establish independent compatibility.
 
 The redacted [provider report](../../../apps/ex_storage_service_cli/test/fixtures/providers/provider-acceptance.json) preserves pass labels, literal failures, both executable statuses/errors, exact listed keys, header metadata, cleanup, artifact hashes, and immutable image identifiers. A CI policy may compare the exact pinned image, full required passing contracts, and explicitly documented failure signatures. Unexpected results, client/reference disagreement, omitted independent controls, or cleanup failures must fail that policy; accepting any nonzero status wholesale is insufficient.
+
+## Remote committed-source checkpoint
+
+The provider job in [CLI run 38739026057](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38739026057)
+repeated the independent probes from clean source
+`2380deac68b3181c6192c7047364390d6cd607c9`. The tested escript SHA256 was
+`fdb48d7add6bf4dda1ec8c435451ef5347e249e473b9e6d4454692f445ddbd6b`.
+The downloaded report records `independent_aws: true`, the same pinned provider
+image digests, **ESS: ten passes and three server failures**, and **RustFS:
+thirteen passes and one server failure**. The exact failures remain those
+described above. Owned bucket cleanup completed and the workflow removed the
+owned containers/volumes. Evidence is retained at
+`/tmp/ess-cli-2380dea-providers/cli-providers`.
+
+The green provider job means that the full required passing contracts and exact
+known-limitation policy matched. It does not turn the four server failures into
+passes or establish complete provider compatibility. Live AWS account-specific
+acceptance remains unrun.

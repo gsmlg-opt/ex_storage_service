@@ -44,8 +44,8 @@ seconds (23.5 seconds async, 194.7 seconds sync). Log:
 move/source-encryption, bridge identity, journal-test isolation, native policy,
 color, tag and age/class corrections above. A final indentation-only format
 correction was followed by a passing whole-CLI `mix format --check-formatted`
-and `mix compile --warnings-as-errors`. No production behavior changed after
-this passing test snapshot.
+and `mix compile --warnings-as-errors`. This result precedes the native
+portability repairs recorded below.
 
 This local result does not close the HTTP dependency/deadline gate, remote
 platform/provider jobs or publication verification. The independent 2 GiB
@@ -93,3 +93,37 @@ Log: `/tmp/ess-cli-pager-portability-scoped.log`. Direct injected write/subproce
 probes also cover zero/EPIPE/EAGAIN, failed-gate no-exec and exact result bytes.
 Actual remote platform/resource/provider acceptance remains separate from these
 local results.
+
+## Committed checkpoint acceptance
+
+Source `2380deac68b3181c6192c7047364390d6cd607c9` was pushed to
+`origin/main`. In [CLI run 38739026057](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38739026057),
+all four standalone package jobs, the throttled 2 GiB resource job and the
+independent ESS/RustFS limitation-policy job passed. Downloaded package manifests
+record clean source; their tar/escript hashes were recomputed independently.
+See packaging-platform-decisions.md, resource-filesystem-acceptance.md and
+provider-acceptance.md for the exact contracts and retained provider failures.
+
+The complete remote CLI test job failed: **3,221 tests, four failures and one
+resource exclusion**, seed 172135, in 334.9 seconds. All four failures were
+CompletionTest subprocesses receiving `:enoent` for the runner's absent `zsh`.
+The [umbrella Test run](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38739026195)
+also failed, with the same completion failures and one CLI RuntimeTest isolation
+failure: **3,222 CLI tests, five failures**, seed 530948. Its core, cluster, S3
+and web suites passed. Logs are retained at
+`/tmp/ess-cli-2380dea-failed.log` and `/tmp/ess-test-2380dea-failed.log`.
+Neither failed job is counted as complete-suite acceptance.
+
+The runner workflows now install the required Zsh shell without skipping its
+completion contracts. RuntimeTest's standalone no-server assertion belongs in
+a fresh VM because umbrella Mix has already started server applications; its
+invocation-owned task/provider cleanup assertions remain in process. These
+test-environment corrections require a fresh remote result. No release or
+deadline gate is closed by the successful package/resource/provider jobs.
+
+The corrected runtime and unchanged Bash/Zsh completion suites passed **13
+tests, zero failures**, seed 628644, in 10.5 seconds. The runtime test formats
+under Elixir 1.18.5 and 1.19.6, and both edited workflows pass actionlint.
+Local umbrella execution did not reach tests because its existing web
+`build_info` compile environment differs from the checkout; it was not altered
+or bypassed. The clean remote umbrella job remains the integration check.

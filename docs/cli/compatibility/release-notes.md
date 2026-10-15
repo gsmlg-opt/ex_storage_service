@@ -37,8 +37,9 @@ option or output. Consult the [guide](../guide.md) and the
 
 Source installation needs Elixir 1.18+, Erlang/OTP, a C11 compiler and OTP
 headers. Built escripts require matching OS, CPU and OTP-major native assets.
-Linux x86_64 / Elixir 1.18.5 / OTP 28 has local runtime evidence; other platform
-and minimum-runtime jobs must be inspected before expanding that claim.
+Remote package/runtime probes pass on Linux x86_64 with Elixir 1.18.0/OTP 27,
+1.18.5/OTP 28 and 1.19.6/OTP 28, and macOS arm64 with Elixir 1.19.6/OTP 28.
+Other platform/runtime combinations remain unverified.
 Interactive paging is currently Linux-only.
 
 ## Release gates
@@ -57,11 +58,15 @@ scope decision and affected-application validation. These contracts remain
 blocked rather than approximated. Further actual wire checking found a separate
 response-stream timer in 0.21.11; the missing request-scoped policy is tracked
 as blocker [#129](https://github.com/gsmlg-dev/http_fetch/issues/129). No local
-workaround or candidate dependency change has been applied. The current CLI implementation passed
-3,222 tests with zero failures and one separate resource exclusion; formatting
-and strict compilation also pass. Exact native differences, remote acceptance,
-immutable source/artifact mapping and publication verification remain explicit
-release gates.
+workaround or candidate dependency change has been applied. The historical
+local CLI snapshot passed 3,222 tests with zero failures and one separate
+resource exclusion; formatting and strict compilation also pass. Clean source
+2380dea was pushed and its four remote package jobs, 2 GiB resource job and
+provider limitation-policy job passed. Its complete CLI job failed four absent-Zsh
+completion tests; the umbrella test job also exposed a CLI runtime-test isolation
+error. The test-environment corrections require a fresh result. Deadline
+integration, exact native differences, complete-suite acceptance, immutable
+release mapping and publication verification remain explicit release gates.
 
 The [provider report](provider-acceptance.md) preserves independent ESS 0.6.7
 and RustFS 1.0.1 failures. Live AWS account-specific infrastructure has not been

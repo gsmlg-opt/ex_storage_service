@@ -62,3 +62,16 @@ Linux x86_64 / OTP 28 is the measured platform. These tests do not establish
 Darwin or Windows behavior, live cloud behavior, or directory-capability safety
 against hostile concurrent parent renames. The sink's documented invoking-user
 control requirement still applies.
+
+## Remote committed-source resource run
+
+The resource job in [CLI run 38739026057](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38739026057)
+passed on clean source `2380deac68b3181c6192c7047364390d6cd607c9`:
+one test, zero failures, in 151.3 seconds. The 2,147,483,648-byte upload and
+download used the same 1 MiB admission budget with 11,970 large-run samples.
+Total VM memory peaked at 63,375,896 bytes from a 62,646,520-byte baseline;
+binary memory peaked at 1,964,344 bytes from 1,237,824. Maximum mailbox length
+was two, active requests one and reserved bytes 131,072. Disk staging peaked
+at the object length; final request reservations and staging were released.
+The downloaded log is `/tmp/ess-cli-2380dea-resource/cli-resource.log`.
+This does not expand the filesystem/platform or live-provider boundaries above.

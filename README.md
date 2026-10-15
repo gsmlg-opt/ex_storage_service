@@ -217,9 +217,10 @@ and remaining gaps rather than assuming complete AWS or mc parity.
 CLI installation builds a small C11 native resource library and pager helper,
 requiring a C compiler (`CC`, otherwise `cc`) and OTP development headers.
 Escript execution requires matching Erlang/OTP, OS, and CPU; it needs no runtime
-compiler or storage-server applications. Linux x86_64 / Elixir 1.18.5 / OTP 28 is
-validated. macOS, other architectures, and the minimum-version matrix remain
-unverified; interactive paging is Linux-only.
+compiler or storage-server applications. Package/runtime probes pass on Linux
+x86_64 with Elixir 1.18.0/OTP 27, 1.18.5/OTP 28 and 1.19.6/OTP 28, and macOS
+arm64 with Elixir 1.19.6/OTP 28. Other combinations remain unverified;
+interactive paging is Linux-only.
 
 CLI environment settings supplement the server settings below:
 
