@@ -78,3 +78,18 @@ failures**, seed 628644, in 9.4 seconds. Log:
 `/tmp/ess-cli-ci-portability-scoped.log`. Assertions were retained. The remote
 platform, complete CLI and resource/provider jobs must be inspected after pushing
 these repairs; the earlier failed jobs are not counted as accepted contracts.
+
+The next [remote run](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38738333317)
+cleared the formatter and signal-bridge errors, then exposed equivalent fortified
+write-result and Darwin-declaration errors in the pager helper. Both native
+artifacts now pass explicit fortified builds. Pager ready/result writes retry
+EINTR and handle short writes; a broken gate kills/reaps the child and restores
+the terminal before reporting failure. The runner handles SIGPIPE while the exec
+child retains its normal default. The real no-follow flag remains required.
+
+Strict compilation and pager PTY, executable/native signals and filesystem
+regressions then passed **25 tests, zero failures**, seed 628644, in 8.6 seconds.
+Log: `/tmp/ess-cli-pager-portability-scoped.log`. Direct injected write/subprocess
+probes also cover zero/EPIPE/EAGAIN, failed-gate no-exec and exact result bytes.
+Actual remote platform/resource/provider acceptance remains separate from these
+local results.

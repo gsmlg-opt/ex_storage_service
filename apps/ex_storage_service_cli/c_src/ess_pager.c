@@ -1,4 +1,7 @@
 /* Literal-argv pager runner. FD3 is the BEAM lifetime/cancellation pipe. */
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE
+#endif
 #define _POSIX_C_SOURCE 200809L
 #include <errno.h>
 #include <fcntl.h>
@@ -11,6 +14,17 @@
 #include <sys/wait.h>
 #include <termios.h>
 #include <unistd.h>
+
+static int write_all(int fd, const void *buffer, size_t length) {
+    const unsigned char *bytes = buffer;
+    while (length > 0) {
+        ssize_t written = write(fd, bytes, length);
+        if (written > 0) { bytes += written; length -= (size_t)written; }
+        else if (written < 0 && errno == EINTR) continue;
+        else return -1;
+    }
+    return 0;
+}
 
 int main(int argc, char **argv) {
     if (argc < 3) return 125;
@@ -27,6 +41,7 @@ int main(int argc, char **argv) {
     (void)sigaction(SIGTTOU, &ignore, NULL);
     (void)sigaction(SIGINT, &ignore, NULL);
     (void)sigaction(SIGTERM, &ignore, NULL);
+    (void)sigaction(SIGPIPE, &ignore, NULL);
     int gate[2];
     if (pipe(gate) != 0) return 125;
     pid_t child = fork();
@@ -44,6 +59,7 @@ int main(int argc, char **argv) {
         (void)sigaction(SIGTERM, &normal, NULL);
         (void)sigaction(SIGTTOU, &normal, NULL);
         (void)sigaction(SIGTTIN, &normal, NULL);
+        (void)sigaction(SIGPIPE, &normal, NULL);
         if (dup2(input, STDIN_FILENO) < 0) _exit(125);
         if (input > 2) close(input);
         close(3); close(4);
@@ -60,10 +76,13 @@ int main(int argc, char **argv) {
         close(tty);
         return 125;
     }
-    (void)write(gate[1], "R", 1);
+    int gate_failed = write_all(gate[1], "R", 1) != 0;
     close(gate[1]);
     int status = 0, cancelled = 0;
-    for (;;) {
+    if (gate_failed) {
+        (void)kill(-child, SIGKILL);
+        while (waitpid(child, &status, 0) < 0 && errno == EINTR) {}
+    } else for (;;) {
         pid_t done = waitpid(child, &status, WNOHANG);
         if (done == child) break;
         if (done < 0 && errno != EINTR) { cancelled = 1; break; }
@@ -81,9 +100,9 @@ int main(int argc, char **argv) {
     if (foreground >= 0) (void)tcsetpgrp(tty, foreground);
     if (saved_terminal) (void)tcsetattr(tty, TCSANOW, &original);
     if (tty >= 0) close(tty);
-    int result = cancelled ? 130 : WIFEXITED(status) ? WEXITSTATUS(status) :
+    int result = gate_failed ? 125 : cancelled ? 130 : WIFEXITED(status) ? WEXITSTATUS(status) :
         WIFSIGNALED(status) ? 128 + WTERMSIG(status) : 125;
     /* Completion is published only after foreground and termios restoration. */
-    (void)write(4, &result, sizeof(result));
+    if (write_all(4, &result, sizeof(result)) != 0) return 125;
     return result;
 }
