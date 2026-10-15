@@ -92,3 +92,32 @@ HTTP bytes, payload integrity and controlling-PTY pager cleanup. The manifest
 and command log retain the commands and digests. Python tooling passed 28 tests;
 inventory regeneration/check and the three changed workflows' actionlint check
 also passed. No next-version public release is implied by this result.
+
+## Committed-source probe and first remote run
+
+The clean committed implementation `b1df845ec3123a8a45122a13157d3b5631b12bee`
+was pushed to `origin/main`. Its local extracted-package probe passed all eleven
+contracts with `source_dirty: false` at `/tmp/ess-cli-package-b1df845`.
+The source tar SHA256 is
+`fae3cbea0276eed06a7eeeeddb9a43a7292bc17b3da2d6b5b9de09f13b956305`,
+computed Hex payload checksum
+`cfdec9463556490cdff45ffa16d631781ef18e54a640e14027d22ead71a82d62`,
+and escript SHA256
+`8e1aeb7c826fb189d38f9606068dbc093cf1ee0e23bf4a3601ad77c79526bd5e`.
+This is still an unpublished 0.6.7 implementation artifact.
+
+The first actual [remote CLI run](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38737634712)
+failed before executing its runtime/provider/resource contracts. Fortified Ubuntu
+rejected an ignored signal-handler write result; Darwin compilation did not expose
+`O_NOFOLLOW`; Elixir 1.19 formatting differed in two source/test expressions.
+These are CLI defects requiring in-scope repairs, not successful platform checks.
+The accompanying umbrella CI compile/format failures have the same CLI causes.
+The local successful probe above does not supersede those remote failures.
+
+The ensuing CLI repair preserves the nonblocking signal pipe and real no-follow
+flag: inspect write results, retry EINTR, coalesce EAGAIN/EWOULDBLOCK, and enable
+Darwin declarations before headers. Fortified Linux and non-Linux guarded builds
+pass; actual Darwin remains a remote gate. Two expressions now format identically
+on Elixir 1.18.5 and 1.19.6. The affected 46-test suite and strict compile pass.
+These changes require fresh package/platform results; the b1df845 artifact above
+remains the exact earlier snapshot.

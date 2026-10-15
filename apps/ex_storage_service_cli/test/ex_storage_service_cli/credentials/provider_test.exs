@@ -21,24 +21,27 @@ defmodule ExStorageServiceCli.Credentials.ProviderTest do
       "AWS_REGION" => "eu-west-1"
     }
 
-    assert {:ok,
-            %Record{
-              access_key_id: "env-access",
-              secret_access_key: "env-secret",
-              session_token: "env-token",
-              provenance: %{provider: :environment}
-            },
-            %{region: "eu-west-1", profile: "team", s3: %{"addressing_style" => "virtual"}}} =
+    assert {:ok, environment_credentials, settings} =
              Provider.resolve(%{}, Keyword.put(opts, :env, env))
 
-    assert {:ok,
-            %Record{
-              access_key_id: "profile-access",
-              session_token: "profile-token",
-              provenance: %{provider: :shared_credentials}
-            },
-            %{region: "eu-west-1"}} =
+    assert %Record{
+             access_key_id: "env-access",
+             secret_access_key: "env-secret",
+             session_token: "env-token",
+             provenance: %{provider: :environment}
+           } = environment_credentials
+
+    assert %{region: "eu-west-1", profile: "team", s3: %{"addressing_style" => "virtual"}} =
+             settings
+
+    assert {:ok, profile_credentials, %{region: "eu-west-1"}} =
              Provider.resolve(%{profile: "team"}, Keyword.put(opts, :env, env))
+
+    assert %Record{
+             access_key_id: "profile-access",
+             session_token: "profile-token",
+             provenance: %{provider: :shared_credentials}
+           } = profile_credentials
   end
 
   test "partial credential pairs and tokens never mix between files or environment", %{
@@ -51,14 +54,14 @@ defmodule ExStorageServiceCli.Credentials.ProviderTest do
         "[default]\naws_access_key_id=stored-access\naws_secret_access_key=stored-secret\n"
       )
 
-    assert {:ok,
-            %Record{
-              access_key_id: "stored-access",
-              secret_access_key: "stored-secret",
-              session_token: nil
-            },
-            _} =
+    assert {:ok, credentials, _} =
              Provider.resolve(%{}, Keyword.put(opts, :env, %{"AWS_SESSION_TOKEN" => "env-token"}))
+
+    assert %Record{
+             access_key_id: "stored-access",
+             secret_access_key: "stored-secret",
+             session_token: nil
+           } = credentials
 
     assert {:error, %Error{code: :invalid_credentials}} =
              Provider.resolve(

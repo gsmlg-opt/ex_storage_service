@@ -59,3 +59,22 @@ own trailing whitespace was removed. Reference hashes and deterministic output
 checks pass, so no pinned capture was rewritten to satisfy whitespace style.
 The final source-only edit adds the required TODO for http_fetch#129; it changes
 no execution behavior and was followed by another passing format/strict compile.
+
+## Remote compiler and formatter repair
+
+The first pushed implementation exposed CLI portability issues in real CI:
+fortified Ubuntu rejects an unchecked signal-handler write; Darwin's selected
+feature macros hide `O_NOFOLLOW`; Elixir 1.19 formats two expressions differently.
+The C handler now checks the write, retries EINTR and coalesces a saturated
+nonblocking pipe while preserving pending bits, errno and handler cleanup. Darwin
+uses its real declarations, with no zero-valued no-follow fallback. Small bindings
+retain equivalent multipart and credential assertions under both formatters.
+
+Fortified Linux and a Linux-header non-Linux guarded C build pass; the latter is
+not Darwin runtime evidence. Both Elixir 1.18.5 and 1.19.6 whole-CLI format checks
+pass. Strict compilation and the affected signal/executable/cancellation,
+filesystem, multipart and credential-provider suites pass **46 tests, zero
+failures**, seed 628644, in 9.4 seconds. Log:
+`/tmp/ess-cli-ci-portability-scoped.log`. Assertions were retained. The remote
+platform, complete CLI and resource/provider jobs must be inspected after pushing
+these repairs; the earlier failed jobs are not counted as accepted contracts.

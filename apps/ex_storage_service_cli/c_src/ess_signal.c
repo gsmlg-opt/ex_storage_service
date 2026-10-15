@@ -1,5 +1,8 @@
 /* Invocation-owned POSIX SIGINT bridge. No BEAM API runs in the signal handler. */
 #define _GNU_SOURCE
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE
+#endif
 #define _POSIX_C_SOURCE 200809L
 #define _XOPEN_SOURCE 700
 #include <erl_nif.h>
@@ -51,8 +54,15 @@ static void sigint_handler(int number) {
     if (fd >= 0) {
         atomic_fetch_or_explicit(&pending_signals, number == SIGTERM ? 2 : 1, memory_order_seq_cst);
         unsigned char value = 1;
-        /* Full pipe coalesces SIGINT: at least one pending byte already exists. */
-        (void)write(fd, &value, sizeof(value));
+        for (;;) {
+            ssize_t written = write(fd, &value, sizeof(value));
+            /* A full nonblocking pipe already has a readable notification. */
+            if (written == sizeof(value) ||
+                (written < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))) break;
+            if (written < 0 && errno == EINTR) continue;
+            /* Retain pending bits on other failures; reporting is not signal-safe. */
+            break;
+        }
     }
     atomic_fetch_sub_explicit(&inflight_handlers, 1, memory_order_seq_cst);
     errno = saved_errno;

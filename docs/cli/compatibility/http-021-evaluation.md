@@ -106,3 +106,20 @@ substitution is used in the product. This blocked slice stops until an upstream
 release supplies the contract and the coordinated graph is authorized and
 validated. The separate native write-idle candidate remains scoped evidence;
 it does not close the combined deadline gate.
+
+The unscaled default-config probe independently reproduced the same blocker
+without any application environment or dependency source mutation. With request
+timeout infinity, socket read idle 120,000 ms and the peer's second byte due at
+65,000 ms, the first byte was consumed/acknowledged at 22 ms and the stream
+reported generic `:timeout` at **60,023 ms**. The peer then completed normally
+and was monitored down. The diagnostic exited zero because it observed the
+expected failure; this is not a successful two-byte transfer. Exact local
+evidence: `default_stream_idle_reproducer.exs` and
+`default-stream-idle-result.log` in the second isolated copy above.
+
+The temporary 11-file proposal is retained at
+`/tmp/ess-cli-deadline-integration-20261015-b/deadline-proposal.patch`, SHA256
+`18363c6e8cba31da6560ff4aa2d82f593b5abd2eee12d8b52f4e16f9b076f6b5`.
+Its native exact Go duration grammar is still unverified and requires tightening
+before any future integration. The patch remains unapplied; short scoped passes
+cannot override the default-config failure or close the release gate.

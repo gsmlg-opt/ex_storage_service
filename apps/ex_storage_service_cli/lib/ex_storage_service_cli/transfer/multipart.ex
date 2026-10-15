@@ -119,9 +119,12 @@ defmodule ExStorageServiceCli.Transfer.Multipart do
         {:error, error, state, record}
 
       _ ->
-        {:error,
-         Error.new(:protocol, "Multipart initiation lacks an upload ID", code: :invalid_upload_id),
-         state, record}
+        error =
+          Error.new(:protocol, "Multipart initiation lacks an upload ID",
+            code: :invalid_upload_id
+          )
+
+        {:error, error, state, record}
     end
   end
 
