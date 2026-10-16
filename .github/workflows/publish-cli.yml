@@ -72,6 +72,10 @@ jobs:
         with:
           elixir-version: ${{ env.ELIXIR_VERSION }}
           otp-version: ${{ env.OTP_VERSION }}
+      - name: Install the shell used by CLI completion contract tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes zsh
       - name: Validate inventories and scoped CLI implementation
         run: |
           python3 ../../scripts/cli_compatibility/generate.py --check

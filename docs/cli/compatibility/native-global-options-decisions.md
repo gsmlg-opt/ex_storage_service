@@ -9,8 +9,8 @@ does not claim complete native-global parity.
 
 Native `--resolve` now has a separate implementation and independent socket/TLS
 evidence in [native-resolve-decisions.md](native-resolve-decisions.md). It uses
-http_fetch's existing authority-preserving address pin API; the inactivity
-deadline dependency block below remains separate.
+http_fetch's authority-preserving address pin API. The integrated inactivity
+deadlines and separate slow-delivery acknowledgement blocker are described below.
 
 `--config-dir` selects `<directory>/config.toml` for native profiles, aliases,
 interactive configuration, and transfer recovery. It overrides the normal ESS
@@ -71,14 +71,41 @@ The pinned mc pager applies to terminal help (`cmd/main.go:526`), rather than
 all command output. Environment aliases such as `MC_CONFIG_DIR`,
 `MC_DISABLE_PAGER`, and `MC_INSECURE` are outside this scoped implementation.
 
-## Independent inactivity deadlines remain blocked
+## Independent inactivity deadlines and acknowledgement boundary
 
-mc's `--conn-read-deadline` and `--conn-write-deadline` reset separate socket
-deadlines before each read/write (`pkg/deadlineconn/deadlineconn.go`), with a
-ten-minute default. These are independent inactivity deadlines, not total
-request durations. The locked `http_fetch` 0.18.1 API cannot express this
-contract. [http_fetch#126](https://github.com/gsmlg-dev/http_fetch/issues/126)
-was fixed on upstream main by PR #127 on 2026-10-15, but no compatible 0.18
-release contains the fix. Dependency availability still blocks these two flags.
-They remain rejected; no total-timeout substitution or local transport workaround
-is implemented.
+`--conn-read-deadline` and `--conn-write-deadline` are now accepted and routed
+through both modeled and legacy clients to published HTTP 0.21.12. Native
+contexts default to 600,000 ms for each socket inactivity limit and no total
+request deadline; connection establishment retains its separate 60,000 ms
+limit. Zero disables the selected read/write inactivity limit. These are not
+aliases for total request or connection durations.
+
+The pinned mc implementation resets read/write deadlines in
+`pkg/deadlineconn/deadlineconn.go`. ESS retains actual Go-duration oracle cases,
+including compound/fractional syntax and signed zero, while enforcing the
+transport precision boundary: positive values must be exactly representable in
+whole milliseconds from 1 through 4,294,967,295. Negative, overflowing,
+malformed, invalid UTF-8 and oversized inputs fail before dispatch; positive
+sub-millisecond values are rejected rather than rounded. This precision/range
+boundary is an explicit native difference.
+
+The user approved and the working copy integrates the coordinated 0.21.12
+dependency update. #126's socket-inactivity fix and #129's request-scoped
+response-stream idle fix are available on this selected line. Typed read/write
+stalls, reset trickles and ownership cleanup have scoped real-wire tests;
+native-default and AWS-zero reads also passed an unchanged-default 65-second
+network gap. The combined CLI suite passed 3,244 tests with zero failures and
+one resource exclusion (seed 628644); core, cluster, S3 and web suites also
+passed with zero failures. Fresh package/install/runtime acceptance passed on Linux x86_64 Elixir
+1.18.5/OTP 28; see integration-validation.md for the artifact and source scope.
+New-source remote checks remain pending. Current logs are
+`/tmp/ess-cli-http02112-coordinated-20261016/{cli-full,affected-apps}.log`.
+
+A separate current release blocker is
+[http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131): slow
+application delivery can exceed the fixed 60-second consumer acknowledgement
+budget even while socket inactivity is disabled or longer. A 512-byte response
+paced at 8 bytes/s delivered exact bytes at 63,108 ms but returned `:timeout`
+at 63,109 ms. No global timer change or local ACK workaround is applied. See
+[http-021-evaluation.md](http-021-evaluation.md) for the independent deadline
+evidence, historical 0.18/0.21.11 limits and the required upstream acceptance.

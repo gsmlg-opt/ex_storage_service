@@ -222,6 +222,15 @@ x86_64 with Elixir 1.18.0/OTP 27, 1.18.5/OTP 28 and 1.19.6/OTP 28, and macOS
 arm64 with Elixir 1.19.6/OTP 28. Other combinations remain unverified;
 interactive paging is Linux-only.
 
+Native socket read/write inactivity defaults to ten minutes. Override it with
+`--conn-read-deadline` / `--conn-write-deadline`; zero disables that direction.
+Positive durations must be exactly representable in whole milliseconds, up to
+`4294967295ms`. AWS `--cli-read-timeout` controls read inactivity independently
+of connection setup; zero disables it. Requests have no overall timeout.
+Slow paced response consumption still encounters an upstream acknowledgement
+deadline, tracked as release blocker
+[http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131).
+
 CLI environment settings supplement the server settings below:
 
 | Variable | Client behavior |
@@ -272,7 +281,7 @@ Runtime services:
 | Internal cluster transport | 9100 | Bandit + HMAC + optional TLS | Private data-plane between cluster data nodes (never expose publicly) |
 
 Outbound HTTP clients use [`http_fetch`](https://github.com/gsmlg-dev/http_fetch)
-0.18 for the CLI, cloud cache, remote inventory synchronization, webhooks,
+0.21.12 for the CLI, cloud cache, remote inventory synchronization, webhooks,
 internal cluster transport, and cross-cluster replication. Signed requests do
 not follow redirects. Cluster and replication uploads use bounded streams with
 an explicit Content-Length and upload chunks of at most 64 KiB. Cluster downloads
@@ -280,9 +289,10 @@ validate headers before
 forwarding bytes with acknowledged backpressure.
 Webhook retries remain controlled by the notification worker.
 
-The core package accepts HTTP 0.17.2 or later in the 0.17 series, as well
-as 0.18.x. The CLI requires `http_fetch ~> 0.18.1` for its validated transport
-API. The umbrella locks a coordinated 0.18 family without dependency overrides.
+The core package accepts HTTP 0.17.2 or later in the 0.17 series, 0.18.x,
+and `~> 0.21.12`. The CLI requires `http_fetch ~> 0.21.12` for its validated
+transport API. The umbrella locks the coordinated 0.21.12 HTTP family without
+dependency overrides.
 
 Storage requests set `decode_body: false` to preserve stored gzip/deflate object
 bytes and their Content-Encoding metadata. This uses the raw response support

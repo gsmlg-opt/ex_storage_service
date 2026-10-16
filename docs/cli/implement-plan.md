@@ -26,6 +26,22 @@ Primary scope:
 
 Shared files may change only for a demonstrated CLI requirement: the root lockfile, CLI-relevant documentation/environment descriptions, CLI tests/workflows, and existing release orchestration. Read root `AGENTS.md` first. Do not modify core storage, cluster, S3 router, or Phoenix/UI behavior merely to make the client tests pass. Record genuine server deficiencies as separate work with reproductions.
 
+On 2026-10-16 the user explicitly approved extending core's HTTP dependency
+constraint to include `~> 0.21.12`, requiring that line for the CLI, and applying
+the coordinated HTTP/Bundler lock update. Existing core ranges and web
+constraints remain supported. This is a dependency-scope extension; core and UI
+behavior changes remain outside this plan.
+
+The integrated 0.21.12 CLI snapshot passes 3,244 tests with zero failures and one
+resource exclusion. Native socket deadlines, AWS positive/zero read inactivity,
+and AWS stdin expected-size hints have scoped wire/reference evidence. The
+network-await blocker #129 is resolved in that version. Slow response-consumer
+acknowledgements still fail at the global 60-second ceiling, reproduced through
+the actual adapter and tracked in
+[http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131).
+M9 and publication remain open; the integration and acceptance reports preserve
+the exact version, evidence and provider limits.
+
 No Ecto/database, no dependency on ESS core/Concord/Phoenix, no runtime `aws`/`mc`/Python wrapper, and no unrelated transport migration. Continue using `http_fetch`. Do not add a dependency without documenting its necessity and following repository approval rules.
 
 ## 2. Delivery sequence and parallel work

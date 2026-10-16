@@ -35,14 +35,14 @@ defmodule ExStorageServiceCli.Transport.HTTPFetchTest do
     refute Process.alive?(response.controller)
   end
 
-  test "zero-timeout compatibility reports the specific upstream blocker before I/O" do
-    {endpoint, _} = WireServer.fixture([{200, [], "never requested"}])
+  test "zero-timeout compatibility reaches real I/O and preserves the response bytes" do
+    {endpoint, _} = WireServer.fixture([{200, [], <<0, 255, 43, 37>>}])
     request = %Request{method: "GET", path: "/"}
 
-    assert {:error, %Error{code: :upstream_timeout_blocked}} =
-             HTTPFetch.request(endpoint, request, timeout: :infinity)
+    assert {:ok, %Response{body: <<0, 255, 43, 37>>}} =
+             HTTPFetch.request(endpoint, request, timeout: :infinity, connect_timeout: :infinity)
 
-    refute_receive {:wire_request, _}
+    assert_receive {:wire_request, %{method: "GET", target: "/"}}
   end
 
   test "raw downloads are owned streams and keep the signed path bytes" do

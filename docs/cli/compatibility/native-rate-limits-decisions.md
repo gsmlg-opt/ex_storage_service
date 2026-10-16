@@ -65,12 +65,41 @@ Cancellation, caller/guard death, invocation death, and overall request deadline
 remove waiting reservations without borrowing future credit. The upload proxy
 owns its worker and wrapper stream and stops them when its request owner exits.
 Existing transport cancellation owns the original upload/response stream.
-Application entity-byte pacing does not implement independent socket idle
-deadlines. `--conn-read-deadline` and `--conn-write-deadline` await a compatible
-0.18 release of the main-branch fix for
-[`gsmlg-dev/http_fetch#126`](https://github.com/gsmlg-dev/http_fetch/issues/126);
-infinite request timeout support separately depends on
-[`gsmlg-dev/http_fetch#123`](https://github.com/gsmlg-dev/http_fetch/issues/123).
+Application entity-byte pacing remains distinct from socket inactivity. The
+approved working-copy integration now uses published HTTP 0.21.12, independent
+native read/write inactivity defaults of ten minutes, request infinity and an
+infinite response-stream idle policy. The older #123/#126 limitations of the
+0.18 line and #129 network-await limit of 0.21.11 no longer block that selected
+graph. These changes do not extend consumer acknowledgement deadlines.
+
+## Current slow-delivery release blocker
+
+[http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131) is an open
+Feature/internal-request blocker for the paced-transfer contract and M9 release.
+Published 0.21.12 preserves a global 60,000 ms limit both for an outstanding
+consumer ACK in `HTTP.Stream` and for the socket client's wait for chunk
+acknowledgement. Delivering one bounded chunk can exceed that limit at a valid
+low configured rate; an infinite response-stream idle policy does not cover it.
+
+A real unscaled loopback response immediately returned 512 bytes. With native
+request infinity, read/write socket inactivity 600,000 ms and download pacing
+at 8 bytes/s, the adapter delivered 64 bytes at 7,052 ms, 448 at 55,100 ms and
+512 exact bytes at 63,108 ms, then returned transport `:timeout` at 63,109 ms.
+The stream, controller and cancellation processes were stopped at the result;
+the diagnostic then stopped its limiter. Global streaming timeout remained
+60,000 ms. The full result is in
+`/tmp/ess-cli-deadline-02112-20261016/validation/candidate-slow-ack.log`.
+All bytes reaching the sink does not establish successful transport completion
+or atomic publication.
+
+The response-consumption callsite records the upstream TODO. Work on the
+blocked delivery contract stops until a published per-request ACK/delivery
+policy or supported bounded progress lease fixes both timers. Do not acknowledge
+before delivery, switch to unbounded mailbox consumption, alter VM-wide timers
+or patch dependency source. After the upstream release, independently repeat
+real pacing past 60 seconds, concurrent policy isolation, finite total limits
+and cancellation/owner cleanup. Passing shorter pacing tests or 65-second gaps
+between immediately acknowledged network chunks does not close this gate.
 
 ## Validation
 
@@ -83,10 +112,21 @@ stream upload framing, raw gzip download bytes and bounded sink slices,
 concurrent aggregate upload pacing, shared control download pacing, proxy
 cleanup on owner death, and refusal before I/O without invocation ownership.
 
-Together with the HTTP adapter, Runtime, native globals, and S3 Client suites:
-**41 tests, zero failures**. Strict CLI compilation and scoped formatting passed.
+On the prior 0.18.1 snapshot, the HTTP adapter, Runtime, native globals and
+S3 Client suites together passed **41 tests, zero failures**. Strict CLI
+compilation and scoped formatting passed.
 Two fixture corrections enabled the existing streaming handler and supplied the
-correct `endpoint_url` context option. No production workaround was needed.
+correct `endpoint_url` context option. No production workaround was introduced
+by that slice; the later long-delivery probe above exposed the separate upstream
+ACK limit.
+
+The current 0.21.12 combined CLI suite passed **3,244 tests, zero failures and
+one resource exclusion** (seed 628644, 272.2 seconds); all four affected-app
+suites also passed with zero failures. Logs are
+`/tmp/ess-cli-http02112-coordinated-20261016/{cli-full,affected-apps}.log`.
+These runs do not close the independently reproduced unscaled #131 failure
+or establish fresh package or remote acceptance.
+
 The contract is source-reviewed against pinned mc, with the representative
 download timing probe above; it does not claim exact human-size grammar parity.
 No remote cloud-provider throughput or HTTP/2 rate test was run. All owned test

@@ -2076,7 +2076,10 @@
           "code_locations": [
             "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/s3_options.ex",
             "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/high_level.ex",
-            "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/high_level_input.ex"
+            "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/high_level_input.ex",
+            "apps/ex_storage_service_cli/lib/ex_storage_service_cli/transfer/spool.ex",
+            "apps/ex_storage_service_cli/lib/ex_storage_service_cli/transfer/engine.ex",
+            "apps/ex_storage_service_cli/lib/ex_storage_service_cli/transfer/limits.ex"
           ],
           "default": null,
           "default_origin": "matching source ARG_TABLE; argparse boolean default when omitted",
@@ -2086,12 +2089,13 @@
           },
           "enum_values": [],
           "evidence": {
-            "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
+            "client": "AWS stdin --expected-size is a nonnegative sizing hint, validated before stdin is read. It selects multipart at the pinned eight-MiB threshold and doubles planned part size within provider count/size limits; actual source length still controls object limits and Content-Length. It does not assert exact input length or pad/truncate bytes. Native pipe retains its separate exact-size assertion.",
+            "decisions": "docs/cli/compatibility/aws-expected-size-decisions.md; docs/cli/compatibility/highlevel-execution-decisions.md",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
-            "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "not-run"
+            "remaining": "Live-provider behavior and complete pinned executable differential effects/output remain unverified; passing expected-size fixtures do not close the separate HTTP consumer ACK blocker #131.",
+            "scope": "Independent expected-size cases only; these captures do not establish every cp flag, direction or provider contract.",
+            "wire": "Independent pinned AWS CLI 2.31.18 captures send exact abc with Content-Length 3 for hints 2 and 4; a 100 GiB hint with 9 MiB actual input triggers multipart with one exact 9 MiB part. Frozen reference.json and focused ESS regressions cover mismatches, multipart sizing, invalid-before-read and actual provider limits."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -2100,7 +2104,10 @@
           "status": "implemented-unverified",
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_expected_size_test.exs",
+            "apps/ex_storage_service_cli/test/fixtures/aws_expected_size/reference.json",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_pipe_test.exs"
           ]
         },
         {
@@ -7871,7 +7878,10 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/registry.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/aws_input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/runtime.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/context.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/context.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/client.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/retry.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/transport/http_fetch.ex"
       ],
       "default": null,
       "default_origin": "cli.json when provided; AWS config/environment otherwise",
@@ -7881,11 +7891,13 @@
         "type": "int"
       },
       "evidence": {
-        "client": "Accepted global grammar routes to context/session/presentation settings; cited tests establish scoped cases only.",
+        "client": "AWS --cli-connect-timeout independently limits connection establishment; zero disables it. It is separate from socket read inactivity and total request duration.",
+        "decisions": "docs/cli/compatibility/http-021-evaluation.md; docs/cli/compatibility/credential-decisions.md; docs/cli/compatibility/integration-validation.md",
+        "history": "The former selected 0.18 graph rejected infinity (http_fetch#123); 0.21.11 retained a separate response-stream idle cap (#129). The approved published 0.21.12 graph plus request-scoped stream idle infinity resolves those version-specific limits; #126 socket inactivity is also available.",
         "inventory": "locked reference; generated offline",
         "provider": "not-run",
-        "remaining": "Zero timeout parity is blocked on coordinated http_fetch 0.18 :infinity support: gsmlg-dev/http_fetch#123; no finite substitute.",
-        "wire": "not-run"
+        "remaining": "These scoped shared-path fixtures do not establish every operation/member effect, live-provider parity or full executable output/default parity. Fixed consumer ACK deadlines during bounded slow-rate delivery remain blocked by gsmlg-dev/http_fetch#131.",
+        "wire": "Shared-path deadline tests route zero connection timeout as infinity independently of the read timeout through the real adapter without a finite substitute."
       },
       "name": "cli-connect-timeout",
       "owner_milestone": "M5",
@@ -7894,7 +7906,9 @@
       "status": "implemented-unverified",
       "test_ids": [
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
+        "apps/ex_storage_service_cli/test/aws_read_deadline_test.exs",
+        "apps/ex_storage_service_cli/test/deadline_integration_test.exs"
       ]
     },
     {
@@ -7902,7 +7916,10 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/registry.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/aws_input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/runtime.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/context.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/context.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/client.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/retry.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/transport/http_fetch.ex"
       ],
       "default": null,
       "default_origin": "cli.json when provided; AWS config/environment otherwise",
@@ -7912,11 +7929,13 @@
         "type": "int"
       },
       "evidence": {
-        "client": "Accepted global grammar routes to context/session/presentation settings; cited tests establish scoped cases only.",
+        "client": "AWS --cli-read-timeout controls socket read inactivity, not whole-request duration: positive seconds reset on bytes and zero disables read inactivity. Total request duration is unlimited; connection establishment has its own limit.",
+        "decisions": "docs/cli/compatibility/http-021-evaluation.md; docs/cli/compatibility/credential-decisions.md; docs/cli/compatibility/integration-validation.md",
+        "history": "The former selected 0.18 graph rejected infinity (http_fetch#123); 0.21.11 retained a separate response-stream idle cap (#129). The approved published 0.21.12 graph plus request-scoped stream idle infinity resolves those version-specific limits; #126 socket inactivity is also available.",
         "inventory": "locked reference; generated offline",
         "provider": "not-run",
-        "remaining": "Zero timeout parity is blocked on coordinated http_fetch 0.18 :infinity support: gsmlg-dev/http_fetch#123; no finite substitute.",
-        "wire": "not-run"
+        "remaining": "These scoped shared-path fixtures do not establish every operation/member effect, live-provider parity or full executable output/default parity. Fixed consumer ACK deadlines during bounded slow-rate delivery remain blocked by gsmlg-dev/http_fetch#131.",
+        "wire": "Shared-path real-wire fixtures prove a positive one-second read budget survives progressing bodies lasting longer than one second, typed expiry on a stalled body, zero-disable and ownership cleanup. An unchanged-default AWS-zero transfer survives a 65000 ms network gap."
       },
       "name": "cli-read-timeout",
       "owner_milestone": "M5",
@@ -7925,7 +7944,9 @@
       "status": "implemented-unverified",
       "test_ids": [
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
+        "apps/ex_storage_service_cli/test/aws_read_deadline_test.exs",
+        "apps/ex_storage_service_cli/test/deadline_integration_test.exs"
       ]
     },
     {

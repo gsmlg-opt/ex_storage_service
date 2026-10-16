@@ -143,13 +143,25 @@ with a stderr warning. Repeated `--custom-header` / `-H` values use `Name: value
 syntax and are validated before signing; authentication and framing fields are
 reserved. `--limit-upload` and `--limit-download` accept rates such as `10MiB`
 per second, with zero meaning unlimited. Concurrent requests share each endpoint's
-budget; source and destination have independent limits. Socket inactivity flags
-remain unavailable until the transport dependency supports their exact contract.
+budget; source and destination have independent limits. `--conn-read-deadline`
+and `--conn-write-deadline` independently bound socket inactivity, defaulting to
+`10m`. Zero disables that direction. Positive Go durations must resolve exactly
+to whole milliseconds, at most `4294967295ms`; other values fail explicitly.
+The overall request has no implicit duration cap. Slow paced consumption remains
+release-blocked by [http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131):
+the dependency still imposes a separate 60-second chunk acknowledgement limit.
 Repeated `--resolve HOST[:PORT]=literal-IP` entries pin socket addresses while
 preserving the signed Host, TLS SNI and certificate identity. A port-specific
 entry wins over a host-only entry, and failed pins do not fall back to DNS.
 
 AWS namespaces read `AWS_CONFIG_FILE`/`AWS_SHARED_CREDENTIALS_FILE`, defaulting to `~/.aws/config` and `~/.aws/credentials`. Explicit command options take precedence over applicable environment and selected-profile settings. `--profile`, `AWS_PROFILE`, and `AWS_DEFAULT_PROFILE` choose the profile. Explicit profile selection changes credential precedence; providers keep access key, secret, and token as one record. Supported provider paths include environment/shared credentials, role/web identity, credential_process, IAM Identity Center, ECS, and IMDS. `--no-sign-request` skips credential loading. See the repository credential compatibility report for exact tested modes and remaining live-service gaps.
+
+AWS `--cli-read-timeout` sets socket read inactivity in seconds, defaulting to 60;
+`--cli-connect-timeout` independently sets connection establishment time. Zero
+disables the corresponding timeout. Neither imposes a total transfer duration.
+For stdin uploads, `--expected-size` is a multipart sizing hint; actual captured
+bytes determine Content-Length and provider object limits. Native pipe retains
+its exact expected-size check.
 
 | Variable | Effect/default |
 | --- | --- |

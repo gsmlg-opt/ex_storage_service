@@ -27,6 +27,8 @@ defmodule ExStorageServiceCli.S3Client do
     :addressing,
     :timeout,
     :connect_timeout,
+    :read_idle_timeout,
+    :write_idle_timeout,
     :capabilities,
     :frontend,
     :options
@@ -359,6 +361,8 @@ defmodule ExStorageServiceCli.S3Client do
                    ssl: context.tls,
                    timeout: context.timeout,
                    connect_timeout: context.connect_timeout,
+                   read_idle_timeout: context.read_idle_timeout,
+                   write_idle_timeout: context.write_idle_timeout,
                    resolve_entries: context.options[:resolve_entries] || %{}
                  )
                ) do

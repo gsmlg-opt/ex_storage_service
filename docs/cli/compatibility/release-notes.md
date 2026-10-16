@@ -26,6 +26,15 @@ The package version remains 0.6.7 until the release gates pass.
   assets, raw bytes, exact artifact integrity, pager ownership and absence of
   storage-server runtime applications. Separate CI jobs cover unit/wire tests,
   resources, providers and package/runtime combinations.
+- Native `--conn-read-deadline` / `--conn-write-deadline` configure independent
+  socket inactivity (ten-minute defaults; zero disables each). AWS positive
+  `--cli-read-timeout` now measures socket read inactivity, and zero disables it.
+  Connection setup has its own deadline; neither frontend imposes an overall
+  request timeout. Published HTTP 0.21.12 supplies the required per-request
+  network-await policy.
+- AWS stdin `--expected-size` is a multipart sizing hint. Shorter or longer
+  input retains its actual byte length; native `pipe` keeps its exact-size
+  assertion. Pinned AWS executable captures cover both behaviors.
 
 ## Migration and support
 
@@ -49,18 +58,28 @@ requirements and the exact boundaries of the existing evidence. Inventory
 coverage is distinct from independently verified behavior and live-provider
 support.
 
-The selected http_fetch 0.18 line lacks the required infinite-timeout fix
-tracked in [#123](https://github.com/gsmlg-dev/http_fetch/issues/123) and the
-socket-inactivity fix from
-[#126](https://github.com/gsmlg-dev/http_fetch/issues/126). Published HTTP
-0.21.11 contains both; its coordinated adoption requires the pending dependency
-scope decision and affected-application validation. These contracts remain
-blocked rather than approximated. Further actual wire checking found a separate
-response-stream timer in 0.21.11; the missing request-scoped policy is tracked
-as blocker [#129](https://github.com/gsmlg-dev/http_fetch/issues/129). No local
-workaround or candidate dependency change has been applied. The historical
-local CLI snapshot passed 3,222 tests with zero failures and one separate
-resource exclusion. Clean source 6816ee1 was pushed; its complete remote CLI
+The user-approved dependency update selects coordinated HTTP 0.21.12, extends
+core's supported ranges, and requires `~> 0.21.12` for the standalone CLI.
+HTTP 0.21.12 resolves the earlier infinity/socket prerequisites and
+[#129](https://github.com/gsmlg-dev/http_fetch/issues/129)'s network-await
+policy. Actual native and AWS-zero adapter downloads cross a 65-second network
+gap with exact bytes and unchanged global settings. The current isolated CLI
+suite passes **3,244 tests, zero failures and one resource exclusion**.
+The affected core/cluster/S3/web suites pass, and a fresh Linux x86_64
+Elixir 1.18.5/OTP 28 source-package/install/escript probe passes with exact raw
+bytes, native assets and standalone runtime checks. These local results are
+distinct from the historical remote matrix below.
+
+A distinct upstream acknowledgement deadline still fails during slow consumer
+pacing: a 512-byte download at 8 B/s delivers all bytes at 63 seconds, then
+returns a transport timeout. This release blocker is
+[#131](https://github.com/gsmlg-dev/http_fetch/issues/131); the repository includes
+a real-adapter diagnostic in `scripts/cli_compatibility/http_consumer_ack_reproducer.exs`.
+No VM-wide timeout change, early-ACK drain or dependency patch is used.
+See [HTTP evaluation](http-021-evaluation.md) and
+[integration validation](integration-validation.md) for the current evidence.
+
+Historical clean source 6816ee1 was pushed; its complete remote CLI
 suite passed 3,222 tests with zero failures and one resource exclusion. Formatting,
 strict compilation, four package jobs, 2 GiB resource acceptance and provider
 limitation-policy checks also pass. The umbrella job passed 3,223 CLI tests and

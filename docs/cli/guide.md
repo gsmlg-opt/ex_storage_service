@@ -54,13 +54,20 @@ inside AWS namespaces.
 
 See the [package README](../../apps/ex_storage_service_cli/README.md) for the
 environment table, retry/checksum settings, TLS, pager, prompt and installation
-requirements. AWS timeout zero fails explicitly on the selected HTTP 0.18 line;
-native socket inactivity options are also blocked on that line. HTTP 0.21.11
-contains the fixes, but selecting it requires the pending coordinated dependency
-scope decision and validation. Its separate response-stream timer also requires
-the upstream request-scoped policy tracked in
-[http_fetch#129](https://github.com/gsmlg-dev/http_fetch/issues/129). See the
+requirements. The approved coordinated HTTP 0.21.12 update supplies true infinite
+timeouts, independent socket inactivity and request-scoped response-stream policy.
+AWS read/connect settings are independent; zero disables the selected timeout.
+Native `--conn-read-deadline` and `--conn-write-deadline` default to `10m`, with
+zero disabling that direction. Positive Go durations must resolve exactly to
+whole milliseconds within `4294967295ms`; no truncation or finite replacement is
+used. A distinct consumer acknowledgement limit still breaks sufficiently slow
+paced downloads and blocks release under
+[http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131). See the
 [dependency evaluation](compatibility/http-021-evaluation.md).
+
+AWS stdin `--expected-size` guides multipart sizing without asserting the input
+length. Smaller or larger hints upload the actual bytes. Native pipe preserves
+its exact-size check; both paths retain private bounded spooling and cleanup.
 
 ## Native workflows and differences from mc
 

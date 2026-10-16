@@ -66,8 +66,13 @@ High-level modeled fields include metadata, content headers, ACL/grants, SSE and
 SSE-C, storage class, requester pays, and checksum selection. SSE-C files are read
 with a strict 33-byte upper bound and must contain exactly 32 raw key bytes.
 Replayable stdin is captured privately on disk with cancellable 64-KiB reads;
-`--expected-size` validates its length before upload. Progress callbacks are
-throttled and write to stderr; raw object stdout remains exclusive.
+AWS `--expected-size` is a nonnegative sizing hint, not an exact-length assertion:
+smaller and larger hints upload the actual captured bytes. It selects multipart
+threshold and bounded part sizing; actual bytes still determine object limits,
+Content-Length and publication. Native pipe keeps its exact-size check. See
+[aws-expected-size-decisions.md](aws-expected-size-decisions.md) for independent
+pinned executable observations and scoped tests. Progress callbacks are throttled
+and write to stderr; raw object stdout remains exclusive.
 
 MIME inference uses the immutable Python built-in MIME table and compressed suffix
 rules used by AWS's Python `mimetypes` path. Host-specific `/etc/mime.types` extensions

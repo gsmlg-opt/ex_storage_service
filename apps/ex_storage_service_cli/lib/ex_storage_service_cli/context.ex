@@ -23,6 +23,8 @@ defmodule ExStorageServiceCli.Context do
             tls: [verify: :verify_peer],
             timeout: 60_000,
             connect_timeout: 60_000,
+            read_idle_timeout: nil,
+            write_idle_timeout: nil,
             capabilities: %{},
             json: false,
             options: %{}
@@ -51,6 +53,9 @@ defmodule ExStorageServiceCli.Context do
            directory_sessions: if(opts[:runtime], do: opts[:runtime].directory_sessions),
            addressing: profile[:addressing] || :path,
            tls: tls,
+           timeout: :infinity,
+           read_idle_timeout: Map.get(options, :read_idle_timeout, 600_000),
+           write_idle_timeout: Map.get(options, :write_idle_timeout, 600_000),
            json: options[:json] || false,
            capabilities:
              ExStorageServiceCli.S3.Capabilities.record(
@@ -80,7 +85,7 @@ defmodule ExStorageServiceCli.Context do
          :ok <- validate_endpoint(endpoint),
          {:ok, addressing} <- addressing(settings.s3, settings.endpoint_url),
          {:ok, tls} <- tls(options, settings.ca_bundle),
-         {:ok, timeout} <- timeout(options[:cli_read_timeout]),
+         {:ok, read_timeout} <- timeout(options[:cli_read_timeout]),
          {:ok, connect_timeout} <- timeout(options[:cli_connect_timeout]) do
       {:ok,
        with_credentials(
@@ -95,7 +100,8 @@ defmodule ExStorageServiceCli.Context do
            directory_sessions: if(opts[:runtime], do: opts[:runtime].directory_sessions),
            addressing: addressing,
            tls: tls,
-           timeout: timeout,
+           timeout: :infinity,
+           read_idle_timeout: if(read_timeout == :infinity, do: nil, else: read_timeout),
            connect_timeout: connect_timeout,
            json: options[:output] in [nil, "json"],
            capabilities:
@@ -350,7 +356,6 @@ defmodule ExStorageServiceCli.Context do
   end
 
   defp timeout(nil), do: {:ok, 60_000}
-  # TODO(upstream): gsmlg-dev/http_fetch#123
   defp timeout(0), do: {:ok, :infinity}
   defp timeout(seconds) when is_integer(seconds) and seconds > 0, do: {:ok, seconds * 1000}
 

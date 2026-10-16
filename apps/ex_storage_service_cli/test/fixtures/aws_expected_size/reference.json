@@ -1,0 +1,67 @@
+{
+  "reference": {
+    "version": "2.31.18",
+    "binary_sha256": "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a",
+    "captured_at": "2026-10-16",
+    "platform": "Linux x86_64",
+    "command": "aws --no-sign-request --region us-east-1 --endpoint-url <loopback> s3 cp - s3://audit-bucket/key --expected-size <hint> --no-progress",
+    "configuration": "Empty shared config and credentials; metadata disabled; default classic S3 transfer settings."
+  },
+  "small_cases": [
+    {
+      "expected_size": 2,
+      "actual_size": 3,
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "wire": {
+        "method_path": "PUT /audit-bucket/key HTTP/1.1",
+        "content_length": 3,
+        "body": "abc"
+      },
+      "peer_finished": true
+    },
+    {
+      "expected_size": 4,
+      "actual_size": 3,
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "wire": {
+        "method_path": "PUT /audit-bucket/key HTTP/1.1",
+        "content_length": 3,
+        "body": "abc"
+      },
+      "peer_finished": true
+    }
+  ],
+  "multipart_case": {
+    "expected_size": 107374182400,
+    "actual_size": 9437184,
+    "body_sha256": "23ff721b5953999b01acf7b12c7e80f3ee453299b2f0b34b13b116977daef908",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "wire": [
+      {
+        "method": "POST",
+        "path": "/audit-bucket/key?uploads",
+        "content_length": 0,
+        "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "method": "PUT",
+        "path": "/audit-bucket/key?uploadId=owned&partNumber=1",
+        "content_length": 9437184,
+        "body_sha256": "23ff721b5953999b01acf7b12c7e80f3ee453299b2f0b34b13b116977daef908"
+      },
+      {
+        "method": "POST",
+        "path": "/audit-bucket/key?uploadId=owned",
+        "content_length": 157,
+        "body_sha256": "eb2b336726343f5e9c8be3c40eece3369bec10de857626391bb09f670eb07076"
+      }
+    ],
+    "peer_finished": true
+  }
+}

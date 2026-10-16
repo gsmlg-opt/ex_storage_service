@@ -268,6 +268,8 @@ defmodule ExStorageServiceCli.S3.Client do
       |> Keyword.put_new(:ssl, context.tls)
       |> Keyword.put_new(:timeout, context.timeout)
       |> Keyword.put_new(:connect_timeout, context.connect_timeout)
+      |> Keyword.put_new(:read_idle_timeout, context.read_idle_timeout)
+      |> Keyword.put_new(:write_idle_timeout, context.write_idle_timeout)
       |> Keyword.put_new(:resolve_entries, context.options[:resolve_entries] || %{})
       |> Keyword.put_new(:rate_limiter, context.options[:rate_limiter])
       |> Keyword.put_new(:rate_endpoint, context.endpoint)

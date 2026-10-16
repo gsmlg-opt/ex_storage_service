@@ -84,9 +84,10 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
   `http_fetch` 0.17.2 or newer and set `decode_body: false` on storage requests
   to preserve Content-Encoding object bytes. Do not buffer blobs, rewrite
   headers, or re-compress objects to replace bounded raw-byte transfers.
-  Core package constraints support both the 0.17 series from 0.17.2 and 0.18.x;
-  the CLI requires `~> 0.18.1` for its validated transport API. The umbrella lock
-  uses the coordinated 0.18 family.
+  Core package constraints support the 0.17 series from 0.17.2, 0.18.x and
+  0.21.x from 0.21.12. The CLI requires `~> 0.21.12` for true infinity,
+  socket inactivity and request-scoped response-stream policies. The umbrella
+  lock uses the coordinated 0.21.12 family.
 - Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
 
 ### File Organization
@@ -219,13 +220,15 @@ The codebase is structured as an umbrella project with five apps:
   mutating environment variables. Apply validated custom headers before signing;
   never allow auth, framing or checksum overrides. Native upload/download limits
   share invocation-owned endpoint/direction budgets across concurrent requests.
-  Do not substitute overall timeouts for the independent socket inactivity
-  deadlines: the main-branch fix for `gsmlg-dev/http_fetch#126` still needs a
-  compatible 0.18 release and acceptance here. AWS timeout zero separately
-  depends on compatible infinity support in `gsmlg-dev/http_fetch#123`.
-  HTTP 0.21.11 supplies those APIs but retains a separate global response-stream
-  idle limit. Request-scoped stream inactivity is blocked by
-  `gsmlg-dev/http_fetch#129`; do not mutate VM-wide configuration as a workaround.
+  Native read/write socket inactivity defaults to ten minutes; zero disables
+  that direction. Duration values must resolve exactly to whole milliseconds
+  within the published transport limit. AWS read timeout is socket inactivity,
+  with a 60-second default and zero disabling it; connect timeout is independent.
+  Whole-request limits never substitute for either socket deadline. HTTP 0.21.12
+  fixes `gsmlg-dev/http_fetch#129` using a per-request response-stream policy.
+  Consumer acknowledgement still has a global 60-second cap: bounded slow
+  pacing is release-blocked by `gsmlg-dev/http_fetch#131`. Do not mutate VM-wide
+  configuration, remove backpressure or patch dependencies as a workaround.
 - AWS namespaces independently resolve AWS shared profiles. Document and test
   `AWS_DEFAULT_OUTPUT`, `AWS_RETRY_MODE` (`standard` default or `adaptive`),
   `AWS_MAX_ATTEMPTS` (total attempts, default 3), `AWS_USE_FIPS_ENDPOINT`,

@@ -13,6 +13,7 @@ defmodule ExStorageServiceCli.CLI.NativeGlobals do
     with :ok <- config_directory(options[:config_dir]),
          {:ok, headers} <- headers(options[:custom_headers] || []),
          {:ok, options} <- rates(options),
+         {:ok, options} <- deadlines(options),
          {:ok, pins} <- ExStorageServiceCli.Transport.Resolution.parse(options[:resolve] || []) do
       options = if pins == %{}, do: options, else: Map.put(options, :resolve_entries, pins)
       {:ok, if(headers == [], do: options, else: Map.put(options, :request_headers, headers))}
@@ -78,6 +79,84 @@ defmodule ExStorageServiceCli.CLI.NativeGlobals do
       end
     end)
   end
+
+  defp deadlines(options) do
+    Enum.reduce_while(
+      [{:conn_read_deadline, :read_idle_timeout}, {:conn_write_deadline, :write_idle_timeout}],
+      {:ok, options},
+      fn {source, target}, {:ok, result} ->
+        case Map.fetch(options, source) do
+          :error ->
+            {:cont, {:ok, result}}
+
+          {:ok, value} ->
+            case duration(value) do
+              {:ok, timeout} ->
+                {:cont, {:ok, Map.put(result, target, timeout)}}
+
+              :error ->
+                {:halt,
+                 invalid(
+                   "Invalid --#{source |> Atom.to_string() |> String.replace("_", "-")} duration; use zero or a positive Go duration exactly representable in whole milliseconds up to 4294967295ms"
+                 )}
+            end
+        end
+      end
+    )
+  end
+
+  @duration_units %{
+    "ns" => 1,
+    "us" => 1_000,
+    "µs" => 1_000,
+    "μs" => 1_000,
+    "ms" => 1_000_000,
+    "s" => 1_000_000_000,
+    "m" => 60_000_000_000,
+    "h" => 3_600_000_000_000
+  }
+  defp duration(value) when is_binary(value) and byte_size(value) <= 256 do
+    if String.valid?(value) do
+      {sign, value} =
+        case value do
+          "+" <> rest -> {1, rest}
+          "-" <> rest -> {-1, rest}
+          rest -> {1, rest}
+        end
+
+      parts = Regex.scan(~r/([0-9]+(?:\.[0-9]*)?|\.[0-9]+)(ns|us|µs|μs|ms|s|m|h)/u, value)
+
+      if value == "0" or (parts != [] and Enum.map_join(parts, &hd/1) == value) do
+        nanoseconds =
+          Enum.reduce(parts, 0, fn [_, number, unit], total ->
+            [whole | fraction] = String.split(number, ".", parts: 2)
+            fractional = List.first(fraction) || ""
+
+            total +
+              div(
+                String.to_integer(if(whole == "", do: "0", else: whole) <> fractional) *
+                  @duration_units[unit],
+                Integer.pow(10, byte_size(fractional))
+              )
+          end)
+
+        cond do
+          nanoseconds > 9_223_372_036_854_775_807 -> :error
+          nanoseconds == 0 -> {:ok, nil}
+          sign < 0 -> :error
+          rem(nanoseconds, 1_000_000) != 0 -> :error
+          div(nanoseconds, 1_000_000) <= 4_294_967_295 -> {:ok, div(nanoseconds, 1_000_000)}
+          true -> :error
+        end
+      else
+        :error
+      end
+    else
+      :error
+    end
+  end
+
+  defp duration(_), do: :error
 
   defp header(value) do
     if valid_value?(value),

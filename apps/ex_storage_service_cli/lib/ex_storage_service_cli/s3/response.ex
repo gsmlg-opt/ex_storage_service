@@ -8,6 +8,7 @@ defmodule ExStorageServiceCli.S3.Response do
     :cancellation,
     :lease,
     :rate_limit,
+    :timeout,
     headers: [],
     trailers: [],
     owns_controller: true

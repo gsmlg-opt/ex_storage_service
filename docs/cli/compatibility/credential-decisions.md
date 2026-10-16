@@ -19,4 +19,28 @@ Remaining compatibility work:
 - Endpoint partition variants for STS/SSO currently cover ordinary AWS, China, and GovCloud. Full pinned partition/endpoint-rule coverage belongs to the endpoint milestone.
 - Credential HTTP calls verify TLS peers and accept the resolved CA bundle. Actual TLS/custom-CA and live STS/SSO/metadata-service acceptance have not been exercised against real providers.
 
-AWS zero-timeout transport parity on the coordinated 0.18 dependency graph is separately blocked by [gsmlg-dev/http_fetch#123](https://github.com/gsmlg-dev/http_fetch/issues/123). The locked 0.18.1 client performs arithmetic on `:infinity` before I/O. The fix from the original [#119](https://github.com/gsmlg-dev/http_fetch/issues/119) is available in 0.21.9, but that version cannot satisfy the umbrella's coordinated dependency graph. No finite substitution or local dependency patch is used.
+The user-approved coordinated HTTP update is integrated in the working copy:
+core admits 0.21.12 alongside its existing alternatives, CLI requires 0.21.12,
+and the lock selects the published coordinated family without overrides.
+AWS `--cli-read-timeout` now controls socket read inactivity independently of
+total request duration: positive seconds reset with network progress, zero
+disables the limit. Connect timeout is independent and zero selects infinity.
+Real finite-read trickle/stall and unchanged-default 65-second AWS-zero/native
+network-gap fixtures pass. The combined CLI suite passed 3,244 tests with
+zero failures and one resource exclusion (seed 628644), and all four
+affected-app suites passed with zero failures. Logs are
+`/tmp/ess-cli-http02112-coordinated-20261016/{cli-full,affected-apps}.log`.
+These local tests do not establish live credential-provider acceptance; fresh
+package acceptance and remote checks remain separate gates.
+
+Historically, the selected 0.18.1 graph rejected infinity before I/O and depended
+on [#123](https://github.com/gsmlg-dev/http_fetch/issues/123); 0.21.11 also had
+[#129](https://github.com/gsmlg-dev/http_fetch/issues/129)'s separate response
+stream idle cap. Those version-specific limits are resolved by the selected
+0.21.12 API plus its explicit request-scoped stream option. They are not current
+blockers of this graph. The remaining release blocker is
+[#131](https://github.com/gsmlg-dev/http_fetch/issues/131): fixed consumer ACK
+budgets can expire during valid bounded slow-rate delivery. No global timer
+mutation or dependency patch is used. See
+[http-021-evaluation.md](http-021-evaluation.md) for exact wire evidence and the
+scope of that distinct limit.

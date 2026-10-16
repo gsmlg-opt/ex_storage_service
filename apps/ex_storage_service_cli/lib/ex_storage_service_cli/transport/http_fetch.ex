@@ -7,7 +7,6 @@ defmodule ExStorageServiceCli.Transport.HTTPFetch do
   def request(url, %Request{} = request, opts \\ []) do
     with {:ok, opts} <- ExStorageServiceCli.Transport.Resolution.options(url, opts),
          {:ok, opts} <- rate_options(url, opts),
-         :ok <- timeout_ready(opts),
          {:ok, cancellation, controller} <-
            Cancellation.start(self(), opts[:signal], request.lease) do
       case Coordinator.track(request.lease, controller) do
@@ -53,17 +52,6 @@ defmodule ExStorageServiceCli.Transport.HTTPFetch do
     end
   end
 
-  # TODO(upstream): gsmlg-dev/http_fetch#123
-  defp timeout_ready(opts) do
-    if opts[:timeout] == :infinity or opts[:connect_timeout] == :infinity,
-      do:
-        {:error,
-         Error.new(:client, "Infinite timeouts require the http_fetch timeout fix",
-           code: :upstream_timeout_blocked
-         )},
-      else: :ok
-  end
-
   defp perform(url, request, cancellation, controller, opts) do
     limit = rate_limit(:upload, controller, opts)
     request = finite_body_length(request, limit)
@@ -102,7 +90,7 @@ defmodule ExStorageServiceCli.Transport.HTTPFetch do
     if rate > 0 do
       deadline =
         opts[:request_deadline] ||
-          System.monotonic_time(:millisecond) + (opts[:timeout] || 60_000)
+          request_deadline(opts[:timeout] || 60_000)
 
       %{
         pid: opts[:rate_limiter],
@@ -114,8 +102,10 @@ defmodule ExStorageServiceCli.Transport.HTTPFetch do
     end
   end
 
+  defp request_deadline(:infinity), do: nil
+  defp request_deadline(timeout), do: System.monotonic_time(:millisecond) + timeout
+
   defp perform_body(url, request, cancellation, controller, opts) do
-    # TODO(upstream): gsmlg-dev/http_fetch#126
     response_options = [
       method: request.method,
       headers: request.headers,
@@ -125,8 +115,11 @@ defmodule ExStorageServiceCli.Transport.HTTPFetch do
       redirect: :manual,
       decode_body: false,
       stream_response: true,
+      response_stream_idle_timeout: :infinity,
       timeout: opts[:timeout] || 60_000,
       connect_timeout: opts[:connect_timeout] || 60_000,
+      read_idle_timeout: opts[:read_idle_timeout],
+      write_idle_timeout: opts[:write_idle_timeout],
       connect_address: opts[:connect_address],
       ssl: opts[:ssl] || [],
       http_version: opts[:http_version] || :http1
@@ -142,6 +135,7 @@ defmodule ExStorageServiceCli.Transport.HTTPFetch do
           cancellation: cancellation,
           lease: request.lease,
           rate_limit: rate_limit(:download, controller, opts),
+          timeout: opts[:timeout] || 60_000,
           request_id: HTTP.Headers.get(raw.headers, "x-amz-request-id")
         }
 
@@ -191,18 +185,26 @@ defmodule ExStorageServiceCli.Transport.HTTPFetch do
   end
 
   defp consume_owned(response, initial, reducer, opts) do
+    # TODO(upstream): gsmlg-dev/http_fetch#131
+    # Slow paced delivery still inherits the dependency's global acknowledgement deadline.
     reducer = fn bytes, state ->
       RateLimiter.reduce(bytes, response.rate_limit, state, reducer)
     end
 
     if is_pid(response.body) do
       monitor = Process.monitor(response.body)
-      # TODO(upstream): gsmlg-dev/http_fetch#129
-      # The response stream also enforces its independent global idle limit.
       send(response.body, {:read_chunk, self(), :ack})
 
       try do
-        receive_chunks(response.body, monitor, initial, reducer, 0, [], opts[:timeout] || 60_000)
+        receive_chunks(
+          response.body,
+          monitor,
+          initial,
+          reducer,
+          0,
+          [],
+          opts[:timeout] || response.timeout || 60_000
+        )
       after
         Process.demonitor(monitor, [:flush])
         close(response)
@@ -372,7 +374,15 @@ defmodule ExStorageServiceCli.Transport.HTTPFetch do
 
     Error.new(category, "Storage transport failed",
       code: safe_code(reason),
-      retryable: reason in [:request_timeout, :timeout, :closed, :econnrefused]
+      retryable:
+        reason in [
+          :request_timeout,
+          :read_idle_timeout,
+          :write_idle_timeout,
+          :timeout,
+          :closed,
+          :econnrefused
+        ]
     )
   end
 

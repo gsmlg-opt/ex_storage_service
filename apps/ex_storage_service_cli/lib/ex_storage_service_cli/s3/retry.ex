@@ -7,7 +7,15 @@ defmodule ExStorageServiceCli.S3.Retry do
   @transient ~w(RequestTimeout RequestTimeoutException PriorRequestNotComplete)
   @throttled ~w(Throttling ThrottlingException ThrottledException RequestThrottledException TooManyRequestsException ProvisionedThroughputExceededException TransactionInProgressException RequestLimitExceeded BandwidthLimitExceeded LimitExceededException RequestThrottled SlowDown PriorRequestNotComplete EC2ThrottledException)
   @denied ~w(AccessDenied AccessDeniedException InvalidAccessKeyId SignatureDoesNotMatch ExpiredToken InvalidToken TokenRefreshRequired)
-  @uncertain [:request_timeout, :read_timeout, :timeout, :closed, :transport_failure]
+  @uncertain [
+    :request_timeout,
+    :read_timeout,
+    :read_idle_timeout,
+    :write_idle_timeout,
+    :timeout,
+    :closed,
+    :transport_failure
+  ]
 
   @doc "Merges resolved profile/environment settings with explicit per-call options. Attempts include the first request."
   def options(settings, opts) do
@@ -90,9 +98,16 @@ defmodule ExStorageServiceCli.S3.Retry do
 
             :retry when number < maximum ->
               cost =
-                if error.code in [:connect_timeout, :request_timeout, :read_timeout, :timeout],
-                  do: 10,
-                  else: 5
+                if error.code in [
+                     :connect_timeout,
+                     :request_timeout,
+                     :read_timeout,
+                     :read_idle_timeout,
+                     :write_idle_timeout,
+                     :timeout
+                   ],
+                   do: 10,
+                   else: 5
 
               if State.acquire(opts[:retry_state], cost) do
                 with :ok <- wait(delay(number, opts), deadline, clock, opts) do

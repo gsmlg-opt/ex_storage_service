@@ -16,6 +16,7 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
     Engine,
     Filter,
     Inventory,
+    Limits,
     Manifest,
     Mime,
     Progress,
@@ -1105,19 +1106,22 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
   end
 
   defp transfer(_, :stdin, _, _, destination, context, settings) do
-    Spool.with_source(
-      context,
-      Keyword.put(settings.opts, :expected_size, settings.options[:expected_size]),
-      fn source ->
+    spool_options =
+      if settings.invocation.frontend == :s3,
+        do: settings.opts,
+        else: Keyword.put(settings.opts, :expected_size, settings.options[:expected_size])
+
+    with {:ok, upload_options} <- stdin_upload_options(context, settings) do
+      Spool.with_source(context, spool_options, fn source ->
         Engine.upload_source(
           context,
           destination.bucket,
           destination.key,
           source,
-          input_opts(settings, "PutObject")
+          upload_options
         )
-      end
-    )
+      end)
+    end
   end
 
   defp transfer(_, :stdout, source, context, _, _, settings) do
@@ -1200,6 +1204,51 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
         :ok
     end
   end
+
+  defp stdin_upload_options(context, settings) do
+    options = input_opts(settings, "PutObject")
+
+    if settings.invocation.frontend == :s3 and settings.options[:expected_size] != nil do
+      with {:ok, hint} <- expected_size_hint(settings.options[:expected_size]) do
+        limits = options[:limits] || Limits.for_context(context)
+        maximum = limits.max_part_bytes
+
+        part_size =
+          min(max(options[:part_size] || 8_388_608, limits.min_nonfinal_part_bytes), maximum)
+
+        part_size = hinted_part_size(hint, part_size, maximum, limits.max_parts)
+
+        {:ok,
+         options
+         |> Keyword.put(:part_size, part_size)
+         |> Keyword.put(
+           :force_multipart,
+           options[:force_multipart] == true or
+             hint >= (options[:multipart_threshold] || 8_388_608)
+         )}
+      end
+    else
+      {:ok, options}
+    end
+  end
+
+  defp expected_size_hint(value) when is_integer(value) and value >= 0, do: {:ok, value}
+
+  defp expected_size_hint(value) when is_binary(value) do
+    case Integer.parse(value) do
+      {size, ""} when size >= 0 -> {:ok, size}
+      _ -> failure(:stdin_size, "Expected size must be a nonnegative integer")
+    end
+  end
+
+  defp expected_size_hint(_),
+    do: failure(:stdin_size, "Expected size must be a nonnegative integer")
+
+  defp hinted_part_size(size, part_size, maximum, count)
+       when size > part_size * count and part_size < maximum,
+       do: hinted_part_size(size, min(part_size * 2, maximum), maximum, count)
+
+  defp hinted_part_size(_size, part_size, _maximum, _count), do: part_size
 
   defp local_move("mv", source) do
     with :ok <- Source.validate(source) do

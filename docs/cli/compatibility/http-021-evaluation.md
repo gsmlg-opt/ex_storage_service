@@ -1,125 +1,134 @@
-# HTTP 0.21.11 isolated evaluation
+# HTTP 0.21.12 integration and remaining acknowledgement blocker
 
-This is a dependency-selection investigation, not a repository dependency update
-or full acceptance of a different HTTP family. The repository still selects
-0.18.1. The CLI scope in implement-plan.md section 1.1 remains in force while the
-scope question is pending.
+The user approved the coordinated dependency update on 2026-10-16. The working
+copy based on main `2fe20dbe8ba643344f179da945e82e1d5b0d4a6a` now adds
+`~> 0.21.12` to core's existing 0.17/0.18 alternatives, requires `~> 0.21.12`
+in the CLI, and selects the published coordinated 0.21.12 HTTP family in the
+umbrella lock. DuskMoon's already-allowed 9.16.16 npm/QuickBEAM components accept
+this family. No dependency override or patched source is used. These are
+integrated working-copy changes, not a completed commit, remote check or release.
 
-On 2026-10-15, Hex and the upstream release metadata confirmed http_fetch
-0.21.11 contains the independent HTTP/1 socket inactivity fix from PR #127.
-Published 0.18 versions remain 0.18.0 and 0.18.1; issue #123 is still open for a
-compatible infinity-deadline backport. Core requires the 0.17/0.18 families and
-locked DuskMoon npm/QuickBEAM components require 0.18. Selecting the newer HTTP
-family in the umbrella requires a separately authorized dependency scope change,
-without overrides.
+The adapter now passes independent HTTP/1 socket read/write inactivity options
+and `response_stream_idle_timeout: :infinity`. AWS `--cli-read-timeout` is a
+socket read limit: positive seconds become read inactivity, zero disables it,
+and neither imposes a whole-request deadline. `--cli-connect-timeout` remains
+independent, with zero selecting infinity. Native contexts have no total request
+deadline and default to separate 600,000 ms read/write inactivity; the two
+`--conn-*-deadline` options can change or disable those limits. Explicit finite
+adapter/overall retry budgets remain effective. The native parser uses retained
+Go-duration observations and rejects positive durations not exactly representable
+in whole milliseconds or beyond the transport's 4,294,967,295 ms bound.
 
-A copied CLI snapshot under `/tmp/ess-cli-http021-evaluation-20261015` used
-independent dependency, lock and build directories. Only that temporary project's
-HTTP requirement changed to `~> 0.21.11`. Published dependencies resolved and
-compiled under Linux x86_64, Elixir 1.18.5 and OTP 28. The copy initially captured
-an unfinished sharing edit with an invalid guard; a temporary-only guard fix
-allowed the transport investigation. No repository production dependency was
-changed by these commands.
+## Published source and scoped wire evidence
 
-The existing 47 transport/spike tests initially exposed a cancellation handoff
-race: after coordinator cancellation and before response adoption, the new
-transport could already have terminated the stream. Monitoring then observed
-`:noproc`, losing the known interrupted outcome. The adapter now checks its owned
-abort controller during adoption and returns the typed aborted result before
-reading. This client ownership correction is present in the repository and has
-a deterministic regression on the selected 0.18 line. It is not an upstream
-defect or a substitution of a transport failure as success.
+Upstream `http_fetch` v0.21.12 is commit
+`689260cf0af92689793ad8dd888496a62bb140b1`; fix
+`8accaad52e760a5b325346dabafcacd3f5dc8fa3` (PR #130) closes
+[#129](https://github.com/gsmlg-dev/http_fetch/issues/129). Exact Hex-resolved
+API/options/stream/socket-client/response files match that released source.
+The new request-scoped response-stream idle option fixes the separate
+network-await limit. It deliberately preserves finite consumer acknowledgement
+budgets; that distinction matters for the remaining blocker below.
 
-With that temporary correction, the fixed-seed transport run passed **47 tests**.
-A prior nonfixed-seed run failed its 100 ms source-close notification assertion;
-the cause was not established and the failed log is retained. It is not counted
-as passing or silently removed. No source-close assertion was weakened.
+Independent published-dependency tests passed six real TCP cases: direct ACK
+consumption and `HTTP.Response.read_all()` each completed exact `xy` after a
+65,000 ms peer gap (65,002 ms observed), typed socket read expiry occurred at
+122 ms, and socket/stream finite-idle reset and expiry cases passed. Concurrent
+requests with 100 ms versus infinite stream policies expired versus completed
+independently and closed their owned peers. Global streaming timeout stayed
+60,000 ms; no application environment or dependency source was mutated.
 
-Three additional actual raw socket probes passed: infinite connect/request
-settings with acknowledged raw-byte consumption; read inactivity resetting
-across fragments over a total duration longer than the idle bound; and stalled
-response termination with `read_idle_timeout`. The temporary adapter removed its
-0.18 infinity guard and forwarded the actual new options. These probes do not
-establish CLI flag integration, independent write inactivity, retry/rate-limit
-arithmetic with infinity, full transfers, providers or the platform matrix.
+The CLI integration's native-default and AWS-zero paths independently completed
+raw-byte transfers over a 65,000 ms gap at 65,054 ms, with response controllers
+and cancellation processes stopped afterward. The focused deadline acceptance
+run passed 73 tests, including real socket read/write stalls, idle resets, finite
+AWS one-second read semantics with a progressing response lasting longer than
+one second, zero-disable behavior, explicit total/retry bounds and cleanup.
+The combined CLI suite then passed **3,244 tests, zero failures and one
+resource exclusion** with seed 628644 in 272.2 seconds. A fresh affected-app
+snapshot passed core 344 tests (one cluster exclusion), cluster 39 tests (one
+large-stream exclusion), S3 224 tests and web 21 tests, all with zero failures
+and the same seed. These runs validate the current local integration; fresh
+package acceptance and remote checks remain separate evidence, and the unscaled
+slow-delivery failure below still blocks release.
 
-Evidence:
+Evidence roots:
 
-- `/tmp/ess-cli-http021-deps.log`
-- `/tmp/ess-cli-http021-transport.log` (initial cancelled-response failure)
-- `/tmp/ess-cli-http021-cancellation-diagnostic.log` (closed-stream reason)
-- `/tmp/ess-cli-http021-transport-fixed.log` (unresolved source-close timing failure)
-- `/tmp/ess-cli-http021-transport-fixed-rerun.log` (47 passing fixed-seed tests)
-- `/tmp/ess-cli-http021-deadline-probe.log` (three passing deadline probes)
+- `/tmp/ess-cli-http02112-wire-20261016/`: `mix.lock`,
+  `source-verification.json`, `wire-result.log`, `concurrent-result.log`.
+- `/tmp/ess-cli-deadline-02112-20261016/validation/`:
+  `candidate-long-idle.log`, `aws-positive-read-green.log`,
+  `deadline-acceptance-final.log` and `candidate-slow-ack.log`.
+- `/tmp/ess-cli-http02112-coordinated-20261016/`: `cli-full.log` and
+  `affected-apps.log`.
+- Repository regressions: `test/deadline_integration_test.exs`,
+  `test/aws_read_deadline_test.exs`, `test/native_deadline_duration_test.exs`
+  under `apps/ex_storage_service_cli/`.
 
-The shared repository dependency graph, complete CLI tests and source package
-must be validated again if the new HTTP line is selected. This investigation
-alone does not close either release gate.
+## Current release blocker: paced consumer acknowledgement
 
-## Narrower dependency selection found during follow-up
+[#131](https://github.com/gsmlg-dev/http_fetch/issues/131) is the current
+upstream **Feature / internal request / blocker** for CLI M9 and release of
+bounded slow-rate transfers. With published 0.21.12, a native request with total
+timeout infinity, 600,000 ms socket inactivity and response-stream idle infinity
+still inherits a fixed 60,000 ms consumer ACK deadline. Both
+`HTTP.Stream`'s pending-ACK wait and `SocketClient.stream_chunk_timeout/1` impose
+this limit; changing only the response stream's idle policy does not remove it.
 
-Current Hex metadata shows that DuskMoon's published 9.16.16 npm/QuickBEAM
-components accept `~> 0.20.0 or ~> 0.21.0`. The existing web requirement
-`duskmoon_bundler ~> 9.8` already permits that version; selecting HTTP 0.21.11
-does not inherently require a UI major-version change. The remaining source
-constraint outside CLI scope is core's `~> 0.17.2 or ~> 0.18.0` requirement.
-The pending scope decision still governs changing that constraint and validating
-core plus the coordinated graph. No repository requirement or lock was changed.
+An unscaled real loopback response immediately supplied 512 bytes. The
+invocation-owned download limiter delivered eight-byte slices at 8 bytes/s:
+64 bytes at 7,052 ms, 448 at 55,100 ms and all 512 exact bytes at 63,108 ms.
+Consumption then returned transport `:timeout` at 63,109 ms. The stream,
+controller and cancellation processes were dead; the diagnostic subsequently
+stopped its limiter. Global `HTTP.Config.streaming_timeout()` stayed 60,000 ms.
+This failed transfer is not a successful completion merely because all payload
+bytes reached the sink. It is consumer delivery time, not network inactivity
+or an overall request deadline.
 
-The concrete source change would add `~> 0.21.11` to core's supported alternatives
-and require `~> 0.21.11` in the CLI, then resolve the coordinated HTTP/DuskMoon
-packages without overrides. Selection alone would still require complete
-transport/transfer and affected-application validation. Published metadata:
+The callsite in `Transport.HTTPFetch.consume_owned/4` records #131. No early ACK,
+unbounded mailbox reading, global timer mutation, dependency patch or finite
+substitution is used as a workaround. The blocked slice stops until a published
+request-scoped ACK/delivery policy or bounded progress lease is available. Both
+upstream ACK limits, concurrent policy isolation, finite overall deadlines and
+cancellation/owner cleanup require validation, followed by independent real
+paced-transfer acceptance in ESS. The passing 65-second network-gap probes do
+not close this gate.
 
-- [DuskMoon npm 9.16.16](https://hex.pm/api/packages/duskmoon_npm/releases/9.16.16)
-- [DuskMoon QuickBEAM 9.16.16](https://hex.pm/api/packages/duskmoon_quickbeam/releases/9.16.16)
+## Historical 0.21.11 evaluation
 
-## CLI integration candidate and remaining response-stream blocker
+On 2026-10-15 the repository still selected 0.18.1 and the dependency scope
+change had not been authorized. Published 0.21.11 contained HTTP/1 socket
+inactivity from PR #127, fixing #126; #123 remained the supported-line infinity
+backport request. A temporary copy at
+`/tmp/ess-cli-http021-evaluation-20261015` changed only its own requirement and
+build/dependency/lock roots. An unfinished sharing guard was corrected only in
+that copy to permit investigation. The repository dependency graph was unchanged
+at that historical checkpoint.
 
-A second standalone copy at
-`/tmp/ess-cli-deadline-integration-20261015-b` prepared the actual CLI changes
-against published HTTP 0.21.11, again with independent dependency/build/lock
-roots and no repository constraint or lock changes. Its focused suite passed
-67 tests, including eleven new deadline cases: AWS zero parsing and real wire
-execution; native ten-minute read/write defaults, durations and zero-disable;
-legacy and modeled paths; real header/body read stalls and a socket write
-stall; idle-reset trickles; lease/controller/peer cleanup; upload/download
-pacing; finite overall retry caps and idle-error classification. These are
-scoped candidate results, not acceptance of the repository or the full default
-deadline behavior.
+The 47-test transport investigation exposed a cancellation-adoption race, fixed
+in the ESS adapter by checking its owned abort controller before reading an
+already-terminated stream. That correction also has a deterministic regression
+on 0.18; it was not an upstream defect. A prior nonfixed-seed source-close
+notification assertion failed at 100 ms with unresolved cause; its failed log
+was retained, no assertion weakened. A fixed-seed run passed 47 tests. Three
+additional raw-socket probes passed infinity, idle reset and typed read expiry;
+these short probes did not establish the default long-gap contract. Historical
+logs remain `/tmp/ess-cli-http021-{deps,transport,cancellation-diagnostic,transport-fixed,transport-fixed-rerun,deadline-probe}.log`.
 
-Further checking found a separate documented global response-stream idle timer.
-`HTTP.Stream` expires using `HTTP.Config.streaming_timeout()` (default 60,000
-ms) without inheriting the individual request's read-idle policy. A controlled
-real socket reproducer consumed and acknowledged a first body chunk, then
-waited for the next network bytes. Scaling that separate global fixture timer
-caused the stream to expire before the larger per-request read-idle deadline,
-despite `timeout: :infinity`. Thus selecting 0.21.11 alone cannot supply the
-required ten-minute native body inactivity policy or AWS's disabled read timeout.
+A later isolated 0.21.11 candidate at
+`/tmp/ess-cli-deadline-integration-20261015-b` passed 67 scoped tests, but its
+response stream still used the separate global 60-second idle timer. With no
+configuration or source mutation, an acknowledged first byte arrived at 22 ms,
+the next byte was due at 65 seconds, and generic `:timeout` occurred at
+60,023 ms despite request infinity and 120,000 ms socket read inactivity. The
+peer subsequently finished normally. The diagnostic observed a failure; its
+zero exit status did not mean a successful transfer. This was #129's
+version-specific blocker, now fixed in published 0.21.12.
 
-The required upstream Feature request is
-[gsmlg-dev/http_fetch#129](https://github.com/gsmlg-dev/http_fetch/issues/129),
-severity **blocker**, with the network-await reproduction and expected
-request-scoped stream policy. The repository response-stream callsite records
-the TODO. No global configuration mutation, patched dependency or finite-timeout
-substitution is used in the product. This blocked slice stops until an upstream
-release supplies the contract and the coordinated graph is authorized and
-validated. The separate native write-idle candidate remains scoped evidence;
-it does not close the combined deadline gate.
-
-The unscaled default-config probe independently reproduced the same blocker
-without any application environment or dependency source mutation. With request
-timeout infinity, socket read idle 120,000 ms and the peer's second byte due at
-65,000 ms, the first byte was consumed/acknowledged at 22 ms and the stream
-reported generic `:timeout` at **60,023 ms**. The peer then completed normally
-and was monitored down. The diagnostic exited zero because it observed the
-expected failure; this is not a successful two-byte transfer. Exact local
-evidence: `default_stream_idle_reproducer.exs` and
-`default-stream-idle-result.log` in the second isolated copy above.
-
-The temporary 11-file proposal is retained at
+The original unapplied 0.21.11 proposal remains historical at
 `/tmp/ess-cli-deadline-integration-20261015-b/deadline-proposal.patch`, SHA256
 `18363c6e8cba31da6560ff4aa2d82f593b5abd2eee12d8b52f4e16f9b076f6b5`.
-Its native exact Go duration grammar is still unverified and requires tightening
-before any future integration. The patch remains unapplied; short scoped passes
-cannot override the default-config failure or close the release gate.
+Its then-unverified duration prototype is superseded by the integrated parser
+and retained Go oracle. #123's older-line backport status and #126/#129's old
+limitations are not blockers of the selected 0.21.12 graph; #131 is a distinct
+remaining capability gap.

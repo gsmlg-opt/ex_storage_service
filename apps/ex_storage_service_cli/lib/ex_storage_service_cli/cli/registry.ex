@@ -16,6 +16,8 @@ defmodule ExStorageServiceCli.CLI.Registry do
     "resolve" => {:resolve, :repeated_string},
     "limit-upload" => {:limit_upload, :string},
     "limit-download" => {:limit_download, :string},
+    "conn-read-deadline" => {:conn_read_deadline, :string},
+    "conn-write-deadline" => {:conn_write_deadline, :string},
     "endpoint" => {:endpoint, :string},
     "service" => {:service, {:enum, ~w(ess aws s3)}},
     "access-key" => {:access_key, :string},

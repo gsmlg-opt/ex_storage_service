@@ -1,0 +1,250 @@
+{
+  "cases": [
+    {
+      "input": "0",
+      "nanoseconds": 0,
+      "valid_go_duration": true
+    },
+    {
+      "input": "+0",
+      "nanoseconds": 0,
+      "valid_go_duration": true
+    },
+    {
+      "input": "-0",
+      "nanoseconds": 0,
+      "valid_go_duration": true
+    },
+    {
+      "input": "0s",
+      "nanoseconds": 0,
+      "valid_go_duration": true
+    },
+    {
+      "input": "-0s",
+      "nanoseconds": 0,
+      "valid_go_duration": true
+    },
+    {
+      "input": "+0s",
+      "nanoseconds": 0,
+      "valid_go_duration": true
+    },
+    {
+      "input": "0.5ns",
+      "nanoseconds": 0,
+      "valid_go_duration": true
+    },
+    {
+      "input": "1ms",
+      "nanoseconds": 1000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "+1ms",
+      "nanoseconds": 1000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "1.s",
+      "nanoseconds": 1000000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": ".001s",
+      "nanoseconds": 1000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "1.5ms",
+      "nanoseconds": 1500000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "1m2.5s",
+      "nanoseconds": 62500000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "1h2m3.004s",
+      "nanoseconds": 3723004000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "1000us",
+      "nanoseconds": 1000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "1000µs",
+      "nanoseconds": 1000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "1000μs",
+      "nanoseconds": 1000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "1000000ns",
+      "nanoseconds": 1000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "4294967295ms",
+      "nanoseconds": 4294967295000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "4294967296ms",
+      "nanoseconds": 4294967296000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "2562047h47m16.854775807s",
+      "nanoseconds": 9223372036854775807,
+      "valid_go_duration": true
+    },
+    {
+      "input": "2562047h47m16.854775808s",
+      "valid_go_duration": false
+    },
+    {
+      "input": "-2562047h47m16.854775808s",
+      "nanoseconds": -9223372036854775808,
+      "valid_go_duration": true
+    },
+    {
+      "input": "-1ms",
+      "nanoseconds": -1000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "-0.1ms",
+      "nanoseconds": -100000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "1ns",
+      "nanoseconds": 1,
+      "valid_go_duration": true
+    },
+    {
+      "input": "0.1ms",
+      "nanoseconds": 100000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "1.000001ms",
+      "nanoseconds": 1000001,
+      "valid_go_duration": true
+    },
+    {
+      "input": "1.0000000ms",
+      "nanoseconds": 1000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "1.0000001ms",
+      "nanoseconds": 1000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "++1s",
+      "valid_go_duration": false
+    },
+    {
+      "input": "++0",
+      "valid_go_duration": false
+    },
+    {
+      "input": "+-1s",
+      "valid_go_duration": false
+    },
+    {
+      "input": "--1s",
+      "valid_go_duration": false
+    },
+    {
+      "input": "+",
+      "valid_go_duration": false
+    },
+    {
+      "input": "-",
+      "valid_go_duration": false
+    },
+    {
+      "input": "",
+      "valid_go_duration": false
+    },
+    {
+      "input": "1",
+      "valid_go_duration": false
+    },
+    {
+      "input": "0.",
+      "valid_go_duration": false
+    },
+    {
+      "input": "1d",
+      "valid_go_duration": false
+    },
+    {
+      "input": "1w",
+      "valid_go_duration": false
+    },
+    {
+      "input": "1y",
+      "valid_go_duration": false
+    },
+    {
+      "input": "1S",
+      "valid_go_duration": false
+    },
+    {
+      "input": "1 s",
+      "valid_go_duration": false
+    },
+    {
+      "input": " 1s",
+      "valid_go_duration": false
+    },
+    {
+      "input": "1s ",
+      "valid_go_duration": false
+    },
+    {
+      "input": "1e3ms",
+      "valid_go_duration": false
+    },
+    {
+      "input": "1..s",
+      "valid_go_duration": false
+    },
+    {
+      "input": ".s",
+      "valid_go_duration": false
+    },
+    {
+      "input": "1s2",
+      "valid_go_duration": false
+    },
+    {
+      "input": "1ms1ms",
+      "nanoseconds": 2000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "01.00s",
+      "nanoseconds": 1000000000,
+      "valid_go_duration": true
+    },
+    {
+      "input": "1.0000000009s",
+      "nanoseconds": 1000000000,
+      "valid_go_duration": true
+    }
+  ],
+  "parser": "time.ParseDuration",
+  "reference": "go1.26.6"
+}

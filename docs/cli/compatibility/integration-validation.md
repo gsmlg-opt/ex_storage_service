@@ -1,6 +1,6 @@
 # Coordinating CLI integration validation
 
-Source baseline: `main` at `9b8661e58107eddb24cb8f15495cee4ac979219a` plus the implementation diff. These are local pre-release checks on Linux x86_64, Elixir 1.18.5 and OTP 28. They do not establish a published next-version artifact.
+Original source baseline: `main` at `9b8661e58107eddb24cb8f15495cee4ac979219a` plus the implementation diff. These are local pre-release checks on Linux x86_64, Elixir 1.18.5 and OTP 28. They do not establish a published next-version artifact. The latest coordinated dependency integration is recorded at the end; earlier results retain their historical source scope.
 
 The focused final-repairs command passed 132 tests with seed `628644`: the optional-member executable matrix, upload/request/checksum families, native sharing and cancellation ownership. Log: `/tmp/ess-cli-scoped-final-repairs.log`.
 
@@ -57,7 +57,7 @@ and licensed parser ports. The full check reports their original whitespace;
 the scoped check excluding those imported files passes. The native checklist's
 own trailing whitespace was removed. Reference hashes and deterministic output
 checks pass, so no pinned capture was rewritten to satisfy whitespace style.
-The final source-only edit adds the required TODO for http_fetch#129; it changes
+The historical final source-only edit added the required TODO for http_fetch#129; it changed
 no execution behavior and was followed by another passing format/strict compile.
 
 ## Remote compiler and formatter repair
@@ -152,3 +152,72 @@ This closes the current complete-suite repair gate. It does not close the
 documented HTTP deadline blocker, remaining independent compatibility evidence,
 live AWS account-specific acceptance or publication gates. No version bump,
 release tag, CLI publication or next-version release has occurred.
+
+## Approved HTTP 0.21.12 integration
+
+The user approved the coordinated dependency proposal on 2026-10-16. Core adds
+`~> 0.21.12` alongside its existing ranges; the CLI requires it. Sixteen lock
+entries change: the eight HTTP/QUIC/SSL packages select 0.21.12 and the eight
+Bundler/native packages select 9.16.16. Existing Bandit 1.12.5, thousand_island
+1.5.0, phoenix_duskmoon 9.16.11 and web constraints are preserved. No overrides,
+path dependencies, core behavior or UI changes are used.
+
+A fresh exported snapshot of baseline `2fe20dbe8ba643344f179da945e82e1d5b0d4a6a`
+contains the approved graph, native/AWS deadline integration and AWS stdin
+expected-size correction. It passed locked dependency resolution and complete
+umbrella strict compilation. CLI formatting and all 28 Python tooling tests also
+passed. Temporary validation root: `/tmp/ess-cli-http02112-coordinated-20261016`.
+
+From its CLI app, `PAGER=cat ERL_FLAGS='+S 4:4' mix test --exclude resource
+--seed 628644` passed **3,244 tests, zero failures and one resource exclusion**
+in 272.2 seconds (71.1 seconds async, 201.1 seconds sync). Log: `cli-full.log`.
+This includes the real 65-second response-stream regression; it does not count
+the excluded resource test or historical platform/provider jobs as new passes.
+
+From the same fresh umbrella, `mix test apps/ex_storage_service/test
+apps/ex_storage_service_cluster/test apps/ex_storage_service_s3/test
+apps/ex_storage_service_web/test --seed 628644` used `PAGER=cat`,
+`ERL_FLAGS='+S 4:4'` and a private `ESS_DATA_ROOT` under that validation root.
+The results were core **344 tests, zero failures, one cluster exclusion**;
+cluster **39 tests, zero failures, one large-stream exclusion**;
+S3 **224 tests, zero failures**; web **21 tests, zero failures**.
+Log: `affected-apps.log`. No shared checkout data or server behavior was changed.
+
+The deadline acceptance separately passed 73 focused cases. Actual native and
+AWS-zero requests crossed a 65-second peer gap, preserved exact bytes and
+released owned response/controller/cancellation processes. Global HTTP stream
+settings remained unchanged. Independent pinned AWS 2.31.18 captures and 41
+focused tests establish stdin expected-size as a sizing hint while preserving
+native exact-size checks. See http-021-evaluation.md and
+aws-expected-size-decisions.md for their exact evidence.
+
+A separate fresh standalone probe built the current CLI source package, resolved
+the published HTTP 0.21.12 dependency family, strict-compiled it and installed
+its escript. After source, build and dependency directories were renamed away,
+the installed artifact passed version/help/skeleton, Unicode HTTP, exact
+65,792-byte binary stdout and real pager PTY/terminal-restoration checks from an
+unrelated directory. Model/license/native assets and absence of server runtime
+apps were inspected. A fresh-VM runtime suite passed six tests, zero failures,
+seed 700778. This evidence is Linux x86_64, Elixir 1.18.5/OTP 28 only.
+
+Evidence root: `/tmp/ess-cli-package02112-20261016/`, including
+`consumer/manifest.json`, `consumer/commands.json`, `asset-runtime-evidence.json`,
+`snapshot-manifest.json`, `runtime-test.log` and `verification-summary.json`.
+The package SHA256 is
+`3b6227a65cfdb8fac8eea492f4fd0d9ae35fc253f10e407a3488a89584cef770`;
+escript SHA256 is
+`205a70a46d1c91fdf9120cbc991e358f2ae69dc1e84f5c7581c86ce07b9e04cc`.
+The manifest explicitly records uncommitted source based on `2fe20dbe`; it does
+not claim a clean immutable release or public package. Snapshot hashes match
+the checked CLI source. New-source remote/platform/resource acceptance remains
+separate from this local package probe.
+
+Network-await issue #129 is resolved by the selected release. Slow response
+consumer ACK waits remain capped at 60 seconds: an actual 512-byte native
+download at 8 B/s delivered exact bytes at 63,108 ms, then failed with transport
+timeout at 63,109 ms. This is upstream Feature blocker
+[http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131).
+The permanent diagnostic is
+`scripts/cli_compatibility/http_consumer_ack_reproducer.exs`; failure exits
+nonzero. No VM-wide timeout mutation, unbounded draining or dependency patch is
+used. Passing tests do not close M9, provider limitations or publication gates.
