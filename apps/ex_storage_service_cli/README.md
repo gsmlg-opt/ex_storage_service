@@ -150,6 +150,9 @@ to whole milliseconds, at most `4294967295ms`; other values fail explicitly.
 The overall request has no implicit duration cap. Slow paced consumption remains
 release-blocked by [http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131):
 the dependency still imposes a separate 60-second chunk acknowledgement limit.
+Successful fixed-length upload responses can also race source finalization,
+tracked as release blocker
+[http_fetch#132](https://github.com/gsmlg-dev/http_fetch/issues/132).
 Repeated `--resolve HOST[:PORT]=literal-IP` entries pin socket addresses while
 preserving the signed Host, TLS SNI and certificate identity. A port-specific
 entry wins over a host-only entry, and failed pins do not fall back to DNS.

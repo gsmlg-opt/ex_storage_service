@@ -42,6 +42,14 @@ the actual adapter and tracked in
 M9 and publication remain open; the integration and acceptance reports preserve
 the exact version, evidence and provider limits.
 
+Remote checks of pushed `600c8755de5ff58ee2ee3fa33203d6ea40e0497c` subsequently
+exposed a separate upload producer-finalization race,
+[http_fetch#132](https://github.com/gsmlg-dev/http_fetch/issues/132).
+The source-cleanup test remains intact. A distinct pre-connect timeout in the
+stalled-write fixture has a scoped SHA256 correction; that correction does not
+repair #132 or establish full-suite acceptance. Both upstream blockers must be
+resolved before M9/release closure.
+
 No Ecto/database, no dependency on ESS core/Concord/Phoenix, no runtime `aws`/`mc`/Python wrapper, and no unrelated transport migration. Continue using `http_fetch`. Do not add a dependency without documenting its necessity and following repository approval rules.
 
 ## 2. Delivery sequence and parallel work

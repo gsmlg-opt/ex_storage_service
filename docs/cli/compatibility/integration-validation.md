@@ -221,3 +221,67 @@ The permanent diagnostic is
 `scripts/cli_compatibility/http_consumer_ack_reproducer.exs`; failure exits
 nonzero. No VM-wide timeout mutation, unbounded draining or dependency patch is
 used. Passing tests do not close M9, provider limitations or publication gates.
+
+## Pushed 600c875 checks and upload finalization blocker
+
+Clean main source `600c8755de5ff58ee2ee3fa33203d6ea40e0497c` was committed,
+pushed and independently matched against `origin/main`. The current-graph
+[CLI run 38865376090](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38865376090)
+passed its four Linux/macOS package jobs, throttled 2 GiB resource job and
+ESS/RustFS provider-policy job. Every downloaded package manifest records this
+exact clean source. Recomputed tar/escript SHA256 and inner Hex checksums match;
+all six standalone HTTP-family apps are 0.21.12, native helpers/manifests are
+present, and no server application is packaged. The source tar SHA256 shared by
+all four platform jobs is
+`c5d2b725866fc5133e3ec2f5dca7bc14ffc95755a514e636b85b1b24b214c754`.
+Downloaded evidence: `/tmp/ess-cli-ci-600c8755/verified-packages.json`.
+
+The separate 2 GiB job passed one test, zero failures, seed 952849, in 152.4
+seconds with a 1 MiB budget, mailbox peak two and zero active requests/reserved
+bytes after completion. Provider policy preserved the four known ESS/RustFS
+failures and reported zero client regressions. Its executable was not uploaded,
+so the reported provider-binary digest could not be independently recomputed.
+See `verified-resources.json` and `providers/independent-policy-review.json`
+under that evidence root. Live AWS account-specific evidence remains unrun.
+
+The complete CLI unit/wire/executable job **failed**: **3,243 tests, two failures
+(one excluded)** as printed by Elixir 1.19, seed 288806, in 373.2 seconds.
+Log: `cli-unit-failed.log`. The stalled-write test expected `write_idle_timeout`
+but received `econnrefused`. The file-range transport test received a normal
+body-stream DOWN but no `:source_closed` notification. The earlier local pass
+does not supersede these failed remote results.
+
+[Umbrella run 38865375826](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38865375826)
+also failed the source-cleanup test: **3,244 CLI tests, one failure**, seed
+734335, in 363.4 seconds. Core printed 343 tests, zero failures, one exclusion;
+cluster printed 38 tests, zero failures, one exclusion; S3 224 and web 21 tests
+had zero failures. Log: `umbrella-failed.log`. The compile/format, E2E, cluster
+and image workflows passed at the same source.
+
+The stalled-write fixture failure was independently reproduced with eight busy
+workers on one scheduler. Default CRC64NVME calculation over its 16 MiB body
+can exhaust the fixture's five-second accept window before connection setup.
+Selecting SHA256 in that test avoids the unrelated preparation cost; the same
+contention then passes. The real 16 MiB socket stall, 80 ms write-idle setting,
+typed failure and ownership cleanup assertions remain intact. The entire
+deadline file passed **12 tests, zero failures**, seed 288806, in 68.2 seconds,
+including the real 65-second regression. Evidence:
+`/tmp/ess-cli-write-idle-ci-20261016/{contention-before,contention-after,scoped-after,checksum-baseline}.log`.
+
+The source-cleanup failure was reproduced locally on repetition four with
+`mix test test/ex_storage_service_cli/transport_spike_test.exs:10
+--repeat-until-failure 30 --seed 288806`; see `source-close-repeat.log`.
+Published HTTP 0.21.12 acknowledges the final DATA before producer completion.
+An immediate peer response can stop the retained upload and its stream, whose
+termination kills the enumerable producer before its resource callback finishes.
+The missing notification does not prove a leaked descriptor or corrupt bytes;
+it does establish that successful response/normal stream DOWN does not confirm
+enumerable finalization. Production file-source wrapping uses the same API.
+
+This is upstream **Bug / internal request / blocker**
+[http_fetch#132](https://github.com/gsmlg-dev/http_fetch/issues/132), distinct
+from #131. Both production and regression callsites retain TODOs; the cleanup
+assertions are unchanged. No timeout relaxation, ignored failure, dependency
+patch or client workaround is applied. Stop the blocked finalization slice
+until a supported published fix, then repeat the cleanup/race and complete
+integration checks. M9 and publication remain open on both #131 and #132.

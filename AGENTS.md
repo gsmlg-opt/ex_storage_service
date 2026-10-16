@@ -229,6 +229,10 @@ The codebase is structured as an umbrella project with five apps:
   Consumer acknowledgement still has a global 60-second cap: bounded slow
   pacing is release-blocked by `gsmlg-dev/http_fetch#131`. Do not mutate VM-wide
   configuration, remove backpressure or patch dependencies as a workaround.
+  Successful fixed-length upload responses can also preempt enumerable resource
+  finalization (`gsmlg-dev/http_fetch#132`). Keep the source-cleanup assertion;
+  do not weaken it or patch the dependency to publish. Both blockers require a
+  supported published fix and independent acceptance.
 - AWS namespaces independently resolve AWS shared profiles. Document and test
   `AWS_DEFAULT_OUTPUT`, `AWS_RETRY_MODE` (`standard` default or `adaptive`),
   `AWS_MAX_ATTEMPTS` (total attempts, default 3), `AWS_USE_FIPS_ENDPOINT`,

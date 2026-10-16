@@ -254,7 +254,15 @@ defmodule ExStorageServiceCli.DeadlineIntegrationTest do
              Client.call(
                context,
                "UploadPart",
-               %{"Bucket" => "b", "Key" => "k", "UploadId" => "u", "PartNumber" => 1},
+               %{
+                 "Bucket" => "b",
+                 "Key" => "k",
+                 "UploadId" => "u",
+                 "PartNumber" => 1,
+                 # Avoid computing the default Elixir CRC64 over 16 MiB while
+                 # the socket fixture's bounded accept deadline is running.
+                 "ChecksumAlgorithm" => "SHA256"
+               },
                body: :binary.copy("x", 16 * 1024 * 1024),
                max_attempts: 1
              )

@@ -62,7 +62,9 @@ zero disabling that direction. Positive Go durations must resolve exactly to
 whole milliseconds within `4294967295ms`; no truncation or finite replacement is
 used. A distinct consumer acknowledgement limit still breaks sufficiently slow
 paced downloads and blocks release under
-[http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131). See the
+[http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131). Upload source
+finalization has a separate release blocker,
+[http_fetch#132](https://github.com/gsmlg-dev/http_fetch/issues/132). See the
 [dependency evaluation](compatibility/http-021-evaluation.md).
 
 AWS stdin `--expected-size` guides multipart sizing without asserting the input

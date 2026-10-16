@@ -230,6 +230,8 @@ of connection setup; zero disables it. Requests have no overall timeout.
 Slow paced response consumption still encounters an upstream acknowledgement
 deadline, tracked as release blocker
 [http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131).
+Upload enumerable finalization also remains release-blocked by
+[http_fetch#132](https://github.com/gsmlg-dev/http_fetch/issues/132).
 
 CLI environment settings supplement the server settings below:
 

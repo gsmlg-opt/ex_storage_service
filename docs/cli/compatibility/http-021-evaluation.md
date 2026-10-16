@@ -1,12 +1,12 @@
-# HTTP 0.21.12 integration and remaining acknowledgement blocker
+# HTTP 0.21.12 integration and remaining release blockers
 
-The user approved the coordinated dependency update on 2026-10-16. The working
-copy based on main `2fe20dbe8ba643344f179da945e82e1d5b0d4a6a` now adds
+The user approved the coordinated dependency update on 2026-10-16. Commit `600c8755de5ff58ee2ee3fa33203d6ea40e0497c`, based on main
+`2fe20dbe8ba643344f179da945e82e1d5b0d4a6a`, adds
 `~> 0.21.12` to core's existing 0.17/0.18 alternatives, requires `~> 0.21.12`
 in the CLI, and selects the published coordinated 0.21.12 HTTP family in the
 umbrella lock. DuskMoon's already-allowed 9.16.16 npm/QuickBEAM components accept
-this family. No dependency override or patched source is used. These are
-integrated working-copy changes, not a completed commit, remote check or release.
+this family. No dependency override or patched source is used. The integration was committed and pushed. Current remote CLI unit acceptance
+failed as recorded below; release remains blocked by both #131 and #132.
 
 The adapter now passes independent HTTP/1 socket read/write inactivity options
 and `response_stream_idle_timeout: :infinity`. AWS `--cli-read-timeout` is a
@@ -28,7 +28,8 @@ Upstream `http_fetch` v0.21.12 is commit
 API/options/stream/socket-client/response files match that released source.
 The new request-scoped response-stream idle option fixes the separate
 network-await limit. It deliberately preserves finite consumer acknowledgement
-budgets; that distinction matters for the remaining blocker below.
+budgets; that distinction matters for #131 below. A separate enumerable
+finalization race is tracked in #132.
 
 Independent published-dependency tests passed six real TCP cases: direct ACK
 consumption and `HTTP.Response.read_all()` each completed exact `xy` after a
@@ -48,9 +49,8 @@ The combined CLI suite then passed **3,244 tests, zero failures and one
 resource exclusion** with seed 628644 in 272.2 seconds. A fresh affected-app
 snapshot passed core 344 tests (one cluster exclusion), cluster 39 tests (one
 large-stream exclusion), S3 224 tests and web 21 tests, all with zero failures
-and the same seed. These runs validate the current local integration; fresh
-package acceptance and remote checks remain separate evidence, and the unscaled
-slow-delivery failure below still blocks release.
+and the same seed. These earlier local passes are scoped historical evidence;
+they do not supersede the later failed remote suites at `600c875` below.
 
 Evidence roots:
 
@@ -61,13 +61,16 @@ Evidence roots:
   `deadline-acceptance-final.log` and `candidate-slow-ack.log`.
 - `/tmp/ess-cli-http02112-coordinated-20261016/`: `cli-full.log` and
   `affected-apps.log`.
+- `/tmp/ess-cli-ci-600c8755/`: `cli-unit-failed.log`, `umbrella-failed.log`,
+  `source-close-repeat.log`, `verified-packages.json`, `verified-resources.json`
+  and the recorded provider artifacts.
 - Repository regressions: `test/deadline_integration_test.exs`,
   `test/aws_read_deadline_test.exs`, `test/native_deadline_duration_test.exs`
   under `apps/ex_storage_service_cli/`.
 
 ## Current release blocker: paced consumer acknowledgement
 
-[#131](https://github.com/gsmlg-dev/http_fetch/issues/131) is the current
+[#131](https://github.com/gsmlg-dev/http_fetch/issues/131) is an open
 upstream **Feature / internal request / blocker** for CLI M9 and release of
 bounded slow-rate transfers. With published 0.21.12, a native request with total
 timeout infinity, 600,000 ms socket inactivity and response-stream idle infinity
@@ -93,6 +96,56 @@ upstream ACK limits, concurrent policy isolation, finite overall deadlines and
 cancellation/owner cleanup require validation, followed by independent real
 paced-transfer acceptance in ESS. The passing 65-second network-gap probes do
 not close this gate.
+
+## Current release blocker: upload enumerable finalization
+
+[#132](https://github.com/gsmlg-dev/http_fetch/issues/132) is a second upstream
+**Bug / internal request / blocker** on published 0.21.12. The unchanged
+`TransportSpikeTest` file-range upload receives HTTP 200 and exact encoded
+Content-Length bytes, but its `Stream.resource` cleanup notification
+`:source_closed` is missing while the body stream has already exited normally.
+The coordinator independently reproduced the existing test using
+`--repeat-until-failure 30`; it failed on repetition four. The assertion remains
+intact; increasing its timeout or replacing the source ownership would not fix
+the dependency finalization contract.
+
+After sending the final Content-Length bytes, `HTTP.HTTP1.Upload` acknowledges
+the chunk and still waits for `:stream_end`. Response headers can arrive before
+the enumerable completes. `SocketClient` then stops that retained upload as an
+early response; stream termination unconditionally kills the enumerable
+producer in `HTTP.Stream`'s `after` clause. This can interrupt completion of the
+`Stream.resource` cleanup callback. Production `S3.Client.with_body/3` uses the
+same `HTTP.Stream.from_enumerable` path, so this is not only fixture machinery.
+High-level single/multipart paths independently validate sources after calls;
+the generic API streaming path does not have the same post-call validation.
+
+The observed missing notification proves the callback did not finish. It does
+not establish a leaked file descriptor, corrupted payload or data loss: the
+producer could be interrupted between `File.close` and the notification.
+No local workaround, weakened assertion or dependency patch is used. This
+blocked contract awaits an upstream fix in a published dependency and repeat
+acceptance, separately from #131's slow-delivery policy.
+
+## Current remote acceptance at 600c875
+
+The standalone CLI suite failed with **3,243 tests, two failures and one
+resource exclusion** (seed 288806, 373.2 seconds). The umbrella CLI suite failed
+with **3,244 tests and one failure** (seed 734335, 363.4 seconds). Both report
+#132's source-finalization failure; standalone additionally reports the stalled
+write fixture failure. That fixture's separate repair replaces pre-connect CRC
+work with SHA256 setup. The original error was reproduced under CPU contention;
+the same contention passes after correction, and all 12 deadline tests pass
+(seed 288806, 68.2 seconds). This scoped pass is not completed full-suite
+acceptance. The source-finalization test retains all its assertions.
+
+Other umbrella app suites have zero failures. The separate CI, E2E and cluster
+workflows pass, as do all four current-source package jobs, measured 2 GiB
+resource acceptance and provider checks with zero client regressions. Provider
+limitations remain recorded separately. Package probes verify source
+`600c8755de5ff58ee2ee3fa33203d6ea40e0497c`, the published HTTP 0.21.12 graph and
+unpublished version 0.6.7 artifacts on the four declared runtime combinations.
+These passing scopes do not turn the failed CLI suites into acceptance or close
+#131/#132. The requested next-version release remains blocked by both issues.
 
 ## Historical 0.21.11 evaluation
 
@@ -130,5 +183,6 @@ The original unapplied 0.21.11 proposal remains historical at
 `18363c6e8cba31da6560ff4aa2d82f593b5abd2eee12d8b52f4e16f9b076f6b5`.
 Its then-unverified duration prototype is superseded by the integrated parser
 and retained Go oracle. #123's older-line backport status and #126/#129's old
-limitations are not blockers of the selected 0.21.12 graph; #131 is a distinct
-remaining capability gap.
+limitations are not blockers of the selected 0.21.12 graph. #131 is the
+remaining consumer-delivery capability gap, and #132 is the separate current
+upload-finalization bug.

@@ -321,6 +321,8 @@ defmodule ExStorageServiceCli.S3.Client do
   defp with_body(request, opts, function) do
     if Keyword.has_key?(opts, :body_source) do
       with {:ok, bytes} <- StreamingBody.encode(request, opts) do
+        # TODO(upstream): gsmlg-dev/http_fetch#132
+        # A fixed-length response can race the enumerable producer's finalization.
         case HTTP.Stream.from_enumerable(bytes, telemetry: false) do
           {:ok, stream} ->
             Process.unlink(stream)

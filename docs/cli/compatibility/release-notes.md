@@ -63,8 +63,8 @@ core's supported ranges, and requires `~> 0.21.12` for the standalone CLI.
 HTTP 0.21.12 resolves the earlier infinity/socket prerequisites and
 [#129](https://github.com/gsmlg-dev/http_fetch/issues/129)'s network-await
 policy. Actual native and AWS-zero adapter downloads cross a 65-second network
-gap with exact bytes and unchanged global settings. The current isolated CLI
-suite passes **3,244 tests, zero failures and one resource exclusion**.
+gap with exact bytes and unchanged global settings. The initial isolated CLI
+suite passed **3,244 tests, zero failures and one resource exclusion**.
 The affected core/cluster/S3/web suites pass, and a fresh Linux x86_64
 Elixir 1.18.5/OTP 28 source-package/install/escript probe passes with exact raw
 bytes, native assets and standalone runtime checks. These local results are
@@ -76,6 +76,20 @@ returns a transport timeout. This release blocker is
 [#131](https://github.com/gsmlg-dev/http_fetch/issues/131); the repository includes
 a real-adapter diagnostic in `scripts/cli_compatibility/http_consumer_ack_reproducer.exs`.
 No VM-wide timeout change, early-ACK drain or dependency patch is used.
+
+Remote full-suite checks of pushed source `600c8755` exposed a second blocker,
+[#132](https://github.com/gsmlg-dev/http_fetch/issues/132): a successful
+fixed-length response can kill the upload enumerable producer before its
+resource finalizer finishes. The CLI job failed two tests; the umbrella CLI
+suite failed its source-cleanup test. Its other app suites passed. The separate
+stalled-write fixture failure was reproduced under CPU contention and corrected
+by selecting SHA256, retaining the real socket deadline and cleanup assertions;
+12 scoped deadline tests pass. The upstream source-cleanup assertion remains
+unchanged and failing; a larger assertion timeout cannot fix a killed producer.
+No file-descriptor leak or payload corruption is established by the missing
+cleanup notification alone. Current-source four-platform package, 2 GiB resource
+and provider-policy jobs passed, as did CI/E2E/cluster workflows; they do not
+close either blocker or turn the failed full suites into acceptance.
 See [HTTP evaluation](http-021-evaluation.md) and
 [integration validation](integration-validation.md) for the current evidence.
 

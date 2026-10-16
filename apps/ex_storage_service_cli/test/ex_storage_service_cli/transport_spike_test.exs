@@ -37,6 +37,8 @@ defmodule ExStorageServiceCli.TransportSpikeTest do
         end
       )
 
+    # TODO(upstream): gsmlg-dev/http_fetch#132
+    # Preserve this cleanup assertion until successful uploads finish their enumerable.
     {:ok, body} = HTTP.Stream.from_enumerable(range, telemetry: false)
     body_monitor = Process.monitor(body)
     {endpoint, _server} = WireServer.fixture([{200, [], ""}])
