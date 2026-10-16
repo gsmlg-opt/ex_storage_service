@@ -1,25 +1,14 @@
 name: Publish core to Hex.pm
 
 on:
-  workflow_dispatch:
-    inputs:
-      git_ref:
-        description: "Git ref to publish from"
-        required: true
-        default: "main"
-        type: string
-      version:
-        description: "Version to publish (e.g. 0.6.0)"
-        required: true
-        type: string
   workflow_call:
     inputs:
       git_ref:
-        description: "Git ref to publish from"
+        description: "Canonical committed release tag"
         required: true
         type: string
       version:
-        description: "Version to publish"
+        description: "Shared committed version"
         required: true
         type: string
     secrets:
@@ -30,75 +19,90 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.version }}
+  group: publish-core-${{ inputs.version }}
   cancel-in-progress: false
 
 env:
-  ELIXIR_VERSION: "1.19"
-  OTP_VERSION: "28"
+  PAGER: cat
+  RELEASE_VERSION: ${{ inputs.version }}
 
 jobs:
   publish:
-    name: Publish ex_storage_service v${{ inputs.version }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.git_ref }}
-
-      - name: Validate version format
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate committed canonical release
+        env:
+          RELEASE_REF: ${{ inputs.git_ref }}
         run: |
-          if ! echo "${{ inputs.version }}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$'; then
-            echo "::error::Invalid version format: ${{ inputs.version }}"
-            echo "Expected: MAJOR.MINOR.PATCH or MAJOR.MINOR.PATCH-prerelease"
-            exit 1
-          fi
-
+          test "$RELEASE_REF" = "v$RELEASE_VERSION"
+          python3 scripts/release/release.py validate --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/core-source.json"
       - uses: erlef/setup-beam@v1
         with:
-          elixir-version: ${{ env.ELIXIR_VERSION }}
-          otp-version: ${{ env.OTP_VERSION }}
-
-      - uses: actions/cache@v4
-        with:
-          path: |
-            deps
-            _build
-          key: ${{ runner.os }}-mix-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-mix-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-
-
-      - name: Set package version
+          elixir-version: "1.19.6"
+          otp-version: "28.5.0.8"
+      - uses: dtolnay/rust-toolchain@1.91.1
+      - name: Validate core implementation
         run: |
-          sed -i 's/version: "[^"]*"/version: "${{ inputs.version }}"/' apps/ex_storage_service/mix.exs
-          grep 'version:' apps/ex_storage_service/mix.exs
-
-      - name: Install dependencies
-        run: mix deps.get
-
-      - name: Compile
-        run: mix compile --warnings-as-errors
+          mix deps.get
+          mix compile --warnings-as-errors
+          mix test apps/ex_storage_service/test
         env:
-          MIX_ENV: prod
-
-      - name: Run core tests
-        run: mix test apps/ex_storage_service/test
-
-      - name: Build Hex package
+          MIX_ENV: test
+      - name: Build candidate core package
         working-directory: apps/ex_storage_service
-        run: mix hex.build
-
-      - name: Publish to Hex.pm
+        run: mix hex.build --output "$RUNNER_TEMP/core-candidate.tar"
+      - name: Validate exact source and fresh candidate consumer
+        run: |
+          python3 scripts/release/core_package.py manifest --package "$RUNNER_TEMP/core-candidate.tar" --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/core-manifest.json"
+          python3 scripts/release/core_package.py consumer --package "$RUNNER_TEMP/core-candidate.tar" --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/core-candidate-consumer"
+      - name: Reuse identical immutable registry package
+        id: registry
+        run: |
+          python3 scripts/cli_compatibility/verify_published.py --package-name ex_storage_service \
+            --version "$RELEASE_VERSION" --manifest "$RUNNER_TEMP/core-manifest.json" \
+            --candidate-package "$RUNNER_TEMP/core-candidate.tar" --allow-missing \
+            --status-file "$RUNNER_TEMP/core-registry.json" --output "$RUNNER_TEMP/core-public.tar"
+          python3 - <<'PY'
+          import json, os, pathlib
+          status = json.loads((pathlib.Path(os.environ['RUNNER_TEMP']) / 'core-registry.json').read_text())['status']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'status={status}\n')
+          PY
+      - name: Publish missing core package and documentation
+        if: steps.registry.outputs.status == 'absent'
         working-directory: apps/ex_storage_service
         run: mix hex.publish --yes
         env:
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
-
-      - name: Verify published package
+      - name: Verify new public registry bytes
+        if: steps.registry.outputs.status == 'absent'
         run: |
-          for attempt in 1 2 3 4 5; do
-            echo "Verification attempt ${attempt}"
-            mix hex.info ex_storage_service && exit 0
-            sleep 5
-          done
-          exit 1
+          python3 scripts/cli_compatibility/verify_published.py --package-name ex_storage_service \
+            --version "$RELEASE_VERSION" --manifest "$RUNNER_TEMP/core-manifest.json" \
+            --candidate-package "$RUNNER_TEMP/core-candidate.tar" \
+            --status-file "$RUNNER_TEMP/core-registry.json" --output "$RUNNER_TEMP/core-public.tar"
+      - name: Validate fresh public core consumer
+        run: |
+          python3 scripts/release/core_package.py consumer --package "$RUNNER_TEMP/core-public.tar" --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/core-public-consumer"
+          mkdir -p "$RUNNER_TEMP/core-release"
+          cp "$RUNNER_TEMP/core-source.json" "$RUNNER_TEMP/core-manifest.json" "$RUNNER_TEMP/core-registry.json" "$RUNNER_TEMP/core-release/"
+          cp "$RUNNER_TEMP/core-public-consumer/manifest.json" "$RUNNER_TEMP/core-release/core-public-consumer.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: core-v${{ inputs.version }}-verification
+          path: ${{ runner.temp }}/core-release/*
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: core-publish-validation-logs
+          path: |
+            ${{ runner.temp }}/core-candidate-consumer/commands.json
+            ${{ runner.temp }}/core-public-consumer/commands.json
+          if-no-files-found: warn

@@ -73,8 +73,13 @@ checkout separately; they do not inherit its source SHA as package provenance.
 After publication, `verify_published.py --version VERSION --manifest MANIFEST
 --output OUTPUT.tar` downloads the exact public version, independently computes
 its Hex checksum, and requires equality with the validated package. Run a fresh
-`package_probe.py --package OUTPUT.tar` afterward. No new release has been
-published by adding these tools.
+`package_probe.py --package OUTPUT.tar` afterward. `--candidate-package` also
+checks the local candidate against the manifest before any registry request.
+Release preflight uses `--allow-missing --status-file STATUS.json`: only HTTP 404
+permits publication, while an existing package must have the exact same verified
+inner checksum to be reused. Other HTTP/network errors, corrupt packages and
+checksum differences fail. `--package-name ex_storage_service` applies the same
+verification to the core package.
 
 ## Independent provider checks
 
@@ -96,8 +101,9 @@ Missing evidence, client/reference disagreement, and changed failures require
 review and fail CI. A successful policy check does not mean full provider parity.
 
 `cli-compatibility.yml` keeps unit/wire/executable, 2 GiB resource, disposable
-provider, and standalone platform/package jobs separate. `publish-cli.yml`
-requires a committed CLI version, validates the package before publishing,
-verifies public bytes and a fresh consumer, and attaches an escript, checksums,
-manifests, and the reference/coverage reports. The root `release.yml` also
-publishes server artifacts and is not the CLI-only release path.
+provider, and standalone platform/package jobs separate. `publish-cli.yml` is
+callable only by the root release workflow. It requires a committed CLI version,
+validates the package before publishing or exact reuse, verifies public bytes
+and a fresh consumer, and uploads an escript, checksums, manifests and reference
+reports as an Actions artifact. The root `release.yml` publishes all components
+under the shared `v<version>` tag and attaches the CLI assets to that release.

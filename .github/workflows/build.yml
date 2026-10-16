@@ -53,7 +53,7 @@ jobs:
         with:
           images: ${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest
+            type=raw,value=edge
             type=sha,prefix=sha-
 
       - name: Capture build metadata
@@ -61,9 +61,11 @@ jobs:
         env:
           BUILD_GIT_REF: ${{ github.head_ref || github.ref_name }}
         run: |
-          printf 'git_ref=%s\n' "$BUILD_GIT_REF" >> "$GITHUB_OUTPUT"
-          printf 'git_sha=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          printf 'build_time=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+          {
+            printf 'git_ref=%s\n' "$BUILD_GIT_REF"
+            printf 'git_sha=%s\n' "$(git rev-parse HEAD)"
+            printf 'build_time=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } >> "$GITHUB_OUTPUT"
 
       - uses: docker/build-push-action@v6
         with:

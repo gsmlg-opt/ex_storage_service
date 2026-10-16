@@ -1,25 +1,14 @@
 name: Publish CLI to Hex.pm
 
 on:
-  workflow_dispatch:
-    inputs:
-      git_ref:
-        description: "Committed Git ref to publish from"
-        required: true
-        default: "main"
-        type: string
-      version:
-        description: "Version already committed in the CLI mix.exs"
-        required: true
-        type: string
   workflow_call:
     inputs:
       git_ref:
-        description: "Committed Git ref to publish from"
+        description: "Canonical committed release tag"
         required: true
         type: string
       version:
-        description: "Version already committed in the CLI mix.exs"
+        description: "Shared committed version"
         required: true
         type: string
     secrets:
@@ -27,7 +16,7 @@ on:
         required: true
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: publish-cli-${{ inputs.version }}
@@ -39,8 +28,8 @@ defaults:
 
 env:
   PAGER: cat
-  ELIXIR_VERSION: "1.19"
-  OTP_VERSION: "28"
+  ELIXIR_VERSION: "1.19.6"
+  OTP_VERSION: "28.5.0.8"
   RELEASE_VERSION: ${{ inputs.version }}
 
 jobs:
@@ -54,20 +43,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Validate committed version and capture immutable source
-        id: source
+      - name: Validate committed canonical release
         working-directory: .
+        env:
+          RELEASE_REF: ${{ inputs.git_ref }}
         run: |
-          python3 - <<'PY'
-          import os, pathlib, re
-          version = os.environ['RELEASE_VERSION']
-          if not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9.]+)?', version):
-              raise SystemExit('Invalid release version')
-          source = pathlib.Path('apps/ex_storage_service_cli/mix.exs').read_text()
-          if re.search(r'@version\s+"([^"]+)"', source).group(1) != version:
-              raise SystemExit('Commit the CLI version before publishing')
-          PY
-          printf 'sha=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          test "$RELEASE_REF" = "v$RELEASE_VERSION"
+          python3 scripts/release/release.py validate --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/cli-source.json"
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: ${{ env.ELIXIR_VERSION }}
@@ -92,20 +74,44 @@ jobs:
           python3 scripts/cli_compatibility/package_probe.py
           --expected-version "$RELEASE_VERSION"
           --output-dir "$RUNNER_TEMP/cli-package"
+      - name: Reuse an identical existing Hex package
+        id: registry
+        working-directory: .
+        run: |
+          python3 scripts/cli_compatibility/verify_published.py \
+            --version "$RELEASE_VERSION" \
+            --manifest "$RUNNER_TEMP/cli-package/manifest.json" \
+            --candidate-package "$RUNNER_TEMP/cli-package/ex_storage_service_cli.tar" \
+            --allow-missing \
+            --status-file "$RUNNER_TEMP/cli-registry-status.json" \
+            --output "$RUNNER_TEMP/published-cli.tar"
+          python3 - <<'PY'
+          import json, os, pathlib
+          status = json.loads((pathlib.Path(os.environ['RUNNER_TEMP']) / 'cli-registry-status.json').read_text())['status']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'status={status}\n')
+          PY
       - name: Publish source package and documentation to Hex.pm
+        if: steps.registry.outputs.status == 'absent'
         run: |
           mix deps.get
           mix hex.publish --yes
         env:
           MIX_ENV: dev
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
-      - name: Verify registry bytes and a fresh published consumer
+      - name: Verify newly published registry bytes
+        if: steps.registry.outputs.status == 'absent'
         working-directory: .
         run: |
           python3 scripts/cli_compatibility/verify_published.py \
             --version "$RELEASE_VERSION" \
             --manifest "$RUNNER_TEMP/cli-package/manifest.json" \
+            --candidate-package "$RUNNER_TEMP/cli-package/ex_storage_service_cli.tar" \
+            --status-file "$RUNNER_TEMP/cli-registry-status.json" \
             --output "$RUNNER_TEMP/published-cli.tar"
+      - name: Verify a fresh published consumer
+        working-directory: .
+        run: |
           python3 scripts/cli_compatibility/package_probe.py \
             --package "$RUNNER_TEMP/published-cli.tar" \
             --expected-version "$RELEASE_VERSION" \
@@ -117,6 +123,8 @@ jobs:
           cp "$RUNNER_TEMP/cli-package/ess" "$RUNNER_TEMP/cli-release/ess-linux-x86_64-otp28"
           cp "$RUNNER_TEMP/cli-package/manifest.json" "$RUNNER_TEMP/cli-release/build-manifest.json"
           cp "$RUNNER_TEMP/published-consumer/manifest.json" "$RUNNER_TEMP/cli-release/published-consumer.json"
+          cp "$RUNNER_TEMP/cli-registry-status.json" "$RUNNER_TEMP/cli-release/registry-verification.json"
+          cp "$RUNNER_TEMP/cli-source.json" "$RUNNER_TEMP/cli-release/cli-source.json"
           cp docs/cli/compatibility/reference-lock.json docs/cli/compatibility/coverage.md \
             docs/cli/compatibility/release-notes.md docs/cli/compatibility/milestone-acceptance-status.md \
             "$RUNNER_TEMP/cli-release/"
@@ -137,14 +145,6 @@ jobs:
           name: ess-v${{ inputs.version }}-linux-x86_64-otp28
           path: ${{ runner.temp }}/cli-release/*
           if-no-files-found: error
-      - uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ inputs.git_ref == format('v{0}', inputs.version) && inputs.git_ref || format('cli-v{0}', inputs.version) }}
-          target_commitish: ${{ steps.source.outputs.sha }}
-          name: ${{ inputs.git_ref == format('v{0}', inputs.version) && format('v{0}', inputs.version) || format('ESS CLI v{0}', inputs.version) }}
-          prerelease: ${{ contains(inputs.version, '-') }}
-          generate_release_notes: true
-          files: ${{ runner.temp }}/cli-release/*
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

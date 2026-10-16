@@ -272,10 +272,16 @@ The codebase is structured as an umbrella project with five apps:
   and Darwin arm64/x86_64 on macOS 26 with Elixir 1.19.6/OTP 28. Other
   combinations are unverified.
   Interactive pager runtime is Linux-only until real platform acceptance passes.
-- CLI-only publishing uses `publish-cli.yml`; `release.yml` additionally builds
-  and publishes the server image and core package. Inspect those boundaries and
-  require fresh standalone installation, escript assets, and real artifact
-  execution before publishing. A workflow success alone is insufficient proof.
+- All components share one version and canonical `v<version>` tag. Publish only
+  through the manually dispatched GitHub `release.yml` workflow; `publish-cli.yml`
+  and `publish-core.yml` are reusable children, with no independent dispatch or
+  tag/release creation. The root workflow publishes the server image and both Hex
+  packages, then attaches CLI assets to the same GitHub release. Existing immutable
+  Hex versions may be reused only after exact payload verification. Retain the
+  historical `cli-v0.6.8` download links; never create new CLI-prefixed tags.
+  Automatic image builds use `edge`; only releases update version tags and `latest`.
+  Require fresh standalone installation, escript assets, and real artifact execution
+  before publishing. A workflow success alone is insufficient proof.
 
 ### When to Ask for Human Input
 - Act autonomously on bug fixes, refactorings, and standard feature implementations.

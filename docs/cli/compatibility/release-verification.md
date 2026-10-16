@@ -5,6 +5,12 @@ compatibility boundaries below. This report follows the prepared source snapshot
 shipped in the release assets; its historical pending checks do not describe the
 final publication outcome.
 
+The initial CLI-only publication below is historical. The subsequent release
+policy uses GitHub `release.yml` as the sole publishing entry for all components
+under one canonical `v<version>` tag. The old `cli-v0.6.8` links remain available;
+new releases do not create CLI-prefixed tags. Unified publication evidence is
+recorded separately after the aggregate workflow and public checks complete.
+
 ## Immutable source and publishing boundary
 
 - Release: [ESS CLI v0.6.8](https://github.com/gsmlg-opt/ex_storage_service/releases/tag/cli-v0.6.8).

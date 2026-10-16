@@ -263,7 +263,7 @@ Every mc inventory row has a working tested mapping or an explicit scope/differe
 - [x] Add real memory/backpressure/cancellation benchmarks and documented resource defaults. Report measured results, not extrapolated throughput promises.
 - [x] Publish command reference, legacy migration guide, AWS configuration guide, mc difference table, provider limitations, safety/restore procedures, and examples using non-secret credentials references.
 - [x] Prepare changelog, checksums, model/reference lock, compatibility report, and immutable source/artifact mapping.
-- [x] Commit, push, and release through the existing configured CLI publishing process after gates pass. Inspect root orchestration before triggering it so a CLI-only release does not accidentally publish unrelated server packages.
+- [x] Commit, push, and release after gates pass. Per the subsequent unified-release decision, use GitHub `release.yml` for all components under one `v<version>` tag; CLI/core publishers are reusable children only.
 - [x] Verify the remote ref, workflow result, published package, and downloadable artifact. Report blockers truthfully; never call an attempted or queued publish a completed release.
 
 
@@ -327,7 +327,7 @@ For each implementation delivery:
 
 - Run affected tests and the relevant acceptance cases, then inspect the actual diff for scope and secrets.
 - Commit and push automatically through the repository's normal policy; do not force-push, discard unrelated changes, or bypass branch protections.
-- Publish a release for a completed releasable implementation increment using the existing CLI workflow and the appropriate version. Smaller working milestones may be prereleases with an explicit partial-coverage report.
+- Publish a release for a completed releasable implementation increment using GitHub `release.yml`, the shared component version and one `v<version>` tag. Smaller working milestones may be prereleases with an explicit partial-coverage report.
 - Keep published artifacts traceable to the source commit/version; verify publishing rather than assuming workflow dispatch succeeded.
 - When environment, credentials, tests, permissions, or dependency defects block release, report the concrete blocker and completed work. Do not fabricate a release, downgrade test expectations, or publish known-broken binaries merely to satisfy a workflow preference.
 

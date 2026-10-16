@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version (e.g. 0.2.0)"
+        description: "Shared release version (e.g. 0.6.8)"
         required: true
         type: string
       git_ref:
-        description: "Git ref to release from"
+        description: "Current main source, or the same source/tag when retrying"
         required: true
         default: "main"
         type: string
@@ -18,99 +18,176 @@ permissions:
   packages: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: umbrella-release
+  cancel-in-progress: false
 
 env:
+  PAGER: cat
   IMAGE_NAME: ghcr.io/gsmlg-dev/ess
+  RELEASE_VERSION: ${{ inputs.version }}
 
 jobs:
-  build-and-release:
-    name: Build, Tag & Release
+  validate-and-tag:
+    name: Validate all candidates before publication
     runs-on: ubuntu-latest
+    outputs:
+      source_sha: ${{ steps.prepared.outputs.source_sha }}
+      release_sha: ${{ steps.prepared.outputs.release_sha }}
+      image_digest: ${{ steps.image.outputs.digest }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.git_ref }}
-
-      - name: Validate version format
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Prepare synchronized local version commit
+        id: prepared
         run: |
-          if ! echo "${{ inputs.version }}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$'; then
-            echo "Invalid version format: ${{ inputs.version }}"
-            echo "Expected: MAJOR.MINOR.PATCH or MAJOR.MINOR.PATCH-prerelease"
-            exit 1
-          fi
-
+          python3 scripts/release/release.py prepare --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/prepared-release.json"
       - uses: erlef/setup-beam@v1
         with:
-          elixir-version: "1.19"
-          otp-version: "28"
-
-      - name: Update version in mix.exs
+          elixir-version: "1.19.6"
+          otp-version: "28.5.0.8"
+      - uses: dtolnay/rust-toolchain@1.91.1
+      - name: Install CLI contract shell
         run: |
-          sed -i 's/version: "[^"]*"/version: "${{ inputs.version }}"/' mix.exs apps/*/mix.exs
-          sed -i 's/@version "[^"]*"/@version "${{ inputs.version }}"/' apps/ex_storage_service_cli/mix.exs
-          grep -r 'version:' mix.exs apps/*/mix.exs
-          grep '@version' apps/ex_storage_service_cli/mix.exs
-
+          sudo apt-get update
+          sudo apt-get install --yes zsh
+      - name: Validate umbrella and release tooling
+        run: |
+          python3 scripts/cli_compatibility/generate.py --check
+          python3 -m unittest discover -s scripts/cli_compatibility -p 'test_*.py'
+          python3 -m unittest discover -s scripts/release -p 'test_*.py'
+          mix deps.get
+          mix format --check-formatted
+          mix compile --warnings-as-errors
+          mix test
+        env:
+          MIX_ENV: test
+      - name: Build candidate core package
+        working-directory: apps/ex_storage_service
+        run: mix hex.build --output "$RUNNER_TEMP/core-candidate.tar"
+      - name: Verify core source, consumer and immutable registry version
+        run: |
+          python3 scripts/release/core_package.py manifest --package "$RUNNER_TEMP/core-candidate.tar" --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/core-manifest.json"
+          python3 scripts/release/core_package.py consumer --package "$RUNNER_TEMP/core-candidate.tar" --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/core-candidate-consumer"
+          python3 scripts/cli_compatibility/verify_published.py --package-name ex_storage_service \
+            --version "$RELEASE_VERSION" --manifest "$RUNNER_TEMP/core-manifest.json" \
+            --candidate-package "$RUNNER_TEMP/core-candidate.tar" --allow-missing \
+            --status-file "$RUNNER_TEMP/core-preflight.json" --output "$RUNNER_TEMP/core-public.tar"
+      - name: Verify CLI source, consumer and immutable registry version
+        run: |
+          python3 scripts/cli_compatibility/package_probe.py --expected-version "$RELEASE_VERSION" --output-dir "$RUNNER_TEMP/cli-package"
+          python3 scripts/cli_compatibility/verify_published.py \
+            --version "$RELEASE_VERSION" --manifest "$RUNNER_TEMP/cli-package/manifest.json" \
+            --candidate-package "$RUNNER_TEMP/cli-package/ex_storage_service_cli.tar" --allow-missing \
+            --status-file "$RUNNER_TEMP/cli-preflight.json" --output "$RUNNER_TEMP/cli-public.tar"
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
-
-      - uses: docker/metadata-action@v5
-        id: meta
-        with:
-          images: ${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=${{ inputs.version }}
-            type=raw,value=latest
-            type=sha
-
       - uses: docker/setup-buildx-action@v3
-
-      - name: Capture build metadata
-        id: build_info
-        env:
-          BUILD_GIT_REF: v${{ inputs.version }}
+      - name: Detect an existing immutable image
+        id: image_status
         run: |
-          printf 'git_ref=%s\n' "$BUILD_GIT_REF" >> "$GITHUB_OUTPUT"
-          printf 'git_sha=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          printf 'build_time=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
-
+          python3 scripts/release/release.py image-status --version "$RELEASE_VERSION" --image "$IMAGE_NAME" --output "$RUNNER_TEMP/image-status.json"
+      - name: Capture actual image build-start timestamp
+        if: steps.image_status.outputs.status == 'absent'
+        id: build_time
+        run: printf 'value=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
       - uses: docker/build-push-action@v6
+        if: steps.image_status.outputs.status == 'absent'
         with:
           context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          push: false
+          load: true
+          tags: ${{ env.IMAGE_NAME }}:${{ inputs.version }}
+          labels: |
+            org.opencontainers.image.version=${{ inputs.version }}
+            org.opencontainers.image.revision=${{ steps.prepared.outputs.source_sha }}
+            org.opencontainers.image.created=${{ steps.build_time.outputs.value }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
           build-args: |
-            ESS_BUILD_GIT_REF=${{ steps.build_info.outputs.git_ref }}
-            ESS_BUILD_GIT_SHA=${{ steps.build_info.outputs.git_sha }}
-            ESS_BUILD_TIME=${{ steps.build_info.outputs.build_time }}
+            ESS_BUILD_GIT_REF=v${{ inputs.version }}
+            ESS_BUILD_GIT_SHA=${{ steps.prepared.outputs.source_sha }}
+            ESS_BUILD_TIME=${{ steps.build_time.outputs.value }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Commit version bump, tag, and push
+      - name: Validate built or reused image at runtime
+        env:
+          IMAGE_STATUS: ${{ steps.image_status.outputs.status }}
+          IMAGE_DIGEST: ${{ steps.image_status.outputs.digest }}
+          SOURCE_SHA: ${{ steps.prepared.outputs.source_sha }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add mix.exs apps/*/mix.exs
-          git commit -m "chore(release): v${{ inputs.version }}"
-          git tag "v${{ inputs.version }}"
-          git push origin HEAD
-          git push origin "v${{ inputs.version }}"
-
-      - uses: softprops/action-gh-release@v2
+          candidate="$IMAGE_NAME:$RELEASE_VERSION"
+          if test "$IMAGE_STATUS" = reused; then
+            candidate="$IMAGE_NAME@$IMAGE_DIGEST"
+            docker pull "$candidate"
+          fi
+          python3 scripts/release/release.py smoke --version "$RELEASE_VERSION" --image "$candidate" --source "$SOURCE_SHA" --output "$RUNNER_TEMP/image-smoke.json"
+      - name: Publish explicit main and canonical tag atomically
+        run: |
+          python3 scripts/release/release.py commit --version "$RELEASE_VERSION" --prepared "$RUNNER_TEMP/prepared-release.json" --output "$RUNNER_TEMP/release-provenance.json"
+      - name: Publish only a missing validated image
+        id: image
+        env:
+          IMAGE_STATUS: ${{ steps.image_status.outputs.status }}
+        run: |
+          if test "$IMAGE_STATUS" = absent; then
+            python3 scripts/release/release.py image-status --version "$RELEASE_VERSION" --image "$IMAGE_NAME" --output "$RUNNER_TEMP/image-race-check.json"
+            python3 - <<'PY'
+          import json, os, pathlib
+          status = json.loads((pathlib.Path(os.environ['RUNNER_TEMP']) / 'image-race-check.json').read_text())['status']
+          if status != 'absent':
+              raise SystemExit('Image appeared during validation; retry to verify immutable bytes')
+          PY
+            docker push "$IMAGE_NAME:$RELEASE_VERSION"
+          fi
+          python3 scripts/release/release.py image-status --version "$RELEASE_VERSION" --image "$IMAGE_NAME" --output "$RUNNER_TEMP/published-image.json"
+          python3 - <<'PY'
+          import json, os, pathlib
+          root = pathlib.Path(os.environ['RUNNER_TEMP'])
+          before = json.loads((root / 'image-status.json').read_text())
+          after = json.loads((root / 'published-image.json').read_text())
+          if after['status'] != 'reused' or (before['status'] == 'reused' and before['digest'] != after['digest']):
+              raise SystemExit('Published image missing or changed')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f"digest={after['digest']}\n")
+          PY
+      - uses: actions/upload-artifact@v4
         with:
-          tag_name: v${{ inputs.version }}
-          name: v${{ inputs.version }}
-          generate_release_notes: true
+          name: umbrella-v${{ inputs.version }}-verification
+          path: |
+            ${{ runner.temp }}/release-provenance.json
+            ${{ runner.temp }}/image-smoke.json
+            ${{ runner.temp }}/published-image.json
+            ${{ runner.temp }}/core-preflight.json
+            ${{ runner.temp }}/cli-preflight.json
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: umbrella-release-validation-logs
+          path: |
+            ${{ runner.temp }}/core-candidate-consumer/commands.json
+            ${{ runner.temp }}/cli-package/commands.json
+            ${{ runner.temp }}/prepared-release.json
+          if-no-files-found: warn
+
+  publish-core:
+    needs: validate-and-tag
+    uses: ./.github/workflows/publish-core.yml
+    with:
+      git_ref: v${{ inputs.version }}
+      version: ${{ inputs.version }}
+    secrets:
+      HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
 
   publish-cli:
-    name: Publish CLI to Hex.pm
-    needs: build-and-release
+    needs: validate-and-tag
     uses: ./.github/workflows/publish-cli.yml
     with:
       git_ref: v${{ inputs.version }}
@@ -118,12 +195,71 @@ jobs:
     secrets:
       HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
 
-  publish-core:
-    name: Publish core to Hex.pm
-    needs: build-and-release
-    uses: ./.github/workflows/publish-core.yml
-    with:
-      git_ref: v${{ inputs.version }}
-      version: ${{ inputs.version }}
-    secrets:
-      HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+  finalize:
+    name: Finalize canonical release after both public consumers pass
+    needs: [validate-and-tag, publish-core, publish-cli]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v${{ inputs.version }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: ess-v${{ inputs.version }}-linux-x86_64-otp28
+          path: release-assets
+      - uses: actions/download-artifact@v4
+        with:
+          name: core-v${{ inputs.version }}-verification
+          path: release-assets
+      - uses: actions/download-artifact@v4
+        with:
+          name: umbrella-v${{ inputs.version }}-verification
+          path: release-assets
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - name: Promote the verified stable image
+        if: ${{ !contains(inputs.version, '-') }}
+        env:
+          IMAGE_DIGEST: ${{ needs.validate-and-tag.outputs.image_digest }}
+        run: |
+          docker buildx imagetools create --prefer-index=false --tag "$IMAGE_NAME:latest" "$IMAGE_NAME@$IMAGE_DIGEST"
+          actual=$(docker buildx imagetools inspect "$IMAGE_NAME:latest" --format '{{.Manifest.Digest}}')
+          test "$actual" = "$IMAGE_DIGEST"
+      - name: Record shared release identity
+        env:
+          SOURCE_SHA: ${{ needs.validate-and-tag.outputs.source_sha }}
+          RELEASE_SHA: ${{ needs.validate-and-tag.outputs.release_sha }}
+          IMAGE_DIGEST: ${{ needs.validate-and-tag.outputs.image_digest }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, pathlib
+          version = os.environ['RELEASE_VERSION']
+          assets = pathlib.Path('release-assets')
+          checksums = []
+          for asset in sorted(assets.iterdir()):
+              if asset.name != 'SHA256SUMS':
+                  with asset.open('rb') as stream:
+                      digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+                  checksums.append(f'{digest}  {asset.name}\n')
+          (assets / 'SHA256SUMS').write_text(''.join(checksums))
+          pathlib.Path('release-body.md').write_text(
+              f"All umbrella components and the standalone ess CLI share version {version}.\n\n"
+              f"Source: `{os.environ['SOURCE_SHA']}`\n\n"
+              f"Canonical tag commit: `{os.environ['RELEASE_SHA']}`\n\n"
+              f"Validated image: `{os.environ['IMAGE_NAME']}@{os.environ['IMAGE_DIGEST']}`\n\n"
+              "Core and CLI registry bytes and fresh public consumers passed verification.\n")
+          PY
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: v${{ inputs.version }}
+          body_path: release-body.md
+          generate_release_notes: true
+          prerelease: ${{ contains(inputs.version, '-') }}
+          make_latest: ${{ !contains(inputs.version, '-') }}
+          fail_on_unmatched_files: true
+          files: release-assets/*

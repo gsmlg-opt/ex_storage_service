@@ -1,7 +1,10 @@
 # ESS CLI 0.6.8
 
 Standalone `ess` implementation against AWS CLI 2.31.18 and
-`minio/mc@77f82e18b5401a65958f1619df6ebb994634bd88`. The release uses the CLI-only publishing workflow and the validation boundary below.
+`minio/mc@77f82e18b5401a65958f1619df6ebb994634bd88`. The initial CLI-only
+publication is retained as historical evidence. All components now release only
+through GitHub `release.yml` with a shared version and canonical `v<version>`
+tag, preserving the validation boundary below.
 
 ## Changes
 

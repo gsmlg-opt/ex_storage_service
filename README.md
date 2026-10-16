@@ -674,13 +674,21 @@ GitHub Actions workflows include:
 
 - **CI** (`ci.yml`) - compile with warnings as errors and check formatting
 - **Test** (`test.yml`) - run the test suite
-- **Build** (`build.yml`) - build the release image
-- **Release** (`release.yml`) - manually dispatch a versioned GHCR image, GitHub release, core package publish, and CLI publish
+- **Build** (`build.yml`) - build the development image with `edge` and source-SHA tags
+- **Release** (`release.yml`) - the sole manual release entry, publishing all components with one version and canonical `v<version>` tag
 - **E2E Test** (`e2e-test.yml`) - run the standalone signed-S3/admin exercise and restart persistence check
 - **Cluster Integration** (`cluster-e2e.yml`) - run the tagged three-voter test separately from the active-active Boto3 failure/restart harness and upload node logs
 - **Cloud Cache E2E** (`cloud-cache-e2e.yml`) - validate cloud cache against RustFS
-- **Publish CLI** (`publish-cli.yml`) - publish the `ex_storage_service_cli` package
-- **Publish core** (`publish-core.yml`) - publish the embeddable `ex_storage_service` package
+- **Publish CLI** (`publish-cli.yml`) - reusable release job for `ex_storage_service_cli` and downloadable CLI assets
+- **Publish core** (`publish-core.yml`) - reusable release job for the embeddable `ex_storage_service` package
+
+Dispatch `release.yml` with `version` (for example, `0.6.8`) and `git_ref` (the
+full current `main` source SHA). The workflow aligns all application versions,
+validates the release, and publishes the GHCR image, both Hex packages and CLI
+assets under `v0.6.8`. Only this workflow updates the image's version and `latest`
+tags. Existing Hex versions are reused only when their verified payload exactly
+matches the candidate. The earlier `cli-v0.6.8` release remains available for
+historical download links; future releases use only `v<version>`.
 
 ## License
 
