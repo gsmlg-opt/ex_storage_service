@@ -10,7 +10,7 @@
 mix escript.install hex ex_storage_service_cli
 ```
 
-Add `~/.mix/escripts` to `PATH`. Building/installing requires Elixir 1.18+, Erlang/OTP, a C11 compiler (`CC`, or `cc` on PATH), and OTP development headers. The escript embeds the compiled native library and pager helper. Running it requires Erlang/OTP with the matching native OS/CPU/OTP major, but no C compiler, Mix project, storage server, Phoenix, or database. Build on the target platform. Package/runtime probes pass on Linux x86_64 with Elixir 1.18.0/OTP 27, 1.18.5/OTP 28 and 1.19.6/OTP 28, and macOS arm64 with Elixir 1.19.6/OTP 28. Other combinations remain unverified. Interactive paging is currently Linux-only.
+Add `~/.mix/escripts` to `PATH`. Building/installing requires Elixir 1.18+, Erlang/OTP, a C11 compiler (`CC`, or `cc` on PATH), and OTP development headers. The escript embeds the compiled native library and pager helper. Running it requires Erlang/OTP with the matching native OS/CPU/OTP major, but no C compiler, Mix project, storage server, Phoenix, or database. Build on the target platform. Package/runtime probes pass on Linux x86_64 with Elixir 1.18.0/OTP 27, 1.18.5/OTP 28 and 1.19.6/OTP 28, and macOS 26 arm64/x86_64 with Elixir 1.19.6/OTP 28. Other combinations remain unverified. Interactive paging is currently Linux-only.
 
 ## Choose a frontend
 

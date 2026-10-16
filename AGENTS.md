@@ -263,7 +263,8 @@ The codebase is structured as an umbrella project with five apps:
   and never load source-relative artifacts. Runtime needs matching Erlang/OTP,
   OS and CPU, but no compiler or server applications. Package/runtime probes pass
   on Linux x86_64 with Elixir 1.18.0/OTP 27, 1.18.5/OTP 28 and 1.19.6/OTP 28,
-  and Darwin arm64 with Elixir 1.19.6/OTP 28. Other combinations are unverified.
+  and Darwin arm64/x86_64 on macOS 26 with Elixir 1.19.6/OTP 28. Other
+  combinations are unverified.
   Interactive pager runtime is Linux-only until real platform acceptance passes.
 - CLI-only publishing uses `publish-cli.yml`; `release.yml` additionally builds
   and publishes the server image and core package. Inspect those boundaries and

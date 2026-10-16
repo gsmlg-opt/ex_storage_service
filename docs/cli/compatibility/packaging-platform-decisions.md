@@ -1,6 +1,6 @@
 # Standalone packaging and platform evidence
 
-Validation date: 2026-10-15. The initial sections retain local snapshots based on `9b8661e58107eddb24cb8f15495cee4ac979219a` plus the implementation diff. The final section records clean committed-source and remote package evidence. None is a published next-version package. The package still reports version `0.6.7`; release/version changes belong to the coordinating release step.
+Validation dates: 2026-10-15 and 2026-10-16. The initial sections retain local snapshots based on `9b8661e58107eddb24cb8f15495cee4ac979219a` plus the implementation diff. Later sections record clean committed-source and remote package evidence. None is a published next-version package. The package still reports version `0.6.7`; release/version changes belong to the coordinating release step.
 
 ## Package and installation
 
@@ -169,3 +169,30 @@ The separate complete CLI and umbrella Test jobs also passed at this source;
 see integration-validation.md. The earlier checkpoint's failed test job remains
 historical evidence, not the current complete-suite result. Deadline,
 compatibility and publication gates remain open.
+
+## macOS 26 package acceptance, 2026-10-16
+
+Commit `6e3391625f4b9e539c2c8b87dcd43db493844bb0` replaces the macOS 14
+package row with both macOS 26 architectures. GitHub's documented standard
+labels are `macos-26` for arm64 and `macos-26-intel` for x86_64;
+`macos-26-x86` is not listed in the [official runner table](https://github.com/actions/runner-images#available-images).
+Both package jobs passed in [run 38867768925](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38867768925).
+
+Downloaded manifests identify that exact clean source and Elixir 1.19.6/OTP 28.
+Each macOS job passed twelve recorded commands and ten package/runtime checks,
+including native loading, isolated installation, execution after source removal,
+Unicode HTTP and raw binary stdout. The coordinator independently recomputed
+the tar/escript SHA256 and inner Hex checksums. Both source tars have SHA256
+`908b5468cf0e17d18914b8acb785b7bc5ef742fbc2b4f3c07798c13c4d157ee8`.
+
+| Runner | Manifest architecture | Escript SHA256 |
+| --- | --- | --- |
+| `macos-26` | arm64 | `9156543844106f7fb5ecc52dc510baaea462e635cf751b51473994f0b240cc7a` |
+| `macos-26-intel` | x86_64 | `1c9f4b518f41edda3ec4f466c6e7f0af3e91e1638fbd943e1d47da30aa8e6fa3` |
+
+Evidence is retained under `/tmp/ess-cli-macos26-6e33916/`, including
+`verified-packages.json`. Interactive paging remains Linux-only. These are
+unpublished 0.6.7 package probes, not complete macOS unit suites or release
+acceptance. Earlier dependency gates above are historical: selected HTTP
+0.21.12 resolves #123/#129; current publication blockers remain #131/#132,
+as detailed in [the HTTP evaluation](http-021-evaluation.md).
