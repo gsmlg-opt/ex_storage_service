@@ -25,6 +25,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Reserve explicit journal mutex ports on the test runner
+        run: python3 scripts/release/reserve_journal_ports.py
+
       - name: Install the shell used by CLI completion contract tests
         run: |
           sudo apt-get update

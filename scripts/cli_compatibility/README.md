@@ -107,3 +107,10 @@ validates the package before publishing or exact reuse, verifies public bytes
 and a fresh consumer, and uploads an escript, checksums, manifests and reference
 reports as an Actions artifact. The root `release.yml` publishes all components
 under the shared `v<version>` tag and attaches the CLI assets to that release.
+
+Linux Actions jobs that exercise journal transfers reserve `49152-65535` from
+automatic ephemeral allocation before tests. The runner helper preserves existing
+`ip_local_reserved_ports` entries and verifies the resulting reservation. Explicit
+journal binds and occupied-port regression tests still use real sockets. This
+reduces interference from automatic socket allocation; it does not prevent
+existing sockets, explicit binds or journal hash collisions.
