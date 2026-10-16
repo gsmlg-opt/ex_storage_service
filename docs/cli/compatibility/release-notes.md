@@ -35,6 +35,12 @@ The package version remains 0.6.7 until the release gates pass.
 - AWS stdin `--expected-size` is a multipart sizing hint. Shorter or longer
   input retains its actual byte length; native `pipe` keeps its exact-size
   assertion. Pinned AWS executable captures cover both behaviors.
+- Text pagination restores absent result-key placeholders; YAML-stream retains
+  service-page fields and emits no synthetic resume-token page. Independent
+  AWS captures cover full output, queries, limits and actual token resume.
+- Omitted retention/legal-hold payloads remain zero-byte entities with correct
+  checksums, distinct from empty XML structures. The expanded optional-member
+  matrix covers 52 captured AWS cases across 27 operations.
 
 ## Migration and support
 
@@ -47,7 +53,8 @@ option or output. Consult the [guide](../guide.md) and the
 Source installation needs Elixir 1.18+, Erlang/OTP, a C11 compiler and OTP
 headers. Built escripts require matching OS, CPU and OTP-major native assets.
 Remote package/runtime probes pass on Linux x86_64 with Elixir 1.18.0/OTP 27,
-1.18.5/OTP 28 and 1.19.6/OTP 28, and macOS arm64 with Elixir 1.19.6/OTP 28.
+1.18.5/OTP 28 and 1.19.6/OTP 28, and macOS 26 arm64/x86_64 with Elixir
+1.19.6/OTP 28, using `macos-26` and `macos-26-intel` respectively.
 Other platform/runtime combinations remain unverified.
 Interactive paging is currently Linux-only.
 
@@ -85,13 +92,25 @@ suite failed its source-cleanup test. Its other app suites passed. The separate
 stalled-write fixture failure was reproduced under CPU contention and corrected
 by selecting SHA256, retaining the real socket deadline and cleanup assertions;
 12 scoped deadline tests pass. The upstream source-cleanup assertion remains
-unchanged and failing; a larger assertion timeout cannot fix a killed producer.
+unchanged and its failure independently reproduced; a larger assertion timeout
+cannot fix a killed producer.
 No file-descriptor leak or payload corruption is established by the missing
-cleanup notification alone. Current-source four-platform package, 2 GiB resource
+cleanup notification alone. At that source, four-platform package, 2 GiB resource
 and provider-policy jobs passed, as did CI/E2E/cluster workflows; they do not
 close either blocker or turn the failed full suites into acceptance.
 See [HTTP evaluation](http-021-evaluation.md) and
 [integration validation](integration-validation.md) for the current evidence.
+
+The later output/checksum fixes pass **3,271 local CLI tests, zero failures and
+one resource exclusion**, with complete formatting and strict compilation.
+All five package jobs pass at clean source `5826397`; downloaded manifests,
+native assets, source tar and escript bytes were independently verified.
+These artifacts still report 0.6.7 and remain unpublished. A separate evidence
+description correction at `5826397` preserves all test assertions and statuses.
+Its standalone CLI run passes 3,270 tests with zero failures and one resource
+exclusion, plus all eight jobs. The umbrella CLI again fails only the unchanged
+#132 cleanup assertion: 3,271 tests, one failure. Other app suites and separate
+CI/E2E/cluster workflows pass. These results do not close either HTTP blocker.
 
 Historical clean source 6816ee1 was pushed; its complete remote CLI
 suite passed 3,222 tests with zero failures and one resource exclusion. Formatting,

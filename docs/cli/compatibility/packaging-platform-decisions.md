@@ -196,3 +196,28 @@ unpublished 0.6.7 package probes, not complete macOS unit suites or release
 acceptance. Earlier dependency gates above are historical: selected HTTP
 0.21.12 resolves #123/#129; current publication blockers remain #131/#132,
 as detailed in [the HTTP evaluation](http-021-evaluation.md).
+
+## Corrected implementation package evidence
+
+All five package jobs passed at clean source
+`582639746e65376ea7d1f5aaeb203bca34b5d79d` in
+[run 38871534043](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38871534043).
+The downloaded artifacts independently match their tar/escript hashes and inner
+Hex checksums. Their common source tar SHA256 is
+`6339e75ad1a5aa86ba6f105840a0e6a5ce889b1b9244b98cbadf31ec1168c067`,
+also produced at the preceding 5ee5306 implementation checkpoint. Packaged
+API/checksum sources match the corrected checkout. Native binary and C-source
+digests, OS/CPU/OTP metadata, required model/license assets and absence of server
+applications were checked, along with the coordinated published HTTP 0.21.12 apps.
+
+| macOS 26 runner | Architecture | Escript SHA256 |
+| --- | --- | --- |
+| `macos-26` | arm64 | `caace7a3aa565ccd8eb28cc8f736c009108d8eb0c97c068806fb7a0cc4a5e5f1` |
+| `macos-26-intel` | x86_64 | `8ee337c0be2dcc0a7952580e87d5284e22e1da5211ddfd943d1b621eac09488f` |
+
+Each macOS artifact records twelve successful commands and ten package/runtime
+checks; each Linux artifact records thirteen commands and eleven checks. The
+verified manifests are `/tmp/ess-cli-ci-5826397/verified-packages.json`.
+The complete standalone CLI run also passes, while the umbrella CLI retains its
+single HTTP #132 cleanup failure. None of these unpublished 0.6.7 artifacts
+closes the upstream, full compatibility or publication gates.

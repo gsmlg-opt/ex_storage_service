@@ -351,3 +351,35 @@ tooling tests then pass (`/tmp/ess-cli-ci-5ee5306/tooling-corrected.log`). No
 production/test assertion or implementation status changed for this repair;
 the full CLI source still matches the 3,271-test local pass above. A new remote
 run must validate the corrected metadata rather than counting the skipped job.
+
+
+## Pushed evidence correction: standalone pass and retained upstream failure
+
+Documentation correction `582639746e65376ea7d1f5aaeb203bca34b5d79d` was
+committed, pushed and matched to `origin/main`. The CLI source and compatibility
+tooling are unchanged from 5ee5306; only the member descriptions and reports
+changed. [CLI run 38871534043](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38871534043)
+passes all eight jobs. Its complete suite prints **3,270 tests, zero failures and
+one resource exclusion**, seed 425051, in 340.4 seconds (88.9 async, 251.4 sync).
+All 28 tooling tests, inventories, format and strict compilation pass. Five
+package/runtime jobs, separate measured 2 GiB resources and the provider
+limitation-policy job pass. Downloaded package assets/digests and the exact clean
+source are independently verified in
+`/tmp/ess-cli-ci-5826397/verified-packages.json`; the unit log is
+`/tmp/ess-cli-ci-5ee5306/corrected-cli-unit.log`.
+
+[Umbrella run 38871533923](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38871533923)
+**fails** with **3,271 CLI tests and one failure**, seed 613727, in 382.9 seconds
+(70.2 async, 312.7 sync). TransportSpikeTest's unchanged file-range upload again
+receives a normal body-stream DOWN but no `:source_closed`, reproducing HTTP
+#132. Core prints 343 tests/zero failures/one exclusion, cluster 38/zero/one,
+S3 224/zero and web 21/zero. The failed log is
+`/tmp/ess-cli-ci-5826397/umbrella-failed.log`. Separate CI/E2E/cluster workflows
+pass at the same source. A passing standalone run does not establish reliable
+producer finalization or close the separate #131 slow-consumer ACK contract.
+
+Both upstream issues remain open and Hex still publishes HTTP 0.21.12 as latest
+stable. No dependency patch, larger assertion wait, source-ownership workaround,
+version bump, release tag or publication is used. Native differences and live AWS
+acceptance remain explicitly bounded in the existing guide/reports; this result
+does not declare M0–M9 complete.
