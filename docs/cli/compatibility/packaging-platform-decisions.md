@@ -221,3 +221,32 @@ verified manifests are `/tmp/ess-cli-ci-5826397/verified-packages.json`.
 The complete standalone CLI run also passes, while the umbrella CLI retains its
 single HTTP #132 cleanup failure. None of these unpublished 0.6.7 artifacts
 closes the upstream, full compatibility or publication gates.
+
+## 0.6.8 committed-source package and macOS 26 acceptance
+
+All five jobs in [CLI run 38896782503](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38896782503)
+built and executed version **0.6.8** from clean source
+`eb3f3327519d98fbc21f0d3d06d48c4d52edc3d2`. Downloaded source tar, escript,
+native assets and embedded model bytes were independently compared. Every tar
+contains 789 source files matching that commit; the common tar SHA256 is
+`a1392f6f2a50246ca050908f6e308683d4b7e7ff5fea3d2b8b0e46369be725d4`. Evidence is
+`/tmp/ess-cli-ci-eb3f332/verified-packages.json`.
+
+| Platform | Runtime | Escript SHA256 |
+| --- | --- | --- |
+| Darwin arm64 | 1.19.6 / OTP 28 | `c6c3e84c8062a6fdac3f12d90ea19109882625265575cf556c3919e2484ffca5` |
+| Darwin x86_64 | 1.19.6 / OTP 28 | `6b4521ae4eb1636d736affd33928437f7099e6d7d4974f2d091bfec530f0fa79` |
+| Linux x86_64 | 1.18.0 / OTP 27 | `960e1f2e146c5984ddb3f0a6fdd2365966c616666631242c291f3be10da9898b` |
+| Linux x86_64 | 1.18.5 / OTP 28 | `f635c065f0915f2e282a4d465ef3ef4d2e6280abf06e37bdff8fd3c7085cbfbe` |
+| Linux x86_64 | 1.19.6 / OTP 28 | `66637f6572208412a01ec63b18a47f174803707f381f6f6dd124fd0f2b30d132` |
+
+Each installed artifact passes all ten credential-process tests with zero
+failures, skips or exclusions, loading production modules only from its escript.
+Both macOS manifests record `os: darwin` and all seven required checks: literal
+argv, stderr suppression, bounded output, child-group isolation, and descendant
+cleanup after timeout, owner death and overflow. The native metadata records
+`aarch64` for the runner's `arm64` spelling; OS/CPU/OTP identity and asset hashes
+match. Native browser/pager acceptance remains Linux-only. The downloaded
+Linux Elixir 1.18.5/OTP 28 escript independently runs from `/tmp` and reports
+`ess version 0.6.8`. These are pre-publication source artifacts; public-registry
+verification remains a separate release step.

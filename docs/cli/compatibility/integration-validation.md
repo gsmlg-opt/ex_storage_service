@@ -431,3 +431,36 @@ validate that version. Inventory checks and all **32 Python tooling tests**
 pass; strict compilation and formatting pass. This supersedes the earlier
 integrated-run gate, retaining its failures above. It does not yet claim remote,
 2 GiB, current-source provider, Darwin or published-artifact acceptance.
+
+## 0.6.8 remote package, resource and umbrella acceptance
+
+Clean source `eb3f3327519d98fbc21f0d3d06d48c4d52edc3d2` is pushed and
+independently matches origin/main. [Umbrella run 38896782363](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38896782363)
+passes: CLI **3,483 tests/zero failures**, core 343/zero/one exclusion, cluster
+38/zero/one exclusion, S3 224/zero and web 21/zero. The CLI phase takes
+308.8 seconds. Format and strict compilation CI passes. Standalone [CLI run 38896782503](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38896782503)
+passes all eight jobs. Its unit/wire/executable suite passes **3,482 tests, zero
+failures and one resource exclusion**, seed 399322, in 439.1 seconds (95.1 async,
+344.0 sync), plus all 32 Python tooling tests. The resource test runs separately
+below. The downloaded complete log is `/tmp/ess-cli-ci-eb3f332/cli-workflow.log`.
+
+All five package jobs pass with version 0.6.8 and clean source. Independent
+inspection compares all 789 source entries per package to Git, recomputes
+tar/escript/native hashes and checks packaged models/notices. Both macOS 26
+architectures run all ten installed credential-process tests with zero
+failures/skips/exclusions. See packaging-platform-decisions.md.
+
+The separate 2 GiB resource job passes in 151.2 seconds: 2,147,483,648 bytes,
+1 MiB admission budget, peak total memory 64,322,728 versus baseline 63,515,872
+(806,856-byte delta), peak binary 2,026,496 versus baseline 1,247,632, peak
+mailbox two, and maximum one admitted request. Sampling is bounded-test
+evidence, not a throughput or universal-memory promise.
+
+Independent provider acceptance retains ESS ten passes/three known server
+failures and RustFS thirteen passes/one known server failure. Exact pinned
+images, AWS reference hash, expected error signatures and both removed buckets
+per provider pass the unchanged limitation policy. This is zero detected
+client regressions, not four additional provider successes. The report's CLI
+artifact SHA256 is `d22c9be9cafdfd10fa6db4e69f7587cfa13b31182f1d2a9943843902fdbcc334`. Downloaded logs, provider
+report and resource measurements are under `/tmp/ess-cli-ci-eb3f332/`. Live
+AWS account/hardware infrastructure remains unrun and explicitly labeled.

@@ -1,6 +1,6 @@
 # ESS CLI Implementation Plan
 
-- Status: M0–M8 implementation reconciled with scoped evidence and explicit native differences; M9 acceptance and release remain open. See [milestone-acceptance-status.md](compatibility/milestone-acceptance-status.md) for scoped evidence and blockers.
+- Status: M0–M9 implementation and declared pre-release acceptance complete within documented differences; publication and public-artifact verification remain open. See [milestone-acceptance-status.md](compatibility/milestone-acceptance-status.md) for scoped evidence and blockers.
 - Date: 2026-10-14; implementation audit updated 2026-10-16.
 - Target: `apps/ex_storage_service_cli` and its standalone `ess` executable.
 - Source baseline inspected: `42a9fe2b41faa82cf10c3f07840b890be18b876d`; CLI version at inspection: `0.6.7`.
@@ -32,30 +32,18 @@ the coordinated HTTP/Bundler lock update. Existing core ranges and web
 constraints remain supported. This is a dependency-scope extension; core and UI
 behavior changes remain outside this plan.
 
-The pre-release working copy is based on `167cabddfd5d0b38f842ac706ff6c68c26ed43a0`
-and prepares CLI `0.6.8`; it is not an immutable release artifact. CLI now
-requires published HTTP `~> 0.21.13`, admitted by core's approved range. Scoped
-slow-consumer ACK, concurrent isolation and unchanged upload-finalization
-regressions pass. The former HTTP #129/#131/#132 blockers and failed integrated
-runs remain version-scoped in
-[http-021-evaluation.md](compatibility/http-021-evaluation.md) and
-[integration-validation.md](compatibility/integration-validation.md).
+Version 0.6.8 is committed/pushed at
+`eb3f3327519d98fbc21f0d3d06d48c4d52edc3d2`. Published HTTP `~> 0.21.13` is
+admitted by core's approved range. The declared standalone/umbrella, five-platform
+package, 2 GiB resource and provider-policy matrix passes; exact results are in
+[milestone acceptance](compatibility/milestone-acceptance-status.md) and
+[integration validation](compatibility/integration-validation.md). Historical
+failed runs and prior dependency blockers are retained with their version scope.
 
-Checked M0–M8 tasks below record implemented behavior with the cited scoped
-tests and documented boundaries, not complete milestone acceptance. M8 also
-allows explicit native scope/difference records: all 106 command/global rows
-have [dispositions](compatibility/native-compatibility-dispositions.md), with
-exact absent spellings retained in the native gap checklist. These differences
-do not remove any pinned AWS `s3`/`s3api` requirement or imply mc drop-in parity.
-
-Fresh frozen-source standalone/umbrella suites, remote package/platform probes
-(including installed credential-process checks on both macOS architectures),
-remaining differential evidence and immutable release/publication verification
-remain M9 gates. Historical passing package jobs do not validate current edits.
-See [milestone-acceptance-status.md](compatibility/milestone-acceptance-status.md)
-for current readiness, exact evidence sources and remaining acceptance.
-
-No Ecto/database, no dependency on ESS core/Concord/Phoenix, no runtime `aws`/`mc`/Python wrapper, and no unrelated transport migration. Continue using `http_fetch`. Do not add a dependency without documenting its necessity and following repository approval rules.
+Checked tasks record implemented effects and scoped acceptance, with explicit
+native dispositions and AWS differences. They do not upgrade every generated
+member/enum row to independently verified or invent live AWS infrastructure
+evidence. The final two M9 publication tasks close only after public verification.
 
 ## 2. Delivery sequence and parallel work
 
@@ -267,16 +255,17 @@ Every mc inventory row has a working tested mapping or an explicit scope/differe
 
 ### Tasks
 
-- [ ] Close every implementation gap in the pinned `s3`/`s3api` inventories, including parameters, enums, customizations, endpoints, credential modes, paginators, waiters, outputs, and error semantics.
-- [ ] Run the complete CLI test matrix and differential reference suites; publish generated coverage with exact command/model/binary versions and provider versions.
-- [ ] Validate fresh standalone Hex installation, escript building/running, required generated assets/notices, and absence of server-umbrella runtime dependencies.
+- [x] Close every implementation gap in the pinned `s3`/`s3api` inventories, including parameters, enums, customizations, endpoints, credential modes, paginators, waiters, outputs, and error semantics.
+- [x] Run the complete CLI test matrix and differential reference suites; publish generated coverage with exact command/model/binary versions and provider versions.
+- [x] Validate fresh standalone Hex installation, escript building/running, required generated assets/notices, and absence of server-umbrella runtime dependencies.
 - [x] Correct CLI package metadata links to the actual repository where necessary; verify LICENSE, README, version reporting, executable naming, and artifact contents.
-- [ ] Repeat package/platform acceptance for the current release source on supported Linux/macOS architectures and declared OTP/Elixir minimums. State the Erlang runtime requirement for escripts; add alternative self-contained packaging only with its own tested support contract.
-- [ ] Add real memory/backpressure/cancellation benchmarks and documented resource defaults. Report measured results, not extrapolated throughput promises.
-- [ ] Publish command reference, legacy migration guide, AWS configuration guide, mc difference table, provider limitations, safety/restore procedures, and examples using non-secret credentials references.
-- [ ] Prepare changelog, checksums, model/reference lock, compatibility report, and immutable source/artifact mapping.
+- [x] Repeat package/platform acceptance for the current release source on supported Linux/macOS architectures and declared OTP/Elixir minimums. State the Erlang runtime requirement for escripts; add alternative self-contained packaging only with its own tested support contract.
+- [x] Add real memory/backpressure/cancellation benchmarks and documented resource defaults. Report measured results, not extrapolated throughput promises.
+- [x] Publish command reference, legacy migration guide, AWS configuration guide, mc difference table, provider limitations, safety/restore procedures, and examples using non-secret credentials references.
+- [x] Prepare changelog, checksums, model/reference lock, compatibility report, and immutable source/artifact mapping.
 - [ ] Commit, push, and release through the existing configured CLI publishing process after gates pass. Inspect root orchestration before triggering it so a CLI-only release does not accidentally publish unrelated server packages.
 - [ ] Verify the remote ref, workflow result, published package, and downloadable artifact. Report blockers truthfully; never call an attempted or queued publish a completed release.
+
 
 ### Final acceptance
 

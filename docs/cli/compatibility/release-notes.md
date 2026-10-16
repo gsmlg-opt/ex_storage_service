@@ -1,8 +1,7 @@
-# ESS CLI 0.6.8 release candidate
+# ESS CLI 0.6.8
 
 Standalone `ess` implementation against AWS CLI 2.31.18 and
-`minio/mc@77f82e18b5401a65958f1619df6ebb994634bd88`. Publication is pending
-the final committed-source gates below.
+`minio/mc@77f82e18b5401a65958f1619df6ebb994634bd88`. The release uses the CLI-only publishing workflow and the validation boundary below.
 
 ## Changes
 
@@ -110,8 +109,12 @@ Linux and both macOS architectures.
 
 The final local standalone suite passes 3,483 tests with zero failures and one
 resource exclusion; formatting, strict compilation and all 32 tooling tests pass.
-Committed-source platform/resource/provider checks and published-registry/
-artifact verification remain required before release. Exact
+Committed-source CI passes 3,482 standalone and 3,483 umbrella CLI tests with
+zero failures. All five package jobs, measured 2 GiB resources and the independent
+ESS/RustFS limitation policy pass. Downloaded source/escript/native/model hashes
+match the tested commit, and both macOS architectures pass all ten installed
+credential-process checks. Public-registry and release-artifact verification
+remain the final publishing step. Exact
 results and immutable source mapping belong in
 [integration validation](integration-validation.md),
 [packaging evidence](packaging-platform-decisions.md) and

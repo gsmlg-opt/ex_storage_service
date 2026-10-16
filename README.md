@@ -219,7 +219,7 @@ requiring a C compiler (`CC`, otherwise `cc`) and OTP development headers.
 Escript execution requires matching Erlang/OTP, OS, and CPU; it needs no runtime
 compiler or storage-server applications. Package/runtime probes pass on Linux
 x86_64 with Elixir 1.18.0/OTP 27, 1.18.5/OTP 28 and 1.19.6/OTP 28, and macOS
-arm64 with Elixir 1.19.6/OTP 28. Other combinations remain unverified;
+26 arm64/x86_64 with Elixir 1.19.6/OTP 28. Other combinations remain unverified;
 interactive paging is Linux-only.
 
 Native socket read/write inactivity defaults to ten minutes. Override it with

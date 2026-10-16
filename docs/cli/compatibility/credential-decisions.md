@@ -12,7 +12,7 @@ The shared PKCE/device notification follows pinned `awscli/customizations/sso/ut
 
 Remaining compatibility work:
 
-- `credential_process` admits Linux and Darwin using OTP child process groups. Ten Linux tests verify group isolation and descendant cleanup; package probes now load the production modules from the installed escript and require all ten tests with no skips on every platform. Fresh Darwin arm64/x86_64 acceptance remains pending until both macOS 26 manifests pass. Other platforms return `credential_process_platform_unavailable`.
+- `credential_process` admits Linux and Darwin using OTP child process groups. Ten Linux tests verify group isolation and descendant cleanup; package probes now load the production modules from the installed escript and require all ten tests with no skips on every platform. Both macOS 26 arm64/x86_64 installed-artifact probes pass all ten tests, zero failures/skips/exclusions, at clean source `eb3f3327519d98fbc21f0d3d06d48c4d52edc3d2` (CLI run 38896782503); downloaded manifests, native hashes and module source were independently checked. Other platforms return `credential_process_platform_unavailable`.
 - Production IMDS endpoint overrides currently allow only standard metadata addresses; loopback is an explicit test override.
 - PKCE defaults to a bounded loopback callback with state validation, S256, registration scopes, token exchange, and atomic cache publication. Device login uses `use_device_code: true`. Default browser launch is validated only on Linux; unsupported platforms, missing launchers, and launch failures retain manual URL/code display. Python `webbrowser` custom `BROWSER` command selection is not implemented; the launcher unsets `BROWSER` and uses the desktop default through `xdg-open`. Caller-injected browser callbacks remain caller-owned. Top-level login/logout executable acceptance remains an integration check beyond the scoped command-module tests.
 - MFA accepts an explicit six-digit `mfa_code`, a caller-owned `mfa_prompt`, or a real terminal prompt backed by native echo suppression. A real PTY-to-STS probe proves that the code is transmitted without terminal echo and restores termios. Noninteractive input fails with `mfa_required`. The prompt path depends on the matching packaged native runtime.
@@ -25,6 +25,6 @@ requires `~> 0.21.13` for the CLI. Core's approved `~> 0.21.12` range admits it.
 Request-scoped network and consumer ACK policies preserve slow bounded delivery,
 independent socket inactivity, cancellation and explicit finite total deadlines.
 The former #129/#131/#132 blockers have scoped acceptance on this version;
-see [HTTP evaluation](http-021-evaluation.md). Complete CLI and fresh platform
-acceptance are separate release gates. No live credential-provider claim follows
+see [HTTP evaluation](http-021-evaluation.md). Complete CLI, fresh platform acceptance and public-registry verification
+remain separately recorded release gates. No live credential-provider claim follows
 from local wire fixtures.
