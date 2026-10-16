@@ -338,3 +338,16 @@ all **28 Python tooling tests** pass. The 41-row evidence update changes no
 requirement IDs or implementation statuses and does not imply live-provider or
 exhaustive member/output parity. This pass does not resolve either HTTP #131 or
 #132, establish remote acceptance of these repairs, or publish a new release.
+
+The integration was committed and pushed as
+`5ee5306796faff270caa622c9a2452dd7676594b`; `origin/main` independently matched.
+Its remote CLI job failed before compilation/tests in the existing evidence
+guard. Thirty member rows had gained independent wire fixtures but retained
+the old description asserting they had no independent evidence. The local
+tooling suite had been run before those overlay edits, so its earlier pass did
+not validate that final metadata. The scoped descriptions now identify the
+captured fixtures and remaining limits. Regeneration/check and all 28 unchanged
+tooling tests then pass (`/tmp/ess-cli-ci-5ee5306/tooling-corrected.log`). No
+production/test assertion or implementation status changed for this repair;
+the full CLI source still matches the 3,271-test local pass above. A new remote
+run must validate the corrected metadata rather than counting the skipped job.

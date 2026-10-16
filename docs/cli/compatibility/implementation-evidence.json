@@ -92055,8 +92055,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -92073,8 +92073,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -92147,8 +92147,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -92179,8 +92179,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -92197,8 +92197,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -92215,8 +92215,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -92233,8 +92233,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -92251,8 +92251,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -92269,8 +92269,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -92287,8 +92287,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -92305,8 +92305,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -92323,8 +92323,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -92341,8 +92341,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -92359,8 +92359,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -93747,8 +93747,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -93765,8 +93765,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -93783,8 +93783,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -93857,8 +93857,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -93889,8 +93889,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -93907,8 +93907,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -93925,8 +93925,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -93943,8 +93943,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -93961,8 +93961,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -93979,8 +93979,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -93997,8 +93997,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -94015,8 +94015,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -94033,8 +94033,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -94051,8 +94051,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -94069,8 +94069,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
@@ -94087,8 +94087,8 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
-        "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "client": "Modeled member binding plus independently captured selected values, omitted/empty payloads and response variants in differential-governance-members.md. These bounded fixtures do not establish every member/value/auth/endpoint combination.",
+        "remaining": "Uncaptured optional-member/value combinations and live Object Lock enforcement remain unverified; the selected synthetic fixtures are recorded separately from shared model support.",
         "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",

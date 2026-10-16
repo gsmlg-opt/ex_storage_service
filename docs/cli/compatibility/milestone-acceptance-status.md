@@ -10,7 +10,7 @@ passed 3,244 CLI tests (one resource exclusion; seed 628644, 272.2 seconds) and
 core 344/cluster 39/S3 224/web 21 tests with zero failures (core/cluster each
 exclude one test). Those local results remain historical scoped evidence.
 
-The latest completed remote CLI report is for
+The latest completed full remote CLI execution is for
 `d9dacc621b50082f892b5513c4412725d41b4772`.
 [Remote CLI acceptance](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38868473781)
 **failed**: **3,243 tests, one failure and one resource exclusion**, seed
@@ -25,6 +25,12 @@ four-test transfer-command file pass. The integrated working copy then passed
 seconds, with complete CLI formatting and strict compilation. The private
 published-dependency graph exactly matches the checked CLI source; see
 integration-validation.md. Remote acceptance of these repairs remains separate.
+
+Pushed `5ee5306` did not reach its remote CLI test command: the evidence guard
+found that 30 newly captured member rows still carried the old shared-model-only
+description. Those descriptions now name their actual bounded fixtures; the
+unchanged guard and all 28 tooling tests pass after regeneration. No status or
+test assertion was relaxed. A fresh remote result is still required.
 
 All five package jobs at that source pass, including `macos-26` arm64 and
 `macos-26-intel` x86_64, as do separate measured 2 GiB resources and provider
