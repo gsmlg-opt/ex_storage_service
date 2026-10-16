@@ -1,15 +1,42 @@
 # CLI 0.6.8 release verification
 
-Release acceptance is complete for the implemented M0–M9 scope and the explicit
-compatibility boundaries below. This report follows the prepared source snapshot
-shipped in the release assets; its historical pending checks do not describe the
-final publication outcome.
+The initial CLI-only release completed acceptance for the implemented M0–M9
+scope and the explicit compatibility boundaries below. That historical report
+follows the prepared source snapshot shipped in its release assets.
 
 The initial CLI-only publication below is historical. The subsequent release
 policy uses GitHub `release.yml` as the sole publishing entry for all components
 under one canonical `v<version>` tag. The old `cli-v0.6.8` links remain available;
 new releases do not create CLI-prefixed tags. Unified publication evidence is
 recorded separately after the aggregate workflow and public checks complete.
+
+## Unified release prepublication status
+
+Canonical `v0.6.8` publication remains pending. On source
+`33c58fe04fbdb8c860e8eb7cbf6142df8db6751c`,
+[CLI compatibility 38926969934](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38926969934)
+passes all eight jobs, including both macOS 26 architectures and the separate
+2 GiB resource case.
+[Umbrella tests 38926970061](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38926970061)
+pass core **343/0 failures/1 exclusion**, cluster **38/0/1**, CLI **3,484/0/0**,
+S3 **224/0/0**, and web **21/0/0**. The Linux journal-port reservation step
+successfully reads back `49152-65535`; explicit socket binds remain unchanged.
+
+[Server E2E 38926969954](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38926969954)
+fails after batch deletion: the following HeadObject expects HTTP 404 and receives
+400. Its server log records a Boto3 User-Agent fragment parsed as a request line,
+supporting a keepalive framing problem. The batch-delete handler discards the
+updated connection from `read_full_body/1`; exact packet-level causality remains
+unverified. Server, E2E and dependency sources are unchanged from the previous
+passing run. Restart/persistence checks were skipped, so passing unit tests do
+not establish the complete server contract. A separately authorized S3 fix and
+regression validation are required before continuing this unified publication.
+
+[Unified release 38927117399](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38927117399)
+was cancelled during prepublication validation, before canonical tag, image,
+registry or GitHub release publication steps. The earlier short-SHA dispatch
+38926990600 failed at checkout without publication. The canonical tag was absent
+when checked after cancellation. No immutable published CLI bytes were changed.
 
 ## Immutable source and publishing boundary
 
