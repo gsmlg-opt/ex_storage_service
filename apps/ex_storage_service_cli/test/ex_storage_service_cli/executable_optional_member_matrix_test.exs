@@ -9,6 +9,7 @@ defmodule ExStorageServiceCli.ExecutableOptionalMemberMatrixTest do
   @fixture Path.expand("../fixtures/differential/optional-members-wire.json", __DIR__)
   @oracle JSON.decode!(File.read!(@fixture))
   @checksum_headers ~w(x-amz-checksum-crc32 x-amz-checksum-crc32c x-amz-checksum-crc64nvme x-amz-checksum-sha1 x-amz-checksum-sha256)
+  @governance_operations ~w(PutObjectRetention PutObjectLegalHold)
 
   setup_all do
     root = Path.expand("../..", __DIR__)
@@ -37,15 +38,15 @@ defmodule ExStorageServiceCli.ExecutableOptionalMemberMatrixTest do
     assert checksum("crc32c", "123456789") == Base.encode64(<<0xE3069283::32>>)
 
     assert Base.encode16(:crypto.hash(:sha256, File.read!(@fixture)), case: :lower) ==
-             "5327fb162adf94addc31bc8b2bbebd044870f75ae592e81154b169192fd75336"
+             "4157f20345468174ad1fdf726ab5b1ea2c682d58f05f2c8a38198ecec63f927c"
 
     assert @oracle["aws_sha256"] ==
              "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a"
 
-    assert length(@oracle["cases"]) == 42
-    assert @oracle["cases"] |> Enum.map(& &1["operation"]) |> Enum.uniq() |> length() == 25
+    assert length(@oracle["cases"]) == 52
+    assert @oracle["cases"] |> Enum.map(& &1["operation"]) |> Enum.uniq() |> length() == 27
     assert @oracle["scope"] =~ "not exhaustive"
-    assert Enum.count(@oracle["cases"], &(&1["scenario"] == "access-denied-metadata")) == 4
+    assert Enum.count(@oracle["cases"], &(&1["scenario"] == "access-denied-metadata")) == 6
 
     model = File.read!(Path.expand("../../priv/compatibility/aws/service-2.json", __DIR__))
     assert Base.encode16(:crypto.hash(:sha256, model), case: :lower) == @oracle["model_sha256"]
@@ -119,6 +120,49 @@ defmodule ExStorageServiceCli.ExecutableOptionalMemberMatrixTest do
       assert error.details.bucket_region == "us-east-1"
       assert error.details.service_message == "Optional fixture denied"
       assert_receive {:wire_request, _}
+    end
+  end
+
+  test "governance successes preserve typed charges and distinguish omitted from empty payloads" do
+    for operation <- @governance_operations do
+      cases =
+        Enum.filter(@oracle["cases"], fn golden ->
+          golden["operation"] == operation and golden["scenario"] != "access-denied-metadata"
+        end)
+
+      assert length(cases) == 4
+      omitted = Enum.find(cases, &(&1["scenario"] == "omitted-payload"))
+      empty = Enum.find(cases, &(&1["scenario"] == "empty-payload-structure"))
+      assert [omitted_request] = omitted["aws"]["requests"]
+      assert [empty_request] = empty["aws"]["requests"]
+      assert Base.decode64!(omitted_request["body_base64"]) == ""
+      assert Base.decode64!(empty_request["body_base64"]) != ""
+
+      for golden <- cases do
+        response = golden["response"]
+
+        {endpoint, _} =
+          WireServer.fixture([
+            {response["status"], Map.to_list(response["headers"]),
+             Base.decode64!(response["body_base64"])}
+          ])
+
+        assert {:ok, result, metadata} =
+                 ExStorageServiceCli.S3.Client.call(
+                   %ExStorageServiceCli.Context{endpoint: endpoint, unsigned: true},
+                   operation,
+                   golden["input"],
+                   return_response: true,
+                   max_attempts: 1
+                 )
+
+        assert result == (decode_output(golden["aws"]["stdout"]) || %{})
+        assert metadata.status == response["status"]
+        assert metadata.request_id == "optional-request"
+        headers = Map.new(metadata.headers)
+        for {name, value} <- response["headers"], do: assert(headers[name] == value)
+        assert_receive {:wire_request, _}
+      end
     end
   end
 
@@ -206,6 +250,14 @@ defmodule ExStorageServiceCli.ExecutableOptionalMemberMatrixTest do
       assert target(request.target) == target(expected["target"])
       assert_body(request.body, expected)
       assert_headers(request.headers, expected["headers"], request.body)
+
+      if golden["operation"] in @governance_operations do
+        for name <-
+              ~w(x-amz-request-payer x-amz-expected-bucket-owner x-amz-bypass-governance-retention) do
+          assert request.headers[name] == expected["headers"][name]
+        end
+      end
+
       refute_receive {:wire_request, _}, 5
     end
   end

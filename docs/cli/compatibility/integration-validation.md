@@ -285,3 +285,56 @@ assertions are unchanged. No timeout relaxation, ignored failure, dependency
 patch or client workaround is applied. Stop the blocked finalization slice
 until a supported published fix, then repeat the cleanup/race and complete
 integration checks. M9 and publication remain open on both #131 and #132.
+
+## Output, omitted payload and journal fixture acceptance
+
+[Remote CLI run 38868473781](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38868473781)
+on clean source `d9dacc621b50082f892b5513c4412725d41b4772` failed with
+**3,243 tests, one failure and one resource exclusion**, seed 846572, in 376.7
+seconds. TransferCommandsTest's retained-upload setup received `journal_busy`.
+The failed log is `/tmp/ess-cli-d9dacc6-ci-failed.log`. All five package jobs,
+including both macOS 26 architectures, and the separate 2 GiB/provider jobs
+passed. A separate source-finalization race remains independently reproduced;
+its absence from this one failed run does not resolve HTTP #132.
+
+Journal mutex ports overlap Linux ephemeral ports. A private diagnostic actively
+closed a loopback connection bound to the deterministic journal port, then closed
+both peers/listener. The remaining `TIME_WAIT` state made the journal listener
+return `eaddrinuse` and Multipart.upload fail with the same initial `journal_busy`
+shape before HTTP. CI did not log its port/bind error, so the exact CI cause
+remains unknown. The transfer-command fixture now tries at most four fresh roots
+only for an initial, unannotated busy error, checks that no request preceded a
+retry, and retains strict assertions for every other result. The deterministic
+occupied-index-port regression also confirms that the unrelated listener remains
+owned. Production mutex/collision policy and HTTP #132 cleanup assertions stay
+intact. Journal/multipart/transfer-command suites pass **20 tests, zero failures**;
+the four-test transfer-command file passes **51 consecutive runs**. Logs and the
+TIME_WAIT diagnostic are under `/tmp/ess-cli-governance-members-20261016/`.
+
+Independent AWS captures also found local text/YAML-stream page presentation
+and omitted retention/legal-hold payload checksum errors. Their production
+corrections pass **1,085** output/query/paginator tests and **94** optional-member/
+request/upload checksum tests respectively, with zero failures, seed 628644.
+See differential-output-pagination.md and differential-governance-members.md for
+the exact oracle hashes, comparisons, red results and limits.
+
+The integrated CLI working copy based on `d9dacc6` was copied into
+`/tmp/ess-cli-output-governance-acceptance-20261016/apps/ex_storage_service_cli`.
+All tracked and new CLI file hashes match the checked source; the root lock and
+published HTTP 0.21.12 dependency graph use private build/dependency paths without
+patches or overrides. On Linux x86_64, Elixir 1.18.5/OTP 28, these commands pass:
+
+```sh
+PAGER=cat MIX_ENV=test mix deps.get
+PAGER=cat MIX_ENV=test mix compile --warnings-as-errors
+PAGER=cat MIX_ENV=test mix format --check-formatted
+PAGER=cat MIX_ENV=test mix test --exclude resource --seed 628644
+```
+
+The complete run reports **3,271 tests, zero failures and one resource exclusion**,
+in 283.9 seconds (73.2 async, 210.6 sync); log `full-cli.log`. The excluded large
+resource test is not counted as new acceptance. Inventory regeneration/check and
+all **28 Python tooling tests** pass. The 41-row evidence update changes no
+requirement IDs or implementation statuses and does not imply live-provider or
+exhaustive member/output parity. This pass does not resolve either HTTP #131 or
+#132, establish remote acceptance of these repairs, or publish a new release.

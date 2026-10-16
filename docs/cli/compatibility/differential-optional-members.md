@@ -6,12 +6,18 @@ optional structures, repeated lists, metadata maps, headers, queries, timestamps
 XML attributes, binary payloads, and omitted versus empty values. It does not
 claim coverage of every optional member, every model row, or every combination.
 
+This section retains the original 42-case baseline and its historical digest.
+The current fixture adds ten retention/legal-hold captures, for 52 cases across
+27 operations; see [the governance extension](differential-governance-members.md)
+for its current digest, reproducer and validation. The original observations
+were independently recaptured without changes.
+
 ## Reference and isolation
 
 - AWS executable: `aws-cli/2.31.18 Python/3.13.7`, Linux x86_64.
 - Executable SHA256:
   `87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a`.
-- Fixture SHA256:
+- Original fixture SHA256:
   `5327fb162adf94addc31bc8b2bbebd044870f75ae592e81154b169192fd75336`.
 - Capture: `test/fixtures/differential/capture_optional_members.py`.
 - Fixture: `test/fixtures/differential/optional-members-wire.json`.

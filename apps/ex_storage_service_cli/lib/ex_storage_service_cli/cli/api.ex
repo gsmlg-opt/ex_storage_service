@@ -102,8 +102,7 @@ defmodule ExStorageServiceCli.CLI.API do
           {:halt, error}
 
         {:ok, page, metadata}, :ok ->
-          with :ok <-
-                 present_page(Paginator.output_page(operation, page, metadata.first), options),
+          with :ok <- present_page(operation, page, metadata.first, options),
                :ok <- resume_token(metadata.resume_token, options) do
             {:cont, :ok}
           else
@@ -116,12 +115,22 @@ defmodule ExStorageServiceCli.CLI.API do
     end
   end
 
-  defp present_page(page, %{output: "yaml-stream"} = options),
+  defp present_page(_operation, page, _first, %{output: "yaml-stream"} = options),
     do: Presenter.write_stream_page(page, options)
 
-  defp present_page(page, options), do: Presenter.write(page, options)
+  defp present_page(operation, page, first, options) do
+    model = OperationCatalog.paginators()[operation]
+
+    page =
+      Enum.reduce(List.wrap(model["result_key"]), page, fn key, result ->
+        Map.put_new(result, key, nil)
+      end)
+
+    Presenter.write(Paginator.output_page(operation, page, first), options)
+  end
 
   defp resume_token(nil, _options), do: :ok
+  defp resume_token(_token, %{output: "yaml-stream"}), do: :ok
 
   defp resume_token(token, options),
     do: Presenter.write(%{"NextToken" => %{"NextToken" => token}}, options)

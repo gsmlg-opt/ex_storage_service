@@ -8201,7 +8201,9 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/registry.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/aws_input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/runtime.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/context.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/context.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/api.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/presenter.ex"
       ],
       "default": null,
       "default_origin": "cli.json when provided; AWS config/environment otherwise",
@@ -8220,7 +8222,7 @@
         "inventory": "locked reference; generated offline",
         "provider": "not-run",
         "remaining": "Full cross-command applicability, default/config precedence and exact output/error parity remain separately unverified.",
-        "wire": "not-run"
+        "wire": "Fourteen pinned AWS 2.31.18 ListObjectsV2 executable captures compare text/yaml-stream page output, Contents and scalar queries, max-items truncation, token queries and actual AWS-token resume. Raw YAML service fields, text null placeholders and format-specific token output pass; see differential-output-pagination.md. All non-token output is exact; only the opaque CLI token JSON encoding is compared semantically. This does not establish other operation/format combinations or live pagination."
       },
       "name": "output",
       "owner_milestone": "M5",
@@ -8229,7 +8231,8 @@
       "status": "implemented-unverified",
       "test_ids": [
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
+        "apps/ex_storage_service_cli/test/aws_output_pagination_differential_test.exs"
       ]
     },
     {
@@ -8266,7 +8269,9 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/registry.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/aws_input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/runtime.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/context.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/context.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/api.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/presenter.ex"
       ],
       "default": null,
       "default_origin": "cli.json when provided; AWS config/environment otherwise",
@@ -8278,7 +8283,7 @@
         "inventory": "locked reference; generated offline",
         "provider": "not-run",
         "remaining": "Full cross-command applicability, default/config precedence and exact output/error parity remain separately unverified.",
-        "wire": "not-run"
+        "wire": "Fourteen pinned AWS 2.31.18 ListObjectsV2 executable captures compare text/yaml-stream page output, Contents and scalar queries, max-items truncation, token queries and actual AWS-token resume. Raw YAML service fields, text null placeholders and format-specific token output pass; see differential-output-pagination.md. All non-token output is exact; only the opaque CLI token JSON encoding is compared semantically. This does not establish other operation/format combinations or live pagination."
       },
       "name": "query",
       "owner_milestone": "M5",
@@ -8287,7 +8292,8 @@
       "status": "implemented-unverified",
       "test_ids": [
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
+        "apps/ex_storage_service_cli/test/aws_output_pagination_differential_test.exs"
       ]
     },
     {

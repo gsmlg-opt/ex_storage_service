@@ -2,7 +2,7 @@
   "schema_version": 1,
   "aws_sha256": "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a",
   "model_sha256": "6be3b05aac4ff8719e9a30a376de413523e9eab28a248195c8ab1cf9baacac80",
-  "scope": "25 explicit representative operations; optional member variants, not exhaustive model coverage",
+  "scope": "27 explicit representative operations; optional member variants, not exhaustive model coverage",
   "cases": [
     {
       "operation": "PutBucketLifecycleConfiguration",
@@ -3759,6 +3759,476 @@
       }
     },
     {
+      "operation": "PutObjectRetention",
+      "scenario": "governance-version-owner-bypass",
+      "input": {
+        "Bucket": "bucket",
+        "Key": "governance/雪 % +?#/key",
+        "VersionId": "version+/=雪",
+        "RequestPayer": "requester",
+        "ExpectedBucketOwner": "123456789012",
+        "ChecksumAlgorithm": "SHA256",
+        "Retention": {
+          "Mode": "GOVERNANCE",
+          "RetainUntilDate": "2030-01-02T03:04:05Z"
+        },
+        "BypassGovernanceRetention": true
+      },
+      "args": [
+        "s3api",
+        "put-object-retention",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"governance/雪 % +?#/key\", \"VersionId\": \"version+/=雪\", \"RequestPayer\": \"requester\", \"ExpectedBucketOwner\": \"123456789012\", \"ChecksumAlgorithm\": \"SHA256\", \"Retention\": {\"Mode\": \"GOVERNANCE\", \"RetainUntilDate\": \"2030-01-02T03:04:05Z\"}, \"BypassGovernanceRetention\": true}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id",
+          "x-amz-request-charged": "requester"
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"RequestCharged\": \"requester\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/governance/%E9%9B%AA%20%25%20%2B%3F%23/key?retention&versionId=version%2B%2F%3D%E9%9B%AA",
+            "headers": {
+              "x-amz-request-payer": "requester",
+              "x-amz-expected-bucket-owner": "123456789012",
+              "x-amz-sdk-checksum-algorithm": "SHA256",
+              "x-amz-bypass-governance-retention": "true",
+              "x-amz-checksum-sha256": "mVb2/Hqq1tpMnD77Eaowhqbq7mB+x9tdyPJ+ry1rqSI=",
+              "x-amz-content-sha256": "9956f6fc7aaad6da4c9c3efb11aa3086a6eaee607ec7db5dc8f27eaf2d6ba922",
+              "content-length": "149"
+            },
+            "body_base64": "PFJldGVudGlvbiB4bWxucz0iaHR0cDovL3MzLmFtYXpvbmF3cy5jb20vZG9jLzIwMDYtMDMtMDEvIj48TW9kZT5HT1ZFUk5BTkNFPC9Nb2RlPjxSZXRhaW5VbnRpbERhdGU+MjAzMC0wMS0wMlQwMzowNDowNVo8L1JldGFpblVudGlsRGF0ZT48L1JldGVudGlvbj4=",
+            "xml_semantics": {
+              "name": "Retention",
+              "attributes": {},
+              "text": "",
+              "children": {
+                "Mode": [
+                  {
+                    "name": "Mode",
+                    "attributes": {},
+                    "text": "GOVERNANCE",
+                    "children": {}
+                  }
+                ],
+                "RetainUntilDate": [
+                  {
+                    "name": "RetainUntilDate",
+                    "attributes": {},
+                    "text": "2030-01-02T03:04:05Z",
+                    "children": {}
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "PutObjectRetention",
+      "scenario": "compliance-explicit-false-bypass",
+      "input": {
+        "Bucket": "bucket",
+        "Key": "governance/雪 % +?#/key",
+        "VersionId": "version+/=雪",
+        "RequestPayer": "requester",
+        "ExpectedBucketOwner": "123456789012",
+        "ChecksumAlgorithm": "SHA256",
+        "Retention": {
+          "Mode": "COMPLIANCE",
+          "RetainUntilDate": "2031-02-03T04:05:06+00:00"
+        },
+        "BypassGovernanceRetention": false
+      },
+      "args": [
+        "s3api",
+        "put-object-retention",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"governance/雪 % +?#/key\", \"VersionId\": \"version+/=雪\", \"RequestPayer\": \"requester\", \"ExpectedBucketOwner\": \"123456789012\", \"ChecksumAlgorithm\": \"SHA256\", \"Retention\": {\"Mode\": \"COMPLIANCE\", \"RetainUntilDate\": \"2031-02-03T04:05:06+00:00\"}, \"BypassGovernanceRetention\": false}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id"
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/governance/%E9%9B%AA%20%25%20%2B%3F%23/key?retention&versionId=version%2B%2F%3D%E9%9B%AA",
+            "headers": {
+              "x-amz-request-payer": "requester",
+              "x-amz-expected-bucket-owner": "123456789012",
+              "x-amz-sdk-checksum-algorithm": "SHA256",
+              "x-amz-bypass-governance-retention": "false",
+              "x-amz-checksum-sha256": "nHRFuxS68Z/JptJCem0cSxHBew//96jB4SzxgzgKIm8=",
+              "x-amz-content-sha256": "9c7445bb14baf19fc9a6d2427a6d1c4b11c17b0ffff7a8c1e12cf183380a226f",
+              "content-length": "149"
+            },
+            "body_base64": "PFJldGVudGlvbiB4bWxucz0iaHR0cDovL3MzLmFtYXpvbmF3cy5jb20vZG9jLzIwMDYtMDMtMDEvIj48TW9kZT5DT01QTElBTkNFPC9Nb2RlPjxSZXRhaW5VbnRpbERhdGU+MjAzMS0wMi0wM1QwNDowNTowNlo8L1JldGFpblVudGlsRGF0ZT48L1JldGVudGlvbj4=",
+            "xml_semantics": {
+              "name": "Retention",
+              "attributes": {},
+              "text": "",
+              "children": {
+                "Mode": [
+                  {
+                    "name": "Mode",
+                    "attributes": {},
+                    "text": "COMPLIANCE",
+                    "children": {}
+                  }
+                ],
+                "RetainUntilDate": [
+                  {
+                    "name": "RetainUntilDate",
+                    "attributes": {},
+                    "text": "2031-02-03T04:05:06Z",
+                    "children": {}
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "PutObjectLegalHold",
+      "scenario": "enabled-version-owner",
+      "input": {
+        "Bucket": "bucket",
+        "Key": "governance/雪 % +?#/key",
+        "VersionId": "version+/=雪",
+        "RequestPayer": "requester",
+        "ExpectedBucketOwner": "123456789012",
+        "ChecksumAlgorithm": "SHA256",
+        "LegalHold": {
+          "Status": "ON"
+        }
+      },
+      "args": [
+        "s3api",
+        "put-object-legal-hold",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"governance/雪 % +?#/key\", \"VersionId\": \"version+/=雪\", \"RequestPayer\": \"requester\", \"ExpectedBucketOwner\": \"123456789012\", \"ChecksumAlgorithm\": \"SHA256\", \"LegalHold\": {\"Status\": \"ON\"}}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id",
+          "x-amz-request-charged": "requester"
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"RequestCharged\": \"requester\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/governance/%E9%9B%AA%20%25%20%2B%3F%23/key?legal-hold&versionId=version%2B%2F%3D%E9%9B%AA",
+            "headers": {
+              "x-amz-request-payer": "requester",
+              "x-amz-expected-bucket-owner": "123456789012",
+              "x-amz-sdk-checksum-algorithm": "SHA256",
+              "x-amz-checksum-sha256": "lrc8lajTPmZKshcOCVAltH69VZeLtxzr1qUeOUv5ZyI=",
+              "x-amz-content-sha256": "96b73c95a8d33e664ab2170e095025b47ebd55978bb71cebd6a51e394bf96722",
+              "content-length": "90"
+            },
+            "body_base64": "PExlZ2FsSG9sZCB4bWxucz0iaHR0cDovL3MzLmFtYXpvbmF3cy5jb20vZG9jLzIwMDYtMDMtMDEvIj48U3RhdHVzPk9OPC9TdGF0dXM+PC9MZWdhbEhvbGQ+",
+            "xml_semantics": {
+              "name": "LegalHold",
+              "attributes": {},
+              "text": "",
+              "children": {
+                "Status": [
+                  {
+                    "name": "Status",
+                    "attributes": {},
+                    "text": "ON",
+                    "children": {}
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "PutObjectLegalHold",
+      "scenario": "disabled-version-owner",
+      "input": {
+        "Bucket": "bucket",
+        "Key": "governance/雪 % +?#/key",
+        "VersionId": "version+/=雪",
+        "RequestPayer": "requester",
+        "ExpectedBucketOwner": "123456789012",
+        "ChecksumAlgorithm": "SHA256",
+        "LegalHold": {
+          "Status": "OFF"
+        }
+      },
+      "args": [
+        "s3api",
+        "put-object-legal-hold",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"governance/雪 % +?#/key\", \"VersionId\": \"version+/=雪\", \"RequestPayer\": \"requester\", \"ExpectedBucketOwner\": \"123456789012\", \"ChecksumAlgorithm\": \"SHA256\", \"LegalHold\": {\"Status\": \"OFF\"}}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id"
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/governance/%E9%9B%AA%20%25%20%2B%3F%23/key?legal-hold&versionId=version%2B%2F%3D%E9%9B%AA",
+            "headers": {
+              "x-amz-request-payer": "requester",
+              "x-amz-expected-bucket-owner": "123456789012",
+              "x-amz-sdk-checksum-algorithm": "SHA256",
+              "x-amz-checksum-sha256": "M8scYkOaZvvLyk/7JDsBPOshIHUEj3KrQ4P3OvtcS9k=",
+              "x-amz-content-sha256": "33cb1c62439a66fbcbca4ffb243b013ceb212075048f72ab4383f73afb5c4bd9",
+              "content-length": "91"
+            },
+            "body_base64": "PExlZ2FsSG9sZCB4bWxucz0iaHR0cDovL3MzLmFtYXpvbmF3cy5jb20vZG9jLzIwMDYtMDMtMDEvIj48U3RhdHVzPk9GRjwvU3RhdHVzPjwvTGVnYWxIb2xkPg==",
+            "xml_semantics": {
+              "name": "LegalHold",
+              "attributes": {},
+              "text": "",
+              "children": {
+                "Status": [
+                  {
+                    "name": "Status",
+                    "attributes": {},
+                    "text": "OFF",
+                    "children": {}
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "PutObjectRetention",
+      "scenario": "omitted-payload",
+      "input": {
+        "Bucket": "bucket",
+        "Key": "governance/key"
+      },
+      "args": [
+        "s3api",
+        "put-object-retention",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"governance/key\"}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id"
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/governance/key?retention",
+            "headers": {
+              "x-amz-checksum-crc64nvme": "AAAAAAAAAAA=",
+              "x-amz-sdk-checksum-algorithm": "CRC64NVME",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "PutObjectRetention",
+      "scenario": "empty-payload-structure",
+      "input": {
+        "Bucket": "bucket",
+        "Key": "governance/key",
+        "Retention": {}
+      },
+      "args": [
+        "s3api",
+        "put-object-retention",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"governance/key\", \"Retention\": {}}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id"
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/governance/key?retention",
+            "headers": {
+              "x-amz-checksum-crc64nvme": "0yO0iII8Yyw=",
+              "x-amz-sdk-checksum-algorithm": "CRC64NVME",
+              "x-amz-content-sha256": "28ee0827eb0845c6077544b83d5255764e7b9bfd8a047c1a0fb228e3437a7273",
+              "content-length": "61"
+            },
+            "body_base64": "PFJldGVudGlvbiB4bWxucz0iaHR0cDovL3MzLmFtYXpvbmF3cy5jb20vZG9jLzIwMDYtMDMtMDEvIiAvPg==",
+            "xml_semantics": {
+              "name": "Retention",
+              "attributes": {},
+              "text": "",
+              "children": {}
+            }
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "PutObjectLegalHold",
+      "scenario": "omitted-payload",
+      "input": {
+        "Bucket": "bucket",
+        "Key": "governance/key"
+      },
+      "args": [
+        "s3api",
+        "put-object-legal-hold",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"governance/key\"}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id"
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/governance/key?legal-hold",
+            "headers": {
+              "x-amz-checksum-crc64nvme": "AAAAAAAAAAA=",
+              "x-amz-sdk-checksum-algorithm": "CRC64NVME",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "PutObjectLegalHold",
+      "scenario": "empty-payload-structure",
+      "input": {
+        "Bucket": "bucket",
+        "Key": "governance/key",
+        "LegalHold": {}
+      },
+      "args": [
+        "s3api",
+        "put-object-legal-hold",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"governance/key\", \"LegalHold\": {}}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id"
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/governance/key?legal-hold",
+            "headers": {
+              "x-amz-checksum-crc64nvme": "KNzgF9xDmPs=",
+              "x-amz-sdk-checksum-algorithm": "CRC64NVME",
+              "x-amz-content-sha256": "28f90d87966a0d6c547a75cb5db863396988b0905170470f9fc2523458bda798",
+              "content-length": "61"
+            },
+            "body_base64": "PExlZ2FsSG9sZCB4bWxucz0iaHR0cDovL3MzLmFtYXpvbmF3cy5jb20vZG9jLzIwMDYtMDMtMDEvIiAvPg==",
+            "xml_semantics": {
+              "name": "LegalHold",
+              "attributes": {},
+              "text": "",
+              "children": {}
+            }
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
       "operation": "PutBucketReplication",
       "scenario": "access-denied-metadata",
       "input": {
@@ -4390,6 +4860,151 @@
               "content-length": "0"
             },
             "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "PutObjectRetention",
+      "scenario": "access-denied-metadata",
+      "input": {
+        "Bucket": "bucket",
+        "Key": "governance/雪 % +?#/key",
+        "VersionId": "version+/=雪",
+        "RequestPayer": "requester",
+        "ExpectedBucketOwner": "123456789012",
+        "ChecksumAlgorithm": "SHA256",
+        "Retention": {
+          "Mode": "GOVERNANCE",
+          "RetainUntilDate": "2030-01-02T03:04:05Z"
+        },
+        "BypassGovernanceRetention": true
+      },
+      "args": [
+        "s3api",
+        "put-object-retention",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"governance/雪 % +?#/key\", \"VersionId\": \"version+/=雪\", \"RequestPayer\": \"requester\", \"ExpectedBucketOwner\": \"123456789012\", \"ChecksumAlgorithm\": \"SHA256\", \"Retention\": {\"Mode\": \"GOVERNANCE\", \"RetainUntilDate\": \"2030-01-02T03:04:05Z\"}, \"BypassGovernanceRetention\": true}"
+      ],
+      "response": {
+        "status": 403,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id",
+          "x-amz-bucket-region": "us-east-1"
+        },
+        "body_base64": "PEVycm9yPjxDb2RlPkFjY2Vzc0RlbmllZDwvQ29kZT48TWVzc2FnZT5PcHRpb25hbCBmaXh0dXJlIGRlbmllZDwvTWVzc2FnZT48UmVxdWVzdElkPm9wdGlvbmFsLXJlcXVlc3Q8L1JlcXVlc3RJZD48SG9zdElkPm9wdGlvbmFsLWhvc3QtaWQ8L0hvc3RJZD48QnVja2V0TmFtZT5idWNrZXQ8L0J1Y2tldE5hbWU+PEtleT5vcHRpb25hbC9rZXk8L0tleT48L0Vycm9yPg=="
+      },
+      "aws": {
+        "status": 254,
+        "stdout": "",
+        "stderr": "\nAn error occurred (AccessDenied) when calling the PutObjectRetention operation (reached max retries: 0): Optional fixture denied\n",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/governance/%E9%9B%AA%20%25%20%2B%3F%23/key?retention&versionId=version%2B%2F%3D%E9%9B%AA",
+            "headers": {
+              "x-amz-request-payer": "requester",
+              "x-amz-expected-bucket-owner": "123456789012",
+              "x-amz-sdk-checksum-algorithm": "SHA256",
+              "x-amz-bypass-governance-retention": "true",
+              "x-amz-checksum-sha256": "mVb2/Hqq1tpMnD77Eaowhqbq7mB+x9tdyPJ+ry1rqSI=",
+              "x-amz-content-sha256": "9956f6fc7aaad6da4c9c3efb11aa3086a6eaee607ec7db5dc8f27eaf2d6ba922",
+              "content-length": "149"
+            },
+            "body_base64": "PFJldGVudGlvbiB4bWxucz0iaHR0cDovL3MzLmFtYXpvbmF3cy5jb20vZG9jLzIwMDYtMDMtMDEvIj48TW9kZT5HT1ZFUk5BTkNFPC9Nb2RlPjxSZXRhaW5VbnRpbERhdGU+MjAzMC0wMS0wMlQwMzowNDowNVo8L1JldGFpblVudGlsRGF0ZT48L1JldGVudGlvbj4=",
+            "xml_semantics": {
+              "name": "Retention",
+              "attributes": {},
+              "text": "",
+              "children": {
+                "Mode": [
+                  {
+                    "name": "Mode",
+                    "attributes": {},
+                    "text": "GOVERNANCE",
+                    "children": {}
+                  }
+                ],
+                "RetainUntilDate": [
+                  {
+                    "name": "RetainUntilDate",
+                    "attributes": {},
+                    "text": "2030-01-02T03:04:05Z",
+                    "children": {}
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "PutObjectLegalHold",
+      "scenario": "access-denied-metadata",
+      "input": {
+        "Bucket": "bucket",
+        "Key": "governance/雪 % +?#/key",
+        "VersionId": "version+/=雪",
+        "RequestPayer": "requester",
+        "ExpectedBucketOwner": "123456789012",
+        "ChecksumAlgorithm": "SHA256",
+        "LegalHold": {
+          "Status": "ON"
+        }
+      },
+      "args": [
+        "s3api",
+        "put-object-legal-hold",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"governance/雪 % +?#/key\", \"VersionId\": \"version+/=雪\", \"RequestPayer\": \"requester\", \"ExpectedBucketOwner\": \"123456789012\", \"ChecksumAlgorithm\": \"SHA256\", \"LegalHold\": {\"Status\": \"ON\"}}"
+      ],
+      "response": {
+        "status": 403,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id",
+          "x-amz-bucket-region": "us-east-1"
+        },
+        "body_base64": "PEVycm9yPjxDb2RlPkFjY2Vzc0RlbmllZDwvQ29kZT48TWVzc2FnZT5PcHRpb25hbCBmaXh0dXJlIGRlbmllZDwvTWVzc2FnZT48UmVxdWVzdElkPm9wdGlvbmFsLXJlcXVlc3Q8L1JlcXVlc3RJZD48SG9zdElkPm9wdGlvbmFsLWhvc3QtaWQ8L0hvc3RJZD48QnVja2V0TmFtZT5idWNrZXQ8L0J1Y2tldE5hbWU+PEtleT5vcHRpb25hbC9rZXk8L0tleT48L0Vycm9yPg=="
+      },
+      "aws": {
+        "status": 254,
+        "stdout": "",
+        "stderr": "\nAn error occurred (AccessDenied) when calling the PutObjectLegalHold operation (reached max retries: 0): Optional fixture denied\n",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/governance/%E9%9B%AA%20%25%20%2B%3F%23/key?legal-hold&versionId=version%2B%2F%3D%E9%9B%AA",
+            "headers": {
+              "x-amz-request-payer": "requester",
+              "x-amz-expected-bucket-owner": "123456789012",
+              "x-amz-sdk-checksum-algorithm": "SHA256",
+              "x-amz-checksum-sha256": "lrc8lajTPmZKshcOCVAltH69VZeLtxzr1qUeOUv5ZyI=",
+              "x-amz-content-sha256": "96b73c95a8d33e664ab2170e095025b47ebd55978bb71cebd6a51e394bf96722",
+              "content-length": "90"
+            },
+            "body_base64": "PExlZ2FsSG9sZCB4bWxucz0iaHR0cDovL3MzLmFtYXpvbmF3cy5jb20vZG9jLzIwMDYtMDMtMDEvIj48U3RhdHVzPk9OPC9TdGF0dXM+PC9MZWdhbEhvbGQ+",
+            "xml_semantics": {
+              "name": "LegalHold",
+              "attributes": {},
+              "text": "",
+              "children": {
+                "Status": [
+                  {
+                    "name": "Status",
+                    "attributes": {},
+                    "text": "ON",
+                    "children": {}
+                  }
+                ]
+              }
+            }
           }
         ],
         "peer_errors": []

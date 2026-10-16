@@ -50,6 +50,15 @@ stalled-write fixture has a scoped SHA256 correction; that correction does not
 repair #132 or establish full-suite acceptance. Both upstream blockers must be
 resolved before M9/release closure.
 
+Later independent AWS captures exposed text/YAML-stream pagination differences
+and omitted retention/legal-hold checksum failures. Their production corrections
+have bounded executable evidence in
+[differential-output-pagination.md](compatibility/differential-output-pagination.md)
+and [differential-governance-members.md](compatibility/differential-governance-members.md).
+These additions do not close every output/member contract or the upstream release
+blockers. The package matrix now uses both official macOS 26 runner labels,
+`macos-26` and `macos-26-intel`, with independently verified artifacts.
+
 No Ecto/database, no dependency on ESS core/Concord/Phoenix, no runtime `aws`/`mc`/Python wrapper, and no unrelated transport migration. Continue using `http_fetch`. Do not add a dependency without documenting its necessity and following repository approval rules.
 
 ## 2. Delivery sequence and parallel work

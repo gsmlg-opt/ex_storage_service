@@ -90,6 +90,9 @@ defmodule ExStorageServiceCli.S3.RequestChecksum do
         is_binary(body) ->
           {:ok, state |> Checksum.update(body) |> Checksum.encoded()}
 
+        is_nil(body) ->
+          {:ok, Checksum.encoded(state)}
+
         true ->
           {:error,
            Error.new(:client, "Request checksum body is not replayable",

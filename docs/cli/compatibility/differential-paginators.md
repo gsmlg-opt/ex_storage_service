@@ -16,7 +16,7 @@ The two service pages contain two primary results followed by one. Fixtures incl
 
 Resume cases pass the actual AWS-produced starting token to ESS. Output tokens are compared as Base64-decoded JSON maps because JSON map order and whitespace are not token fields. All other parsed output must match. Requests compare literal method/path, decoded query pairs including duplicate counts and marker values, entity bytes, captured headers, request count, and sequence. Bare subresources and explicit empty values are equivalent; query order may differ. This proves interoperability for the captured AWS tokens and does not claim every malformed, legacy, or future token is accepted.
 
-The capture uses a standard custom loopback endpoint and fixture credentials. It does not establish live S3/S3 Express behavior, automatic endpoint selection, arbitrary page sizes, text-output pagination, or exhaustive optional response members. The separate operation matrix covers automatic versus explicit encoding with single service responses.
+The capture uses a standard custom loopback endpoint and fixture credentials. It does not establish live S3/S3 Express behavior, automatic endpoint selection, arbitrary page sizes, text-output pagination, or exhaustive optional response members. The separate operation matrix covers automatic versus explicit encoding with single service responses. A later [output/pagination differential](differential-output-pagination.md) adds fourteen actual AWS `ListObjectsV2` captures for text and YAML-stream pages, queries, truncation and resume; those bounded cases do not extend this JSON matrix to every format/operation combination.
 
 ## Reproduction
 

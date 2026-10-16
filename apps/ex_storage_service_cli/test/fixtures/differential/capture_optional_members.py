@@ -189,9 +189,28 @@ def variants():
     add("GetObject", "empty-binary", {"Bucket": "bucket", "Key": "empty"},
         response(b"", headers={"content-type": "application/octet-stream", "etag": '"empty-etag"'}))
 
+    governance = {"Bucket": "bucket", "Key": "governance/雪 % +?#/key",
+                  "VersionId": "version+/=雪", "RequestPayer": "requester",
+                  "ExpectedBucketOwner": "123456789012", "ChecksumAlgorithm": "SHA256"}
+    add("PutObjectRetention", "governance-version-owner-bypass", {
+        **governance, "Retention": {"Mode": "GOVERNANCE", "RetainUntilDate": "2030-01-02T03:04:05Z"},
+        "BypassGovernanceRetention": True}, response(headers={"x-amz-request-charged": "requester"}))
+    add("PutObjectRetention", "compliance-explicit-false-bypass", {
+        **governance, "Retention": {"Mode": "COMPLIANCE", "RetainUntilDate": "2031-02-03T04:05:06+00:00"},
+        "BypassGovernanceRetention": False}, response())
+    add("PutObjectLegalHold", "enabled-version-owner", {
+        **governance, "LegalHold": {"Status": "ON"}},
+        response(headers={"x-amz-request-charged": "requester"}))
+    add("PutObjectLegalHold", "disabled-version-owner", {
+        **governance, "LegalHold": {"Status": "OFF"}}, response())
+    for operation, member in [("PutObjectRetention", "Retention"), ("PutObjectLegalHold", "LegalHold")]:
+        for document, label in [({}, "omitted-payload"), ({member: {}}, "empty-payload-structure")]:
+            add(operation, label, {"Bucket": "bucket", "Key": "governance/key", **document}, response())
+
     denied = response('<Error><Code>AccessDenied</Code><Message>Optional fixture denied</Message><RequestId>optional-request</RequestId><HostId>optional-host-id</HostId><BucketName>bucket</BucketName><Key>optional/key</Key></Error>',
                       403, {"x-amz-bucket-region": "us-east-1"})
-    for operation in ["PutBucketReplication", "GetBucketNotificationConfiguration", "GetObject", "CopyObject"]:
+    for operation in ["PutBucketReplication", "GetBucketNotificationConfiguration", "GetObject", "CopyObject",
+                      "PutObjectRetention", "PutObjectLegalHold"]:
         source = next(case for case in cases if case["operation"] == operation)
         case = {**source, "scenario": "access-denied-metadata", "response": denied}
         cases.append(case)
@@ -207,7 +226,7 @@ def main():
     model = ROOT / "priv/compatibility/aws/service-2.json"
     report = {"schema_version": 1, "aws_sha256": AWS_SHA256,
               "model_sha256": hashlib.sha256(model.read_bytes()).hexdigest(),
-              "scope": "25 explicit representative operations; optional member variants, not exhaustive model coverage",
+              "scope": "27 explicit representative operations; optional member variants, not exhaustive model coverage",
               "cases": []}
     with tempfile.TemporaryDirectory(prefix="ess-optional-oracle-") as temporary:
         directory = Path(temporary)

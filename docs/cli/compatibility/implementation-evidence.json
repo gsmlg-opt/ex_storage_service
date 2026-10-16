@@ -667,16 +667,20 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/registry.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/aws_input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/runtime.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/context.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/context.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/api.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/presenter.ex"
       ],
       "evidence": {
         "client": "Accepted global grammar routes to context/session/presentation settings; cited tests establish scoped cases only.",
-        "remaining": "Full cross-command applicability, default/config precedence and exact output/error parity remain separately unverified."
+        "remaining": "Full cross-command applicability, default/config precedence and exact output/error parity remain separately unverified.",
+        "wire": "Fourteen pinned AWS 2.31.18 ListObjectsV2 executable captures compare text/yaml-stream page output, Contents and scalar queries, max-items truncation, token queries and actual AWS-token resume. Raw YAML service fields, text null placeholders and format-specific token output pass; see differential-output-pagination.md. All non-token output is exact; only the opaque CLI token JSON encoding is compared semantically. This does not establish other operation/format combinations or live pagination."
       },
       "status": "implemented-unverified",
       "test_ids": [
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
+        "apps/ex_storage_service_cli/test/aws_output_pagination_differential_test.exs"
       ]
     },
     "AWS:global:profile": {
@@ -701,16 +705,20 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/registry.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/aws_input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/runtime.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/context.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/context.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/api.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/presenter.ex"
       ],
       "evidence": {
         "client": "Accepted global grammar routes to context/session/presentation settings; cited tests establish scoped cases only.",
-        "remaining": "Full cross-command applicability, default/config precedence and exact output/error parity remain separately unverified."
+        "remaining": "Full cross-command applicability, default/config precedence and exact output/error parity remain separately unverified.",
+        "wire": "Fourteen pinned AWS 2.31.18 ListObjectsV2 executable captures compare text/yaml-stream page output, Contents and scalar queries, max-items truncation, token queries and actual AWS-token resume. Raw YAML service fields, text null placeholders and format-specific token output pass; see differential-output-pagination.md. All non-token output is exact; only the opaque CLI token JSON encoding is compared semantically. This does not establish other operation/format combinations or live pagination."
       },
       "status": "implemented-unverified",
       "test_ids": [
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
+        "apps/ex_storage_service_cli/test/aws_output_pagination_differential_test.exs"
       ]
     },
     "AWS:global:region": {
@@ -64519,13 +64527,14 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/presenter.ex"
       ],
       "evidence": {
         "client": "Real catalog dispatch and modeled input/request/response path; cited suites cover representative contracts, not this entire operation.",
         "handler": "Explicit handlers are named in code_locations; see special-protocol-decisions.md for their scoped evidence.",
         "remaining": "Exhaustive optional-member/auth/endpoint variants and live provider behavior remain separate from these independently passed basic operation fixtures.",
-        "wire": "Passed actual escript differential against locked AWS 2.31.18: bounded synthetic success and AccessDenied, literal request path/header/XML semantics, parsed output/errors/status and raw outfiles where applicable. See differential-operation-matrix.md; 107 operations and 220 exchanges, not exhaustive optional-member or live AWS coverage. Also passed the selected nested/optional/omitted/empty request and response variants captured from actual AWS 2.31.18; see differential-optional-members.md (42 cases across 25 operations). Invalid upload checksum rejection is an explicit ESS integrity deviation. This is not exhaustive optional-member/auth/endpoint or live-provider coverage."
+        "wire": "Passed actual escript differential against locked AWS 2.31.18: bounded synthetic success and AccessDenied, literal request path/header/XML semantics, parsed output/errors/status and raw outfiles where applicable. See differential-operation-matrix.md; 107 operations and 220 exchanges, not exhaustive optional-member or live AWS coverage. Also passed the selected nested/optional/omitted/empty request and response variants captured from actual AWS 2.31.18; see differential-optional-members.md (42 cases across 25 operations). Invalid upload checksum rejection is an explicit ESS integrity deviation. This is not exhaustive optional-member/auth/endpoint or live-provider coverage. Fourteen pinned AWS 2.31.18 ListObjectsV2 executable captures compare text/yaml-stream page output, Contents and scalar queries, max-items truncation, token queries and actual AWS-token resume. Raw YAML service fields, text null placeholders and format-specific token output pass; see differential-output-pagination.md. All non-token output is exact; only the opaque CLI token JSON encoding is compared semantically. This does not establish other operation/format combinations or live pagination."
       },
       "status": "implemented-unverified",
       "test_ids": [
@@ -64534,7 +64543,8 @@
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/encoder_test.exs",
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/decoder_test.exs",
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_operation_matrix_test.exs::pinned AWS ListObjectsV2",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs",
+        "apps/ex_storage_service_cli/test/aws_output_pagination_differential_test.exs"
       ]
     },
     "AWS:s3api:list-objects-v2:cli-flag:bucket": {
@@ -64815,16 +64825,19 @@
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/aws_input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/api.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/skeleton.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/skeleton.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/presenter.ex"
       ],
       "evidence": {
         "client": "Shared modeled CLI input/flag/skeleton or streaming outfile path; exhaustive flag discovery does not prove each operation effect.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Fourteen pinned AWS 2.31.18 ListObjectsV2 executable captures compare text/yaml-stream page output, Contents and scalar queries, max-items truncation, token queries and actual AWS-token resume. Raw YAML service fields, text null placeholders and format-specific token output pass; see differential-output-pagination.md. All non-token output is exact; only the opaque CLI token JSON encoding is compared semantically. This does not establish other operation/format combinations or live pagination."
       },
       "status": "implemented-unverified",
       "test_ids": [
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/api_test.exs"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/api_test.exs",
+        "apps/ex_storage_service_cli/test/aws_output_pagination_differential_test.exs"
       ]
     },
     "AWS:s3api:list-objects-v2:cli-flag:no-cli-auto-prompt": {
@@ -64943,32 +64956,38 @@
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/aws_input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/api.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/skeleton.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/skeleton.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/presenter.ex"
       ],
       "evidence": {
         "client": "Shared modeled CLI input/flag/skeleton or streaming outfile path; exhaustive flag discovery does not prove each operation effect.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Fourteen pinned AWS 2.31.18 ListObjectsV2 executable captures compare text/yaml-stream page output, Contents and scalar queries, max-items truncation, token queries and actual AWS-token resume. Raw YAML service fields, text null placeholders and format-specific token output pass; see differential-output-pagination.md. All non-token output is exact; only the opaque CLI token JSON encoding is compared semantically. This does not establish other operation/format combinations or live pagination."
       },
       "status": "implemented-unverified",
       "test_ids": [
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/api_test.exs"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/api_test.exs",
+        "apps/ex_storage_service_cli/test/aws_output_pagination_differential_test.exs"
       ]
     },
     "AWS:s3api:list-objects-v2:cli-flag:page-size": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/aws_input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/api.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/skeleton.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/skeleton.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/presenter.ex"
       ],
       "evidence": {
         "client": "Shared modeled CLI input/flag/skeleton or streaming outfile path; exhaustive flag discovery does not prove each operation effect.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Fourteen pinned AWS 2.31.18 ListObjectsV2 executable captures compare text/yaml-stream page output, Contents and scalar queries, max-items truncation, token queries and actual AWS-token resume. Raw YAML service fields, text null placeholders and format-specific token output pass; see differential-output-pagination.md. All non-token output is exact; only the opaque CLI token JSON encoding is compared semantically. This does not establish other operation/format combinations or live pagination."
       },
       "status": "implemented-unverified",
       "test_ids": [
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/api_test.exs"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/api_test.exs",
+        "apps/ex_storage_service_cli/test/aws_output_pagination_differential_test.exs"
       ]
     },
     "AWS:s3api:list-objects-v2:cli-flag:prefix": {
@@ -65007,16 +65026,19 @@
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/aws_input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/api.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/skeleton.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/skeleton.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/presenter.ex"
       ],
       "evidence": {
         "client": "Shared modeled CLI input/flag/skeleton or streaming outfile path; exhaustive flag discovery does not prove each operation effect.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Fourteen pinned AWS 2.31.18 ListObjectsV2 executable captures compare text/yaml-stream page output, Contents and scalar queries, max-items truncation, token queries and actual AWS-token resume. Raw YAML service fields, text null placeholders and format-specific token output pass; see differential-output-pagination.md. All non-token output is exact; only the opaque CLI token JSON encoding is compared semantically. This does not establish other operation/format combinations or live pagination."
       },
       "status": "implemented-unverified",
       "test_ids": [
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/api_test.exs"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/api_test.exs",
+        "apps/ex_storage_service_cli/test/aws_output_pagination_differential_test.exs"
       ]
     },
     "AWS:s3api:list-objects-v2:cli-flag:region": {
@@ -65071,16 +65093,19 @@
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/aws_input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/api.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/skeleton.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/skeleton.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/presenter.ex"
       ],
       "evidence": {
         "client": "Shared modeled CLI input/flag/skeleton or streaming outfile path; exhaustive flag discovery does not prove each operation effect.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Fourteen pinned AWS 2.31.18 ListObjectsV2 executable captures compare text/yaml-stream page output, Contents and scalar queries, max-items truncation, token queries and actual AWS-token resume. Raw YAML service fields, text null placeholders and format-specific token output pass; see differential-output-pagination.md. All non-token output is exact; only the opaque CLI token JSON encoding is compared semantically. This does not establish other operation/format combinations or live pagination."
       },
       "status": "implemented-unverified",
       "test_ids": [
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/api_test.exs"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/api_test.exs",
+        "apps/ex_storage_service_cli/test/aws_output_pagination_differential_test.exs"
       ]
     },
     "AWS:s3api:list-objects-v2:cli-flag:version": {
@@ -66026,17 +66051,19 @@
     "AWS:s3api:list-objects-v2:paginator": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/paginator.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/api.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/api.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/presenter.ex"
       ],
       "evidence": {
         "client": "All seven paginator model definitions and opaque CLI tokens exercised in scoped fixtures; full executable/provider pagination is separate.",
-        "remaining": "Arbitrary page sizes, text-output pagination, malformed/legacy tokens, optional members and live service pagination are not established by the bounded fixture matrix.",
-        "wire": "Passed six actual pinned AWS/ESS executable scenarios: aggregate, max-items within and at page boundary, both AWS-token resumes, and no-paginate. Covers secondary lists, multiple/typed markers, first-page fields and automatic encoding. See differential-paginators.md (43 tests passed)."
+        "remaining": "Other operation/format combinations, arbitrary page sizes, malformed/legacy tokens, exhaustive optional members and live service pagination remain outside the bounded fixtures.",
+        "wire": "Passed six actual pinned AWS/ESS executable scenarios: aggregate, max-items within and at page boundary, both AWS-token resumes, and no-paginate. Covers secondary lists, multiple/typed markers, first-page fields and automatic encoding. See differential-paginators.md (43 tests passed). Fourteen pinned AWS 2.31.18 ListObjectsV2 executable captures compare text/yaml-stream page output, Contents and scalar queries, max-items truncation, token queries and actual AWS-token resume. Raw YAML service fields, text null placeholders and format-specific token output pass; see differential-output-pagination.md. All non-token output is exact; only the opaque CLI token JSON encoding is compared semantically. This does not establish other operation/format combinations or live pagination."
       },
       "status": "implemented-unverified",
       "test_ids": [
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/paginator_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_paginator_matrix_test.exs"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_paginator_matrix_test.exs",
+        "apps/ex_storage_service_cli/test/aws_output_pagination_differential_test.exs"
       ]
     },
     "AWS:s3api:list-objects:cli-flag:bucket": {
@@ -91518,13 +91545,14 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Real catalog dispatch and modeled input/request/response path; cited suites cover representative contracts, not this entire operation.",
         "handler": "Explicit handlers are named in code_locations; see special-protocol-decisions.md for their scoped evidence.",
         "remaining": "Exhaustive optional-member/auth/endpoint variants and live provider behavior remain separate from these independently passed basic operation fixtures.",
-        "wire": "Passed actual escript differential against locked AWS 2.31.18: bounded synthetic success and AccessDenied, literal request path/header/XML semantics, parsed output/errors/status and raw outfiles where applicable. See differential-operation-matrix.md; 107 operations and 220 exchanges, not exhaustive optional-member or live AWS coverage."
+        "wire": "Passed actual escript differential against locked AWS 2.31.18: bounded synthetic success and AccessDenied, literal request path/header/XML semantics, parsed output/errors/status and raw outfiles where applicable. See differential-operation-matrix.md; 107 operations and 220 exchanges, not exhaustive optional-member or live AWS coverage. Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
       "test_ids": [
@@ -91532,7 +91560,8 @@
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/encoder_test.exs",
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/decoder_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_operation_matrix_test.exs::pinned AWS PutObjectLegalHold"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_operation_matrix_test.exs::pinned AWS PutObjectLegalHold",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
       ]
     },
     "AWS:s3api:put-object-legal-hold:cli-flag:bucket": {
@@ -92022,28 +92051,36 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-legal-hold:input.ChecksumAlgorithm": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-legal-hold:input.ChecksumAlgorithm:enum:CRC32": {
       "code_locations": [
@@ -92106,14 +92143,18 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-legal-hold:input.ContentMD5": {
       "code_locations": [
@@ -92134,154 +92175,198 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-legal-hold:input.Key": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-legal-hold:input.LegalHold": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-legal-hold:input.LegalHold.Status": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-legal-hold:input.LegalHold.Status:enum:OFF": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-legal-hold:input.LegalHold.Status:enum:ON": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-legal-hold:input.RequestPayer": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-legal-hold:input.RequestPayer:enum:requester": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-legal-hold:input.VersionId": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-legal-hold:output.RequestCharged": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-legal-hold:output.RequestCharged:enum:requester": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-lock-configuration": {
       "code_locations": [
@@ -93120,13 +93205,14 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Real catalog dispatch and modeled input/request/response path; cited suites cover representative contracts, not this entire operation.",
         "handler": "Explicit handlers are named in code_locations; see special-protocol-decisions.md for their scoped evidence.",
         "remaining": "Exhaustive optional-member/auth/endpoint variants and live provider behavior remain separate from these independently passed basic operation fixtures.",
-        "wire": "Passed actual escript differential against locked AWS 2.31.18: bounded synthetic success and AccessDenied, literal request path/header/XML semantics, parsed output/errors/status and raw outfiles where applicable. See differential-operation-matrix.md; 107 operations and 220 exchanges, not exhaustive optional-member or live AWS coverage."
+        "wire": "Passed actual escript differential against locked AWS 2.31.18: bounded synthetic success and AccessDenied, literal request path/header/XML semantics, parsed output/errors/status and raw outfiles where applicable. See differential-operation-matrix.md; 107 operations and 220 exchanges, not exhaustive optional-member or live AWS coverage. Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
       "test_ids": [
@@ -93134,7 +93220,8 @@
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/encoder_test.exs",
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/decoder_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_operation_matrix_test.exs::pinned AWS PutObjectRetention"
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_operation_matrix_test.exs::pinned AWS PutObjectRetention",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
       ]
     },
     "AWS:s3api:put-object-retention:cli-flag:bucket": {
@@ -93656,42 +93743,54 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:input.BypassGovernanceRetention": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:input.ChecksumAlgorithm": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:input.ChecksumAlgorithm:enum:CRC32": {
       "code_locations": [
@@ -93754,14 +93853,18 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:input.ContentMD5": {
       "code_locations": [
@@ -93782,168 +93885,216 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:input.Key": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:input.RequestPayer": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:input.RequestPayer:enum:requester": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:input.Retention": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:input.Retention.Mode": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:input.Retention.Mode:enum:COMPLIANCE": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:input.Retention.Mode:enum:GOVERNANCE": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:input.Retention.RetainUntilDate": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:input.VersionId": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:output.RequestCharged": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-retention:output.RequestCharged:enum:requester": {
       "code_locations": [
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/operation_catalog.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/encoder.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex"
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/decoder.ex",
+        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/request_checksum.ex"
       ],
       "evidence": {
         "client": "Pinned member/enum is loaded and traversed by shared typed validation and REST-XML binding. This is implementation linkage, not independent evidence for this member.",
-        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests."
+        "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+        "wire": "Ten additional pinned AWS 2.31.18 executable captures cover PutObjectRetention and PutObjectLegalHold nested/empty/omitted payloads, charged/empty output and AccessDenied, with literal request targets and independently validated checksums. The expanded matrix has 52 cases across 27 operations; see differential-governance-members.md. Omitted payloads remain zero-byte entities, distinct from empty XML structures. This is bounded synthetic protocol evidence, not live Object Lock enforcement or exhaustive optional-member coverage."
       },
       "status": "implemented-unverified",
-      "test_ids": []
+      "test_ids": [
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs"
+      ]
     },
     "AWS:s3api:put-object-tagging": {
       "code_locations": [
