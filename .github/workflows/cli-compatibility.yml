@@ -100,7 +100,10 @@ jobs:
           - os: ubuntu-latest
             elixir: "1.19"
             otp: "28"
-          - os: macos-14
+          - os: macos-26
+            elixir: "1.19"
+            otp: "28"
+          - os: macos-26-intel
             elixir: "1.19"
             otp: "28"
     steps:
