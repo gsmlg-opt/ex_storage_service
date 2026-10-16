@@ -1,9 +1,7 @@
 defmodule ExStorageServiceCli.CLI.NativeUtility do
   @moduledoc "Portable diagnostics, sharing and Select adapters with explicit provider boundaries."
-  alias ExStorageServiceCli.Error
-  alias ExStorageServiceCli.S3.{Capabilities, Client, Presign, Select}
-  alias ExStorageServiceCli.CLI.NativeShare
-  alias ExStorageServiceCli.Transfer.Sink
+  alias ExStorageServiceCli.S3.{Capabilities, Client, Presign}
+  alias ExStorageServiceCli.CLI.{NativeShare, NativeSQL}
 
   def commands do
     %{
@@ -14,11 +12,20 @@ defmodule ExStorageServiceCli.CLI.NativeUtility do
       ["ready"] => {0..1, %{}, "Check S3 metadata access without ESS health paths"},
       ["admin", "info"] => {0..0, %{}, "Read genuine ESS health metadata"},
       ["sql"] =>
-        {3..3,
+        {1..3,
          %{
+           "query" => {:sql_query, :string},
+           "recursive" => {:recursive, :boolean},
+           "csv-input" => {:csv_input, :string},
+           "json-input" => {:json_input, :string},
+           "compression" => {:compression, :string},
+           "csv-output" => {:csv_output, :string},
+           "csv-output-header" => {:csv_output_header, :string},
+           "json-output" => {:json_output, :string},
+           "limit" => {:limit, :integer},
            "input-serialization" => {:input_serialization, :string},
            "output-serialization" => {:output_serialization, :string}
-         }, "Run S3 Select and atomically publish Records to a file"},
+         }, "Stream S3 Select Records or atomically publish legacy outfile results"},
       ["transfer", "list"] =>
         {0..0, %{"limit" => {:limit, :integer}, "cursor" => {:cursor, :integer}},
          "Inspect a bounded page of local transfer journals"},
@@ -57,7 +64,7 @@ defmodule ExStorageServiceCli.CLI.NativeUtility do
         )
 
       ["sql"] ->
-        sql(invocation, target, context, opts)
+        NativeSQL.run(invocation, target, context, opts)
     end
   end
 
@@ -99,55 +106,6 @@ defmodule ExStorageServiceCli.CLI.NativeUtility do
               "ElapsedMilliseconds" => (System.monotonic_time(:microsecond) - started) / 1000
             }}
   end
-
-  defp sql(invocation, target, context, opts) do
-    [_target, expression, filename] = invocation.args
-
-    with {:ok, input} <- json(invocation.options[:input_serialization]),
-         {:ok, output} <- json(invocation.options[:output_serialization]),
-         {:ok, sink} <- Sink.open(filename) do
-      try do
-        reducer = fn
-          %{type: "Records", payload: bytes}, result ->
-            with :ok <- Sink.write(sink, bytes), do: {:ok, result}
-
-          _event, result ->
-            {:ok, result}
-        end
-
-        input = %{
-          "Bucket" => target.bucket,
-          "Key" => target.key,
-          "ExpressionType" => "SQL",
-          "Expression" => expression,
-          "InputSerialization" => input,
-          "OutputSerialization" => output
-        }
-
-        with :ok <- Capabilities.check(context, "SelectObjectContent", input),
-             {:ok, _, summary} <- Select.call(context, input, nil, reducer, opts),
-             :ok <- Sink.publish(sink),
-             do: {:ok, summary}
-      after
-        Sink.abort(sink)
-      end
-    end
-  end
-
-  defp json(value) when is_binary(value) and byte_size(value) <= 1_048_576 do
-    case JSON.decode(value) do
-      {:ok, map} when is_map(map) -> {:ok, map}
-      _ -> {:error, Error.new(:syntax, "Select serializations must be JSON objects")}
-    end
-  end
-
-  defp json(_),
-    do:
-      {:error,
-       Error.new(
-         :syntax,
-         "Select requires input-serialization and output-serialization JSON objects"
-       )}
 
   defp provider(%{unsigned: true}), do: "anonymous"
 

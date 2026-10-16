@@ -87,6 +87,16 @@ defmodule ExStorageServiceCli.CLI.NativeInspection do
         "Historical listings use flat snapshot rows; --delimiter is unsupported with --rewind"
       )
 
+  defp historical_listing_options(%{rewind: _} = options) do
+    if Enum.any?([:incomplete, :summarize, :storage_class], &Map.has_key?(options, &1)),
+      do:
+        failure(
+          :historical_listing_options,
+          "Historical listings do not support incomplete, summary or storage-class options"
+        ),
+      else: :ok
+  end
+
   defp historical_listing_options(_), do: :ok
 
   defp raw_options(options) do
@@ -191,35 +201,65 @@ defmodule ExStorageServiceCli.CLI.NativeInspection do
         else: opts
 
     with :ok <- bounds(options),
+         :ok <- stat_options(target, options),
          :ok <- version_options(target, options),
          :ok <- rewind_options(options) do
-      if target.key not in [nil, ""] and not String.ends_with?(target.key, "/") and
-           options[:recursive] != true and options[:versions] != true do
-        input = Map.merge(opts[:input] || %{}, %{"Bucket" => target.bucket, "Key" => target.key})
+      cond do
+        options[:no_list] == true and target.key in [nil, ""] ->
+          input =
+            (opts[:input] || %{})
+            |> Map.take(["ExpectedBucketOwner"])
+            |> Map.put("Bucket", target.bucket)
 
-        result =
-          if options[:rewind] do
-            with {:ok, selected} <- source(target, context, options, opts),
-                 do: {:ok, selected[:selected_head]}
-          else
-            call(context, "HeadObject", input, opts)
+          call(context, "HeadBucket", input, opts)
+
+        target.key not in [nil, ""] and
+          (not String.ends_with?(target.key, "/") or options[:no_list] == true) and
+          options[:recursive] != true and options[:versions] != true ->
+          input =
+            Map.merge(opts[:input] || %{}, %{"Bucket" => target.bucket, "Key" => target.key})
+
+          result =
+            if options[:rewind] do
+              with {:ok, selected} <- source(target, context, options, opts),
+                   do: {:ok, selected[:selected_head]}
+            else
+              call(context, "HeadObject", input, opts)
+            end
+
+          case result do
+            {:ok, head} ->
+              with :ok <- selected_version(head, input), do: {:ok, head}
+
+            {:error, %Error{http_status: 404}} when not is_map_key(options, :version_id) ->
+              if options[:no_list] == true,
+                do: result,
+                else: stat_many(target, context, options, opts)
+
+            error ->
+              error
           end
 
-        case result do
-          {:ok, head} ->
-            with :ok <- selected_version(head, input), do: {:ok, head}
-
-          {:error, %Error{http_status: 404}} when not is_map_key(options, :version_id) ->
-            stat_many(target, context, options, opts)
-
-          error ->
-            error
-        end
-      else
-        stat_many(target, context, options, opts)
+        true ->
+          stat_many(target, context, options, opts)
       end
     end
   end
+
+  defp stat_options(target, %{no_list: true} = options) do
+    cond do
+      options[:recursive] == true or options[:versions] == true ->
+        failure(:stat_no_list, "Stat --no-list conflicts with --recursive or --versions")
+
+      target.key in [nil, ""] and options[:rewind] != nil ->
+        failure(:stat_no_list, "Bucket stat --no-list cannot select a historical object snapshot")
+
+      true ->
+        :ok
+    end
+  end
+
+  defp stat_options(_, _), do: :ok
 
   defp stat_many(target, context, options, opts) do
     with_inventory(target, context, options, opts, fn inventory ->
@@ -646,7 +686,7 @@ defmodule ExStorageServiceCli.CLI.NativeInspection do
   defp version_options(target, options) do
     if options[:version_id] != nil and
          (options[:versions] == true or options[:recursive] == true or target.key in [nil, ""] or
-            String.ends_with?(target.key, "/")),
+            (String.ends_with?(target.key, "/") and options[:no_list] != true)),
        do:
          failure(
            :version_selection,

@@ -6,9 +6,10 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 from capture_operations import AWS_SHA256, NAMESPACE, Peer
 
@@ -54,25 +55,138 @@ def cases():
               ("directive-replace", ["--metadata-directive", "REPLACE", "--metadata", "new=two"]),
           ]],
         {"name": "sync-upload", "command": "sync", "args": ["s3", "sync", "@TMP@/local/", "s3://bucket/p/", "--no-progress", "--exclude", "*", "--include", "*.bin", "--size-only"], "listing": listing()},
+    ] + archive_cases() + ssec_cases() + sync_cases()
+
+
+def archive_cases():
+    result = []
+    for restored in [False, True]:
+        for command, direction in [("cp", "download"), ("cp", "server-copy"), ("mv", "server-copy")]:
+            destination = "@TMP@/result.bin" if direction == "download" else "s3://bucket/p/destination"
+            args = ["s3", command, "s3://bucket/p/source", destination, "--no-progress"]
+            if direction == "server-copy":
+                args += ["--copy-props", "none"]
+            result.append({"name": command + "-" + direction + "-archive-" + ("restored" if restored else "unrestored"),
+                           "command": command, "args": args, "archive": "GLACIER",
+                           "restored": restored, "expected_status": 0 if restored else 2})
+    for policy in ["ignore-glacier-warnings", "force-glacier-transfer"]:
+        result.append({"name": "cp-download-archive-" + policy, "command": "cp",
+                       "args": ["s3", "cp", "s3://bucket/p/source", "@TMP@/result.bin", "--no-progress", "--" + policy],
+                       "archive": "GLACIER", "restored": False, "expected_status": 0})
+    result.append({"name": "cp-download-deep-archive-restored", "command": "cp",
+                   "args": ["s3", "cp", "s3://bucket/p/source", "@TMP@/result.bin", "--no-progress"],
+                   "archive": "DEEP_ARCHIVE", "restored": True, "expected_status": 0})
+    return result
+
+
+def ssec_cases():
+    destination = ["--sse-c", "AES256", "--sse-c-key", "fileb://@TMP@/destination.key"]
+    source = ["--sse-c-copy-source", "AES256", "--sse-c-copy-source-key", "fileb://@TMP@/source.key"]
+    return [
+        {"name": "cp-upload-ssec", "command": "cp", "args": ["s3", "cp", "@TMP@/source.bin", "s3://bucket/p/destination", "--no-progress"] + destination},
+        {"name": "cp-download-ssec", "command": "cp", "args": ["s3", "cp", "s3://bucket/p/source", "@TMP@/result.bin", "--no-progress", "--sse-c", "AES256", "--sse-c-key", "fileb://@TMP@/source.key"]},
+        {"name": "cp-server-copy-ssec", "command": "cp", "args": ["s3", "cp", "s3://bucket/p/source", "s3://bucket/p/destination", "--no-progress", "--copy-props", "none"] + destination + source},
     ]
+
+
+def sync_cases():
+    result = []
+    old, middle, new = 1767321245, 1767323045, 1767324845
+    for direction in ["upload", "download", "server-copy"]:
+        for age, source_time in [("older", old), ("newer", new)]:
+            result.append(sync_case(direction, age, source_time, middle))
+    result.append(sync_case("download", "newer-exact", new, middle, ["--exact-timestamps"]))
+    result.append(sync_case("upload", "newer-size-only", new, middle, ["--size-only"]))
+    for direction in ["upload", "download"]:
+        for dryrun in [False, True]:
+            result.append(sync_case(direction, "protected-delete" + ("-dryrun" if dryrun else ""),
+                                    middle, middle, ["--delete", "--exclude", "*.txt"] + (["--dryrun"] if dryrun else []), delete=True))
+    return result
+
+
+def sync_case(direction, scenario, source_time, destination_time, flags=None, delete=False):
+    local = "@TMP@/sync-local/"
+    source = local if direction == "upload" else "s3://bucket/source/"
+    destination = local if direction == "download" else "s3://bucket/destination/"
+    args = ["s3", "sync", source, destination, "--no-progress"] + (flags or [])
+    if direction == "server-copy":
+        args += ["--copy-props", "none"]
+    files = {"sync-local/file.bin": {"body_base64": base64.b64encode(RAW if direction == "upload" else b"old-data!").decode(),
+                                     "mtime": source_time if direction == "upload" else destination_time}}
+    remote = {}
+    heads = {}
+    for role, timestamp in [("source", source_time), ("destination", destination_time)]:
+        if (direction == "upload" and role == "source") or (direction == "download" and role == "destination"):
+            continue
+        remote[role + "/"] = [{"name": "file.bin", "mtime": timestamp}]
+        heads["/bucket/" + role + "/file.bin"] = object_head(timestamp)
+    if delete:
+        if direction == "upload":
+            remote["destination/"] += [{"name": "stale.bin", "mtime": destination_time},
+                                        {"name": "protected.txt", "mtime": destination_time}]
+            heads["/bucket/destination/stale.bin"] = object_head(destination_time)
+        else:
+            for name in ["stale.bin", "protected.txt"]:
+                files["sync-local/" + name] = {"body_base64": base64.b64encode(RAW).decode(), "mtime": destination_time}
+            heads["/bucket/source/stale.bin"] = response(404)
+    return {"name": "sync-" + direction + "-" + scenario, "command": "sync", "args": args,
+            "sync_direction": direction, "local_files": files, "remote_listings": remote,
+            "head_responses": heads, "inspect_files": list(files)}
+
+
+def object_head(timestamp):
+    import email.utils
+    return response(**{"content-length": str(len(RAW)), "etag": ETAG,
+                       "last-modified": email.utils.formatdate(timestamp, usegmt=True)})
+
+
+def sync_listing(prefix, entries):
+    from datetime import datetime, timezone
+    objects = "".join('<Contents><Key>' + prefix + item["name"] + '</Key><LastModified>'
+                      + datetime.fromtimestamp(item["mtime"], timezone.utc).isoformat().replace("+00:00", "Z")
+                      + '</LastModified><ETag>' + ETAG + '</ETag><Size>' + str(len(RAW))
+                      + '</Size><StorageClass>STANDARD</StorageClass></Contents>' for item in entries)
+    return response(body=('<ListBucketResult xmlns="' + NAMESPACE + '"><Name>bucket</Name><Prefix>'
+                          + prefix + '</Prefix><IsTruncated>false</IsTruncated>' + objects + '</ListBucketResult>').encode(),
+                    **{"content-type": "application/xml"})
+
+
+def prepare(directory, case):
+    (directory / "destination.key").write_bytes(bytes(range(32)))
+    (directory / "source.key").write_bytes(bytes(range(32, 64)))
+    shutil.rmtree(directory / "sync-local", ignore_errors=True)
+    for name, contents in case.get("local_files", {}).items():
+        path = directory / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(base64.b64decode(contents["body_base64"]))
+        os.utime(path, (contents["mtime"], contents["mtime"]))
 
 
 def handler(case, responses):
     def reply(request, _number):
         method, target = request["method"], urlsplit(request["target"])
-        if method == "HEAD":
+        if method == "HEAD" and target.path in case.get("head_responses", {}):
+            result = case["head_responses"][target.path]
+        elif method == "HEAD":
             headers = {"content-length": str(len(RAW)), "etag": ETAG,
                        "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"}
             if case["name"].startswith("cp-server-copy-"):
                 headers.update({"content-type": "application/x-original", "cache-control": "private",
                                 "content-language": "en", "x-amz-meta-preserved": "source"})
+            if case.get("archive") and target.path == "/bucket/p/source":
+                headers["x-amz-storage-class"] = case["archive"]
+                headers["x-amz-restore"] = 'ongoing-request="false", expiry-date="Wed, 02 Jan 2030 03:04:05 GMT"' if case["restored"] else 'ongoing-request="true"'
             result = response(**headers)
         elif method == "GET" and target.path == "/":
             result = response(body=('<ListAllMyBucketsResult xmlns="' + NAMESPACE + '"><Buckets>'
                 '<Bucket><Name>fixture-雪</Name><CreationDate>2026-01-02T03:04:05Z</CreationDate>'
                 '</Bucket></Buckets></ListAllMyBucketsResult>').encode())
         elif method == "GET" and "list-type=" in target.query:
-            result = case.get("listing", listing())
+            prefix = parse_qs(target.query).get("prefix", [""])[0]
+            if "remote_listings" in case:
+                result = sync_listing(prefix, case["remote_listings"][prefix])
+            else:
+                result = case.get("listing", listing())
         elif method == "GET":
             result = response(body=RAW, etag=ETAG)
         elif method == "PUT" and "x-amz-copy-source" in request["headers"]:
@@ -88,6 +202,7 @@ def handler(case, responses):
 
 
 def run(program, case, directory, env):
+    prepare(directory, case)
     responses = []
     peer = Peer(handler(case, responses))
     args = [value.replace("@TMP@", str(directory)) for value in case["args"]]
@@ -108,6 +223,12 @@ def run(program, case, directory, env):
     if outfile.exists():
         record["outfile_base64"] = base64.b64encode(outfile.read_bytes()).decode()
         outfile.unlink()
+    if case.get("inspect_files"):
+        record["local_after"] = {}
+        for name in case["inspect_files"]:
+            path = directory / name
+            record["local_after"][name] = {"body_base64": base64.b64encode(path.read_bytes()).decode(),
+                                            "mtime": int(path.stat().st_mtime)} if path.exists() else None
     return responses, record
 
 
@@ -133,9 +254,9 @@ def main():
                    AWS_RESPONSE_CHECKSUM_VALIDATION="when_required", NO_PROXY="*", PAGER="cat", TZ="UTC")
         for case in cases():
             responses, actual = run(args.aws, case, directory, env)
-            record = {key: value for key, value in case.items() if key != "listing"}
+            record = {key: value for key, value in case.items() if key not in {"listing", "remote_listings"}}
             record.update(responses=responses, aws=actual)
-            assert actual["status"] == 0, (case["name"], actual)
+            assert actual["status"] == case.get("expected_status", 0), (case["name"], actual)
             assert not actual["peer_errors"], actual
             report["cases"].append(record)
             print(case["name"], "requests=" + str(len(actual["requests"])), flush=True)

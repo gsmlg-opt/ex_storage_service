@@ -74,7 +74,7 @@ all command output. Environment aliases such as `MC_CONFIG_DIR`,
 ## Independent inactivity deadlines and acknowledgement boundary
 
 `--conn-read-deadline` and `--conn-write-deadline` are now accepted and routed
-through both modeled and legacy clients to published HTTP 0.21.12. Native
+through both modeled and legacy clients to published HTTP 0.21.13. Native
 contexts default to 600,000 ms for each socket inactivity limit and no total
 request deadline; connection establishment retains its separate 60,000 ms
 limit. Zero disables the selected read/write inactivity limit. These are not
@@ -89,8 +89,7 @@ malformed, invalid UTF-8 and oversized inputs fail before dispatch; positive
 sub-millisecond values are rejected rather than rounded. This precision/range
 boundary is an explicit native difference.
 
-The user approved and the working copy integrates the coordinated 0.21.12
-dependency update. #126's socket-inactivity fix and #129's request-scoped
+The user approved the coordinated 0.21.12 dependency update. #126's socket-inactivity fix and #129's request-scoped
 response-stream idle fix are available on this selected line. Typed read/write
 stalls, reset trickles and ownership cleanup have scoped real-wire tests;
 native-default and AWS-zero reads also passed an unchanged-default 65-second
@@ -101,11 +100,15 @@ passed with zero failures. Fresh package/install/runtime acceptance passed on Li
 New-source remote checks remain pending. Current logs are
 `/tmp/ess-cli-http02112-coordinated-20261016/{cli-full,affected-apps}.log`.
 
-A separate current release blocker is
+A separate blocker on that historical graph was
 [http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131): slow
 application delivery can exceed the fixed 60-second consumer acknowledgement
 budget even while socket inactivity is disabled or longer. A 512-byte response
 paced at 8 bytes/s delivered exact bytes at 63,108 ms but returned `:timeout`
 at 63,109 ms. No global timer change or local ACK workaround is applied. See
 [http-021-evaluation.md](http-021-evaluation.md) for the independent deadline
-evidence, historical 0.18/0.21.11 limits and the required upstream acceptance.
+evidence and historical limits. The current 0.21.13 adapter selects the new
+request-scoped infinite ACK policy and retains real paced-transfer, finite
+deadline, cancellation and concurrent-isolation regressions. Its native-context
+512-byte download at 8 bytes/s succeeds in 63,124 ms with the global 60,000 ms
+setting unchanged. Complete CLI and release acceptance remain separate.

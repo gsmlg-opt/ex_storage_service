@@ -10168,6 +10168,204 @@
       }
     },
     {
+      "operation": "RenameObject",
+      "scenario": "omitted-client-token",
+      "args": [
+        "s3api",
+        "rename-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"matrix/% +?#/雪/./../key\", \"RenameSource\": \"source/old\"}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amz-request-id": "fixture-request",
+          "content-type": "application/xml",
+          "content-length": "0"
+        },
+        "body_base64": ""
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "x-amz-request-id": "fixture-request",
+            "content-type": "application/xml",
+            "content-length": "0"
+          },
+          "body_base64": ""
+        }
+      ],
+      "environment": {
+        "AWS_MAX_ATTEMPTS": "1",
+        "AWS_RETRY_MODE": "standard"
+      },
+      "generated_client_token": true,
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/matrix/%25%20%2B%3F%23/%E9%9B%AA/./../key?renameObject",
+            "headers": {
+              "x-amz-rename-source": "source/old",
+              "x-amz-client-token": "da49a774-ef15-4e1b-96ac-cdd8bdcbb794",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "RenameObject",
+      "scenario": "retry-omitted-client-token",
+      "args": [
+        "s3api",
+        "rename-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"matrix/% +?#/雪/./../key\", \"RenameSource\": \"source/old\"}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amz-request-id": "fixture-request",
+          "content-type": "application/xml",
+          "content-length": "0"
+        },
+        "body_base64": ""
+      },
+      "responses": [
+        {
+          "status": 503,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PEVycm9yPjxDb2RlPlNsb3dEb3duPC9Db2RlPjxNZXNzYWdlPlJldHJ5IGZpeHR1cmU8L01lc3NhZ2U+PC9FcnJvcj4="
+        },
+        {
+          "status": 200,
+          "headers": {
+            "x-amz-request-id": "fixture-request",
+            "content-type": "application/xml",
+            "content-length": "0"
+          },
+          "body_base64": ""
+        }
+      ],
+      "environment": {
+        "AWS_MAX_ATTEMPTS": "2",
+        "AWS_RETRY_MODE": "standard"
+      },
+      "generated_client_token": true,
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/matrix/%25%20%2B%3F%23/%E9%9B%AA/./../key?renameObject",
+            "headers": {
+              "x-amz-rename-source": "source/old",
+              "x-amz-client-token": "911d8933-81e9-4871-99fc-7b95bbd92c93",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/matrix/%25%20%2B%3F%23/%E9%9B%AA/./../key?renameObject",
+            "headers": {
+              "x-amz-rename-source": "source/old",
+              "x-amz-client-token": "911d8933-81e9-4871-99fc-7b95bbd92c93",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "RenameObject",
+      "scenario": "retry-explicit-client-token",
+      "args": [
+        "s3api",
+        "rename-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"matrix/% +?#/雪/./../key\", \"RenameSource\": \"source/old\", \"ClientToken\": \"00000000-0000-4000-8000-000000000001\"}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "x-amz-request-id": "fixture-request",
+          "content-type": "application/xml",
+          "content-length": "0"
+        },
+        "body_base64": ""
+      },
+      "responses": [
+        {
+          "status": 503,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PEVycm9yPjxDb2RlPlNsb3dEb3duPC9Db2RlPjxNZXNzYWdlPlJldHJ5IGZpeHR1cmU8L01lc3NhZ2U+PC9FcnJvcj4="
+        },
+        {
+          "status": 200,
+          "headers": {
+            "x-amz-request-id": "fixture-request",
+            "content-type": "application/xml",
+            "content-length": "0"
+          },
+          "body_base64": ""
+        }
+      ],
+      "environment": {
+        "AWS_MAX_ATTEMPTS": "2",
+        "AWS_RETRY_MODE": "standard"
+      },
+      "generated_client_token": false,
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/matrix/%25%20%2B%3F%23/%E9%9B%AA/./../key?renameObject",
+            "headers": {
+              "x-amz-rename-source": "source/old",
+              "x-amz-client-token": "00000000-0000-4000-8000-000000000001",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/matrix/%25%20%2B%3F%23/%E9%9B%AA/./../key?renameObject",
+            "headers": {
+              "x-amz-rename-source": "source/old",
+              "x-amz-client-token": "00000000-0000-4000-8000-000000000001",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
       "operation": "RestoreObject",
       "scenario": "success",
       "args": [

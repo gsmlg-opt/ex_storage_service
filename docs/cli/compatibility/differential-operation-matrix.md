@@ -1,6 +1,6 @@
 # Independent AWS s3api operation wire matrix
 
-This matrix audits all 108 operations in the pinned AWS CLI 2.31.18 model. The actual pinned executable produced 220 loopback request/response captures covering 107 operations: success and AccessDenied for each, plus six automatic-versus-explicit listing-encoding cases. WriteGetObjectResponse is explicitly excluded from this loopback-IP matrix because of its modeled host-prefix injection. Its separate [controlled-hostname executable fixture](differential-write-response.md) captures binary success, forwarded error and service AccessDenied exchanges; it is not counted among this matrix's 107 operations.
+This matrix audits all 108 operations in the pinned AWS CLI 2.31.18 model. The actual pinned executable produced 223 cases covering 107 operations: success and AccessDenied for each, six automatic-versus-explicit listing-encoding cases, and three RenameObject token/default/retry cases. The latter contribute five exchanges. WriteGetObjectResponse is explicitly excluded from this loopback-IP matrix because of its modeled host-prefix injection. Its separate [controlled-hostname executable fixture](differential-write-response.md) captures binary success, forwarded error and service AccessDenied exchanges; it is not counted among this matrix's 107 operations.
 
 ## Evidence boundaries
 
@@ -13,7 +13,7 @@ The test preserves literal AWS request method/target/headers/base64 body and exa
 ## Reproduction
 
 AWS executable SHA256: `87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a`.
-Fixture SHA256: `6593519c84aa5e4847aa7d83dc1fd5598d79f511f9a8e252f22c193f967708d4`.
+Fixture SHA256: `c437b8532d19a00190e430f5140924351af180d3bf790c10fd20098f8f3087a5`.
 
 ```sh
 PAGER=cat python3 apps/ex_storage_service_cli/test/fixtures/differential/capture_operations.py \
@@ -30,6 +30,16 @@ Replay: `mix test test/ex_storage_service_cli/executable_operation_matrix_test.e
 Automatic URL encoding requests decode literal `%252F` exactly once to `%2F`, preserve plus signs encoded as `%2B`, and decode UTF-8 keys, delimiters, CommonPrefixes and operation-specific markers. Explicit `--encoding-type url` preserves the encoded output. Version IDs and continuation tokens stay opaque. AWS's V1 ListObjects automatic customization leaves Prefix encoded while V2 and ListObjectVersions decode it; the literal oracle captures this distinction.
 
 ## Operation audit
+
+Pinned botocore generates a UUIDv4 for omitted `RenameObject.ClientToken`.
+Actual AWS captures confirm omission, an omitted-token 503-to-200 retry and an
+explicit-token retry. ESS now generates once before the retry loop and preserves
+the token across retries; independent invocations receive distinct tokens.
+The replay checks UUID shape and per-invocation stability instead of literal
+random values. Two module regressions and three executable cases reproduced
+the missing behavior. The 23-test customization/retry/client suite and five
+selected RenameObject executable cases pass. Other operation captures are
+unchanged. Directory-session authentication and live rename remain separate.
 
 Every row below identifies executable fixture coverage, not an implementation or live-service completion claim.
 

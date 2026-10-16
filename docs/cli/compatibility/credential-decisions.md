@@ -4,7 +4,7 @@ The credential implementation uses the pinned AWS CLI 2.31.18 `botocore/credenti
 
 Implemented providers are coherent environment/static/session records, shared credentials/config, bounded literal-argv `credential_process`, STS AssumeRole/source_profile/credential_source, web identity, container credentials, IMDSv2, IAM Identity Center cached legacy/session profiles with OIDC refresh, default PKCE login and explicit device login, Original EC2 credential files, and Boto config files. Explicit profiles disable environment credentials; environment-selected profiles retain their pinned distinction. Missing selected profiles and incomplete pairs fail explicitly. Signed requests do not borrow another provider's token. Unsigned contexts read nonsecret shared-profile configuration but never open the credentials file or invoke a credential provider. Profile S3, output, binary format, retry, timeout, checksum, FIPS/dualstack and CA settings retain their documented precedence.
 
-Wire fixtures verify STS source signing and explicit region, unsigned web-identity exchange, container authorization, IMDS token/role/credential sequencing, response limits, expiry rejection, redirect non-forwarding, SSO role credentials, OIDC refresh, and pending-to-success device login. Credential-process tests verify literal arguments, bounded stdout/deadline, stderr discard, and timeout/owner-death cleanup of owned Linux process groups. Token cache publication is atomic and uses mode 0600. Refresh owners use pinned 900-second advisory and 600-second mandatory windows, serialize concurrent loads, permit still-valid advisory reuse, bound and cancel waiters, avoid expired fallback, redact diagnostic status, monitor invocation ownership, and stop abandoned refresh workers. The 60-second refresh-attempt throttle applies to SSO token records; base credentials retain the pinned unthrottled behavior. IMDS conditionally falls back to v1 after eligible token failures, honors environment/profile v1-disable policy, and never downgrades after malformed token responses, token HTTP 400, redirects, or authenticated GET 401. Native selected-profile SSO login/logout commands avoid storage credential resolution; logout removes only the selected token cache and rejects symlinks.
+Wire fixtures verify STS source signing and explicit region, unsigned web-identity exchange, container authorization, IMDS token/role/credential sequencing, response limits, expiry rejection, redirect non-forwarding, SSO role credentials, OIDC refresh, and pending-to-success device login. Credential-process tests verify literal arguments, bounded stdout/deadline, stderr discard, and timeout/owner-death/overflow cleanup of owned process groups. Token cache publication is atomic and uses mode 0600. Refresh owners use pinned 900-second advisory and 600-second mandatory windows, serialize concurrent loads, permit still-valid advisory reuse, bound and cancel waiters, avoid expired fallback, redact diagnostic status, monitor invocation ownership, and stop abandoned refresh workers. The 60-second refresh-attempt throttle applies to SSO token records; base credentials retain the pinned unthrottled behavior. IMDS conditionally falls back to v1 after eligible token failures, honors environment/profile v1-disable policy, and never downgrades after malformed token responses, token HTTP 400, redirects, or authenticated GET 401. Native selected-profile SSO login/logout commands avoid storage credential resolution; logout removes only the selected token cache and rejects symlinks.
 
 Actual loopback IMDS peers stall the token response body after HTTP 200. The enabled policy closes the timed-out token request before two tokenless IMDSv1 credential GETs; v1-disabled policy closes that request without any credential GET. Killing the invocation while its token request is stalled closes the wire and never starts an IMDSv1 downgrade. These cases live in `credentials/metadata_test.exs` and match the pinned `botocore/utils.py` read-timeout fallback.
 
@@ -12,35 +12,19 @@ The shared PKCE/device notification follows pinned `awscli/customizations/sso/ut
 
 Remaining compatibility work:
 
-- `credential_process` is currently Linux-only; other platforms return `credential_process_platform_unavailable` rather than run an unvalidated cleanup strategy.
+- `credential_process` admits Linux and Darwin using OTP child process groups. Ten Linux tests verify group isolation and descendant cleanup; package probes now load the production modules from the installed escript and require all ten tests with no skips on every platform. Fresh Darwin arm64/x86_64 acceptance remains pending until both macOS 26 manifests pass. Other platforms return `credential_process_platform_unavailable`.
 - Production IMDS endpoint overrides currently allow only standard metadata addresses; loopback is an explicit test override.
 - PKCE defaults to a bounded loopback callback with state validation, S256, registration scopes, token exchange, and atomic cache publication. Device login uses `use_device_code: true`. Default browser launch is validated only on Linux; unsupported platforms, missing launchers, and launch failures retain manual URL/code display. Python `webbrowser` custom `BROWSER` command selection is not implemented; the launcher unsets `BROWSER` and uses the desktop default through `xdg-open`. Caller-injected browser callbacks remain caller-owned. Top-level login/logout executable acceptance remains an integration check beyond the scoped command-module tests.
 - MFA accepts an explicit six-digit `mfa_code`, a caller-owned `mfa_prompt`, or a real terminal prompt backed by native echo suppression. A real PTY-to-STS probe proves that the code is transmitted without terminal echo and restores termios. Noninteractive input fails with `mfa_required`. The prompt path depends on the matching packaged native runtime.
-- Endpoint partition variants for STS/SSO currently cover ordinary AWS, China, and GovCloud. Full pinned partition/endpoint-rule coverage belongs to the endpoint milestone.
-- Credential HTTP calls verify TLS peers and accept the resolved CA bundle. Actual TLS/custom-CA and live STS/SSO/metadata-service acceptance have not been exercised against real providers.
+- STS role and web-identity providers now evaluate the vendored AWS CLI 2.31.18 STS endpoint rules and shared partitions. The default is regional, matching pinned `botocore/args.py` (`AWS_STS_USE_GLOBAL_ENDPOINT: False`); `aws-global` still selects `sts.amazonaws.com` with the `us-east-1` signing scope. As a retained ESS compatibility override (the pinned v2 client does not enable the global builtin through this setting), explicit `sts_regional_endpoints`/`AWS_STS_REGIONAL_ENDPOINTS` legacy mode uses only the global regions listed by the pinned rules and leaves newer regions, China, GovCloud and isolated partitions regional. Explicit `sts_endpoint` precedes configured endpoints even when ignore policy is enabled. Otherwise `AWS_IGNORE_CONFIGURED_ENDPOINT_URLS`/profile policy can suppress endpoint overrides, and precedence is `AWS_ENDPOINT_URL_STS` > `AWS_ENDPOINT_URL` > profile `services` section `sts.endpoint_url` > profile `endpoint_url`. Profile service sections use the already-loaded bounded shared config; the data command’s explicit S3 endpoint is never forwarded. Environment/profile FIPS and dualstack flags feed the pinned rules; custom endpoints suppress those variants, matching the existing move-preflight helper. All custom endpoints retain the selected regional signing scope. Focused endpoint tests cover commercial, China, GovCloud and all four pinned isolated partition suffixes, mode/region/endpoint precedence, configured-endpoint ignore policy, FIPS/dualstack variants and global signing. Existing real wire tests cover source-signed AssumeRole and unsigned web identity. This establishes local endpoint/signing contracts, not live isolated-partition authentication. The AWS move-preflight helper already evaluates the same vendored STS rules with `UseGlobalEndpoint: false` and consumes modeled signing regions.
+- SSO endpoint variants currently cover ordinary AWS, China and GovCloud; no additional partition-service availability or live SSO partition claim is made.
+- Credential HTTP calls verify TLS peers and accept the resolved CA bundle. Real CA-signed loopback TLS tests exercise source-signed AssumeRole and unsigned web identity using profile `services.sts` endpoints while the S3 command endpoint differs. Live STS/SSO/metadata-service acceptance has not been exercised against real providers.
 
-The user-approved coordinated HTTP update is integrated in the working copy:
-core admits 0.21.12 alongside its existing alternatives, CLI requires 0.21.12,
-and the lock selects the published coordinated family without overrides.
-AWS `--cli-read-timeout` now controls socket read inactivity independently of
-total request duration: positive seconds reset with network progress, zero
-disables the limit. Connect timeout is independent and zero selects infinity.
-Real finite-read trickle/stall and unchanged-default 65-second AWS-zero/native
-network-gap fixtures pass. The combined CLI suite passed 3,244 tests with
-zero failures and one resource exclusion (seed 628644), and all four
-affected-app suites passed with zero failures. Logs are
-`/tmp/ess-cli-http02112-coordinated-20261016/{cli-full,affected-apps}.log`.
-These local tests do not establish live credential-provider acceptance; fresh
-package acceptance and remote checks remain separate gates.
-
-Historically, the selected 0.18.1 graph rejected infinity before I/O and depended
-on [#123](https://github.com/gsmlg-dev/http_fetch/issues/123); 0.21.11 also had
-[#129](https://github.com/gsmlg-dev/http_fetch/issues/129)'s separate response
-stream idle cap. Those version-specific limits are resolved by the selected
-0.21.12 API plus its explicit request-scoped stream option. They are not current
-blockers of this graph. The remaining release blocker is
-[#131](https://github.com/gsmlg-dev/http_fetch/issues/131): fixed consumer ACK
-budgets can expire during valid bounded slow-rate delivery. No global timer
-mutation or dependency patch is used. See
-[http-021-evaluation.md](http-021-evaluation.md) for exact wire evidence and the
-scope of that distinct limit.
+The user-approved dependency update now selects published HTTP 0.21.13 and
+requires `~> 0.21.13` for the CLI. Core's approved `~> 0.21.12` range admits it.
+Request-scoped network and consumer ACK policies preserve slow bounded delivery,
+independent socket inactivity, cancellation and explicit finite total deadlines.
+The former #129/#131/#132 blockers have scoped acceptance on this version;
+see [HTTP evaluation](http-021-evaluation.md). Complete CLI and fresh platform
+acceptance are separate release gates. No live credential-provider claim follows
+from local wire fixtures.

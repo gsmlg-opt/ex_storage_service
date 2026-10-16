@@ -89,6 +89,26 @@ defmodule ExStorageServiceCli.S3.DecoderTest do
              })
   end
 
+  test "bucket locations match the pinned AWS null, region and legacy EU captures" do
+    fixture =
+      File.read!(Path.expand("../../fixtures/differential/bucket-location-wire.json", __DIR__))
+
+    assert Base.encode16(:crypto.hash(:sha256, fixture), case: :lower) ==
+             "5800707a7672e707efa89c38c31d3dd218fddb1c107e73a65cabdc44bbadfcc7"
+
+    %{"aws_sha256" => aws_sha256, "cases" => cases} = JSON.decode!(fixture)
+
+    assert aws_sha256 == "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a"
+    assert length(cases) == 4
+
+    for captured <- cases do
+      expected = JSON.decode!(captured["aws"]["stdout"])
+
+      assert {:ok, ^expected} =
+               Decoder.decode("GetBucketLocation", %Response{status: 200, body: captured["body"]})
+    end
+  end
+
   test "Expires retains the pinned SDK raw string alongside a valid timestamp" do
     value = "Thu, 15 Oct 2026 04:00:00 GMT"
     response = %Response{status: 200, body: "", headers: [{"eXpIrEs", value}]}

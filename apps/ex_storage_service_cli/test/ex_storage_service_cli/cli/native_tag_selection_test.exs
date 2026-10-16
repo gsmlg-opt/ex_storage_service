@@ -23,6 +23,147 @@ defmodule ExStorageServiceCli.CLI.NativeTagSelectionTest do
     end
   end
 
+  for {scope, key, operation} <- [
+        {"bucket", "", "PutBucketTagging"},
+        {"object", "key", "PutObjectTagging"}
+      ] do
+    test "disabled exclude-folders preserves direct #{scope} tagging", %{tmp_dir: root} do
+      key = unquote(key)
+      operation = unquote(operation)
+      url = "s3://bucket/" <> key
+      target = %Target{kind: :remote, bucket: "bucket", key: key}
+      tagging = %{"TagSet" => [%{"Key" => "team", "Value" => "ops"}]}
+      expected = %{"Bucket" => "bucket", "Tagging" => tagging}
+      expected = if key == "", do: expected, else: Map.put(expected, "Key", key)
+
+      for flag <- ["--no-exclude-folders", "--exclude-folders=false"],
+          dry_run <- [false, true] do
+        args = ["tag", "set", url, "team=ops", flag] ++ if(dry_run, do: ["--dry-run"], else: [])
+        assert {:ok, invocation} = Parser.parse(args)
+        assert invocation.options[:exclude_folders] == false
+
+        call = fn actual_operation, input ->
+          refute dry_run
+          assert actual_operation == operation
+          assert input == expected
+          send(self(), {:direct_tag_write, actual_operation})
+          {:ok, %{"Written" => true}}
+        end
+
+        result =
+          Management.run(invocation, target, %Context{unsigned: true},
+            call: call,
+            tmp_dir: root
+          )
+
+        if dry_run do
+          assert {:ok, %{"DryRun" => true, "Operation" => ^operation, "Input" => ^expected}} =
+                   result
+
+          refute_received {:direct_tag_write, _}
+        else
+          assert {:ok, %{"Written" => true}} = result
+          assert_received {:direct_tag_write, ^operation}
+        end
+
+        assert File.ls!(root) == []
+      end
+    end
+  end
+
+  test "tag set exposes exclude-folders only with recursive selection", %{tmp_dir: root} do
+    assert {:ok, %Invocation{options: %{recursive: true, exclude_folders: true}}} =
+             Parser.parse([
+               "tag",
+               "set",
+               "s3://bucket/",
+               "team=ops",
+               "--recursive",
+               "--exclude-folders"
+             ])
+
+    assert {:error, %Error{category: :syntax}} =
+             run(
+               "set",
+               %{exclude_folders: true},
+               fn _, _ -> flunk("invalid selection called S3") end,
+               root
+             )
+
+    for action <- ~w(get list remove) do
+      assert {:error, %Error{category: :syntax}} =
+               Parser.parse(["tag", action, "s3://bucket/", "--exclude-folders"])
+    end
+  end
+
+  test "exclude-folders follows pinned full-key selection before current or historical tag effects",
+       %{tmp_dir: root} do
+    for versions <- [false, true], dry_run <- [false, true] do
+      call = fn
+        "ListObjectsV2", _ ->
+          {:ok,
+           %{
+             "IsTruncated" => false,
+             "Contents" => Enum.map(["top", "sub/child", "folder/", "/leading/key"], &object/1)
+           }}
+
+        "ListObjectVersions", _ ->
+          {:ok,
+           %{
+             "IsTruncated" => false,
+             "Versions" =>
+               Enum.map(
+                 ["top", "sub/child", "folder/", "/leading/key"],
+                 &version(&1, "v1", @time)
+               )
+           }}
+
+        "HeadObject", %{"Key" => key} ->
+          assert key in ["top", "/leading/key"]
+          send(self(), {:preflight, key})
+          {:ok, head("v1")}
+
+        "PutObjectTagging", %{"Key" => key, "VersionId" => "v1"} ->
+          refute dry_run
+          assert key in ["top", "/leading/key"]
+          assert_received {:preflight, "top"}
+          send(self(), {:preflight, "top"})
+          assert_received {:preflight, "/leading/key"}
+          send(self(), {:preflight, "/leading/key"})
+          send(self(), {:tagged, key})
+          {:ok, %{}}
+      end
+
+      options = %{recursive: true, exclude_folders: true, versions: versions, dry_run: dry_run}
+
+      assert {:ok, %{"Processed" => 2, "MatchedObjects" => 2, "DryRun" => ^dry_run}} =
+               Management.run(
+                 %Invocation{
+                   command: ["tag", "set"],
+                   args: ["s3://bucket/", "team=ops"],
+                   options: options
+                 },
+                 %Target{kind: :remote, bucket: "bucket", key: ""},
+                 %Context{unsigned: true},
+                 call: call,
+                 tmp_dir: root,
+                 now: @now
+               )
+
+      assert_received {:preflight, "top"}
+      assert_received {:preflight, "/leading/key"}
+
+      if dry_run do
+        refute_received {:tagged, _}
+      else
+        assert_received {:tagged, "top"}
+        assert_received {:tagged, "/leading/key"}
+      end
+
+      assert File.ls!(root) == []
+    end
+  end
+
   test "complete current inventory and every identity precede tag mutations", %{tmp_dir: root} do
     call = fn
       "ListObjectsV2", %{"Prefix" => "p/", "ContinuationToken" => "next"} ->

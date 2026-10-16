@@ -1,12 +1,75 @@
-# HTTP 0.21.12 integration and remaining release blockers
+# HTTP 0.21.13 integration and historical release blockers
+
+## Current published dependency integration
+
+The working copy based on `167cabddfd5d0b38f842ac706ff6c68c26ed43a0`
+requires `http_fetch ~> 0.21.13` in the CLI and resolves the eight coordinated
+HTTP packages to published 0.21.13. Core's existing `~> 0.21.12` alternative
+already admits this patch release; its declaration and behavior are unchanged.
+No override or dependency patch is used. Both #131 and #132 are closed upstream.
+
+Tag `v0.21.13` is `6b2ede60787390aa2959bde38a0ba6f48e5c413b`.
+The Hex tar SHA256 is
+`31a558d922eb288ba3a699957ed377663f339b0fde1f4a2739f8bd654f06f307`;
+its verified inner checksum is
+`edefd8e7d6c9168b92e9573242905c7cae21dbec4425ff95c9638c6925bc526c`.
+All nineteen published library files match the tag byte for byte. Independent
+inspection is retained in `/tmp/ess-http-02113-reference-ge3U30/inspection-summary.json`.
+
+The adapter now sets `response_stream_ack_timeout: :infinity` alongside
+`response_stream_idle_timeout: :infinity`. The new option controls both the
+response Stream's pending acknowledgement and the socket producer's wait.
+Chunks are still acknowledged only after bounded sink delivery. Socket
+inactivity, finite total deadlines, cancellation and reader ownership remain
+independent. Omitted/nil ACK policy retains the global finite default; explicit
+policies support ordinary HTTP/1 TCP, OTP TLS and ExSSL, not automatic/H2/H3 or
+managed scopes. Upload-source ACK policy is unchanged.
+
+Independent local acceptance uses Linux x86_64, Elixir 1.18.5/OTP 28:
+
+- With the new dependency but the old adapter, the real 512-byte/8-byte-per-second
+  regression still fails after 63.2 seconds with `:timeout`. Selecting the new
+  request policy is necessary.
+- With the policy selected, the same real paced case passes. The separate
+  native-context/Client diagnostic returns exact 512 bytes and success after
+  63,124 ms, with native request infinity and read/write inactivity 600,000 ms.
+  Global streaming timeout is 60,000 ms before and after. Its result is
+  `/tmp/ess-http-02113-acceptance-20261016/paced-client-diagnostic.log`.
+- A finite total deadline still stops paced delivery, and cancellation removes
+  the queued reservation and closes owned streams/controllers while preserving
+  the borrowed signal. The initial scoped run had one cancellation-fixture
+  setup error; correcting the PID return binding makes that selected case pass.
+  Complete CLI acceptance remains a separate gate.
+- Concurrent real requests prove a direct finite 200 ms ACK policy times out
+  while the adapter remains blocked in its sink, then the adapter completes
+  exact raw gzip bytes. The new isolation test passes 31 executions without
+  global changes; evidence is in `/tmp/ess-cli-http02113-ack-isolation-20261016`.
+- The unchanged file-range upload cleanup regression passes 31 executions with
+  its original waits. Exact gzip/framing, `:source_closed` and normal body DOWN
+  all remain asserted. Four upstream deterministic unit regressions also pass.
+  Evidence is `/tmp/ess-cli-http02113-finalization-20261016/evidence.md`.
+
+The published upload fix waits for source completion after the exact declared
+bytes, including enumerable finalization, within a finite completion budget
+capped by any overall deadline. Finalizer exceptions fail the request despite a
+successful peer response. Cancellation can forcibly interrupt a callback;
+process termination alone is not proof that it completed. No descriptor leak,
+corruption or data loss was established by the earlier missing notification.
+
+These results clear the two bounded upstream behavior blockers locally. They do
+not close full CLI, remote, native-difference, immutable-package or publication
+acceptance. Earlier 0.21.12/0.21.11 evidence below remains historical.
+
+## Historical 0.21.12 integration
 
 The user approved the coordinated dependency update on 2026-10-16. Commit `600c8755de5ff58ee2ee3fa33203d6ea40e0497c`, based on main
 `2fe20dbe8ba643344f179da945e82e1d5b0d4a6a`, adds
 `~> 0.21.12` to core's existing 0.17/0.18 alternatives, requires `~> 0.21.12`
 in the CLI, and selects the published coordinated 0.21.12 HTTP family in the
 umbrella lock. DuskMoon's already-allowed 9.16.16 npm/QuickBEAM components accept
-this family. No dependency override or patched source is used. The integration was committed and pushed. Current remote CLI unit acceptance
-failed as recorded below; release remains blocked by both #131 and #132.
+this family. No dependency override or patched source was used. The integration
+was committed and pushed. Its remote CLI unit acceptance failed as recorded
+below; both #131 and #132 blocked that version.
 
 The adapter now passes independent HTTP/1 socket read/write inactivity options
 and `response_stream_idle_timeout: :infinity`. AWS `--cli-read-timeout` is a
@@ -68,7 +131,7 @@ Evidence roots:
   `test/aws_read_deadline_test.exs`, `test/native_deadline_duration_test.exs`
   under `apps/ex_storage_service_cli/`.
 
-## Current release blocker: paced consumer acknowledgement
+## Historical 0.21.12 blocker: paced consumer acknowledgement
 
 [#131](https://github.com/gsmlg-dev/http_fetch/issues/131) is an open
 upstream **Feature / internal request / blocker** for CLI M9 and release of
@@ -97,7 +160,7 @@ cancellation/owner cleanup require validation, followed by independent real
 paced-transfer acceptance in ESS. The passing 65-second network-gap probes do
 not close this gate.
 
-## Current release blocker: upload enumerable finalization
+## Historical 0.21.12 blocker: upload enumerable finalization
 
 [#132](https://github.com/gsmlg-dev/http_fetch/issues/132) is a second upstream
 **Bug / internal request / blocker** on published 0.21.12. The unchanged
@@ -126,7 +189,7 @@ No local workaround, weakened assertion or dependency patch is used. This
 blocked contract awaits an upstream fix in a published dependency and repeat
 acceptance, separately from #131's slow-delivery policy.
 
-## Current remote acceptance at 600c875
+## Historical remote acceptance at 600c875
 
 The standalone CLI suite failed with **3,243 tests, two failures and one
 resource exclusion** (seed 288806, 373.2 seconds). The umbrella CLI suite failed
@@ -183,6 +246,6 @@ The original unapplied 0.21.11 proposal remains historical at
 `18363c6e8cba31da6560ff4aa2d82f593b5abd2eee12d8b52f4e16f9b076f6b5`.
 Its then-unverified duration prototype is superseded by the integrated parser
 and retained Go oracle. #123's older-line backport status and #126/#129's old
-limitations are not blockers of the selected 0.21.12 graph. #131 is the
-remaining consumer-delivery capability gap, and #132 is the separate current
-upload-finalization bug.
+limitations were not blockers of the selected 0.21.12 graph. That version's
+remaining #131 consumer-delivery gap and #132 upload-finalization bug are
+superseded by the published 0.21.13 integration above.

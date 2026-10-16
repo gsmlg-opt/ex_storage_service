@@ -8,9 +8,63 @@ import sys
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 import zipfile
 
-from package_probe import CLI, ESS_LICENSE, REQUIRED, extract_package, inspect_escript, run_pty
+from package_probe import (CLI, ESS_LICENSE, REQUIRED, check_installed_credential_process,
+                           extract_package, inspect_escript, run_pty)
+
+
+class InstalledCredentialProcessProbeTest(unittest.TestCase):
+    def evidence(self):
+        return {
+            "module_source": "installed-escript", "os": platform.system().lower(),
+            "architecture": "fixture-architecture", "otp": "28", "total": 10,
+            "failures": 0, "skipped": 0, "excluded": 0,
+            "checks": ["literal-argv", "stderr-discard", "bounded-output", "child-group-isolation",
+                       "timeout-descendant-cleanup", "owner-death-descendant-cleanup",
+                       "overflow-descendant-cleanup"],
+        }
+
+    def output(self, evidence):
+        return ("10 tests, 0 failures\nESS_CREDENTIAL_PROCESS_PROBE=" +
+                json.dumps(evidence) + "\n").encode()
+
+    def test_runs_installed_artifact_with_literal_paths_and_preserves_evidence(self):
+        evidence = self.evidence()
+        logs = [{"stderr": ""}]
+        installed = Path("/fixture space/installed ess")
+        with patch("package_probe.run", return_value=self.output(evidence)) as runner:
+            self.assertEqual(evidence, check_installed_credential_process(
+                installed, Path("/unrelated"), {"fixture": "literal"}, logs))
+        argv = runner.call_args.args[0]
+        self.assertEqual("elixir", argv[0])
+        self.assertTrue(argv[1].endswith("/credential_process_probe.exs"))
+        self.assertEqual(str(installed), argv[2])
+        self.assertTrue(argv[3].endswith("/credentials/process_test.exs"))
+        self.assertEqual(120, runner.call_args.kwargs["timeout"])
+
+    def test_missing_or_duplicate_evidence_cannot_be_reported_as_acceptance(self):
+        for output in (b"10 tests, 0 failures\n", self.output(self.evidence()) * 2):
+            with patch("package_probe.run", return_value=output), self.assertRaisesRegex(
+                    RuntimeError, "omitted its evidence"):
+                check_installed_credential_process(Path("ess"), Path.cwd(), {}, [{"stderr": ""}])
+
+    def test_failed_skipped_excluded_incomplete_or_wrong_source_checks_are_rejected(self):
+        for change in ({"failures": 1}, {"skipped": 1}, {"excluded": 1}, {"total": 0},
+                       {"checks": ["literal-argv"]}, {"module_source": "checkout"},
+                       {"os": "unverified"}):
+            evidence = dict(self.evidence(), **change)
+            with self.subTest(change=change), patch("package_probe.run", return_value=self.output(evidence)), \
+                    self.assertRaisesRegex(RuntimeError, "did not all pass"):
+                check_installed_credential_process(Path("ess"), Path.cwd(), {}, [{"stderr": ""}])
+
+    def test_fixture_diagnostics_must_not_leak_to_stdout_or_stderr(self):
+        output = self.output(self.evidence())
+        for stdout, stderr in ((output + b"stderr-secret", ""), (output, "private diagnostic")):
+            with patch("package_probe.run", return_value=stdout), self.assertRaisesRegex(
+                    RuntimeError, "leaked fixture diagnostics"):
+                check_installed_credential_process(Path("ess"), Path.cwd(), {}, [{"stderr": stderr}])
 
 
 class EscriptApplicationBoundaryTest(unittest.TestCase):

@@ -51,7 +51,7 @@ ess tag set team/bucket/key 'team+name=a%2Bb%3Dc&empty='
 ess tag set team/bucket/key '{"TagSet":[{"Key":"team","Value":"ops"}]}'
 ```
 
-List delegates to actual bucket/object tagging operations, retaining explicit object version selection. `--version-id` on a bucket fails instead of being ignored. Key-value set follows URL query escaping (`+` means space, `%2B` means literal plus, and values may contain encoded equals). Distinct nonempty keys, valid UTF-8/percent escapes, key/value character lengths and bucket/object tag-count limits are checked. Existing complete JSON/file documents remain accepted. Recursive/rewind/all-version operations and the `--vid` alias remain absent and reject unknown options.
+List delegates to actual bucket/object tagging operations, retaining explicit object version selection. `--version-id` on a bucket fails instead of being ignored. Key-value set follows URL query escaping (`+` means space, `%2B` means literal plus, and values may contain encoded equals). Distinct nonempty keys, valid UTF-8/percent escapes, key/value character lengths and bucket/object tag-count limits are checked. Existing complete JSON/file documents remain accepted. Recursive/rewind/all-version selections and `--vid` now use the bounded identity-checked engine; see [native-tag-selection-decisions.md](native-tag-selection-decisions.md), including the pinned full-key `--exclude-folders` rule.
 
 ## Safety and validation boundary
 

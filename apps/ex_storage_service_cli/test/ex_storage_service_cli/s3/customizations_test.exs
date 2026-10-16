@@ -2,8 +2,80 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.S3.CustomizationsTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, S3.Client}
+  alias ExStorageServiceCli.{Context, S3.Client, S3.Customizations}
   alias ExStorageServiceCli.Test.WireServer
+
+  test "RenameObject generates a fresh UUIDv4 per call and retains it across service retries" do
+    transient =
+      {503, [], "<Error><Code>SlowDown</Code><Message>Retry fixture</Message></Error>"}
+
+    {endpoint, _} = WireServer.fixture([transient, {200, [], ""}, transient, {200, [], ""}])
+
+    context = %Context{
+      endpoint: endpoint,
+      access_key_id: "fixture-access",
+      secret_access_key: "fixture-secret"
+    }
+
+    tokens =
+      for _ <- 1..2 do
+        assert {:ok, %{}} =
+                 Client.call(
+                   context,
+                   "RenameObject",
+                   %{"Bucket" => "bucket", "Key" => "new", "RenameSource" => "old"},
+                   max_attempts: 2,
+                   sleep: fn _ -> :ok end
+                 )
+
+        assert_receive {:wire_request, %{headers: first}}
+        assert_receive {:wire_request, %{headers: second}}
+        token = first["x-amz-client-token"]
+
+        assert token =~
+                 ~r/\A[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\z/
+
+        assert second["x-amz-client-token"] == token
+        assert first["authorization"] =~ "x-amz-client-token"
+        token
+      end
+
+    assert length(Enum.uniq(tokens)) == 2
+  end
+
+  test "RenameObject preserves an explicit token across retries and never replaces present values" do
+    token = "caller-owned-token"
+
+    {endpoint, _} =
+      WireServer.fixture([
+        {503, [], "<Error><Code>SlowDown</Code><Message>Retry fixture</Message></Error>"},
+        {200, [], ""}
+      ])
+
+    assert {:ok, %{}} =
+             Client.call(
+               %Context{endpoint: endpoint, unsigned: true},
+               "RenameObject",
+               %{
+                 "Bucket" => "bucket",
+                 "Key" => "new",
+                 "RenameSource" => "old",
+                 "ClientToken" => token
+               },
+               max_attempts: 2,
+               sleep: fn _ -> :ok end
+             )
+
+    for _ <- 1..2 do
+      assert_receive {:wire_request, %{headers: headers}}
+      assert headers["x-amz-client-token"] == token
+    end
+
+    for value <- [token, "", nil] do
+      input = %{"ClientToken" => value}
+      assert {:ok, ^input, %{}} = Customizations.input("RenameObject", input)
+    end
+  end
 
   test "raw API copy sources are quoted once while the explicit version suffix is preserved" do
     for operation <- ["CopyObject", "UploadPartCopy"] do

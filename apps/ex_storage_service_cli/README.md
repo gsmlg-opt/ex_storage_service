@@ -147,12 +147,12 @@ budget; source and destination have independent limits. `--conn-read-deadline`
 and `--conn-write-deadline` independently bound socket inactivity, defaulting to
 `10m`. Zero disables that direction. Positive Go durations must resolve exactly
 to whole milliseconds, at most `4294967295ms`; other values fail explicitly.
-The overall request has no implicit duration cap. Slow paced consumption remains
-release-blocked by [http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131):
-the dependency still imposes a separate 60-second chunk acknowledgement limit.
-Successful fixed-length upload responses can also race source finalization,
-tracked as release blocker
-[http_fetch#132](https://github.com/gsmlg-dev/http_fetch/issues/132).
+The overall request has no implicit duration cap. The HTTP/1 adapter uses
+request-scoped network-idle and consumer-acknowledgement policies, so bounded
+slow delivery can exceed the global 60-second streaming-operation default.
+Socket inactivity and cancellation remain active. The required HTTP 0.21.13
+also confirms successful fixed-length upload source finalization before
+returning success. Forced cancellation can interrupt a finalizer.
 Repeated `--resolve HOST[:PORT]=literal-IP` entries pin socket addresses while
 preserving the signed Host, TLS SNI and certificate identity. A port-specific
 entry wins over a host-only entry, and failed pins do not fall back to DNS.
@@ -176,7 +176,8 @@ its exact expected-size check.
 | `AWS_REGION`, `AWS_DEFAULT_REGION` | AWS region settings |
 | `AWS_CONFIG_FILE`, `AWS_SHARED_CREDENTIALS_FILE` | Shared configuration/credentials paths |
 | `AWS_ENDPOINT_URL_S3`, `AWS_ENDPOINT_URL` | Applicable explicit service/global endpoint settings |
-| `AWS_ENDPOINT_URL_S3_CONTROL`, `AWS_ENDPOINT_URL_STS` | Independent control endpoints for access-point move validation; data `--endpoint-url` does not override them |
+| `AWS_ENDPOINT_URL_S3_CONTROL`, `AWS_ENDPOINT_URL_STS` | Independent control endpoints for move validation; STS also serves role/web-identity credentials; data `--endpoint-url` does not override them |
+| `AWS_STS_REGIONAL_ENDPOINTS` | ESS extension: explicit `regional` (default) or `legacy` STS mode, constrained by pinned partition rules |
 | `AWS_IGNORE_CONFIGURED_ENDPOINT_URLS` | Ignore configured service/global endpoints when true |
 | `AWS_CLI_S3_MV_VALIDATE_SAME_S3_PATHS` | Enable underlying access-point/MRAP path checks for AWS moves with the exact case-insensitive value `true` |
 | `AWS_S3_USE_ARN_REGION` | Allow the applicable Outposts ARN region policy |

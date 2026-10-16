@@ -92,12 +92,16 @@ defmodule ExStorageServiceCli.Credentials.ProcessTest do
   test "timeout kills the owned helper and its sleeping descendant", %{tmp_dir: root} do
     own_file = Path.join(root, "helper-pid")
     child_file = Path.join(root, "child-pid")
+    group_file = Path.join(root, "helper-group")
+    child_group_file = Path.join(root, "child-group")
     sleep = System.find_executable("sleep")
 
     path =
       helper(
         root,
-        "printf '%s' \"$$\" > '#{own_file}'\n'#{sleep}' 60 &\nprintf '%s' \"$!\" > '#{child_file}'\nwait\n"
+        "printf '%s' \"$$\" > '#{own_file}'\nps -o pgid= -p \"$$\" > '#{group_file}'\n" <>
+          "'#{sleep}' 60 &\nprintf '%s' \"$!\" > '#{child_file}'\n" <>
+          "ps -o pgid= -p \"$!\" > '#{child_group_file}'\nwait\n"
       )
 
     started = System.monotonic_time(:millisecond)
@@ -107,11 +111,36 @@ defmodule ExStorageServiceCli.Credentials.ProcessTest do
 
     assert System.monotonic_time(:millisecond) - started < 3_000
 
+    helper_pid = File.read!(own_file)
+    assert String.trim(File.read!(group_file)) == helper_pid
+    assert String.trim(File.read!(child_group_file)) == helper_pid
+    {beam_group, 0} = System.cmd("ps", ["-o", "pgid=", "-p", System.pid()])
+    refute String.trim(beam_group) == helper_pid
+
     for file <- [own_file, child_file] do
       pid = File.read!(file)
       assert stopped?(pid)
     end
 
+    refute_receive {_port, {:data, _}}
+  end
+
+  test "output overflow kills the owned helper and its descendant", %{tmp_dir: root} do
+    own_file = Path.join(root, "overflow-helper-pid")
+    child_file = Path.join(root, "overflow-child-pid")
+    sleep = System.find_executable("sleep")
+
+    path =
+      helper(
+        root,
+        "printf '%s' \"$$\" > '#{own_file}'\n'#{sleep}' 60 &\n" <>
+          "printf '%s' \"$!\" > '#{child_file}'\nprintf '%s' '#{String.duplicate("x", 1024)}'\nwait\n"
+      )
+
+    assert {:error, %Error{code: :credential_process_output_limit}} =
+             CredentialProcess.run(quote_arg(path), max_output: 32)
+
+    for file <- [own_file, child_file], do: assert(stopped?(File.read!(file)))
     refute_receive {_port, {:data, _}}
   end
 

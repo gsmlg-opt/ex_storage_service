@@ -199,7 +199,12 @@ defmodule ExStorageServiceCli.Credentials.Provider do
 
   defp credentials(stores, profile, options, env, opts) do
     config = stores.config[profile] || %{}
-    opts = Keyword.put(opts, :metadata_config, config)
+
+    opts =
+      opts
+      |> Keyword.put(:metadata_config, config)
+      |> Keyword.put(:credential_sections, stores.sections)
+
     stored = stores.credentials[profile] || %{}
     explicit = options[:profile] != nil
 

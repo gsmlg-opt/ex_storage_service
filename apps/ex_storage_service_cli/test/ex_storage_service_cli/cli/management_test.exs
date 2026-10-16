@@ -2,7 +2,7 @@ defmodule ExStorageServiceCli.CLI.ManagementTest do
   use ExUnit.Case, async: true
   alias ExStorageServiceCli.{Context, Error, Target}
   alias ExStorageServiceCli.CLI.{Invocation, Management, Parser}
-  alias ExStorageServiceCli.S3.{Encoder, OperationCatalog}
+  alias ExStorageServiceCli.S3.{Customizations, Encoder, OperationCatalog}
   @moduletag :tmp_dir
 
   test "all native document families bind to catalog operations and preserve complete input" do
@@ -147,6 +147,58 @@ defmodule ExStorageServiceCli.CLI.ManagementTest do
     refute policy =~ "s3:PutObject"
   end
 
+  test "anonymous private aliases none without granting public permissions" do
+    for mode <- ~w(none private), dry_run <- [false, true] do
+      call = fn
+        "GetBucketPolicy", _ ->
+          {:error, Error.new(:service, "Missing", code: "NoSuchBucketPolicy")}
+
+        "PutBucketPolicy", input ->
+          refute dry_run
+          assert input["Bucket"] == "bucket"
+          assert JSON.decode!(input["Policy"]) == %{"Version" => "2012-10-17", "Statement" => []}
+          {:ok, %{}}
+      end
+
+      invocation = invocation(["anonymous", "set"], [mode, "s3://bucket"], %{dry_run: dry_run})
+
+      if dry_run do
+        assert {:ok, %{"DryRun" => true, "Operation" => "PutBucketPolicy", "Input" => input}} =
+                 run(invocation, "s3://bucket", call)
+
+        assert JSON.decode!(input["Policy"]) == %{"Version" => "2012-10-17", "Statement" => []}
+      else
+        assert {:ok, %{}} = run(invocation, "s3://bucket", call)
+      end
+    end
+  end
+
+  test "anonymous private preserves replacement and policy-read safeguards" do
+    owner = self()
+
+    call = fn
+      "GetBucketPolicy", _ ->
+        {:ok, %{"Policy" => "existing"}}
+
+      "PutBucketPolicy", input ->
+        send(owner, {:written, input})
+        {:ok, %{}}
+    end
+
+    invocation = invocation(["anonymous", "set"], ["private", "s3://bucket"])
+    assert {:error, %Error{message: message}} = run(invocation, "s3://bucket", call)
+    assert message =~ "--replace"
+    refute_received {:written, _}
+
+    assert {:ok, %{}} = run(%{invocation | options: %{replace: true}}, "s3://bucket", call)
+    assert_received {:written, %{"Bucket" => "bucket", "Policy" => policy}}
+    assert JSON.decode!(policy) == %{"Version" => "2012-10-17", "Statement" => []}
+
+    denied = Error.new(:service, "Denied", code: "AccessDenied", http_status: 403)
+    denied_call = fn "GetBucketPolicy", _ -> {:error, denied} end
+    assert {:error, ^denied} = run(invocation, "s3://bucket", denied_call)
+  end
+
   test "versioning preserves the CLI version command and uses explicit subcommands" do
     assert {:ok, %Invocation{command: ["version"]}} = Parser.parse(["version"])
 
@@ -172,7 +224,7 @@ defmodule ExStorageServiceCli.CLI.ManagementTest do
     call = fn
       "HeadObject", input ->
         assert input["VersionId"] == "v/+%"
-        {:ok, %{"ETag" => "\"selected\""}}
+        {:ok, %{"ETag" => "\"selected\"", "VersionId" => "v/+%"}}
 
       "CopyObject", input ->
         assert input["CopySource"] == %{
@@ -182,11 +234,69 @@ defmodule ExStorageServiceCli.CLI.ManagementTest do
                }
 
         assert input["CopySourceIfMatch"] == "\"selected\""
+        assert {:ok, prepared, _} = Customizations.input("CopyObject", input)
+        assert {:ok, request} = Encoder.encode("CopyObject", prepared)
+
+        assert {"x-amz-copy-source", "/bucket/a//../b%25%2B?versionId=v%2F%2B%25"} in request.headers
+
         {:ok, %{"CopyObjectResult" => %{"ETag" => "\"restored\""}}}
     end
 
     invocation = invocation(["undo"], ["s3://bucket/a//../b%+"], %{version_id: "v/+%"})
     assert {:ok, _} = run(invocation, hd(invocation.args), call)
+  end
+
+  test "undo dry run validates the confirmed encoded copy source without copying" do
+    call = fn "HeadObject", input ->
+      assert input["VersionId"] == "v/+%"
+      {:ok, %{"ETag" => "\"selected\"", "VersionId" => "v/+%"}}
+    end
+
+    invocation =
+      invocation(["undo"], ["s3://bucket/a//../b%+"], %{version_id: "v/+%", dry_run: true})
+
+    assert {:ok, %{"DryRun" => true, "Operation" => "CopyObject", "Input" => input}} =
+             run(invocation, hd(invocation.args), call)
+
+    assert input["CopySource"] == "/bucket/a//../b%25%2B?versionId=v%2F%2B%25"
+    assert input["CopySourceIfMatch"] == "\"selected\""
+    assert {:ok, request} = Encoder.encode("CopyObject", input)
+    assert {"x-amz-copy-source", input["CopySource"]} in request.headers
+  end
+
+  for {identity, returned_version} <- [{"missing", nil}, {"mismatched", "other"}],
+      dry_run <- [false, true] do
+    test "undo rejects a #{identity} confirmed version with dry-run #{dry_run}" do
+      owner = self()
+
+      call = fn
+        "HeadObject", input ->
+          assert input == %{"Bucket" => "bucket", "Key" => "key", "VersionId" => "v/+%"}
+          selected = %{"ETag" => "\"selected\""}
+
+          selected =
+            if unquote(returned_version),
+              do: Map.put(selected, "VersionId", unquote(returned_version)),
+              else: selected
+
+          {:ok, selected}
+
+        "CopyObject", _ ->
+          send(owner, :copied)
+          {:ok, %{}}
+      end
+
+      invocation =
+        invocation(["undo"], ["s3://bucket/key"], %{
+          version_id: "v/+%",
+          dry_run: unquote(dry_run)
+        })
+
+      assert {:error, %Error{category: :syntax, code: :source_version_mismatch}} =
+               run(invocation, hd(invocation.args), call)
+
+      refute_received :copied
+    end
   end
 
   test "undo never deletes a data version passed as a delete-marker ID" do

@@ -10,6 +10,15 @@ defmodule ExStorageServiceCli.CLI.NativeListing do
     page_size = invocation.options[:max_keys] || 1000
 
     cond do
+      invocation.options[:incomplete] == true and
+          (invocation.options[:versions] == true or invocation.options[:rewind] != nil) ->
+        {:error,
+         Error.new(:syntax, "Incomplete uploads cannot be combined with versions or rewind")}
+
+      Enum.any?([:incomplete, :summarize, :storage_class], &Map.has_key?(invocation.options, &1)) and
+          not match?(%{kind: :remote, bucket: bucket} when is_binary(bucket), target) ->
+        {:error, Error.new(:syntax, "These listing options require a remote bucket or prefix")}
+
       limit not in 0..10_000 or page_size not in 1..1000 ->
         {:error, Error.new(:syntax, "Listing limit must be 0..10000 and page size 1..1000")}
 
@@ -40,18 +49,24 @@ defmodule ExStorageServiceCli.CLI.NativeListing do
         Paginator.pages("ListObjectVersions", input, fetch, page_size: page_size)
         |> Stream.flat_map(fn
           {:error, _} = error -> [error]
-          {:ok, page} -> version_rows(page, prefix)
+          {:ok, page} -> version_rows(page, prefix, options)
         end)
 
       result =
-        Enum.reduce_while(entries, {:ok, [], 0, false}, fn
-          {:error, _} = error, _ -> {:halt, error}
-          {:ok, _}, {:ok, rows, ^limit, _} -> {:halt, {:ok, rows, limit, true}}
-          {:ok, row}, {:ok, rows, count, _} -> {:cont, {:ok, [row | rows], count + 1, false}}
+        Enum.reduce_while(entries, {:ok, [], 0, false, 0}, fn
+          {:error, _} = error, _ ->
+            {:halt, error}
+
+          {:ok, _}, {:ok, rows, ^limit, _, bytes} ->
+            {:halt, {:ok, rows, limit, true, bytes}}
+
+          {:ok, row}, {:ok, rows, count, _, bytes} ->
+            {:cont, {:ok, [row | rows], count + 1, false, bytes + (row["size"] || 0)}}
         end)
 
-      with {:ok, rows, count, partial} <- result do
+      with {:ok, rows, count, partial, bytes} <- result do
         data = %{"Entries" => Enum.reverse(rows), "Returned" => count, "Partial" => partial}
+        data = summarize(data, options, count, bytes, partial)
         present_versions(data, target, options, opts)
       end
     end
@@ -59,6 +74,9 @@ defmodule ExStorageServiceCli.CLI.NativeListing do
 
   defp version_options(target, options, limit, page_size) do
     cond do
+      options[:incomplete] == true ->
+        {:error, Error.new(:syntax, "Incomplete uploads cannot be combined with versions")}
+
       not match?(%{kind: :remote, bucket: bucket} when is_binary(bucket), target) ->
         {:error, Error.new(:syntax, "Version listing requires a remote bucket or prefix")}
 
@@ -73,9 +91,12 @@ defmodule ExStorageServiceCli.CLI.NativeListing do
     end
   end
 
-  defp version_rows(page, prefix) do
+  defp version_rows(page, prefix, options) do
     Enum.flat_map([{"Versions", false}, {"DeleteMarkers", true}, {"CommonPrefixes", :prefix}], fn
-      {field, marker} -> Enum.map(page[field] || [], &version_row(&1, prefix, marker))
+      {field, marker} ->
+        (page[field] || [])
+        |> Enum.filter(&selected?(&1, options))
+        |> Enum.map(&version_row(&1, prefix, marker))
     end)
   end
 
@@ -167,6 +188,14 @@ defmodule ExStorageServiceCli.CLI.NativeListing do
           )
         end
 
+        if summary = data["Summary"] do
+          unless options[:quiet] == true or options[:output] == "off" do
+            (opts[:emit] || (&IO.puts/1)).(
+              "Listed Entries: #{summary["Entries"]}; Listed Bytes: #{summary["Bytes"]}; Complete: #{summary["Complete"]}"
+            )
+          end
+        end
+
         :ok
     end
   end
@@ -183,28 +212,36 @@ defmodule ExStorageServiceCli.CLI.NativeListing do
         {:ok, page} -> Enum.flat_map(keys, &Map.get(page, &1, []))
         {:error, _} = error -> [error]
       end)
+      |> Stream.map(&validate_entry(&1, input, invocation.options))
+      |> Stream.filter(fn
+        {:error, _} -> true
+        row -> selected?(row, invocation.options)
+      end)
 
     result =
-      Enum.reduce_while(entries, {:ok, [], 0, false}, fn
+      Enum.reduce_while(entries, {:ok, [], 0, false, 0}, fn
         {:error, _} = error, _ ->
           {:halt, error}
 
-        _entry, {:ok, rows, ^limit, _} ->
-          {:halt, {:ok, rows, limit, true}}
+        _entry, {:ok, rows, ^limit, _, bytes} ->
+          {:halt, {:ok, rows, limit, true, bytes}}
 
-        entry, {:ok, rows, count, _} ->
+        entry, {:ok, rows, count, _, bytes} ->
+          bytes = bytes + (entry["Size"] || 0)
+
           if invocation.options[:output] == "ndjson" do
             case NativeEvents.item(entry, invocation.options) do
-              :ok -> {:cont, {:ok, rows, count + 1, false}}
+              :ok -> {:cont, {:ok, rows, count + 1, false, bytes}}
               error -> {:halt, error}
             end
           else
-            {:cont, {:ok, [entry | rows], count + 1, false}}
+            {:cont, {:ok, [entry | rows], count + 1, false, bytes}}
           end
       end)
 
-    with {:ok, rows, count, partial} <- result do
+    with {:ok, rows, count, partial, bytes} <- result do
       data = %{"Returned" => count, "Partial" => partial}
+      data = summarize(data, invocation.options, count, bytes, partial)
 
       if invocation.options[:output] == "ndjson",
         do: NativeEvents.item(data, invocation.options),
@@ -226,6 +263,44 @@ defmodule ExStorageServiceCli.CLI.NativeListing do
         do: input,
         else: Map.put(input, "Delimiter", invocation.options[:delimiter] || "/")
 
-    {"ListObjectsV2", input, ["Contents", "CommonPrefixes"]}
+    if invocation.options[:incomplete] == true,
+      do: {"ListMultipartUploads", input, ["Uploads", "CommonPrefixes"]},
+      else: {"ListObjectsV2", input, ["Contents", "CommonPrefixes"]}
   end
+
+  defp selected?(row, options) do
+    class = row["StorageClass"]
+    filter = options[:storage_class]
+    class in [nil, ""] or filter in [nil, "", "*"] or class == filter
+  end
+
+  defp summarize(data, %{summarize: true} = options, count, bytes, partial) do
+    Map.put(data, "Summary", %{
+      "Entries" => count,
+      "Bytes" => if(options[:incomplete] == true, do: nil, else: bytes),
+      "Complete" => not partial
+    })
+  end
+
+  defp summarize(data, _, _, _, _), do: data
+
+  defp validate_entry({:error, _} = error, _, _), do: error
+
+  defp validate_entry(row, input, %{incomplete: true}) do
+    key = row["Key"] || row["Prefix"]
+    valid = is_binary(key) and String.valid?(key) and String.starts_with?(key, input["Prefix"])
+    upload = row["UploadId"]
+
+    if valid and
+         (Map.has_key?(row, "Prefix") or
+            (is_binary(upload) and upload != "" and byte_size(upload) <= 8192)),
+       do: row,
+       else:
+         {:error,
+          Error.new(:protocol, "Provider returned an invalid incomplete upload entry",
+            code: :invalid_upload_listing
+          )}
+  end
+
+  defp validate_entry(row, _, _), do: row
 end

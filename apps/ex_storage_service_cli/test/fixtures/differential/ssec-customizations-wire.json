@@ -1,0 +1,788 @@
+{
+  "schema_version": 1,
+  "aws_sha256": "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a",
+  "model_sha256": "6be3b05aac4ff8719e9a30a376de413523e9eab28a248195c8ab1cf9baacac80",
+  "scope": "Eight pinned SSE-C operation hooks, explicit MD5 bypass, text/binary file input and three ASCII metadata hooks",
+  "cases": [
+    {
+      "operation": "HeadObject",
+      "scenario": "raw-key-auto-md5",
+      "args": [
+        "s3api",
+        "head-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"SSECustomerAlgorithm\": \"AES256\", \"SSECustomerKey\": \"0123456789abcdefghijklmnopqrstuv\"}"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"ContentLength\": 0,\n    \"ETag\": \"\\\"fixture\\\"\",\n    \"Metadata\": {}\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/key",
+            "headers": {
+              "x-amz-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-server-side-encryption-customer-key": "MDEyMzQ1Njc4OWFiY2RlZmdoaWprbG1ub3BxcnN0dXY=",
+              "x-amz-server-side-encryption-customer-key-md5": "qkvGcbTBx6OOKYAPUO9jRg==",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "GetObject",
+      "scenario": "raw-key-auto-md5",
+      "args": [
+        "s3api",
+        "get-object",
+        "--bucket",
+        "bucket",
+        "--key",
+        "key",
+        "--sse-customer-algorithm",
+        "AES256",
+        "--sse-customer-key",
+        "0123456789abcdefghijklmnopqrstuv",
+        "@TMP@/result.bin"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"ContentLength\": 0,\n    \"ETag\": \"\\\"fixture\\\"\",\n    \"Metadata\": {}\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket/key",
+            "headers": {
+              "x-amz-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-server-side-encryption-customer-key": "MDEyMzQ1Njc4OWFiY2RlZmdoaWprbG1ub3BxcnN0dXY=",
+              "x-amz-server-side-encryption-customer-key-md5": "qkvGcbTBx6OOKYAPUO9jRg==",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "outfile_base64": ""
+      }
+    },
+    {
+      "operation": "PutObject",
+      "scenario": "raw-key-auto-md5",
+      "args": [
+        "s3api",
+        "put-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"SSECustomerAlgorithm\": \"AES256\", \"SSECustomerKey\": \"0123456789abcdefghijklmnopqrstuv\"}"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"ETag\": \"\\\"fixture\\\"\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/key",
+            "headers": {
+              "x-amz-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-server-side-encryption-customer-key": "MDEyMzQ1Njc4OWFiY2RlZmdoaWprbG1ub3BxcnN0dXY=",
+              "x-amz-server-side-encryption-customer-key-md5": "qkvGcbTBx6OOKYAPUO9jRg==",
+              "x-amz-checksum-crc64nvme": "AAAAAAAAAAA=",
+              "x-amz-sdk-checksum-algorithm": "CRC64NVME",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "CopyObject",
+      "scenario": "raw-key-auto-md5",
+      "args": [
+        "s3api",
+        "copy-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"SSECustomerAlgorithm\": \"AES256\", \"SSECustomerKey\": \"0123456789abcdefghijklmnopqrstuv\", \"CopySourceSSECustomerAlgorithm\": \"AES256\", \"CopySourceSSECustomerKey\": \"source-key-0123456789abcdefghijkl\", \"CopySource\": \"source/key\"}"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": "PENvcHlPYmplY3RSZXN1bHQ+PEVUYWc+ImNvcHkiPC9FVGFnPjwvQ29weU9iamVjdFJlc3VsdD4="
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"CopyObjectResult\": {\n        \"ETag\": \"\\\"copy\\\"\"\n    }\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/key",
+            "headers": {
+              "x-amz-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-server-side-encryption-customer-key": "MDEyMzQ1Njc4OWFiY2RlZmdoaWprbG1ub3BxcnN0dXY=",
+              "x-amz-copy-source-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-copy-source-server-side-encryption-customer-key": "c291cmNlLWtleS0wMTIzNDU2Nzg5YWJjZGVmZ2hpamts",
+              "x-amz-copy-source": "source/key",
+              "x-amz-server-side-encryption-customer-key-md5": "qkvGcbTBx6OOKYAPUO9jRg==",
+              "x-amz-copy-source-server-side-encryption-customer-key-md5": "p4ZmXkl43ynNP78TBgof5w==",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "CreateMultipartUpload",
+      "scenario": "raw-key-auto-md5",
+      "args": [
+        "s3api",
+        "create-multipart-upload",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"SSECustomerAlgorithm\": \"AES256\", \"SSECustomerKey\": \"0123456789abcdefghijklmnopqrstuv\"}"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": "PEluaXRpYXRlTXVsdGlwYXJ0VXBsb2FkUmVzdWx0PjxVcGxvYWRJZD51cGxvYWQ8L1VwbG9hZElkPjwvSW5pdGlhdGVNdWx0aXBhcnRVcGxvYWRSZXN1bHQ+"
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"UploadId\": \"upload\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "POST",
+            "target": "/bucket/key?uploads",
+            "headers": {
+              "x-amz-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-server-side-encryption-customer-key": "MDEyMzQ1Njc4OWFiY2RlZmdoaWprbG1ub3BxcnN0dXY=",
+              "x-amz-server-side-encryption-customer-key-md5": "qkvGcbTBx6OOKYAPUO9jRg==",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "UploadPart",
+      "scenario": "raw-key-auto-md5",
+      "args": [
+        "s3api",
+        "upload-part",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"SSECustomerAlgorithm\": \"AES256\", \"SSECustomerKey\": \"0123456789abcdefghijklmnopqrstuv\", \"UploadId\": \"upload\", \"PartNumber\": 1}"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"ETag\": \"\\\"fixture\\\"\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/key?uploadId=upload&partNumber=1",
+            "headers": {
+              "x-amz-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-server-side-encryption-customer-key": "MDEyMzQ1Njc4OWFiY2RlZmdoaWprbG1ub3BxcnN0dXY=",
+              "x-amz-server-side-encryption-customer-key-md5": "qkvGcbTBx6OOKYAPUO9jRg==",
+              "x-amz-checksum-crc64nvme": "AAAAAAAAAAA=",
+              "x-amz-sdk-checksum-algorithm": "CRC64NVME",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "UploadPartCopy",
+      "scenario": "raw-key-auto-md5",
+      "args": [
+        "s3api",
+        "upload-part-copy",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"SSECustomerAlgorithm\": \"AES256\", \"SSECustomerKey\": \"0123456789abcdefghijklmnopqrstuv\", \"CopySourceSSECustomerAlgorithm\": \"AES256\", \"CopySourceSSECustomerKey\": \"source-key-0123456789abcdefghijkl\", \"UploadId\": \"upload\", \"PartNumber\": 1, \"CopySource\": \"source/key\"}"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": "PENvcHlQYXJ0UmVzdWx0PjxFVGFnPiJwYXJ0IjwvRVRhZz48L0NvcHlQYXJ0UmVzdWx0Pg=="
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"CopyPartResult\": {\n        \"ETag\": \"\\\"part\\\"\"\n    }\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/key?uploadId=upload&partNumber=1",
+            "headers": {
+              "x-amz-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-server-side-encryption-customer-key": "MDEyMzQ1Njc4OWFiY2RlZmdoaWprbG1ub3BxcnN0dXY=",
+              "x-amz-copy-source-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-copy-source-server-side-encryption-customer-key": "c291cmNlLWtleS0wMTIzNDU2Nzg5YWJjZGVmZ2hpamts",
+              "x-amz-copy-source": "source/key",
+              "x-amz-server-side-encryption-customer-key-md5": "qkvGcbTBx6OOKYAPUO9jRg==",
+              "x-amz-copy-source-server-side-encryption-customer-key-md5": "p4ZmXkl43ynNP78TBgof5w==",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "CompleteMultipartUpload",
+      "scenario": "raw-key-auto-md5",
+      "args": [
+        "s3api",
+        "complete-multipart-upload",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"SSECustomerAlgorithm\": \"AES256\", \"SSECustomerKey\": \"0123456789abcdefghijklmnopqrstuv\", \"UploadId\": \"upload\"}"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": "PENvbXBsZXRlTXVsdGlwYXJ0VXBsb2FkUmVzdWx0PjxFVGFnPiJjb21wbGV0ZSI8L0VUYWc+PC9Db21wbGV0ZU11bHRpcGFydFVwbG9hZFJlc3VsdD4="
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"ETag\": \"\\\"complete\\\"\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "POST",
+            "target": "/bucket/key?uploadId=upload",
+            "headers": {
+              "x-amz-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-server-side-encryption-customer-key": "MDEyMzQ1Njc4OWFiY2RlZmdoaWprbG1ub3BxcnN0dXY=",
+              "x-amz-server-side-encryption-customer-key-md5": "qkvGcbTBx6OOKYAPUO9jRg==",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "HeadObject",
+      "scenario": "explicit-md5-preserves-key",
+      "args": [
+        "s3api",
+        "head-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"SSECustomerKey\": \"caller-encoded\", \"SSECustomerKeyMD5\": \"caller-md5\"}"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"ContentLength\": 0,\n    \"ETag\": \"\\\"fixture\\\"\",\n    \"Metadata\": {}\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/key",
+            "headers": {
+              "x-amz-server-side-encryption-customer-key": "caller-encoded",
+              "x-amz-server-side-encryption-customer-key-md5": "caller-md5",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "CopyObject",
+      "scenario": "explicit-md5-preserves-key",
+      "args": [
+        "s3api",
+        "copy-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"SSECustomerKey\": \"caller-encoded\", \"SSECustomerKeyMD5\": \"caller-md5\", \"CopySourceSSECustomerKey\": \"source-encoded\", \"CopySourceSSECustomerKeyMD5\": \"source-md5\", \"CopySource\": \"source/key\"}"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": "PENvcHlPYmplY3RSZXN1bHQ+PEVUYWc+ImNvcHkiPC9FVGFnPjwvQ29weU9iamVjdFJlc3VsdD4="
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"CopyObjectResult\": {\n        \"ETag\": \"\\\"copy\\\"\"\n    }\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/key",
+            "headers": {
+              "x-amz-server-side-encryption-customer-key": "caller-encoded",
+              "x-amz-server-side-encryption-customer-key-md5": "caller-md5",
+              "x-amz-copy-source-server-side-encryption-customer-key": "source-encoded",
+              "x-amz-copy-source-server-side-encryption-customer-key-md5": "source-md5",
+              "x-amz-copy-source": "source/key",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "UploadPartCopy",
+      "scenario": "explicit-md5-preserves-key",
+      "args": [
+        "s3api",
+        "upload-part-copy",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"SSECustomerKey\": \"caller-encoded\", \"SSECustomerKeyMD5\": \"caller-md5\", \"CopySourceSSECustomerKey\": \"source-encoded\", \"CopySourceSSECustomerKeyMD5\": \"source-md5\", \"UploadId\": \"upload\", \"PartNumber\": 1, \"CopySource\": \"source/key\"}"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": "PENvcHlQYXJ0UmVzdWx0PjxFVGFnPiJwYXJ0IjwvRVRhZz48L0NvcHlQYXJ0UmVzdWx0Pg=="
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"CopyPartResult\": {\n        \"ETag\": \"\\\"part\\\"\"\n    }\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/key?uploadId=upload&partNumber=1",
+            "headers": {
+              "x-amz-server-side-encryption-customer-key": "caller-encoded",
+              "x-amz-server-side-encryption-customer-key-md5": "caller-md5",
+              "x-amz-copy-source-server-side-encryption-customer-key": "source-encoded",
+              "x-amz-copy-source-server-side-encryption-customer-key-md5": "source-md5",
+              "x-amz-copy-source": "source/key",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "HeadObject",
+      "scenario": "file-text-key",
+      "args": [
+        "s3api",
+        "head-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\"}",
+        "--sse-customer-key",
+        "file://@TMP@/key.txt"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"ContentLength\": 0,\n    \"ETag\": \"\\\"fixture\\\"\",\n    \"Metadata\": {}\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/key",
+            "headers": {
+              "x-amz-server-side-encryption-customer-key": "cmF3IHRleHQg6Zuq",
+              "x-amz-server-side-encryption-customer-key-md5": "kbFSmsu3/UQQIFZJrWNELA==",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "CopyObject",
+      "scenario": "file-binary-source-key",
+      "args": [
+        "s3api",
+        "copy-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"CopySource\": \"source/key\"}",
+        "--copy-source-sse-customer-key",
+        "fileb://@TMP@/key.bin"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": "PENvcHlPYmplY3RSZXN1bHQ+PEVUYWc+ImNvcHkiPC9FVGFnPjwvQ29weU9iamVjdFJlc3VsdD4="
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"CopyObjectResult\": {\n        \"ETag\": \"\\\"copy\\\"\"\n    }\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/key",
+            "headers": {
+              "x-amz-copy-source-server-side-encryption-customer-key": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh//",
+              "x-amz-copy-source": "source/key",
+              "x-amz-copy-source-server-side-encryption-customer-key-md5": "lmlZNkDHqdi9GZ4U4Z7KZg==",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "PutObject",
+      "scenario": "ascii-metadata",
+      "args": [
+        "s3api",
+        "put-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"Metadata\": {\"owner\": \"fixture\", \"empty\": \"\"}}"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"ETag\": \"\\\"fixture\\\"\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/key",
+            "headers": {
+              "x-amz-meta-owner": "fixture",
+              "x-amz-meta-empty": "",
+              "x-amz-checksum-crc64nvme": "AAAAAAAAAAA=",
+              "x-amz-sdk-checksum-algorithm": "CRC64NVME",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "PutObject",
+      "scenario": "non-ascii-metadata-key",
+      "args": [
+        "s3api",
+        "put-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"Metadata\": {\"雪\": \"fixture\"}}"
+      ],
+      "reject": true,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nParameter validation failed:\nNon ascii characters found in S3 metadata for key \"雪\", value: \"fixture\".  \nS3 metadata can only contain ASCII characters. \n",
+        "requests": [],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "PutObject",
+      "scenario": "non-ascii-metadata-value",
+      "args": [
+        "s3api",
+        "put-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"Metadata\": {\"owner\": \"雪\"}}"
+      ],
+      "reject": true,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nParameter validation failed:\nNon ascii characters found in S3 metadata for key \"owner\", value: \"雪\".  \nS3 metadata can only contain ASCII characters. \n",
+        "requests": [],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "CopyObject",
+      "scenario": "ascii-metadata",
+      "args": [
+        "s3api",
+        "copy-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"Metadata\": {\"owner\": \"fixture\", \"empty\": \"\"}, \"CopySource\": \"source/key\"}"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": "PENvcHlPYmplY3RSZXN1bHQ+PEVUYWc+ImNvcHkiPC9FVGFnPjwvQ29weU9iamVjdFJlc3VsdD4="
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"CopyObjectResult\": {\n        \"ETag\": \"\\\"copy\\\"\"\n    }\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/key",
+            "headers": {
+              "x-amz-meta-owner": "fixture",
+              "x-amz-meta-empty": "",
+              "x-amz-copy-source": "source/key",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "CopyObject",
+      "scenario": "non-ascii-metadata-key",
+      "args": [
+        "s3api",
+        "copy-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"Metadata\": {\"雪\": \"fixture\"}, \"CopySource\": \"source/key\"}"
+      ],
+      "reject": true,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": "PENvcHlPYmplY3RSZXN1bHQ+PEVUYWc+ImNvcHkiPC9FVGFnPjwvQ29weU9iamVjdFJlc3VsdD4="
+      },
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nParameter validation failed:\nNon ascii characters found in S3 metadata for key \"雪\", value: \"fixture\".  \nS3 metadata can only contain ASCII characters. \n",
+        "requests": [],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "CopyObject",
+      "scenario": "non-ascii-metadata-value",
+      "args": [
+        "s3api",
+        "copy-object",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"Metadata\": {\"owner\": \"雪\"}, \"CopySource\": \"source/key\"}"
+      ],
+      "reject": true,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": "PENvcHlPYmplY3RSZXN1bHQ+PEVUYWc+ImNvcHkiPC9FVGFnPjwvQ29weU9iamVjdFJlc3VsdD4="
+      },
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nParameter validation failed:\nNon ascii characters found in S3 metadata for key \"owner\", value: \"雪\".  \nS3 metadata can only contain ASCII characters. \n",
+        "requests": [],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "CreateMultipartUpload",
+      "scenario": "ascii-metadata",
+      "args": [
+        "s3api",
+        "create-multipart-upload",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"Metadata\": {\"owner\": \"fixture\", \"empty\": \"\"}}"
+      ],
+      "reject": false,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": "PEluaXRpYXRlTXVsdGlwYXJ0VXBsb2FkUmVzdWx0PjxVcGxvYWRJZD51cGxvYWQ8L1VwbG9hZElkPjwvSW5pdGlhdGVNdWx0aXBhcnRVcGxvYWRSZXN1bHQ+"
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"UploadId\": \"upload\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "POST",
+            "target": "/bucket/key?uploads",
+            "headers": {
+              "x-amz-meta-owner": "fixture",
+              "x-amz-meta-empty": "",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "CreateMultipartUpload",
+      "scenario": "non-ascii-metadata-key",
+      "args": [
+        "s3api",
+        "create-multipart-upload",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"Metadata\": {\"雪\": \"fixture\"}}"
+      ],
+      "reject": true,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": "PEluaXRpYXRlTXVsdGlwYXJ0VXBsb2FkUmVzdWx0PjxVcGxvYWRJZD51cGxvYWQ8L1VwbG9hZElkPjwvSW5pdGlhdGVNdWx0aXBhcnRVcGxvYWRSZXN1bHQ+"
+      },
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nParameter validation failed:\nNon ascii characters found in S3 metadata for key \"雪\", value: \"fixture\".  \nS3 metadata can only contain ASCII characters. \n",
+        "requests": [],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "CreateMultipartUpload",
+      "scenario": "non-ascii-metadata-value",
+      "args": [
+        "s3api",
+        "create-multipart-upload",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"key\", \"Metadata\": {\"owner\": \"雪\"}}"
+      ],
+      "reject": true,
+      "response": {
+        "status": 200,
+        "headers": {
+          "etag": "\"fixture\""
+        },
+        "body_base64": "PEluaXRpYXRlTXVsdGlwYXJ0VXBsb2FkUmVzdWx0PjxVcGxvYWRJZD51cGxvYWQ8L1VwbG9hZElkPjwvSW5pdGlhdGVNdWx0aXBhcnRVcGxvYWRSZXN1bHQ+"
+      },
+      "aws": {
+        "status": 252,
+        "stdout": "",
+        "stderr": "\nParameter validation failed:\nNon ascii characters found in S3 metadata for key \"owner\", value: \"雪\".  \nS3 metadata can only contain ASCII characters. \n",
+        "requests": [],
+        "peer_errors": []
+      }
+    }
+  ]
+}

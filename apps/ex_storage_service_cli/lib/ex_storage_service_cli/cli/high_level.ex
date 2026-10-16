@@ -35,7 +35,9 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
         do: Map.merge(S3Options.defaults(command), invocation.options),
         else: invocation.options
 
-    with :ok <- supported_flags(command, options),
+    with :ok <- conditional_put(invocation, targets),
+         {:ok, options, opts} <- native_put_options(invocation, targets, contexts, options, opts),
+         :ok <- supported_flags(command, options),
          {:ok, filters} <- Filter.compile(invocation.filters),
          {:ok, selection} <- NativeTransferSelection.compile(invocation, opts),
          {:ok, input} <-
@@ -575,7 +577,13 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
     do: inventory(target, context, settings)
 
   defp plan(command, source_inventory, destination_inventory, source, destination, settings) do
-    policy = if command == "mirror", do: :mirror, else: :aws
+    policy =
+      case command do
+        "mirror" -> :mirror
+        "diff" -> :diff
+        _ -> :aws
+      end
+
     direction = direction(source, destination)
 
     delete? =
@@ -597,6 +605,7 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
             cond do
               not selected? -> {:skip, :excluded}
               a == nil and delete? -> {:delete, :extraneous}
+              a == nil and command == "diff" -> {:copy, :destination_only}
               a == nil -> {:skip, :destination_only}
               command in ["cp", "mv", "get", "put"] -> {:copy, :requested}
               true -> SyncPolicy.compare(policy, direction, a, b, settings.options)
@@ -1295,15 +1304,7 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
   defp remove_recursive(context, target, settings) do
     with {:ok, inventory} <- inventory(target, context, settings) do
       try do
-        Manifest.stream(inventory)
-        |> Stream.filter(&Filter.include?(settings.filters, &1["name"]))
-        |> Stream.chunk_every(100)
-        |> Enum.reduce_while(:ok, fn batch, :ok ->
-          case remove_batch(context, target, batch, settings, false) do
-            :ok -> {:cont, :ok}
-            error -> {:halt, error}
-          end
-        end)
+        remove_inventory(context, target, inventory, settings, false, "name")
       after
         Manifest.cleanup(inventory)
       end
@@ -1320,18 +1321,36 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
 
     with {:ok, inventory} <- Inventory.versions(context, target, options) do
       try do
-        Manifest.stream(inventory)
-        |> Stream.filter(&Filter.include?(settings.filters, &1["object_name"]))
-        |> Stream.chunk_every(100)
-        |> Enum.reduce_while(:ok, fn batch, :ok ->
-          case remove_batch(context, target, batch, settings, true) do
-            :ok -> {:cont, :ok}
-            error -> {:halt, error}
-          end
-        end)
+        remove_inventory(context, target, inventory, settings, true, "object_name")
       after
         Manifest.cleanup(inventory)
       end
+    end
+  end
+
+  defp remove_inventory(context, target, inventory, settings, versions, name) do
+    # Validate every selected timestamp before the first destructive batch. The
+    # complete inventory stays on disk; a later malformed entry preserves all.
+    selected =
+      Manifest.stream(inventory)
+      |> Stream.filter(&Filter.include?(settings.filters, &1[name]))
+
+    with :ok <-
+           Enum.reduce_while(selected, :ok, fn entry, :ok ->
+             case NativeTransferSelection.include?(settings.selection, entry) do
+               {:ok, _} -> {:cont, :ok}
+               error -> {:halt, error}
+             end
+           end) do
+      selected
+      |> Stream.filter(&(NativeTransferSelection.include?(settings.selection, &1) == {:ok, true}))
+      |> Stream.chunk_every(100)
+      |> Enum.reduce_while(:ok, fn batch, :ok ->
+        case remove_batch(context, target, batch, settings, versions) do
+          :ok -> {:cont, :ok}
+          error -> {:halt, error}
+        end
+      end)
     end
   end
 
@@ -1384,8 +1403,13 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
                Keyword.put(settings.opts, :input, fields("HeadObject", settings.input.input))
              ) do
           {:ok, head} ->
-            # Current-object removal intentionally creates a delete marker on versioned buckets.
-            {:cont, {:ok, [%{"Key" => entry["key"], "ETag" => head["ETag"]} | objects]}}
+            if NativeTransferSelection.age?(settings.selection) and
+                 modified(head["LastModified"]) != entry["modified"] do
+              {:halt, failure(:inventory_changed, "Remote inventory candidate changed")}
+            else
+              # Current-object removal intentionally creates a delete marker on versioned buckets.
+              {:cont, {:ok, [%{"Key" => entry["key"], "ETag" => head["ETag"]} | objects]}}
+            end
 
           error ->
             {:halt, error}
@@ -1438,6 +1462,9 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
       not Filter.include?(settings.filters, basename(target)) ->
         :ok
 
+      NativeTransferSelection.age?(settings.selection) ->
+        remove_aged_object(context, target, settings)
+
       settings.options[:dryrun] == true or settings.options[:dry_run] == true ->
         emit(settings, "(dryrun) delete: " <> label(target, settings))
         :ok
@@ -1457,6 +1484,54 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
           emit(settings, "delete: " <> label(target, settings))
           :ok
         end
+    end
+  end
+
+  defp remove_aged_object(context, target, settings) do
+    with {:ok, head} <- capture_source(target, context, nil, settings),
+         {:ok, true} <-
+           NativeTransferSelection.include?(settings.selection, %{
+             "modified" => modified(head["LastModified"])
+           }) do
+      if settings.options[:dryrun] == true or settings.options[:dry_run] == true do
+        emit(settings, "(dryrun) delete: " <> label(target, settings))
+        :ok
+      else
+        with {:ok, input} <- aged_delete_input(context, target, head, settings),
+             {:ok, _} <- Client.call(context, "DeleteObject", input, settings.opts) do
+          emit(settings, "delete: " <> label(target, settings))
+          :ok
+        end
+      end
+    else
+      {:ok, false} -> :ok
+      error -> error
+    end
+  end
+
+  defp aged_delete_input(context, target, head, settings) do
+    input =
+      Map.merge(fields("DeleteObject", settings.input.input), %{
+        "Bucket" => target.bucket,
+        "Key" => target.key
+      })
+      |> optional("VersionId", settings.options[:version_id])
+
+    cond do
+      settings.options[:version_id] not in [nil, "null"] ->
+        {:ok, input}
+
+      not is_binary(head["ETag"]) or head["ETag"] == "" ->
+        failure(:invalid_remote_identity, "Remote object lacks its deletion identity")
+
+      context.frontend == :aws or context.capabilities[:conditional_delete] == true ->
+        {:ok, Map.put(input, "IfMatch", head["ETag"])}
+
+      true ->
+        failure(
+          :conditional_delete_unavailable,
+          "Provider has no verified conditional deletion contract; object was preserved"
+        )
     end
   end
 
@@ -1601,7 +1676,9 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
   end
 
   defp glacier(selected, settings) do
-    if selected["StorageClass"] in ["GLACIER", "DEEP_ARCHIVE"] and
+    restored? = String.contains?(selected["Restore"] || "", ~s(ongoing-request="false"))
+
+    if selected["StorageClass"] in ["GLACIER", "DEEP_ARCHIVE"] and not restored? and
          settings.options[:force_glacier_transfer] != true do
       if settings.options[:ignore_glacier_warnings] do
         :atomics.add(settings.opts[:skipped_archives], 1, 1)
@@ -1997,6 +2074,136 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
   end
 
   defp pipe_size?(_), do: false
+
+  defp conditional_put(%{options: options} = invocation, targets) do
+    if Map.has_key?(options, :if_not_exists) do
+      case {invocation.frontend, invocation.command, targets, options[:if_not_exists]} do
+        {:native, ["put"], [%Target{kind: source}, %Target{kind: :remote}], value}
+        when source in [:local, :stdio] and is_boolean(value) ->
+          :ok
+
+        _ ->
+          failure(:conditional_put_direction, "--if-not-exists requires a native put upload")
+      end
+    else
+      :ok
+    end
+  end
+
+  defp native_put_options(invocation, targets, contexts, options, opts) do
+    selected =
+      Enum.any?(
+        [:part_size, :disable_multipart, :checksum, :parallel],
+        &Map.has_key?(options, &1)
+      )
+
+    if selected do
+      case {invocation.frontend, invocation.command, targets} do
+        {:native, ["put"], [%Target{kind: source}, %Target{kind: :remote}]}
+        when source in [:local, :stdio] ->
+          limits = opts[:limits] || Limits.for_context(List.last(contexts))
+
+          with {:ok, options} <- native_put_checksum(options),
+               {:ok, opts} <- native_put_part_size(options, limits, opts),
+               {:ok, opts} <- native_put_parallel(options, opts),
+               :ok <- native_put_multipart(options, opts) do
+            opts =
+              if Map.has_key?(options, :disable_multipart),
+                do: Keyword.put(opts, :disable_multipart, options[:disable_multipart]),
+                else: opts
+
+            {:ok, options, opts}
+          end
+
+        _ ->
+          native_put_invalid("Multipart and checksum flags require a native put upload")
+      end
+    else
+      {:ok, options, opts}
+    end
+  end
+
+  defp native_put_checksum(%{checksum: value} = options) when is_binary(value) do
+    algorithm = if String.upcase(value) == "CRC64N", do: "CRC64NVME", else: String.upcase(value)
+
+    cond do
+      Map.has_key?(options, :checksum_algorithm) ->
+        native_put_invalid("Choose --checksum or --checksum-algorithm")
+
+      value == "" ->
+        {:ok, options}
+
+      algorithm in ~w(CRC32 CRC32C CRC64NVME SHA1 SHA256) ->
+        {:ok, Map.put(options, :checksum_algorithm, algorithm)}
+
+      true ->
+        native_put_invalid(
+          "--checksum supports CRC32, CRC32C, CRC64N/CRC64NVME, SHA1 or SHA256; MD5 and full-object aliases are unsupported"
+        )
+    end
+  end
+
+  defp native_put_checksum(%{checksum: _}), do: native_put_invalid("Invalid --checksum value")
+  defp native_put_checksum(options), do: {:ok, options}
+
+  defp native_put_part_size(%{part_size: value}, limits, opts)
+       when is_binary(value) and byte_size(value) <= 128 do
+    # mc uses go-humanize sizes, including commas and fractional SI/IEC units.
+    value =
+      if(value == "", do: "32MiB", else: value)
+      |> String.replace(",", "")
+      |> String.replace(~r/\A\./, "0.")
+      |> String.replace(~r/\.(?=\s*[a-z]*\z)/i, ".0")
+
+    with {:ok, size} <- ExStorageServiceCli.Transfer.RateLimiter.parse_rate(value),
+         size = if(size == 0, do: 16_777_216, else: size),
+         minimum = Map.get(limits, :min_nonfinal_part_bytes, limits["min_nonfinal_part_bytes"]),
+         maximum = Map.get(limits, :max_part_bytes, limits["max_part_bytes"]),
+         true <- is_integer(minimum) and is_integer(maximum) and size in minimum..maximum do
+      {:ok,
+       opts
+       |> Keyword.put(:part_size, size)
+       |> Keyword.put(:strict_part_size, true)
+       |> Keyword.put(:multipart_threshold, size + 1)}
+    else
+      _ ->
+        native_put_invalid(
+          "--part-size requires an SI/IEC byte size within the selected provider part limits"
+        )
+    end
+  end
+
+  defp native_put_part_size(%{part_size: _}, _, _),
+    do: native_put_invalid("Invalid --part-size value")
+
+  defp native_put_part_size(_, _, opts), do: {:ok, opts}
+
+  defp native_put_multipart(options, opts) do
+    cond do
+      Map.has_key?(options, :disable_multipart) and not is_boolean(options[:disable_multipart]) ->
+        native_put_invalid("--disable-multipart requires a boolean")
+
+      options[:disable_multipart] == true and opts[:force_multipart] == true ->
+        native_put_invalid("Cannot disable and force multipart upload")
+
+      options[:disable_multipart] == true and (opts[:part_concurrency] || 1) > 1 ->
+        native_put_invalid("Cannot disable multipart upload while requesting parallel parts")
+
+      true ->
+        :ok
+    end
+  end
+
+  defp native_put_parallel(%{parallel: value}, opts) when is_integer(value) and value in 1..64,
+    do: {:ok, Keyword.put(opts, :part_concurrency, value)}
+
+  defp native_put_parallel(%{parallel: _}, _),
+    do: native_put_invalid("--parallel requires an integer from 1 through 64")
+
+  defp native_put_parallel(_, opts), do: {:ok, opts}
+
+  defp native_put_invalid(message),
+    do: {:error, Error.new(:syntax, message, code: :native_put_option)}
 
   defp supported_flags(command, options) do
     cond do

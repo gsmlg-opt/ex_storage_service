@@ -25,6 +25,24 @@ listed metadata/local file identity. There is no replay cursor, cross-scan order
 guarantee, deduplication promise, or exactly-once delivery. Restarting establishes
 a new baseline. A failing output callback may have consumed part of a scan.
 
+`--events put,delete` selects observable changes: `put` includes create/modify,
+and `delete` includes removal. Both are enabled by default. Empty, unknown,
+access (`get`) and server-only event types fail before inventory; polling cannot
+observe those events. Literal `--prefix` and `--suffix` match `Name` relative to
+the watched target. They do not narrow pagination or suppress inventory errors.
+Existing recursive observation remains the default; `--no-recursive` emits only
+immediate names, and `--recursive` includes nested names. All selectors affect
+event output; reconciliation still observes every complete changed snapshot.
+
+The pinned mc source (`cmd/watch-main.go:36`, `cmd/client-s3.go:794`) defaults to
+`put,delete,get` and uses filesystem/native MinIO event sources. Its remote prefix
+is bucket-relative, cannot combine with an object target, and includes additional
+server event families. ESS's target-relative selection, recursive default and
+observable event vocabulary are explicit polling differences. No MinIO listener
+or access-event equivalence is implied. Five initial regressions reproduced
+missing parsing, validation and selection; all 21 watch/route tests now pass,
+including real nested local changes, complete scans and manifest cleanup.
+
 The optional `on_reconcile` callback runs after the initial baseline is captured
 and after a complete successful changed scan. The baseline precedes the first
 mirror transfer so a source change during that transfer remains visible on the

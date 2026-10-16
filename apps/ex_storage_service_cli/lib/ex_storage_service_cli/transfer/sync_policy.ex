@@ -1,7 +1,32 @@
 defmodule ExStorageServiceCli.Transfer.SyncPolicy do
-  @moduledoc "Distinct AWS sync and native mc mirror comparison policies."
+  @moduledoc "Distinct AWS sync, native diff and mc mirror comparison policies."
 
   def compare(_policy, _direction, _source, nil, _options), do: {:copy, :missing}
+
+  def compare(:diff, _direction, source, destination, options) do
+    cond do
+      source["size"] != destination["size"] ->
+        {:copy, :size}
+
+      options[:size_only] == true ->
+        {:skip, :same_size}
+
+      not available_time?(source["modified"]) ->
+        {:skip, :unknown_timestamp}
+
+      not available_time?(destination["modified"]) ->
+        {:skip, :unknown_timestamp}
+
+      options[:exact_timestamps] == true and source["modified"] != destination["modified"] ->
+        {:copy, :timestamp}
+
+      source["modified"] > destination["modified"] ->
+        {:copy, :timestamp}
+
+      true ->
+        {:skip, :unchanged}
+    end
+  end
 
   def compare(:aws, direction, source, destination, options) do
     cond do
@@ -40,4 +65,6 @@ defmodule ExStorageServiceCli.Transfer.SyncPolicy do
       true -> {:conflict, :overwrite_required}
     end
   end
+
+  defp available_time?(value), do: is_integer(value) and value != 0
 end

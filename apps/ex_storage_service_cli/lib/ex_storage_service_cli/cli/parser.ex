@@ -9,7 +9,14 @@ defmodule ExStorageServiceCli.CLI.Parser do
   defp parse_common(argv) do
     frontend = frontend_hint(argv)
 
-    with {:ok, words, options} <- scan(argv, Registry.options(frontend), [], [], false, frontend),
+    discovery =
+      Map.new(Registry.options(frontend), fn {name, {key, type}} ->
+        {name, {key, discovery_type(type)}}
+      end)
+
+    with {:ok, words, options} <- scan(argv, discovery, [], [], false, :discovery),
+         {:ok, invocation} <- command(words, options),
+         {:ok, words, options} <- scan_command(argv, invocation),
          {:ok, invocation} <- command(words, options),
          {:ok, invocation} <- prepare(invocation),
          :ok <- validate(invocation, options) do
@@ -18,6 +25,17 @@ defmodule ExStorageServiceCli.CLI.Parser do
       {:error, %Error{} = error} ->
         {:error, %{error | details: Map.put(error.details, :frontend, frontend_hint(argv))}}
     end
+  end
+
+  defp discovery_type(:integer), do: :string
+  defp discovery_type({:enum, _}), do: :string
+  defp discovery_type({:optional_string, default, _}), do: {:optional_string, default, []}
+  defp discovery_type(type), do: type
+
+  defp scan_command(argv, invocation) do
+    {_, flags, _} = Registry.spec(invocation.frontend, invocation.command)
+    table = Map.merge(Registry.globals(invocation.frontend), flags)
+    scan(argv, table, [], [], false, invocation.frontend)
   end
 
   defp prepare(%Invocation{frontend: :s3, help: false} = invocation) do
@@ -137,7 +155,11 @@ defmodule ExStorageServiceCli.CLI.Parser do
 
     with {:ok, key, type, negated} <- option(table, name),
          {:ok, value, remaining} <- value(type, name, inline, rest, negated),
-         :ok <- if(frontend == :s3, do: :ok, else: conflict(options, key, type, value, name)) do
+         :ok <-
+           if(frontend in [:s3, :discovery],
+             do: :ok,
+             else: conflict(options, key, type, value, name)
+           ) do
       scan(remaining, table, words, [{name, key, value} | options], false, frontend)
     end
   end

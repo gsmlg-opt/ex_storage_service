@@ -22,7 +22,7 @@ defmodule ExStorageServiceCli.S3.Decoder do
         end
 
         shape = OperationCatalog.shape(operation["output"]["shape"])
-        result = decode_output(shape, response)
+        result = decode_output(shape, response) |> customize(operation_name)
         {:ok, result}
       catch
         {:xml_error, error} ->
@@ -62,6 +62,11 @@ defmodule ExStorageServiceCli.S3.Decoder do
   end
 
   defp model(binding), do: Map.merge(OperationCatalog.shape(binding["shape"]), binding)
+
+  defp customize(%{"LocationConstraint" => ""} = result, "GetBucketLocation"),
+    do: Map.put(result, "LocationConstraint", nil)
+
+  defp customize(result, _), do: result
 
   defp decode_output(nil, %Response{body: body}) do
     if body not in [nil, ""], do: check_error(parse(body))

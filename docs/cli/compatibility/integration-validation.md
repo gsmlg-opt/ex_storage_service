@@ -383,3 +383,51 @@ stable. No dependency patch, larger assertion wait, source-ownership workaround,
 version bump, release tag or publication is used. Native differences and live AWS
 acceptance remain explicitly bounded in the existing guide/reports; this result
 does not declare M0–M9 complete.
+
+## Published HTTP 0.21.13 local integration
+
+The uncommitted integration on main based on 167cabd keeps the original upload
+source-finalization assertion, selects the published patch family and adds the
+request-scoped ACK infinity policy. Independent acceptance and version boundaries
+are in http-021-evaluation.md. The first complete run had 3280 tests, one
+MFA-negative-fixture failure and one resource exclusion. Owning stdin in that
+test prevents an inherited terminal from invoking valid production prompting;
+98 related tests pass.
+
+A subsequent frozen-source run has **3344 tests, four failures and one resource
+exclusion**, seed 628644, 299.9 seconds. Failures were RetryIntegrationTest's
+initial request wait, JournalTest's initial ownership claim, BrowserTest's timed
+launcher outcome and NativeConditionalPutTest's initial journal claim. Private
+agent tests were running in the same host network namespace; their own journal
+claims also encountered busy ports. Journal deliberately fails closed on an
+unrelated loopback listener or port collision. This observation alone does not
+establish every failure's cause. No production mutex or assertion was weakened.
+
+With those private tests stopped, all four affected suites pass **33 tests, zero
+failures** in 2.8 seconds. A complete integrated rerun remains required. Logs and
+frozen source hashes are retained under
+`/tmp/ess-http-02113-acceptance-20261016/` as `full-cli-current.log`,
+`full-cli-current-source-sha256.json` and `isolated-failed-suites.log`.
+
+## Final standalone integration before 0.6.8
+
+The frozen working copy based on `167cabd` integrates published HTTP 0.21.13,
+the native workflow fixes, command-specific parsing, raw SDK customizations,
+STS endpoint rules and Darwin credential-process support. All other task test
+VMs were stopped before the parent run. Linux x86_64 / Elixir 1.18.5 / OTP 28:
+
+```sh
+PAGER=cat ERL_FLAGS='+S 4:4' mix format
+PAGER=cat ERL_FLAGS='+S 4:4' mix compile --warnings-as-errors
+PAGER=cat ERL_FLAGS='+S 4:4' mix test --exclude resource --seed 628644
+```
+
+The complete CLI run passes **3,483 tests, zero failures and one resource
+exclusion** in 329.5 seconds (85.0 async, 244.4 sync). Log:
+`/tmp/ess-cli-final-suite-20261016.log`; 435 source/fixture/lock digests are in
+`/tmp/ess-cli-final-suite-source-20261016.json` and were unchanged at completion.
+The version-only bump to 0.6.8 follows this pass; committed-source CI must
+validate that version. Inventory checks and all **32 Python tooling tests**
+pass; strict compilation and formatting pass. This supersedes the earlier
+integrated-run gate, retaining its failures above. It does not yet claim remote,
+2 GiB, current-source provider, Darwin or published-artifact acceptance.

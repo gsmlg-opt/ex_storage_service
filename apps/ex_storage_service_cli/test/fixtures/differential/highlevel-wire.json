@@ -1006,6 +1006,1663 @@
         ],
         "peer_errors": []
       }
+    },
+    {
+      "name": "cp-download-archive-unrestored",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "@TMP@/result.bin",
+        "--no-progress"
+      ],
+      "archive": "GLACIER",
+      "restored": false,
+      "expected_status": 2,
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "x-amz-storage-class": "GLACIER",
+            "x-amz-restore": "ongoing-request=\"true\""
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 2,
+        "stdout": "",
+        "stderr": "warning: Skipping file s3://bucket/p/source. Object is of storage class GLACIER. Unable to perform download operations on GLACIER objects. You must restore the object to be able to perform the operation. See aws s3 download help for additional parameter options to ignore or force these transfers.\n",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "cp-server-copy-archive-unrestored",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "s3://bucket/p/destination",
+        "--no-progress",
+        "--copy-props",
+        "none"
+      ],
+      "archive": "GLACIER",
+      "restored": false,
+      "expected_status": 2,
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "content-type": "application/x-original",
+            "cache-control": "private",
+            "content-language": "en",
+            "x-amz-meta-preserved": "source",
+            "x-amz-storage-class": "GLACIER",
+            "x-amz-restore": "ongoing-request=\"true\""
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 2,
+        "stdout": "",
+        "stderr": "warning: Skipping file s3://bucket/p/source. Object is of storage class GLACIER. Unable to perform copy operations on GLACIER objects. You must restore the object to be able to perform the operation. See aws s3 copy help for additional parameter options to ignore or force these transfers.\n",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "mv-server-copy-archive-unrestored",
+      "command": "mv",
+      "args": [
+        "s3",
+        "mv",
+        "s3://bucket/p/source",
+        "s3://bucket/p/destination",
+        "--no-progress",
+        "--copy-props",
+        "none"
+      ],
+      "archive": "GLACIER",
+      "restored": false,
+      "expected_status": 2,
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "x-amz-storage-class": "GLACIER",
+            "x-amz-restore": "ongoing-request=\"true\""
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 2,
+        "stdout": "",
+        "stderr": "warning: Skipping file s3://bucket/p/source. Object is of storage class GLACIER. Unable to perform copy operations on GLACIER objects. You must restore the object to be able to perform the operation. See aws s3 copy help for additional parameter options to ignore or force these transfers.\n",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "cp-download-archive-restored",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "@TMP@/result.bin",
+        "--no-progress"
+      ],
+      "archive": "GLACIER",
+      "restored": true,
+      "expected_status": 0,
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "x-amz-storage-class": "GLACIER",
+            "x-amz-restore": "ongoing-request=\"false\", expiry-date=\"Wed, 02 Jan 2030 03:04:05 GMT\""
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {
+            "etag": "\"1486456da6f5f582032aff459537837e\""
+          },
+          "body_base64": "Zml4dHVyZQD/"
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "download: s3://bucket/p/source to ./result.bin\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "outfile_base64": "Zml4dHVyZQD/"
+      }
+    },
+    {
+      "name": "cp-server-copy-archive-restored",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "s3://bucket/p/destination",
+        "--no-progress",
+        "--copy-props",
+        "none"
+      ],
+      "archive": "GLACIER",
+      "restored": true,
+      "expected_status": 0,
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "content-type": "application/x-original",
+            "cache-control": "private",
+            "content-language": "en",
+            "x-amz-meta-preserved": "source",
+            "x-amz-storage-class": "GLACIER",
+            "x-amz-restore": "ongoing-request=\"false\", expiry-date=\"Wed, 02 Jan 2030 03:04:05 GMT\""
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PENvcHlPYmplY3RSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PEVUYWc+IjE0ODY0NTZkYTZmNWY1ODIwMzJhZmY0NTk1Mzc4MzdlIjwvRVRhZz48TGFzdE1vZGlmaWVkPjIwMjYtMDEtMDJUMDM6MDQ6MDVaPC9MYXN0TW9kaWZpZWQ+PC9Db3B5T2JqZWN0UmVzdWx0Pg=="
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "copy: s3://bucket/p/source to s3://bucket/p/destination\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/p/destination",
+            "headers": {
+              "x-amz-copy-source": "bucket/p/source",
+              "x-amz-metadata-directive": "REPLACE",
+              "x-amz-tagging-directive": "REPLACE",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "mv-server-copy-archive-restored",
+      "command": "mv",
+      "args": [
+        "s3",
+        "mv",
+        "s3://bucket/p/source",
+        "s3://bucket/p/destination",
+        "--no-progress",
+        "--copy-props",
+        "none"
+      ],
+      "archive": "GLACIER",
+      "restored": true,
+      "expected_status": 0,
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "x-amz-storage-class": "GLACIER",
+            "x-amz-restore": "ongoing-request=\"false\", expiry-date=\"Wed, 02 Jan 2030 03:04:05 GMT\""
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PENvcHlPYmplY3RSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PEVUYWc+IjE0ODY0NTZkYTZmNWY1ODIwMzJhZmY0NTk1Mzc4MzdlIjwvRVRhZz48TGFzdE1vZGlmaWVkPjIwMjYtMDEtMDJUMDM6MDQ6MDVaPC9MYXN0TW9kaWZpZWQ+PC9Db3B5T2JqZWN0UmVzdWx0Pg=="
+        },
+        {
+          "status": 204,
+          "headers": {},
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "move: s3://bucket/p/source to s3://bucket/p/destination\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/p/destination",
+            "headers": {
+              "x-amz-copy-source": "bucket/p/source",
+              "x-amz-metadata-directive": "REPLACE",
+              "x-amz-tagging-directive": "REPLACE",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "DELETE",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "cp-download-archive-ignore-glacier-warnings",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "@TMP@/result.bin",
+        "--no-progress",
+        "--ignore-glacier-warnings"
+      ],
+      "archive": "GLACIER",
+      "restored": false,
+      "expected_status": 0,
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "x-amz-storage-class": "GLACIER",
+            "x-amz-restore": "ongoing-request=\"true\""
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "cp-download-archive-force-glacier-transfer",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "@TMP@/result.bin",
+        "--no-progress",
+        "--force-glacier-transfer"
+      ],
+      "archive": "GLACIER",
+      "restored": false,
+      "expected_status": 0,
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "x-amz-storage-class": "GLACIER",
+            "x-amz-restore": "ongoing-request=\"true\""
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {
+            "etag": "\"1486456da6f5f582032aff459537837e\""
+          },
+          "body_base64": "Zml4dHVyZQD/"
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "download: s3://bucket/p/source to ./result.bin\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "outfile_base64": "Zml4dHVyZQD/"
+      }
+    },
+    {
+      "name": "cp-download-deep-archive-restored",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "@TMP@/result.bin",
+        "--no-progress"
+      ],
+      "archive": "DEEP_ARCHIVE",
+      "restored": true,
+      "expected_status": 0,
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "x-amz-storage-class": "DEEP_ARCHIVE",
+            "x-amz-restore": "ongoing-request=\"false\", expiry-date=\"Wed, 02 Jan 2030 03:04:05 GMT\""
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {
+            "etag": "\"1486456da6f5f582032aff459537837e\""
+          },
+          "body_base64": "Zml4dHVyZQD/"
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "download: s3://bucket/p/source to ./result.bin\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "outfile_base64": "Zml4dHVyZQD/"
+      }
+    },
+    {
+      "name": "cp-upload-ssec",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "@TMP@/source.bin",
+        "s3://bucket/p/destination",
+        "--no-progress",
+        "--sse-c",
+        "AES256",
+        "--sse-c-key",
+        "fileb://@TMP@/destination.key"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "etag": "\"1486456da6f5f582032aff459537837e\""
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "upload: ./source.bin to s3://bucket/p/destination\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket/p/destination",
+            "headers": {
+              "x-amz-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-server-side-encryption-customer-key": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
+              "x-amz-sdk-checksum-algorithm": "CRC64NVME",
+              "content-type": "application/octet-stream",
+              "x-amz-server-side-encryption-customer-key-md5": "tP/LI3N87DFaSk0aoqYgzg==",
+              "expect": "100-continue",
+              "x-amz-checksum-crc64nvme": "4T3hFC0XGZY=",
+              "x-amz-content-sha256": "837fa57a9befadad9cc074f08a652a85287bfcc015fbcd61ad37a054f989430f",
+              "content-length": "9"
+            },
+            "body_base64": "Zml4dHVyZQD/"
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "cp-download-ssec",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "@TMP@/result.bin",
+        "--no-progress",
+        "--sse-c",
+        "AES256",
+        "--sse-c-key",
+        "fileb://@TMP@/source.key"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {
+            "etag": "\"1486456da6f5f582032aff459537837e\""
+          },
+          "body_base64": "Zml4dHVyZQD/"
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "download: s3://bucket/p/source to ./result.bin\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-server-side-encryption-customer-key": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8=",
+              "x-amz-server-side-encryption-customer-key-md5": "v2HomVYPq94vbXb0BabrcA==",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-server-side-encryption-customer-key": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8=",
+              "x-amz-server-side-encryption-customer-key-md5": "v2HomVYPq94vbXb0BabrcA==",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "outfile_base64": "Zml4dHVyZQD/"
+      }
+    },
+    {
+      "name": "cp-server-copy-ssec",
+      "command": "cp",
+      "args": [
+        "s3",
+        "cp",
+        "s3://bucket/p/source",
+        "s3://bucket/p/destination",
+        "--no-progress",
+        "--copy-props",
+        "none",
+        "--sse-c",
+        "AES256",
+        "--sse-c-key",
+        "fileb://@TMP@/destination.key",
+        "--sse-c-copy-source",
+        "AES256",
+        "--sse-c-copy-source-key",
+        "fileb://@TMP@/source.key"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+            "content-type": "application/x-original",
+            "cache-control": "private",
+            "content-language": "en",
+            "x-amz-meta-preserved": "source"
+          },
+          "body_base64": ""
+        },
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PENvcHlPYmplY3RSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PEVUYWc+IjE0ODY0NTZkYTZmNWY1ODIwMzJhZmY0NTk1Mzc4MzdlIjwvRVRhZz48TGFzdE1vZGlmaWVkPjIwMjYtMDEtMDJUMDM6MDQ6MDVaPC9MYXN0TW9kaWZpZWQ+PC9Db3B5T2JqZWN0UmVzdWx0Pg=="
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "copy: s3://bucket/p/source to s3://bucket/p/destination\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "HEAD",
+            "target": "/bucket/p/source",
+            "headers": {
+              "x-amz-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-server-side-encryption-customer-key": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8=",
+              "x-amz-server-side-encryption-customer-key-md5": "v2HomVYPq94vbXb0BabrcA==",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/p/destination",
+            "headers": {
+              "x-amz-copy-source": "bucket/p/source",
+              "x-amz-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-server-side-encryption-customer-key": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
+              "x-amz-copy-source-server-side-encryption-customer-algorithm": "AES256",
+              "x-amz-copy-source-server-side-encryption-customer-key": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8=",
+              "x-amz-metadata-directive": "REPLACE",
+              "x-amz-tagging-directive": "REPLACE",
+              "x-amz-server-side-encryption-customer-key-md5": "tP/LI3N87DFaSk0aoqYgzg==",
+              "x-amz-copy-source-server-side-encryption-customer-key-md5": "v2HomVYPq94vbXb0BabrcA==",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "sync-upload-older",
+      "command": "sync",
+      "args": [
+        "s3",
+        "sync",
+        "@TMP@/sync-local/",
+        "s3://bucket/destination/",
+        "--no-progress"
+      ],
+      "sync_direction": "upload",
+      "local_files": {
+        "sync-local/file.bin": {
+          "body_base64": "Zml4dHVyZQD/",
+          "mtime": 1767321245
+        }
+      },
+      "head_responses": {
+        "/bucket/destination/file.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"
+          },
+          "body_base64": ""
+        }
+      },
+      "inspect_files": [
+        "sync-local/file.bin"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+ZGVzdGluYXRpb24vPC9QcmVmaXg+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48Q29udGVudHM+PEtleT5kZXN0aW5hdGlvbi9maWxlLmJpbjwvS2V5PjxMYXN0TW9kaWZpZWQ+MjAyNi0wMS0wMlQwMzowNDowNVo8L0xhc3RNb2RpZmllZD48RVRhZz4iMTQ4NjQ1NmRhNmY1ZjU4MjAzMmFmZjQ1OTUzNzgzN2UiPC9FVGFnPjxTaXplPjk8L1NpemU+PFN0b3JhZ2VDbGFzcz5TVEFOREFSRDwvU3RvcmFnZUNsYXNzPjwvQ29udGVudHM+PC9MaXN0QnVja2V0UmVzdWx0Pg=="
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=destination%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "local_after": {
+          "sync-local/file.bin": {
+            "body_base64": "Zml4dHVyZQD/",
+            "mtime": 1767321245
+          }
+        }
+      }
+    },
+    {
+      "name": "sync-upload-newer",
+      "command": "sync",
+      "args": [
+        "s3",
+        "sync",
+        "@TMP@/sync-local/",
+        "s3://bucket/destination/",
+        "--no-progress"
+      ],
+      "sync_direction": "upload",
+      "local_files": {
+        "sync-local/file.bin": {
+          "body_base64": "Zml4dHVyZQD/",
+          "mtime": 1767324845
+        }
+      },
+      "head_responses": {
+        "/bucket/destination/file.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"
+          },
+          "body_base64": ""
+        }
+      },
+      "inspect_files": [
+        "sync-local/file.bin"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+ZGVzdGluYXRpb24vPC9QcmVmaXg+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48Q29udGVudHM+PEtleT5kZXN0aW5hdGlvbi9maWxlLmJpbjwvS2V5PjxMYXN0TW9kaWZpZWQ+MjAyNi0wMS0wMlQwMzowNDowNVo8L0xhc3RNb2RpZmllZD48RVRhZz4iMTQ4NjQ1NmRhNmY1ZjU4MjAzMmFmZjQ1OTUzNzgzN2UiPC9FVGFnPjxTaXplPjk8L1NpemU+PFN0b3JhZ2VDbGFzcz5TVEFOREFSRDwvU3RvcmFnZUNsYXNzPjwvQ29udGVudHM+PC9MaXN0QnVja2V0UmVzdWx0Pg=="
+        },
+        {
+          "status": 200,
+          "headers": {
+            "etag": "\"1486456da6f5f582032aff459537837e\""
+          },
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "upload: sync-local/file.bin to s3://bucket/destination/file.bin\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=destination%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/destination/file.bin",
+            "headers": {
+              "x-amz-sdk-checksum-algorithm": "CRC64NVME",
+              "content-type": "application/octet-stream",
+              "expect": "100-continue",
+              "x-amz-checksum-crc64nvme": "4T3hFC0XGZY=",
+              "x-amz-content-sha256": "837fa57a9befadad9cc074f08a652a85287bfcc015fbcd61ad37a054f989430f",
+              "content-length": "9"
+            },
+            "body_base64": "Zml4dHVyZQD/"
+          }
+        ],
+        "peer_errors": [],
+        "local_after": {
+          "sync-local/file.bin": {
+            "body_base64": "Zml4dHVyZQD/",
+            "mtime": 1767324845
+          }
+        }
+      }
+    },
+    {
+      "name": "sync-download-older",
+      "command": "sync",
+      "args": [
+        "s3",
+        "sync",
+        "s3://bucket/source/",
+        "@TMP@/sync-local/",
+        "--no-progress"
+      ],
+      "sync_direction": "download",
+      "local_files": {
+        "sync-local/file.bin": {
+          "body_base64": "b2xkLWRhdGEh",
+          "mtime": 1767323045
+        }
+      },
+      "head_responses": {
+        "/bucket/source/file.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 02:34:05 GMT"
+          },
+          "body_base64": ""
+        }
+      },
+      "inspect_files": [
+        "sync-local/file.bin"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+c291cmNlLzwvUHJlZml4PjxJc1RydW5jYXRlZD5mYWxzZTwvSXNUcnVuY2F0ZWQ+PENvbnRlbnRzPjxLZXk+c291cmNlL2ZpbGUuYmluPC9LZXk+PExhc3RNb2RpZmllZD4yMDI2LTAxLTAyVDAyOjM0OjA1WjwvTGFzdE1vZGlmaWVkPjxFVGFnPiIxNDg2NDU2ZGE2ZjVmNTgyMDMyYWZmNDU5NTM3ODM3ZSI8L0VUYWc+PFNpemU+OTwvU2l6ZT48U3RvcmFnZUNsYXNzPlNUQU5EQVJEPC9TdG9yYWdlQ2xhc3M+PC9Db250ZW50cz48L0xpc3RCdWNrZXRSZXN1bHQ+"
+        },
+        {
+          "status": 200,
+          "headers": {
+            "etag": "\"1486456da6f5f582032aff459537837e\""
+          },
+          "body_base64": "Zml4dHVyZQD/"
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "download: s3://bucket/source/file.bin to sync-local/file.bin\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=source%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket/source/file.bin",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "local_after": {
+          "sync-local/file.bin": {
+            "body_base64": "Zml4dHVyZQD/",
+            "mtime": 1767321245
+          }
+        }
+      }
+    },
+    {
+      "name": "sync-download-newer",
+      "command": "sync",
+      "args": [
+        "s3",
+        "sync",
+        "s3://bucket/source/",
+        "@TMP@/sync-local/",
+        "--no-progress"
+      ],
+      "sync_direction": "download",
+      "local_files": {
+        "sync-local/file.bin": {
+          "body_base64": "b2xkLWRhdGEh",
+          "mtime": 1767323045
+        }
+      },
+      "head_responses": {
+        "/bucket/source/file.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:34:05 GMT"
+          },
+          "body_base64": ""
+        }
+      },
+      "inspect_files": [
+        "sync-local/file.bin"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+c291cmNlLzwvUHJlZml4PjxJc1RydW5jYXRlZD5mYWxzZTwvSXNUcnVuY2F0ZWQ+PENvbnRlbnRzPjxLZXk+c291cmNlL2ZpbGUuYmluPC9LZXk+PExhc3RNb2RpZmllZD4yMDI2LTAxLTAyVDAzOjM0OjA1WjwvTGFzdE1vZGlmaWVkPjxFVGFnPiIxNDg2NDU2ZGE2ZjVmNTgyMDMyYWZmNDU5NTM3ODM3ZSI8L0VUYWc+PFNpemU+OTwvU2l6ZT48U3RvcmFnZUNsYXNzPlNUQU5EQVJEPC9TdG9yYWdlQ2xhc3M+PC9Db250ZW50cz48L0xpc3RCdWNrZXRSZXN1bHQ+"
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=source%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "local_after": {
+          "sync-local/file.bin": {
+            "body_base64": "b2xkLWRhdGEh",
+            "mtime": 1767323045
+          }
+        }
+      }
+    },
+    {
+      "name": "sync-server-copy-older",
+      "command": "sync",
+      "args": [
+        "s3",
+        "sync",
+        "s3://bucket/source/",
+        "s3://bucket/destination/",
+        "--no-progress",
+        "--copy-props",
+        "none"
+      ],
+      "sync_direction": "server-copy",
+      "local_files": {
+        "sync-local/file.bin": {
+          "body_base64": "b2xkLWRhdGEh",
+          "mtime": 1767323045
+        }
+      },
+      "head_responses": {
+        "/bucket/source/file.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 02:34:05 GMT"
+          },
+          "body_base64": ""
+        },
+        "/bucket/destination/file.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"
+          },
+          "body_base64": ""
+        }
+      },
+      "inspect_files": [
+        "sync-local/file.bin"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+c291cmNlLzwvUHJlZml4PjxJc1RydW5jYXRlZD5mYWxzZTwvSXNUcnVuY2F0ZWQ+PENvbnRlbnRzPjxLZXk+c291cmNlL2ZpbGUuYmluPC9LZXk+PExhc3RNb2RpZmllZD4yMDI2LTAxLTAyVDAyOjM0OjA1WjwvTGFzdE1vZGlmaWVkPjxFVGFnPiIxNDg2NDU2ZGE2ZjVmNTgyMDMyYWZmNDU5NTM3ODM3ZSI8L0VUYWc+PFNpemU+OTwvU2l6ZT48U3RvcmFnZUNsYXNzPlNUQU5EQVJEPC9TdG9yYWdlQ2xhc3M+PC9Db250ZW50cz48L0xpc3RCdWNrZXRSZXN1bHQ+"
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+ZGVzdGluYXRpb24vPC9QcmVmaXg+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48Q29udGVudHM+PEtleT5kZXN0aW5hdGlvbi9maWxlLmJpbjwvS2V5PjxMYXN0TW9kaWZpZWQ+MjAyNi0wMS0wMlQwMzowNDowNVo8L0xhc3RNb2RpZmllZD48RVRhZz4iMTQ4NjQ1NmRhNmY1ZjU4MjAzMmFmZjQ1OTUzNzgzN2UiPC9FVGFnPjxTaXplPjk8L1NpemU+PFN0b3JhZ2VDbGFzcz5TVEFOREFSRDwvU3RvcmFnZUNsYXNzPjwvQ29udGVudHM+PC9MaXN0QnVja2V0UmVzdWx0Pg=="
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=source%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=destination%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "local_after": {
+          "sync-local/file.bin": {
+            "body_base64": "b2xkLWRhdGEh",
+            "mtime": 1767323045
+          }
+        }
+      }
+    },
+    {
+      "name": "sync-server-copy-newer",
+      "command": "sync",
+      "args": [
+        "s3",
+        "sync",
+        "s3://bucket/source/",
+        "s3://bucket/destination/",
+        "--no-progress",
+        "--copy-props",
+        "none"
+      ],
+      "sync_direction": "server-copy",
+      "local_files": {
+        "sync-local/file.bin": {
+          "body_base64": "b2xkLWRhdGEh",
+          "mtime": 1767323045
+        }
+      },
+      "head_responses": {
+        "/bucket/source/file.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:34:05 GMT"
+          },
+          "body_base64": ""
+        },
+        "/bucket/destination/file.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"
+          },
+          "body_base64": ""
+        }
+      },
+      "inspect_files": [
+        "sync-local/file.bin"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+c291cmNlLzwvUHJlZml4PjxJc1RydW5jYXRlZD5mYWxzZTwvSXNUcnVuY2F0ZWQ+PENvbnRlbnRzPjxLZXk+c291cmNlL2ZpbGUuYmluPC9LZXk+PExhc3RNb2RpZmllZD4yMDI2LTAxLTAyVDAzOjM0OjA1WjwvTGFzdE1vZGlmaWVkPjxFVGFnPiIxNDg2NDU2ZGE2ZjVmNTgyMDMyYWZmNDU5NTM3ODM3ZSI8L0VUYWc+PFNpemU+OTwvU2l6ZT48U3RvcmFnZUNsYXNzPlNUQU5EQVJEPC9TdG9yYWdlQ2xhc3M+PC9Db250ZW50cz48L0xpc3RCdWNrZXRSZXN1bHQ+"
+        },
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+ZGVzdGluYXRpb24vPC9QcmVmaXg+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48Q29udGVudHM+PEtleT5kZXN0aW5hdGlvbi9maWxlLmJpbjwvS2V5PjxMYXN0TW9kaWZpZWQ+MjAyNi0wMS0wMlQwMzowNDowNVo8L0xhc3RNb2RpZmllZD48RVRhZz4iMTQ4NjQ1NmRhNmY1ZjU4MjAzMmFmZjQ1OTUzNzgzN2UiPC9FVGFnPjxTaXplPjk8L1NpemU+PFN0b3JhZ2VDbGFzcz5TVEFOREFSRDwvU3RvcmFnZUNsYXNzPjwvQ29udGVudHM+PC9MaXN0QnVja2V0UmVzdWx0Pg=="
+        },
+        {
+          "status": 200,
+          "headers": {},
+          "body_base64": "PENvcHlPYmplY3RSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PEVUYWc+IjE0ODY0NTZkYTZmNWY1ODIwMzJhZmY0NTk1Mzc4MzdlIjwvRVRhZz48TGFzdE1vZGlmaWVkPjIwMjYtMDEtMDJUMDM6MDQ6MDVaPC9MYXN0TW9kaWZpZWQ+PC9Db3B5T2JqZWN0UmVzdWx0Pg=="
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "copy: s3://bucket/source/file.bin to s3://bucket/destination/file.bin\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=source%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=destination%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "PUT",
+            "target": "/bucket/destination/file.bin",
+            "headers": {
+              "x-amz-copy-source": "bucket/source/file.bin",
+              "x-amz-metadata-directive": "REPLACE",
+              "x-amz-tagging-directive": "REPLACE",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "local_after": {
+          "sync-local/file.bin": {
+            "body_base64": "b2xkLWRhdGEh",
+            "mtime": 1767323045
+          }
+        }
+      }
+    },
+    {
+      "name": "sync-download-newer-exact",
+      "command": "sync",
+      "args": [
+        "s3",
+        "sync",
+        "s3://bucket/source/",
+        "@TMP@/sync-local/",
+        "--no-progress",
+        "--exact-timestamps"
+      ],
+      "sync_direction": "download",
+      "local_files": {
+        "sync-local/file.bin": {
+          "body_base64": "b2xkLWRhdGEh",
+          "mtime": 1767323045
+        }
+      },
+      "head_responses": {
+        "/bucket/source/file.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:34:05 GMT"
+          },
+          "body_base64": ""
+        }
+      },
+      "inspect_files": [
+        "sync-local/file.bin"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+c291cmNlLzwvUHJlZml4PjxJc1RydW5jYXRlZD5mYWxzZTwvSXNUcnVuY2F0ZWQ+PENvbnRlbnRzPjxLZXk+c291cmNlL2ZpbGUuYmluPC9LZXk+PExhc3RNb2RpZmllZD4yMDI2LTAxLTAyVDAzOjM0OjA1WjwvTGFzdE1vZGlmaWVkPjxFVGFnPiIxNDg2NDU2ZGE2ZjVmNTgyMDMyYWZmNDU5NTM3ODM3ZSI8L0VUYWc+PFNpemU+OTwvU2l6ZT48U3RvcmFnZUNsYXNzPlNUQU5EQVJEPC9TdG9yYWdlQ2xhc3M+PC9Db250ZW50cz48L0xpc3RCdWNrZXRSZXN1bHQ+"
+        },
+        {
+          "status": 200,
+          "headers": {
+            "etag": "\"1486456da6f5f582032aff459537837e\""
+          },
+          "body_base64": "Zml4dHVyZQD/"
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "download: s3://bucket/source/file.bin to sync-local/file.bin\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=source%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "GET",
+            "target": "/bucket/source/file.bin",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "local_after": {
+          "sync-local/file.bin": {
+            "body_base64": "Zml4dHVyZQD/",
+            "mtime": 1767324845
+          }
+        }
+      }
+    },
+    {
+      "name": "sync-upload-newer-size-only",
+      "command": "sync",
+      "args": [
+        "s3",
+        "sync",
+        "@TMP@/sync-local/",
+        "s3://bucket/destination/",
+        "--no-progress",
+        "--size-only"
+      ],
+      "sync_direction": "upload",
+      "local_files": {
+        "sync-local/file.bin": {
+          "body_base64": "Zml4dHVyZQD/",
+          "mtime": 1767324845
+        }
+      },
+      "head_responses": {
+        "/bucket/destination/file.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"
+          },
+          "body_base64": ""
+        }
+      },
+      "inspect_files": [
+        "sync-local/file.bin"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+ZGVzdGluYXRpb24vPC9QcmVmaXg+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48Q29udGVudHM+PEtleT5kZXN0aW5hdGlvbi9maWxlLmJpbjwvS2V5PjxMYXN0TW9kaWZpZWQ+MjAyNi0wMS0wMlQwMzowNDowNVo8L0xhc3RNb2RpZmllZD48RVRhZz4iMTQ4NjQ1NmRhNmY1ZjU4MjAzMmFmZjQ1OTUzNzgzN2UiPC9FVGFnPjxTaXplPjk8L1NpemU+PFN0b3JhZ2VDbGFzcz5TVEFOREFSRDwvU3RvcmFnZUNsYXNzPjwvQ29udGVudHM+PC9MaXN0QnVja2V0UmVzdWx0Pg=="
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=destination%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "local_after": {
+          "sync-local/file.bin": {
+            "body_base64": "Zml4dHVyZQD/",
+            "mtime": 1767324845
+          }
+        }
+      }
+    },
+    {
+      "name": "sync-upload-protected-delete",
+      "command": "sync",
+      "args": [
+        "s3",
+        "sync",
+        "@TMP@/sync-local/",
+        "s3://bucket/destination/",
+        "--no-progress",
+        "--delete",
+        "--exclude",
+        "*.txt"
+      ],
+      "sync_direction": "upload",
+      "local_files": {
+        "sync-local/file.bin": {
+          "body_base64": "Zml4dHVyZQD/",
+          "mtime": 1767323045
+        }
+      },
+      "head_responses": {
+        "/bucket/destination/file.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"
+          },
+          "body_base64": ""
+        },
+        "/bucket/destination/stale.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"
+          },
+          "body_base64": ""
+        }
+      },
+      "inspect_files": [
+        "sync-local/file.bin"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+ZGVzdGluYXRpb24vPC9QcmVmaXg+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48Q29udGVudHM+PEtleT5kZXN0aW5hdGlvbi9maWxlLmJpbjwvS2V5PjxMYXN0TW9kaWZpZWQ+MjAyNi0wMS0wMlQwMzowNDowNVo8L0xhc3RNb2RpZmllZD48RVRhZz4iMTQ4NjQ1NmRhNmY1ZjU4MjAzMmFmZjQ1OTUzNzgzN2UiPC9FVGFnPjxTaXplPjk8L1NpemU+PFN0b3JhZ2VDbGFzcz5TVEFOREFSRDwvU3RvcmFnZUNsYXNzPjwvQ29udGVudHM+PENvbnRlbnRzPjxLZXk+ZGVzdGluYXRpb24vc3RhbGUuYmluPC9LZXk+PExhc3RNb2RpZmllZD4yMDI2LTAxLTAyVDAzOjA0OjA1WjwvTGFzdE1vZGlmaWVkPjxFVGFnPiIxNDg2NDU2ZGE2ZjVmNTgyMDMyYWZmNDU5NTM3ODM3ZSI8L0VUYWc+PFNpemU+OTwvU2l6ZT48U3RvcmFnZUNsYXNzPlNUQU5EQVJEPC9TdG9yYWdlQ2xhc3M+PC9Db250ZW50cz48Q29udGVudHM+PEtleT5kZXN0aW5hdGlvbi9wcm90ZWN0ZWQudHh0PC9LZXk+PExhc3RNb2RpZmllZD4yMDI2LTAxLTAyVDAzOjA0OjA1WjwvTGFzdE1vZGlmaWVkPjxFVGFnPiIxNDg2NDU2ZGE2ZjVmNTgyMDMyYWZmNDU5NTM3ODM3ZSI8L0VUYWc+PFNpemU+OTwvU2l6ZT48U3RvcmFnZUNsYXNzPlNUQU5EQVJEPC9TdG9yYWdlQ2xhc3M+PC9Db250ZW50cz48L0xpc3RCdWNrZXRSZXN1bHQ+"
+        },
+        {
+          "status": 204,
+          "headers": {},
+          "body_base64": ""
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "delete: s3://bucket/destination/stale.bin\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=destination%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          },
+          {
+            "method": "DELETE",
+            "target": "/bucket/destination/stale.bin",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "content-length": "0"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "local_after": {
+          "sync-local/file.bin": {
+            "body_base64": "Zml4dHVyZQD/",
+            "mtime": 1767323045
+          }
+        }
+      }
+    },
+    {
+      "name": "sync-upload-protected-delete-dryrun",
+      "command": "sync",
+      "args": [
+        "s3",
+        "sync",
+        "@TMP@/sync-local/",
+        "s3://bucket/destination/",
+        "--no-progress",
+        "--delete",
+        "--exclude",
+        "*.txt",
+        "--dryrun"
+      ],
+      "sync_direction": "upload",
+      "local_files": {
+        "sync-local/file.bin": {
+          "body_base64": "Zml4dHVyZQD/",
+          "mtime": 1767323045
+        }
+      },
+      "head_responses": {
+        "/bucket/destination/file.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"
+          },
+          "body_base64": ""
+        },
+        "/bucket/destination/stale.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"
+          },
+          "body_base64": ""
+        }
+      },
+      "inspect_files": [
+        "sync-local/file.bin"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+ZGVzdGluYXRpb24vPC9QcmVmaXg+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48Q29udGVudHM+PEtleT5kZXN0aW5hdGlvbi9maWxlLmJpbjwvS2V5PjxMYXN0TW9kaWZpZWQ+MjAyNi0wMS0wMlQwMzowNDowNVo8L0xhc3RNb2RpZmllZD48RVRhZz4iMTQ4NjQ1NmRhNmY1ZjU4MjAzMmFmZjQ1OTUzNzgzN2UiPC9FVGFnPjxTaXplPjk8L1NpemU+PFN0b3JhZ2VDbGFzcz5TVEFOREFSRDwvU3RvcmFnZUNsYXNzPjwvQ29udGVudHM+PENvbnRlbnRzPjxLZXk+ZGVzdGluYXRpb24vc3RhbGUuYmluPC9LZXk+PExhc3RNb2RpZmllZD4yMDI2LTAxLTAyVDAzOjA0OjA1WjwvTGFzdE1vZGlmaWVkPjxFVGFnPiIxNDg2NDU2ZGE2ZjVmNTgyMDMyYWZmNDU5NTM3ODM3ZSI8L0VUYWc+PFNpemU+OTwvU2l6ZT48U3RvcmFnZUNsYXNzPlNUQU5EQVJEPC9TdG9yYWdlQ2xhc3M+PC9Db250ZW50cz48Q29udGVudHM+PEtleT5kZXN0aW5hdGlvbi9wcm90ZWN0ZWQudHh0PC9LZXk+PExhc3RNb2RpZmllZD4yMDI2LTAxLTAyVDAzOjA0OjA1WjwvTGFzdE1vZGlmaWVkPjxFVGFnPiIxNDg2NDU2ZGE2ZjVmNTgyMDMyYWZmNDU5NTM3ODM3ZSI8L0VUYWc+PFNpemU+OTwvU2l6ZT48U3RvcmFnZUNsYXNzPlNUQU5EQVJEPC9TdG9yYWdlQ2xhc3M+PC9Db250ZW50cz48L0xpc3RCdWNrZXRSZXN1bHQ+"
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "(dryrun) delete: s3://bucket/destination/stale.bin\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=destination%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "local_after": {
+          "sync-local/file.bin": {
+            "body_base64": "Zml4dHVyZQD/",
+            "mtime": 1767323045
+          }
+        }
+      }
+    },
+    {
+      "name": "sync-download-protected-delete",
+      "command": "sync",
+      "args": [
+        "s3",
+        "sync",
+        "s3://bucket/source/",
+        "@TMP@/sync-local/",
+        "--no-progress",
+        "--delete",
+        "--exclude",
+        "*.txt"
+      ],
+      "sync_direction": "download",
+      "local_files": {
+        "sync-local/file.bin": {
+          "body_base64": "b2xkLWRhdGEh",
+          "mtime": 1767323045
+        },
+        "sync-local/stale.bin": {
+          "body_base64": "Zml4dHVyZQD/",
+          "mtime": 1767323045
+        },
+        "sync-local/protected.txt": {
+          "body_base64": "Zml4dHVyZQD/",
+          "mtime": 1767323045
+        }
+      },
+      "head_responses": {
+        "/bucket/source/file.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"
+          },
+          "body_base64": ""
+        },
+        "/bucket/source/stale.bin": {
+          "status": 404,
+          "headers": {},
+          "body_base64": ""
+        }
+      },
+      "inspect_files": [
+        "sync-local/file.bin",
+        "sync-local/stale.bin",
+        "sync-local/protected.txt"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+c291cmNlLzwvUHJlZml4PjxJc1RydW5jYXRlZD5mYWxzZTwvSXNUcnVuY2F0ZWQ+PENvbnRlbnRzPjxLZXk+c291cmNlL2ZpbGUuYmluPC9LZXk+PExhc3RNb2RpZmllZD4yMDI2LTAxLTAyVDAzOjA0OjA1WjwvTGFzdE1vZGlmaWVkPjxFVGFnPiIxNDg2NDU2ZGE2ZjVmNTgyMDMyYWZmNDU5NTM3ODM3ZSI8L0VUYWc+PFNpemU+OTwvU2l6ZT48U3RvcmFnZUNsYXNzPlNUQU5EQVJEPC9TdG9yYWdlQ2xhc3M+PC9Db250ZW50cz48L0xpc3RCdWNrZXRSZXN1bHQ+"
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "delete: sync-local/stale.bin\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=source%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "local_after": {
+          "sync-local/file.bin": {
+            "body_base64": "b2xkLWRhdGEh",
+            "mtime": 1767323045
+          },
+          "sync-local/stale.bin": null,
+          "sync-local/protected.txt": {
+            "body_base64": "Zml4dHVyZQD/",
+            "mtime": 1767323045
+          }
+        }
+      }
+    },
+    {
+      "name": "sync-download-protected-delete-dryrun",
+      "command": "sync",
+      "args": [
+        "s3",
+        "sync",
+        "s3://bucket/source/",
+        "@TMP@/sync-local/",
+        "--no-progress",
+        "--delete",
+        "--exclude",
+        "*.txt",
+        "--dryrun"
+      ],
+      "sync_direction": "download",
+      "local_files": {
+        "sync-local/file.bin": {
+          "body_base64": "b2xkLWRhdGEh",
+          "mtime": 1767323045
+        },
+        "sync-local/stale.bin": {
+          "body_base64": "Zml4dHVyZQD/",
+          "mtime": 1767323045
+        },
+        "sync-local/protected.txt": {
+          "body_base64": "Zml4dHVyZQD/",
+          "mtime": 1767323045
+        }
+      },
+      "head_responses": {
+        "/bucket/source/file.bin": {
+          "status": 200,
+          "headers": {
+            "content-length": "9",
+            "etag": "\"1486456da6f5f582032aff459537837e\"",
+            "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT"
+          },
+          "body_base64": ""
+        },
+        "/bucket/source/stale.bin": {
+          "status": 404,
+          "headers": {},
+          "body_base64": ""
+        }
+      },
+      "inspect_files": [
+        "sync-local/file.bin",
+        "sync-local/stale.bin",
+        "sync-local/protected.txt"
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "content-type": "application/xml"
+          },
+          "body_base64": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+YnVja2V0PC9OYW1lPjxQcmVmaXg+c291cmNlLzwvUHJlZml4PjxJc1RydW5jYXRlZD5mYWxzZTwvSXNUcnVuY2F0ZWQ+PENvbnRlbnRzPjxLZXk+c291cmNlL2ZpbGUuYmluPC9LZXk+PExhc3RNb2RpZmllZD4yMDI2LTAxLTAyVDAzOjA0OjA1WjwvTGFzdE1vZGlmaWVkPjxFVGFnPiIxNDg2NDU2ZGE2ZjVmNTgyMDMyYWZmNDU5NTM3ODM3ZSI8L0VUYWc+PFNpemU+OTwvU2l6ZT48U3RvcmFnZUNsYXNzPlNUQU5EQVJEPC9TdG9yYWdlQ2xhc3M+PC9Db250ZW50cz48L0xpc3RCdWNrZXRSZXN1bHQ+"
+        }
+      ],
+      "aws": {
+        "status": 0,
+        "stdout": "(dryrun) delete: sync-local/stale.bin\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?list-type=2&prefix=source%2F&encoding-type=url",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": [],
+        "local_after": {
+          "sync-local/file.bin": {
+            "body_base64": "b2xkLWRhdGEh",
+            "mtime": 1767323045
+          },
+          "sync-local/stale.bin": {
+            "body_base64": "Zml4dHVyZQD/",
+            "mtime": 1767323045
+          },
+          "sync-local/protected.txt": {
+            "body_base64": "Zml4dHVyZQD/",
+            "mtime": 1767323045
+          }
+        }
+      }
     }
   ]
 }

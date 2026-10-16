@@ -2,7 +2,7 @@
   "schema_version": 1,
   "aws_sha256": "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a",
   "model_sha256": "6be3b05aac4ff8719e9a30a376de413523e9eab28a248195c8ab1cf9baacac80",
-  "scope": "27 explicit representative operations; optional member variants, not exhaustive model coverage",
+  "scope": "32 explicit representative operations; optional member variants, not exhaustive model coverage",
   "cases": [
     {
       "operation": "PutBucketLifecycleConfiguration",
@@ -5005,6 +5005,605 @@
                 ]
               }
             }
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "GetObjectAttributes",
+      "scenario": "all-attributes-markers-two-parts",
+      "input": {
+        "Bucket": "bucket",
+        "Key": "attributes/雪 % +?#/key",
+        "VersionId": "version+/=雪",
+        "MaxParts": 2,
+        "PartNumberMarker": 3,
+        "ObjectAttributes": [
+          "ETag",
+          "Checksum",
+          "ObjectParts",
+          "StorageClass",
+          "ObjectSize"
+        ],
+        "RequestPayer": "requester",
+        "ExpectedBucketOwner": "123456789012"
+      },
+      "args": [
+        "s3api",
+        "get-object-attributes",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Key\": \"attributes/雪 % +?#/key\", \"VersionId\": \"version+/=雪\", \"MaxParts\": 2, \"PartNumberMarker\": 3, \"ObjectAttributes\": [\"ETag\", \"Checksum\", \"ObjectParts\", \"StorageClass\", \"ObjectSize\"], \"RequestPayer\": \"requester\", \"ExpectedBucketOwner\": \"123456789012\"}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id",
+          "x-amz-delete-marker": "false",
+          "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+          "x-amz-version-id": "version+/=",
+          "x-amz-request-charged": "requester"
+        },
+        "body_base64": "PEdldE9iamVjdEF0dHJpYnV0ZXNPdXRwdXQ+PEVUYWc+YXR0cmlidXRlcy1ldGFnPC9FVGFnPjxDaGVja3N1bT48Q2hlY2tzdW1DUkMzMj5BQUFBQUE9PTwvQ2hlY2tzdW1DUkMzMj48Q2hlY2tzdW1TSEEyNTY+ZzMrbGVwdnZyYTJjd0hUd2ltVXFoU2g3L01BVis4MWhyVGVnVlBtSlF3OD08L0NoZWNrc3VtU0hBMjU2PjxDaGVja3N1bVR5cGU+Q09NUE9TSVRFPC9DaGVja3N1bVR5cGU+PC9DaGVja3N1bT48T2JqZWN0UGFydHM+PFBhcnRzQ291bnQ+NjwvUGFydHNDb3VudD48UGFydE51bWJlck1hcmtlcj4zPC9QYXJ0TnVtYmVyTWFya2VyPjxOZXh0UGFydE51bWJlck1hcmtlcj41PC9OZXh0UGFydE51bWJlck1hcmtlcj48TWF4UGFydHM+MjwvTWF4UGFydHM+PElzVHJ1bmNhdGVkPnRydWU8L0lzVHJ1bmNhdGVkPjxQYXJ0PjxQYXJ0TnVtYmVyPjQ8L1BhcnROdW1iZXI+PFNpemU+NDwvU2l6ZT48Q2hlY2tzdW1DUkMzMj5BQUFBQUE9PTwvQ2hlY2tzdW1DUkMzMj48L1BhcnQ+PFBhcnQ+PFBhcnROdW1iZXI+NTwvUGFydE51bWJlcj48U2l6ZT41PC9TaXplPjxDaGVja3N1bVNIQTI1Nj5nMytsZXB2dnJhMmN3SFR3aW1VcWhTaDcvTUFWKzgxaHJUZWdWUG1KUXc4PTwvQ2hlY2tzdW1TSEEyNTY+PC9QYXJ0PjwvT2JqZWN0UGFydHM+PFN0b3JhZ2VDbGFzcz5TVEFOREFSRF9JQTwvU3RvcmFnZUNsYXNzPjxPYmplY3RTaXplPjk8L09iamVjdFNpemU+PC9HZXRPYmplY3RBdHRyaWJ1dGVzT3V0cHV0Pg=="
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"DeleteMarker\": false,\n    \"LastModified\": \"2026-01-02T03:04:05+00:00\",\n    \"VersionId\": \"version+/=\",\n    \"RequestCharged\": \"requester\",\n    \"ETag\": \"attributes-etag\",\n    \"Checksum\": {\n        \"ChecksumCRC32\": \"AAAAAA==\",\n        \"ChecksumSHA256\": \"g3+lepvvra2cwHTwimUqhSh7/MAV+81hrTegVPmJQw8=\",\n        \"ChecksumType\": \"COMPOSITE\"\n    },\n    \"ObjectParts\": {\n        \"TotalPartsCount\": 6,\n        \"PartNumberMarker\": 3,\n        \"NextPartNumberMarker\": 5,\n        \"MaxParts\": 2,\n        \"IsTruncated\": true,\n        \"Parts\": [\n            {\n                \"PartNumber\": 4,\n                \"Size\": 4,\n                \"ChecksumCRC32\": \"AAAAAA==\"\n            },\n            {\n                \"PartNumber\": 5,\n                \"Size\": 5,\n                \"ChecksumSHA256\": \"g3+lepvvra2cwHTwimUqhSh7/MAV+81hrTegVPmJQw8=\"\n            }\n        ]\n    },\n    \"StorageClass\": \"STANDARD_IA\",\n    \"ObjectSize\": 9\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket/attributes/%E9%9B%AA%20%25%20%2B%3F%23/key?attributes&versionId=version%2B%2F%3D%E9%9B%AA",
+            "headers": {
+              "x-amz-max-parts": "2",
+              "x-amz-part-number-marker": "3",
+              "x-amz-object-attributes": "ETag,Checksum,ObjectParts,StorageClass,ObjectSize",
+              "x-amz-request-payer": "requester",
+              "x-amz-expected-bucket-owner": "123456789012",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "PutBucketInventoryConfiguration",
+      "scenario": "nested-filter-encryption-fields",
+      "input": {
+        "Bucket": "bucket",
+        "Id": "inventory+ id",
+        "ExpectedBucketOwner": "123456789012",
+        "InventoryConfiguration": {
+          "Destination": {
+            "S3BucketDestination": {
+              "AccountId": "123456789013",
+              "Bucket": "arn:aws:s3:::inventory-destination",
+              "Format": "Parquet",
+              "Prefix": "reports/雪/",
+              "Encryption": {
+                "SSEKMS": {
+                  "KeyId": "arn:aws:kms:us-east-1:123456789013:key/fixture"
+                }
+              }
+            }
+          },
+          "IsEnabled": false,
+          "Filter": {
+            "Prefix": "incoming/雪 & more/"
+          },
+          "Id": "inventory+ id",
+          "IncludedObjectVersions": "Current",
+          "OptionalFields": [
+            "Size",
+            "LastModifiedDate",
+            "ChecksumAlgorithm"
+          ],
+          "Schedule": {
+            "Frequency": "Weekly"
+          }
+        }
+      },
+      "args": [
+        "s3api",
+        "put-bucket-inventory-configuration",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Id\": \"inventory+ id\", \"ExpectedBucketOwner\": \"123456789012\", \"InventoryConfiguration\": {\"Destination\": {\"S3BucketDestination\": {\"AccountId\": \"123456789013\", \"Bucket\": \"arn:aws:s3:::inventory-destination\", \"Format\": \"Parquet\", \"Prefix\": \"reports/雪/\", \"Encryption\": {\"SSEKMS\": {\"KeyId\": \"arn:aws:kms:us-east-1:123456789013:key/fixture\"}}}}, \"IsEnabled\": false, \"Filter\": {\"Prefix\": \"incoming/雪 & more/\"}, \"Id\": \"inventory+ id\", \"IncludedObjectVersions\": \"Current\", \"OptionalFields\": [\"Size\", \"LastModifiedDate\", \"ChecksumAlgorithm\"], \"Schedule\": {\"Frequency\": \"Weekly\"}}}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id"
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket?inventory&id=inventory%2B%20id",
+            "headers": {
+              "x-amz-expected-bucket-owner": "123456789012",
+              "x-amz-content-sha256": "4dd7747ea0d7f403434d49b67d8e4edb2ed90c4a4d7acb9dbdc4959569952a1d",
+              "content-length": "740"
+            },
+            "body_base64": "PEludmVudG9yeUNvbmZpZ3VyYXRpb24geG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PERlc3RpbmF0aW9uPjxTM0J1Y2tldERlc3RpbmF0aW9uPjxBY2NvdW50SWQ+MTIzNDU2Nzg5MDEzPC9BY2NvdW50SWQ+PEJ1Y2tldD5hcm46YXdzOnMzOjo6aW52ZW50b3J5LWRlc3RpbmF0aW9uPC9CdWNrZXQ+PEZvcm1hdD5QYXJxdWV0PC9Gb3JtYXQ+PFByZWZpeD5yZXBvcnRzL+mbqi88L1ByZWZpeD48RW5jcnlwdGlvbj48U1NFLUtNUz48S2V5SWQ+YXJuOmF3czprbXM6dXMtZWFzdC0xOjEyMzQ1Njc4OTAxMzprZXkvZml4dHVyZTwvS2V5SWQ+PC9TU0UtS01TPjwvRW5jcnlwdGlvbj48L1MzQnVja2V0RGVzdGluYXRpb24+PC9EZXN0aW5hdGlvbj48SXNFbmFibGVkPmZhbHNlPC9Jc0VuYWJsZWQ+PEZpbHRlcj48UHJlZml4PmluY29taW5nL+mbqiAmYW1wOyBtb3JlLzwvUHJlZml4PjwvRmlsdGVyPjxJZD5pbnZlbnRvcnkrIGlkPC9JZD48SW5jbHVkZWRPYmplY3RWZXJzaW9ucz5DdXJyZW50PC9JbmNsdWRlZE9iamVjdFZlcnNpb25zPjxPcHRpb25hbEZpZWxkcz48RmllbGQ+U2l6ZTwvRmllbGQ+PEZpZWxkPkxhc3RNb2RpZmllZERhdGU8L0ZpZWxkPjxGaWVsZD5DaGVja3N1bUFsZ29yaXRobTwvRmllbGQ+PC9PcHRpb25hbEZpZWxkcz48U2NoZWR1bGU+PEZyZXF1ZW5jeT5XZWVrbHk8L0ZyZXF1ZW5jeT48L1NjaGVkdWxlPjwvSW52ZW50b3J5Q29uZmlndXJhdGlvbj4=",
+            "xml_semantics": {
+              "name": "InventoryConfiguration",
+              "attributes": {},
+              "text": "",
+              "children": {
+                "Destination": [
+                  {
+                    "name": "Destination",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "S3BucketDestination": [
+                        {
+                          "name": "S3BucketDestination",
+                          "attributes": {},
+                          "text": "",
+                          "children": {
+                            "AccountId": [
+                              {
+                                "name": "AccountId",
+                                "attributes": {},
+                                "text": "123456789013",
+                                "children": {}
+                              }
+                            ],
+                            "Bucket": [
+                              {
+                                "name": "Bucket",
+                                "attributes": {},
+                                "text": "arn:aws:s3:::inventory-destination",
+                                "children": {}
+                              }
+                            ],
+                            "Format": [
+                              {
+                                "name": "Format",
+                                "attributes": {},
+                                "text": "Parquet",
+                                "children": {}
+                              }
+                            ],
+                            "Prefix": [
+                              {
+                                "name": "Prefix",
+                                "attributes": {},
+                                "text": "reports/雪/",
+                                "children": {}
+                              }
+                            ],
+                            "Encryption": [
+                              {
+                                "name": "Encryption",
+                                "attributes": {},
+                                "text": "",
+                                "children": {
+                                  "SSE-KMS": [
+                                    {
+                                      "name": "SSE-KMS",
+                                      "attributes": {},
+                                      "text": "",
+                                      "children": {
+                                        "KeyId": [
+                                          {
+                                            "name": "KeyId",
+                                            "attributes": {},
+                                            "text": "arn:aws:kms:us-east-1:123456789013:key/fixture",
+                                            "children": {}
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "IsEnabled": [
+                  {
+                    "name": "IsEnabled",
+                    "attributes": {},
+                    "text": "false",
+                    "children": {}
+                  }
+                ],
+                "Filter": [
+                  {
+                    "name": "Filter",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "Prefix": [
+                        {
+                          "name": "Prefix",
+                          "attributes": {},
+                          "text": "incoming/雪 & more/",
+                          "children": {}
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "Id": [
+                  {
+                    "name": "Id",
+                    "attributes": {},
+                    "text": "inventory+ id",
+                    "children": {}
+                  }
+                ],
+                "IncludedObjectVersions": [
+                  {
+                    "name": "IncludedObjectVersions",
+                    "attributes": {},
+                    "text": "Current",
+                    "children": {}
+                  }
+                ],
+                "OptionalFields": [
+                  {
+                    "name": "OptionalFields",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "Field": [
+                        {
+                          "name": "Field",
+                          "attributes": {},
+                          "text": "Size",
+                          "children": {}
+                        },
+                        {
+                          "name": "Field",
+                          "attributes": {},
+                          "text": "LastModifiedDate",
+                          "children": {}
+                        },
+                        {
+                          "name": "Field",
+                          "attributes": {},
+                          "text": "ChecksumAlgorithm",
+                          "children": {}
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "Schedule": [
+                  {
+                    "name": "Schedule",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "Frequency": [
+                        {
+                          "name": "Frequency",
+                          "attributes": {},
+                          "text": "Weekly",
+                          "children": {}
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "GetBucketInventoryConfiguration",
+      "scenario": "nested-filter-encryption-fields",
+      "input": {
+        "Bucket": "bucket",
+        "Id": "inventory+ id",
+        "ExpectedBucketOwner": "123456789012"
+      },
+      "args": [
+        "s3api",
+        "get-bucket-inventory-configuration",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Id\": \"inventory+ id\", \"ExpectedBucketOwner\": \"123456789012\"}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id"
+        },
+        "body_base64": "PEludmVudG9yeUNvbmZpZ3VyYXRpb24+PERlc3RpbmF0aW9uPjxTM0J1Y2tldERlc3RpbmF0aW9uPjxBY2NvdW50SWQ+MTIzNDU2Nzg5MDEzPC9BY2NvdW50SWQ+PEJ1Y2tldD5hcm46YXdzOnMzOjo6aW52ZW50b3J5LWRlc3RpbmF0aW9uPC9CdWNrZXQ+PEZvcm1hdD5QYXJxdWV0PC9Gb3JtYXQ+PFByZWZpeD5yZXBvcnRzL+mbqi88L1ByZWZpeD48RW5jcnlwdGlvbj48U1NFLUtNUz48S2V5SWQ+YXJuOmF3czprbXM6dXMtZWFzdC0xOjEyMzQ1Njc4OTAxMzprZXkvZml4dHVyZTwvS2V5SWQ+PC9TU0UtS01TPjwvRW5jcnlwdGlvbj48L1MzQnVja2V0RGVzdGluYXRpb24+PC9EZXN0aW5hdGlvbj48SXNFbmFibGVkPmZhbHNlPC9Jc0VuYWJsZWQ+PEZpbHRlcj48UHJlZml4PmluY29taW5nL+mbqiAmYW1wOyBtb3JlLzwvUHJlZml4PjwvRmlsdGVyPjxJZD5pbnZlbnRvcnkrIGlkPC9JZD48SW5jbHVkZWRPYmplY3RWZXJzaW9ucz5DdXJyZW50PC9JbmNsdWRlZE9iamVjdFZlcnNpb25zPjxPcHRpb25hbEZpZWxkcz48RmllbGQ+U2l6ZTwvRmllbGQ+PEZpZWxkPkxhc3RNb2RpZmllZERhdGU8L0ZpZWxkPjxGaWVsZD5DaGVja3N1bUFsZ29yaXRobTwvRmllbGQ+PC9PcHRpb25hbEZpZWxkcz48U2NoZWR1bGU+PEZyZXF1ZW5jeT5XZWVrbHk8L0ZyZXF1ZW5jeT48L1NjaGVkdWxlPjwvSW52ZW50b3J5Q29uZmlndXJhdGlvbj4="
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"InventoryConfiguration\": {\n        \"Destination\": {\n            \"S3BucketDestination\": {\n                \"AccountId\": \"123456789013\",\n                \"Bucket\": \"arn:aws:s3:::inventory-destination\",\n                \"Format\": \"Parquet\",\n                \"Prefix\": \"reports/雪/\",\n                \"Encryption\": {\n                    \"SSEKMS\": {\n                        \"KeyId\": \"arn:aws:kms:us-east-1:123456789013:key/fixture\"\n                    }\n                }\n            }\n        },\n        \"IsEnabled\": false,\n        \"Filter\": {\n            \"Prefix\": \"incoming/雪 & more/\"\n        },\n        \"Id\": \"inventory+ id\",\n        \"IncludedObjectVersions\": \"Current\",\n        \"OptionalFields\": [\n            \"Size\",\n            \"LastModifiedDate\",\n            \"ChecksumAlgorithm\"\n        ],\n        \"Schedule\": {\n            \"Frequency\": \"Weekly\"\n        }\n    }\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?inventory&id=inventory%2B%20id",
+            "headers": {
+              "x-amz-expected-bucket-owner": "123456789012",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "PutBucketIntelligentTieringConfiguration",
+      "scenario": "and-filter-multiple-tiers",
+      "input": {
+        "Bucket": "bucket",
+        "Id": "tiering+ id",
+        "ExpectedBucketOwner": "123456789012",
+        "IntelligentTieringConfiguration": {
+          "Id": "tiering+ id",
+          "Filter": {
+            "And": {
+              "Prefix": "tier/雪/",
+              "Tags": [
+                {
+                  "Key": "team",
+                  "Value": "storage & ops"
+                },
+                {
+                  "Key": "empty",
+                  "Value": ""
+                }
+              ]
+            }
+          },
+          "Status": "Enabled",
+          "Tierings": [
+            {
+              "Days": 90,
+              "AccessTier": "ARCHIVE_ACCESS"
+            },
+            {
+              "Days": 180,
+              "AccessTier": "DEEP_ARCHIVE_ACCESS"
+            }
+          ]
+        }
+      },
+      "args": [
+        "s3api",
+        "put-bucket-intelligent-tiering-configuration",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Id\": \"tiering+ id\", \"ExpectedBucketOwner\": \"123456789012\", \"IntelligentTieringConfiguration\": {\"Id\": \"tiering+ id\", \"Filter\": {\"And\": {\"Prefix\": \"tier/雪/\", \"Tags\": [{\"Key\": \"team\", \"Value\": \"storage & ops\"}, {\"Key\": \"empty\", \"Value\": \"\"}]}}, \"Status\": \"Enabled\", \"Tierings\": [{\"Days\": 90, \"AccessTier\": \"ARCHIVE_ACCESS\"}, {\"Days\": 180, \"AccessTier\": \"DEEP_ARCHIVE_ACCESS\"}]}}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id"
+        },
+        "body_base64": ""
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "PUT",
+            "target": "/bucket?intelligent-tiering&id=tiering%2B%20id",
+            "headers": {
+              "x-amz-expected-bucket-owner": "123456789012",
+              "x-amz-content-sha256": "c439759ca1b100dd4ec8fbd5659b0c20395eb684d2cc64c2dab1d92f94129377",
+              "content-length": "459"
+            },
+            "body_base64": "PEludGVsbGlnZW50VGllcmluZ0NvbmZpZ3VyYXRpb24geG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PElkPnRpZXJpbmcrIGlkPC9JZD48RmlsdGVyPjxBbmQ+PFByZWZpeD50aWVyL+mbqi88L1ByZWZpeD48VGFnPjxLZXk+dGVhbTwvS2V5PjxWYWx1ZT5zdG9yYWdlICZhbXA7IG9wczwvVmFsdWU+PC9UYWc+PFRhZz48S2V5PmVtcHR5PC9LZXk+PFZhbHVlIC8+PC9UYWc+PC9BbmQ+PC9GaWx0ZXI+PFN0YXR1cz5FbmFibGVkPC9TdGF0dXM+PFRpZXJpbmc+PERheXM+OTA8L0RheXM+PEFjY2Vzc1RpZXI+QVJDSElWRV9BQ0NFU1M8L0FjY2Vzc1RpZXI+PC9UaWVyaW5nPjxUaWVyaW5nPjxEYXlzPjE4MDwvRGF5cz48QWNjZXNzVGllcj5ERUVQX0FSQ0hJVkVfQUNDRVNTPC9BY2Nlc3NUaWVyPjwvVGllcmluZz48L0ludGVsbGlnZW50VGllcmluZ0NvbmZpZ3VyYXRpb24+",
+            "xml_semantics": {
+              "name": "IntelligentTieringConfiguration",
+              "attributes": {},
+              "text": "",
+              "children": {
+                "Id": [
+                  {
+                    "name": "Id",
+                    "attributes": {},
+                    "text": "tiering+ id",
+                    "children": {}
+                  }
+                ],
+                "Filter": [
+                  {
+                    "name": "Filter",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "And": [
+                        {
+                          "name": "And",
+                          "attributes": {},
+                          "text": "",
+                          "children": {
+                            "Prefix": [
+                              {
+                                "name": "Prefix",
+                                "attributes": {},
+                                "text": "tier/雪/",
+                                "children": {}
+                              }
+                            ],
+                            "Tag": [
+                              {
+                                "name": "Tag",
+                                "attributes": {},
+                                "text": "",
+                                "children": {
+                                  "Key": [
+                                    {
+                                      "name": "Key",
+                                      "attributes": {},
+                                      "text": "team",
+                                      "children": {}
+                                    }
+                                  ],
+                                  "Value": [
+                                    {
+                                      "name": "Value",
+                                      "attributes": {},
+                                      "text": "storage & ops",
+                                      "children": {}
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "name": "Tag",
+                                "attributes": {},
+                                "text": "",
+                                "children": {
+                                  "Key": [
+                                    {
+                                      "name": "Key",
+                                      "attributes": {},
+                                      "text": "empty",
+                                      "children": {}
+                                    }
+                                  ],
+                                  "Value": [
+                                    {
+                                      "name": "Value",
+                                      "attributes": {},
+                                      "text": "",
+                                      "children": {}
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "Status": [
+                  {
+                    "name": "Status",
+                    "attributes": {},
+                    "text": "Enabled",
+                    "children": {}
+                  }
+                ],
+                "Tiering": [
+                  {
+                    "name": "Tiering",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "Days": [
+                        {
+                          "name": "Days",
+                          "attributes": {},
+                          "text": "90",
+                          "children": {}
+                        }
+                      ],
+                      "AccessTier": [
+                        {
+                          "name": "AccessTier",
+                          "attributes": {},
+                          "text": "ARCHIVE_ACCESS",
+                          "children": {}
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "name": "Tiering",
+                    "attributes": {},
+                    "text": "",
+                    "children": {
+                      "Days": [
+                        {
+                          "name": "Days",
+                          "attributes": {},
+                          "text": "180",
+                          "children": {}
+                        }
+                      ],
+                      "AccessTier": [
+                        {
+                          "name": "AccessTier",
+                          "attributes": {},
+                          "text": "DEEP_ARCHIVE_ACCESS",
+                          "children": {}
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "operation": "GetBucketIntelligentTieringConfiguration",
+      "scenario": "and-filter-multiple-tiers",
+      "input": {
+        "Bucket": "bucket",
+        "Id": "tiering+ id",
+        "ExpectedBucketOwner": "123456789012"
+      },
+      "args": [
+        "s3api",
+        "get-bucket-intelligent-tiering-configuration",
+        "--cli-input-json",
+        "{\"Bucket\": \"bucket\", \"Id\": \"tiering+ id\", \"ExpectedBucketOwner\": \"123456789012\"}"
+      ],
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/xml",
+          "x-amz-request-id": "optional-request",
+          "x-amz-id-2": "optional-host-id"
+        },
+        "body_base64": "PEludGVsbGlnZW50VGllcmluZ0NvbmZpZ3VyYXRpb24+PElkPnRpZXJpbmcrIGlkPC9JZD48RmlsdGVyPjxBbmQ+PFByZWZpeD50aWVyL+mbqi88L1ByZWZpeD48VGFnPjxLZXk+dGVhbTwvS2V5PjxWYWx1ZT5zdG9yYWdlICZhbXA7IG9wczwvVmFsdWU+PC9UYWc+PFRhZz48S2V5PmVtcHR5PC9LZXk+PFZhbHVlLz48L1RhZz48L0FuZD48L0ZpbHRlcj48U3RhdHVzPkVuYWJsZWQ8L1N0YXR1cz48VGllcmluZz48RGF5cz45MDwvRGF5cz48QWNjZXNzVGllcj5BUkNISVZFX0FDQ0VTUzwvQWNjZXNzVGllcj48L1RpZXJpbmc+PFRpZXJpbmc+PERheXM+MTgwPC9EYXlzPjxBY2Nlc3NUaWVyPkRFRVBfQVJDSElWRV9BQ0NFU1M8L0FjY2Vzc1RpZXI+PC9UaWVyaW5nPjwvSW50ZWxsaWdlbnRUaWVyaW5nQ29uZmlndXJhdGlvbj4="
+      },
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"IntelligentTieringConfiguration\": {\n        \"Id\": \"tiering+ id\",\n        \"Filter\": {\n            \"And\": {\n                \"Prefix\": \"tier/雪/\",\n                \"Tags\": [\n                    {\n                        \"Key\": \"team\",\n                        \"Value\": \"storage & ops\"\n                    },\n                    {\n                        \"Key\": \"empty\",\n                        \"Value\": \"\"\n                    }\n                ]\n            }\n        },\n        \"Status\": \"Enabled\",\n        \"Tierings\": [\n            {\n                \"Days\": 90,\n                \"AccessTier\": \"ARCHIVE_ACCESS\"\n            },\n            {\n                \"Days\": 180,\n                \"AccessTier\": \"DEEP_ARCHIVE_ACCESS\"\n            }\n        ]\n    }\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?intelligent-tiering&id=tiering%2B%20id",
+            "headers": {
+              "x-amz-expected-bucket-owner": "123456789012",
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
           }
         ],
         "peer_errors": []

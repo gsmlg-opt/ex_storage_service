@@ -32,7 +32,7 @@ defmodule ExStorageServiceCli.ExecutableOperationMatrixTest do
 
   test "independent capture accounts for all 108 operations and names its exclusion" do
     assert Base.encode16(:crypto.hash(:sha256, File.read!(@fixture)), case: :lower) ==
-             "6593519c84aa5e4847aa7d83dc1fd5598d79f511f9a8e252f22c193f967708d4"
+             "c437b8532d19a00190e430f5140924351af180d3bf790c10fd20098f8f3087a5"
 
     assert @oracle["aws_sha256"] ==
              "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a"
@@ -56,13 +56,20 @@ defmodule ExStorageServiceCli.ExecutableOperationMatrixTest do
 
   for golden <- @oracle["cases"] do
     @golden golden
+    @tag operation: @golden["operation"]
     test "pinned AWS #{@golden["operation"]} #{@golden["scenario"]}", context do
       golden = @golden
       response = golden["response"]
-      body = Base.decode64!(response["body_base64"])
+
+      responses = golden["responses"] || [response]
 
       {endpoint, _server} =
-        WireServer.fixture([{response["status"], Map.to_list(response["headers"]), body}])
+        WireServer.fixture(
+          Enum.map(responses, fn selected ->
+            {selected["status"], Map.to_list(selected["headers"]),
+             Base.decode64!(selected["body_base64"])}
+          end)
+        )
 
       File.write!(Path.join(context.tmp_dir, "body.bin"), <<"fixture", 0, 255>>)
 
@@ -81,7 +88,7 @@ defmodule ExStorageServiceCli.ExecutableOperationMatrixTest do
         ] ++
           Enum.map(golden["args"], &String.replace(&1, "@TMP@", context.tmp_dir))
 
-      {stdout, stderr, status} = run(context, args)
+      {stdout, stderr, status} = run(context, args, golden["environment"] || %{})
       oracle = golden["aws"]
       assert status == oracle["status"], stderr
       assert String.trim(stderr) == String.trim(oracle["stderr"])
@@ -94,12 +101,31 @@ defmodule ExStorageServiceCli.ExecutableOperationMatrixTest do
         refute File.exists?(outfile)
       end
 
-      assert [expected] = oracle["requests"]
-      assert_receive {:wire_request, request}
-      assert request.method == expected["method"]
-      assert target(request.target) == target(expected["target"])
-      assert_body(request.body, expected)
-      assert_headers(request.headers, expected["headers"], request.body)
+      tokens =
+        for expected <- oracle["requests"] do
+          assert_receive {:wire_request, request}
+          assert request.method == expected["method"]
+          assert target(request.target) == target(expected["target"])
+          assert_body(request.body, expected)
+
+          assert_headers(
+            request.headers,
+            expected["headers"],
+            request.body,
+            golden["generated_client_token"] == true
+          )
+
+          request.headers["x-amz-client-token"]
+        end
+
+      if golden["generated_client_token"] do
+        assert [token] = Enum.uniq(tokens)
+        assert is_binary(token)
+
+        assert token =~
+                 ~r/\A[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\z/
+      end
+
       refute_receive {:wire_request, _}, 5
     end
   end
@@ -149,9 +175,10 @@ defmodule ExStorageServiceCli.ExecutableOperationMatrixTest do
     }
   end
 
-  defp assert_headers(headers, expected, body) do
+  defp assert_headers(headers, expected, body, generated_token) do
     for {key, value} <- expected,
         key not in ~w(expect content-length x-amz-content-sha256),
+        not (generated_token and key == "x-amz-client-token"),
         not String.starts_with?(key, "x-amz-checksum-") do
       assert headers[key] == value, "request header #{key}"
     end
@@ -171,7 +198,7 @@ defmodule ExStorageServiceCli.ExecutableOperationMatrixTest do
     end
   end
 
-  defp run(context, args) do
+  defp run(context, args, environment) do
     stderr = Path.join(context.tmp_dir, "stderr")
 
     cleared =
@@ -196,6 +223,7 @@ defmodule ExStorageServiceCli.ExecutableOperationMatrixTest do
         "NO_PROXY" => "*",
         "PAGER" => "cat"
       })
+      |> Map.merge(environment)
       |> Map.to_list()
 
     {output, status} =

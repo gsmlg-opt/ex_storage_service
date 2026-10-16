@@ -1,7 +1,7 @@
 # ESS CLI Implementation Plan
 
-- Status: implementation in progress; acceptance and release remain open. See [milestone-acceptance-status.md](compatibility/milestone-acceptance-status.md) for scoped evidence and blockers.
-- Date: 2026-10-14.
+- Status: M0–M8 implementation reconciled with scoped evidence and explicit native differences; M9 acceptance and release remain open. See [milestone-acceptance-status.md](compatibility/milestone-acceptance-status.md) for scoped evidence and blockers.
+- Date: 2026-10-14; implementation audit updated 2026-10-16.
 - Target: `apps/ex_storage_service_cli` and its standalone `ess` executable.
 - Source baseline inspected: `42a9fe2b41faa82cf10c3f07840b890be18b876d`; CLI version at inspection: `0.6.7`.
 - Architecture and compatibility contract: [design.md](design.md).
@@ -32,32 +32,28 @@ the coordinated HTTP/Bundler lock update. Existing core ranges and web
 constraints remain supported. This is a dependency-scope extension; core and UI
 behavior changes remain outside this plan.
 
-The integrated 0.21.12 CLI snapshot passes 3,244 tests with zero failures and one
-resource exclusion. Native socket deadlines, AWS positive/zero read inactivity,
-and AWS stdin expected-size hints have scoped wire/reference evidence. The
-network-await blocker #129 is resolved in that version. Slow response-consumer
-acknowledgements still fail at the global 60-second ceiling, reproduced through
-the actual adapter and tracked in
-[http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131).
-M9 and publication remain open; the integration and acceptance reports preserve
-the exact version, evidence and provider limits.
+The pre-release working copy is based on `167cabddfd5d0b38f842ac706ff6c68c26ed43a0`
+and prepares CLI `0.6.8`; it is not an immutable release artifact. CLI now
+requires published HTTP `~> 0.21.13`, admitted by core's approved range. Scoped
+slow-consumer ACK, concurrent isolation and unchanged upload-finalization
+regressions pass. The former HTTP #129/#131/#132 blockers and failed integrated
+runs remain version-scoped in
+[http-021-evaluation.md](compatibility/http-021-evaluation.md) and
+[integration-validation.md](compatibility/integration-validation.md).
 
-Remote checks of pushed `600c8755de5ff58ee2ee3fa33203d6ea40e0497c` subsequently
-exposed a separate upload producer-finalization race,
-[http_fetch#132](https://github.com/gsmlg-dev/http_fetch/issues/132).
-The source-cleanup test remains intact. A distinct pre-connect timeout in the
-stalled-write fixture has a scoped SHA256 correction; that correction does not
-repair #132 or establish full-suite acceptance. Both upstream blockers must be
-resolved before M9/release closure.
+Checked M0–M8 tasks below record implemented behavior with the cited scoped
+tests and documented boundaries, not complete milestone acceptance. M8 also
+allows explicit native scope/difference records: all 106 command/global rows
+have [dispositions](compatibility/native-compatibility-dispositions.md), with
+exact absent spellings retained in the native gap checklist. These differences
+do not remove any pinned AWS `s3`/`s3api` requirement or imply mc drop-in parity.
 
-Later independent AWS captures exposed text/YAML-stream pagination differences
-and omitted retention/legal-hold checksum failures. Their production corrections
-have bounded executable evidence in
-[differential-output-pagination.md](compatibility/differential-output-pagination.md)
-and [differential-governance-members.md](compatibility/differential-governance-members.md).
-These additions do not close every output/member contract or the upstream release
-blockers. The package matrix now uses both official macOS 26 runner labels,
-`macos-26` and `macos-26-intel`, with independently verified artifacts.
+Fresh frozen-source standalone/umbrella suites, remote package/platform probes
+(including installed credential-process checks on both macOS architectures),
+remaining differential evidence and immutable release/publication verification
+remain M9 gates. Historical passing package jobs do not validate current edits.
+See [milestone-acceptance-status.md](compatibility/milestone-acceptance-status.md)
+for current readiness, exact evidence sources and remaining acceptance.
 
 No Ecto/database, no dependency on ESS core/Concord/Phoenix, no runtime `aws`/`mc`/Python wrapper, and no unrelated transport migration. Continue using `http_fetch`. Do not add a dependency without documenting its necessity and following repository approval rules.
 
@@ -81,6 +77,13 @@ After M2, transfer work (M3-M4) and modeled API work (M5-M6) can proceed in para
 Work in the current checkout/branch unless the user explicitly requests branches or worktrees. Requested worktrees belong in `.trees/<branch>`. Commit coherent increments, integrate through normal branch protections, and never force-push over unrelated work. A milestone may have several implementation PRs but has one explicit acceptance report.
 
 ## 3. Milestones
+
+Implementation evidence is indexed by milestone in
+[milestone-acceptance-status.md](compatibility/milestone-acceptance-status.md).
+The [requirement overlay](compatibility/implementation-evidence.json) retains
+individual source/test links and independent wire/provider statuses. A checked
+task does not promote `implemented-unverified` requirements to verified or close
+the acceptance paragraphs below.
 
 ## M0 — Freeze references and establish evidence
 
@@ -129,17 +132,17 @@ Golden tests cover every existing valid command form. Unknown flags fail nonzero
 
 ### Tasks
 
-- [ ] Establish typed request/response structures, an initial operation catalog, REST-XML serializers, structured errors, and one `Transport.HTTPFetch` adapter.
-- [ ] Replace default object-body `read_all` behavior with owned streams; keep bounded materialization only for control responses and explicit small compatibility paths.
-- [ ] Preserve manual redirects and `decode_body: false` on object traffic; propagate known Content-Length without recompression or payload rewriting.
-- [ ] Implement independently tested S3 key/query/header encoding, canonical request construction, duplicate headers/query values where modeled, binary payload hashes, ports/IPv6, and correct copy-source encoding.
-- [ ] Add complete static and temporary credential records; include session tokens in signed requests and presigned requests; never mix credential fields from different providers.
-- [ ] Implement basic AWS/custom endpoint resolution and path/virtual-hosted addressing. Do not silently choose path-style for endpoints/bucket types that forbid it.
-- [ ] Implement standard credential-missing errors and explicit unsigned mode; remove implicit anonymous fallback from the new execution path.
-- [ ] Handle regional bucket creation requirements, response-header types, empty responses, HEAD failures, request IDs, XML namespaces, and bounded parser failure behavior.
-- [ ] Detect embedded errors in successful HTTP responses for operations that require it. CopyObject must not succeed merely because the status is 200.
-- [ ] Implement shared pagination primitives with missing/repeated-token detection; retain multi-token pagination support for later version/multipart operations.
-- [ ] Add TLS verification/custom CA/native mTLS configuration and explicit timeout/cancellation ownership. Region correction constructs and signs a fresh validated request, never forwards old authentication to arbitrary redirects.
+- [x] Establish typed request/response structures, an initial operation catalog, REST-XML serializers, structured errors, and one `Transport.HTTPFetch` adapter.
+- [x] Replace default object-body `read_all` behavior with owned streams; keep bounded materialization only for control responses and explicit small compatibility paths.
+- [x] Preserve manual redirects and `decode_body: false` on object traffic; propagate known Content-Length without recompression or payload rewriting.
+- [x] Implement independently tested S3 key/query/header encoding, canonical request construction, duplicate headers/query values where modeled, binary payload hashes, ports/IPv6, and correct copy-source encoding.
+- [x] Add complete static and temporary credential records; include session tokens in signed requests and presigned requests; never mix credential fields from different providers.
+- [x] Implement basic AWS/custom endpoint resolution and path/virtual-hosted addressing. Do not silently choose path-style for endpoints/bucket types that forbid it.
+- [x] Implement standard credential-missing errors and explicit unsigned mode; remove implicit anonymous fallback from the new execution path.
+- [x] Handle regional bucket creation requirements, response-header types, empty responses, HEAD failures, request IDs, XML namespaces, and bounded parser failure behavior.
+- [x] Detect embedded errors in successful HTTP responses for operations that require it. CopyObject must not succeed merely because the status is 200.
+- [x] Implement shared pagination primitives with missing/repeated-token detection; retain multi-token pagination support for later version/multipart operations.
+- [x] Add TLS verification/custom CA/native mTLS configuration and explicit timeout/cancellation ownership. Region correction constructs and signs a fresh validated request, never forwards old authentication to arbitrary redirects.
 
 ### Acceptance tests
 
@@ -149,17 +152,17 @@ Independent known signature vectors and a reference verifier validate signing; c
 
 ### Tasks
 
-- [ ] Implement pure `Transfer.Planner`/`Transfer.Reducer`, an invocation supervisor, bounded coordinators/tasks, and count-plus-byte-budget scheduling.
-- [ ] Implement streamed local upload/download, raw stdout/stdin, conditional/ranged downloads, temporary-file verification, and atomic destination publication.
-- [ ] Add incremental payload/checksum calculation and replayable source descriptors. Detect source changes between hash, upload, retry, and resume.
-- [ ] Implement multipart create/upload/list/complete/abort and multipart server-side copy. Derive part sizing from exact endpoint limits and source size; account for every modeled checksum algorithm/trait, with missing special implementations assigned to M7 rather than accepted silently.
-- [ ] Implement bounded/spooled unknown-size input with expected-size support and explicit restart-resume limitations.
-- [ ] Implement versioned local journals, exclusive resume ownership, atomic checkpoints, ListParts reconciliation, and explicit transfer list/resume/abort commands.
-- [ ] Implement retry classification, jitter/backoff, per-attempt/overall deadlines, credential refresh hooks, and non-replayable/indeterminate outcomes.
-- [ ] Implement same-service copy versus cross-service streaming bridge selection with separate source/destination contexts.
-- [ ] Implement move as copy/verify/delete-selected-source. Reject same-resource moves and preserve a source whose identity changed or cannot be safely deleted.
-- [ ] Implement SIGINT/SIGTERM cleanup, default multipart abort, explicit keep-incomplete policy, and inspectable failed-abort/uncertain-completion state.
-- [ ] Secure local destination mapping against traversal, symlinks, case/normalization conflicts, and file-versus-directory conflicts. Test actual filesystem behavior rather than only string normalization.
+- [x] Implement pure `Transfer.Planner`/`Transfer.Reducer`, an invocation supervisor, bounded coordinators/tasks, and count-plus-byte-budget scheduling.
+- [x] Implement streamed local upload/download, raw stdout/stdin, conditional/ranged downloads, temporary-file verification, and atomic destination publication.
+- [x] Add incremental payload/checksum calculation and replayable source descriptors. Detect source changes between hash, upload, retry, and resume.
+- [x] Implement multipart create/upload/list/complete/abort and multipart server-side copy. Derive part sizing from exact endpoint limits and source size; account for every modeled checksum algorithm/trait, with missing special implementations assigned to M7 rather than accepted silently.
+- [x] Implement bounded/spooled unknown-size input with expected-size support and explicit restart-resume limitations.
+- [x] Implement versioned local journals, exclusive resume ownership, atomic checkpoints, ListParts reconciliation, and explicit transfer list/resume/abort commands.
+- [x] Implement retry classification, jitter/backoff, per-attempt/overall deadlines, credential refresh hooks, and non-replayable/indeterminate outcomes.
+- [x] Implement same-service copy versus cross-service streaming bridge selection with separate source/destination contexts.
+- [x] Implement move as copy/verify/delete-selected-source. Reject same-resource moves and preserve a source whose identity changed or cannot be safely deleted.
+- [x] Implement SIGINT/SIGTERM cleanup, default multipart abort, explicit keep-incomplete policy, and inspectable failed-abort/uncertain-completion state.
+- [x] Secure local destination mapping against traversal, symlinks, case/normalization conflicts, and file-versus-directory conflicts. Test actual filesystem behavior rather than only string normalization.
 
 ### Acceptance tests
 
@@ -171,15 +174,15 @@ Exercise every multipart boundary using local fixtures, plus representative real
 
 ### Tasks
 
-- [ ] Implement all nine pinned `ess s3` commands (including `website`, identified during M0) through shared operations/transfers, plus native `get`, `put`, `cat`, `head`, and `pipe` conveniences.
-- [ ] Add the complete pinned high-level flag inventory: recursive/filter/dry-run, MIME/metadata/content headers, ACL/grants, SSE variants, storage class, checksums, requester pays, Glacier controls, source region, copy properties, progress, overwrite/case-conflict behavior, and other captured flags.
-- [ ] Map parameters to actual operation fields/effects; flags requiring M6/M7 capabilities remain explicitly tracked as incomplete until those dependencies pass, never silently accepted.
-- [ ] Implement distinct AWS-sync and mc-mirror policy modules. Preserve direction-specific timestamp/size decisions, ordered include/exclude rules, trailing slashes, metadata/copy-property rules, and symlink behavior.
-- [ ] Build lazy inventories and bounded external manifests/sorts when provider ordering is not guaranteed. Handle unreadable local subtrees as errors, not empty directories.
-- [ ] Implement copy/update/skip/conflict/delete plans, dry-run output, same-target/overlap checks, and deterministic summaries.
-- [ ] Add the guarded delete phase: complete successful inventory, successful required transfers, protected exclusions, candidate revalidation, and fail-closed behavior after errors.
-- [ ] Implement recursive removal, batched deletion with per-key error parsing, selected-version and delete-marker behavior, and explicit all-version operations without overloading bucket-force semantics.
-- [ ] Implement high-level presign behavior plus native share policy planning, respecting endpoint/signature/session expiration constraints.
+- [x] Implement all nine pinned `ess s3` commands (including `website`, identified during M0) through shared operations/transfers, plus native `get`, `put`, `cat`, `head`, and `pipe` conveniences.
+- [x] Add the complete pinned high-level flag inventory: recursive/filter/dry-run, MIME/metadata/content headers, ACL/grants, SSE variants, storage class, checksums, requester pays, Glacier controls, source region, copy properties, progress, overwrite/case-conflict behavior, and other captured flags.
+- [x] Map parameters to actual operation fields/effects; flags requiring M6/M7 capabilities remain explicitly tracked as incomplete until those dependencies pass, never silently accepted.
+- [x] Implement distinct AWS-sync and mc-mirror policy modules. Preserve direction-specific timestamp/size decisions, ordered include/exclude rules, trailing slashes, metadata/copy-property rules, and symlink behavior.
+- [x] Build lazy inventories and bounded external manifests/sorts when provider ordering is not guaranteed. Handle unreadable local subtrees as errors, not empty directories.
+- [x] Implement copy/update/skip/conflict/delete plans, dry-run output, same-target/overlap checks, and deterministic summaries.
+- [x] Add the guarded delete phase: complete successful inventory, successful required transfers, protected exclusions, candidate revalidation, and fail-closed behavior after errors.
+- [x] Implement recursive removal, batched deletion with per-key error parsing, selected-version and delete-marker behavior, and explicit all-version operations without overloading bucket-force semantics.
+- [x] Implement high-level presign behavior plus native share policy planning, respecting endpoint/signature/session expiration constraints.
 
 ### Acceptance tests
 
@@ -191,16 +194,16 @@ Inject a listing failure after earlier pages, a repeated token, an unreadable so
 
 ### Tasks
 
-- [ ] Implement deterministic generation/loading of the pinned complete operation/shape catalog and corresponding notices. Include runtime-required artifacts in the published package.
-- [ ] Generate validation, protocol bindings, command help, and completion metadata. Keep operation-specific customizations explicit rather than hidden inside generated code.
-- [ ] Implement input structures, ordered repeated values, booleans, timestamps, exact numeric values, blobs, headers/query/body locations, and absent-versus-empty behavior.
-- [ ] Implement AWS shorthand, `--cli-input-json`, `--cli-input-yaml`, file references, `fileb://`, binary-format selection, and skeleton generation/validation.
-- [ ] Implement reference-compatible JSON/text/table/YAML/streaming/off and error output formats as applicable, plus JMESPath evaluation and output-specific pagination/query behavior.
-- [ ] Implement CLI pagination tokens separately from service continuation tokens, aggregate/truncate rules, `--max-items`, `--page-size`, and `--no-paginate` semantics.
-- [ ] Implement every pinned S3 waiter and its acceptors, attempts, delay, failure status, and cancellation.
-- [ ] Implement custom command argument forms such as GetObject's output filename; preserve raw payload delivery separately from result metadata.
-- [ ] Add shared AWS configuration flags, retry/timeouts, color/pager/prompt controls and command-specific option applicability. Do not assume every generic global flag changes every high-level command.
-- [ ] Generate an explicit missing-handler report for special protocol/auth traits and advanced operation behavior assigned to M7.
+- [x] Implement deterministic generation/loading of the pinned complete operation/shape catalog and corresponding notices. Include runtime-required artifacts in the published package.
+- [x] Generate validation, protocol bindings, command help, and completion metadata. Keep operation-specific customizations explicit rather than hidden inside generated code.
+- [x] Implement input structures, ordered repeated values, booleans, timestamps, exact numeric values, blobs, headers/query/body locations, and absent-versus-empty behavior.
+- [x] Implement AWS shorthand, `--cli-input-json`, `--cli-input-yaml`, file references, `fileb://`, binary-format selection, and skeleton generation/validation.
+- [x] Implement reference-compatible JSON/text/table/YAML/streaming/off and error output formats as applicable, plus JMESPath evaluation and output-specific pagination/query behavior.
+- [x] Implement CLI pagination tokens separately from service continuation tokens, aggregate/truncate rules, `--max-items`, `--page-size`, and `--no-paginate` semantics.
+- [x] Implement every pinned S3 waiter and its acceptors, attempts, delay, failure status, and cancellation.
+- [x] Implement custom command argument forms such as GetObject's output filename; preserve raw payload delivery separately from result metadata.
+- [x] Add shared AWS configuration flags, retry/timeouts, color/pager/prompt controls and command-specific option applicability. Do not assume every generic global flag changes every high-level command.
+- [x] Generate an explicit missing-handler report for special protocol/auth traits and advanced operation behavior assigned to M7.
 
 ### Acceptance tests
 
@@ -210,15 +213,15 @@ Every pinned operation is discoverable, parses its modeled parameters, validates
 
 ### Tasks
 
-- [ ] Complete all standard modeled operation families: object attributes/version access, ACLs, policies/status, public-access block, ownership controls, CORS, tagging, and requester-pays settings.
-- [ ] Implement bucket versioning, ListObjectVersions/delete markers, explicit version deletion/recovery, and native version/undo behavior.
-- [ ] Implement lifecycle and S3 replication documents, notification configuration, bucket/default encryption, Object Lock, legal hold, retention, and all associated modeled fields.
-- [ ] Implement website, logging, acceleration, inventory, metrics, analytics, intelligent-tiering, and S3 metadata configuration operations.
-- [ ] Cover currently modeled ABAC, annotations, object-encryption updates, deprecated operations, and any inventory entries not named in this prose; assign special endpoint/auth cases to M7 without dropping them.
-- [ ] Add native convenience adapters (`tag`, `anonymous`, `policy`, `acl`, `cors`, `ilm`, `replicate`, `event`, `encrypt`, `retention`, `legalhold`) over the same S3 operations.
-- [ ] Preserve full caller-provided documents and unknown response fields where safe; prevent destructive read/modify/write that drops fields a convenience presenter does not understand.
-- [ ] Add provider/version/bucket-type capability records, read-only diagnostics, and known-ESS safety exclusions for unsupported subresources.
-- [ ] Preserve actual AccessDenied, NotFound, unsupported, and invalid-response distinctions; do not infer universal capabilities from one principal's permissions.
+- [x] Complete all standard modeled operation families: object attributes/version access, ACLs, policies/status, public-access block, ownership controls, CORS, tagging, and requester-pays settings.
+- [x] Implement bucket versioning, ListObjectVersions/delete markers, explicit version deletion/recovery, and native version/undo behavior.
+- [x] Implement lifecycle and S3 replication documents, notification configuration, bucket/default encryption, Object Lock, legal hold, retention, and all associated modeled fields.
+- [x] Implement website, logging, acceleration, inventory, metrics, analytics, intelligent-tiering, and S3 metadata configuration operations.
+- [x] Cover currently modeled ABAC, annotations, object-encryption updates, deprecated operations, and any inventory entries not named in this prose; assign special endpoint/auth cases to M7 without dropping them.
+- [x] Add native convenience adapters (`tag`, `anonymous`, `policy`, `acl`, `cors`, `ilm`, `replicate`, `event`, `encrypt`, `retention`, `legalhold`) over the same S3 operations.
+- [x] Preserve full caller-provided documents and unknown response fields where safe; prevent destructive read/modify/write that drops fields a convenience presenter does not understand.
+- [x] Add provider/version/bucket-type capability records, read-only diagnostics, and known-ESS safety exclusions for unsupported subresources.
+- [x] Preserve actual AccessDenied, NotFound, unsupported, and invalid-response distinctions; do not infer universal capabilities from one principal's permissions.
 
 ### Acceptance tests
 
@@ -228,14 +231,14 @@ Round-trip representative complex configuration documents through an independent
 
 ### Tasks
 
-- [ ] Complete AWS provider resolution including explicit-profile behavior, environment/shared config, credential process, STS assume-role/MFA/web identity, container credentials, IMDSv2, and IAM Identity Center/SSO lifecycle; cover any additional providers in the pinned reference.
-- [ ] Implement credential refresh before expiry with single-flight ownership, bounded waiters, session-token propagation, and safe credential-cache persistence where necessary.
-- [ ] Finish endpoint/partition/auth rule evaluation for access points, ARN region rules, FIPS/dualstack/accelerate, Outposts, Object Lambda, MRAP/SigV4a, and directory buckets.
-- [ ] Implement operation-specific directory-bucket CreateSession usage, session refresh, list behavior, RenameObject and conditional operations; keep operations such as CopyObject on their correct authentication path.
-- [ ] Implement SelectObjectContent EventStream framing, checksums, event/error handling, terminal events, and streaming output; implement WriteGetObjectResponse's distinct endpoint/stream semantics.
-- [ ] Finish all modeled checksum algorithms, whole-object versus composite verification, trailer handling, and streaming-signature cases identified in M0/M5.
-- [ ] Verify restore/Glacier and account/region/bucket-type restrictions without claiming that unsupported providers gain those server features.
-- [ ] Finish remaining high-level flags and modeled member/auth variants whose acceptance depended on advanced capabilities.
+- [x] Complete AWS provider resolution including explicit-profile behavior, environment/shared config, credential process, STS assume-role/MFA/web identity, container credentials, IMDSv2, and IAM Identity Center/SSO lifecycle; cover any additional providers in the pinned reference.
+- [x] Implement credential refresh before expiry with single-flight ownership, bounded waiters, session-token propagation, and safe credential-cache persistence where necessary.
+- [x] Finish endpoint/partition/auth rule evaluation for access points, ARN region rules, FIPS/dualstack/accelerate, Outposts, Object Lambda, MRAP/SigV4a, and directory buckets.
+- [x] Implement operation-specific directory-bucket CreateSession usage, session refresh, list behavior, RenameObject and conditional operations; keep operations such as CopyObject on their correct authentication path.
+- [x] Implement SelectObjectContent EventStream framing, checksums, event/error handling, terminal events, and streaming output; implement WriteGetObjectResponse's distinct endpoint/stream semantics.
+- [x] Finish all modeled checksum algorithms, whole-object versus composite verification, trailer handling, and streaming-signature cases identified in M0/M5.
+- [x] Verify restore/Glacier and account/region/bucket-type restrictions without claiming that unsupported providers gain those server features.
+- [x] Finish remaining high-level flags and modeled member/auth variants whose acceptance depended on advanced capabilities.
 
 ### Acceptance tests
 
@@ -247,14 +250,14 @@ Use independent cryptographic vectors for SigV4a and wire fixtures for every spe
 
 ### Tasks
 
-- [ ] Complete `ls`, `tree`, `du`, `find`, `stat`, `diff`, `share`, and remaining portable mc flag/subcommand mappings against the locked inventory.
-- [ ] Implement bounded tree/find/summary output, version-aware inspection, raw head/cat behavior, and explicit result limiting without pretending a partial result is exhaustive.
-- [ ] Implement presigned upload/download workflows and POST policy generation where included by the native command contract.
-- [ ] Implement `watch` and mirror-watch adapters only with explicit provider/source semantics: native notifications, configured event-source integration, or clearly labeled polling. Notification configuration alone is not an event consumer.
-- [ ] Reconcile after notification reconnect/overflow and document duplicate/out-of-order events and missed-change limitations. No exactly-once or permanent replay guarantee without a supporting source protocol.
-- [ ] Keep `ping`, `ready`, `info`, and `admin` separated into generic connection diagnostics and genuine ESS/provider extension APIs. Preserve legacy ESS info behavior.
-- [ ] Make MinIO-only inventory entries visibly out of the portable contract rather than ignored command names; do not fabricate ESS counterparts for MinIO licenses, IDPs, quotas, or batch-job APIs.
-- [ ] Complete native doctor/capability explanations, completion scripts, transfer-journal inspection, and migration guidance.
+- [x] Complete `ls`, `tree`, `du`, `find`, `stat`, `diff`, `share`, and remaining portable native mappings, or record explicit scope/differences against the locked mc inventory as allowed by M8 acceptance.
+- [x] Implement bounded tree/find/summary output, version-aware inspection, raw head/cat behavior, and explicit result limiting without pretending a partial result is exhaustive.
+- [x] Implement presigned upload/download workflows and POST policy generation where included by the native command contract.
+- [x] Implement `watch` and mirror-watch adapters only with explicit provider/source semantics: native notifications, configured event-source integration, or clearly labeled polling. Notification configuration alone is not an event consumer.
+- [x] Reconcile the selected polling adapter from complete snapshots and document duplicate/out-of-order events and missed-change limitations. Native notification reconnect/overflow handling is outside this adapter; no exactly-once or permanent replay guarantee is claimed.
+- [x] Keep `ping`, `ready`, `info`, and `admin` separated into generic connection diagnostics and genuine ESS/provider extension APIs. Preserve legacy ESS info behavior.
+- [x] Make MinIO-only inventory entries visibly out of the portable contract rather than ignored command names; do not fabricate ESS counterparts for MinIO licenses, IDPs, quotas, or batch-job APIs.
+- [x] Complete native doctor/capability explanations, completion scripts, transfer-journal inspection, and migration guidance.
 
 ### Acceptance tests
 
@@ -268,7 +271,7 @@ Every mc inventory row has a working tested mapping or an explicit scope/differe
 - [ ] Run the complete CLI test matrix and differential reference suites; publish generated coverage with exact command/model/binary versions and provider versions.
 - [ ] Validate fresh standalone Hex installation, escript building/running, required generated assets/notices, and absence of server-umbrella runtime dependencies.
 - [x] Correct CLI package metadata links to the actual repository where necessary; verify LICENSE, README, version reporting, executable naming, and artifact contents.
-- [x] Test supported Linux/macOS architectures and declared OTP/Elixir minimums. State the Erlang runtime requirement for escripts; add alternative self-contained packaging only with its own tested support contract.
+- [ ] Repeat package/platform acceptance for the current release source on supported Linux/macOS architectures and declared OTP/Elixir minimums. State the Erlang runtime requirement for escripts; add alternative self-contained packaging only with its own tested support contract.
 - [ ] Add real memory/backpressure/cancellation benchmarks and documented resource defaults. Report measured results, not extrapolated throughput promises.
 - [ ] Publish command reference, legacy migration guide, AWS configuration guide, mc difference table, provider limitations, safety/restore procedures, and examples using non-secret credentials references.
 - [ ] Prepare changelog, checksums, model/reference lock, compatibility report, and immutable source/artifact mapping.
@@ -276,6 +279,10 @@ Every mc inventory row has a working tested mapping or an explicit scope/differe
 - [ ] Verify the remote ref, workflow result, published package, and downloadable artifact. Report blockers truthfully; never call an attempted or queued publish a completed release.
 
 ### Final acceptance
+
+The prior five-platform package matrix at `582639746e65376ea7d1f5aaeb203bca34b5d79d`
+remains historical evidence. Current HTTP, parser, SDK customization, STS and
+Darwin credential-process changes require their own complete/package results.
 
 All in-scope client features are implemented; no stubs or silently ignored flags remain. Wire and executable behavior is verified against the pinned reference, subject only to explicitly recorded compatibility deviations. Provider-ineligible cases retain correct client implementation and clear evidence labels. A full-compatibility claim must always state the exact baseline and any deviations; unavailable live evidence cannot be represented as a passing provider suite.
 

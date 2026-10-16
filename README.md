@@ -227,11 +227,10 @@ Native socket read/write inactivity defaults to ten minutes. Override it with
 Positive durations must be exactly representable in whole milliseconds, up to
 `4294967295ms`. AWS `--cli-read-timeout` controls read inactivity independently
 of connection setup; zero disables it. Requests have no overall timeout.
-Slow paced response consumption still encounters an upstream acknowledgement
-deadline, tracked as release blocker
-[http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131).
-Upload enumerable finalization also remains release-blocked by
-[http_fetch#132](https://github.com/gsmlg-dev/http_fetch/issues/132).
+The HTTP/1 adapter uses request-scoped network and consumer-acknowledgement
+policies, allowing bounded slow delivery without changing global timers.
+Socket inactivity, explicit total deadlines and cancellation stay independent.
+HTTP 0.21.13 also waits for successful fixed-length upload source finalization.
 
 CLI environment settings supplement the server settings below:
 
@@ -242,7 +241,8 @@ CLI environment settings supplement the server settings below:
 | `AWS_DEFAULT_OUTPUT` | Selected structured format unless explicitly overridden |
 | `AWS_RETRY_MODE`, `AWS_MAX_ATTEMPTS` | `standard` (default) or `adaptive`; total attempts default 3 |
 | `AWS_USE_FIPS_ENDPOINT`, `AWS_USE_DUALSTACK_ENDPOINT` | Boolean AWS endpoint-resolution settings |
-| `AWS_ENDPOINT_URL_S3_CONTROL`, `AWS_ENDPOINT_URL_STS` | Independent control endpoints for AWS move access-point validation |
+| `AWS_ENDPOINT_URL_S3_CONTROL`, `AWS_ENDPOINT_URL_STS` | Independent control endpoints for move validation; STS also serves role/web-identity credentials |
+| `AWS_STS_REGIONAL_ENDPOINTS` | ESS extension: explicit `regional` (default) or `legacy` STS mode within pinned partition rules |
 | `AWS_IGNORE_CONFIGURED_ENDPOINT_URLS` | Ignore configured AWS service/global endpoints when true |
 | `AWS_CLI_S3_MV_VALIDATE_SAME_S3_PATHS` | Enable underlying AWS move path checks with exact case-insensitive `true` |
 | `AWS_S3_USE_ARN_REGION` | Applicable Outposts ARN region policy |
@@ -283,7 +283,7 @@ Runtime services:
 | Internal cluster transport | 9100 | Bandit + HMAC + optional TLS | Private data-plane between cluster data nodes (never expose publicly) |
 
 Outbound HTTP clients use [`http_fetch`](https://github.com/gsmlg-dev/http_fetch)
-0.21.12 for the CLI, cloud cache, remote inventory synchronization, webhooks,
+0.21.13 for the CLI, cloud cache, remote inventory synchronization, webhooks,
 internal cluster transport, and cross-cluster replication. Signed requests do
 not follow redirects. Cluster and replication uploads use bounded streams with
 an explicit Content-Length and upload chunks of at most 64 KiB. Cluster downloads
@@ -292,8 +292,8 @@ forwarding bytes with acknowledged backpressure.
 Webhook retries remain controlled by the notification worker.
 
 The core package accepts HTTP 0.17.2 or later in the 0.17 series, 0.18.x,
-and `~> 0.21.12`. The CLI requires `http_fetch ~> 0.21.12` for its validated
-transport API. The umbrella locks the coordinated 0.21.12 HTTP family without
+and `~> 0.21.12`. The CLI requires `http_fetch ~> 0.21.13` for its validated
+transport API. The umbrella locks the coordinated 0.21.13 HTTP family without
 dependency overrides.
 
 Storage requests set `decode_body: false` to preserve stored gzip/deflate object

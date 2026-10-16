@@ -30,19 +30,20 @@ defmodule ExStorageServiceCli.ExecutableHighlevelMatrixTest do
 
   test "independent capture includes all nine high-level commands" do
     assert Base.encode16(:crypto.hash(:sha256, File.read!(@fixture)), case: :lower) ==
-             "7b427935ed99cb50c8d8e04c99102599305edfb9c513e5fc336f0b9e818cf8f3"
+             "30f94eebef01b1d71912bd7538d1704154eb830229b79c8d8756ffdc091643ac"
 
     assert @oracle["aws_sha256"] ==
              "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a"
 
-    assert length(@oracle["cases"]) == 18
+    assert length(@oracle["cases"]) == 42
 
     assert Enum.sort(Enum.uniq(Enum.map(@oracle["cases"], & &1["command"]))) ==
              ~w(cp ls mb mv presign rb rm sync website)
 
     assert Enum.all?(
              @oracle["cases"],
-             &(&1["aws"]["status"] == 0 and &1["aws"]["peer_errors"] == [])
+             &(&1["aws"]["status"] == (&1["expected_status"] || 0) and
+                 &1["aws"]["peer_errors"] == [])
            )
   end
 
@@ -56,16 +57,40 @@ defmodule ExStorageServiceCli.ExecutableHighlevelMatrixTest do
       File.write!(Path.join(context.tmp_dir, "local/file.bin"), raw)
       File.write!(Path.join(context.tmp_dir, "local/ignored.txt"), "excluded")
 
+      File.write!(
+        Path.join(context.tmp_dir, "destination.key"),
+        :binary.list_to_bin(Enum.to_list(0..31))
+      )
+
+      File.write!(
+        Path.join(context.tmp_dir, "source.key"),
+        :binary.list_to_bin(Enum.to_list(32..63))
+      )
+
+      for {name, contents} <- golden["local_files"] || %{} do
+        path = Path.join(context.tmp_dir, name)
+        File.mkdir_p!(Path.dirname(path))
+        File.write!(path, Base.decode64!(contents["body_base64"]))
+        File.touch!(path, contents["mtime"])
+      end
+
       {endpoint, _server} = peer(golden)
       args = Enum.map(golden["args"], &String.replace(&1, "@TMP@", context.tmp_dir))
       {stdout, stderr, status} = run(context, endpoint, args)
       oracle = golden["aws"]
       requests = collect_requests([])
+      assert_ssec_probes(requests, golden)
 
       assert status == oracle["status"],
              stderr <> inspect(Enum.map(requests, &{&1.method, &1.target}))
 
-      assert stderr == oracle["stderr"]
+      if golden["archive"] && oracle["status"] == 2 do
+        # Preserve the captured warning outcome; existing ESS wording is distinct.
+        assert oracle["stderr"] =~ "warning:"
+        assert stderr =~ "warning:"
+      else
+        assert stderr == oracle["stderr"]
+      end
 
       assert stdout
              |> String.replace(context.tmp_dir, "@TMP@")
@@ -79,6 +104,7 @@ defmodule ExStorageServiceCli.ExecutableHighlevelMatrixTest do
         assert request.method == expected["method"]
         assert target(request.target) == target(expected["target"])
         assert_body(request.body, expected)
+        assert ssec_headers(request.headers) == ssec_headers(expected["headers"])
 
         for {key, value} <- expected["headers"],
             key not in ~w(expect content-length x-amz-content-sha256),
@@ -97,6 +123,17 @@ defmodule ExStorageServiceCli.ExecutableHighlevelMatrixTest do
       if outfile = oracle["outfile_base64"],
         do:
           assert(File.read!(Path.join(context.tmp_dir, "result.bin")) == Base.decode64!(outfile))
+
+      for {name, contents} <- oracle["local_after"] || %{} do
+        path = Path.join(context.tmp_dir, name)
+
+        if contents do
+          assert File.read!(path) == Base.decode64!(contents["body_base64"])
+          assert File.stat!(path, time: :posix).mtime == contents["mtime"]
+        else
+          refute File.exists?(path)
+        end
+      end
     end
   end
 
@@ -134,6 +171,11 @@ defmodule ExStorageServiceCli.ExecutableHighlevelMatrixTest do
              target(request.target) == target(expected["target"]),
            do: response
       end)
+
+    response =
+      if response == nil and request.method == "HEAD",
+        do: (golden["head_responses"] || %{})[URI.parse(request.target).path],
+        else: response
 
     response =
       if response == nil and golden["name"] == "sync-upload" and request.method == "HEAD" and
@@ -175,9 +217,49 @@ defmodule ExStorageServiceCli.ExecutableHighlevelMatrixTest do
     end)
   end
 
+  defp safety_probes(requests, %{"sync_direction" => _, "head_responses" => heads} = golden) do
+    expected = golden["aws"]["requests"]
+
+    Enum.reject(requests, fn request ->
+      request.method == "HEAD" and Map.has_key?(heads, URI.parse(request.target).path) and
+        not Enum.any?(expected, &(&1["method"] == "HEAD" and &1["target"] == request.target))
+    end)
+  end
+
   defp safety_probes(requests, %{"name" => "mv-server-copy"}), do: copy_probes(requests)
+
+  defp safety_probes(requests, %{"name" => "mv-server-copy-archive-" <> _}),
+    do: copy_probes(requests)
+
   defp safety_probes(requests, %{"name" => "cp-server-copy-" <> _}), do: copy_probes(requests)
   defp safety_probes(requests, _golden), do: requests
+
+  defp assert_ssec_probes(requests, %{"name" => "cp-server-copy-ssec", "aws" => oracle}) do
+    copy = Enum.find(oracle["requests"], &(&1["method"] == "PUT"))
+    source = Enum.find(oracle["requests"], &(&1["method"] == "HEAD"))
+
+    destination_headers =
+      Map.reject(ssec_headers(copy["headers"]), fn {key, _} ->
+        String.starts_with?(key, "x-amz-copy-source-")
+      end)
+
+    for request <- requests, request.method == "HEAD" do
+      expected =
+        if URI.parse(request.target).path == "/bucket/p/source",
+          do: ssec_headers(source["headers"]),
+          else: destination_headers
+
+      assert ssec_headers(request.headers) == expected
+    end
+  end
+
+  defp assert_ssec_probes(_requests, _golden), do: :ok
+
+  defp ssec_headers(headers),
+    do:
+      Map.filter(headers, fn {key, _} ->
+        String.contains?(key, "server-side-encryption-customer")
+      end)
 
   defp copy_probes(requests) do
     requests =

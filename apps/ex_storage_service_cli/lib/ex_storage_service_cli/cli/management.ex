@@ -1,7 +1,7 @@
 defmodule ExStorageServiceCli.CLI.Management do
   @moduledoc "Native management adapters over the complete, shared S3 operation catalog."
   alias ExStorageServiceCli.{Error, Target}
-  alias ExStorageServiceCli.S3.{Client, Input, Paginator}
+  alias ExStorageServiceCli.S3.{Client, Customizations, Input, Paginator}
 
   # Documents are complete API structures, never reconstructed from a presenter.
   @families %{
@@ -37,6 +37,11 @@ defmodule ExStorageServiceCli.CLI.Management do
         flags = if action == "get", do: %{}, else: @write_flags
         flags = if scope in [:object, :either], do: Map.merge(flags, @version_flags), else: flags
         flags = if family == "tag", do: Map.merge(flags, @tag_selection_flags), else: flags
+
+        flags =
+          if family == "tag" and action == "set",
+            do: Map.put(flags, "exclude-folders", {:exclude_folders, :boolean}),
+            else: flags
 
         flags =
           if family == "retention" and action == "set",
@@ -183,7 +188,9 @@ defmodule ExStorageServiceCli.CLI.Management do
   end
 
   defp tag_selection?(%{command: ["tag", _], options: options}),
-    do: Enum.any?([:recursive, :versions, :rewind, :limit], &Map.has_key?(options, &1))
+    do:
+      Enum.any?([:recursive, :versions, :rewind, :limit], &Map.has_key?(options, &1)) or
+        options[:exclude_folders] == true
 
   defp tag_selection?(_), do: false
 
@@ -419,6 +426,7 @@ defmodule ExStorageServiceCli.CLI.Management do
           input = Map.put(base(target, :object, %{}), "VersionId", version)
 
           with {:ok, selected} <- call.("HeadObject", input),
+               true <- selected["VersionId"] == version,
                etag when is_binary(etag) and etag != "" <- selected["ETag"] do
             effect(
               "CopyObject",
@@ -438,8 +446,17 @@ defmodule ExStorageServiceCli.CLI.Management do
               call
             )
           else
-            {:error, _} = error -> error
-            _ -> invalid("Selected version has no confirmed object identity")
+            {:error, _} = error ->
+              error
+
+            false ->
+              {:error,
+               Error.new(:syntax, "Provider did not confirm the selected object version",
+                 code: :source_version_mismatch
+               )}
+
+            _ ->
+              invalid("Selected version has no confirmed object identity")
           end
 
         {nil, marker} when is_binary(marker) and marker != "" ->
@@ -1180,7 +1197,8 @@ defmodule ExStorageServiceCli.CLI.Management do
   end
 
   defp effect(operation, input, %{dry_run: true}, _call) do
-    with {:ok, input} <- Input.validate(operation, input),
+    with {:ok, input, _customizations} <- Customizations.input(operation, input),
+         {:ok, input} <- Input.validate(operation, input),
          do: {:ok, %{"DryRun" => true, "Operation" => operation, "Input" => input}}
   end
 
@@ -1206,6 +1224,9 @@ defmodule ExStorageServiceCli.CLI.Management do
         error
     end
   end
+
+  defp anonymous_policy("private", target, partition),
+    do: anonymous_policy("none", target, partition)
 
   defp anonymous_policy(mode, target, partition) when mode in ~w(none download upload public) do
     arn = "arn:" <> partition <> ":s3:::" <> target.bucket
@@ -1252,7 +1273,7 @@ defmodule ExStorageServiceCli.CLI.Management do
   end
 
   defp anonymous_policy(_, _, _),
-    do: invalid("Anonymous access mode must be none, download, upload or public")
+    do: invalid("Anonymous access mode must be none, private, download, upload or public")
 
   defp delete_marker(target, marker, call) do
     Paginator.pages(

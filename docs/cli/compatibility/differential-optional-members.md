@@ -7,10 +7,30 @@ XML attributes, binary payloads, and omitted versus empty values. It does not
 claim coverage of every optional member, every model row, or every combination.
 
 This section retains the original 42-case baseline and its historical digest.
-The current fixture adds ten retention/legal-hold captures, for 52 cases across
-27 operations; see [the governance extension](differential-governance-members.md)
-for its current digest, reproducer and validation. The original observations
-were independently recaptured without changes.
+The current fixture contains **57 cases across 32 operations**. Ten
+retention/legal-hold captures are described in
+[the governance extension](differential-governance-members.md); five later
+captures cover object attributes, inventory and intelligent tiering below.
+The original observations were independently recaptured without changes.
+
+## Attributes, inventory and intelligent-tiering extension
+
+The five new actual AWS observations exercise GetObjectAttributes with all five
+attributes, MaxParts/PartNumberMarker headers and two returned parts; inventory
+PUT/GET with nested prefix filter, SSE-KMS destination and optional fields; and
+intelligent-tiering PUT/GET with an And filter, multiple tags and two tiers.
+Requests retain Unicode and reserved characters, and outputs retain the modeled
+nested values. Returned VersionId uses ASCII, avoiding an unrelated response
+header encoding ambiguity; request VersionId still exercises Unicode.
+
+The complete fixture SHA256 is
+`c1e9736da1a821a3328c7464bf73c6d5c58148a9d231ce12616e80a196c105db`.
+An independent recapture was byte-identical; all preceding 52 cases remained
+unchanged. The expanded matrix and adjacent checks pass **62 tests, zero
+failures**, with strict compilation and formatting. These five cases establish
+their stated wire/output contracts; other optional-member combinations and live
+provider behavior remain unverified. Historical validation below remains scoped
+to its original source and fixture.
 
 ## Reference and isolation
 

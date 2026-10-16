@@ -99,6 +99,30 @@ defmodule ExStorageServiceCli.CLI.ParserTest do
     assert {:error, %Error{}} = Parser.parse(["cp", "./only-source"])
   end
 
+  test "shared spellings use the selected command's option keys" do
+    for command <- ~w(ls stat du find), prefix <- [[], ["--versions"]] do
+      suffix = if prefix == [], do: ["--versions"], else: []
+
+      assert {:ok, %{options: options}} =
+               Parser.parse(prefix ++ [command, "s3://bucket/"] ++ suffix)
+
+      assert options[:versions] == true
+      refute Map.has_key?(options, :all_versions)
+    end
+
+    assert {:ok, %{options: %{all_versions: true}}} =
+             Parser.parse(["rm", "s3://bucket/key", "--versions"])
+
+    assert {:error, %Error{category: :syntax}} =
+             Parser.parse(["rm", "s3://bucket/key", "--versions", "--no-all-versions"])
+
+    assert {:ok, %{options: %{sql_query: "select * from s3object"}}} =
+             Parser.parse(["sql", "--query", "select * from s3object", "s3://bucket/data.csv"])
+
+    assert {:ok, %{options: %{query: "Contents[].Key"}}} =
+             Parser.parse(["s3", "ls", "--query", "Contents[].Key", "s3://bucket/"])
+  end
+
   test "legacy clustered and attached short options remain valid" do
     assert {:ok, %{help: true, options: %{recursive: true, help: true}}} =
              Parser.parse(["cp", "-rh"])

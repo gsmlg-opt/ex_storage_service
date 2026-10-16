@@ -640,9 +640,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Scoped cases do not establish every flag/direction combination or live provider encryption/synchronization behavior.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "not-run"
+            "wire": "42 actual AWS high-level cases/67 exchanges include distinct binary fileb SSE-C source/destination key/MD5 headers and sync equal-size older/newer, exact/size-only, protected exclusions/delete/dry-run with actual local bytes/mtime/deletion. 43 tests pass; differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -651,7 +651,8 @@
           "status": "implemented-unverified",
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         },
         {
@@ -672,9 +673,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Scoped cases do not establish every flag/direction combination or live provider encryption/synchronization behavior.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "not-run"
+            "wire": "42 actual AWS high-level cases/67 exchanges include distinct binary fileb SSE-C source/destination key/MD5 headers and sync equal-size older/newer, exact/size-only, protected exclusions/delete/dry-run with actual local bytes/mtime/deletion. 43 tests pass; differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -683,7 +684,8 @@
           "status": "implemented-unverified",
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         },
         {
@@ -765,9 +767,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Scoped cases do not establish every flag/direction combination or live provider encryption/synchronization behavior.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "Distinct source and destination SSE-C keys are asserted on source HEAD, CopyObject and multipart UploadPartCopy; no source key enters initiation, diagnostics or journal contents. See move-source-encryption-decisions.md."
+            "wire": "42 actual AWS high-level cases/67 exchanges include distinct binary fileb SSE-C source/destination key/MD5 headers and sync equal-size older/newer, exact/size-only, protected exclusions/delete/dry-run with actual local bytes/mtime/deletion. 43 tests pass; differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -777,7 +779,8 @@
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/copy_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/copy_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         },
         {
@@ -798,9 +801,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Scoped cases do not establish every flag/direction combination or live provider encryption/synchronization behavior.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "Distinct source and destination SSE-C keys are asserted on source HEAD, CopyObject and multipart UploadPartCopy; no source key enters initiation, diagnostics or journal contents. See move-source-encryption-decisions.md."
+            "wire": "42 actual AWS high-level cases/67 exchanges include distinct binary fileb SSE-C source/destination key/MD5 headers and sync equal-size older/newer, exact/size-only, protected exclusions/delete/dry-run with actual local bytes/mtime/deletion. 43 tests pass; differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -810,7 +813,8 @@
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/copy_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/copy_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         },
         {
@@ -1510,9 +1514,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Live archive restore and all command/direction/flag combinations remain separate.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "not-run"
+            "wire": "Actual AWS archive cases cover restored Glacier/DeepArchive download/copy/move and un-restored skip/ignore/force outcomes; scoped high-level suite 40/0. Warning text deliberately differs; status/warning outcome retained. See differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -1521,7 +1525,8 @@
           "status": "implemented-unverified",
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         },
         {
@@ -1542,9 +1547,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Live archive restore and all command/direction/flag combinations remain separate.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "not-run"
+            "wire": "Actual AWS archive cases cover restored Glacier/DeepArchive download/copy/move and un-restored skip/ignore/force outcomes; scoped high-level suite 40/0. Warning text deliberately differs; status/warning outcome retained. See differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -1553,7 +1558,8 @@
           "status": "implemented-unverified",
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         },
         {
@@ -2093,7 +2099,7 @@
             "decisions": "docs/cli/compatibility/aws-expected-size-decisions.md; docs/cli/compatibility/highlevel-execution-decisions.md",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Live-provider behavior and complete pinned executable differential effects/output remain unverified; passing expected-size fixtures do not close the separate HTTP consumer ACK blocker #131.",
+            "remaining": "Live-provider behavior and complete pinned executable differential effects/output remain unverified; expected-size fixtures do not establish the separate response-delivery contract. Published HTTP 0.21.13 ACK policy acceptance is recorded in http-021-evaluation.md.",
             "scope": "Independent expected-size cases only; these captures do not establish every cp flag, direction or provider contract.",
             "wire": "Independent pinned AWS CLI 2.31.18 captures send exact abc with Content-Length 3 for hints 2 and 4; a 100 GiB hint with 9 MiB actual input triggers multipart with one exact 9 MiB part. Frozen reference.json and focused ESS regressions cover mismatches, multipart sizing, invalid-before-read and actual provider limits."
           },
@@ -2157,7 +2163,7 @@
         "inventory": "locked reference; generated offline",
         "provider": "not-run",
         "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
-        "wire": "Actual pinned AWS high-level executable matrix: 18 cases / 28 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
+        "wire": "Actual pinned AWS high-level executable matrix: 42 cases / 67 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
       },
       "global_flags": [
         "ca-bundle",
@@ -2494,7 +2500,7 @@
         "inventory": "locked reference; generated offline",
         "provider": "not-run",
         "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
-        "wire": "Actual pinned AWS high-level executable matrix: 18 cases / 28 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
+        "wire": "Actual pinned AWS high-level executable matrix: 42 cases / 67 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
       },
       "global_flags": [
         "ca-bundle",
@@ -2577,7 +2583,7 @@
         "inventory": "locked reference; generated offline",
         "provider": "not-run",
         "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
-        "wire": "Actual pinned AWS high-level executable matrix: 18 cases / 28 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
+        "wire": "Actual pinned AWS high-level executable matrix: 42 cases / 67 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
       },
       "global_flags": [
         "ca-bundle",
@@ -4122,9 +4128,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Live archive restore and all command/direction/flag combinations remain separate.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "not-run"
+            "wire": "Actual AWS archive cases cover restored Glacier/DeepArchive download/copy/move and un-restored skip/ignore/force outcomes; scoped high-level suite 40/0. Warning text deliberately differs; status/warning outcome retained. See differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -4133,7 +4139,8 @@
           "status": "implemented-unverified",
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         },
         {
@@ -4154,9 +4161,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Live archive restore and all command/direction/flag combinations remain separate.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "not-run"
+            "wire": "Actual AWS archive cases cover restored Glacier/DeepArchive download/copy/move and un-restored skip/ignore/force outcomes; scoped high-level suite 40/0. Warning text deliberately differs; status/warning outcome retained. See differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -4165,7 +4172,8 @@
           "status": "implemented-unverified",
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         },
         {
@@ -4769,7 +4777,7 @@
         "provider": "not-run",
         "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
         "safety": "Recursive moves use a bounded copy manifest, verify all source/destination identities, then revalidate each selected deletion. Actual AWS2.31.18 partial-failure observation and deliberate fail-closed deviation are recorded in move-source-encryption-decisions.md; full mc parity is not inferred.",
-        "wire": "Actual pinned AWS high-level executable matrix: 18 cases / 28 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
+        "wire": "Actual pinned AWS high-level executable matrix: 42 cases / 67 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
       },
       "global_flags": [
         "ca-bundle",
@@ -4887,7 +4895,7 @@
         "inventory": "locked reference; generated offline",
         "provider": "not-run",
         "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
-        "wire": "Actual pinned AWS high-level executable matrix: 18 cases / 28 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
+        "wire": "Actual pinned AWS high-level executable matrix: 42 cases / 67 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
       },
       "global_flags": [
         "ca-bundle",
@@ -5002,7 +5010,7 @@
         "inventory": "locked reference; generated offline",
         "provider": "not-run",
         "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
-        "wire": "Actual pinned AWS high-level executable matrix: 18 cases / 28 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
+        "wire": "Actual pinned AWS high-level executable matrix: 42 cases / 67 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
       },
       "global_flags": [
         "ca-bundle",
@@ -5380,7 +5388,7 @@
         "inventory": "locked reference; generated offline",
         "provider": "not-run",
         "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
-        "wire": "Actual pinned AWS high-level executable matrix: 18 cases / 28 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
+        "wire": "Actual pinned AWS high-level executable matrix: 42 cases / 67 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
       },
       "global_flags": [
         "ca-bundle",
@@ -5468,9 +5476,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Scoped cases do not establish every flag/direction combination or live provider encryption/synchronization behavior.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "not-run"
+            "wire": "42 actual AWS high-level cases/67 exchanges include distinct binary fileb SSE-C source/destination key/MD5 headers and sync equal-size older/newer, exact/size-only, protected exclusions/delete/dry-run with actual local bytes/mtime/deletion. 43 tests pass; differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -5479,7 +5487,8 @@
           "status": "implemented-unverified",
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         },
         {
@@ -5572,9 +5581,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Scoped cases do not establish every flag/direction combination or live provider encryption/synchronization behavior.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "not-run"
+            "wire": "42 actual AWS high-level cases/67 exchanges include distinct binary fileb SSE-C source/destination key/MD5 headers and sync equal-size older/newer, exact/size-only, protected exclusions/delete/dry-run with actual local bytes/mtime/deletion. 43 tests pass; differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -5583,7 +5592,8 @@
           "status": "implemented-unverified",
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         },
         {
@@ -6925,9 +6935,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Live archive restore and all command/direction/flag combinations remain separate.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "not-run"
+            "wire": "Actual AWS archive cases cover restored Glacier/DeepArchive download/copy/move and un-restored skip/ignore/force outcomes; scoped high-level suite 40/0. Warning text deliberately differs; status/warning outcome retained. See differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -6936,7 +6946,8 @@
           "status": "implemented-unverified",
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         },
         {
@@ -6957,9 +6968,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Live archive restore and all command/direction/flag combinations remain separate.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "not-run"
+            "wire": "Actual AWS archive cases cover restored Glacier/DeepArchive download/copy/move and un-restored skip/ignore/force outcomes; scoped high-level suite 40/0. Warning text deliberately differs; status/warning outcome retained. See differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -6968,7 +6979,8 @@
           "status": "implemented-unverified",
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         },
         {
@@ -7505,9 +7517,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Scoped cases do not establish every flag/direction combination or live provider encryption/synchronization behavior.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "not-run"
+            "wire": "42 actual AWS high-level cases/67 exchanges include distinct binary fileb SSE-C source/destination key/MD5 headers and sync equal-size older/newer, exact/size-only, protected exclusions/delete/dry-run with actual local bytes/mtime/deletion. 43 tests pass; differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -7516,7 +7528,8 @@
           "status": "implemented-unverified",
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         },
         {
@@ -7537,9 +7550,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Scoped cases do not establish every flag/direction combination or live provider encryption/synchronization behavior.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "not-run"
+            "wire": "42 actual AWS high-level cases/67 exchanges include distinct binary fileb SSE-C source/destination key/MD5 headers and sync equal-size older/newer, exact/size-only, protected exclusions/delete/dry-run with actual local bytes/mtime/deletion. 43 tests pass; differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -7548,7 +7561,8 @@
           "status": "implemented-unverified",
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         },
         {
@@ -7569,9 +7583,9 @@
             "client": "Pinned grammar/default/enum vectors and implementation effect routing; full differential effect contract for this argument is not established.",
             "inventory": "locked reference; generated offline",
             "provider": "not-run",
-            "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
+            "remaining": "Scoped cases do not establish every flag/direction combination or live provider encryption/synchronization behavior.",
             "scope": "Representative effects only; see highlevel-execution-decisions.md and highlevel-input-decisions.md. No per-row wire success inferred.",
-            "wire": "not-run"
+            "wire": "42 actual AWS high-level cases/67 exchanges include distinct binary fileb SSE-C source/destination key/MD5 headers and sync equal-size older/newer, exact/size-only, protected exclusions/delete/dry-run with actual local bytes/mtime/deletion. 43 tests pass; differential-highlevel.md."
           },
           "owner_milestone": "M4",
           "positional": false,
@@ -7580,7 +7594,8 @@
           "status": "implemented-unverified",
           "test_ids": [
             "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
-            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs"
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+            "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs"
           ]
         }
       ],
@@ -7597,7 +7612,7 @@
         "inventory": "locked reference; generated offline",
         "provider": "not-run",
         "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
-        "wire": "Actual pinned AWS high-level executable matrix: 18 cases / 28 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
+        "wire": "Actual pinned AWS high-level executable matrix: 42 cases / 67 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
       },
       "global_flags": [
         "ca-bundle",
@@ -7743,7 +7758,7 @@
         "inventory": "locked reference; generated offline",
         "provider": "not-run",
         "remaining": "Full pinned executable, per-member wire and provider contract is not established by shared implementation tests.",
-        "wire": "Actual pinned AWS high-level executable matrix: 18 cases / 28 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
+        "wire": "Actual pinned AWS high-level executable matrix: 42 cases / 67 exchanges across all nine commands, recorded request parameters/entity bytes and output/status; detailed boundary in differential-highlevel.md. No full per-flag/direction parity inference."
       },
       "global_flags": [
         "ca-bundle",
@@ -7893,10 +7908,11 @@
       "evidence": {
         "client": "AWS --cli-connect-timeout independently limits connection establishment; zero disables it. It is separate from socket read inactivity and total request duration.",
         "decisions": "docs/cli/compatibility/http-021-evaluation.md; docs/cli/compatibility/credential-decisions.md; docs/cli/compatibility/integration-validation.md",
+        "delivery": "Selected HTTP 0.21.13 uses request-scoped infinite response ACK and network-idle policies. A real 512-byte download at 8 bytes/s succeeds after 63124 ms with global timeout unchanged; finite total deadlines, cancellation and concurrent finite ACK isolation have shared-path tests. This does not verify every command or operation.",
         "history": "The former selected 0.18 graph rejected infinity (http_fetch#123); 0.21.11 retained a separate response-stream idle cap (#129). The approved published 0.21.12 graph plus request-scoped stream idle infinity resolves those version-specific limits; #126 socket inactivity is also available.",
         "inventory": "locked reference; generated offline",
         "provider": "not-run",
-        "remaining": "These scoped shared-path fixtures do not establish every operation/member effect, live-provider parity or full executable output/default parity. Fixed consumer ACK deadlines during bounded slow-rate delivery remain blocked by gsmlg-dev/http_fetch#131.",
+        "remaining": "These scoped shared-path fixtures do not establish every operation/member effect, live-provider parity or full executable output/default parity.",
         "wire": "Shared-path deadline tests route zero connection timeout as infinity independently of the read timeout through the real adapter without a finite substitute."
       },
       "name": "cli-connect-timeout",
@@ -7908,7 +7924,9 @@
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
         "apps/ex_storage_service_cli/test/aws_read_deadline_test.exs",
-        "apps/ex_storage_service_cli/test/deadline_integration_test.exs"
+        "apps/ex_storage_service_cli/test/deadline_integration_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport/rate_limits_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport/response_ack_policy_test.exs"
       ]
     },
     {
@@ -7931,10 +7949,11 @@
       "evidence": {
         "client": "AWS --cli-read-timeout controls socket read inactivity, not whole-request duration: positive seconds reset on bytes and zero disables read inactivity. Total request duration is unlimited; connection establishment has its own limit.",
         "decisions": "docs/cli/compatibility/http-021-evaluation.md; docs/cli/compatibility/credential-decisions.md; docs/cli/compatibility/integration-validation.md",
+        "delivery": "Selected HTTP 0.21.13 uses request-scoped infinite response ACK and network-idle policies. A real 512-byte download at 8 bytes/s succeeds after 63124 ms with global timeout unchanged; finite total deadlines, cancellation and concurrent finite ACK isolation have shared-path tests. This does not verify every command or operation.",
         "history": "The former selected 0.18 graph rejected infinity (http_fetch#123); 0.21.11 retained a separate response-stream idle cap (#129). The approved published 0.21.12 graph plus request-scoped stream idle infinity resolves those version-specific limits; #126 socket inactivity is also available.",
         "inventory": "locked reference; generated offline",
         "provider": "not-run",
-        "remaining": "These scoped shared-path fixtures do not establish every operation/member effect, live-provider parity or full executable output/default parity. Fixed consumer ACK deadlines during bounded slow-rate delivery remain blocked by gsmlg-dev/http_fetch#131.",
+        "remaining": "These scoped shared-path fixtures do not establish every operation/member effect, live-provider parity or full executable output/default parity.",
         "wire": "Shared-path real-wire fixtures prove a positive one-second read budget survives progressing bodies lasting longer than one second, typed expiry on a stalled body, zero-disable and ownership cleanup. An unchanged-default AWS-zero transfer survives a 65000 ms network gap."
       },
       "name": "cli-read-timeout",
@@ -7946,7 +7965,9 @@
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
         "apps/ex_storage_service_cli/test/aws_read_deadline_test.exs",
-        "apps/ex_storage_service_cli/test/deadline_integration_test.exs"
+        "apps/ex_storage_service_cli/test/deadline_integration_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport/rate_limits_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport/response_ack_policy_test.exs"
       ]
     },
     {

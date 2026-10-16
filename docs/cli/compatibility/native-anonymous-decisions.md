@@ -4,6 +4,15 @@ Scope: `anonymous get-json`, `set-json`, `list`, and `links` over portable S3
 bucket-policy APIs. This does not implement MinIO administrative APIs or an IAM
 authorization engine. Existing `anonymous get` and `set` remain separate commands.
 
+`anonymous set private TARGET` aliases the existing `none` mode, matching pinned
+`cmd/anonymous-main.go:198-259`. Both use ESS's guarded complete empty policy:
+an existing policy requires `--replace`, denied reads propagate, and dry-run
+performs no write. This differs from mc's selected-statement `SetPolicy` update
+and deletion of an empty result. Local tests prove no public permissions are
+introduced and preserve those safeguards; real-provider acceptance of the empty
+policy representation remains unverified. The 51-test related suite passes
+after two red alias regressions.
+
 ## Pinned reference and executable observations
 
 Reference: mc commit `77f82e18b5401a65958f1619df6ebb994634bd88`,

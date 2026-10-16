@@ -2,19 +2,78 @@ defmodule ExStorageServiceCli.S3.Customizations do
   @moduledoc "Explicit pinned SDK customizations outside the REST-XML model."
   alias ExStorageServiceCli.{Error, S3.Encoding}
   @listings ~w(ListObjects ListObjectsV2 ListObjectVersions)
+  @sse_operations ~w(HeadObject GetObject PutObject CopyObject CreateMultipartUpload UploadPart UploadPartCopy CompleteMultipartUpload)
+  @metadata_operations ~w(PutObject CopyObject CreateMultipartUpload)
 
-  def input(operation, input) when operation in @listings and is_map(input) do
+  def input(operation, input) when is_map(input) do
+    with :ok <- ascii_metadata(operation, input) do
+      input = if operation in @sse_operations, do: sse_key(input, "SSECustomer"), else: input
+
+      input =
+        if operation in ~w(CopyObject UploadPartCopy),
+          do: sse_key(input, "CopySourceSSECustomer"),
+          else: input
+
+      prepare_input(operation, input)
+    end
+  end
+
+  def input(_operation, input), do: {:ok, input, %{}}
+
+  defp prepare_input("RenameObject", input) do
+    # Client applies input customizations once, before entering its retry loop.
+    {:ok, Map.put_new_lazy(input, "ClientToken", &idempotency_token/0), %{}}
+  end
+
+  defp prepare_input(operation, input) when operation in @listings do
     automatic = not Map.has_key?(input, "EncodingType")
     {:ok, Map.put_new(input, "EncodingType", "url"), %{automatic_encoding: automatic}}
   end
 
-  def input(operation, %{"CopySource" => source} = input)
-      when operation in ~w(CopyObject UploadPartCopy) do
+  defp prepare_input(operation, %{"CopySource" => source} = input)
+       when operation in ~w(CopyObject UploadPartCopy) do
     with {:ok, source} <- copy_source(source),
          do: {:ok, Map.put(input, "CopySource", source), %{}}
   end
 
-  def input(_operation, input), do: {:ok, input, %{}}
+  defp prepare_input(_operation, input), do: {:ok, input, %{}}
+
+  # Explicit MD5 presence means the caller owns both wire values. High-level
+  # transfers already provide this pair, so they must never be encoded twice.
+  defp sse_key(input, prefix) do
+    key = prefix <> "Key"
+    md5 = prefix <> "KeyMD5"
+
+    if is_binary(input[key]) and not Map.has_key?(input, md5) do
+      input
+      |> Map.put(key, Base.encode64(input[key]))
+      |> Map.put(md5, Base.encode64(:crypto.hash(:md5, input[key])))
+    else
+      input
+    end
+  end
+
+  defp ascii_metadata(operation, %{"Metadata" => metadata})
+       when operation in @metadata_operations and is_map(metadata) do
+    if Enum.all?(metadata, fn {key, value} -> ascii?(key) and ascii?(value) end) do
+      :ok
+    else
+      {:error,
+       Error.new(
+         :syntax,
+         "Non ascii characters found in S3 metadata. S3 metadata can only contain ASCII characters.",
+         operation: operation,
+         code: :invalid_parameter
+       )}
+    end
+  end
+
+  defp ascii_metadata(_, _), do: :ok
+
+  defp ascii?(<<byte, rest::binary>>) when byte < 128, do: ascii?(rest)
+  defp ascii?(<<>>), do: true
+  defp ascii?(value) when is_binary(value), do: false
+  defp ascii?(_), do: true
 
   def output(operation, %{"EncodingType" => "url"} = result, %{automatic_encoding: true})
       when operation in @listings do
@@ -82,6 +141,18 @@ defmodule ExStorageServiceCli.S3.Customizations do
   end
 
   defp copy_source(_source), do: invalid_source()
+
+  defp idempotency_token do
+    <<first::48, _::4, second::12, _::2, last::62>> = :crypto.strong_rand_bytes(16)
+
+    encoded =
+      Base.encode16(<<first::48, 4::4, second::12, 2::2, last::62>>, case: :lower)
+
+    <<a::binary-size(8), b::binary-size(4), c::binary-size(4), d::binary-size(4), e::binary>> =
+      encoded
+
+    Enum.join([a, b, c, d, e], "-")
+  end
 
   defp invalid_source,
     do:

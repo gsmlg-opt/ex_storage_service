@@ -112,6 +112,98 @@ defmodule ExStorageServiceCli.Transport.RateLimitsTest do
     refute Process.alive?(response.controller)
   end
 
+  @tag timeout: 120_000
+  test "paced download acknowledgement can exceed the unchanged global sixty-second limit" do
+    assert HTTP.Config.streaming_timeout() == 60_000
+    limiter = start_supervised!({RateLimiter, owner: self()})
+    body = :binary.copy(<<0, 255, 43, 37>>, 128)
+    {endpoint, _} = WireServer.fixture([{200, [], body}])
+    started = System.monotonic_time(:millisecond)
+
+    assert {:ok, response} =
+             HTTPFetch.request(endpoint, %Request{method: "GET"},
+               mode: :stream,
+               timeout: :infinity,
+               read_idle_timeout: 600_000,
+               rate_limiter: limiter,
+               limit_download: 8
+             )
+
+    assert {:ok, chunks, %{bytes: 512}} =
+             HTTPFetch.consume(response, [], fn bytes, chunks ->
+               assert byte_size(bytes) <= 8
+               {:ok, [bytes | chunks]}
+             end)
+
+    assert IO.iodata_to_binary(Enum.reverse(chunks)) == body
+    assert System.monotonic_time(:millisecond) - started >= 60_000
+    assert HTTP.Config.streaming_timeout() == 60_000
+    assert %{waiting: 0} = GenServer.call(limiter, :stats)
+    refute Process.alive?(response.body)
+    refute Process.alive?(response.controller)
+    refute Process.alive?(response.cancellation)
+  end
+
+  test "an unlimited acknowledgement wait retains the finite overall transfer deadline" do
+    limiter = start_supervised!({RateLimiter, owner: self()})
+    {endpoint, _} = WireServer.fixture([{200, [], "two bytes"}])
+
+    assert {:ok, response} =
+             HTTPFetch.request(endpoint, %Request{method: "GET"},
+               mode: :stream,
+               timeout: 250,
+               rate_limiter: limiter,
+               limit_download: 1
+             )
+
+    assert {:error, %Error{category: :transport, code: :request_timeout}} =
+             HTTPFetch.consume(response, 0, fn bytes, count ->
+               {:ok, count + byte_size(bytes)}
+             end)
+
+    assert %{waiting: 0} = GenServer.call(limiter, :stats)
+    refute Process.alive?(response.body)
+    refute Process.alive?(response.controller)
+    refute Process.alive?(response.cancellation)
+  end
+
+  test "cancellation stops paced delivery and preserves the borrowed signal" do
+    limiter = start_supervised!({RateLimiter, owner: self()})
+    signal = HTTP.AbortController.new()
+    on_exit(fn -> if Process.alive?(signal), do: Agent.stop(signal) end)
+    {endpoint, _} = WireServer.fixture([{200, [], "two bytes"}])
+
+    assert {:ok, response} =
+             HTTPFetch.request(endpoint, %Request{method: "GET"},
+               mode: :stream,
+               timeout: :infinity,
+               signal: signal,
+               rate_limiter: limiter,
+               limit_download: 1
+             )
+
+    owner = self()
+
+    consumer =
+      Task.async(fn ->
+        HTTPFetch.consume(response, 0, fn bytes, count ->
+          send(owner, {:delivered, bytes})
+          {:ok, count + byte_size(bytes)}
+        end)
+      end)
+
+    assert_receive {:delivered, "t"}
+    await_waiter(limiter, 1)
+    HTTP.AbortController.abort(signal)
+    assert {:error, %Error{category: :interrupted, code: :aborted}} = Task.await(consumer, 1000)
+    assert %{waiting: 0} = GenServer.call(limiter, :stats)
+    assert Process.alive?(signal)
+    assert HTTP.AbortController.aborted?(signal)
+    refute Process.alive?(response.body)
+    refute Process.alive?(response.controller)
+    refute Process.alive?(response.cancellation)
+  end
+
   test "separate simultaneous requests share one endpoint upload burst" do
     limiter = start_supervised!({RateLimiter, owner: self()})
     body = String.duplicate("x", 1024)

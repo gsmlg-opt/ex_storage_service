@@ -3,7 +3,7 @@ defmodule ExStorageServiceCli.S3.Retry do
   alias ExStorageServiceCli.{Error, S3.Retry.State}
   alias ExStorageServiceCli.Transfer.Coordinator
   @reads ~w(GetObject HeadObject GetObjectAttributes)
-  @repeatable ~w(UploadPart ListParts AbortMultipartUpload)
+  @repeatable ~w(UploadPart ListParts AbortMultipartUpload RenameObject)
   @transient ~w(RequestTimeout RequestTimeoutException PriorRequestNotComplete)
   @throttled ~w(Throttling ThrottlingException ThrottledException RequestThrottledException TooManyRequestsException ProvisionedThroughputExceededException TransactionInProgressException RequestLimitExceeded BandwidthLimitExceeded LimitExceededException RequestThrottled SlowDown PriorRequestNotComplete EC2ThrottledException)
   @denied ~w(AccessDenied AccessDeniedException InvalidAccessKeyId SignatureDoesNotMatch ExpiredToken InvalidToken TokenRefreshRequired)

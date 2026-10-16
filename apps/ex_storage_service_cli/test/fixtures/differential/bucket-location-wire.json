@@ -1,0 +1,85 @@
+{
+  "aws_sha256": "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a",
+  "cases": [
+    {
+      "name": "empty-element",
+      "body": "<LocationConstraint xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"/>",
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"LocationConstraint\": null\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?location",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "empty-paired-tags",
+      "body": "<LocationConstraint xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"></LocationConstraint>",
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"LocationConstraint\": null\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?location",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "named-region",
+      "body": "<LocationConstraint>eu-west-1</LocationConstraint>",
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"LocationConstraint\": \"eu-west-1\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?location",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    },
+    {
+      "name": "legacy-eu",
+      "body": "<LocationConstraint>EU</LocationConstraint>",
+      "aws": {
+        "status": 0,
+        "stdout": "{\n    \"LocationConstraint\": \"EU\"\n}\n",
+        "stderr": "",
+        "requests": [
+          {
+            "method": "GET",
+            "target": "/bucket?location",
+            "headers": {
+              "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "body_base64": ""
+          }
+        ],
+        "peer_errors": []
+      }
+    }
+  ]
+}

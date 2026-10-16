@@ -11,6 +11,11 @@ defmodule ExStorageServiceCli.CLI.Watch do
            context: context,
            opts: opts,
            interval: Map.get(invocation.options, :interval, 1) * 1000,
+           events:
+             MapSet.new(String.split(Map.get(invocation.options, :events, "put,delete"), ",")),
+           prefix: Map.get(invocation.options, :prefix, ""),
+           suffix: Map.get(invocation.options, :suffix, ""),
+           recursive: Map.get(invocation.options, :recursive, true),
            coordinator: opts[:coordinator] || if(context, do: context.coordinator),
            inventory: opts[:inventory] || (&inventory/3),
            sleep: opts[:sleep] || (&Process.sleep/1),
@@ -48,10 +53,27 @@ defmodule ExStorageServiceCli.CLI.Watch do
       target.kind not in [:local, :remote] ->
         failure(:syntax, :watch_target, "Watch requires a local directory or S3 bucket/prefix")
 
+      not valid_events?(Map.get(options, :events, "put,delete")) ->
+        failure(
+          :syntax,
+          :watch_events,
+          "Polling --events accepts only put,delete; access and server events require an event source"
+        )
+
+      not is_binary(Map.get(options, :prefix, "")) or
+        not is_binary(Map.get(options, :suffix, "")) or
+          not is_boolean(Map.get(options, :recursive, true)) ->
+        failure(:syntax, :watch_selection, "Invalid polling name or recursion selection")
+
       true ->
         :ok
     end
   end
+
+  defp valid_events?(value) when is_binary(value),
+    do: Enum.all?(String.split(value, ","), &(&1 in ~w(put delete)))
+
+  defp valid_events?(_), do: false
 
   defp inventory(%Target{kind: :local, path: path}, _context, opts) do
     source = Path.expand(path)
@@ -174,7 +196,16 @@ defmodule ExStorageServiceCli.CLI.Watch do
       "After" => after_entry
     }
 
-    callback(settings.emit, [event], :watch_emit)
+    if selected?(event, settings), do: callback(settings.emit, [event], :watch_emit), else: :ok
+  end
+
+  defp selected?(event, settings) do
+    name = event["Name"]
+    kind = if event["Event"] == "remove", do: "delete", else: "put"
+
+    MapSet.member?(settings.events, kind) and
+      String.starts_with?(name, settings.prefix) and String.ends_with?(name, settings.suffix) and
+      (settings.recursive or not String.contains?(String.trim_trailing(name, "/"), "/"))
   end
 
   defp callback(function, args, code) do

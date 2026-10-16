@@ -1,0 +1,94 @@
+{
+  "mc_commit": "77f82e18b5401a65958f1619df6ebb994634bd88",
+  "mc_sha256": "a62c4c85f9efbe5d07e03e2ff9923625fbf659a9f272a077a0cd846279f1ccc2",
+  "cases": [
+    {
+      "name": "source-only",
+      "source": "abc",
+      "target": null,
+      "source_time": 1767225600,
+      "target_time": 1767225600,
+      "exit": 0,
+      "rows": [
+        {
+          "status": "success",
+          "first": "@TMP@/source/item",
+          "second": "",
+          "diff": 5
+        }
+      ],
+      "stderr": ""
+    },
+    {
+      "name": "target-only",
+      "source": null,
+      "target": "xyz",
+      "source_time": 1767225600,
+      "target_time": 1767225600,
+      "exit": 0,
+      "rows": [
+        {
+          "status": "success",
+          "first": "",
+          "second": "@TMP@/target/item",
+          "diff": 6
+        }
+      ],
+      "stderr": ""
+    },
+    {
+      "name": "different-size",
+      "source": "long",
+      "target": "old",
+      "source_time": 1767225600,
+      "target_time": 1767225600,
+      "exit": 0,
+      "rows": [
+        {
+          "status": "success",
+          "first": "@TMP@/source/item",
+          "second": "@TMP@/target/item",
+          "diff": 2
+        }
+      ],
+      "stderr": ""
+    },
+    {
+      "name": "newer-source",
+      "source": "abc",
+      "target": "xyz",
+      "source_time": 1767225660,
+      "target_time": 1767225600,
+      "exit": 0,
+      "rows": [
+        {
+          "status": "success",
+          "first": "@TMP@/source/item",
+          "second": "@TMP@/target/item",
+          "diff": 7
+        }
+      ],
+      "stderr": ""
+    },
+    {
+      "name": "older-source",
+      "source": "abc",
+      "target": "xyz",
+      "source_time": 1767225540,
+      "target_time": 1767225600,
+      "exit": 0,
+      "rows": [],
+      "stderr": ""
+    },
+    {
+      "name": "same-size-time-different-bytes",
+      "source": "abc",
+      "target": "xyz",
+      "source_time": 1767225600,
+      "target_time": 1767225600,
+      "exit": 0,
+      "rows": [],
+      "stderr": ""
+    }
+  ]
+}

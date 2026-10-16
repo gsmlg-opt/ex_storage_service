@@ -28,6 +28,17 @@ An explicit version conflicts with recursive/versions/rewind selectors. Invalid
 limits fail before I/O. Bucket tags without selection retain their existing
 bucket operation; recursive bucket targets select object tags.
 
+`tag set --exclude-folders` requires `--recursive`. Selection follows the actual
+pinned `cmd/tag-set.go:207` rule: skip keys whose **first** `/` occurs after byte
+zero. This excludes nested objects as well as directory markers, using the full
+bucket key even when the target has a prefix. A leading `/` at byte zero remains
+eligible. It is broader than merely excluding trailing-slash folder markers.
+Current and historical inventories finish before filtering, HEAD preflight and
+tagging; dry-run uses the same selection. Existing immutable-version safeguards
+and the explicit error for an empty eligible selection remain. Two initial
+regressions reproduced the missing flag/effects; the 52-test tag, governance and
+management suite passes with live and dry-run selection and manifest cleanup.
+
 The original product failed all eight added selector/effect tests in
 `/tmp/ess-native-tag-selection-red.log`. The final four-file management and
 governance suite passed **63 tests, zero failures** in

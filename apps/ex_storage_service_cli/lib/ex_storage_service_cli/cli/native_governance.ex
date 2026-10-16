@@ -61,6 +61,12 @@ defmodule ExStorageServiceCli.CLI.NativeGovernance do
       else: :ok
   end
 
+  def document_options(%{command: ["tag", "set"], options: options}) do
+    if options[:exclude_folders] == true and options[:recursive] != true,
+      do: invalid("Tag --exclude-folders requires --recursive"),
+      else: :ok
+  end
+
   def document_options(_), do: :ok
 
   def run(
@@ -291,6 +297,28 @@ defmodule ExStorageServiceCli.CLI.NativeGovernance do
         end
       after
         Manifest.cleanup(inventory)
+      end
+    end
+  end
+
+  defp inventory(target, context, %{exclude_folders: true} = options, call, opts) do
+    with {:ok, all} <-
+           inventory(target, context, Map.delete(options, :exclude_folders), call, opts) do
+      try do
+        entries =
+          Manifest.stream(all)
+          |> Stream.flat_map(fn entry ->
+            # Pinned mc tests the first separator in the full key, including prefixes.
+            case {cancelled(context), :binary.match(entry["key"], "/")} do
+              {{:error, _} = error, _} -> [error]
+              {:ok, {position, _}} when position > 0 -> []
+              {:ok, _} -> [entry]
+            end
+          end)
+
+        Manifest.build(entries, opts)
+      after
+        Manifest.cleanup(all)
       end
     end
   end

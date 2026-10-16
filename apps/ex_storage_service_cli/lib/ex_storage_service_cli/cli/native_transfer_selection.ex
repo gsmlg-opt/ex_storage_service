@@ -4,7 +4,7 @@ defmodule ExStorageServiceCli.CLI.NativeTransferSelection do
   alias ExStorageServiceCli.CLI.Find
 
   def compile(%{frontend: :native, command: [command], options: options}, opts)
-      when command in ["cp", "mv", "mirror"] do
+      when command in ["cp", "mv", "mirror", "rm"] do
     now = DateTime.to_unix(opts[:now] || DateTime.utc_now(), :nanosecond)
     classes = if command == "mirror", do: options[:exclude_storageclass] || [], else: []
 

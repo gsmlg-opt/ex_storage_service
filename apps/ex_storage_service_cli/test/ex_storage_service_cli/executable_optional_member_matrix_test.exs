@@ -38,13 +38,13 @@ defmodule ExStorageServiceCli.ExecutableOptionalMemberMatrixTest do
     assert checksum("crc32c", "123456789") == Base.encode64(<<0xE3069283::32>>)
 
     assert Base.encode16(:crypto.hash(:sha256, File.read!(@fixture)), case: :lower) ==
-             "4157f20345468174ad1fdf726ab5b1ea2c682d58f05f2c8a38198ecec63f927c"
+             "c1e9736da1a821a3328c7464bf73c6d5c58148a9d231ce12616e80a196c105db"
 
     assert @oracle["aws_sha256"] ==
              "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a"
 
-    assert length(@oracle["cases"]) == 52
-    assert @oracle["cases"] |> Enum.map(& &1["operation"]) |> Enum.uniq() |> length() == 27
+    assert length(@oracle["cases"]) == 57
+    assert @oracle["cases"] |> Enum.map(& &1["operation"]) |> Enum.uniq() |> length() == 32
     assert @oracle["scope"] =~ "not exhaustive"
     assert Enum.count(@oracle["cases"], &(&1["scenario"] == "access-denied-metadata")) == 6
 

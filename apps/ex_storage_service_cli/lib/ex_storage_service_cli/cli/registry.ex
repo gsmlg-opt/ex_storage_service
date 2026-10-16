@@ -71,6 +71,9 @@ defmodule ExStorageServiceCli.CLI.Registry do
          "delimiter" => {:delimiter, :string},
          "max-keys" => {:max_keys, :integer},
          "versions" => {:versions, :boolean},
+         "incomplete" => {:incomplete, :boolean},
+         "summarize" => {:summarize, :boolean},
+         "storage-class" => {:storage_class, :string},
          "limit" => {:limit, :integer},
          "recursive" => {:recursive, :boolean}
        }, "List buckets or objects"},
@@ -93,7 +96,12 @@ defmodule ExStorageServiceCli.CLI.Registry do
          "recursive" => {:recursive, :boolean},
          "version-id" => {:version_id, :string},
          "all-versions" => {:all_versions, :boolean},
+         "versions" => {:all_versions, :boolean},
+         "bypass" => {:bypass_governance_retention, :boolean},
          "dry-run" => {:dry_run, :boolean},
+         "fake" => {:dry_run, :boolean},
+         "older-than" => {:older_than, :string},
+         "newer-than" => {:newer_than, :string},
          "include" => {:include, :repeated_string},
          "exclude" => {:exclude, :repeated_string}
        }, "Remove objects or explicitly selected versions"},
@@ -163,6 +171,18 @@ defmodule ExStorageServiceCli.CLI.Registry do
             else: flags
 
         flags =
+          if name == "put",
+            do:
+              Map.merge(flags, %{
+                "if-not-exists" => {:if_not_exists, :boolean},
+                "part-size" => {:part_size, :string},
+                "parallel" => {:parallel, :integer},
+                "disable-multipart" => {:disable_multipart, :boolean},
+                "checksum" => {:checksum, :string}
+              }),
+            else: flags
+
+        flags =
           if name in ~w(cp mv mirror),
             do:
               Map.merge(flags, %{
@@ -196,7 +216,11 @@ defmodule ExStorageServiceCli.CLI.Registry do
          %{
            "adapter" => {:adapter, {:enum, ["polling"]}},
            "interval" => {:interval, :integer},
-           "count" => {:count, :integer}
+           "count" => {:count, :integer},
+           "events" => {:events, :string},
+           "prefix" => {:prefix, :string},
+           "suffix" => {:suffix, :string},
+           "recursive" => {:recursive, :boolean}
          }, "Compare complete inventories using an explicit polling adapter"},
       ["cat"] =>
         {1..1,
@@ -221,6 +245,7 @@ defmodule ExStorageServiceCli.CLI.Registry do
       ["stat"] =>
         {1..1,
          %{
+           "no-list" => {:no_list, :boolean},
            "rewind" => {:rewind, :string},
            "version-id" => {:version_id, :string},
            "vid" => {:version_id, :string},

@@ -1,9 +1,8 @@
-# Unreleased CLI implementation
+# ESS CLI 0.6.8 release candidate
 
-This change implements the standalone `ess` client described in the CLI design.
-The compatibility references are AWS CLI 2.31.18 and
-`minio/mc@77f82e18b5401a65958f1619df6ebb994634bd88`. It has not been released.
-The package version remains 0.6.7 until the release gates pass.
+Standalone `ess` implementation against AWS CLI 2.31.18 and
+`minio/mc@77f82e18b5401a65958f1619df6ebb994634bd88`. Publication is pending
+the final committed-source gates below.
 
 ## Changes
 
@@ -30,8 +29,9 @@ The package version remains 0.6.7 until the release gates pass.
   socket inactivity (ten-minute defaults; zero disables each). AWS positive
   `--cli-read-timeout` now measures socket read inactivity, and zero disables it.
   Connection setup has its own deadline; neither frontend imposes an overall
-  request timeout. Published HTTP 0.21.12 supplies the required per-request
-  network-await policy.
+  request timeout. Published HTTP 0.21.13 supplies separate per-request
+  network-await and consumer-acknowledgement policies while retaining bounded
+  sink delivery, cancellation and explicit finite total budgets.
 - AWS stdin `--expected-size` is a multipart sizing hint. Shorter or longer
   input retains its actual byte length; native `pipe` keeps its exact-size
   assertion. Pinned AWS executable captures cover both behaviors.
@@ -40,7 +40,35 @@ The package version remains 0.6.7 until the release gates pass.
   AWS captures cover full output, queries, limits and actual token resume.
 - Omitted retention/legal-hold payloads remain zero-byte entities with correct
   checksums, distinct from empty XML structures. The expanded optional-member
-  matrix covers 52 captured AWS cases across 27 operations.
+  matrix covers 57 captured AWS cases across 32 operations, including object
+  attributes, inventory encryption and intelligent-tiering filters.
+- Version-specific native undo verifies the provider's returned version identity
+  before copying. Confirmed dry-run recovery prepares copy-source encoding
+  through the same customization path as live requests.
+- RenameObject creates one UUID token for an omitted ClientToken and reuses it
+  across retries. Explicit tokens remain unchanged. Restored Glacier/Deep Archive
+  objects are eligible for high-level transfers without forcing an archive read.
+- Native conditional `put --if-not-exists` protects single writes and multipart
+  completion, including resume. Recursive tag selection adds the pinned mc
+  `--exclude-folders` full-key rule. Polling watch adds events/prefix/suffix and
+  recursion selectors while retaining complete reconciliation snapshots.
+- Native `anonymous set private` aliases the existing guarded `none` policy
+  replacement. Provider acceptance of the empty-policy representation remains
+  separately documented.
+- Native listing adds incomplete multipart inventories, exact storage-class
+  filtering and bounded summaries with explicit completeness. Incomplete-upload
+  byte totals remain unknown; historical combinations fail explicitly.
+- Native put adds explicit part sizing, single-PUT selection and supported
+  checksum selection, retaining conditional creation and response verification.
+  Explicit parallel parts remain bounded by global admission and journal-owner
+  checkpoints; workers and requests drain before owned-upload abort.
+
+- Native diff reports destination-only entries and consistently compares source
+  times in either transfer direction. Native rm adds versions/fake aliases and
+  bounded age predicates with complete preflight and conditional deletion fences.
+
+- Native SQL adds CSV/JSON serialization, compression, bounded recursive selection
+  and raw Records stdout, preserving legacy atomic outfile publication.
 
 ## Migration and support
 
@@ -58,70 +86,39 @@ Remote package/runtime probes pass on Linux x86_64 with Elixir 1.18.0/OTP 27,
 Other platform/runtime combinations remain unverified.
 Interactive paging is currently Linux-only.
 
-## Release gates
+## Compatibility and validation boundary
 
-The [acceptance status](milestone-acceptance-status.md) records incomplete
-requirements and the exact boundaries of the existing evidence. Inventory
-coverage is distinct from independently verified behavior and live-provider
-support.
+The client catalogs all nine high-level commands, 108 S3 operations, seven
+paginators and four waiters from the pinned baseline. Generated inventories
+separately track implementation, independent wire evidence and provider
+acceptance; they do not claim exhaustive independent verification of every
+member/enum variant. Native commands retain the documented ESS grammar and
+[explicit mc differences](native-compatibility-dispositions.md).
 
-The user-approved dependency update selects coordinated HTTP 0.21.12, extends
-core's supported ranges, and requires `~> 0.21.12` for the standalone CLI.
-HTTP 0.21.12 resolves the earlier infinity/socket prerequisites and
-[#129](https://github.com/gsmlg-dev/http_fetch/issues/129)'s network-await
-policy. Actual native and AWS-zero adapter downloads cross a 65-second network
-gap with exact bytes and unchanged global settings. The initial isolated CLI
-suite passed **3,244 tests, zero failures and one resource exclusion**.
-The affected core/cluster/S3/web suites pass, and a fresh Linux x86_64
-Elixir 1.18.5/OTP 28 source-package/install/escript probe passes with exact raw
-bytes, native assets and standalone runtime checks. These local results are
-distinct from the historical remote matrix below.
+Published HTTP 0.21.13 resolves the former request-idle, slow-consumer ACK and
+upload-finalization blockers without dependency patches or VM-wide timeout
+changes. The current graph requires `~> 0.21.13` for the CLI; core's approved
+`~> 0.21.12` range already admits it.
 
-A distinct upstream acknowledgement deadline still fails during slow consumer
-pacing: a 512-byte download at 8 B/s delivers all bytes at 63 seconds, then
-returns a transport timeout. This release blocker is
-[#131](https://github.com/gsmlg-dev/http_fetch/issues/131); the repository includes
-a real-adapter diagnostic in `scripts/cli_compatibility/http_consumer_ack_reproducer.exs`.
-No VM-wide timeout change, early-ACK drain or dependency patch is used.
+Raw s3api SSE-C keys use the pinned base64/MD5 customizations, with explicit-MD5
+pairs preserved. Empty bucket-location responses decode to JSON null. STS role
+and web-identity credentials use the packaged partition/endpoint rules and
+regional signing; configured service endpoints remain independent of data
+`--endpoint-url`. Credential-process package probes require literal argv,
+bounded output and descendant cleanup using the installed escript modules on
+Linux and both macOS architectures.
 
-Remote full-suite checks of pushed source `600c8755` exposed a second blocker,
-[#132](https://github.com/gsmlg-dev/http_fetch/issues/132): a successful
-fixed-length response can kill the upload enumerable producer before its
-resource finalizer finishes. The CLI job failed two tests; the umbrella CLI
-suite failed its source-cleanup test. Its other app suites passed. The separate
-stalled-write fixture failure was reproduced under CPU contention and corrected
-by selecting SHA256, retaining the real socket deadline and cleanup assertions;
-12 scoped deadline tests pass. The upstream source-cleanup assertion remains
-unchanged and its failure independently reproduced; a larger assertion timeout
-cannot fix a killed producer.
-No file-descriptor leak or payload corruption is established by the missing
-cleanup notification alone. At that source, four-platform package, 2 GiB resource
-and provider-policy jobs passed, as did CI/E2E/cluster workflows; they do not
-close either blocker or turn the failed full suites into acceptance.
-See [HTTP evaluation](http-021-evaluation.md) and
-[integration validation](integration-validation.md) for the current evidence.
+The final local standalone suite passes 3,483 tests with zero failures and one
+resource exclusion; formatting, strict compilation and all 32 tooling tests pass.
+Committed-source platform/resource/provider checks and published-registry/
+artifact verification remain required before release. Exact
+results and immutable source mapping belong in
+[integration validation](integration-validation.md),
+[packaging evidence](packaging-platform-decisions.md) and
+[acceptance status](milestone-acceptance-status.md). Historical failed runs and
+HTTP 0.21.12 blockers are retained in those reports with their version scope.
 
-The later output/checksum fixes pass **3,271 local CLI tests, zero failures and
-one resource exclusion**, with complete formatting and strict compilation.
-All five package jobs pass at clean source `5826397`; downloaded manifests,
-native assets, source tar and escript bytes were independently verified.
-These artifacts still report 0.6.7 and remain unpublished. A separate evidence
-description correction at `5826397` preserves all test assertions and statuses.
-Its standalone CLI run passes 3,270 tests with zero failures and one resource
-exclusion, plus all eight jobs. The umbrella CLI again fails only the unchanged
-#132 cleanup assertion: 3,271 tests, one failure. Other app suites and separate
-CI/E2E/cluster workflows pass. These results do not close either HTTP blocker.
-
-Historical clean source 6816ee1 was pushed; its complete remote CLI
-suite passed 3,222 tests with zero failures and one resource exclusion. Formatting,
-strict compilation, four package jobs, 2 GiB resource acceptance and provider
-limitation-policy checks also pass. The umbrella job passed 3,223 CLI tests and
-its other app suites. The previously recorded completion/runtime-test failures
-are resolved. Deadline integration, remaining independent compatibility evidence,
-exact native differences, immutable release mapping and publication verification
-remain explicit release gates.
-
-The [provider report](provider-acceptance.md) preserves independent ESS 0.6.7
-and RustFS 1.0.1 failures. Live AWS account-specific infrastructure has not been
-validated. No public package, release tag or downloadable next-version artifact
-is implied by a successful local build.
+ESS and RustFS have explicitly recorded server limitations. Live AWS advanced
+identity, Outposts, Object Lambda, MRAP and directory-bucket infrastructure was
+not available; independent wire/cryptographic fixtures are labeled separately.
+No live-service success is inferred from a generated catalog or fixture pass.

@@ -145,6 +145,31 @@ sys.stdout.buffer.write(data)
         raise RuntimeError("Installed pager left native extraction or spool files")
 
 
+def check_installed_credential_process(installed, cwd, env, logs):
+    stdout = run([
+        "elixir", str(ROOT / "scripts/cli_compatibility/credential_process_probe.exs"),
+        str(installed), str(CLI / "test/ex_storage_service_cli/credentials/process_test.exs"),
+    ], cwd, env, logs, timeout=120)
+    prefix = "ESS_CREDENTIAL_PROCESS_PROBE="
+    records = [line[len(prefix):] for line in stdout.decode().splitlines() if line.startswith(prefix)]
+    if len(records) != 1:
+        raise RuntimeError("Installed credential process probe omitted its evidence")
+    evidence = json.loads(records[0])
+    required = {"literal-argv", "stderr-discard", "bounded-output", "child-group-isolation",
+                "timeout-descendant-cleanup", "owner-death-descendant-cleanup",
+                "overflow-descendant-cleanup"}
+    if (evidence.get("module_source") != "installed-escript" or
+            evidence.get("os") != platform.system().lower() or
+            evidence.get("total", 0) < 10 or evidence.get("failures") != 0 or
+            evidence.get("skipped") != 0 or evidence.get("excluded") != 0 or
+            set(evidence.get("checks", [])) != required):
+        raise RuntimeError("Installed credential process checks did not all pass")
+    diagnostics = stdout.decode() + logs[-1]["stderr"]
+    if any(secret in diagnostics for secret in ("stderr-secret", "private diagnostic")):
+        raise RuntimeError("Installed credential process leaked fixture diagnostics")
+    return evidence
+
+
 def extract_package(archive, destination):
     checksum, contents = read_package(archive)
     total = 0
@@ -296,6 +321,8 @@ def main():
         if not {"Bucket", "Key"} <= json.loads(skeleton).keys():
             raise RuntimeError("Installed model skeleton is incomplete")
 
+        credential_process = check_installed_credential_process(installed, unrelated, env, logs)
+
         server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), WireFixture)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
@@ -329,9 +356,11 @@ def main():
             "os": platform.system(), "architecture": platform.machine(),
             "runtime": run(["elixir", "--version"], unrelated, env, logs).decode().strip(),
             "package_source": args.package_url or (str(args.package) if args.package else "local-source-tar"),
+            "credential_process": credential_process,
             "checks": ["source-assets", "published-dependencies", "strict-compile", "escript-assets",
                        "local-install", "source-independent-runtime", "model-skeleton", "actual-http-unicode",
-                       "actual-http-binary-stdout", "hex-payload-integrity"],
+                       "actual-http-binary-stdout", "hex-payload-integrity",
+                       "installed-credential-process"],
         }
         if platform.system() == "Linux":
             manifest["checks"].append("installed-pager-pty")

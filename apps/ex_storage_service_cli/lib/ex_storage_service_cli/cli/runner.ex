@@ -143,13 +143,16 @@ defmodule ExStorageServiceCli.CLI.Runner do
             (Map.has_key?(invocation.options, :depth) or Map.has_key?(invocation.options, :files))) do
       high_level(invocation)
     else
-      if Map.has_key?(invocation.options, :output) or Map.has_key?(invocation.options, :limit),
-        do: listing(invocation),
-        else:
-          Runtime.with_invocation(
-            fn runtime -> legacy_execute(name, invocation, runtime) end,
-            Map.to_list(invocation.options)
-          )
+      if Enum.any?(
+           [:output, :limit, :incomplete, :summarize, :storage_class],
+           &Map.has_key?(invocation.options, &1)
+         ),
+         do: listing(invocation),
+         else:
+           Runtime.with_invocation(
+             fn runtime -> legacy_execute(name, invocation, runtime) end,
+             Map.to_list(invocation.options)
+           )
     end
   end
 
@@ -255,6 +258,22 @@ defmodule ExStorageServiceCli.CLI.Runner do
                    Error.new(:client, "Admin info requires a declared ESS server",
                      code: :provider_unsupported
                    )}
+
+            ["sql"] ->
+              with {:ok, data} <- NativeUtility.run(invocation, target, context) do
+                if ExStorageServiceCli.CLI.NativeSQL.stdout?(invocation) do
+                  if data["Partial"],
+                    do:
+                      IO.puts(
+                        :stderr,
+                        "SQL output is partial: queried #{data["QueriedObjects"]} of #{data["MatchedObjects"]} matching objects"
+                      )
+
+                  :ok
+                else
+                  present_native(data, invocation.options)
+                end
+              end
 
             ["presign"] ->
               with {:ok, data} <- NativeUtility.run(invocation, target, context) do

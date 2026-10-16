@@ -227,12 +227,22 @@ defmodule ExStorageServiceCli.CLI.AWSInput do
   defp take(_type, value, rest), do: {:ok, value, rest}
 
   defp decode_members(raw, operation, options, opts) do
+    operation_name = operation["name"]
+
     Enum.reduce_while(raw, {:ok, %{}}, fn {name, value}, {:ok, input} ->
       shape = model(members(operation)[name])
 
       case decode_value(value, shape, options, opts) do
-        {:ok, decoded} -> {:cont, {:ok, Map.put(input, name, decoded)}}
-        error -> {:halt, error}
+        {:ok, {:binary_file, bytes}}
+        when name in ~w(SSECustomerKey CopySourceSSECustomerKey) and
+               operation_name in ~w(HeadObject GetObject PutObject CopyObject CreateMultipartUpload UploadPart UploadPartCopy CompleteMultipartUpload) ->
+          {:cont, {:ok, Map.put(input, name, bytes)}}
+
+        {:ok, decoded} ->
+          {:cont, {:ok, Map.put(input, name, decoded)}}
+
+        error ->
+          {:halt, error}
       end
     end)
   end

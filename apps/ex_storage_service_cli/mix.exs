@@ -7,7 +7,7 @@ end
 defmodule ExStorageServiceCli.MixProject do
   use Mix.Project
 
-  @version "0.6.7"
+  @version "0.6.8"
   @source_url "https://github.com/gsmlg-opt/ex_storage_service"
 
   def project do
@@ -46,7 +46,7 @@ defmodule ExStorageServiceCli.MixProject do
 
   defp deps do
     [
-      {:http_fetch, "~> 0.21.12"},
+      {:http_fetch, "~> 0.21.13"},
       {:jason, "~> 1.4"},
       {:gsmlg_toml, "~> 1.0"},
       {:ex_doc, "~> 0.40", only: :dev, runtime: false}

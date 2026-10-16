@@ -101,9 +101,11 @@ defmodule ExStorageServiceCli.Credentials.Process do
   end
 
   defp runtime do
-    # Linux ERTS spawn_executable creates a process group owned by the port child.
+    # OTP 27/28's shared Unix erl_child_setup creates a child-owned process group
+    # before exec on Linux and Darwin. Their external kill accepts negative PGIDs.
     case {:os.type(), System.find_executable("sh"), System.find_executable("kill")} do
-      {{:unix, :linux}, shell, kill} when is_binary(shell) and is_binary(kill) ->
+      {{:unix, os}, shell, kill}
+      when os in [:linux, :darwin] and is_binary(shell) and is_binary(kill) ->
         {:ok, shell, kill}
 
       _ ->

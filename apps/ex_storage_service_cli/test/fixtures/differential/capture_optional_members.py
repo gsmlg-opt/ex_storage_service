@@ -214,6 +214,54 @@ def variants():
         source = next(case for case in cases if case["operation"] == operation)
         case = {**source, "scenario": "access-denied-metadata", "response": denied}
         cases.append(case)
+
+    add("GetObjectAttributes", "all-attributes-markers-two-parts", {
+        "Bucket": "bucket", "Key": "attributes/雪 % +?#/key", "VersionId": "version+/=雪",
+        "MaxParts": 2, "PartNumberMarker": 3,
+        "ObjectAttributes": ["ETag", "Checksum", "ObjectParts", "StorageClass", "ObjectSize"],
+        "RequestPayer": "requester", "ExpectedBucketOwner": "123456789012"},
+        response('<GetObjectAttributesOutput><ETag>attributes-etag</ETag>'
+                 '<Checksum><ChecksumCRC32>AAAAAA==</ChecksumCRC32><ChecksumSHA256>g3+lepvvra2cwHTwimUqhSh7/MAV+81hrTegVPmJQw8=</ChecksumSHA256><ChecksumType>COMPOSITE</ChecksumType></Checksum>'
+                 '<ObjectParts><PartsCount>6</PartsCount><PartNumberMarker>3</PartNumberMarker><NextPartNumberMarker>5</NextPartNumberMarker><MaxParts>2</MaxParts><IsTruncated>true</IsTruncated>'
+                 '<Part><PartNumber>4</PartNumber><Size>4</Size><ChecksumCRC32>AAAAAA==</ChecksumCRC32></Part>'
+                 '<Part><PartNumber>5</PartNumber><Size>5</Size><ChecksumSHA256>g3+lepvvra2cwHTwimUqhSh7/MAV+81hrTegVPmJQw8=</ChecksumSHA256></Part></ObjectParts>'
+                 '<StorageClass>STANDARD_IA</StorageClass><ObjectSize>9</ObjectSize></GetObjectAttributesOutput>',
+                 headers={"x-amz-delete-marker": "false", "last-modified": "Fri, 02 Jan 2026 03:04:05 GMT",
+                          "x-amz-version-id": "version+/=", "x-amz-request-charged": "requester"}))
+
+    inventory = {
+        "Destination": {"S3BucketDestination": {
+            "AccountId": "123456789013", "Bucket": "arn:aws:s3:::inventory-destination", "Format": "Parquet",
+            "Prefix": "reports/雪/", "Encryption": {"SSEKMS": {"KeyId": "arn:aws:kms:us-east-1:123456789013:key/fixture"}}}},
+        "IsEnabled": False, "Filter": {"Prefix": "incoming/雪 & more/"}, "Id": "inventory+ id",
+        "IncludedObjectVersions": "Current", "OptionalFields": ["Size", "LastModifiedDate", "ChecksumAlgorithm"],
+        "Schedule": {"Frequency": "Weekly"}}
+    inventory_wire = (
+        '<InventoryConfiguration><Destination><S3BucketDestination><AccountId>123456789013</AccountId>'
+        '<Bucket>arn:aws:s3:::inventory-destination</Bucket><Format>Parquet</Format><Prefix>reports/雪/</Prefix>'
+        '<Encryption><SSE-KMS><KeyId>arn:aws:kms:us-east-1:123456789013:key/fixture</KeyId></SSE-KMS></Encryption>'
+        '</S3BucketDestination></Destination><IsEnabled>false</IsEnabled><Filter><Prefix>incoming/雪 &amp; more/</Prefix></Filter>'
+        '<Id>inventory+ id</Id><IncludedObjectVersions>Current</IncludedObjectVersions>'
+        '<OptionalFields><Field>Size</Field><Field>LastModifiedDate</Field><Field>ChecksumAlgorithm</Field></OptionalFields>'
+        '<Schedule><Frequency>Weekly</Frequency></Schedule></InventoryConfiguration>')
+    tiering = {
+        "Id": "tiering+ id", "Filter": {"And": {"Prefix": "tier/雪/", "Tags": [
+            {"Key": "team", "Value": "storage & ops"}, {"Key": "empty", "Value": ""}]}},
+        "Status": "Enabled", "Tierings": [{"Days": 90, "AccessTier": "ARCHIVE_ACCESS"},
+                                            {"Days": 180, "AccessTier": "DEEP_ARCHIVE_ACCESS"}]}
+    tiering_wire = (
+        '<IntelligentTieringConfiguration><Id>tiering+ id</Id><Filter><And><Prefix>tier/雪/</Prefix>'
+        '<Tag><Key>team</Key><Value>storage &amp; ops</Value></Tag><Tag><Key>empty</Key><Value/></Tag>'
+        '</And></Filter><Status>Enabled</Status><Tiering><Days>90</Days><AccessTier>ARCHIVE_ACCESS</AccessTier></Tiering>'
+        '<Tiering><Days>180</Days><AccessTier>DEEP_ARCHIVE_ACCESS</AccessTier></Tiering></IntelligentTieringConfiguration>')
+    for suffix, field, document, wire in [
+            ("InventoryConfiguration", "InventoryConfiguration", inventory, inventory_wire),
+            ("IntelligentTieringConfiguration", "IntelligentTieringConfiguration", tiering, tiering_wire)]:
+        identity = {"Bucket": "bucket", "Id": document["Id"], "ExpectedBucketOwner": "123456789012"}
+        add("PutBucket" + suffix, "nested-filter-encryption-fields" if suffix == "InventoryConfiguration" else "and-filter-multiple-tiers",
+            {**identity, field: document}, response())
+        add("GetBucket" + suffix, "nested-filter-encryption-fields" if suffix == "InventoryConfiguration" else "and-filter-multiple-tiers",
+            identity, response(wire))
     return cases
 
 
@@ -226,7 +274,7 @@ def main():
     model = ROOT / "priv/compatibility/aws/service-2.json"
     report = {"schema_version": 1, "aws_sha256": AWS_SHA256,
               "model_sha256": hashlib.sha256(model.read_bytes()).hexdigest(),
-              "scope": "27 explicit representative operations; optional member variants, not exhaustive model coverage",
+              "scope": "32 explicit representative operations; optional member variants, not exhaustive model coverage",
               "cases": []}
     with tempfile.TemporaryDirectory(prefix="ess-optional-oracle-") as temporary:
         directory = Path(temporary)

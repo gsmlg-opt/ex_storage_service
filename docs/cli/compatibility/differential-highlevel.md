@@ -7,8 +7,8 @@ isolated configuration and fixture credentials. Explicit and environment S3
 endpoints both point to those peers: the pinned source client drops the explicit
 endpoint when `--source-region` is present. Inherited proxies are cleared.
 
-The committed `highlevel-wire.json` has 18 cases and 28 recorded exchanges,
-SHA256 `7b427935ed99cb50c8d8e04c99102599305edfb9c513e5fc336f0b9e818cf8f3`.
+The committed `highlevel-wire.json` has 42 cases and 67 recorded exchanges,
+SHA256 `30f94eebef01b1d71912bd7538d1704154eb830229b79c8d8756ffdc091643ac`.
 A second complete capture was byte-identical. It covers all nine commands:
 
 - `ls`: bucket filters and human-readable recursive summaries, including byte
@@ -20,6 +20,15 @@ A second complete capture was byte-identical. It covers all nine commands:
   checksums, binary download, and six single-copy property/directive variants.
 - `mv`: same-endpoint server copy with a different source region.
 - `sync`: an actual filtered local upload, excluding a second local file.
+- Archive selection: restored and un-restored Glacier downloads, copies and
+  moves; warning suppression, forced transfer and restored Deep Archive download.
+  Un-restored skips issue no GET, copy or delete. Confirmed restored sources
+  proceed using the HEAD `Restore` state.
+- SSE-C: upload, download and server copy with distinct binary `fileb://` keys,
+  source/destination customer-key and MD5 headers, including safety probes.
+- Sync comparison: equal-size older/newer timestamps in all three directions,
+  exact timestamps and size-only, protected exclusions, deletion and dry-run.
+  Download cases also compare final local bytes, mtimes and deletion state.
 
 `ExecutableHighlevelMatrixTest` builds a real escript and compares exit status,
 stdout/stderr, raw entity bytes, XML semantics and recorded request parameters.
@@ -27,6 +36,14 @@ The combined matrix, parser, high-level unit and copy suite passed **55 tests,
 zero failures**. Subsequent integration still requires the final complete CLI
 suite. Source-only audits and this representative matrix do not prove every
 flag, transfer direction, error, progress mode, or provider behavior.
+
+The archive expansion passed 40 related tests after four restored-source red
+regressions. The subsequent SSE-C/sync matrix passes **43 tests, zero failures**
+(seed 628644); it required no production correction. Both expanded AWS captures
+were independently repeated byte-identically, retaining the original 18 cases.
+Archive warning text remains an explicit difference: replay compares the warning
+outcome and skip status, while successful output and mutation sequences retain
+their exact comparisons.
 
 ## Repairs demonstrated by the oracle
 

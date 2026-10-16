@@ -7,6 +7,7 @@ defmodule ExStorageServiceCli.Transfer.Multipart do
     Engine,
     Journal,
     Planner,
+    PartGroup,
     Reducer,
     RemoteSource,
     Source,
@@ -23,7 +24,8 @@ defmodule ExStorageServiceCli.Transfer.Multipart do
       ) do
     root = root(opts)
 
-    with :ok <- Source.validate(source),
+    with :ok <- part_options(opts),
+         :ok <- Source.validate(source),
          {:ok, contract} <- select_checksum(context, opts),
          opts = Keyword.put(opts, :checksum_contract, contract),
          {:ok, id} <- Journal.create(root, record(context, bucket, key, source, plan, opts)) do
@@ -44,7 +46,8 @@ defmodule ExStorageServiceCli.Transfer.Multipart do
     root = root(opts)
 
     Journal.with_claim(root, id, fn claim ->
-      with {:ok, record} <- Journal.get(root, id),
+      with :ok <- part_options(opts),
+           {:ok, record} <- Journal.get(root, id),
            {:ok, contract} <- select_checksum(context, opts),
            opts = Keyword.put(opts, :checksum_contract, contract),
            {:ok, source} <- Source.restore(context, record["source"], opts),
@@ -136,43 +139,110 @@ defmodule ExStorageServiceCli.Transfer.Multipart do
   end
 
   defp parts(context, source, state, record, claim, opts) do
-    Enum.reduce_while(record["parts"], {:ok, state, record}, fn part, {:ok, state, record} ->
-      if part["status"] == "completed" do
-        {:cont, {:ok, state, record}}
-      else
-        result =
-          with {:ok, result, local_checksums} <- upload_part(context, source, part, record, opts),
-               tag when is_binary(tag) and tag != "" <- result["ETag"] do
-            updated =
-              Enum.map(record["parts"], fn current ->
-                if current["number"] == part["number"],
-                  do:
-                    current
-                    |> Map.put("status", "completed")
-                    |> Map.put("etag", tag)
-                    |> Map.put("checksums", local_checksums),
-                  else: current
-              end)
-
-            advance(
-              state,
-              {:part_completed, part["number"], tag},
-              Map.put(record, "parts", updated),
-              claim
-            )
-          else
-            {:error, _} = error -> error
-            _ -> failure(:invalid_part_result, "Multipart part response lacks an ETag")
-          end
-
-        case result do
-          {:ok, state, record} -> {:cont, {:ok, state, record}}
-          {:error, error, state, record} -> {:halt, {:error, error, state, record}}
-          {:error, error} -> {:halt, {:error, error, state, record}}
+    if (opts[:part_concurrency] || 1) > 1 do
+      concurrent_parts(context, source, state, record, claim, opts)
+    else
+      Enum.reduce_while(record["parts"], {:ok, state, record}, fn part, {:ok, state, record} ->
+        if part["status"] == "completed" do
+          {:cont, {:ok, state, record}}
+        else
+          upload_part(context, source, part, record, opts)
+          |> acknowledge_part(part, state, record, claim)
+          |> part_result()
         end
-      end
-    end)
+      end)
+    end
   end
+
+  defp part_options(opts) do
+    if is_integer(opts[:part_concurrency] || 1) and (opts[:part_concurrency] || 1) in 1..64,
+      do: :ok,
+      else: failure(:invalid_part_concurrency, "Part concurrency must be from 1 through 64")
+  end
+
+  defp concurrent_parts(context, source, state, record, claim, opts) do
+    with {:ok, group, supervisor, signal} <- PartGroup.start(opts[:signal], context.coordinator) do
+      try do
+        worker_opts = opts |> Keyword.put(:part_group, group) |> Keyword.put(:signal, signal)
+
+        record["parts"]
+        |> Stream.reject(&(&1["status"] == "completed"))
+        |> then(fn parts ->
+          Task.Supervisor.async_stream_nolink(
+            supervisor,
+            parts,
+            fn part ->
+              {part, upload_part(context, source, part, record, worker_opts)}
+            end,
+            ordered: false,
+            max_concurrency: opts[:part_concurrency],
+            timeout: :infinity
+          )
+        end)
+        |> Enum.reduce_while({:ok, state, record}, fn result, {:ok, state, record} ->
+          result =
+            case result do
+              {:ok, {part, result}} ->
+                acknowledge_part(result, part, state, record, claim)
+
+              {:exit, _} ->
+                error =
+                  PartGroup.reason(group) ||
+                    Error.new(:client, "Multipart part worker failed", code: :part_worker_failed)
+
+                {:error, error, state, record}
+            end
+
+          if match?({:error, _, _, _}, result), do: PartGroup.cancel(group)
+          part_result(result)
+        end)
+      after
+        PartGroup.close(group)
+      end
+    else
+      {:error, _} ->
+        {:error,
+         Error.new(:client, "Multipart workers could not start", code: :part_worker_failed),
+         state, record}
+    end
+  catch
+    :exit, _ ->
+      {:error, Error.new(:client, "Multipart worker group ended", code: :part_worker_failed),
+       state, record}
+  end
+
+  # Only the journal claimant acknowledges results and advances its fence.
+  defp acknowledge_part({:ok, result, checksums}, part, state, record, claim) do
+    case result["ETag"] do
+      tag when is_binary(tag) and tag != "" ->
+        updated =
+          Enum.map(record["parts"], fn current ->
+            if current["number"] == part["number"],
+              do:
+                current
+                |> Map.put("status", "completed")
+                |> Map.put("etag", tag)
+                |> Map.put("checksums", checksums),
+              else: current
+          end)
+
+        advance(
+          state,
+          {:part_completed, part["number"], tag},
+          Map.put(record, "parts", updated),
+          claim
+        )
+
+      _ ->
+        {:error,
+         Error.new(:client, "Multipart part response lacks an ETag", code: :invalid_part_result),
+         state, record}
+    end
+  end
+
+  defp acknowledge_part({:error, error}, _, state, record, _), do: {:error, error, state, record}
+  defp part_result({:ok, _, _} = result), do: {:cont, result}
+  defp part_result({:error, _, _, _} = result), do: {:halt, result}
 
   defp upload_part(context, source, part, record, opts) do
     if opts[:copy] == true and is_struct(source, RemoteSource) do
@@ -273,7 +343,7 @@ defmodule ExStorageServiceCli.Transfer.Multipart do
   end
 
   defp verify(context, state, record, claim, opts) do
-    head = input("HeadObject", record, opts)
+    head = input("HeadObject", record, opts) |> Map.delete("IfNoneMatch")
 
     head =
       if record["completion"]["version_id"],
@@ -285,7 +355,9 @@ defmodule ExStorageServiceCli.Transfer.Multipart do
          {:ok, result} <- Client.call(context, "HeadObject", head, opts),
          true <-
            result["ContentLength"] == record["source"]["length"] and
-             tag(result["ETag"]) == tag(record["completion"]["etag"]),
+             tag(result["ETag"]) == tag(record["completion"]["etag"]) and
+             (record["completion"]["version_id"] == nil or
+                result["VersionId"] == record["completion"]["version_id"]),
          {:ok, _} <- UploadChecksum.verify(expected_checksums, result),
          {:ok, _state, record} <- advance(state, :verified, record, claim) do
       success(record, result)
@@ -430,7 +502,7 @@ defmodule ExStorageServiceCli.Transfer.Multipart do
            context,
            "AbortMultipartUpload",
            input("AbortMultipartUpload", record, opts),
-           opts
+           Keyword.drop(opts, [:signal, :part_group])
          ) do
       {:ok, _} ->
         case persist(record, claim, %{

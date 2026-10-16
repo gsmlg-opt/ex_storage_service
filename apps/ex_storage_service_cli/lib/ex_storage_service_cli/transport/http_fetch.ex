@@ -1,7 +1,7 @@
 defmodule ExStorageServiceCli.Transport.HTTPFetch do
   @moduledoc "Owned raw-byte HTTP streams, acknowledged reads and bounded control bodies."
   alias ExStorageServiceCli.{Error, S3.Request, S3.Response}
-  alias ExStorageServiceCli.Transfer.{Coordinator, RateLimiter}
+  alias ExStorageServiceCli.Transfer.{Coordinator, PartGroup, RateLimiter}
   alias ExStorageServiceCli.Transport.Cancellation
 
   def request(url, %Request{} = request, opts \\ []) do
@@ -9,7 +9,8 @@ defmodule ExStorageServiceCli.Transport.HTTPFetch do
          {:ok, opts} <- rate_options(url, opts),
          {:ok, cancellation, controller} <-
            Cancellation.start(self(), opts[:signal], request.lease) do
-      case Coordinator.track(request.lease, controller) do
+      case with :ok <- PartGroup.register(opts[:part_group], cancellation),
+                do: Coordinator.track(request.lease, controller) do
         :ok ->
           perform(url, request, cancellation, controller, opts)
 
@@ -116,6 +117,7 @@ defmodule ExStorageServiceCli.Transport.HTTPFetch do
       decode_body: false,
       stream_response: true,
       response_stream_idle_timeout: :infinity,
+      response_stream_ack_timeout: :infinity,
       timeout: opts[:timeout] || 60_000,
       connect_timeout: opts[:connect_timeout] || 60_000,
       read_idle_timeout: opts[:read_idle_timeout],
@@ -185,8 +187,6 @@ defmodule ExStorageServiceCli.Transport.HTTPFetch do
   end
 
   defp consume_owned(response, initial, reducer, opts) do
-    # TODO(upstream): gsmlg-dev/http_fetch#131
-    # Slow paced delivery still inherits the dependency's global acknowledgement deadline.
     reducer = fn bytes, state ->
       RateLimiter.reduce(bytes, response.rate_limit, state, reducer)
     end

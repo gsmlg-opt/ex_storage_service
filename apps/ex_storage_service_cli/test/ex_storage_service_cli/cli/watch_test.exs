@@ -1,7 +1,7 @@
 defmodule ExStorageServiceCli.CLI.WatchTest do
   use ExUnit.Case, async: true
   alias ExStorageServiceCli.{Context, Error, Target}
-  alias ExStorageServiceCli.CLI.{Invocation, Watch}
+  alias ExStorageServiceCli.CLI.{Invocation, Parser, Watch}
   alias ExStorageServiceCli.Transfer.{Coordinator, Manifest}
 
   @moduletag :tmp_dir
@@ -13,7 +13,15 @@ defmodule ExStorageServiceCli.CLI.WatchTest do
           {%{adapter: "polling", interval: 0}, :watch_interval},
           {%{adapter: "polling", interval: 3601}, :watch_interval},
           {%{adapter: "polling", count: -1}, :watch_count},
-          {%{adapter: "polling", count: "1"}, :watch_count}
+          {%{adapter: "polling", count: "1"}, :watch_count},
+          {%{adapter: "polling", events: "get"}, :watch_events},
+          {%{adapter: "polling", events: "put,get"}, :watch_events},
+          {%{adapter: "polling", events: "put,"}, :watch_events},
+          {%{adapter: "polling", events: ""}, :watch_events},
+          {%{adapter: "polling", events: 1}, :watch_events},
+          {%{adapter: "polling", prefix: 1}, :watch_selection},
+          {%{adapter: "polling", suffix: 1}, :watch_selection},
+          {%{adapter: "polling", recursive: "true"}, :watch_selection}
         ] do
       assert {:error, %Error{code: ^code}} =
                Watch.run(%Invocation{options: options}, target(), nil,
@@ -23,6 +31,146 @@ defmodule ExStorageServiceCli.CLI.WatchTest do
 
     assert {:error, %Error{code: :watch_target}} =
              Watch.run(invocation(), %Target{kind: :stdio}, nil)
+  end
+
+  test "native watch parses event and name selectors independently of the polling source" do
+    assert {:ok,
+            %Invocation{
+              options: %{
+                adapter: "polling",
+                events: "put,delete",
+                prefix: "a",
+                suffix: ".bin",
+                recursive: false
+              }
+            }} =
+             Parser.parse([
+               "watch",
+               "./source",
+               "--adapter",
+               "polling",
+               "--events",
+               "put,delete",
+               "--prefix",
+               "a",
+               "--suffix",
+               ".bin",
+               "--no-recursive"
+             ])
+  end
+
+  test "put selection filters output after complete scans and retains reconciliation", %{
+    tmp_dir: root
+  } do
+    inventory =
+      sequence(
+        [
+          [entry("a-modified.bin"), entry("a-removed.bin")],
+          [
+            entry("a-modified.bin", 2),
+            entry("a-created.bin"),
+            entry("a-nested/hidden.bin"),
+            entry("a-other.txt"),
+            entry("other.bin")
+          ]
+        ],
+        root,
+        fn _, number -> send(self(), {:scan_complete, number}) end
+      )
+
+    assert :ok =
+             Watch.run(
+               invocation(events: "put", prefix: "a-", suffix: ".bin", recursive: false),
+               target(),
+               nil,
+               inventory: inventory,
+               sleep: fn _ -> :ok end,
+               emit: fn event ->
+                 assert_received {:scan_complete, 2}
+                 send(self(), {:scan_complete, 2})
+                 send(self(), {:event, event})
+                 :ok
+               end,
+               on_reconcile: fn ->
+                 send(self(), :reconcile)
+                 :ok
+               end
+             )
+
+    assert_received {:event, %{"Event" => "create", "Name" => "a-created.bin"}}
+    assert_received {:event, %{"Event" => "modify", "Name" => "a-modified.bin"}}
+    refute_received {:event, _}
+    assert_received :reconcile
+    assert_received :reconcile
+    assert File.ls!(root) == []
+  end
+
+  test "delete selection includes nested names only with recursive selection", %{tmp_dir: root} do
+    for recursive <- [false, true] do
+      assert :ok =
+               Watch.run(
+                 invocation(
+                   events: "delete",
+                   prefix: "logs",
+                   suffix: ".bin",
+                   recursive: recursive
+                 ),
+                 target(),
+                 nil,
+                 inventory:
+                   sequence(
+                     [[entry("logs.bin"), entry("logs/deep/gone.bin"), entry("other.bin")], []],
+                     root
+                   ),
+                 sleep: fn _ -> :ok end,
+                 emit: fn event ->
+                   send(self(), {:event, event})
+                   :ok
+                 end
+               )
+
+      assert_received {:event, %{"Event" => "remove", "Name" => "logs.bin"}}
+
+      if recursive,
+        do: assert_received({:event, %{"Event" => "remove", "Name" => "logs/deep/gone.bin"}}),
+        else: refute_received({:event, %{"Name" => "logs/deep/gone.bin"}})
+
+      refute_received {:event, _}
+      assert File.ls!(root) == []
+    end
+  end
+
+  test "real local inventories retain nested changes while output recursion is disabled", %{
+    tmp_dir: root
+  } do
+    source = Path.join(root, "source")
+    temporary = Path.join(root, "temporary")
+    File.mkdir_p!(Path.join(source, "nested"))
+    File.mkdir!(temporary)
+    reconciliations = :atomics.new(1, signed: false)
+
+    assert :ok =
+             Watch.run(invocation(recursive: false), %Target{kind: :local, path: source}, nil,
+               tmp_dir: temporary,
+               sleep: fn _ -> :ok end,
+               on_reconcile: fn ->
+                 if :atomics.add_get(reconciliations, 1, 1) == 1 do
+                   File.write!(Path.join(source, "visible.bin"), "visible")
+                   File.write!(Path.join(source, "nested/hidden.bin"), "hidden")
+                 end
+
+                 :ok
+               end,
+               emit: fn event ->
+                 send(self(), {:event, event})
+                 :ok
+               end
+             )
+
+    assert_received {:event, %{"Event" => "create", "Name" => "visible.bin"}}
+    refute_received {:event, _}
+    assert :atomics.get(reconciliations, 1) == 2
+    assert File.ls!(temporary) == []
   end
 
   test "baseline emits nothing; completed scans stream sorted creates, removals and modifications",

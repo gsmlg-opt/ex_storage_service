@@ -313,6 +313,35 @@ def main():
                 report["cases"].append(case)
                 print(name, case["scenario"], "aws=" + str(case["aws"].get("status", "timeout")), "ess=" + str(case.get("initial_ess", {}).get("status", "not-run")), "requests=" + str(len(case["aws"]["requests"])), flush=True)
                 args.output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
+            if name == "RenameObject":
+                success = response_for(model, operation, False)
+                transient_body = b"<Error><Code>SlowDown</Code><Message>Retry fixture</Message></Error>"
+                transient = {"status": 503, "headers": {"content-type": "application/xml"}, "body_base64": base64.b64encode(transient_body).decode()}
+                for generated, retry in [(True, False), (True, True), (False, True)]:
+                    selected = dict(document)
+                    if generated:
+                        selected.pop("ClientToken")
+                    selected_command = ["s3api", cli_name, "--cli-input-json", json.dumps(selected, ensure_ascii=False)]
+                    responses = [transient, success] if retry else [success]
+                    response = lambda _request, index: responses[min(index - 1, len(responses) - 1)]
+                    environment = {"AWS_MAX_ATTEMPTS": "2" if retry else "1", "AWS_RETRY_MODE": "standard"}
+                    selected_env = dict(env, **environment)
+                    scenario = ("retry-" if retry else "") + ("omitted-client-token" if generated else "explicit-client-token")
+                    case = {"operation": name, "scenario": scenario, "args": selected_command, "response": success,
+                        "responses": responses, "environment": environment, "generated_client_token": generated,
+                        "aws": run(args.aws, selected_command, response, selected_env, directory)}
+                    if args.ess:
+                        case["initial_ess"] = run(args.ess, selected_command, response, selected_env, directory, ess=True)
+                    tokens = [request["headers"].get("x-amz-client-token") for request in case["aws"]["requests"]]
+                    assert len(tokens) == len(responses) and len(set(tokens)) == 1, tokens
+                    if generated:
+                        assert re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}", tokens[0]), tokens
+                    else:
+                        assert tokens[0] == selected["ClientToken"]
+                    assert case["aws"]["status"] == 0 and not case["aws"]["peer_errors"], case["aws"]
+                    report["cases"].append(case)
+                    print(name, scenario, "aws=" + str(case["aws"]["status"]), "requests=" + str(len(tokens)), flush=True)
+                    args.output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
             if args.extra_list_encoding and name in ("ListObjects", "ListObjectsV2", "ListObjectVersions"):
                 fields = '<Name>bucket</Name><IsTruncated>false</IsTruncated><EncodingType>url</EncodingType><Prefix>prefix%252F%2B%2F%E9%9B%AA</Prefix><Delimiter>%2F</Delimiter><CommonPrefixes><Prefix>common%252F%2B%2F</Prefix></CommonPrefixes>'
                 key = '<Key>key%252F%2B%20%E9%9B%AA</Key><LastModified>2026-01-02T03:04:05Z</LastModified>'

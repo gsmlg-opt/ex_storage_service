@@ -3,8 +3,11 @@ defmodule ExStorageServiceCli.Credentials.AssumeRole do
   alias ExStorageServiceCli.{Context, SigV4}
   alias ExStorageServiceCli.Credentials.{Metadata, Provider, Record, Remote}
   alias ExStorageServiceCli.Credentials.Process, as: CredentialProcess
-  alias ExStorageServiceCli.S3.XML
+  alias ExStorageServiceCli.S3.{EndpointRules.Evaluator, XML}
   alias ExStorageServiceCli.CLI.Signals.Native
+  @sts_path Path.expand("../../../priv/compatibility/aws/sts-endpoint-rule-set-1.json", __DIR__)
+  @external_resource @sts_path
+  @sts @sts_path |> File.read!() |> JSON.decode!()
 
   def role(config, stores, profile, env, opts) do
     with {:ok, source} <- source(config, stores, profile, env, opts),
@@ -102,28 +105,93 @@ defmodule ExStorageServiceCli.Credentials.AssumeRole do
     end
   end
 
-  defp request(parameters, source, config, env, provider, opts) do
+  @doc false
+  def endpoint(config, env, opts) do
     region =
       opts[:region] || env["AWS_REGION"] || env["AWS_DEFAULT_REGION"] || config["region"] ||
         "us-east-1"
 
-    regional = env["AWS_STS_REGIONAL_ENDPOINTS"] || config["sts_regional_endpoints"] || "legacy"
+    mode = env["AWS_STS_REGIONAL_ENDPOINTS"] || config["sts_regional_endpoints"] || "regional"
 
-    partition =
-      if String.starts_with?(region, "cn-"), do: "amazonaws.com.cn", else: "amazonaws.com"
+    with true <- mode in ["legacy", "regional"],
+         {:ok, custom} <- configured_endpoint(config, env, opts),
+         parameters = %{
+           "Region" => region,
+           "Endpoint" => custom,
+           "UseGlobalEndpoint" => mode == "legacy",
+           "UseFIPS" =>
+             custom == nil and
+               boolean(env["AWS_USE_FIPS_ENDPOINT"] || config["use_fips_endpoint"]),
+           "UseDualStack" =>
+             custom == nil and
+               boolean(env["AWS_USE_DUALSTACK_ENDPOINT"] || config["use_dualstack_endpoint"])
+         },
+         {:ok, result} <- Evaluator.evaluate(parameters, @sts) do
+      auth = List.first(result.properties["authSchemes"] || []) || %{}
+      {:ok, %{endpoint: result.url, signing_region: auth["signingRegion"] || region}}
+    else
+      _ -> Remote.failure(:invalid_role_config)
+    end
+  end
 
-    regional? = regional == "regional" or String.starts_with?(region, ["cn-", "us-gov-"])
+  defp configured_endpoint(config, env, opts) do
+    cond do
+      nonempty?(opts[:sts_endpoint]) ->
+        {:ok, opts[:sts_endpoint]}
 
-    endpoint =
-      opts[:sts_endpoint] || env["AWS_ENDPOINT_URL_STS"] ||
-        if(regional?, do: "https://sts.#{region}.#{partition}", else: "https://sts.amazonaws.com")
+      boolean(
+        env["AWS_IGNORE_CONFIGURED_ENDPOINT_URLS"] || config["ignore_configured_endpoint_urls"]
+      ) ->
+        {:ok, nil}
 
-    signing_region =
-      if regional? or opts[:sts_endpoint] != nil or env["AWS_ENDPOINT_URL_STS"] != nil,
-        do: region,
-        else: "us-east-1"
+      nonempty?(env["AWS_ENDPOINT_URL_STS"]) ->
+        {:ok, env["AWS_ENDPOINT_URL_STS"]}
 
-    with :ok <- Context.validate_endpoint(endpoint),
+      nonempty?(env["AWS_ENDPOINT_URL"]) ->
+        {:ok, env["AWS_ENDPOINT_URL"]}
+
+      config["services"] ->
+        sections = opts[:credential_sections] || %{}
+
+        case sections["services " <> config["services"]] do
+          section when is_map(section) ->
+            case section["sts"] do
+              nil -> profile_endpoint(config)
+              service when is_map(service) -> service_endpoint(service, config)
+              _ -> Remote.failure(:invalid_role_config)
+            end
+
+          _ ->
+            Remote.failure(:invalid_role_config)
+        end
+
+      true ->
+        profile_endpoint(config)
+    end
+  end
+
+  defp service_endpoint(service, config) do
+    if service["endpoint_url"] in [nil, ""],
+      do: profile_endpoint(config),
+      else: profile_endpoint(service)
+  end
+
+  defp profile_endpoint(config) do
+    case config["endpoint_url"] do
+      value when value in [nil, ""] -> {:ok, nil}
+      value when is_binary(value) -> {:ok, value}
+      _ -> Remote.failure(:invalid_role_config)
+    end
+  end
+
+  defp nonempty?(value), do: is_binary(value) and value != ""
+  defp boolean(value) when is_binary(value), do: String.downcase(value) == "true"
+  defp boolean(value), do: value == true
+
+  defp request(parameters, source, config, env, provider, opts) do
+    with {:ok, %{endpoint: endpoint, signing_region: signing_region}} <-
+           endpoint(config, env, opts),
+         :ok <- Context.validate_endpoint(endpoint),
          true <- URI.parse(endpoint).scheme == "https" or opts[:sts_endpoint] != nil,
          true <- Enum.all?(parameters, fn {_key, value} -> is_binary(value) end) do
       body = URI.encode_query(parameters)

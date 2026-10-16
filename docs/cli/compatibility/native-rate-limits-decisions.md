@@ -66,15 +66,18 @@ remove waiting reservations without borrowing future credit. The upload proxy
 owns its worker and wrapper stream and stops them when its request owner exits.
 Existing transport cancellation owns the original upload/response stream.
 Application entity-byte pacing remains distinct from socket inactivity. The
-approved working-copy integration now uses published HTTP 0.21.12, independent
+working-copy integration now uses published HTTP 0.21.13, independent
 native read/write inactivity defaults of ten minutes, request infinity and an
-infinite response-stream idle policy. The older #123/#126 limitations of the
+infinite response-stream idle and consumer-acknowledgement policies. The older #123/#126 limitations of the
 0.18 line and #129 network-await limit of 0.21.11 no longer block that selected
-graph. These changes do not extend consumer acknowledgement deadlines.
+graph. The new per-request ACK policy also covers bounded slow sink delivery
+without changing the global timer or acknowledging before delivery. See the
+[current HTTP evaluation](http-021-evaluation.md) for provenance, real 63-second
+pacing, concurrent policy isolation and cancellation/deadline acceptance.
 
-## Current slow-delivery release blocker
+## Historical 0.21.12 slow-delivery release blocker
 
-[http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131) is an open
+[http_fetch#131](https://github.com/gsmlg-dev/http_fetch/issues/131) was a
 Feature/internal-request blocker for the paced-transfer contract and M9 release.
 Published 0.21.12 preserves a global 60,000 ms limit both for an outstanding
 consumer ACK in `HTTP.Stream` and for the socket client's wait for chunk
@@ -120,7 +123,7 @@ correct `endpoint_url` context option. No production workaround was introduced
 by that slice; the later long-delivery probe above exposed the separate upstream
 ACK limit.
 
-The current 0.21.12 combined CLI suite passed **3,244 tests, zero failures and
+The historical 0.21.12 combined CLI suite passed **3,244 tests, zero failures and
 one resource exclusion** (seed 628644, 272.2 seconds); all four affected-app
 suites also passed with zero failures. Logs are
 `/tmp/ess-cli-http02112-coordinated-20261016/{cli-full,affected-apps}.log`.

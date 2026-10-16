@@ -85,9 +85,10 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
   to preserve Content-Encoding object bytes. Do not buffer blobs, rewrite
   headers, or re-compress objects to replace bounded raw-byte transfers.
   Core package constraints support the 0.17 series from 0.17.2, 0.18.x and
-  0.21.x from 0.21.12. The CLI requires `~> 0.21.12` for true infinity,
-  socket inactivity and request-scoped response-stream policies. The umbrella
-  lock uses the coordinated 0.21.12 family.
+  0.21.x from 0.21.12. The CLI requires `~> 0.21.13` for true infinity,
+  socket inactivity, request-scoped response-stream policies and completed
+  fixed-length upload finalization. The umbrella lock uses the coordinated
+  0.21.13 family.
 - Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
 
 ### File Organization
@@ -224,15 +225,16 @@ The codebase is structured as an umbrella project with five apps:
   that direction. Duration values must resolve exactly to whole milliseconds
   within the published transport limit. AWS read timeout is socket inactivity,
   with a 60-second default and zero disabling it; connect timeout is independent.
-  Whole-request limits never substitute for either socket deadline. HTTP 0.21.12
-  fixes `gsmlg-dev/http_fetch#129` using a per-request response-stream policy.
-  Consumer acknowledgement still has a global 60-second cap: bounded slow
-  pacing is release-blocked by `gsmlg-dev/http_fetch#131`. Do not mutate VM-wide
-  configuration, remove backpressure or patch dependencies as a workaround.
-  Successful fixed-length upload responses can also preempt enumerable resource
-  finalization (`gsmlg-dev/http_fetch#132`). Keep the source-cleanup assertion;
-  do not weaken it or patch the dependency to publish. Both blockers require a
-  supported published fix and independent acceptance.
+  Whole-request limits never substitute for either socket deadline. HTTP 0.21.13
+  supplies request-scoped network-idle and consumer-acknowledgement policies.
+  Ordinary HTTP/1 responses use `response_stream_idle_timeout: :infinity` and
+  `response_stream_ack_timeout: :infinity`; acknowledge only after bounded sink
+  delivery. Socket inactivity, explicit total deadlines, cancellation and reader
+  ownership remain independent. Do not mutate VM-wide configuration, remove
+  backpressure or patch dependencies. The published fixes for
+  `gsmlg-dev/http_fetch#131` and `#132` require retained paced-delivery and source
+  finalization regressions; forced cancellation does not promise that an
+  interrupted finalizer completed.
 - AWS namespaces independently resolve AWS shared profiles. Document and test
   `AWS_DEFAULT_OUTPUT`, `AWS_RETRY_MODE` (`standard` default or `adaptive`),
   `AWS_MAX_ATTEMPTS` (total attempts, default 3), `AWS_USE_FIPS_ENDPOINT`,
@@ -243,6 +245,10 @@ The codebase is structured as an umbrella project with five apps:
   `AWS_CLI_S3_MV_VALIDATE_SAME_S3_PATHS=true` environment value. Its bounded
   access-point preflight uses separate `AWS_ENDPOINT_URL_S3_CONTROL` and
   `AWS_ENDPOINT_URL_STS` endpoints; never forward the data `--endpoint-url`.
+  Role/web-identity credentials independently resolve STS endpoints with the same
+  configured-endpoint ignore policy. `AWS_STS_REGIONAL_ENDPOINTS` is a retained ESS
+  extension: `regional` default or explicit `legacy`, constrained by pinned
+  partition rules; selected-profile `sts_regional_endpoints` is the fallback.
   Respect `AWS_IGNORE_CONFIGURED_ENDPOINT_URLS` and applicable
   `AWS_S3_USE_ARN_REGION` policy. These helper reads do not add a public STS or
   S3 Control CLI namespace.

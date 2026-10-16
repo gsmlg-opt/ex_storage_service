@@ -8,10 +8,12 @@ defmodule ExStorageServiceCli.Transfer.Planner do
   def plan(size, limits, opts \\ []) do
     with :ok <- limits_valid(limits),
          :ok <- size_valid(size, limits),
-         :ok <- options_valid(opts) do
+         :ok <- options_valid(opts),
+         :ok <- single_put_valid(size, limits, opts) do
       multipart? =
-        size > value(limits, :max_single_put_bytes) or opts[:force_multipart] == true or
-          (is_integer(opts[:multipart_threshold]) and size >= opts[:multipart_threshold])
+        opts[:disable_multipart] != true and
+          (size > value(limits, :max_single_put_bytes) or opts[:force_multipart] == true or
+             (is_integer(opts[:multipart_threshold]) and size >= opts[:multipart_threshold]))
 
       if size == 0 or not multipart? do
         {:ok,
@@ -28,6 +30,16 @@ defmodule ExStorageServiceCli.Transfer.Planner do
     end
   end
 
+  defp single_put_valid(size, limits, opts) do
+    if opts[:disable_multipart] == true and size > value(limits, :max_single_put_bytes),
+      do:
+        failure(
+          :single_put_limit,
+          "Multipart is disabled and the object exceeds the provider single PUT limit"
+        ),
+      else: :ok
+  end
+
   defp multipart(size, limits, opts) do
     min_part = value(limits, :min_nonfinal_part_bytes)
     max_part = value(limits, :max_part_bytes)
@@ -35,7 +47,7 @@ defmodule ExStorageServiceCli.Transfer.Planner do
     requested = opts[:part_size] || min_part
     part_size = max(max(min_part, requested), ceil_div(size, max_count))
 
-    if part_size > max_part do
+    if part_size > max_part or (opts[:strict_part_size] == true and part_size != requested) do
       failure(:multipart_limit, "Transfer exceeds the selected provider multipart limits")
     else
       count = ceil_div(size, part_size)

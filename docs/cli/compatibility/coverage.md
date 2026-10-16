@@ -6,14 +6,14 @@ This is an exhaustive reference ledger, not a compatibility claim. Client implem
 
 | Reference | Command/operation count | Requirement rows | Status counts |
 | --- | ---: | ---: | --- |
-| mc-commands.json | 307 | 5302 | implemented-unverified: 1044, out-of-scope-separate-service: 3533, planned: 725 |
+| mc-commands.json | 307 | 5302 | implemented-unverified: 1073, out-of-scope-separate-service: 3533, planned: 696 |
 | aws-s3-commands.json | 9 | 271 | implemented-unverified: 271 |
 | aws-s3api-operations.json | 108 | 7420 | implemented-unverified: 7420 |
 
 - S3 API shapes: 670; paginators: 7; waiters: 4.
 - All input/output structure members, list/map variants, enum variants, modeled traits, and endpoint/auth parameters are included. SDK-extra overlays are merged.
 - AWS high-level namespace includes `website`: this pinned version contains nine commands.
-- Explicit evidence annotations: client: 8761, wire: 1111, provider: 0 requirement rows. An annotation describes its stated scope; it is not automatically a passing result.
+- Explicit evidence annotations: client: 8790, wire: 1173, provider: 0 requirement rows. An annotation describes its stated scope; it is not automatically a passing result.
 - Implementation annotations come from `implementation-evidence.json`. Shared model/grammar support is `implemented-unverified` until the full row contract has independent evidence; no operation inherits verification from a wrapper or member.
 - See `milestone-acceptance-status.md` for acceptance gaps and `mc-native-gap-checklist.md` for exact native grammar/flag differences. Provider evidence remains separate from client implementation.
 - Existing baseline and scoped validation results are recorded in the corresponding decision reports; historical baseline reports are not final integration results.

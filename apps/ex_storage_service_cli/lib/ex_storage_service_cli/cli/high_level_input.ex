@@ -46,6 +46,16 @@ defmodule ExStorageServiceCli.CLI.HighLevelInput do
         parsed.input |> Map.drop(["Bucket", "Key"]) |> Map.merge(customer) |> Map.merge(grants)
 
       input =
+        if options[:if_not_exists] == true,
+          do: Map.put(input, "IfNoneMatch", "*"),
+          else: input
+
+      input =
+        if options[:bypass_governance_retention] == true,
+          do: Map.put(input, "BypassGovernanceRetention", true),
+          else: input
+
+      input =
         if options[:checksum_mode],
           do: Map.put(input, "ChecksumMode", options[:checksum_mode]),
           else: input
