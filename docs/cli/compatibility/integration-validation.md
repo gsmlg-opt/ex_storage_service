@@ -507,3 +507,23 @@ required before resuming publication. All five source-8f2f863 packages also
 pass independent source/native/model/hash inspection at
 `/tmp/ess-cli-ci-8f2f863/verified-packages.json`; their success does not erase
 the failed test job.
+
+## Corrected 0.6.8 acceptance and verified publication
+
+Source `515207e8c4063f689e499d999cf408e7f4c40ce1` passes all eight jobs in
+[CLI run 38899567013](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38899567013):
+**3,483 tests, zero failures, one resource exclusion**, 452.6 seconds, all 32
+tooling tests, five package/runtime combinations, separate 2 GiB resources and
+the unchanged provider-limitation policy. [Umbrella run 38899566818](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38899566818)
+passes **3,484 CLI tests/zero failures** plus all other application suites.
+This completes the corrected full-run gate without erasing the failures above.
+
+[CLI-only publishing run 38900749007](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38900749007)
+passes another **3,484 tests/zero failures**, 437.3 seconds, and publishes
+[CLI v0.6.8](https://github.com/gsmlg-opt/ex_storage_service/releases/tag/cli-v0.6.8)
+from that complete source SHA. Anonymous Hex/GitHub/docs verification and a
+separate fresh public consumer pass. The [release verification report](release-verification.md)
+records exact hashes, the public tar's 789 Git-matching files and two independently
+reproduced generated outputs, actual macOS 26 runner images, measured resources,
+source/tag mapping and retained provider/live-AWS boundaries. The prepared
+acceptance report shipped in release assets remains its historical snapshot.

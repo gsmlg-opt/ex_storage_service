@@ -250,3 +250,23 @@ match. Native browser/pager acceptance remains Linux-only. The downloaded
 Linux Elixir 1.18.5/OTP 28 escript independently runs from `/tmp` and reports
 `ess version 0.6.8`. These are pre-publication source artifacts; public-registry
 verification remains a separate release step.
+
+## Released 0.6.8 package and public runtime verification
+
+The corrected source `515207e8c4063f689e499d999cf408e7f4c40ce1` passes all five
+package jobs in [run 38899567013](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38899567013).
+Both macOS jobs run actual macOS 26: `macos-26` is arm64 on 26.6.2/image
+`macos-26-arm64` `20261013.0424.1`; `macos-26-intel` is x86_64 on 26.6.1/image
+`macos-26` `20260824.0517.1`. Every installed artifact passes all ten
+credential-process tests with no failures/skips/exclusions.
+
+[CLI-only run 38900749007](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38900749007)
+publishes version 0.6.8 and its source-tagged Linux x86_64/OTP 28 download.
+Anonymous public assets/checksums, Hex package/docs, a fresh public consumer and
+the actual downloaded escript pass independent verification. The publishing
+tar contains 789 Git-identical files plus two lexer/parser outputs independently
+reproduced from committed inputs; its exact source/inner checksums therefore
+differ from CI's pre-compilation tar. [release-verification.md](release-verification.md)
+records both mappings, all platform escript hashes and the actual public download
+digest. Matching OS/CPU/OTP requirements and Linux-only interactive pager/browser
+acceptance remain unchanged.

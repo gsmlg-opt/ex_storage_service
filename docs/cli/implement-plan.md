@@ -1,6 +1,6 @@
 # ESS CLI Implementation Plan
 
-- Status: M0–M9 implementation present within documented differences; two CI fixture races have deterministic repairs and 45 passing combined regressions; corrected complete acceptance, publication and public-artifact verification remain open. See [milestone-acceptance-status.md](compatibility/milestone-acceptance-status.md) for scoped evidence and blockers.
+- Status: M0–M9 implementation and release acceptance complete within documented compatibility boundaries; corrected full suites pass and CLI 0.6.8 is published with independent public-artifact verification. See [release-verification.md](compatibility/release-verification.md) for source, package, runtime and provider evidence.
 - Date: 2026-10-14; implementation audit updated 2026-10-16.
 - Target: `apps/ex_storage_service_cli` and its standalone `ess` executable.
 - Source baseline inspected: `42a9fe2b41faa82cf10c3f07840b890be18b876d`; CLI version at inspection: `0.6.7`.
@@ -32,8 +32,8 @@ the coordinated HTTP/Bundler lock update. Existing core ranges and web
 constraints remain supported. This is a dependency-scope extension; core and UI
 behavior changes remain outside this plan.
 
-Version 0.6.8 is committed/pushed at
-`eb3f3327519d98fbc21f0d3d06d48c4d52edc3d2`. Published HTTP `~> 0.21.13` is
+Version 0.6.8 is released from
+`515207e8c4063f689e499d999cf408e7f4c40ce1`. Published HTTP `~> 0.21.13` is
 admitted by core's approved range. The declared standalone/umbrella, five-platform
 package, 2 GiB resource and provider-policy matrix passes; exact results are in
 [milestone acceptance](compatibility/milestone-acceptance-status.md) and
@@ -263,15 +263,19 @@ Every mc inventory row has a working tested mapping or an explicit scope/differe
 - [x] Add real memory/backpressure/cancellation benchmarks and documented resource defaults. Report measured results, not extrapolated throughput promises.
 - [x] Publish command reference, legacy migration guide, AWS configuration guide, mc difference table, provider limitations, safety/restore procedures, and examples using non-secret credentials references.
 - [x] Prepare changelog, checksums, model/reference lock, compatibility report, and immutable source/artifact mapping.
-- [ ] Commit, push, and release through the existing configured CLI publishing process after gates pass. Inspect root orchestration before triggering it so a CLI-only release does not accidentally publish unrelated server packages.
-- [ ] Verify the remote ref, workflow result, published package, and downloadable artifact. Report blockers truthfully; never call an attempted or queued publish a completed release.
+- [x] Commit, push, and release through the existing configured CLI publishing process after gates pass. Inspect root orchestration before triggering it so a CLI-only release does not accidentally publish unrelated server packages.
+- [x] Verify the remote ref, workflow result, published package, and downloadable artifact. Report blockers truthfully; never call an attempted or queued publish a completed release.
 
 
 ### Final acceptance
 
-The prior five-platform package matrix at `582639746e65376ea7d1f5aaeb203bca34b5d79d`
-remains historical evidence. Current HTTP, parser, SDK customization, STS and
-Darwin credential-process changes require their own complete/package results.
+CLI **0.6.8** is published from `515207e8c4063f689e499d999cf408e7f4c40ce1`.
+Corrected complete CLI/umbrella tests, five-platform package probes, measured
+2 GiB resources and provider-limitation policy pass at that source. The
+[release verification report](compatibility/release-verification.md) records
+the successful CLI-only workflow, remote tag, public Hex package/documentation,
+downloaded artifacts, checksums and independent fresh public consumer. Earlier
+matrices and failures remain historical evidence in the linked reports.
 
 All in-scope client features are implemented; no stubs or silently ignored flags remain. Wire and executable behavior is verified against the pinned reference, subject only to explicitly recorded compatibility deviations. Provider-ineligible cases retain correct client implementation and clear evidence labels. A full-compatibility claim must always state the exact baseline and any deviations; unavailable live evidence cannot be represented as a passing provider suite.
 

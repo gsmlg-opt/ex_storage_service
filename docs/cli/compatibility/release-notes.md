@@ -109,13 +109,18 @@ Linux and both macOS architectures.
 
 The final local standalone suite passes 3,483 tests with zero failures and one
 resource exclusion; formatting, strict compilation and all 32 tooling tests pass.
-Committed-source CI passes 3,482 standalone and 3,483 umbrella CLI tests with
+Corrected committed-source CI passes 3,483 standalone and 3,484 umbrella CLI tests with
 zero failures. All five package jobs, measured 2 GiB resources and the independent
 ESS/RustFS limitation policy pass. Downloaded source/escript/native/model hashes
 match the tested commit, and both macOS architectures pass all ten installed
-credential-process checks. Public-registry and release-artifact verification
-remain the final publishing step. Exact
-results and immutable source mapping belong in
+credential-process checks. CLI-only publishing passes another 3,484 tests with
+zero failures, publishes Hex/GitHub version 0.6.8 from
+`515207e8c4063f689e499d999cf408e7f4c40ce1`, and verifies a fresh published consumer.
+Independent anonymous public-asset, registry, documentation, source and installed
+runtime verification pass. The public tar adds two source-reproduced lexer/parser
+outputs to the 789 Git-matching files, so its checksums are recorded separately
+from CI's source tar. Exact results and immutable source mapping are in
+[release verification](release-verification.md),
 [integration validation](integration-validation.md),
 [packaging evidence](packaging-platform-decisions.md) and
 [acceptance status](milestone-acceptance-status.md). Historical failed runs and
