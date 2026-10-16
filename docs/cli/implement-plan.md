@@ -1,6 +1,6 @@
 # ESS CLI Implementation Plan
 
-- Status: M0–M9 implementation and declared pre-release acceptance complete within documented differences; publication and public-artifact verification remain open. See [milestone-acceptance-status.md](compatibility/milestone-acceptance-status.md) for scoped evidence and blockers.
+- Status: M0–M9 implementation present within documented differences; two CI fixture races have deterministic repairs and 45 passing combined regressions; corrected complete acceptance, publication and public-artifact verification remain open. See [milestone-acceptance-status.md](compatibility/milestone-acceptance-status.md) for scoped evidence and blockers.
 - Date: 2026-10-14; implementation audit updated 2026-10-16.
 - Target: `apps/ex_storage_service_cli` and its standalone `ess` executable.
 - Source baseline inspected: `42a9fe2b41faa82cf10c3f07840b890be18b876d`; CLI version at inspection: `0.6.7`.

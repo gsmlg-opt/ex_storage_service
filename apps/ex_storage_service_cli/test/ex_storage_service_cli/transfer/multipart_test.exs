@@ -25,6 +25,7 @@ defmodule ExStorageServiceCli.Transfer.MultipartTest do
   @create "<InitiateMultipartUploadResult><Bucket>bucket</Bucket><Key>key</Key><UploadId>owned</UploadId></InitiateMultipartUploadResult>"
   @complete "<CompleteMultipartUploadResult><Bucket>bucket</Bucket><Key>key</Key><ETag>&quot;done-2&quot;</ETag></CompleteMultipartUploadResult>"
   @denied "<Error><Code>AccessDenied</Code><Message>Denied</Message></Error>"
+  @journal_setup_attempts 4
 
   setup %{tmp_dir: root} do
     path = Path.join(root, "source")
@@ -91,10 +92,7 @@ defmodule ExStorageServiceCli.Transfer.MultipartTest do
   test "keep-incomplete retains upload and resume rejects changed input options", data do
     {endpoint, _} = WireServer.fixture([{200, [], @create}, {403, [], @denied}])
     context = %Context{endpoint: endpoint, unsigned: true}
-    opts = [state_root: data.journal_root, keep_incomplete: true]
-
-    assert {:error, %Error{details: %{journal_id: id, cleanup: "retained"}}} =
-             Multipart.upload(context, "bucket", "key", data.source, data.plan, opts)
+    {id, opts} = retained(context, data)
 
     assert {:error, %Error{code: :resume_conflict}} =
              Multipart.resume(
@@ -104,6 +102,59 @@ defmodule ExStorageServiceCli.Transfer.MultipartTest do
              )
 
     refute_receive {:wire_request, %{method: "DELETE"}}
+  end
+
+  test "retained setup advances past an occupied mutex before sending HTTP", data do
+    {journal_root, blocked_root, listener} =
+      Enum.find_value(1..10, fn attempt ->
+        candidate = Path.join(data.tmp_dir, "collision-#{attempt}")
+        blocked_root = candidate <> "-0"
+        File.mkdir_p!(blocked_root)
+        File.chmod!(blocked_root, 0o700)
+        {:ok, port} = Journal.lock_port(blocked_root, "index")
+
+        case :gen_tcp.listen(port, [:binary, active: false, ip: {127, 0, 0, 1}]) do
+          {:ok, listener} -> {candidate, blocked_root, listener}
+          {:error, :eaddrinuse} -> nil
+        end
+      end) || flunk("Could not reserve an occupied journal fixture mutex")
+
+    try do
+      {endpoint, _} = WireServer.fixture([{200, [], @create}, {403, [], @denied}])
+      context = %Context{endpoint: endpoint, unsigned: true}
+      {id, opts} = retained(context, %{data | journal_root: journal_root})
+
+      assert opts[:state_root] != blocked_root
+      refute File.exists?(Path.join(blocked_root, "index.jsonl"))
+
+      assert {:ok, %{"cleanup" => "retained", "upload_id" => "owned"}} =
+               Journal.get(opts[:state_root], id)
+
+      assert_receive {:wire_request, %{method: "POST"}}
+      assert_receive {:wire_request, %{method: "PUT"}}
+      refute_receive {:wire_request, _}, 20
+      assert {:ok, _} = :inet.sockname(listener)
+    after
+      :gen_tcp.close(listener)
+    end
+  end
+
+  defp retained(context, data) do
+    Enum.find_value(0..(@journal_setup_attempts - 1), fn attempt ->
+      opts = [state_root: data.journal_root <> "-#{attempt}", keep_incomplete: true]
+
+      case Multipart.upload(context, "bucket", "key", data.source, data.plan, opts) do
+        {:error, %Error{code: :journal_busy, details: details}} when map_size(details) == 0 ->
+          # Initial acquisition can collide with host listeners or TCP TIME_WAIT.
+          # Never retry a transfer that reached the wire or acquired upload state.
+          refute_receive {:wire_request, _}, 0
+          nil
+
+        result ->
+          assert {:error, %Error{details: %{journal_id: id, cleanup: "retained"}}} = result
+          {id, opts}
+      end
+    end) || flunk("No journal fixture mutex available after #{@journal_setup_attempts} attempts")
   end
 
   test "a lost completion response is inspectable and never blindly aborted or duplicated",

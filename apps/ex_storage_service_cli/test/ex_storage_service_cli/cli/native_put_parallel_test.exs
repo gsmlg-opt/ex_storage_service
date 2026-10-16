@@ -415,10 +415,32 @@ defmodule ExStorageServiceCli.CLI.NativePutParallelTest do
   test "mutating a selected source cancels siblings instead of completing", %{tmp_dir: root} do
     pool = start_supervised!(Coordinator)
     {endpoint, _} = peer(10)
-    async_run(root, endpoint, pool, "abcdefghij", %{parallel: 2})
+    owner = self()
+
+    progress = fn _bytes ->
+      send(owner, {:body_producer, self()})
+      receive do: (:produce -> :ok)
+    end
+
+    async_run(root, endpoint, pool, "abcdefghij", %{parallel: 2}, on_progress: progress)
+
+    producers =
+      for _ <- 1..2 do
+        assert_receive {:body_producer, producer}, 1000
+        monitor = Process.monitor(producer)
+        send(producer, :produce)
+        {producer, monitor}
+      end
+
     assert_receive {:part, a, pa, _}, 1000
     assert_receive {:part, b, pb, _}, 1000
     send(pa, :hold)
+
+    # Wire bytes can arrive before the producer's final source check. Await
+    # normal body completion so mutation exercises post-response validation.
+    for {producer, monitor} <- producers,
+        do: assert_receive({:DOWN, ^monitor, :process, ^producer, :normal}, 1000)
+
     File.write!(Path.join(root, "source"), "XXXXXXXXXX")
     reply(pb, b)
     assert_receive {:abort, _, sockets}, 2000

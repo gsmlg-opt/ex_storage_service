@@ -464,3 +464,46 @@ client regressions, not four additional provider successes. The report's CLI
 artifact SHA256 is `d22c9be9cafdfd10fa6db4e69f7587cfa13b31182f1d2a9943843902fdbcc334`. Downloaded logs, provider
 report and resource measurements are under `/tmp/ess-cli-ci-eb3f332/`. Live
 AWS account/hardware infrastructure remains unrun and explicitly labeled.
+
+## Subsequent 0.6.8 CI regression gate
+
+Documentation-only source `8f2f8630fa463d92dce49da49f8746c8e8b9c9cf` has no
+packaged CLI/tooling/lock changes from eb3f332. Nevertheless
+[CLI run 38897870239](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38897870239)
+fails with **3,482 tests, two failures and one resource exclusion**, seed 713992, in 318.1
+seconds. NativePutParallelTest's source-mutation case receives an unexpected
+transport error; MultipartTest's initial retained-upload setup receives an
+unannotated journal_busy before the expected retention outcome. The failed
+log is `/tmp/ess-cli-ci-8f2f863-failed.log`. Diagnosis and deterministic repairs
+are required; the earlier green source run does not erase this failure.
+The same source's umbrella run 38897869985 passes.
+
+Publishing was stopped before either external write step. Dispatch
+38897878369 used a short ref and was cancelled at checkout; corrected full-SHA
+dispatch 38897960818 was cancelled during validation after the failed matrix
+was found. Both Hex publish and GitHub release steps were skipped. Version
+0.6.8 remains prepared but unpublished until the corrected matrix passes.
+
+The source-mutation fixture's server observation established byte arrival, not
+normal body-producer termination. A deterministic early-mutation diagnostic
+reproduces transport_failure with aborted cleanup. The corrected test monitors
+the actual body producers and waits for normal completion before mutating, so
+it specifically exercises post-response source validation while the sibling
+response remains held. Its source_changed, socket cancellation, abort and
+no-completion assertions and deadlines are unchanged; 24 scoped tests pass.
+
+The retained-upload fixture now tries at most four fresh roots only for an
+initial unannotated journal_busy, with a zero-wire guard. Its occupied-listener
+regression first reproduced the CI error and now verifies the original listener
+remains owned, the blocked root untouched, exactly POST+PUT, retained cleanup and
+no DELETE. Exact CI port occupancy remains unknown. Source/options mismatch
+assertions and production mutex semantics are unchanged; 21 scoped tests pass.
+
+The parent runs both repaired areas together with cancellation, journal,
+multipart and transfer-command suites: **45 tests, zero failures**, seed 713992,
+4.0 seconds (`/tmp/ess-cli-multipart-fixtures-integration-20261016.log`). These
+changes affect two test files only. Complete corrected CI acceptance remains
+required before resuming publication. All five source-8f2f863 packages also
+pass independent source/native/model/hash inspection at
+`/tmp/ess-cli-ci-8f2f863/verified-packages.json`; their success does not erase
+the failed test job.

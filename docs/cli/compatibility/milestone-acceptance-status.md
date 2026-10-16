@@ -1,8 +1,14 @@
 # Milestone acceptance status
 
-M0–M9 implementation and the declared pre-release validation matrix are complete
-within the documented compatibility boundaries. The remaining gate is CLI-only
-publication and independent verification of the public package/artifacts. This
+This is the prepared source report. Final workflow/publication outcomes are
+recorded in the subsequent release-verification report; pending checks here
+are never presented as completed by this snapshot.
+
+M0–M9 implementation is present within the documented compatibility boundaries.
+Two subsequent CI failures at 8f2f863 have deterministic test-only repairs and
+45 passing combined regressions, recorded in integration-validation.md. Corrected
+full-matrix acceptance, CLI-only
+publication and independent public-artifact verification remain required. This
 report separates implementation, wire fixtures and live-provider evidence; it
 does not advertise exact mc replacement or exhaustive independent verification
 of every AWS member/variant.
@@ -62,6 +68,8 @@ Those native choices do not remove any pinned AWS namespace requirement.
 | M9 | Current standalone/umbrella, five-platform fresh package/install, measured 2 GiB resource, provider policy, generated inventories and reports pass; downloaded bytes match the committed source. | CLI-only publication and independent public-package/download verification remain open. Live AWS and exhaustive per-member evidence remain explicitly bounded above. |
 
 ## Actionable open acceptance and release gates
+
+- [ ] Pass the corrected complete CLI matrix before resuming publication. NativePutParallelTest and MultipartTest now have deterministic test-only repairs; 45 combined tests pass without changing production behavior or safety assertions.
 
 - [x] Complete committed-source umbrella acceptance; the standalone frozen-source CLI run passes 3,483 tests with zero failures and one resource exclusion. Earlier failures remain in integration-validation.md; isolated retries are not substituted for this complete run.
 - [x] Complete current-source formatting, strict compilation, inventory/evidence tooling, pinned executable differential suites and the separate resource/provider-policy jobs. Scoped passes do not count as a passing final graph, and generic model traversal does not verify every member or variant.
