@@ -1,4 +1,37 @@
-# ESS CLI 0.6.8
+# ESS 0.6.9
+
+All components upgrade together through GitHub `release.yml`, with one shared
+version and canonical `v0.6.9` tag. The
+[release workflow](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39048384577)
+passes all four jobs. [Canonical v0.6.9](https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.9)
+publishes both Hex packages, the server image and CLI assets at synchronized
+commit `5efddeac829cec1358a8c206a44b0ed401a27ba8`.
+
+- Credential-process workers monitor their caller before opening the helper
+  port, closing the reproduced startup cleanup gap. Installed-package gates
+  require eleven tests and all eight named checks, including
+  `prelaunch-owner-monitor`, without failures, skips or exclusions.
+- Core consumer validation streams subprocess output and retains command
+  checkpoints and logs on failure or cancellation. Affected compile/resource
+  steps retain Mix diagnostics and stderr. These changes improve evidence;
+  the earlier remote delay and build-lock causes remain unproven.
+- Fresh pre-bump package acceptance passes on all five declared combinations,
+  including `macos-26` arm64 and `macos-26-intel` x86_64. Those executables
+  report 0.6.8; independent public 0.6.9 execution passes on Linux.
+
+Root CLI validation and the reusable CLI publisher each pass **3,485 tests,
+zero failures**. Independent checks pass for all 21 public GitHub assets, both
+Hex packages against fresh Actions candidates, the actual downloaded CLI,
+version/latest image runtime identity, latest stable indexes and versioned docs.
+The released CLI passes eleven installed credential regressions/eight named
+checks, Unicode/raw stdout and Linux pager PTY checks. Exact source mapping,
+checksums and evidence scope are in [release verification](release-verification.md).
+
+Current-source CLI/umbrella, resource and provider-policy results, prior failed
+release attempts and unchanged live-AWS/platform limits remain in
+[integration validation](integration-validation.md).
+
+# Historical ESS CLI 0.6.8
 
 Standalone `ess` implementation against AWS CLI 2.31.18 and
 `minio/mc@77f82e18b5401a65958f1619df6ebb994634bd88`. The initial CLI-only

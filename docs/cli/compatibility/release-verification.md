@@ -1,4 +1,114 @@
-# Unified 0.6.8 release verification
+# Unified 0.6.9 release verification
+
+All six component version declarations are **0.6.9**, published together under
+canonical [v0.6.9](https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.9)
+through the manually dispatched root `release.yml`. Both reusable Hex publishers
+and finalization pass; no new CLI-prefixed tag is created.
+
+## Canonical publication and checksums
+
+- Workflow: [39048384577](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39048384577), all four jobs successful.
+- Pre-bump source and compiled image source: `dfb3a314ae822b51944136ba6b923c3eb7ba443e`.
+- Canonical tag and synchronized version commit: `5efddeac829cec1358a8c206a44b0ed401a27ba8`; its parent is the source above and its only changes are six version literals.
+- GitHub release published at **2026-10-17T17:08:36Z**.
+- Actual image build-start timestamp: **2026-10-17T16:35:31Z**, independently matched against compiled metadata and OCI labels.
+
+| Published artifact | SHA256 |
+| --- | --- |
+| Core Hex tar, `ex_storage_service 0.6.9` | `58829dec7bcf678f77f763174c334861602505010df01451567df1a1e7c19c32` |
+| CLI Hex tar, `ex_storage_service_cli 0.6.9` | `a978c889bbf3d182206c26e59cac824cf5f240b14f26dcdda6b8ac5aceb59f3e` |
+| GitHub Linux x86_64 / OTP 28 escript | `0a839369113025f6c5a85acfb0968babc0e4b07124fa87f68cb13cdb7b204738` |
+| `ghcr.io/gsmlg-dev/ess:0.6.9` and `latest` manifest | `3a6889306051d7b5626a5208a945e3cca2be292bc12f06448ec170c3eaf437dd` |
+
+Fresh Actions candidate manifests supply the expected package hashes before
+anonymous public downloads. All **21 GitHub assets** match their API sizes and
+digests; `SHA256SUMS` covers all **20 payloads** exactly once. Its own SHA256 is
+`3940c0e3ad301dec22fe9baceec10ec3dd21cf6f086f6f8f394731ea66eae355`. The canonical source archive SHA256 is
+`c4f3ac72d69f498ea6577afc604fe706bce167c4da82693da51f0c665bc421b4`.
+
+Both public Hex outer/API/inner checksums match the fresh candidates. Core has
+**109 tracked files**, all matching canonical Git source, with no extras; its
+inner checksum is `b94412312a5b3d07ee9491829b362368911c1aa888ad3eea2301d79139cbc519`.
+CLI has **789 matching tracked files** plus only the two generated Erlang files
+backed by the current `.xrl`/`.yrl` inventory. Their bytes are bound to the fresh
+candidate tar hash; this audit does not claim to regenerate them.
+CLI's inner checksum is `77f9aab84aee34c8872613ebbfc3d1c45b4c10d16ecd8c775bb49bbf3aeba06b`.
+
+| Generated CLI source | SHA256 |
+| --- | --- |
+| `ess_cli_jmes_lexer.erl` | `e6d081f1ad250a7f3d3ce1af212f8b0747595cc1bc5f29ce09debd3dda59aa27` |
+| `ess_cli_jmes_parser.erl` | `7aeca9e689b7bc53f3732e321894e7f2c6a3a709a47c009d22d32b70c625e1c6` |
+
+## Tests, fresh installation and actual public runtime
+
+The root workflow passes inventory consistency, formatting, strict compilation,
+**47 compatibility-tooling tests**, **25 release-tooling tests** and complete
+umbrella suites: core **343/zero failures/one exclusion**, cluster **38/zero/one**,
+CLI **3,485/zero/zero** in 462.6 seconds, S3 **224/zero** and web **21/zero**.
+The CLI publisher separately passes **3,485 tests, zero failures** in 351.8
+seconds; core passes **343 tests, zero failures, one exclusion**. Fresh candidate
+and public-package consumers pass for both Hex packages. CLI build and public
+consumers each pass all twelve package/runtime gates and all eleven installed
+credential tests, with eight named checks and zero failures/skips/exclusions.
+
+The exact anonymously downloaded, checksum-verified escript runs from an
+unrelated working directory on Linux x86_64, **Elixir 1.18.5 / OTP 28**, without
+build or installation commands. It reports `ess version 0.6.9`, renders modeled
+help/skeletons, passes all **eleven** installed credential-process regressions
+and **eight** named checks including `prelaunch-owner-monitor`, and exchanges
+an actual Unicode HTTP response. Raw stdout preserves **65,792 bytes**, SHA256
+`120c518a83325c66464701a6ee080302f332bc768ea3f60473b209f1bfb091df`. Linux pager PTY ownership/restoration and native
+extraction cleanup pass. The probe scripts and packaged CLI bind to canonical
+source `5efddeac829cec1358a8c206a44b0ed401a27ba8`; image compilation separately binds to pre-bump source
+`dfb3a314ae822b51944136ba6b923c3eb7ba443e`.
+
+All five clean-source pre-bump package combinations at `dfb3a314ae822b51944136ba6b923c3eb7ba443e` independently
+pass source/native/model/escript checks and eleven credential tests per package;
+all **68 consumer commands** exit zero. This includes macOS **26.6.2 arm64** on
+`macos-26` and **26.6.1 x86_64** on `macos-26-intel`, both Elixir 1.19.6/OTP 28,
+plus the three declared Linux combinations. Those executables report **0.6.8**;
+they are source/platform evidence rather than independently executed 0.6.9 Mac
+binaries. [Integration validation](integration-validation.md) retains exact
+runs, 2 GiB resource measurements and all earlier failures/unknown causes.
+
+## Independent image, public indexes and documentation
+
+Anonymous hashing verifies the manifest, config and all **five compressed image
+layers**, then every filesystem DiffID. The imported untagged image config ID
+matches. An owned Linux amd64 container runs with no network, host binds or
+published ports; `/health`, `/health/ready` and admin `/login` all return HTTP 200.
+RPC confirms four server apps at **0.6.9**. Compiled ref `v0.6.9`, source SHA,
+actual build time and OCI labels match the fresh workflow inputs. Owned container
+and anonymous-volume removal are verified. After finalization, anonymous `latest`
+manifest hashing equals the exact versioned digest above.
+
+Both Hex indexes identify **0.6.9** as latest stable, and GitHub's latest stable
+release is canonical **v0.6.9**. Versioned API pages return HTTP 200 with exact
+package/version titles. Core is 40,736 bytes, SHA256
+`7eed9952ae0071290f0bebad770abebdecbb74efa229d84474eceaca51e1b1eb`; CLI is 51,058 bytes, SHA256
+`2bfd7bee15dfd82576772b7f528de9ff8dd43d1d098446a716208561ae15df92`. HexDocs redirects to the exact package-specific hosts
+`ex-storage-service.hexdocs.pm` and `ex-storage-service-cli.hexdocs.pm`, retaining
+`/0.6.9/api-reference.html`. The first read-only index probe rejected this valid
+canonical redirect; the corrected probe accepts only the exact original or
+package-specific URL and still requires the exact versioned title. Both attempts
+are retained.
+
+## Evidence scope
+
+References remain AWS CLI **2.31.18** and locked mc
+`77f82e18b5401a65958f1619df6ebb994634bd88`. Live AWS account/hardware evidence,
+exhaustive independent member/variant coverage, native mc differences and
+Linux-only interactive pager/browser acceptance remain explicitly bounded.
+The provider-policy pass retains **ESS ten passes/three known failures** and
+**RustFS thirteen passes/one known failure**; those four failures remain provider
+limitations. See [milestone acceptance](milestone-acceptance-status.md).
+
+Prepared reports in immutable release assets retain their source snapshot;
+this post-publication report records completed 0.6.9 verification. The following
+0.6.8 sections are historical, including their then-current `latest`/index checks.
+Historical `cli-v0.6.8` downloads remain available.
+
+# Historical unified 0.6.8 release verification
 
 All umbrella components and the standalone CLI share version **0.6.8** and the
 canonical [v0.6.8 release](https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.8).

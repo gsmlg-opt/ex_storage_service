@@ -682,13 +682,17 @@ GitHub Actions workflows include:
 - **Publish CLI** (`publish-cli.yml`) - reusable release job for `ex_storage_service_cli` and downloadable CLI assets
 - **Publish core** (`publish-core.yml`) - reusable release job for the embeddable `ex_storage_service` package
 
-Dispatch `release.yml` with `version` (for example, `0.6.8`) and `git_ref` (the
+Dispatch `release.yml` with `version` (for example, `0.6.9`) and `git_ref` (the
 full current `main` source SHA). The workflow aligns all application versions,
 validates the release, and publishes the GHCR image, both Hex packages and CLI
-assets under `v0.6.8`. Only this workflow updates the image's version and `latest`
+assets under `v0.6.9`. Only this workflow updates the image's version and `latest`
 tags. Existing Hex versions are reused only when their verified payload exactly
 matches the candidate. The earlier `cli-v0.6.8` release remains available for
 historical download links; future releases use only `v<version>`.
+[Verified v0.6.9](https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.9)
+includes both Hex packages, the server image and CLI assets; exact source,
+checksums and public runtime evidence are in the
+[release verification report](docs/cli/compatibility/release-verification.md).
 
 ## License
 

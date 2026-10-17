@@ -595,3 +595,70 @@ The complete corrected CLI graph then passes **3,485 tests, zero failures** in
 formatting, inventory consistency, all **47 compatibility-tooling tests** and
 all **25 release-tooling tests** pass. The failed 32-case run remains above;
 the successful complete run does not establish a fix for those latency failures.
+
+## Current-source unified 0.6.9 prepublication acceptance
+
+Clean source `dfb3a314ae822b51944136ba6b923c3eb7ba443e` passes all jobs in
+[CLI run 39047670050](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39047670050)
+and [umbrella Test run 39047670108](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39047670108),
+along with the four other automated workflows. The standalone CLI suite records
+**3,484 tests, zero failures, one resource exclusion**, in 317.4 seconds.
+Umbrella suites pass: core **343/zero failures/one exclusion**, cluster
+**38/zero/one**, CLI **3,485/zero/zero** in 440.1 seconds, S3 **224/zero** and web
+**21/zero**. All **47 compatibility-tooling tests** and **25 release-tooling
+tests** pass. These complete runs retain the failed runs and unresolved causes
+documented above.
+
+All five downloaded package artifacts independently pass source, Hex payload,
+escript, native and bundled-model verification. Each package matches **789 Git
+source files**, with matching source/probe identities and clean-state manifests.
+All **68 recorded consumer commands exit zero**. Every installed credential
+probe records **eleven tests, zero failures/skips/exclusions and eight named
+checks**, including `prelaunch-owner-monitor`. Linux x86_64 covers Elixir
+1.18.0/OTP 27, 1.18.5/OTP 28 and 1.19.6/OTP 28. Actual retained macOS runner logs
+prove **26.6.2 arm64** and **26.6.1 x86_64**, both Elixir 1.19.6/OTP 28. The
+digest/count/runner-label table is retained in
+`/tmp/ess-unified-069-ci/ci-dfb3a31/audit-summary.md`, with full hashes and
+probe records in `verified-packages.json` beside it. These pre-bump installed
+executables report **0.6.8**, not 0.6.9.
+
+The separate resource test passes **one test, zero failures** for a 2 GiB
+transfer with a 1 MiB admission budget: peak total memory **64,440,344 bytes**,
+peak binary memory **1,960,600 bytes**, peak mailbox **two**, and admitted-byte
+high-water mark **131,072 bytes**. These are bounded-test measurements.
+The unchanged provider policy accepts **ESS ten passes/three known failures**
+and **RustFS thirteen passes/one known failure**; not all provider contracts
+passed. Live AWS and platform-specific pager limitations remain unchanged.
+
+At this evidence checkpoint, root [release run 39048384577](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39048384577)
+is still running from `dfb3a31`. This prepublication acceptance does not establish
+release success, public artifact availability or 0.6.9 runtime proof.
+
+## Unified 0.6.9 publication and public verification
+
+Root [release run 39048384577](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39048384577)
+completes all four jobs. Its pre-bump source is `dfb3a314ae822b51944136ba6b923c3eb7ba443e`; canonical version
+commit/tag is `5efddeac829cec1358a8c206a44b0ed401a27ba8`, changing only six version literals to 0.6.9.
+Root validation passes **47 compatibility-tooling**, **25 release-tooling** and
+all umbrella suites: core **343/zero failures/one exclusion**, cluster **38/zero/one**,
+CLI **3,485/zero/zero** in 462.6 seconds, S3 **224/zero**, web **21/zero**. The CLI
+publisher independently passes **3,485/zero** in 351.8 seconds; core passes
+**343/zero/one**. Fresh candidate and public Hex consumers pass. Both CLI package
+manifests record eleven credential tests, zero failures/skips/exclusions and
+eight named checks. Earlier cancelled/failed runs and unknown causes remain above.
+
+Independent anonymous checks match all 21 public assets, all 20 checksummed
+payloads and both public Hex tars to fresh Actions candidate hashes and canonical
+source. Actual downloaded `ess 0.6.9` runs on Linux Elixir 1.18.5/OTP 28 without
+build/install commands and passes eleven credential tests, modeled help/skeleton,
+Unicode HTTP, 65,792-byte raw stdout, pager PTY and extraction cleanup. Runtime
+probe scripts bind to canonical `5efddeac829cec1358a8c206a44b0ed401a27ba8`. Independent Linux amd64 image
+verification checks all compressed layers/DiffIDs, isolated health/readiness/login,
+four app versions/build metadata, cleanup, and identical version/latest digests.
+Both stable Hex indexes, exact versioned docs and GitHub latest release agree.
+The initial docs probe rejected HexDocs' canonical per-package redirect; the
+corrected exact-host/path/title check passes, with both attempts retained.
+
+[Release verification](release-verification.md) records public digests and source
+mapping. Pre-bump Mac evidence remains version 0.6.8; live AWS, platform pager,
+known provider failures and other stated compatibility limits remain unchanged.
