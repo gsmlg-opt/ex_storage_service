@@ -78,16 +78,41 @@ def consumer(package, version, output):
                  'if Code.ensure_loaded?(ExStorageServiceWeb.Endpoint), do: raise("server dependency"); '
                  'IO.puts("standalone-core-consumer-ok")']]
     results = []
-    try:
-        for command in commands:
-            result = subprocess.run(command, cwd=source, env=env, text=True,
-                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            results.append({"argv": command, "status": result.returncode, "output": result.stdout})
-            if result.returncode:
-                print(result.stdout)
-                raise RuntimeError("Fresh core consumer failed")
-    finally:
+
+    def save_results():
         (output / "commands.json").write_text(json.dumps(results, indent=2) + "\n")
+
+    with (output / "consumer.log").open("w") as log:
+        try:
+            for command in commands:
+                result = {"argv": command, "status": None, "output": ""}
+                results.append(result)
+                save_results()
+                header = f"Running {json.dumps(command)} (cwd={source})\n"
+                log.write(header)
+                log.flush()
+                print(header, end="", flush=True)
+                chunks = []
+                with subprocess.Popen(command, cwd=source, env=env, text=True, bufsize=1,
+                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as process:
+                    try:
+                        for line in process.stdout:
+                            chunks.append(line)
+                            log.write(line)
+                            log.flush()
+                            print(line, end="", flush=True)
+                        result["status"] = process.wait()
+                    except BaseException:
+                        process.kill()
+                        result["status"] = process.wait()
+                        raise
+                    finally:
+                        result["output"] = "".join(chunks)
+                        save_results()
+                if result["status"]:
+                    raise RuntimeError("Fresh core consumer failed")
+        finally:
+            save_results()
     (output / "manifest.json").write_text(json.dumps(
         {"version": version, "hex_inner_checksum": checksum, "commands": len(results)}, indent=2) + "\n")
 

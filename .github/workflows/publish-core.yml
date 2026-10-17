@@ -99,10 +99,12 @@ jobs:
           path: ${{ runner.temp }}/core-release/*
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: ${{ failure() || cancelled() }}
         with:
           name: core-publish-validation-logs
           path: |
             ${{ runner.temp }}/core-candidate-consumer/commands.json
+            ${{ runner.temp }}/core-candidate-consumer/consumer.log
             ${{ runner.temp }}/core-public-consumer/commands.json
+            ${{ runner.temp }}/core-public-consumer/consumer.log
           if-no-files-found: warn

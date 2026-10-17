@@ -170,11 +170,12 @@ jobs:
             ${{ runner.temp }}/cli-preflight.json
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: ${{ failure() || cancelled() }}
         with:
           name: umbrella-release-validation-logs
           path: |
             ${{ runner.temp }}/core-candidate-consumer/commands.json
+            ${{ runner.temp }}/core-candidate-consumer/consumer.log
             ${{ runner.temp }}/cli-package/commands.json
             ${{ runner.temp }}/prepared-release.json
           if-no-files-found: warn
