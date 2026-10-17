@@ -114,6 +114,28 @@ defmodule ExStorageServiceCli.Credentials.Process do
   end
 
   defp execute(shell, kill, executable, args, env, opts) do
+    owner = self()
+
+    {worker, monitor} =
+      spawn_monitor(fn ->
+        # The port owner must survive caller death, including during Port.open/2.
+        owner_monitor = Elixir.Process.monitor(owner)
+        result = invoke(shell, kill, executable, args, env, opts, owner_monitor)
+        Elixir.Process.demonitor(owner_monitor, [:flush])
+        send(owner, {self(), result})
+      end)
+
+    receive do
+      {^worker, result} ->
+        Elixir.Process.demonitor(monitor, [:flush])
+        result
+
+      {:DOWN, ^monitor, :process, ^worker, _reason} ->
+        failure(:credential_process_start_failed)
+    end
+  end
+
+  defp invoke(shell, kill, executable, args, env, opts, owner_monitor) do
     timeout = opts[:timeout] || 5_000
     limit = min(opts[:max_output] || 65_536, 65_536)
     environment = Map.merge(Map.new(System.get_env(), fn {key, _value} -> {key, false} end), env)
@@ -140,18 +162,19 @@ defmodule ExStorageServiceCli.Credentials.Process do
         nil -> nil
       end
 
-    owner = self()
-    cleanup = if is_integer(pid), do: spawn(fn -> watch_owner(owner, pid, kill) end)
-    result = collect(port, System.monotonic_time(:millisecond) + timeout, limit, 0, [])
+    try do
+      result =
+        collect(port, owner_monitor, System.monotonic_time(:millisecond) + timeout, limit, 0, [])
 
-    if match?({:error, _}, result) and is_integer(pid) and Port.info(port) != nil do
-      System.cmd(kill, ["-KILL", "--", "-" <> Integer.to_string(pid)], stderr_to_stdout: true)
+      if not match?({:ok, _}, result) and is_integer(pid) and Port.info(port) != nil do
+        System.cmd(kill, ["-KILL", "--", "-" <> Integer.to_string(pid)], stderr_to_stdout: true)
+      end
+
+      result
+    after
+      close(port)
+      drain(port)
     end
-
-    if cleanup, do: send(cleanup, :finished)
-    close(port)
-    drain(port)
-    result
   rescue
     ErlangError -> failure(:credential_process_start_failed)
   end
@@ -163,32 +186,26 @@ defmodule ExStorageServiceCli.Credentials.Process do
     :error, :badarg -> :ok
   end
 
-  defp watch_owner(owner, pid, kill) do
-    monitor = Elixir.Process.monitor(owner)
-
-    receive do
-      :finished ->
-        Elixir.Process.demonitor(monitor, [:flush])
-
-      {:DOWN, ^monitor, :process, ^owner, _} ->
-        System.cmd(kill, ["-KILL", "--", "-" <> Integer.to_string(pid)], stderr_to_stdout: true)
-    end
-  end
-
-  defp collect(port, deadline, limit, size, chunks) do
+  defp collect(port, owner_monitor, deadline, limit, size, chunks) do
     remaining = max(deadline - System.monotonic_time(:millisecond), 0)
 
     receive do
       {^port, {:data, chunk}} ->
         if size + byte_size(chunk) > limit,
           do: failure(:credential_process_output_limit),
-          else: collect(port, deadline, limit, size + byte_size(chunk), [chunk | chunks])
+          else:
+            collect(port, owner_monitor, deadline, limit, size + byte_size(chunk), [
+              chunk | chunks
+            ])
 
       {^port, {:exit_status, 0}} ->
         {:ok, chunks |> Enum.reverse() |> IO.iodata_to_binary()}
 
       {^port, {:exit_status, _status}} ->
         failure(:credential_process_failed)
+
+      {:DOWN, ^owner_monitor, :process, _owner, _reason} ->
+        :owner_down
     after
       remaining -> failure(:credential_process_timeout)
     end

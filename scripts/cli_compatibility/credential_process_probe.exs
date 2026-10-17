@@ -41,9 +41,10 @@ evidence = %{
     "child-group-isolation",
     "timeout-descendant-cleanup",
     "owner-death-descendant-cleanup",
-    "overflow-descendant-cleanup"
+    "overflow-descendant-cleanup",
+    "prelaunch-owner-monitor"
   ]
 }
 
 IO.puts("ESS_CREDENTIAL_PROCESS_PROBE=" <> JSON.encode!(evidence))
-if summary.failures != 0 or summary.total < 10, do: System.halt(1)
+if summary.failures != 0 or summary.total < 11, do: System.halt(1)

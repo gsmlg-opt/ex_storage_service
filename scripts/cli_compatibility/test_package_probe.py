@@ -19,15 +19,15 @@ class InstalledCredentialProcessProbeTest(unittest.TestCase):
     def evidence(self):
         return {
             "module_source": "installed-escript", "os": platform.system().lower(),
-            "architecture": "fixture-architecture", "otp": "28", "total": 10,
+            "architecture": "fixture-architecture", "otp": "28", "total": 11,
             "failures": 0, "skipped": 0, "excluded": 0,
             "checks": ["literal-argv", "stderr-discard", "bounded-output", "child-group-isolation",
                        "timeout-descendant-cleanup", "owner-death-descendant-cleanup",
-                       "overflow-descendant-cleanup"],
+                       "overflow-descendant-cleanup", "prelaunch-owner-monitor"],
         }
 
     def output(self, evidence):
-        return ("10 tests, 0 failures\nESS_CREDENTIAL_PROCESS_PROBE=" +
+        return (f"{evidence['total']} tests, {evidence['failures']} failures\nESS_CREDENTIAL_PROCESS_PROBE=" +
                 json.dumps(evidence) + "\n").encode()
 
     def test_runs_installed_artifact_with_literal_paths_and_preserves_evidence(self):
@@ -45,7 +45,7 @@ class InstalledCredentialProcessProbeTest(unittest.TestCase):
         self.assertEqual(120, runner.call_args.kwargs["timeout"])
 
     def test_missing_or_duplicate_evidence_cannot_be_reported_as_acceptance(self):
-        for output in (b"10 tests, 0 failures\n", self.output(self.evidence()) * 2):
+        for output in (b"11 tests, 0 failures\n", self.output(self.evidence()) * 2):
             with patch("package_probe.run", return_value=output), self.assertRaisesRegex(
                     RuntimeError, "omitted its evidence"):
                 check_installed_credential_process(Path("ess"), Path.cwd(), {}, [{"stderr": ""}])
@@ -65,6 +65,16 @@ class InstalledCredentialProcessProbeTest(unittest.TestCase):
             with patch("package_probe.run", return_value=stdout), self.assertRaisesRegex(
                     RuntimeError, "leaked fixture diagnostics"):
                 check_installed_credential_process(Path("ess"), Path.cwd(), {}, [{"stderr": stderr}])
+
+    def test_old_acceptance_without_prelaunch_owner_monitor_is_rejected(self):
+        current = self.evidence()
+        old_checks = [check for check in current["checks"] if check != "prelaunch-owner-monitor"]
+        for change in ({"total": 10, "checks": old_checks},
+                       {"total": 11, "checks": old_checks}, {"total": 10}):
+            evidence = dict(current, **change)
+            with self.subTest(change=change), patch("package_probe.run", return_value=self.output(evidence)), \
+                    self.assertRaisesRegex(RuntimeError, "did not all pass"):
+                check_installed_credential_process(Path("ess"), Path.cwd(), {}, [{"stderr": ""}])
 
 
 class EscriptApplicationBoundaryTest(unittest.TestCase):

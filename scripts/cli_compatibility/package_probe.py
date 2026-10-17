@@ -157,10 +157,10 @@ def check_installed_credential_process(installed, cwd, env, logs):
     evidence = json.loads(records[0])
     required = {"literal-argv", "stderr-discard", "bounded-output", "child-group-isolation",
                 "timeout-descendant-cleanup", "owner-death-descendant-cleanup",
-                "overflow-descendant-cleanup"}
+                "overflow-descendant-cleanup", "prelaunch-owner-monitor"}
     if (evidence.get("module_source") != "installed-escript" or
             evidence.get("os") != platform.system().lower() or
-            evidence.get("total", 0) < 10 or evidence.get("failures") != 0 or
+            evidence.get("total", 0) < 11 or evidence.get("failures") != 0 or
             evidence.get("skipped") != 0 or evidence.get("excluded") != 0 or
             set(evidence.get("checks", [])) != required):
         raise RuntimeError("Installed credential process checks did not all pass")

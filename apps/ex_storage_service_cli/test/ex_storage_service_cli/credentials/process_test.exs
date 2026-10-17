@@ -161,6 +161,81 @@ defmodule ExStorageServiceCli.Credentials.ProcessTest do
     for file <- [own_file, child_file], do: assert(stopped?(File.read!(file)))
   end
 
+  test "the port owner monitors the caller before launching its helper", %{tmp_dir: root} do
+    own_file = Path.join(root, "startup-helper-pid")
+    child_file = Path.join(root, "startup-child-pid")
+
+    path =
+      helper(
+        root,
+        "printf '%s' \"$$\" > '#{own_file}'\n'#{System.find_executable("sleep")}' 60 &\n" <>
+          "printf '%s' \"$!\" > '#{child_file}'\nwait\n"
+      )
+
+    runner =
+      spawn(fn ->
+        receive do
+          :start -> CredentialProcess.run(quote_arg(path), timeout: 10_000)
+        end
+      end)
+
+    session = :trace.session_create(:credential_startup, self(), [])
+
+    try do
+      # Trace only this invocation; suppress call arguments, including its environment.
+      :trace.function(
+        session,
+        {:erlang, :monitor, 2},
+        [
+          {[:process, runner], [], [{:message, false}, {:return_trace}]}
+        ],
+        []
+      )
+
+      :trace.function(
+        session,
+        {:erlang, :open_port, 2},
+        [
+          {:_, [], [{:message, false}, {:return_trace}]}
+        ],
+        []
+      )
+
+      :trace.process(session, runner, true, [:call, :set_on_spawn])
+      send(runner, :start)
+      {worker, port, monitored_before_launch} = await_launch()
+      {:os_pid, pid} = Port.info(port, :os_pid)
+
+      try do
+        assert worker in monitored_before_launch
+        refute worker == runner
+        assert :erlang.suspend_process(worker)
+
+        try do
+          assert await_file(own_file)
+          assert await_file(child_file)
+          monitor = Elixir.Process.monitor(runner)
+          Elixir.Process.exit(runner, :kill)
+          assert_receive {:DOWN, ^monitor, :process, ^runner, :killed}
+        after
+          if Elixir.Process.alive?(worker), do: :erlang.resume_process(worker)
+        end
+
+        for file <- [own_file, child_file], do: assert(stopped?(File.read!(file)))
+        refute_receive {_port, {:data, _}}
+      after
+        Elixir.Process.exit(runner, :kill)
+
+        System.cmd(System.find_executable("kill"), ["-KILL", "--", "-#{pid}"],
+          stderr_to_stdout: true
+        )
+      end
+    after
+      Elixir.Process.exit(runner, :kill)
+      :trace.session_destroy(session)
+    end
+  end
+
   test "concurrent timeout cleanup preserves the error when owned ports exit before close" do
     command = quote_arg(System.find_executable("sleep")) <> " 60"
 
@@ -188,13 +263,25 @@ defmodule ExStorageServiceCli.Credentials.ProcessTest do
   defp await_file(_path, 0), do: false
 
   defp await_file(path, attempts) do
-    if File.exists?(path),
+    if match?({:ok, pid} when byte_size(pid) > 0, File.read(path)),
       do: true,
       else:
         (
           Elixir.Process.sleep(10)
           await_file(path, attempts - 1)
         )
+  end
+
+  defp await_launch(monitored \\ []) do
+    receive do
+      {:trace, worker, :return_from, {:erlang, :monitor, 2}, _reference} ->
+        await_launch([worker | monitored])
+
+      {:trace, worker, :return_from, {:erlang, :open_port, 2}, port} ->
+        {worker, port, monitored}
+    after
+      1_000 -> flunk("credential helper did not open its port")
+    end
   end
 
   test "missing programs and invalid command text do not launch anything", %{tmp_dir: root} do
