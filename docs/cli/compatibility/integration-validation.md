@@ -527,3 +527,71 @@ records exact hashes, the public tar's 789 Git-matching files and two independen
 reproduced generated outputs, actual macOS 26 runner images, measured resources,
 source/tag mapping and retained provider/live-AWS boundaries. The prepared
 acceptance report shipped in release assets remains its historical snapshot.
+
+## Unified 0.6.9 prepublication diagnostics
+
+[Release run 39036650397](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39036650397)
+on `0048eaff69aa0b55ac399af9dc7697b01ac4c8c2` passed umbrella validation,
+then remained in the fresh core consumer step for 49 minutes 26 seconds in
+attempt 1 and approximately 21 minutes in attempt 2. Both attempts were
+cancelled before publication. The helper buffered subprocess output, so neither
+run establishes the executing subcommand, dependency graph or cause. A bounded
+local core consumer resolved Concord/ex_turso 3.1.1 and HTTP 0.21.13 and passed
+dependency resolution, strict compilation and standalone assertions. Further
+local compilation passed with Elixir 1.19.5; its Rust target was warm. These local
+passes do not explain the remote delay. Commit `dbd1bc8` streams and retains the
+core consumer's subprocess output without changing its commands or gates.
+
+[Release run 39044011182](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39044011182)
+on `dbd1bc895b7c1d0a81365e04aa19ba3a8b5871e1` failed before that consumer:
+CLI **3,484 tests, one failure**, in the credential owner-death cleanup test.
+All publication jobs were skipped. The exact test subsequently passed 21 local
+isolated executions, with all 42 original fixture process identities absent or
+terminated. This does not establish why CI's cleanup assertion for PID 22144
+failed.
+
+A separate deterministic startup probe paused the caller after `open_port/2`
+returned but before its cleanup watcher existed. Killing the caller left the
+original helper and descendant alive in their owned process group. Recorded
+start identities excluded PID reuse; explicit diagnostic cleanup removed both.
+The fix replaces that watcher with a port-owning worker that monitors its caller
+before launch. The regression fails on the old source and passes with the fix;
+all eleven scoped process tests pass, including the existing 256-invocation
+timeout case, and the startup regression passes ten additional warm-VM runs.
+This proves the startup defect independently of the unresolved CI failure.
+Installed-package gates require eleven tests and the new eighth named check,
+`prelaunch-owner-monitor`; old ten-test evidence cannot satisfy the new gate.
+
+In [CLI run 39043996433](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39043996433),
+both unit compilation and resource acceptance waited on Mix build locks after
+dependency compilation. Resource acceptance reached its 20-minute job limit;
+the unit job was cancelled after 25 minutes to collect its log. Neither reached
+test execution. The full logs identify lock-holder OS PIDs 2537 and 3475, both
+BEAM processes terminated during cleanup. The resource artifact omitted the
+lock message because it captured stdout only. Its command now retains stderr,
+and the affected compile/consumer steps enable Mix task diagnostics. Locking,
+test assertions and time limits are unchanged.
+
+Three isolated compiler checks pass without changing the custom compiler or
+shared build paths. The final check includes the parent umbrella descriptors
+and configuration, Elixir 1.19.6, four schedulers and a fresh build directory;
+strict CLI compilation completes in 9.70 seconds. Local ERTS is 16.4.0.5 versus
+CI 16.4.0.7, and generated grammar/rebar state was retained. The underlying
+remote lock cause remains unproven. Both macOS 26 architectures and all three
+Linux package jobs passed on the old source, but do not validate the new
+startup regression. Fresh complete acceptance remains required before release.
+
+The local complete CLI suite with the startup fix passes the new process checks
+but records **3,485 tests, three failures**, seed 850199, in 316.1 seconds with
+32 concurrent cases. The failures are an initial 250 ms loopback connection
+deadline, a two-second redirect task wait, and the STS TLS fixture's credential
+transport. At the CI setting of eight concurrent cases, those three unchanged
+files pass **38 tests, zero failures** with the same seed. This scoped recheck
+does not replace complete-suite acceptance or establish the original latency
+cause; test assertions and deadlines remain unchanged.
+
+The complete corrected CLI graph then passes **3,485 tests, zero failures** in
+323.3 seconds with the same seed and eight concurrent cases. Strict compilation,
+formatting, inventory consistency, all **47 compatibility-tooling tests** and
+all **25 release-tooling tests** pass. The failed 32-case run remains above;
+the successful complete run does not establish a fix for those latency failures.

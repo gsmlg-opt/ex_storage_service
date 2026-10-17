@@ -58,6 +58,8 @@ jobs:
         working-directory: apps/ex_storage_service
         run: mix hex.build --output "$RUNNER_TEMP/core-candidate.tar"
       - name: Validate exact source and fresh candidate consumer
+        env:
+          MIX_DEBUG: "1"
         run: |
           python3 scripts/release/core_package.py manifest --package "$RUNNER_TEMP/core-candidate.tar" --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/core-manifest.json"
           python3 scripts/release/core_package.py consumer --package "$RUNNER_TEMP/core-candidate.tar" --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/core-candidate-consumer"
@@ -88,6 +90,8 @@ jobs:
             --candidate-package "$RUNNER_TEMP/core-candidate.tar" \
             --status-file "$RUNNER_TEMP/core-registry.json" --output "$RUNNER_TEMP/core-public.tar"
       - name: Validate fresh public core consumer
+        env:
+          MIX_DEBUG: "1"
         run: |
           python3 scripts/release/core_package.py consumer --package "$RUNNER_TEMP/core-public.tar" --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/core-public-consumer"
           mkdir -p "$RUNNER_TEMP/core-release"
