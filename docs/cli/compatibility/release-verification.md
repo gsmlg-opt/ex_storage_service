@@ -1,18 +1,103 @@
-# CLI 0.6.8 release verification
+# Unified 0.6.8 release verification
 
-The initial CLI-only release completed acceptance for the implemented M0–M9
-scope and the explicit compatibility boundaries below. That historical report
-follows the prepared source snapshot shipped in its release assets.
+All umbrella components and the standalone CLI share version **0.6.8** and the
+canonical [v0.6.8 release](https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.8).
+Publication completed through the manually dispatched GitHub `release.yml`;
+the core and CLI publishers are reusable children of that workflow.
 
-The initial CLI-only publication below is historical. The subsequent release
-policy uses GitHub `release.yml` as the sole publishing entry for all components
-under one canonical `v<version>` tag. The old `cli-v0.6.8` links remain available;
-new releases do not create CLI-prefixed tags. Unified publication evidence is
-recorded separately after the aggregate workflow and public checks complete.
+The earlier CLI-only publication below is historical. Its `cli-v0.6.8` links
+remain available; new releases do not create CLI-prefixed tags. Reports shipped
+as release assets preserve their prepared source snapshots. This subsequent
+report records the unified publication and its public verification.
 
-## Unified release prepublication status
+## Canonical publication
 
-Canonical `v0.6.8` publication remains pending. On source
+- Workflow: [unified release 39012552369](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39012552369), all four jobs successful.
+- Source before version synchronization: `fa3f31cc58f7d25fc5b46f346179aa191b3714b6`.
+- Canonical tag and synchronized version commit: `d449e65d1076e21414dd37bcb7bcc9a47cc325ac`.
+- GitHub release published at: **2026-10-17T08:06:42Z**.
+- All six version declarations are `0.6.8`. The version commit changes only five version literals; the CLI was already `0.6.8` and its immutable package bytes remain unchanged.
+- Image build-start timestamp: `2026-10-17T07:32:17Z`. Compiled/OCI build identity uses `v0.6.8` and the pre-bump source SHA above, as required by the build metadata contract.
+
+| Published artifact | SHA256 |
+| --- | --- |
+| Core Hex tar, `ex_storage_service 0.6.8` | `917b5f588f6e4c5401c628ff7d75b6b5982abf287b4fd55086130dc3b74384dd` |
+| CLI Hex tar, `ex_storage_service_cli 0.6.8` | `644e0807893e95eb9eef29ecb7ff325273bdf36d0bc67aa30fc6e25c97d2d3ea` |
+| Canonical GitHub Linux x86_64 / OTP 28 escript | `81db90ddf0cca34694d55609c27ea1ea672bd5623ff4b5fdf283aab3f752e5ea` |
+| `ghcr.io/gsmlg-dev/ess:0.6.8` and `latest` manifest | `4661cfee4db9731c160568dc4202d8d911e7d5dbc18a59e75b13ac174827f1db` |
+
+Before publication the root workflow passes inventory consistency, formatting,
+strict compilation, **46 compatibility-tooling tests and 21 release-tooling
+tests**, and the complete umbrella suites: core **343/0 failures/1 exclusion**,
+cluster **38/0/1**, CLI **3,484/0/0**, S3 **224/0/0**, and web **21/0/0**.
+Fresh core and CLI source-package consumers pass before the atomic main/tag
+push. The CLI registry preflight verifies exact equality with the existing
+immutable package; core publication creates the missing version. Both reusable
+publishers then pass their scoped tests and fresh public-package consumers.
+The CLI source and public consumers each pass all twelve package/runtime gates
+and all ten installed credential-process tests, with zero failures, skips or
+exclusions. Only after both publishers succeed does the root workflow promote
+`latest` and create the canonical GitHub release with aggregate checksums.
+
+Independent anonymous Hex API checks return version `0.6.8` and the exact tar
+checksums above for both packages. Their versioned API documentation returns
+HTTP 200 with the correct package and version in each title. The core API page
+is 40,736 bytes, SHA256
+`659f871f9485102387d4612cb9e2e2c7857d2dff4dbeca2d2c41e9dead4e444c`;
+the CLI page is 51,058 bytes, SHA256
+`5629553602e0b82b71a12c4723201003120106e019e2b6963619d1f1349e0d6f`.
+
+## Independent canonical artifact verification
+
+All **21 public GitHub assets** were downloaded anonymously. Their API sizes
+and digests match; `SHA256SUMS` covers all **20 payloads** exactly once and its
+own SHA256 is
+`d728692526cc58974d6aefe4f786f5f121ac4e9a5c31d698559cd661c0c5695c`.
+The remote canonical tag, source-parent relationship, six version declarations,
+release provenance, source/build manifests and registry reuse records agree.
+
+The public core tar contains **109 tracked files exactly matching the canonical
+GitHub source archive**, with no extras. Its inner Hex checksum is
+`6f40cd71efcf4824e7e9f71822fce4b2b532a1d443bf56aa414afd0ea2bca7f1`.
+The unchanged public CLI tar contains **789 matching tracked files and only the
+two expected generated Erlang files**, whose exact hashes remain recorded in
+the historical report below. Its inner checksum remains
+`d8aa7c02c8512b43e031beca3001c774bf3a4ad3fcf5be67c58a30126b732cb8`.
+
+The exact checksum-verified canonical escript runs from an unrelated working
+directory on **Elixir 1.18.5 / OTP 28**, without build or installation commands.
+It reports `ess version 0.6.8`, renders GetObject help and an input skeleton,
+passes all ten installed credential-process tests and seven cleanup checks,
+and handles an actual Unicode HTTP response. Raw stdout preserves all
+**65,792 bytes**, SHA256
+`120c518a83325c66464701a6ee080302f332bc768ea3f60473b209f1bfb091df`.
+Interactive Linux pager PTY ownership/restoration passes, and native extraction
+temporary files are removed.
+
+Independent anonymous manifest-body hashing confirms that image tags `0.6.8`
+and `latest` have the exact manifest digest above. The verified public image
+runs in an isolated container with no network, published ports or host binds.
+`/health`, `/health/ready` and the admin `/login` page all return HTTP 200.
+RPC confirms all four server applications at `0.6.8`; runtime build metadata
+and OCI labels agree on production version `0.6.8`, ref `v0.6.8`, pre-bump source
+`fa3f31cc58f7d25fc5b46f346179aa191b3714b6` and actual build-start timestamp
+`2026-10-17T07:32:17Z`. The owned container and anonymous volume are removed.
+
+The initial local Docker pull timed out after 600 seconds; its exact cause is
+unproven. Anonymous recovery rejected a largest-layer response truncated at
+90 MiB, fetched the missing 163,624 bytes with a validated Content-Range, and
+verified the complete manifest, config, all five compressed layer hashes and
+all five uncompressed filesystem digests before import. Runtime execution is
+bound to that public manifest through verified image/config ID
+`sha256:3ec39c0a110658780bae2d5b8ccf709debf86e8914969ffbe75de07f52cf4498`.
+A temporary probe initially omitted its generated environment variables and
+correctly failed the production startup guard; correcting the probe's environment
+handoff produced the passing checks above. Timeout, truncated-response and
+failed-probe evidence is retained alongside the successful import/runtime audit.
+
+## Historical unified-release interruption
+
+On the earlier source
 `33c58fe04fbdb8c860e8eb7cbf6142df8db6751c`,
 [CLI compatibility 38926969934](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38926969934)
 passes all eight jobs, including both macOS 26 architectures and the separate
@@ -29,8 +114,8 @@ supporting a keepalive framing problem. The batch-delete handler discards the
 updated connection from `read_full_body/1`; exact packet-level causality remains
 unverified. Server, E2E and dependency sources are unchanged from the previous
 passing run. Restart/persistence checks were skipped, so passing unit tests do
-not establish the complete server contract. A separately authorized S3 fix and
-regression validation are required before continuing this unified publication.
+not establish the complete server contract. Publication was stopped at that
+point pending scope clarification; no S3 fix or local workaround was applied.
 
 [Unified release 38927117399](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38927117399)
 was cancelled during prepublication validation, before canonical tag, image,
@@ -38,7 +123,21 @@ registry or GitHub release publication steps. The earlier short-SHA dispatch
 38926990600 failed at checkout without publication. The canonical tag was absent
 when checked after cancellation. No immutable published CLI bytes were changed.
 
-## Immutable source and publishing boundary
+On current source `fa3f31cc58f7d25fc5b46f346179aa191b3714b6`,
+[server E2E 38928241938](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38928241938)
+passes the signed exercise, post-delete HeadObject HTTP 404, actual restart,
+and checksum/listing persistence checks. Both server logs contain zero Bandit
+HTTP errors. Core, S3, web, E2E, dependency-lock and E2E-workflow bytes are
+identical across the failed and successful sources. This current passing
+observation allowed the authorized unified release to resume; it does not
+establish a fix or disprove the unchanged intermittent framing concern.
+[CLI 38928236430](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38928236430),
+[umbrella 38928236406](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38928236406),
+[cluster 38928240500](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38928240500)
+and [CI 38928236318](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38928236318)
+also pass at this source.
+
+## Historical CLI-only source and publishing boundary
 
 - Release: [ESS CLI v0.6.8](https://github.com/gsmlg-opt/ex_storage_service/releases/tag/cli-v0.6.8).
 - Public package: [ex_storage_service_cli 0.6.8](https://hex.pm/packages/ex_storage_service_cli/0.6.8).

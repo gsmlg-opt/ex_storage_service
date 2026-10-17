@@ -1,7 +1,7 @@
 # ESS CLI Implementation Plan
 
-- Status: M0–M9 implementation and release acceptance complete within documented compatibility boundaries; corrected full suites pass and CLI 0.6.8 is published with independent public-artifact verification. See [release-verification.md](compatibility/release-verification.md) for source, package, runtime and provider evidence.
-- Date: 2026-10-14; implementation audit updated 2026-10-16.
+- Status: M0–M9 implementation and release acceptance complete within documented compatibility boundaries; all components share the published `v0.6.8` release, created only through GitHub `release.yml`, with independent public-artifact verification. See [release-verification.md](compatibility/release-verification.md) for source, package, runtime and provider evidence.
+- Date: 2026-10-14; implementation and release audit updated 2026-10-17.
 - Target: `apps/ex_storage_service_cli` and its standalone `ess` executable.
 - Source baseline inspected: `42a9fe2b41faa82cf10c3f07840b890be18b876d`; CLI version at inspection: `0.6.7`.
 - Architecture and compatibility contract: [design.md](design.md).
@@ -32,7 +32,15 @@ the coordinated HTTP/Bundler lock update. Existing core ranges and web
 constraints remain supported. This is a dependency-scope extension; core and UI
 behavior changes remain outside this plan.
 
-Version 0.6.8 is released from
+The subsequent user decision requires one shared version and canonical
+`v<version>` tag, with publication only through GitHub `release.yml`. Release
+orchestration synchronizes version metadata in the root and all applications;
+this does not extend the client plan to server behavior changes.
+
+Unified version 0.6.8 is released at
+`d449e65d1076e21414dd37bcb7bcc9a47cc325ac`, from pre-bump source
+`fa3f31cc58f7d25fc5b46f346179aa191b3714b6`. The CLI package retains exactly
+the immutable bytes originally published from
 `515207e8c4063f689e499d999cf408e7f4c40ce1`. Published HTTP `~> 0.21.13` is
 admitted by core's approved range. The declared standalone/umbrella, five-platform
 package, 2 GiB resource and provider-policy matrix passes; exact results are in
@@ -269,13 +277,19 @@ Every mc inventory row has a working tested mapping or an explicit scope/differe
 
 ### Final acceptance
 
-CLI **0.6.8** is published from `515207e8c4063f689e499d999cf408e7f4c40ce1`.
-Corrected complete CLI/umbrella tests, five-platform package probes, measured
-2 GiB resources and provider-limitation policy pass at that source. The
+All components share canonical **v0.6.8** at
+`d449e65d1076e21414dd37bcb7bcc9a47cc325ac`. GitHub
+[release workflow 39012552369](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39012552369)
+passes all four jobs, publishing both Hex packages, the server image and CLI
+assets under that tag. Corrected complete CLI/umbrella tests, five-platform
+package probes, measured 2 GiB resources and provider-limitation policy pass;
+their version-scoped sources and historical failures remain in the reports. The
 [release verification report](compatibility/release-verification.md) records
-the successful CLI-only workflow, remote tag, public Hex package/documentation,
-downloaded artifacts, checksums and independent fresh public consumer. Earlier
-matrices and failures remain historical evidence in the linked reports.
+the canonical source mapping, public Hex packages/documentation, fresh public
+consumers, all 21 downloaded release assets and their checksums, actual downloaded
+CLI execution, and version/latest image identity. The historical `cli-v0.6.8`
+release remains available; new releases use only the shared canonical tag and
+the root GitHub workflow.
 
 All in-scope client features are implemented; no stubs or silently ignored flags remain. Wire and executable behavior is verified against the pinned reference, subject only to explicitly recorded compatibility deviations. Provider-ineligible cases retain correct client implementation and clear evidence labels. A full-compatibility claim must always state the exact baseline and any deviations; unavailable live evidence cannot be represented as a passing provider suite.
 

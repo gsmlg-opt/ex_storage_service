@@ -1,10 +1,14 @@
 # Milestone acceptance status
 
 M0–M9 implementation and release acceptance are complete within the documented
-compatibility boundaries. Version **0.6.8** is published on Hex and GitHub from
-`515207e8c4063f689e499d999cf408e7f4c40ce1`; the
+compatibility boundaries. All components share canonical **v0.6.8**, published
+only through GitHub `release.yml` at
+`d449e65d1076e21414dd37bcb7bcc9a47cc325ac`; the
 [release verification report](release-verification.md) records public artifacts,
-checksums, source mapping, documentation and an independent fresh consumer.
+checksums, source mapping, documentation, fresh public consumers, downloaded
+CLI execution and version/latest image identity. The historical CLI-only package
+from `515207e8c4063f689e499d999cf408e7f4c40ce1` is reused after exact byte
+comparison; its old tag remains available.
 The prepared report shipped in the release assets remains an immutable snapshot;
 this subsequent report records the completed gates. Implementation, wire fixtures
 and live-provider evidence remain separate; no exact mc replacement or exhaustive
@@ -16,6 +20,18 @@ and mc `77f82e18b5401a65958f1619df6ebb994634bd88`; exact digests are in the
 reference lock. The final report commit follows the released implementation
 without changing packaged CLI source. The two 8f2f863 test failures, deterministic
 test-only repairs and prior cancelled publishes remain in integration-validation.md.
+
+[Unified release 39012552369](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39012552369)
+passes all four jobs from pre-bump source
+`fa3f31cc58f7d25fc5b46f346179aa191b3714b6`: complete umbrella/tooling validation,
+both reusable Hex publishers and final canonical-release creation. Independent
+anonymous checks cover all 21 GitHub assets, all 20 checksummed payloads, both
+public Hex packages against canonical source, versioned API documentation and
+the actual downloaded CLI runtime. Independent public-image execution passes
+health/readiness, admin login, all four runtime versions and build identity;
+anonymous version/latest manifest digests agree. The report retains download
+and probe recovery, the interrupted earlier release and subsequent current-source
+passing E2E without claiming an S3 fix.
 
 [CLI run 38899567013](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/38899567013)
 passes all eight jobs: 3,483 standalone tests/zero failures/one resource exclusion,
@@ -63,7 +79,7 @@ Those native choices do not remove any pinned AWS namespace requirement.
 | M6 | Complete catalog-backed object/bucket management families, complete native documents and selected convenience edits, version/delete-marker recovery, capability records and known-ESS safety exclusions. Governance, lifecycle, notifications, replication, anonymous and tag conveniences retain scoped effects and mutation fences. | Ten AWS governance captures and fourteen locked mc observations are bounded fixtures, not live enforcement. Independent complex configuration/provider/account round trips remain separately labeled. See [management-convenience-decisions.md](management-convenience-decisions.md), [native-governance-decisions.md](native-governance-decisions.md) and [differential-governance-members.md](differential-governance-members.md). |
 | M7 | Credential providers/refresh/SSO, vendored S3/STS endpoint rules and partitions, directory sessions, SigV4a/streaming signatures, EventStream Select/Object Lambda, all five checksum algorithms and restore restrictions have scoped implementations. Darwin credential-process execution uses verified OTP Unix group setup; installed-artifact checks pass on all five declared runtime combinations. | Both macOS 26 architectures pass all ten installed process-group/descendant-cleanup tests, zero failures/skips/exclusions. Live STS/SSO/IMDS/desktop, directory/session/encryption and account/hardware-specific AWS cases remain unrun. Browser fallback, credential endpoint policies and other explicit differences remain; see [credential-decisions.md](credential-decisions.md), [sigv4a-decisions.md](sigv4a-decisions.md) and [special-protocol-decisions.md](special-protocol-decisions.md). |
 | M8 | Bounded current/historical inspection/find/tree/du, exact `stat --no-list`, raw reads, rewind/age selection, diff, sharing/POST/private history, governance-bypass deletion, actual Select, explicit polling watch/mirror-watch, generic diagnostics versus ESS health, doctor/completion and transfer recovery. Invocation-scoped globals and bounded endpoint pacing retain their scoped tests. | All 106 native rows have explicit mappings/differences; this satisfies the implementation/disposition task without claiming mc drop-in parity. Prefix-selected encryption, omitted deletion/find conveniences, native output/defaults and MinIO extensions remain explicitly distinct. Selected-version recovery and named polling do not implement history-range undo or notification replay. See [native-compatibility-dispositions.md](native-compatibility-dispositions.md) and the linked per-feature reports. |
-| M9 | Corrected standalone/umbrella, five-platform fresh package/install, measured 2 GiB resource, provider policy, generated inventories and reports pass; public release/package bytes and generated outputs have independently verified provenance. | CLI-only 0.6.8 publication, remote tag, public Hex/documentation, fresh public consumer and downloaded escript are verified in [release-verification.md](release-verification.md). Live AWS and exhaustive per-member evidence remain explicitly bounded above. |
+| M9 | Corrected standalone/umbrella, five-platform fresh package/install, measured 2 GiB resource, provider policy, generated inventories and reports pass; public release/package bytes and generated outputs have independently verified provenance. | Unified v0.6.8 publication through the root GitHub workflow, canonical tag, both public Hex packages/documentation, fresh public consumers, downloaded escript and version/latest image identity are verified in [release-verification.md](release-verification.md). Live AWS and exhaustive per-member evidence remain explicitly bounded above. |
 
 ## Completed acceptance and release gates
 
@@ -73,7 +89,7 @@ Those native choices do not remove any pinned AWS namespace requirement.
 - [x] Complete current-source formatting, strict compilation, inventory/evidence tooling, pinned executable differential suites and the separate resource/provider-policy jobs. Scoped passes do not count as a passing final graph, and generic model traversal does not verify every member or variant.
 - [x] Run fresh standalone package consumers and all five declared runtime combinations. Each macOS manifest must record `installed-credential-process`, `credential_process.os = darwin`, all seven named checks and at least ten tests with zero failures/skips/exclusions for both `macos-26` arm64 and `macos-26-intel` x86_64. Historical package jobs do not validate the current guard or modules.
 - [x] Reconcile the final requirement overlay, native dispositions, command/migration/configuration guide, compatibility report and release notes with the actual final implementation and reference results. Keep absent native convenience effects visible, every AWS requirement assigned, and fixture/source-only/live-provider evidence distinct.
-- [x] Build and inspect the immutable next-version source package/escript; record exact version/source SHA, digests, reference lock and notices; commit/push/release through the configured CLI process, then independently verify the remote ref, workflow, public Hex consumer and downloadable artifacts. Version 0.6.8 is published and independently verified; exact source, CI/public tar differences, generated-output reproduction and public asset digests are in [release-verification.md](release-verification.md).
+- [x] Build and inspect the immutable next-version source package/escript; record exact version/source SHA, digests, reference lock and notices; commit/push/release all components only through GitHub `release.yml` under one canonical tag, then independently verify the remote ref, workflow, both public Hex packages/consumers, downloadable artifacts and version/latest image identity. Unified v0.6.8 is published and independently verified; historical CLI-only evidence, exact source, CI/public tar differences, generated-output reproduction and public asset digests are in [release-verification.md](release-verification.md).
 
 ## Retained version-scoped evidence
 
