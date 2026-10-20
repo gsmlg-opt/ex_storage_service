@@ -1,0 +1,136 @@
+correctness: passed (docs/reports/s3-hardening/closeout-002/candidate-c6/correctness.json)
+standalone: blocked (docs/reports/s3-hardening/closeout-002/candidate-c6/standalone.json)
+gateway: passed (docs/reports/s3-hardening/closeout-002/candidate-c6/gateway.json)
+cluster: passed (docs/reports/s3-hardening/closeout-002/candidate-c6/cluster.json)
+index: blocked (docs/reports/s3-hardening/closeout-002/candidate-c6/index.json)
+resources: passed (docs/reports/s3-hardening/closeout-002/candidate-c6/resources.json)
+faults: passed (docs/reports/s3-hardening/closeout-002/candidate-c6/faults.json)
+crashes: passed (docs/reports/s3-hardening/closeout-002/candidate-c6/crashes.json)
+resilience: passed (docs/reports/s3-hardening/closeout-002/candidate-c6/resilience.json)
+restore: passed (docs/reports/s3-hardening/closeout-002/candidate-c6/restore.json)
+release: blocked (docs/reports/s3-hardening/closeout-002/candidate-c6/release.json)
+A01: verification belongs to another revision
+A01: verification belongs to different source contents
+A02: verification belongs to another revision
+A02: verification belongs to different source contents
+A03: verification belongs to another revision
+A03: verification belongs to different source contents
+A04: verification belongs to another revision
+A04: verification belongs to different source contents
+A05: verification belongs to another revision
+A05: verification belongs to different source contents
+A06: verification belongs to another revision
+A06: verification belongs to different source contents
+A07: verification belongs to another revision
+A07: verification belongs to different source contents
+A08: verification belongs to another revision
+A08: verification belongs to different source contents
+A09: verification belongs to another revision
+A09: verification belongs to different source contents
+A10: verification belongs to another revision
+A10: verification belongs to different source contents
+A11: verification belongs to another revision
+A11: verification belongs to different source contents
+A12: verification belongs to another revision
+A12: verification belongs to different source contents
+A13: verification belongs to another revision
+A13: verification belongs to different source contents
+A14: verification belongs to another revision
+A14: verification belongs to different source contents
+A15: verification belongs to another revision
+A15: verification belongs to different source contents
+A16: verification belongs to another revision
+A16: verification belongs to different source contents
+A17: verification belongs to another revision
+A17: verification belongs to different source contents
+A18: verification belongs to another revision
+A18: verification belongs to different source contents
+A19: verification belongs to another revision
+A19: verification belongs to different source contents
+A20: verification belongs to another revision
+A20: verification belongs to different source contents
+A21: verification belongs to another revision
+A21: verification belongs to different source contents
+A22: verification belongs to another revision
+A22: verification belongs to different source contents
+A23: verification belongs to another revision
+A23: verification belongs to different source contents
+A24: verification belongs to another revision
+A24: verification belongs to different source contents
+A25: verification belongs to another revision
+A25: verification belongs to different source contents
+A26: verification belongs to another revision
+A26: verification belongs to different source contents
+A27: verification belongs to another revision
+A27: verification belongs to different source contents
+A28: blocked; every mandatory row must pass
+A29: verification belongs to another revision
+A29: verification belongs to different source contents
+A30: failed; every mandatory row must pass
+A31: verification belongs to another revision
+A31: verification belongs to different source contents
+A32: verification belongs to another revision
+A32: verification belongs to different source contents
+A33: verification belongs to another revision
+A33: verification belongs to different source contents
+A34: verification belongs to another revision
+A34: verification belongs to different source contents
+A35: verification belongs to another revision
+A35: verification belongs to different source contents
+A36: verification belongs to another revision
+A36: verification belongs to different source contents
+A37: verification belongs to another revision
+A37: verification belongs to different source contents
+A38: blocked; every mandatory row must pass
+standalone: blocked or incomplete execution
+index: blocked or incomplete execution
+release: blocked or incomplete execution
+A01: passed
+A02: passed
+A03: passed
+A04: passed
+A05: passed
+A06: passed
+A07: passed
+A08: passed
+A09: passed
+A10: passed
+A11: passed
+A12: passed
+A13: passed
+A14: passed
+A15: passed
+A16: passed
+A17: passed
+A18: passed
+A19: passed
+A20: passed
+A21: passed
+A22: passed
+A23: passed
+A24: passed
+A25: passed
+A26: passed
+A27: passed
+A28: blocked
+A29: passed
+A30: failed
+A31: passed
+A32: passed
+A33: passed
+A34: passed
+A35: passed
+A36: passed
+A37: passed
+A38: blocked
+profile correctness: passed
+profile standalone: blocked
+profile gateway: passed
+profile cluster: passed
+profile index: blocked
+profile resources: passed
+profile faults: passed
+profile crashes: passed
+profile resilience: passed
+profile restore: passed
+profile release: blocked

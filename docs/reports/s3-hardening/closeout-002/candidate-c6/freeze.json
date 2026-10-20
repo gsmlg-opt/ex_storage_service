@@ -1,0 +1,97 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "starting_sha": "b17282d96a58eff962a35d807c9e7adb39af4774",
+  "candidate_sha": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+  "source_sha256": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+  "frozen_at": "2026-10-20T22:13:48.825498+00:00",
+  "tracked_worktree_clean": "all executable inputs committed; report-only writes permitted",
+  "fingerprint_rule": "Also fence uncommitted source changes; HEAD alone is not a build identity.",
+  "fingerprint_definition": "e2e/hardening_acceptance.py:executable_input/source_fingerprint; sorted cached and nonignored untracked names; name NUL contents NUL; apps/config/e2e/scripts/.github, Mix/npm manifests/locks, Docker inputs, formatter and docs/cli/compatibility JSON included; other reports/docs excluded. Runner invocation inputs separately archived and hashed below; installed dependency versions constrained by mix.lock.",
+  "authoritative_command": [
+    "/tmp/ess-s3-hardening-python/bin/python",
+    "e2e/hardening_acceptance.py",
+    "run",
+    "--profile",
+    "all",
+    "--python",
+    "/tmp/ess-s3-hardening-python/bin/python",
+    "--mc",
+    "/tmp/ess-s3-hardening-tools/mc",
+    "--label",
+    "closeout002-c6",
+    "--output",
+    "docs/reports/s3-hardening/closeout-002/candidate-c6"
+  ],
+  "namespace_command": [
+    "bwrap",
+    "--die-with-parent",
+    "--new-session",
+    "--ro-bind",
+    "/",
+    "/",
+    "--proc",
+    "/proc",
+    "--dev-bind",
+    "/dev",
+    "/dev",
+    "--bind",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service",
+    "--bind",
+    "/fast/build/ess-closeout-c6-acceptance/tmp",
+    "/tmp",
+    "--ro-bind",
+    "/tmp/ess-s3-hardening-python",
+    "/tmp/ess-s3-hardening-python",
+    "--ro-bind",
+    "/tmp/ess-s3-hardening-tools",
+    "/tmp/ess-s3-hardening-tools",
+    "--chdir",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service"
+  ],
+  "runner_input_sha256": {
+    "runner-inputs/prerequisite-r2.json": "05c0aa54d0039041b0737673b67ca2bdc6f932f49968786eccaa90385e3495aa",
+    "runner-inputs/run.py": "4edf8b32fecc7ffae1de21d96df7203ac0ab6972593864af48314c1958ce4812",
+    "runner-inputs/namespace-command-r2.json": "5624eeda3aaf10ba09d900f5c2f6977aa71e2a780289422c3f937eda550bbdec",
+    "runner-inputs/prerequisite.json": "92fa610406c190c38f9c3ad23b4a77254e406439ac0ad22c2497fd347cd3207b"
+  },
+  "lock_sha256": "9a0490448ff8b2c8a70a2aac35e4da2cea65c319dc14b3006d305f51993fe36a",
+  "resource_envelope_sha256": "8bb6e3eb681fce95b418dad989ce40f6a2cdb7218c4e1d5db030345f5ee230b6",
+  "python": {
+    "path": "/tmp/ess-s3-hardening-python/bin/python",
+    "executable_sha256": "56f78bdc0ad95ef4c2723243bbffb99a64fbef8b190916eecf8b1660137adfca",
+    "packages": [
+      "boto3==1.43.114",
+      "botocore==1.43.114",
+      "jmespath==1.1.0",
+      "python-dateutil==2.9.0.post0",
+      "s3transfer==0.19.2",
+      "six==1.17.0",
+      "urllib3==2.8.0"
+    ]
+  },
+  "mc": {
+    "path": "/tmp/ess-s3-hardening-tools/mc",
+    "sha256": "01f866e9c5f9b87c2b09116fa5d7c06695b106242d829a8bb32990c00312e891"
+  },
+  "previous_candidate": {
+    "sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+    "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+    "actual_run_exit_status": 1,
+    "actual_aggregate_exit_status": 1,
+    "evidence": "docs/reports/s3-hardening/closeout-002/candidate-c5"
+  },
+  "input_changes": "Failure-only bounded storage error classification logging; reclaim only active standalone LocalCAS stage after raw commit failure and positive matching abort ack; wrapped uncertain outcomes retain. No dependency, auth, checksum, RF/W, dataset, concurrency, profile, cadence or envelope changes.",
+  "environment_policy": {
+    "PAGER": "cat",
+    "ERL_FLAGS": "+S 4:4 +SDcpu 2 +SDio 2",
+    "checksum_overrides": "unset",
+    "task_owned_heavy_workloads": "serial",
+    "disk": "private /tmp mapped to /fast/build/ess-closeout-c6-acceptance/tmp (NVMe ext4); host PID namespace retained for observer identity; nested restore namespaces permitted by disposable proc mount",
+    "existing_database_command_version": "0 unchanged",
+    "empty_restore_targets_command_version": "1 through every restart/activation",
+    "thresholds": "original 100 ms coverage and predeclared envelopes unchanged",
+    "intrusive_tracing": "absent"
+  },
+  "publication": "not_attempted; full acceptance prerequisite"
+}

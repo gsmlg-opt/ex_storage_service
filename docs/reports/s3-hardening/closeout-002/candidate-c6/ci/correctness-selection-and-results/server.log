@@ -1,0 +1,73 @@
+==> ex_storage_service
+Running ExUnit with seed: 748008, max_cases: 1
+Excluding tags: [cluster: true]
+
+.............................................................22:14:54.663 [error] CloudCache DELETE failed remote/key: HTTP 403 — ""
+.............22:14:55.748 [error] Replication DELETE failed for bucket/key to http://127.0.0.1:36209: HTTP 503 - ""
+........................................................................................................................................................................................................................................................................................................................22:15:12.469 [warning] CAS migration: content missing for mig-6386 hash 9a0bd69022f771a1789c3a308411a742df47a1a501488d73c1e7f1bdcb48cf12
+.22:15:12.473 [warning] CAS migration: content missing for mig-6386 hash 9a0bd69022f771a1789c3a308411a742df47a1a501488d73c1e7f1bdcb48cf12
+22:15:12.489 [warning] CAS migration: content missing for mig-6386 hash 9a0bd69022f771a1789c3a308411a742df47a1a501488d73c1e7f1bdcb48cf12
+.................................................................22:15:13.954 [warning] ContentGC: metadata scan failed; sweep aborted: :metadata_unavailable
+................................................................................22:15:42.990 [warning] CasGC: failed to delete 50d718db68a86fd0af6fc65fd35f232df4d72a50bb5a55a1a74af6d3efba7c7a: :invalid_quarantine_path
+........................................................22:15:47.354 [warning] Outbox materialization failed: :not_found
+..................
+Finished in 61.1 seconds (19.6s async, 41.5s sync)
+606 tests, 0 failures (1 excluded)
+==> ex_storage_service_cluster
+Running ExUnit with seed: 748008, max_cases: 1
+Excluding tags: [large_stream: true]
+
+......................................22:15:55.067 [error] GenServer #PID<0.8003.0> terminating
+** (Bandit.TransportError) Unable to obtain conn_data
+    (bandit 1.12.5) lib/bandit/socket_helpers.ex:72: Bandit.SocketHelpers.transport_error!/2
+    (bandit 1.12.5) lib/bandit/http1/handler.ex:9: Bandit.HTTP1.Handler.handle_connection/2
+    (bandit 1.12.5) lib/bandit/delegating_handler.ex:12: Bandit.DelegatingHandler.handle_connection/2
+    (bandit 1.12.5) lib/bandit/delegating_handler.ex:63: Bandit.DelegatingHandler.handle_bandit_continuation/2
+    (bandit 1.12.5) lib/bandit/delegating_handler.ex:8: Bandit.DelegatingHandler.handle_continue/2
+    (stdlib 7.3.0.3) gen_server.erl:2424: :gen_server.try_handle_continue/3
+    (stdlib 7.3.0.3) gen_server.erl:2291: :gen_server.loop/4
+    (stdlib 7.3.0.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+Process Label: {:thousand_island, :connection, {Bandit.DelegatingHandler, {{127, 0, 0, 1}, 32768}}}
+Last message: {:continue, :handle_connection}
+.
+Finished in 1.0 seconds (1.0s async, 0.00s sync)
+39 tests, 0 failures (1 excluded)
+==> ex_storage_service_s3
+Running ExUnit with seed: 748008, max_cases: 1
+Excluding tags: [large_stream: true]
+
+......generated XML corpus: 5402 rejected cases, max input 4096 bytes
+....................................................................22:15:57.815 [error] S3 storage operation failed: :eio
+.22:15:57.818 request_id=request-phase7-incomplete [warning] blob response stream terminated
+.................22:15:58.155 [error] 4234- fatal: :unexpected_end
+
+22:15:58.157 [error] 4234- fatal: :unexpected_end
+
+22:15:58.179 [error] 4234- fatal: :unexpected_end
+
+22:15:58.181 [error] 4234- fatal: :unexpected_end
+
+22:15:58.201 [error] 4234- fatal: :unexpected_end
+
+22:15:58.203 [error] 4234- fatal: :unexpected_end
+
+...22:15:58.606 [warning] SigV4 auth failed: Missing Authorization header — HEAD /signature
+.22:15:58.615 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+22:15:58.615 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+..22:15:58.630 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+.................................................................................................................................................................22:16:55.905 [warning] SigV4 auth failed: Missing Authorization header — OPTIONS /cors-http-9107/key
+22:16:55.908 [warning] SigV4 auth failed: Missing Authorization header — GET /cors-http-9107/key
+............22:17:01.377 [warning] SigV4 auth failed: Missing Authorization header — POST /health/cloud_cache
+.....................................................22:17:19.321 [error] Replication PUT failed for source/broken.bin to http://localhost:9001: {:request_failed, %ExStorageService.BlobStore.Source.RequestBodyError{reason: :upstream_closed}}
+......22:17:21.197 [error] Replication PUT repl-9443/d.txt: content "34b79ebbbdd248cd400be53835923b81af125e4c4bc956444f3f0701751007e0" missing from storage
+..22:17:21.944 [warning] SigV4 auth failed: SignatureDoesNotMatch — GET /
+..........................................
+Finished in 128.0 seconds (2.8s async, 125.1s sync)
+374 tests, 0 failures
+==> ex_storage_service_web
+Running ExUnit with seed: 748008, max_cases: 1
+Excluding tags: [large_stream: true]
+
+.....................
+Finished in 0.3 seconds (0.1s async, 0.1s sync)
+21 tests, 0 failures

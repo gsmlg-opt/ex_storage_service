@@ -1,0 +1,84 @@
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 777662)
+[0mWaiting for lock on the build directory (held by process 777662)
+[0mWaiting for lock on the build directory (held by process 777662)
+[0mWaiting for lock on the build directory (held by process 777662)
+[0mWaiting for lock on the build directory (held by process 777662)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 777663)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 777663)
+==> ex_storage_service_web
+[0mWaiting for lock on the build directory (held by process 777663)
+
+06:58:51.714 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+06:58:51.726 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+06:58:51.783 [info] Storage engine started with data root /tmp/ess-hardening-restore-9v3KZvVE/source/data-b and blob root /tmp/ess-hardening-restore-9v3KZvVE/source/data-b/blob
+
+06:58:51.786 [info] Concord VSR metadata quorum ready
+
+06:58:51.809 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:33139 (http)
+
+06:58:51.812 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:36379 (http)
+{"restore_control":"boot_ready"}
+
+06:58:52.729 [debug] API get: {:error, :not_found} (0ms)
+
+06:58:52.787 [debug] API get: {:error, :not_found} (0ms)
+
+06:58:52.818 [debug] API get: {:error, :not_found} (0ms)
+
+06:58:52.818 [debug] API get: {:error, :not_found} (0ms)
+
+06:58:52.896 [debug] API get: {:error, :not_found} (0ms)
+
+06:58:52.948 [debug] API get: {:error, :not_found} (0ms)
+
+06:58:53.021 [debug] API get: {:error, :not_found} (0ms)
+
+06:58:53.025 [debug] API get: {:error, :not_found} (0ms)
+
+06:58:53.060 [debug] API get: {:error, :not_found} (0ms)
+
+06:58:53.060 [debug] API get: {:error, :not_found} (0ms)
+
+06:58:53.143 [debug] API get: {:error, :not_found} (0ms)
+
+06:58:54.845 [notice] Application ex_storage_service_s3 exited: :stopped
+
+06:58:54.848 [notice] Application ex_storage_service_cluster exited: :stopped
+
+06:58:56.122 [notice] SIGTERM received - shutting down
+
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 778033)
+[0mWaiting for lock on the build directory (held by process 778033)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 778033)
+[0mWaiting for lock on the build directory (held by process 778032)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 778033)
+
+06:58:57.792 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+06:58:57.803 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+06:58:57.868 [info] Storage engine started with data root /tmp/ess-hardening-restore-9v3KZvVE/source/data-b and blob root /tmp/ess-hardening-restore-9v3KZvVE/source/data-b/blob
+
+06:58:57.872 [info] Concord VSR metadata quorum ready
+
+06:58:57.892 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:33139 (http)
+
+06:58:57.896 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:36379 (http)
+{"restore_control":"boot_ready"}
+
+06:58:58.164 [notice] SIGTERM received - shutting down
+

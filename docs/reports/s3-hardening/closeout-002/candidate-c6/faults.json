@@ -1,0 +1,34 @@
+{
+  "profile": "faults",
+  "status": "passed",
+  "starting_sha": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+  "ending_sha": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+  "source_sha256": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 7.181,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c6/faults-0.log"
+    },
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_faults.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c6-faults"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 11.289,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c6/faults-1.log"
+    }
+  ],
+  "started_at": "2026-10-20T22:56:58.571014+00:00"
+}

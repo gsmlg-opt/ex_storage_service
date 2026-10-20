@@ -1,0 +1,53 @@
+==> ex_storage_service
+Compiling 130 files (.ex)
+Generated ex_storage_service app
+==> ex_storage_service_cluster
+Compiling 7 files (.ex)
+Generated ex_storage_service_cluster app
+==> ex_storage_service_cli
+Compiling 1 file (.yrl)
+Compiling 1 file (.xrl)
+Compiling 22 files (.erl)
+Compiling 150 files (.ex)
+Generated ex_storage_service_cli app
+==> ex_storage_service_s3
+Compiling 33 files (.ex)
+Generated ex_storage_service_s3 app
+==> ex_storage_service_web
+Compiling 26 files (.ex)
+Generated ex_storage_service_web app
+==> ex_storage_service_web
+Bundling 40 @duskmoon-dev element(s)...
+Wrote /home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/assets/js/duskmoon_elements.js (689.2 KB, 40 element(s))
+Building Tailwind CSS...
+  app-87111d52.css  456.5 KB
+  manifest.json  1 entries
+Built Tailwind in 3797ms
+Building "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/assets/js/app.js"...
+  app-d0ca62d7.js  768.6 KB (gzip: 148.8 KB)
+  manifest.json  1 entries
+Built in 526ms
+Check your digested files at "priv/static"
+* assembling ess-0.6.10 on MIX_ENV=prod
+* using config/runtime.exs to configure the release at runtime
+* skipping elixir.bat for windows (bin/elixir.bat not found in the Elixir installation)
+* skipping iex.bat for windows (bin/iex.bat not found in the Elixir installation)
+
+Release created at _build/prod/rel/ess
+
+    # To start your system
+    _build/prod/rel/ess/bin/ess start
+
+Once the release is running:
+
+    # To connect to it remotely
+    _build/prod/rel/ess/bin/ess remote
+
+    # To stop it gracefully (you may also send SIGINT/SIGTERM)
+    _build/prod/rel/ess/bin/ess stop
+
+To list all commands:
+
+    _build/prod/rel/ess/bin/ess
+
+ERROR: failed to build: failed to update builder last activity time: open /home/gao/.docker/buildx/activity/.tmp-default2683776059: read-only file system

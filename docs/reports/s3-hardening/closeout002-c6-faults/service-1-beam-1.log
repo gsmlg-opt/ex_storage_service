@@ -1,0 +1,10 @@
+06:57:13.344 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+06:57:13.355 [info] Starting Concord TTL manager with cleanup interval: 300000s
+06:57:13.387 [info] Concord VSR metadata store ready
+06:57:13.398 [info] Storage engine started with data root /tmp/ess-hardening-fault-closeout002-c6-faults/diskfull/data and blob root /tmp/ess-hardening-fault-closeout002-c6-faults/diskfull/data/blob
+06:57:13.427 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:51725 (http)
+06:57:14.553 [error] S3 storage operation failed: {:stage, :enospc}
+06:57:14.567 [error] S3 storage operation failed: {:stage, :enospc}

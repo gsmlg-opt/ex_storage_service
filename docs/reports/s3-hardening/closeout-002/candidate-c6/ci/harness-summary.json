@@ -1,0 +1,11 @@
+{
+  "run_id": 39506549513,
+  "head_sha": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+  "workflow_log_sha256": "b07f6c1228d8af00bea6484ddb49958e5ca5931ecc40fa7514f0482c369ad8f6",
+  "matched_lines": [
+    "Core, S3, transport and web correctness\tVerify acceptance harness and release gate contracts\t2026-10-20T22:18:28.0853328Z Ran 113 tests in 22.269s",
+    "Core, S3, transport and web correctness\tVerify acceptance harness and release gate contracts\t2026-10-20T22:18:28.0855259Z OK"
+  ],
+  "harness_test_count": 113,
+  "logs_inspected_in_memory": "no full log dumped or published"
+}

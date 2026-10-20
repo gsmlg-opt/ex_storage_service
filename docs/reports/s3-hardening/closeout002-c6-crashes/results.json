@@ -1,0 +1,157 @@
+{
+  "status": "passed",
+  "groups": [
+    {
+      "boundary": "stage",
+      "status": "passed",
+      "process_exit": 137,
+      "new_process": true,
+      "acknowledged_version_and_bytes_retained": true,
+      "object": {
+        "exists": false
+      },
+      "intent": "absent",
+      "anonymous_stages_reclaimed": 0,
+      "protected_stages_retained": 0
+    },
+    {
+      "boundary": "after_stage",
+      "status": "passed",
+      "process_exit": 137,
+      "new_process": true,
+      "acknowledged_version_and_bytes_retained": true,
+      "object": {
+        "exists": false
+      },
+      "intent": "absent",
+      "anonymous_stages_reclaimed": 1,
+      "protected_stages_retained": 0
+    },
+    {
+      "boundary": "protection_data_sync",
+      "status": "passed",
+      "process_exit": 137,
+      "new_process": true,
+      "acknowledged_version_and_bytes_retained": true,
+      "object": {
+        "exists": false
+      },
+      "intent": "absent",
+      "anonymous_stages_reclaimed": 1,
+      "protected_stages_retained": 0
+    },
+    {
+      "boundary": "protection_rename",
+      "status": "passed",
+      "process_exit": 137,
+      "new_process": true,
+      "acknowledged_version_and_bytes_retained": true,
+      "object": {
+        "exists": false
+      },
+      "intent": "absent",
+      "anonymous_stages_reclaimed": 1,
+      "protected_stages_retained": 1
+    },
+    {
+      "boundary": "protection_directory_sync",
+      "status": "passed",
+      "process_exit": 137,
+      "new_process": true,
+      "acknowledged_version_and_bytes_retained": true,
+      "object": {
+        "exists": false
+      },
+      "intent": "absent",
+      "anonymous_stages_reclaimed": 0,
+      "protected_stages_retained": 2
+    },
+    {
+      "boundary": "sync",
+      "status": "passed",
+      "process_exit": 137,
+      "new_process": true,
+      "acknowledged_version_and_bytes_retained": true,
+      "object": {
+        "exists": false
+      },
+      "intent": "pending",
+      "anonymous_stages_reclaimed": 0,
+      "protected_stages_retained": 3
+    },
+    {
+      "boundary": "rename",
+      "status": "passed",
+      "process_exit": 137,
+      "new_process": true,
+      "acknowledged_version_and_bytes_retained": true,
+      "object": {
+        "exists": false
+      },
+      "intent": "pending",
+      "anonymous_stages_reclaimed": 0,
+      "protected_stages_retained": 4
+    },
+    {
+      "boundary": "directory_sync",
+      "status": "passed",
+      "process_exit": 137,
+      "new_process": true,
+      "acknowledged_version_and_bytes_retained": true,
+      "object": {
+        "exists": false
+      },
+      "intent": "pending",
+      "anonymous_stages_reclaimed": 0,
+      "protected_stages_retained": 4
+    },
+    {
+      "boundary": "after_blob_commit",
+      "status": "passed",
+      "process_exit": 137,
+      "new_process": true,
+      "acknowledged_version_and_bytes_retained": true,
+      "object": {
+        "exists": false
+      },
+      "intent": "pending",
+      "anonymous_stages_reclaimed": 0,
+      "protected_stages_retained": 4
+    },
+    {
+      "boundary": "metadata_commit",
+      "status": "passed",
+      "process_exit": 137,
+      "new_process": true,
+      "acknowledged_version_and_bytes_retained": true,
+      "object": {
+        "exists": false
+      },
+      "intent": "pending",
+      "anonymous_stages_reclaimed": 0,
+      "protected_stages_retained": 4
+    },
+    {
+      "boundary": "response",
+      "status": "passed",
+      "process_exit": 137,
+      "new_process": true,
+      "acknowledged_version_and_bytes_retained": true,
+      "object": {
+        "exists": true,
+        "hash": "0cd687a7fa0aa297e2b8ebbd152a340db6812d158986030b34b577e9c6a28c0e",
+        "version_id": "1792537059312315--UrjVLKqWTI"
+      },
+      "intent": "committed",
+      "anonymous_stages_reclaimed": 0,
+      "protected_stages_retained": 4
+    }
+  ],
+  "versions": {
+    "boto3": "1.43.114",
+    "botocore": "1.43.114"
+  },
+  "source_sha": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+  "working_tree": "uncommitted hardening implementation",
+  "source_sha256": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb"
+}

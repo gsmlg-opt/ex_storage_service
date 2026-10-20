@@ -1,0 +1,1507 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "assignment": "Read-only live upstream #101/#102 release/source/API refresh",
+  "recorded_at_utc": "2026-10-20T23:07:45.294664+00:00",
+  "status": "DONE_READ_ONLY_REFRESH",
+  "closeout_gate_status": "BLOCKED_UPSTREAM",
+  "conclusion": "No released or advertised #101/#102 repair found. Both issues remain open; latest coordinated Hex family and GitHub main/tag remain3.1.4, already locked by ESS.3.1.4 repairs earlier #99/#100 only. No dependency upgrade can currently be justified.",
+  "ESS_checkout": {
+    "path": "/home/gao/Workspace/gsmlg-opt/ex_storage_service",
+    "head": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+    "status_porcelain": "?? e2e/test_phase1_admission.py",
+    "mix_lock": {
+      "path": "mix.lock",
+      "sha256": "9a0490448ff8b2c8a70a2aac35e4da2cea65c319dc14b3006d305f51993fe36a",
+      "bytes": 27828
+    },
+    "core_mix": {
+      "path": "apps/ex_storage_service/mix.exs",
+      "sha256": "7f8328dcf5dd07b2dc5a2e9d3b1bea563be79dbbeae5131e009799f1adf244c6",
+      "bytes": 1474
+    },
+    "constraint": "{:concord, \"~> 3.1.4\"}",
+    "http_fetch_locked": "0.21.13"
+  },
+  "upstream_local": {
+    "path": "/home/gao/Workspace/gsmlg-dev/concord",
+    "head": "4b1c4fb7150d9d1e6473530f8a67144fe8c0552a",
+    "branch": "main",
+    "status_porcelain": "",
+    "worktrees": "worktree /home/gao/Workspace/gsmlg-dev/concord\nHEAD 4b1c4fb7150d9d1e6473530f8a67144fe8c0552a\nbranch refs/heads/main",
+    "recent_local_refs": "main 4b1c4fb7150d9d1e6473530f8a67144fe8c0552a 2026-10-20T23:23:58+08:00 chore(release): prepare 3.1.4\nfix/issue-82 89f27b14e18a8e41c668722c042dc43c82de229e 2026-08-27T22:36:53+08:00 fix: add schema-preserving table rebuilds (fixes #82)\nfix/issue-83 e40c34f5599785f6851bd7f33793979b75a80aa3 2026-08-27T14:10:37+08:00 fix: report declared unique index names (fixes #83)\nfix/issue-80 d803c43a7ffb92dcddaa5f61f4510c56d8c50233 2026-08-27T13:26:48+08:00 test: cover Ecto.Enum literal filtering (fixes #80)\nfix/issue-79 ff2fca3eba899e1220c13767c651adb127e52030 2026-08-27T12:09:33+08:00 fix: support partial-index upsert targets (fixes #79)\nfix/issue-76 363dda7832566dca569226b26b303bc12abbfa45 2026-08-27T11:35:30+08:00 fix: compile cleanly on Elixir 1.20 (fixes #76)\nfix/issue-75 8bd9ebf26712e1f79072cfafe6ebe94004a72c72 2026-08-27T11:25:12+08:00 fix: constrain Concord 2.x ex_turso dependency (fixes #75)\nfix/internal-requests-66-72 7d877752c8b3295d2b4444bf94811e5b915e00a0 2026-08-11T13:02:40+08:00 fix(ex_turso): resolve adapter compatibility regressions",
+    "latest_tags": [
+      "v3.1.4 4b1c4fb7150d9d1e6473530f8a67144fe8c0552a",
+      "v3.1.3 658bd8000f59a7147d2e4e6217a5eefe55d3f65a",
+      "v3.1.2 2ebf91f6bc500c010bac7be3d7deb9aa0238a2d6",
+      "v3.1.1 bf6eed26b93e6c9d74f3f64225a29911fedb402c",
+      "v3.1.0 78d8a04c3ed98cae71d9a8b2380756fa3a17d7cd",
+      "v3.0.6 0fc74d3273348845aab6de4732c158057236b3a3",
+      "v3.0.5 29adaa69ad3ed4aa26b36df38c3079fec054fbce",
+      "v3.0.4 9f4b3a216b8eb602099aa0037c48b58d337657fe"
+    ]
+  },
+  "github": {
+    "repository": "gsmlg-dev/concord",
+    "repository_response_sha256": "0237b8b215746d695c3dabf712372efb8adadecf41af33a64a2cdc51d7e22436",
+    "pushed_at": "2026-10-20T15:38:25Z",
+    "default_branch": "main",
+    "branch_list_response_sha256": "c928e74927038de47671884bd79826791216622b20ba44374ad319574103791c",
+    "branches": [
+      {
+        "name": "codex/fix-ci-release",
+        "sha": "237621edd6c7045508332d08fba9a1544573d705",
+        "message": "fix(release): publish migrated ExTurso package",
+        "committed_at": "2026-07-19T15:16:44Z",
+        "commit_response_sha256": "3fad24f509247be4a6583e384a9c0e1edc6fa932c7eae5f267735c866385ef4e"
+      },
+      {
+        "name": "codex/support-1-to-6-node-clusters",
+        "sha": "7d88fbe7a83734cc71ddde1928be511437e91c95",
+        "message": "feat(vsr): support one to six replica clusters\n\nUse strict majority quorums for every supported membership size. Add runtime, view-change, and performance coverage plus updated configuration documentation.",
+        "committed_at": "2026-07-21T10:22:38Z",
+        "commit_response_sha256": "d38d0eb6dedd7a5fcd5a3ce0627c373ef7870dcd781c0170df4c865679721e03"
+      },
+      {
+        "name": "fix/ci-ra3-test-helper",
+        "sha": "508e4bdc6b3ee03c435d5f4e7d25a77d368e43af",
+        "message": "fix(ci): fix format violations and Credo length/1 warnings\n\n- index.ex: break long consistent_query calls across lines (mix format)\n- index.ex: add blank line before case (mix format)\n- extractor.ex: replace length(keys) > 0 with keys != [] (Credo)\n- concord.ex: replace length guard with [_ | _] pattern (Credo)",
+        "committed_at": "2026-03-23T10:57:51Z",
+        "commit_response_sha256": "fa46b45f65ae12e64147e36837abd240a100b552c45e42583cb05681a62639a9"
+      },
+      {
+        "name": "fix/ci-watchhub-test",
+        "sha": "a026e01fb504e4e9d4fc99270d72b71f2a752cb2",
+        "message": "fix(ci): resolve format, credo, dialyzer, and test failures\n\n- Format: run mix format on all new files\n- Credo: alias Concord.KV.Selector in validation.ex, Concord.Txn in concord.ex\n- Dialyzer: remove unreachable {:ok, result, _} pattern in lease.ex queries\n- Tests: fix WatchHub test setup to work with supervisor-started instance",
+        "committed_at": "2026-05-15T15:42:25Z",
+        "commit_response_sha256": "5ba63f174f10818d512eda1163e273111d19172ed1ba783676fd789021c1268b"
+      },
+      {
+        "name": "fix-ci-dialyzer",
+        "sha": "ef765e44a57353bbc5241d88c7e1a18ea9deecc5",
+        "message": "fix(ci): update dialyzer ignore patterns for current codebase\n\nRemove stale ignore patterns referencing deleted modules (tracing,\nweb, multi_tenancy, mix tasks) and fix application.ex line-number\npatterns to use a broader regex matching the current code layout.",
+        "committed_at": "2026-03-27T01:58:08Z",
+        "commit_response_sha256": "5ea44d16f95958a75544a6ff44f88507647121eba396999d0b9e6d82ab900687"
+      },
+      {
+        "name": "fix-ci-release-test-data-race",
+        "sha": "681a6342c318fb0d77474e38f21e7eec53157f2d",
+        "message": "fix(test): stop ra before cleaning test data",
+        "committed_at": "2026-05-16T03:18:13Z",
+        "commit_response_sha256": "89f3e0f3d1bc6e9013b68cf8c0b645d9f96d8935c5427177aa977a5de25470c6"
+      },
+      {
+        "name": "main",
+        "sha": "4b1c4fb7150d9d1e6473530f8a67144fe8c0552a",
+        "message": "chore(release): prepare 3.1.4",
+        "committed_at": "2026-10-20T15:23:58Z",
+        "commit_response_sha256": "716a7c9e18624695001459e4d37d70ba4ce835e697a125580f95488551e805d1"
+      },
+      {
+        "name": "v2",
+        "sha": "59df620fea53aec0d04ff92085a92f9ebab80426",
+        "message": "fix: constrain Concord 2.x ex_turso dependency (#84)\n\nCo-authored-by: Jonathan Gao <gsmlg.com@gmail.com>\nfixes #75",
+        "committed_at": "2026-08-27T03:40:01Z",
+        "commit_response_sha256": "c7f0ec754cb9068775b2ad4829b667dc9bb0dba23059fb832684593b25aede92"
+      }
+    ],
+    "issues": [
+      {
+        "number": 99,
+        "url": "https://github.com/gsmlg-dev/concord/issues/99",
+        "title": "[internal] Ordinary VSR writes rebuild all ETS views and diff all keys",
+        "state": "closed",
+        "created_at": "2026-10-19T06:57:42Z",
+        "updated_at": "2026-10-20T15:42:43Z",
+        "closed_at": "2026-10-20T15:24:07Z",
+        "comments": 1,
+        "response_sha256": "ca0a8b70dfe8ecdd5febee108fdb776151452e6d43f6643a9082babea0def4b2",
+        "body_sha256": "8b48917cd2d748392f88303fb3beea564fbdd21109f541cf3f7c1b11327a2c26",
+        "timeline_response_sha256": "595eda51cb429292df5a8ebf47a1fd3a754bba22746936be87f6aea4e003f125",
+        "timeline": [
+          {
+            "event": "labeled",
+            "created_at": "2026-10-19T06:57:44Z",
+            "commit_id": null,
+            "source": null
+          },
+          {
+            "event": "issue_type_added",
+            "created_at": "2026-10-19T06:57:46Z",
+            "commit_id": null,
+            "source": null
+          },
+          {
+            "event": "cross-referenced",
+            "created_at": "2026-10-19T14:06:18Z",
+            "commit_id": null,
+            "source": {
+              "type": "issue",
+              "issue": {
+                "url": "https://api.github.com/repos/gsmlg-dev/concord/issues/100",
+                "repository_url": "https://api.github.com/repos/gsmlg-dev/concord",
+                "labels_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/100/labels{/name}",
+                "comments_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/100/comments",
+                "events_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/100/events",
+                "html_url": "https://github.com/gsmlg-dev/concord/issues/100",
+                "id": 5925382063,
+                "node_id": "I_kwDOQEsqyM8AAAABYS4nrw",
+                "number": 100,
+                "title": "[internal] Bound VSR singleton-read invariant allocation as retained log grows",
+                "user": {
+                  "login": "gsmlg",
+                  "id": 3713684,
+                  "node_id": "MDQ6VXNlcjM3MTM2ODQ=",
+                  "avatar_url": "https://avatars.githubusercontent.com/u/3713684?v=4",
+                  "gravatar_id": "",
+                  "url": "https://api.github.com/users/gsmlg",
+                  "html_url": "https://github.com/gsmlg",
+                  "followers_url": "https://api.github.com/users/gsmlg/followers",
+                  "following_url": "https://api.github.com/users/gsmlg/following{/other_user}",
+                  "gists_url": "https://api.github.com/users/gsmlg/gists{/gist_id}",
+                  "starred_url": "https://api.github.com/users/gsmlg/starred{/owner}{/repo}",
+                  "subscriptions_url": "https://api.github.com/users/gsmlg/subscriptions",
+                  "organizations_url": "https://api.github.com/users/gsmlg/orgs",
+                  "repos_url": "https://api.github.com/users/gsmlg/repos",
+                  "events_url": "https://api.github.com/users/gsmlg/events{/privacy}",
+                  "received_events_url": "https://api.github.com/users/gsmlg/received_events",
+                  "type": "User",
+                  "user_view_type": "public",
+                  "site_admin": false
+                },
+                "labels": [
+                  {
+                    "id": 10822879674,
+                    "node_id": "LA_kwDOQEsqyM8AAAAChRgJug",
+                    "url": "https://api.github.com/repos/gsmlg-dev/concord/labels/internal%20request",
+                    "name": "internal request",
+                    "color": "BFD4F2",
+                    "default": false,
+                    "description": "Internal cross-repository request",
+                    "archived_at": null,
+                    "archived_by": null
+                  },
+                  {
+                    "id": 11088250670,
+                    "node_id": "LA_kwDOQEsqyM8AAAAClOlHLg",
+                    "url": "https://api.github.com/repos/gsmlg-dev/concord/labels/internal%20request%20fixed",
+                    "name": "internal request fixed",
+                    "color": "0e8a16",
+                    "default": false,
+                    "description": "",
+                    "archived_at": null,
+                    "archived_by": null
+                  }
+                ],
+                "state": "closed",
+                "locked": false,
+                "assignees": [],
+                "milestone": null,
+                "comments": 1,
+                "created_at": "2026-10-19T14:06:17Z",
+                "updated_at": "2026-10-20T15:42:50Z",
+                "closed_at": "2026-10-20T15:24:08Z",
+                "assignee": null,
+                "author_association": "MEMBER",
+                "issue_field_values": [],
+                "type": {
+                  "id": 12442814,
+                  "node_id": "IT_kwDOA-mPyM4Avdy-",
+                  "name": "Feature",
+                  "description": "A request, idea, or new functionality",
+                  "color": "blue",
+                  "created_at": "2024-02-04T19:49:46Z",
+                  "updated_at": "2024-10-08T16:53:06Z",
+                  "is_enabled": true
+                },
+                "active_lock_reason": null,
+                "sub_issues_summary": {
+                  "total": 0,
+                  "completed": 0,
+                  "percent_completed": 0
+                },
+                "issue_dependencies_summary": {
+                  "blocked_by": 0,
+                  "total_blocked_by": 0,
+                  "blocking": 0,
+                  "total_blocking": 0
+                },
+                "repository": {
+                  "id": 1078667976,
+                  "node_id": "R_kgDOQEsqyA",
+                  "name": "concord",
+                  "full_name": "gsmlg-dev/concord",
+                  "private": false,
+                  "owner": {
+                    "login": "gsmlg-dev",
+                    "id": 65638344,
+                    "node_id": "MDEyOk9yZ2FuaXphdGlvbjY1NjM4MzQ0",
+                    "avatar_url": "https://avatars.githubusercontent.com/u/65638344?v=4",
+                    "gravatar_id": "",
+                    "url": "https://api.github.com/users/gsmlg-dev",
+                    "html_url": "https://github.com/gsmlg-dev",
+                    "followers_url": "https://api.github.com/users/gsmlg-dev/followers",
+                    "following_url": "https://api.github.com/users/gsmlg-dev/following{/other_user}",
+                    "gists_url": "https://api.github.com/users/gsmlg-dev/gists{/gist_id}",
+                    "starred_url": "https://api.github.com/users/gsmlg-dev/starred{/owner}{/repo}",
+                    "subscriptions_url": "https://api.github.com/users/gsmlg-dev/subscriptions",
+                    "organizations_url": "https://api.github.com/users/gsmlg-dev/orgs",
+                    "repos_url": "https://api.github.com/users/gsmlg-dev/repos",
+                    "events_url": "https://api.github.com/users/gsmlg-dev/events{/privacy}",
+                    "received_events_url": "https://api.github.com/users/gsmlg-dev/received_events",
+                    "type": "Organization",
+                    "user_view_type": "public",
+                    "site_admin": false
+                  },
+                  "html_url": "https://github.com/gsmlg-dev/concord",
+                  "description": null,
+                  "fork": false,
+                  "url": "https://api.github.com/repos/gsmlg-dev/concord",
+                  "forks_url": "https://api.github.com/repos/gsmlg-dev/concord/forks",
+                  "keys_url": "https://api.github.com/repos/gsmlg-dev/concord/keys{/key_id}",
+                  "collaborators_url": "https://api.github.com/repos/gsmlg-dev/concord/collaborators{/collaborator}",
+                  "teams_url": "https://api.github.com/repos/gsmlg-dev/concord/teams",
+                  "hooks_url": "https://api.github.com/repos/gsmlg-dev/concord/hooks",
+                  "issue_events_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/events{/number}",
+                  "events_url": "https://api.github.com/repos/gsmlg-dev/concord/events",
+                  "assignees_url": "https://api.github.com/repos/gsmlg-dev/concord/assignees{/user}",
+                  "branches_url": "https://api.github.com/repos/gsmlg-dev/concord/branches{/branch}",
+                  "tags_url": "https://api.github.com/repos/gsmlg-dev/concord/tags",
+                  "blobs_url": "https://api.github.com/repos/gsmlg-dev/concord/git/blobs{/sha}",
+                  "git_tags_url": "https://api.github.com/repos/gsmlg-dev/concord/git/tags{/sha}",
+                  "git_refs_url": "https://api.github.com/repos/gsmlg-dev/concord/git/refs{/sha}",
+                  "trees_url": "https://api.github.com/repos/gsmlg-dev/concord/git/trees{/sha}",
+                  "statuses_url": "https://api.github.com/repos/gsmlg-dev/concord/statuses/{sha}",
+                  "languages_url": "https://api.github.com/repos/gsmlg-dev/concord/languages",
+                  "stargazers_url": "https://api.github.com/repos/gsmlg-dev/concord/stargazers",
+                  "contributors_url": "https://api.github.com/repos/gsmlg-dev/concord/contributors",
+                  "subscribers_url": "https://api.github.com/repos/gsmlg-dev/concord/subscribers",
+                  "subscription_url": "https://api.github.com/repos/gsmlg-dev/concord/subscription",
+                  "commits_url": "https://api.github.com/repos/gsmlg-dev/concord/commits{/sha}",
+                  "git_commits_url": "https://api.github.com/repos/gsmlg-dev/concord/git/commits{/sha}",
+                  "comments_url": "https://api.github.com/repos/gsmlg-dev/concord/comments{/number}",
+                  "issue_comment_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/comments{/number}",
+                  "contents_url": "https://api.github.com/repos/gsmlg-dev/concord/contents/{+path}",
+                  "compare_url": "https://api.github.com/repos/gsmlg-dev/concord/compare/{base}...{head}",
+                  "merges_url": "https://api.github.com/repos/gsmlg-dev/concord/merges",
+                  "archive_url": "https://api.github.com/repos/gsmlg-dev/concord/{archive_format}{/ref}",
+                  "downloads_url": "https://api.github.com/repos/gsmlg-dev/concord/downloads",
+                  "issues_url": "https://api.github.com/repos/gsmlg-dev/concord/issues{/number}",
+                  "pulls_url": "https://api.github.com/repos/gsmlg-dev/concord/pulls{/number}",
+                  "milestones_url": "https://api.github.com/repos/gsmlg-dev/concord/milestones{/number}",
+                  "notifications_url": "https://api.github.com/repos/gsmlg-dev/concord/notifications{?since,all,participating}",
+                  "labels_url": "https://api.github.com/repos/gsmlg-dev/concord/labels{/name}",
+                  "releases_url": "https://api.github.com/repos/gsmlg-dev/concord/releases{/id}",
+                  "deployments_url": "https://api.github.com/repos/gsmlg-dev/concord/deployments",
+                  "created_at": "2025-10-18T06:50:38Z",
+                  "updated_at": "2026-10-20T15:24:11Z",
+                  "pushed_at": "2026-10-20T15:38:25Z",
+                  "git_url": "git://github.com/gsmlg-dev/concord.git",
+                  "ssh_url": "git@github.com:gsmlg-dev/concord.git",
+                  "clone_url": "https://github.com/gsmlg-dev/concord.git",
+                  "svn_url": "https://github.com/gsmlg-dev/concord",
+                  "homepage": null,
+                  "size": 5551,
+                  "stargazers_count": 3,
+                  "watchers_count": 3,
+                  "language": "Elixir",
+                  "has_issues": true,
+                  "has_projects": true,
+                  "has_downloads": false,
+                  "has_wiki": false,
+                  "has_pages": false,
+                  "has_discussions": false,
+                  "forks_count": 1,
+                  "mirror_url": null,
+                  "archived": false,
+                  "disabled": false,
+                  "open_issues_count": 4,
+                  "license": null,
+                  "allow_forking": true,
+                  "is_template": false,
+                  "web_commit_signoff_required": false,
+                  "has_pull_requests": true,
+                  "pull_request_creation_policy": "all",
+                  "topics": [],
+                  "visibility": "public",
+                  "forks": 1,
+                  "open_issues": 4,
+                  "watchers": 3,
+                  "default_branch": "main",
+                  "permissions": {
+                    "admin": true,
+                    "maintain": true,
+                    "push": true,
+                    "triage": true,
+                    "pull": true
+                  }
+                },
+                "body": "**Requesting repo:** gsmlg-opt/ex_storage_service on branch `main`\n\n**Type:** Feature\n**Severity:** needed\n\nESS requires bounded allocation for steady-state indexed metadata reads as unrelated data grows. Current VSR `Protocol.step/2` performs complete retained-log validation before and after an ordinary singleton read. The state and effect remain unchanged apart from the one read effect, yet per-call process-heap allocation grows with retained entries. Please provide a safe bounded ordinary-read path while retaining the existing corruption, transition, recovery and committed-prefix protections.\n\nThe complete-validation behavior is explicitly retained by the fixes for #94/#98. This requests an additional capability; it does not dispute those repairs. #99 concerns the Concord write adapter; #97 concerns query pagination; #40 concerns read-side WAL growth. Live open/closed issue and resolution checks found no dedicated request for this allocation boundary.\n\n**Released and current source checked**\n\nExecuted installed VSR 3.1.2 from the coordinated Concord/VSR/ExTurso 3.1.2 family. `apps/viewstamped_replication/lib/viewstamped_replication/protocol.ex` in current main `658bd8000f59a7147d2e4e6217a5eefe55d3f65a` was checked byte-identical to the installed file. `step/2` validates input and then `assert_transition!/2` validates output; the complete invariant path checks retained entries and constructs full duplicate-request collections. The probe measures complete `step/2`, not an allocation decomposition of individual helpers.\n\n**Executed minimal reproduction**\n\nA fresh plain Elixir 1.18.5 / OTP 28 VM with four schedulers; no Mix, application startup, network, WAL, effect interpreter or ESS root. Coherent singleton states have 1,000/2,000/4,000 committed and applied entries from one client, an exact last applied client-table record and unchanged fixed read request. Native recovery, invariant checks and exact expected state/effects are verified outside measured calls.\n\nAll unprofiled timings finish first. A separate OTP session-native `call_memory` phase profiles only `Protocol.step/2` for one owned caller. Each of 30 reads resets/pauses its counter, requires exactly one matching call and verifies exact returned state/read effect. Native word size is 8 bytes. Observed p50 and p95 are identical for every size:\n\n| Retained entries | Allocated process-heap words per singleton read | Allocated process-heap bytes per singleton read |\n| ---: | ---: | ---: |\n| 1,000 | 21,522 | 172,176 |\n| 2,000 | 42,650 | 341,200 |\n| 4,000 | 85,790 | 686,320 |\n\nThese are allocated process-heap bytes including untraced callees, excluding RSS, retained/peak heap, off-heap binary payloads, native malloc and total VM memory. This probe ran alongside an unrelated local native container build; latency is descriptive only and is omitted here. It does not measure ESS listing, quorum, fsync or end-to-end workload duration, establish the cause of ESS's A28 timeout, or prove a mandatory 100k workload cannot complete. Severity remains `needed`.\n\nThe actual launcher completed with exit 0 in 0.514455 seconds. Source/native/compiled fences were checked before and after; app set remained unchanged, the trace flags/counter/session were removed, the owned tracer stopped normally and the child group was reaped/absent. No dependency patch, safety bypass, timeout increase or acceptance promotion was made.\n\n**Expected behavior**\n\nFor the ordinary unchanged-state singleton-read path, bound heap allocation independently of retained log length, retaining the complete safety contract at all required boundaries. Keep deliberate malformed-state rejection and full recovery/snapshot validation, duplicate-request and committed-prefix protections. Use an upstream-supported mechanism; ESS must not patch dependencies or disable invariant validation. Add coherent growing-log regression coverage of complete reads, not just a helper, including unchanged state/effect equality and corruption/recovery cases.\n\n**Reproduction command and complete executed probe**\n\nAfter compiling the published dependency normally, save the following as `probe.exs` and run:\n\n```sh\nERL_FLAGS='+S 4:4 +SDcpu 2 +SDio 2' elixir -pa _build/prod/lib/viewstamped_replication/ebin probe.exs samples.json\n```\n\nOnly that VSR ebin is added. The launcher used the pinned Elixir wrapper, a scrubbed environment, a fresh private output path and a 120-second cap; its successful run did not require extra applications or a NIF.\n\n```elixir\n# Pure protocol diagnostic only. No application/effect interpreter is started.\ndefmodule ESSPreparedVSRReadCost do\n  alias ViewstampedReplication.{Configuration, Log, LogEntry, Member, Protocol}\n  alias ViewstampedReplication.Protocol.State\n\n  @counts [1_000, 2_000, 4_000]\n  @repetitions 30\n  @route :fixed_route\n  @read {:get, \"constant-key\"}\n\n  def run(output) do\n    before_apps = Application.started_applications() |> Enum.map(&elem(&1, 0)) |> Enum.sort()\n\n    rows =\n      Enum.flat_map(@counts, fn count ->\n        state = fixture(count)\n        # Load each native branch once, without including warmup in samples.\n        verify(:singleton_read, state, invoke(:singleton_read, state))\n        verify(:unchanged_transition, state, invoke(:unchanged_transition, state))\n\n        samples =\n          for repetition <- 1..@repetitions, mode <- [:singleton_read, :unchanged_transition] do\n            # Construction, invariant result comparisons and serialization are\n            # outside this interval. GC is neither forced nor disabled.\n            {:reductions, before_reductions} = Process.info(self(), :reductions)\n            started = System.monotonic_time()\n            result = invoke(mode, state)\n            stopped = System.monotonic_time()\n            {:reductions, after_reductions} = Process.info(self(), :reductions)\n            verify(mode, state, result)\n\n            %{\n              mode: Atom.to_string(mode),\n              repetition: repetition,\n              elapsed_ns: System.convert_time_unit(stopped - started, :native, :nanosecond),\n              reductions: after_reductions - before_reductions\n            }\n          end\n\n        for mode <- [\"singleton_read\", \"unchanged_transition\"] do\n          selected = Enum.filter(samples, &(&1.mode == mode))\n          times = Enum.map(selected, & &1.elapsed_ns) |> Enum.sort()\n          reductions = Enum.map(selected, & &1.reductions) |> Enum.sort()\n\n          %{\n            retained_entries: count,\n            mode: mode,\n            repetitions: @repetitions,\n            p50_ns: percentile(times, 50),\n            p95_ns: percentile(times, 95),\n            p50_reductions: percentile(reductions, 50),\n            p95_reductions: percentile(reductions, 95),\n            samples: selected,\n            exact_state_and_effect_checks_passed: true\n          }\n        end\n      end)\n\n    # All original unprofiled samples finish before trace setup or allocation work.\n    allocation = allocation_phase()\n\n    after_apps = Application.started_applications() |> Enum.map(&elem(&1, 0)) |> Enum.sort()\n    true = before_apps == after_apps\n    false = Enum.any?(after_apps, &(&1 in [:viewstamped_replication, :concord, :ex_storage_service]))\n\n    result = %{\n      status: \"pure_protocol_probe_completed\",\n      diagnostic_only: true,\n      acceptance_promotion: false,\n      vsr_version: \"3.1.2\",\n      elixir_version: System.version(),\n      otp_release: List.to_string(:erlang.system_info(:otp_release)),\n      schedulers_online: :erlang.system_info(:schedulers_online),\n      application_set_unchanged: true,\n      server_applications_started: false,\n      allocation: allocation,\n      read_result_scope: \"Protocol returns one read effect; no storage result or state-machine execution is claimed.\",\n      reductions_scope: \"Current-process delta includes clock/process-info instrumentation; no overhead subtraction.\",\n      percentile_method: \"Nearest rank over 30 chronological samples per case; modes alternate.\",\n      rows: rows\n    }\n\n    File.write!(output, JSON.encode!(result) <> \"\\n\", [:exclusive])\n  end\n\n  defp allocation_phase do\n    # Construct the same native fixtures before any memory tracing is installed.\n    fixtures = Enum.map(@counts, &{&1, fixture(&1)})\n    owner = self()\n    word_bytes = :erlang.system_info(:wordsize)\n    mfa = {Protocol, :step, 2}\n    {:module, :trace} = Code.ensure_loaded(:trace)\n\n    # A separate owned tracer avoids tracing the tracer itself. Silent memory\n    # profiling should emit no ordinary call events; no event payload is read.\n    {tracer, monitor} = spawn_monitor(fn ->\n      receive do\n        :stop -> :ok\n      after\n        120_000 -> exit(:allocation_tracer_deadline)\n      end\n    end)\n\n    rows =\n      try do\n        session = :trace.session_create(:ess_prepared_vsr_alloc_r2, tracer, [])\n\n        try do\n          1 = :trace.function(session, mfa, true, [:call_memory])\n          1 = :trace.process(session, owner, true, [:call, :silent])\n\n          for {count, state} <- fixtures do\n            samples =\n              for repetition <- 1..@repetitions do\n                1 = :trace.function(session, mfa, :restart, [:call_memory])\n                result = Protocol.step(state, {:read_request, @route, @read})\n                1 = :trace.function(session, mfa, :pause, [:call_memory])\n                {:call_memory, [{^owner, 1, words}]} = :trace.info(session, mfa, :call_memory)\n                true = is_integer(words) and words >= 0\n                verify(:singleton_read, state, result)\n\n                %{\n                  repetition: repetition,\n                  call_count: 1,\n                  allocated_process_heap_words: words,\n                  allocated_process_heap_bytes: words * word_bytes\n                }\n              end\n\n            words = Enum.map(samples, & &1.allocated_process_heap_words) |> Enum.sort()\n\n            %{\n              retained_entries: count,\n              mode: \"singleton_read\",\n              repetitions: @repetitions,\n              p50_allocated_process_heap_words: percentile(words, 50),\n              p95_allocated_process_heap_words: percentile(words, 95),\n              p50_allocated_process_heap_bytes: percentile(words, 50) * word_bytes,\n              p95_allocated_process_heap_bytes: percentile(words, 95) * word_bytes,\n              exact_state_and_effect_checks_passed: true,\n              samples: samples\n            }\n          end\n        after\n          # Even a disable failure must still destroy this exact owned session.\n          try do\n            1 = :trace.process(session, owner, false, [:call, :silent])\n            1 = :trace.function(session, mfa, false, [:call_memory])\n            {:flags, []} = :trace.info(session, owner, :flags)\n            {:call_memory, false} = :trace.info(session, mfa, :call_memory)\n          after\n            true = :trace.session_destroy(session)\n          end\n        end\n      after\n        send(tracer, :stop)\n\n        receive do\n          {:DOWN, ^monitor, :process, ^tracer, :normal} -> :ok\n          {:DOWN, ^monitor, :process, ^tracer, _reason} ->\n            raise \"allocation tracer exited abnormally\"\n        after\n          1_000 ->\n            Process.exit(tracer, :kill)\n\n            receive do\n              {:DOWN, ^monitor, :process, ^tracer, _reason} -> :ok\n            after\n              1_000 -> raise \"allocation tracer did not stop\"\n            end\n\n            raise \"allocation tracer required forced cleanup\"\n        end\n      end\n\n    %{\n      measured: true,\n      api: \"OTP session-native call_memory\",\n      phase: \"Separate allocation phase after all original unprofiled timings\",\n      traced_function: \"ViewstampedReplication.Protocol.step/2 only\",\n      scope: \"Allocated process-heap words including untraced callees; one owned process\",\n      excludes: \"RSS, retained/peak heap, off-heap binary payloads, native malloc and total VM memory\",\n      word_bytes: word_bytes,\n      profiling_changes_timing: true,\n      profiled_latency_claimed: false,\n      process_flags_disabled: true,\n      function_counter_disabled: true,\n      session_destroyed: true,\n      owned_tracer_stopped_normally: true,\n      rows: rows\n    }\n  end\n\n  defp fixture(count) do\n    configuration =\n      Configuration.new!(\n        group_id: :prepared_read_cost,\n        replica_id: :replica,\n        members: [%Member{id: :replica, endpoint: :pure_fixture}]\n      )\n\n    # Constant-size operation; one sequential client. Every pair is unique and\n    # its latest completed request is represented in the native client table.\n    entries =\n      for number <- 1..count do\n        %LogEntry{\n          view_number: 0,\n          op_number: number,\n          client_id: :writer,\n          request_number: number,\n          operation: {:put, \"constant-key\", <<0>>}\n        }\n      end\n\n    log = %Log{base_op_number: 0, entries: entries}\n    table = %{writer: %{request_number: count, status: :applied, result: :ok}}\n    initial = State.new(configuration)\n\n    # The real pure recovery event validates numbers/client-table completeness\n    # and enters singleton-normal. Persist/timer effects are checked, not run.\n    {state, effects} =\n      Protocol.step(initial, {:storage_recovered, %{\n        replica_id: :replica,\n        log: log,\n        commit_number: count,\n        applied_number: count,\n        client_table: table,\n        hard_state: %{view_number: 0, last_normal_view: 0, status: :normal}\n      }})\n\n    expected = %{initial | status: :normal, log: log, op_number: count,\n      commit_number: count, applied_number: count, client_table: table,\n      timer_sequence: 1, timer_tokens: %{heartbeat: {:heartbeat, 0, 1}}}\n    true = state === expected\n    true = effects === [\n      {:persist, {:hard_state, %{view_number: 0, status: :normal, last_normal_view: 0}}},\n      {:schedule_timer, :heartbeat, 500, {:heartbeat, 0, 1}}\n    ]\n    ^state = Protocol.assert_invariants!(state)\n    state\n  end\n\n  defp invoke(:singleton_read, state), do: Protocol.step(state, {:read_request, @route, @read})\n  defp invoke(:unchanged_transition, state), do: Protocol.assert_transition!(state, state)\n\n  defp verify(:singleton_read, state, result) do\n    true = result === {state, [{:read, @route, @read}]}\n    :ok\n  end\n\n  defp verify(:unchanged_transition, state, result) do\n    true = result === state\n    :ok\n  end\n\n  defp percentile(sorted, percent), do: Enum.at(sorted, div(length(sorted) * percent + 99, 100) - 1)\nend\n\n[output] = System.argv()\nESSPreparedVSRReadCost.run(output)\n```\n\nRequesting-checkout evidence: `docs/reports/s3-hardening/post-concord312-final-r10/vsr-read-cost-diagnostic-r3/run-1/{execution.json,samples.json}` and `vsr-read-cost-upstream-audit-r1/{README.md,gh-receipt.json}`. Probe SHA256 `4ed6160efc4847bd536ae1c064acbf7bcaaf7f7f5993d5384199f72bae69bb11`. ESS HEAD `3477bc540c3732dba3d47a7e08779783f9be25fc`, uncommitted source fingerprint `329c8e783d8b5118008f1cecafa7bf503572e8d071f6693663dfb059106a53d9`.\n",
+                "reactions": {
+                  "url": "https://api.github.com/repos/gsmlg-dev/concord/issues/100/reactions",
+                  "total_count": 0,
+                  "+1": 0,
+                  "-1": 0,
+                  "laugh": 0,
+                  "hooray": 0,
+                  "confused": 0,
+                  "heart": 0,
+                  "rocket": 0,
+                  "eyes": 0
+                },
+                "timeline_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/100/timeline",
+                "performed_via_github_app": null,
+                "state_reason": "completed",
+                "pinned_comment": null
+              }
+            }
+          },
+          {
+            "event": "closed",
+            "created_at": "2026-10-20T15:24:08Z",
+            "commit_id": "d6b043d7d713a8dd2cf161036a63abc3d808da2a",
+            "source": null
+          },
+          {
+            "event": "commented",
+            "created_at": "2026-10-20T15:42:41Z",
+            "commit_id": null,
+            "source": null
+          },
+          {
+            "event": "labeled",
+            "created_at": "2026-10-20T15:42:43Z",
+            "commit_id": null,
+            "source": null
+          },
+          {
+            "event": "cross-referenced",
+            "created_at": "2026-10-20T17:02:02Z",
+            "commit_id": null,
+            "source": {
+              "type": "issue",
+              "issue": {
+                "url": "https://api.github.com/repos/gsmlg-dev/concord/issues/102",
+                "repository_url": "https://api.github.com/repos/gsmlg-dev/concord",
+                "labels_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/102/labels{/name}",
+                "comments_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/102/comments",
+                "events_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/102/events",
+                "html_url": "https://github.com/gsmlg-dev/concord/issues/102",
+                "id": 5945994143,
+                "node_id": "I_kwDOQEsqyM8AAAABYmirnw",
+                "number": 102,
+                "title": "[internal] Atomic transactions still trigger full-state materialization in 3.1.4",
+                "user": {
+                  "login": "gsmlg",
+                  "id": 3713684,
+                  "node_id": "MDQ6VXNlcjM3MTM2ODQ=",
+                  "avatar_url": "https://avatars.githubusercontent.com/u/3713684?v=4",
+                  "gravatar_id": "",
+                  "url": "https://api.github.com/users/gsmlg",
+                  "html_url": "https://github.com/gsmlg",
+                  "followers_url": "https://api.github.com/users/gsmlg/followers",
+                  "following_url": "https://api.github.com/users/gsmlg/following{/other_user}",
+                  "gists_url": "https://api.github.com/users/gsmlg/gists{/gist_id}",
+                  "starred_url": "https://api.github.com/users/gsmlg/starred{/owner}{/repo}",
+                  "subscriptions_url": "https://api.github.com/users/gsmlg/subscriptions",
+                  "organizations_url": "https://api.github.com/users/gsmlg/orgs",
+                  "repos_url": "https://api.github.com/users/gsmlg/repos",
+                  "events_url": "https://api.github.com/users/gsmlg/events{/privacy}",
+                  "received_events_url": "https://api.github.com/users/gsmlg/received_events",
+                  "type": "User",
+                  "user_view_type": "public",
+                  "site_admin": false
+                },
+                "labels": [
+                  {
+                    "id": 10822879674,
+                    "node_id": "LA_kwDOQEsqyM8AAAAChRgJug",
+                    "url": "https://api.github.com/repos/gsmlg-dev/concord/labels/internal%20request",
+                    "name": "internal request",
+                    "color": "BFD4F2",
+                    "default": false,
+                    "description": "Internal cross-repository request",
+                    "archived_at": null,
+                    "archived_by": null
+                  }
+                ],
+                "state": "open",
+                "locked": false,
+                "assignees": [],
+                "milestone": null,
+                "comments": 0,
+                "created_at": "2026-10-20T17:02:01Z",
+                "updated_at": "2026-10-20T17:02:02Z",
+                "closed_at": null,
+                "assignee": null,
+                "author_association": "MEMBER",
+                "issue_field_values": [],
+                "type": {
+                  "id": 12442810,
+                  "node_id": "IT_kwDOA-mPyM4Avdy6",
+                  "name": "Bug",
+                  "description": "An unexpected problem or behavior",
+                  "color": "red",
+                  "created_at": "2024-02-04T19:49:46Z",
+                  "updated_at": "2024-07-26T13:17:12Z",
+                  "is_enabled": true
+                },
+                "active_lock_reason": null,
+                "sub_issues_summary": {
+                  "total": 0,
+                  "completed": 0,
+                  "percent_completed": 0
+                },
+                "issue_dependencies_summary": {
+                  "blocked_by": 0,
+                  "total_blocked_by": 0,
+                  "blocking": 0,
+                  "total_blocking": 0
+                },
+                "repository": {
+                  "id": 1078667976,
+                  "node_id": "R_kgDOQEsqyA",
+                  "name": "concord",
+                  "full_name": "gsmlg-dev/concord",
+                  "private": false,
+                  "owner": {
+                    "login": "gsmlg-dev",
+                    "id": 65638344,
+                    "node_id": "MDEyOk9yZ2FuaXphdGlvbjY1NjM4MzQ0",
+                    "avatar_url": "https://avatars.githubusercontent.com/u/65638344?v=4",
+                    "gravatar_id": "",
+                    "url": "https://api.github.com/users/gsmlg-dev",
+                    "html_url": "https://github.com/gsmlg-dev",
+                    "followers_url": "https://api.github.com/users/gsmlg-dev/followers",
+                    "following_url": "https://api.github.com/users/gsmlg-dev/following{/other_user}",
+                    "gists_url": "https://api.github.com/users/gsmlg-dev/gists{/gist_id}",
+                    "starred_url": "https://api.github.com/users/gsmlg-dev/starred{/owner}{/repo}",
+                    "subscriptions_url": "https://api.github.com/users/gsmlg-dev/subscriptions",
+                    "organizations_url": "https://api.github.com/users/gsmlg-dev/orgs",
+                    "repos_url": "https://api.github.com/users/gsmlg-dev/repos",
+                    "events_url": "https://api.github.com/users/gsmlg-dev/events{/privacy}",
+                    "received_events_url": "https://api.github.com/users/gsmlg-dev/received_events",
+                    "type": "Organization",
+                    "user_view_type": "public",
+                    "site_admin": false
+                  },
+                  "html_url": "https://github.com/gsmlg-dev/concord",
+                  "description": null,
+                  "fork": false,
+                  "url": "https://api.github.com/repos/gsmlg-dev/concord",
+                  "forks_url": "https://api.github.com/repos/gsmlg-dev/concord/forks",
+                  "keys_url": "https://api.github.com/repos/gsmlg-dev/concord/keys{/key_id}",
+                  "collaborators_url": "https://api.github.com/repos/gsmlg-dev/concord/collaborators{/collaborator}",
+                  "teams_url": "https://api.github.com/repos/gsmlg-dev/concord/teams",
+                  "hooks_url": "https://api.github.com/repos/gsmlg-dev/concord/hooks",
+                  "issue_events_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/events{/number}",
+                  "events_url": "https://api.github.com/repos/gsmlg-dev/concord/events",
+                  "assignees_url": "https://api.github.com/repos/gsmlg-dev/concord/assignees{/user}",
+                  "branches_url": "https://api.github.com/repos/gsmlg-dev/concord/branches{/branch}",
+                  "tags_url": "https://api.github.com/repos/gsmlg-dev/concord/tags",
+                  "blobs_url": "https://api.github.com/repos/gsmlg-dev/concord/git/blobs{/sha}",
+                  "git_tags_url": "https://api.github.com/repos/gsmlg-dev/concord/git/tags{/sha}",
+                  "git_refs_url": "https://api.github.com/repos/gsmlg-dev/concord/git/refs{/sha}",
+                  "trees_url": "https://api.github.com/repos/gsmlg-dev/concord/git/trees{/sha}",
+                  "statuses_url": "https://api.github.com/repos/gsmlg-dev/concord/statuses/{sha}",
+                  "languages_url": "https://api.github.com/repos/gsmlg-dev/concord/languages",
+                  "stargazers_url": "https://api.github.com/repos/gsmlg-dev/concord/stargazers",
+                  "contributors_url": "https://api.github.com/repos/gsmlg-dev/concord/contributors",
+                  "subscribers_url": "https://api.github.com/repos/gsmlg-dev/concord/subscribers",
+                  "subscription_url": "https://api.github.com/repos/gsmlg-dev/concord/subscription",
+                  "commits_url": "https://api.github.com/repos/gsmlg-dev/concord/commits{/sha}",
+                  "git_commits_url": "https://api.github.com/repos/gsmlg-dev/concord/git/commits{/sha}",
+                  "comments_url": "https://api.github.com/repos/gsmlg-dev/concord/comments{/number}",
+                  "issue_comment_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/comments{/number}",
+                  "contents_url": "https://api.github.com/repos/gsmlg-dev/concord/contents/{+path}",
+                  "compare_url": "https://api.github.com/repos/gsmlg-dev/concord/compare/{base}...{head}",
+                  "merges_url": "https://api.github.com/repos/gsmlg-dev/concord/merges",
+                  "archive_url": "https://api.github.com/repos/gsmlg-dev/concord/{archive_format}{/ref}",
+                  "downloads_url": "https://api.github.com/repos/gsmlg-dev/concord/downloads",
+                  "issues_url": "https://api.github.com/repos/gsmlg-dev/concord/issues{/number}",
+                  "pulls_url": "https://api.github.com/repos/gsmlg-dev/concord/pulls{/number}",
+                  "milestones_url": "https://api.github.com/repos/gsmlg-dev/concord/milestones{/number}",
+                  "notifications_url": "https://api.github.com/repos/gsmlg-dev/concord/notifications{?since,all,participating}",
+                  "labels_url": "https://api.github.com/repos/gsmlg-dev/concord/labels{/name}",
+                  "releases_url": "https://api.github.com/repos/gsmlg-dev/concord/releases{/id}",
+                  "deployments_url": "https://api.github.com/repos/gsmlg-dev/concord/deployments",
+                  "created_at": "2025-10-18T06:50:38Z",
+                  "updated_at": "2026-10-20T15:24:11Z",
+                  "pushed_at": "2026-10-20T15:38:25Z",
+                  "git_url": "git://github.com/gsmlg-dev/concord.git",
+                  "ssh_url": "git@github.com:gsmlg-dev/concord.git",
+                  "clone_url": "https://github.com/gsmlg-dev/concord.git",
+                  "svn_url": "https://github.com/gsmlg-dev/concord",
+                  "homepage": null,
+                  "size": 5551,
+                  "stargazers_count": 3,
+                  "watchers_count": 3,
+                  "language": "Elixir",
+                  "has_issues": true,
+                  "has_projects": true,
+                  "has_downloads": false,
+                  "has_wiki": false,
+                  "has_pages": false,
+                  "has_discussions": false,
+                  "forks_count": 1,
+                  "mirror_url": null,
+                  "archived": false,
+                  "disabled": false,
+                  "open_issues_count": 4,
+                  "license": null,
+                  "allow_forking": true,
+                  "is_template": false,
+                  "web_commit_signoff_required": false,
+                  "has_pull_requests": true,
+                  "pull_request_creation_policy": "all",
+                  "topics": [],
+                  "visibility": "public",
+                  "forks": 1,
+                  "open_issues": 4,
+                  "watchers": 3,
+                  "default_branch": "main",
+                  "permissions": {
+                    "admin": true,
+                    "maintain": true,
+                    "push": true,
+                    "triage": true,
+                    "pull": true
+                  }
+                },
+                "body": "**Requesting repo:** gsmlg-opt/ex_storage_service on branch `main`\n\n**Severity:** blocker\n\nCoordinated Concord/VSR/ExTurso **3.1.4** improves per-write materialization from #99 for direct puts/deletes, but ordinary atomic `{:txn, specification}` commands still return `changes: :all`. ESS ObjectCommit publishes object/head/version/index/outcome records atomically with `Concord.Txn.commit/2`; splitting those mutations would violate ESS correctness. The required 10k/100k setup therefore still takes the full compatibility-ETS rebuild and observer diff on every object transaction. This is an unhandled command class, separate from retained-log read traversal and current-command representation admission.\n\nMinimal released-3.1.4 reproduction, with no applications or materialized ETS started:\n\n```elixir\nalias Concord.StateMachine.Core\nalias Concord.StateMachine.Core.Context\ncontext = %Context{op_number: 1, timestamp_ms: 1_761_000_000_000}\ninitial = Core.init()\n{:ok, direct, direct_changes} =\n  Core.apply_with_changes(0, context, {:put, \"target\", \"value\"}, initial)\nspec = %{compare: [], success: [{:put, \"target\", \"value\", %{}}], failure: []}\n{{:ok, %{succeeded: true}}, transaction, transaction_changes} =\n  Core.apply_with_changes(0, context, {:txn, spec}, initial)\ntrue = direct.store == transaction.store\nIO.inspect(direct_changes)      # [current: \"target\", store: \"target\"]\nIO.inspect(transaction_changes) # :all\n```\n\nThis runs successfully against the published 3.1.4 modules and retains the exact same store result. `Core.incremental_command?/1` recognizes put/delete/put_if/delete_if/touch but excludes `{:txn, _}`. `Core.apply_with_changes/4` therefore takes its fallback branch, `StateMachine.materialize(state, :all)` invokes full `materialize/1`, and `Observer.changed_keys(:all, previous, current)` builds the full current-key union.\n\nIndependent actual ESS ObjectCommit production-path diagnostic (normal indexed commits, singleton file-backed Concord, command version `0`, no dependency patches or forced snapshots):\n\n| Target writes in stage | 1-100 | 101-500 | 501-1000 |\n|---|---:|---:|---:|\n| Number of transactions | 100 | 400 | 500 |\n| Stage wall us | 880,053 | 5,213,951 | 12,708,278 |\n| `ListIndex.augment/4` native call_time us | 15,192 | 47,857 | 76,564 |\n| `StateMachine.materialize/2` native call_time us | 52,958 | 1,269,918 | 4,682,216 |\n| `Observer.committed/6` native call_time us | 18,744 | 576,662 | 2,314,231 |\n| File.persist/2 native call_time us | 692,457 | 2,700,965 | 3,997,366 |\n\nThe larger stages contain different numbers of operations; per-write comparisons must account for that. Selected OTP call_time profiling is intrusive; nested function rows must not be blindly summed as independent wall-time shares. No checkpoint calls and no compare conflicts were observed in these stages. All resulting index links, generation/counter invariants, version removal restoring its predecessor and delete marker selection passed independently. Existing DB command format was preserved; current-version admission is not removed or bypassed.\n\nExpected behavior: track exactly the affected rows for supported atomic transactions, including the chosen branch and idempotent/outcome metadata, while preserving compare atomicity, legacy replay, error/rollback semantics and recovery. Retain full rebuild only for operations that genuinely require it. ESS cannot replace atomic object/index publication with separate writes or an asynchronous local workaround.\n\nThis blocks ESS A28 scale closeout; no unmeasured 100k timing or causal attribution to the historical 10,800-second timeout is claimed. Toolchain Elixir 1.18.5/OTP 28, `+S 4:4 +SDcpu 2 +SDio 2`. Actual 2,000 normal target/unrelated object commits plus version/marker checks completed in 64.03 seconds, with source unchanged across the run. No server application remains running.\n\nESS evidence: `docs/reports/s3-hardening/closeout-002/a28-diagnostic-r1/{execution,probe,upstream-minimal}.json`; production-path `e2e/scripts/index_setup_probe.exs`; minimal `e2e/scripts/index_upstream_probe.exs`. Starting HEAD `b17282d96a58eff962a35d807c9e7adb39af4774`; production diagnostic source fingerprint `20351587f71da6b8ba72d53bf9e46af149a33c4c767049c06e03a765b2104350`.\n",
+                "reactions": {
+                  "url": "https://api.github.com/repos/gsmlg-dev/concord/issues/102/reactions",
+                  "total_count": 0,
+                  "+1": 0,
+                  "-1": 0,
+                  "laugh": 0,
+                  "hooray": 0,
+                  "confused": 0,
+                  "heart": 0,
+                  "rocket": 0,
+                  "eyes": 0
+                },
+                "timeline_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/102/timeline",
+                "performed_via_github_app": null,
+                "state_reason": null,
+                "pinned_comment": null
+              }
+            }
+          }
+        ]
+      },
+      {
+        "number": 100,
+        "url": "https://github.com/gsmlg-dev/concord/issues/100",
+        "title": "[internal] Bound VSR singleton-read invariant allocation as retained log grows",
+        "state": "closed",
+        "created_at": "2026-10-19T14:06:17Z",
+        "updated_at": "2026-10-20T15:42:50Z",
+        "closed_at": "2026-10-20T15:24:08Z",
+        "comments": 1,
+        "response_sha256": "ac4f64fa1fde06b10d89ec688ea87db8e4a9622aae3f558955f62de56067d979",
+        "body_sha256": "186bac082d0af318ec3e7eeaf1a0e946ac91c166a66094ede388d956ec7fbf32",
+        "timeline_response_sha256": "32dc7f590d6f296b491918fafc5c47a82527d217dd8bf13f501d678b26fdddb3",
+        "timeline": [
+          {
+            "event": "labeled",
+            "created_at": "2026-10-19T14:06:18Z",
+            "commit_id": null,
+            "source": null
+          },
+          {
+            "event": "issue_type_added",
+            "created_at": "2026-10-19T14:06:21Z",
+            "commit_id": null,
+            "source": null
+          },
+          {
+            "event": "closed",
+            "created_at": "2026-10-20T15:24:09Z",
+            "commit_id": "228016d4d2b26d33227ae7e042e85b20832e5aa7",
+            "source": null
+          },
+          {
+            "event": "commented",
+            "created_at": "2026-10-20T15:42:48Z",
+            "commit_id": null,
+            "source": null
+          },
+          {
+            "event": "labeled",
+            "created_at": "2026-10-20T15:42:50Z",
+            "commit_id": null,
+            "source": null
+          },
+          {
+            "event": "cross-referenced",
+            "created_at": "2026-10-20T17:00:35Z",
+            "commit_id": null,
+            "source": {
+              "type": "issue",
+              "issue": {
+                "url": "https://api.github.com/repos/gsmlg-dev/concord/issues/101",
+                "repository_url": "https://api.github.com/repos/gsmlg-dev/concord",
+                "labels_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/101/labels{/name}",
+                "comments_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/101/comments",
+                "events_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/101/events",
+                "html_url": "https://github.com/gsmlg-dev/concord/issues/101",
+                "id": 5945971155,
+                "node_id": "I_kwDOQEsqyM8AAAABYmhR0w",
+                "number": 101,
+                "title": "[internal] Singleton reads still traverse unrelated retained log history in 3.1.4",
+                "user": {
+                  "login": "gsmlg",
+                  "id": 3713684,
+                  "node_id": "MDQ6VXNlcjM3MTM2ODQ=",
+                  "avatar_url": "https://avatars.githubusercontent.com/u/3713684?v=4",
+                  "gravatar_id": "",
+                  "url": "https://api.github.com/users/gsmlg",
+                  "html_url": "https://github.com/gsmlg",
+                  "followers_url": "https://api.github.com/users/gsmlg/followers",
+                  "following_url": "https://api.github.com/users/gsmlg/following{/other_user}",
+                  "gists_url": "https://api.github.com/users/gsmlg/gists{/gist_id}",
+                  "starred_url": "https://api.github.com/users/gsmlg/starred{/owner}{/repo}",
+                  "subscriptions_url": "https://api.github.com/users/gsmlg/subscriptions",
+                  "organizations_url": "https://api.github.com/users/gsmlg/orgs",
+                  "repos_url": "https://api.github.com/users/gsmlg/repos",
+                  "events_url": "https://api.github.com/users/gsmlg/events{/privacy}",
+                  "received_events_url": "https://api.github.com/users/gsmlg/received_events",
+                  "type": "User",
+                  "user_view_type": "public",
+                  "site_admin": false
+                },
+                "labels": [
+                  {
+                    "id": 10822879674,
+                    "node_id": "LA_kwDOQEsqyM8AAAAChRgJug",
+                    "url": "https://api.github.com/repos/gsmlg-dev/concord/labels/internal%20request",
+                    "name": "internal request",
+                    "color": "BFD4F2",
+                    "default": false,
+                    "description": "Internal cross-repository request",
+                    "archived_at": null,
+                    "archived_by": null
+                  }
+                ],
+                "state": "open",
+                "locked": false,
+                "assignees": [],
+                "milestone": null,
+                "comments": 0,
+                "created_at": "2026-10-20T17:00:34Z",
+                "updated_at": "2026-10-20T17:00:36Z",
+                "closed_at": null,
+                "assignee": null,
+                "author_association": "MEMBER",
+                "issue_field_values": [],
+                "type": {
+                  "id": 12442810,
+                  "node_id": "IT_kwDOA-mPyM4Avdy6",
+                  "name": "Bug",
+                  "description": "An unexpected problem or behavior",
+                  "color": "red",
+                  "created_at": "2024-02-04T19:49:46Z",
+                  "updated_at": "2024-07-26T13:17:12Z",
+                  "is_enabled": true
+                },
+                "active_lock_reason": null,
+                "sub_issues_summary": {
+                  "total": 0,
+                  "completed": 0,
+                  "percent_completed": 0
+                },
+                "issue_dependencies_summary": {
+                  "blocked_by": 0,
+                  "total_blocked_by": 0,
+                  "blocking": 0,
+                  "total_blocking": 0
+                },
+                "repository": {
+                  "id": 1078667976,
+                  "node_id": "R_kgDOQEsqyA",
+                  "name": "concord",
+                  "full_name": "gsmlg-dev/concord",
+                  "private": false,
+                  "owner": {
+                    "login": "gsmlg-dev",
+                    "id": 65638344,
+                    "node_id": "MDEyOk9yZ2FuaXphdGlvbjY1NjM4MzQ0",
+                    "avatar_url": "https://avatars.githubusercontent.com/u/65638344?v=4",
+                    "gravatar_id": "",
+                    "url": "https://api.github.com/users/gsmlg-dev",
+                    "html_url": "https://github.com/gsmlg-dev",
+                    "followers_url": "https://api.github.com/users/gsmlg-dev/followers",
+                    "following_url": "https://api.github.com/users/gsmlg-dev/following{/other_user}",
+                    "gists_url": "https://api.github.com/users/gsmlg-dev/gists{/gist_id}",
+                    "starred_url": "https://api.github.com/users/gsmlg-dev/starred{/owner}{/repo}",
+                    "subscriptions_url": "https://api.github.com/users/gsmlg-dev/subscriptions",
+                    "organizations_url": "https://api.github.com/users/gsmlg-dev/orgs",
+                    "repos_url": "https://api.github.com/users/gsmlg-dev/repos",
+                    "events_url": "https://api.github.com/users/gsmlg-dev/events{/privacy}",
+                    "received_events_url": "https://api.github.com/users/gsmlg-dev/received_events",
+                    "type": "Organization",
+                    "user_view_type": "public",
+                    "site_admin": false
+                  },
+                  "html_url": "https://github.com/gsmlg-dev/concord",
+                  "description": null,
+                  "fork": false,
+                  "url": "https://api.github.com/repos/gsmlg-dev/concord",
+                  "forks_url": "https://api.github.com/repos/gsmlg-dev/concord/forks",
+                  "keys_url": "https://api.github.com/repos/gsmlg-dev/concord/keys{/key_id}",
+                  "collaborators_url": "https://api.github.com/repos/gsmlg-dev/concord/collaborators{/collaborator}",
+                  "teams_url": "https://api.github.com/repos/gsmlg-dev/concord/teams",
+                  "hooks_url": "https://api.github.com/repos/gsmlg-dev/concord/hooks",
+                  "issue_events_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/events{/number}",
+                  "events_url": "https://api.github.com/repos/gsmlg-dev/concord/events",
+                  "assignees_url": "https://api.github.com/repos/gsmlg-dev/concord/assignees{/user}",
+                  "branches_url": "https://api.github.com/repos/gsmlg-dev/concord/branches{/branch}",
+                  "tags_url": "https://api.github.com/repos/gsmlg-dev/concord/tags",
+                  "blobs_url": "https://api.github.com/repos/gsmlg-dev/concord/git/blobs{/sha}",
+                  "git_tags_url": "https://api.github.com/repos/gsmlg-dev/concord/git/tags{/sha}",
+                  "git_refs_url": "https://api.github.com/repos/gsmlg-dev/concord/git/refs{/sha}",
+                  "trees_url": "https://api.github.com/repos/gsmlg-dev/concord/git/trees{/sha}",
+                  "statuses_url": "https://api.github.com/repos/gsmlg-dev/concord/statuses/{sha}",
+                  "languages_url": "https://api.github.com/repos/gsmlg-dev/concord/languages",
+                  "stargazers_url": "https://api.github.com/repos/gsmlg-dev/concord/stargazers",
+                  "contributors_url": "https://api.github.com/repos/gsmlg-dev/concord/contributors",
+                  "subscribers_url": "https://api.github.com/repos/gsmlg-dev/concord/subscribers",
+                  "subscription_url": "https://api.github.com/repos/gsmlg-dev/concord/subscription",
+                  "commits_url": "https://api.github.com/repos/gsmlg-dev/concord/commits{/sha}",
+                  "git_commits_url": "https://api.github.com/repos/gsmlg-dev/concord/git/commits{/sha}",
+                  "comments_url": "https://api.github.com/repos/gsmlg-dev/concord/comments{/number}",
+                  "issue_comment_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/comments{/number}",
+                  "contents_url": "https://api.github.com/repos/gsmlg-dev/concord/contents/{+path}",
+                  "compare_url": "https://api.github.com/repos/gsmlg-dev/concord/compare/{base}...{head}",
+                  "merges_url": "https://api.github.com/repos/gsmlg-dev/concord/merges",
+                  "archive_url": "https://api.github.com/repos/gsmlg-dev/concord/{archive_format}{/ref}",
+                  "downloads_url": "https://api.github.com/repos/gsmlg-dev/concord/downloads",
+                  "issues_url": "https://api.github.com/repos/gsmlg-dev/concord/issues{/number}",
+                  "pulls_url": "https://api.github.com/repos/gsmlg-dev/concord/pulls{/number}",
+                  "milestones_url": "https://api.github.com/repos/gsmlg-dev/concord/milestones{/number}",
+                  "notifications_url": "https://api.github.com/repos/gsmlg-dev/concord/notifications{?since,all,participating}",
+                  "labels_url": "https://api.github.com/repos/gsmlg-dev/concord/labels{/name}",
+                  "releases_url": "https://api.github.com/repos/gsmlg-dev/concord/releases{/id}",
+                  "deployments_url": "https://api.github.com/repos/gsmlg-dev/concord/deployments",
+                  "created_at": "2025-10-18T06:50:38Z",
+                  "updated_at": "2026-10-20T15:24:11Z",
+                  "pushed_at": "2026-10-20T15:38:25Z",
+                  "git_url": "git://github.com/gsmlg-dev/concord.git",
+                  "ssh_url": "git@github.com:gsmlg-dev/concord.git",
+                  "clone_url": "https://github.com/gsmlg-dev/concord.git",
+                  "svn_url": "https://github.com/gsmlg-dev/concord",
+                  "homepage": null,
+                  "size": 5551,
+                  "stargazers_count": 3,
+                  "watchers_count": 3,
+                  "language": "Elixir",
+                  "has_issues": true,
+                  "has_projects": true,
+                  "has_downloads": false,
+                  "has_wiki": false,
+                  "has_pages": false,
+                  "has_discussions": false,
+                  "forks_count": 1,
+                  "mirror_url": null,
+                  "archived": false,
+                  "disabled": false,
+                  "open_issues_count": 4,
+                  "license": null,
+                  "allow_forking": true,
+                  "is_template": false,
+                  "web_commit_signoff_required": false,
+                  "has_pull_requests": true,
+                  "pull_request_creation_policy": "all",
+                  "topics": [],
+                  "visibility": "public",
+                  "forks": 1,
+                  "open_issues": 4,
+                  "watchers": 3,
+                  "default_branch": "main",
+                  "permissions": {
+                    "admin": true,
+                    "maintain": true,
+                    "push": true,
+                    "triage": true,
+                    "pull": true
+                  }
+                },
+                "body": "**Requesting repo:** gsmlg-opt/ex_storage_service on branch `main`\n\n**Severity:** blocker\n\nCoordinated Concord/VSR/ExTurso **3.1.4** fixes the singleton-read allocation reported in #100, but retained-log traversal still makes a fixed ESS listing proportional to unrelated writes. This is a separate remaining CPU/work boundary; the 3.1.4 changelog explicitly retains that traversal. ESS cannot certify its mandatory A28 unrelated-growth independence while it remains present. No full 10k/100k acceptance run is claimed, and this does not establish the cause of the historical 10,800-second timeout.\n\nActual isolated production ObjectCommit fixture: create 1,000 target objects normally, measure ten unchanged delimiter pages, then create 1,000 objects in a second bucket normally and repeat the same target page. All index, generation, visible/version counters and numbered-version/delete-marker invariants pass. Command version remains the existing-database default `0`; no format switch, forced snapshot, log mutation or validation bypass is used.\n\n| Ten delimiter pages, max_keys=1 | Before unrelated writes | After unrelated writes |\n|---|---:|---:|\n| ESS exact-key backend reads | 100 | 100 |\n| Returned exact-record serialized bytes | 26,620 | 26,620 |\n| Retained applied log entries | 1,003 | 2,003 |\n| `assert_applied_requests_are_unique!/1` checks | 100 | 100 |\n| `applied_requests_indexed?/3` calls including one base case/check | 100,400 | 200,400 |\n| That function's native call_time microseconds | 19,538 | 39,140 |\n| Wall microseconds for the ten pages, including diagnostic overhead | 22,793 | 42,445 |\n\nAn absent-prefix page independently remains 50 ESS reads/11,600 returned bytes, while native recursive visits grow 50,200 -> 100,200. Native `materialize/1` and `Core.snapshot/1` have zero calls inside both measured read groups. The native log's full serialized inventory is 5,870,028 -> 11,865,907 bytes; that is offline inventory size, **not** a claim that all operation payload bytes are touched by identity validation. Silent OTP call_time profiling is intrusive and these timings are diagnostic, not acceptance latencies.\n\nMinimal pure reproduction on the actual released 3.1.4 modules (no applications/storage/effects started):\n\n```elixir\nalias ViewstampedReplication.{Configuration, Log, LogEntry, Member, Protocol}\nalias ViewstampedReplication.Protocol.State\n\nfor count <- [1_000, 2_000, 4_000] do\n  configuration = Configuration.new!(group_id: :probe, replica_id: :replica,\n    members: [%Member{id: :replica, endpoint: :pure_fixture}])\n  entries = for n <- 1..count do\n    %LogEntry{view_number: 0, op_number: n, client_id: :writer,\n      request_number: n, operation: {:put, \"constant\", <<0>>}}\n  end\n  {state, _effects} = Protocol.step(State.new(configuration), {:storage_recovered, %{\n    replica_id: :replica, log: %Log{base_op_number: 0, entries: entries},\n    commit_number: count, applied_number: count,\n    client_table: %{writer: %{request_number: count, status: :applied, result: :ok}},\n    hard_state: %{view_number: 0, last_normal_view: 0, status: :normal}\n  }})\n  # Genuine recovery builds the new derived index; do not omit it and measure fallback.\n  ^count = map_size(state.applied_request_index.writer)\n  samples = for _ <- 1..30 do\n    {:reductions, before} = Process.info(self(), :reductions)\n    {^state, [{:read, :route, {:get, \"constant\"}}]} =\n      Protocol.step(state, {:read_request, :route, {:get, \"constant\"}})\n    {:reductions, after_read} = Process.info(self(), :reductions)\n    after_read - before\n  end\n  IO.inspect({count, samples})\nend\n```\n\nExecuted source-fenced probe retaining exact results/effects and unchanged application set: 1k/2k/4k pure singleton-read p50 reductions **2,560/5,060/10,060**, p50 **17/44/91 us**, 30 samples each. Toolchain Elixir 1.18.5/OTP 28, `+S 4:4 +SDcpu 2 +SDio 2`. This isolates CPU scaling independently of ESS planning, disk synchronization and observer queues.\n\nExpected behavior: provide a supported read protocol whose actual visited work is bounded independently of unrelated retained log growth, while retaining corruption, duplicate-request, committed-prefix, recovery and snapshot safety. Do not weaken assertions or require ESS to compact snapshots merely to conceal the steady-state dependency cost.\n\nESS evidence: `docs/reports/s3-hardening/closeout-002/a28-diagnostic-r1/{execution,probe,upstream-minimal}.json`; production-path script `e2e/scripts/index_setup_probe.exs`; standalone dependency reproduction `e2e/scripts/index_upstream_probe.exs`. Starting HEAD `b17282d96a58eff962a35d807c9e7adb39af4774`, uncommitted production-path diagnostic source fingerprint `20351587f71da6b8ba72d53bf9e46af149a33c4c767049c06e03a765b2104350` (unchanged across its 64.03-second run). Later minimal probe source is separately retained; none of this is full A28 acceptance.\n",
+                "reactions": {
+                  "url": "https://api.github.com/repos/gsmlg-dev/concord/issues/101/reactions",
+                  "total_count": 0,
+                  "+1": 0,
+                  "-1": 0,
+                  "laugh": 0,
+                  "hooray": 0,
+                  "confused": 0,
+                  "heart": 0,
+                  "rocket": 0,
+                  "eyes": 0
+                },
+                "timeline_url": "https://api.github.com/repos/gsmlg-dev/concord/issues/101/timeline",
+                "performed_via_github_app": null,
+                "state_reason": null,
+                "pinned_comment": null
+              }
+            }
+          }
+        ]
+      },
+      {
+        "number": 101,
+        "url": "https://github.com/gsmlg-dev/concord/issues/101",
+        "title": "[internal] Singleton reads still traverse unrelated retained log history in 3.1.4",
+        "state": "open",
+        "created_at": "2026-10-20T17:00:34Z",
+        "updated_at": "2026-10-20T17:00:36Z",
+        "closed_at": null,
+        "comments": 0,
+        "response_sha256": "2fb3ef34499f0d85f792a510cb9370d17f8eb9aec618c0c9c6d6bbe13f76dd2a",
+        "body_sha256": "8ca92fd8b8059eea03097366cb0ee7a9fcb2b68be0961ff2f5fcb4d7448ec0b2",
+        "timeline_response_sha256": "51ef9ea1811be5caf460ab9f2e270b5af256af9f1e6f8f24e8d508d61b0e78db",
+        "timeline": [
+          {
+            "event": "labeled",
+            "created_at": "2026-10-20T17:00:35Z",
+            "commit_id": null,
+            "source": null
+          },
+          {
+            "event": "issue_type_added",
+            "created_at": "2026-10-20T17:00:39Z",
+            "commit_id": null,
+            "source": null
+          }
+        ]
+      },
+      {
+        "number": 102,
+        "url": "https://github.com/gsmlg-dev/concord/issues/102",
+        "title": "[internal] Atomic transactions still trigger full-state materialization in 3.1.4",
+        "state": "open",
+        "created_at": "2026-10-20T17:02:01Z",
+        "updated_at": "2026-10-20T17:02:02Z",
+        "closed_at": null,
+        "comments": 0,
+        "response_sha256": "3b28286f04a17feab683ecdd0c6ee46732eb945f16018287f77424c0fd5be742",
+        "body_sha256": "adfa04cc774376c6689dea95efc7bd6809c3ba1dc169be88e131b4a6821fde18",
+        "timeline_response_sha256": "f4452ff1e2322bd9782fae64b41131214bc9900906577bfca2131193213798ec",
+        "timeline": [
+          {
+            "event": "labeled",
+            "created_at": "2026-10-20T17:02:02Z",
+            "commit_id": null,
+            "source": null
+          },
+          {
+            "event": "issue_type_added",
+            "created_at": "2026-10-20T17:02:04Z",
+            "commit_id": null,
+            "source": null
+          }
+        ]
+      }
+    ],
+    "releases_response_sha256": "bfd966dce16e8fac46c0dfc5f18378d591bd9cbf0a228397e8e9aa31d0dd5365",
+    "releases": [
+      {
+        "tag": "v3.1.4",
+        "published_at": "2026-10-20T15:38:25Z",
+        "target_commitish": "main",
+        "url": "https://github.com/gsmlg-dev/concord/releases/tag/v3.1.4",
+        "body_sha256": "5962218fa13d62d82ea90e322e81db4bb78363bbe56cf010c9afc7131b961bb8"
+      },
+      {
+        "tag": "v3.1.3",
+        "published_at": "2026-10-19T04:31:01Z",
+        "target_commitish": "main",
+        "url": "https://github.com/gsmlg-dev/concord/releases/tag/v3.1.3",
+        "body_sha256": "d71cd12f8211b32ae562cd82f6f666f9682984c02fb8ec69b9477b5eba59b86a"
+      },
+      {
+        "tag": "v3.1.2",
+        "published_at": "2026-10-19T03:43:27Z",
+        "target_commitish": "main",
+        "url": "https://github.com/gsmlg-dev/concord/releases/tag/v3.1.2",
+        "body_sha256": "b6b1208c0307556faecfbe64454910ac96a0ddd8af53262552e19e3d20e08c36"
+      },
+      {
+        "tag": "v3.1.1",
+        "published_at": "2026-10-14T05:51:23Z",
+        "target_commitish": "main",
+        "url": "https://github.com/gsmlg-dev/concord/releases/tag/v3.1.1",
+        "body_sha256": "220d2abadc91074de5d7d1ec5dad840b6b4cd7ce560260d0cd96438474e67175"
+      },
+      {
+        "tag": "v3.1.0",
+        "published_at": "2026-10-11T04:05:45Z",
+        "target_commitish": "main",
+        "url": "https://github.com/gsmlg-dev/concord/releases/tag/v3.1.0",
+        "body_sha256": "04a332bbb7002825f4a2a607ac466af3a62e70793811adbc66fb73c8521e2f3d"
+      }
+    ],
+    "tags_response_sha256": "2210ed53426d498c9db5f8f4cf0e1ff059451e135efea34409dcf4d06f142bbf",
+    "tags": [
+      {
+        "name": "v3.1.4",
+        "sha": "4b1c4fb7150d9d1e6473530f8a67144fe8c0552a"
+      },
+      {
+        "name": "v3.1.3",
+        "sha": "658bd8000f59a7147d2e4e6217a5eefe55d3f65a"
+      },
+      {
+        "name": "v3.1.2",
+        "sha": "2ebf91f6bc500c010bac7be3d7deb9aa0238a2d6"
+      },
+      {
+        "name": "v3.1.1",
+        "sha": "bf6eed26b93e6c9d74f3f64225a29911fedb402c"
+      },
+      {
+        "name": "v3.1.0",
+        "sha": "78d8a04c3ed98cae71d9a8b2380756fa3a17d7cd"
+      },
+      {
+        "name": "v3.0.6",
+        "sha": "0fc74d3273348845aab6de4732c158057236b3a3"
+      },
+      {
+        "name": "v3.0.5",
+        "sha": "29adaa69ad3ed4aa26b36df38c3079fec054fbce"
+      },
+      {
+        "name": "v3.0.4",
+        "sha": "9f4b3a216b8eb602099aa0037c48b58d337657fe"
+      }
+    ]
+  },
+  "hex_packages": [
+    {
+      "name": "concord",
+      "package_url": "https://hex.pm/api/packages/concord",
+      "package_metadata_response_sha256": "ca41c09b4f3bf627416d95c410e049fa8f11b7402d382a3e130e476ac369a591",
+      "latest_version": "3.1.4",
+      "latest_stable_version": "3.1.4",
+      "recent_releases": [
+        {
+          "version": "3.1.4",
+          "url": "https://hex.pm/api/packages/concord/releases/3.1.4",
+          "has_docs": true,
+          "inserted_at": "2026-10-20T15:38:20.757701Z"
+        },
+        {
+          "version": "3.1.3",
+          "url": "https://hex.pm/api/packages/concord/releases/3.1.3",
+          "has_docs": true,
+          "inserted_at": "2026-10-19T04:30:56.113614Z"
+        },
+        {
+          "version": "3.1.2",
+          "url": "https://hex.pm/api/packages/concord/releases/3.1.2",
+          "has_docs": true,
+          "inserted_at": "2026-10-19T03:43:22.244865Z"
+        },
+        {
+          "version": "3.1.1",
+          "url": "https://hex.pm/api/packages/concord/releases/3.1.1",
+          "has_docs": true,
+          "inserted_at": "2026-10-14T05:51:18.590521Z"
+        },
+        {
+          "version": "3.1.0",
+          "url": "https://hex.pm/api/packages/concord/releases/3.1.0",
+          "has_docs": true,
+          "inserted_at": "2026-10-11T04:05:40.755987Z"
+        }
+      ],
+      "release_url": "https://hex.pm/api/packages/concord/releases/3.1.4",
+      "release_metadata_response_sha256": "4617ca6bc13d71122b74c845b1fc00e219f27379733da41c350c89a91ee9917c",
+      "release_version": "3.1.4",
+      "release_inserted_at": "2026-10-20T15:38:20.757701Z",
+      "release_requirements": {
+        "db_connection": {
+          "app": "db_connection",
+          "optional": false,
+          "requirement": "~> 2.10"
+        },
+        "ex_doc": {
+          "app": "ex_doc",
+          "optional": false,
+          "requirement": "~> 0.29"
+        },
+        "ex_turso": {
+          "app": "ex_turso",
+          "optional": false,
+          "requirement": "3.1.4"
+        },
+        "jason": {
+          "app": "jason",
+          "optional": false,
+          "requirement": "~> 1.4"
+        },
+        "telemetry": {
+          "app": "telemetry",
+          "optional": false,
+          "requirement": "~> 1.0"
+        },
+        "telemetry_poller": {
+          "app": "telemetry_poller",
+          "optional": false,
+          "requirement": "~> 1.0"
+        },
+        "viewstamped_replication": {
+          "app": "viewstamped_replication",
+          "optional": false,
+          "requirement": "3.1.4"
+        }
+      },
+      "retirement": null,
+      "tarball_url": "https://repo.hex.pm/tarballs/concord-3.1.4.tar",
+      "tarball_bytes": 162816,
+      "tarball_sha256": "9784cc7ba3f3345024ad319ddd16120bd12fd5526f834d80c1c5a28e0882d17d",
+      "hex_internal_checksum": "2e91d471549c3f550d7fc1c67d9ae62c57f59b700fb5698f5c13df5a14515b6e",
+      "locked_version": "3.1.4",
+      "outer_checksum_matches_release_and_lock": true,
+      "internal_checksum_matches_lock": true,
+      "sources": [
+        {
+          "path": "lib/concord/state_machine/core.ex",
+          "sha256": "f961c1a9dbe71b37e1b9589890c1c8ba968f00ada08c0907ed3ebac7c6a78917",
+          "bytes": 82518,
+          "matches_installed_ESS_source": true,
+          "matches_clean_upstream_main_source": true
+        },
+        {
+          "path": "lib/concord/kv.ex",
+          "sha256": "6c77a550123fd62e4e1a88d1df4a1695257baa3f8bf576624327ad903b8d23b4",
+          "bytes": 15200,
+          "matches_installed_ESS_source": true,
+          "matches_clean_upstream_main_source": true
+        },
+        {
+          "path": "lib/concord/txn.ex",
+          "sha256": "9ba38148eeda52586d0db11faa6c6e81e37b8a0e827e5484dd9a519a6dd72db4",
+          "bytes": 4162,
+          "matches_installed_ESS_source": true,
+          "matches_clean_upstream_main_source": true
+        },
+        {
+          "path": "CHANGELOG.md",
+          "sha256": "1f5ed34a6821763044bc18bf183c90d4539d18b749db16bf972ae3bba0c220df",
+          "bytes": 14032,
+          "matches_installed_ESS_source": true,
+          "matches_clean_upstream_main_source": true
+        },
+        {
+          "path": "mix.exs",
+          "sha256": "9fa767b0bea7f9cfc1bb6153befdce54e8f7c63820a3e3258ec01e5b4616d4fa",
+          "bytes": 3984,
+          "matches_installed_ESS_source": true,
+          "matches_clean_upstream_main_source": true
+        }
+      ]
+    },
+    {
+      "name": "viewstamped_replication",
+      "package_url": "https://hex.pm/api/packages/viewstamped_replication",
+      "package_metadata_response_sha256": "d625a428c85667acdcdf4343ed009ac91257b2fc6bc48bd63c5645474347117b",
+      "latest_version": "3.1.4",
+      "latest_stable_version": "3.1.4",
+      "recent_releases": [
+        {
+          "version": "3.1.4",
+          "url": "https://hex.pm/api/packages/viewstamped_replication/releases/3.1.4",
+          "has_docs": true,
+          "inserted_at": "2026-10-20T15:31:57.299263Z"
+        },
+        {
+          "version": "3.1.3",
+          "url": "https://hex.pm/api/packages/viewstamped_replication/releases/3.1.3",
+          "has_docs": true,
+          "inserted_at": "2026-10-19T04:26:06.644774Z"
+        },
+        {
+          "version": "3.1.2",
+          "url": "https://hex.pm/api/packages/viewstamped_replication/releases/3.1.2",
+          "has_docs": true,
+          "inserted_at": "2026-10-19T03:39:32.736711Z"
+        },
+        {
+          "version": "3.1.1",
+          "url": "https://hex.pm/api/packages/viewstamped_replication/releases/3.1.1",
+          "has_docs": true,
+          "inserted_at": "2026-10-14T05:45:21.383917Z"
+        },
+        {
+          "version": "3.1.0",
+          "url": "https://hex.pm/api/packages/viewstamped_replication/releases/3.1.0",
+          "has_docs": true,
+          "inserted_at": "2026-10-11T04:01:54.813005Z"
+        }
+      ],
+      "release_url": "https://hex.pm/api/packages/viewstamped_replication/releases/3.1.4",
+      "release_metadata_response_sha256": "d54e07732f7cd7ef8c9b261ae6d4b83163700e45c2ebc280abc37ca3462e243e",
+      "release_version": "3.1.4",
+      "release_inserted_at": "2026-10-20T15:31:57.299263Z",
+      "release_requirements": {
+        "telemetry": {
+          "app": "telemetry",
+          "optional": false,
+          "requirement": "~> 1.0"
+        }
+      },
+      "retirement": null,
+      "tarball_url": "https://repo.hex.pm/tarballs/viewstamped_replication-3.1.4.tar",
+      "tarball_bytes": 43520,
+      "tarball_sha256": "4266e059a176eda4fcee55807c488cee072e375368abab0139fd8cc156ef59aa",
+      "hex_internal_checksum": "cf660cd6a326b2171e28d3549db60a238bb0aac7bfaba0d1fb18e6ed09587220",
+      "locked_version": "3.1.4",
+      "outer_checksum_matches_release_and_lock": true,
+      "internal_checksum_matches_lock": true,
+      "sources": [
+        {
+          "path": "lib/viewstamped_replication/protocol.ex",
+          "sha256": "d89a2b18f82c77484d46e75dc6586960bff97897b9469c28c8987574f0565f1c",
+          "bytes": 68787,
+          "matches_installed_ESS_source": true,
+          "matches_clean_upstream_main_source": true
+        },
+        {
+          "path": "mix.exs",
+          "sha256": "da730ef0ab8e64f7cdf392db3dc38d58fcffc8071d892d2f86eeb1dd7d46dfc2",
+          "bytes": 1436,
+          "matches_installed_ESS_source": true,
+          "matches_clean_upstream_main_source": true
+        }
+      ]
+    },
+    {
+      "name": "ex_turso",
+      "package_url": "https://hex.pm/api/packages/ex_turso",
+      "package_metadata_response_sha256": "a975396d181c5010b5b44210aabac602d544e1423b3cffe7ef77e9d89e4ea789",
+      "latest_version": "3.1.4",
+      "latest_stable_version": "3.1.4",
+      "recent_releases": [
+        {
+          "version": "3.1.4",
+          "url": "https://hex.pm/api/packages/ex_turso/releases/3.1.4",
+          "has_docs": true,
+          "inserted_at": "2026-10-20T15:31:53.637401Z"
+        },
+        {
+          "version": "3.1.3",
+          "url": "https://hex.pm/api/packages/ex_turso/releases/3.1.3",
+          "has_docs": true,
+          "inserted_at": "2026-10-19T04:26:03.141276Z"
+        },
+        {
+          "version": "3.1.2",
+          "url": "https://hex.pm/api/packages/ex_turso/releases/3.1.2",
+          "has_docs": true,
+          "inserted_at": "2026-10-19T03:39:29.878647Z"
+        },
+        {
+          "version": "3.1.1",
+          "url": "https://hex.pm/api/packages/ex_turso/releases/3.1.1",
+          "has_docs": true,
+          "inserted_at": "2026-10-14T05:45:17.831899Z"
+        },
+        {
+          "version": "3.1.0",
+          "url": "https://hex.pm/api/packages/ex_turso/releases/3.1.0",
+          "has_docs": true,
+          "inserted_at": "2026-10-11T04:01:51.752204Z"
+        }
+      ],
+      "release_url": "https://hex.pm/api/packages/ex_turso/releases/3.1.4",
+      "release_metadata_response_sha256": "6dbad5acd8d85d7722fb8285fc2fce95062c67423b851160e6ca29dc061de01a",
+      "release_version": "3.1.4",
+      "release_inserted_at": "2026-10-20T15:31:53.637401Z",
+      "release_requirements": {
+        "db_connection": {
+          "app": "db_connection",
+          "optional": false,
+          "requirement": "~> 2.7"
+        },
+        "ecto_sql": {
+          "app": "ecto_sql",
+          "optional": true,
+          "requirement": "~> 3.14"
+        },
+        "jason": {
+          "app": "jason",
+          "optional": true,
+          "requirement": "~> 1.4"
+        },
+        "rustler": {
+          "app": "rustler",
+          "optional": false,
+          "requirement": "~> 0.38"
+        },
+        "rustler_precompiled": {
+          "app": "rustler_precompiled",
+          "optional": false,
+          "requirement": "~> 0.9"
+        }
+      },
+      "retirement": null,
+      "tarball_url": "https://repo.hex.pm/tarballs/ex_turso-3.1.4.tar",
+      "tarball_bytes": 65536,
+      "tarball_sha256": "477b4380b71c0f5bcdc347c82fe8bcd3c67483e9842de0cd19e582c1d7d0c80a",
+      "hex_internal_checksum": "32cc80e820a0019b7b18e6ae9a67d94ce793c4327103af590dc3d7d8565e4855",
+      "locked_version": "3.1.4",
+      "outer_checksum_matches_release_and_lock": true,
+      "internal_checksum_matches_lock": true,
+      "sources": [
+        {
+          "path": "mix.exs",
+          "sha256": "05d9c1074fd0ed79dfabe531cb7828deeabd163a1bf62bb4348a452fdf8701e9",
+          "bytes": 1560,
+          "matches_installed_ESS_source": true,
+          "matches_clean_upstream_main_source": true
+        }
+      ]
+    }
+  ],
+  "source_findings": [
+    {
+      "issue": 101,
+      "source": {
+        "path": "deps/viewstamped_replication/lib/viewstamped_replication/protocol.ex",
+        "sha256": "d89a2b18f82c77484d46e75dc6586960bff97897b9469c28c8987574f0565f1c",
+        "bytes": 68787
+      },
+      "lines": [
+        34,
+        35,
+        62,
+        82,
+        2120,
+        2152
+      ],
+      "finding": "Protocol.step/2 invokes assert_invariants!/1 even for ready singleton reads. The invariant invokes assert_applied_requests_are_unique!/1, which recursively checks every retained applied entry against the derived request index. The actual source comment explicitly says O(retained log) traversal, bounded allocation. The singleton unchanged-state fast return removes duplicate validation, not this initial traversal. No fix for #101 is present."
+    },
+    {
+      "issue": 102,
+      "source": {
+        "path": "deps/concord/lib/concord/state_machine/core.ex",
+        "sha256": "f961c1a9dbe71b37e1b9589890c1c8ba968f00ada08c0907ed3ebac7c6a78917",
+        "bytes": 82518
+      },
+      "lines": [
+        140,
+        166
+      ],
+      "finding": "Core.apply_with_changes/4 returns :all for commands outside incremental_command?/1. The classifier recognizes put/delete/put_if/delete_if/touch and excludes {:txn,spec}. Concord.Txn.commit/2 emits {:txn,command_spec}; ESS uses this atomic API. No fixed transaction delta branch is present."
+    },
+    {
+      "source": {
+        "path": "deps/concord/CHANGELOG.md",
+        "sha256": "1f5ed34a6821763044bc18bf183c90d4539d18b749db16bf972ae3bba0c220df",
+        "bytes": 14032
+      },
+      "lines": [
+        8,
+        22
+      ],
+      "finding": "3.1.4 changelog promises incremental ordinary writes and bounded singleton read heap allocation, explicitly retains per-entry read traversal and version-one representation admission full-state scan. It does not claim #101/#102 fixed."
+    }
+  ],
+  "supported_APIs_and_safety": [
+    {
+      "source": {
+        "path": "deps/concord/lib/concord/kv.ex",
+        "sha256": "6c77a550123fd62e4e1a88d1df4a1695257baa3f8bf576624327ad903b8d23b4",
+        "bytes": 15200
+      },
+      "lines": [
+        30,
+        182
+      ],
+      "contract": "Concord.KV.get(key, metadata:true) returns a Record with mod_revision; :revision selects historical reads. :eventual/:leader/:strong all share quorum-confirmed linearizable VSR barriers. Separate calls are not automatically a snapshot. KV.list uses ordered prefix/range pages, optional pinned revision and limit+1 visible candidates; legacy prefix_scan/get_all retain whole-inventory cost. No new API from a later release exists to adopt."
+    },
+    {
+      "source": {
+        "path": "deps/concord/lib/concord/txn.ex",
+        "sha256": "9ba38148eeda52586d0db11faa6c6e81e37b8a0e827e5484dd9a519a6dd72db4",
+        "bytes": 4162
+      },
+      "lines": [
+        1,
+        129
+      ],
+      "contract": "Concord.Txn.commit(spec, opts) atomically evaluates compare then selected success/failure branch; comparefailure is {:ok,%Result{succeeded:false}}, not an error. idempotency_key retained; Txn.resolve reads result after uncertainty. Continue this API; never split object/index publication to avoid #102."
+    },
+    {
+      "source": {
+        "path": "apps/ex_storage_service/lib/ex_storage_service/metadata/backend/concord.ex",
+        "sha256": "c0423c39f8bb750ab04d044c7dacc5524a7f51f710714ea5e1ebbbce5224e070",
+        "bytes": 3620
+      },
+      "lines": [
+        16,
+        18,
+        93,
+        96
+      ],
+      "contract": "Existing TODO(upstream) #101 on get and #102 on transaction remain accurate. Backend preserves mod_revision and retryable availability normalization. No source change is justified yet."
+    },
+    {
+      "contract": "Do not change existing ESS_CONCORD_COMMAND_VERSION=0 data to1. The production diagnostic explicitly asserts0. Existing database upgrade and fresh-restore command-version1 remain separate. An upstream repair must preserve admission, corruption/replay, backup and recovery guarantees."
+    }
+  ],
+  "minimal_change_recommendation": {
+    "now": [],
+    "reason": "Current latest released family is identical to existing locked3.1.4. Do not modify lock, use local path/git fork, patch deps, remove TODOs or admit full index workloads.",
+    "after_real_approved_release": [
+      "Verify issue resolution plus immutable GitHub tag/source and all three Hex payloads. Record exact release R; do not guess3.1.5.",
+      "Raise core Concord minimum to actual verified R in its existing compatibility range, then run mix deps.update concord viewstamped_replication ex_turso and inspect coordinated exact transitive versions/checksums.",
+      "Adapt minimal diagnostic assertions and tracing to supported fixed source, add failing-before/passing-after regressions, rerun bounded production diagnostics, only then admit exact verified coordinated version in dependency preflight and update its tests.",
+      "Commit/freeze a new source candidate before authoritative acceptance; C6 evidence remains historical/incompatible unless explicitly safe and re-executed as required."
+    ]
+  },
+  "A28_probe_changes_required_after_repair": [
+    {
+      "source": {
+        "path": "e2e/scripts/index_upstream_probe.exs",
+        "sha256": "c5f053b12e3b35661bb3ed7c2275ac9d001bf59834959e16d61e696ebba35451",
+        "bytes": 4463
+      },
+      "change": "Current probe intentionally asserts :all = transaction_changes and emits dependency_defects_reproduced. After real upstream fix, add a separate repair-proof mode/fixture or targeted update retaining original failing receipt; verify exact affected rows, selected compare branch, idempotent outcomes, rollback/no-op/error semantics and unchanged authoritative state. Do not merely replace :all with is_list; check the actual supported delta meaning."
+    },
+    {
+      "source": {
+        "path": "e2e/scripts/index_upstream_probe.exs",
+        "sha256": "c5f053b12e3b35661bb3ed7c2275ac9d001bf59834959e16d61e696ebba35451",
+        "bytes": 4463
+      },
+      "change": "Current read fixture asserts private state.applied_request_index.writer. Re-evaluate against actual upstream fixed design; preserve genuine recovery, exact read result/effects, corruption guards and no-apps-started behavior. Measure per-read reductions/visited work for retained1k/2k/4k before/after; success must remove proportional retained-history work, not only allocation."
+    },
+    {
+      "source": {
+        "path": "e2e/scripts/index_setup_probe.exs",
+        "sha256": "205baead02d09b86ffd2007cb6c90c41f974c17d7fd78ab912d8d7a55b65f4ff",
+        "bytes": 10701
+      },
+      "change": "Recheck profiled private MFAs against actual fixed source. Retain ordinary ObjectCommit target and unrelated commits, command version0, normal index/counters/generation/version/marker invariants, setup/read timing split and no forced snapshots. Rerun smaller milestones100,500,1000 before mandatory10k/100k."
+    },
+    {
+      "source": {
+        "path": "e2e/scripts/index_dependency_preflight.py",
+        "sha256": "99870b8be03ebfbf8eb5c20a76a7e629b62bed99877f460e46da6e9b680f2b7e",
+        "bytes": 1625
+      },
+      "change": "It deliberately rejects every release now, with3.1.4-specific #101/#102 messages. Admit only an inspected and probed actual release, coordinated across all three packages; keep known3.1.3/3.1.4 and unknown/missing/mixed failures. Update e2e/test_index_dependency_preflight.py with matching verified-release and failclosed tests."
+    },
+    {
+      "source": {
+        "path": "e2e/scripts/index_acceptance_bounds.exs",
+        "sha256": "388c04ff295f91db64f8606d16cc1e066c9e51117b041c801ad7044e61fdb090",
+        "bytes": 16378
+      },
+      "change": "Bounds traces native query dispatch and forbids materialize/snapshot/full inventory calls, but existing protocol retained-log traversal must also be ruled out with actual native visited-work evidence. Re-evaluate tracing against fixed protocol implementation; wrapper counts alone do not prove #101 fixed."
+    }
+  ],
+  "recommended_commands_not_executed": [
+    {
+      "stage": "after_real_release_only",
+      "argv": [
+        "mix",
+        "deps.update",
+        "concord",
+        "viewstamped_replication",
+        "ex_turso"
+      ],
+      "prerequisite": "Actual approved published coordinated fix/source review; no eligible release currently."
+    },
+    {
+      "stage": "compile_and_scoped_regressions_after_dependency_change",
+      "commands": [
+        {
+          "environment": {
+            "PAGER": "cat",
+            "MIX_ENV": "test"
+          },
+          "argv": [
+            "mix",
+            "compile",
+            "--force",
+            "--warnings-as-errors"
+          ]
+        },
+        {
+          "environment": {
+            "PAGER": "cat",
+            "MIX_ENV": "test"
+          },
+          "argv": [
+            "mix",
+            "test",
+            "--max-cases",
+            "1",
+            "apps/ex_storage_service/test/ex_storage_service/metadata/object_commit_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/metadata/list_index",
+            "apps/ex_storage_service/test/ex_storage_service/metadata/bucket_lifecycle_fault_test.exs",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/bucket_lifecycle_test.exs",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/coherent_latest_http_test.exs",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/listing_profile_http_test.exs"
+          ]
+        }
+      ],
+      "paths_checked": [
+        "apps/ex_storage_service/test/ex_storage_service/metadata/object_commit_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/list_index",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/bucket_lifecycle_fault_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/bucket_lifecycle_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/coherent_latest_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/listing_profile_http_test.exs"
+      ],
+      "missing_paths": [],
+      "warning": "Commands are recommendations only. No builds or tests executed by this read-only audit."
+    },
+    {
+      "stage": "pure_upstream_minimal_after_probe_adaptation",
+      "command": "PAGER=cat MIX_ENV=prod mix run --no-start --no-compile e2e/scripts/index_upstream_probe.exs /absolute/disposable/new-candidate/upstream-fixed.json",
+      "prerequisite": "Compile actual approved fixed family; output must not exist; adapted positive proof. Never overwrite historical dependency_defects_reproduced receipt."
+    },
+    {
+      "stage": "production_path_diagnostic",
+      "entry_point": "e2e/scripts/index_setup_probe.exs /absolute/disposable/new-candidate/probe.json 100,500,1000",
+      "required_context": "Parent-owned isolated namespace and fresh blob/tmp/metadata roots, pinned toolchain/deps, ESS_INDEX_SOURCE_SHA256/HEAD and progress output. Command version stays0; retained original diagnostics remain."
+    },
+    {
+      "stage": "preflight_contract",
+      "command": "PAGER=cat /absolute/pinned/python -m unittest discover -s e2e -p test_index_dependency_preflight.py",
+      "prerequisite": "Adapt gate only after released source plus both diagnostic proofs."
+    },
+    {
+      "stage": "mandatory_A28",
+      "command": "PAGER=cat bash e2e/run_hardening_index.sh /absolute/pinned/python unique-new-candidate",
+      "prerequisite": "Preflight authorized release + pure/production diagnostic repair proof. Full10k/100k unchanged datasets; heavy runner serial."
+    },
+    {
+      "stage": "A29_backfill_rejoin_cutover",
+      "command": "PAGER=cat bash e2e/run_hardening_index_cluster.sh /absolute/pinned/python unique-new-candidate-index-cluster",
+      "prerequisite": "Serial isolated topology. Revalidate actual native backfill/interruption/rejoin/cutover on upgraded family."
+    },
+    {
+      "stage": "authoritative_full_new_candidate",
+      "entry_point": "e2e/hardening_acceptance.py run --profile all",
+      "prerequisite": "Inspect current help, freeze all runtime/harness/dependency inputs, retain all original receipts and current clause-level proof. New dependency release alone cannot close A28/A30/A38 or authorize publication."
+    }
+  ],
+  "verification": {
+    "type": "live read-only HTTP/GitHub/Hex and local source comparison; no build/tests/probes run",
+    "all_three_Hex_latest_and_lock_equal_3_1_4": true,
+    "all_downloaded_tarball_checksums_match_release_and_lock": true,
+    "selected_package_source_bytes_equal_deps_and_clean_upstream_main": true,
+    "github_101_102_open": true,
+    "new_dependency_candidate_found": false,
+    "repository_edits": 0,
+    "builds_tests_heavy_jobs_started": 0,
+    "command_shutdown": "All own commands completed; no owned background processes."
+  },
+  "memory_use": "MEMORY.md178-205 used only to preserve the historical blocked/unexecuted acceptance boundary; all upstream/version/source facts above freshly checked."
+}

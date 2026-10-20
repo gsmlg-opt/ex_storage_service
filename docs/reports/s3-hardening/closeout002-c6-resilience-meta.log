@@ -1,0 +1,30 @@
+
+===== start meta bootstrap=true at 2026-10-20T22:57:58Z =====
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 775219)
+[0mWaiting for lock on the build directory (held by process 775227)
+[0mWaiting for lock on the build directory (held by process 775219)
+[0mWaiting for lock on the build directory (held by process 775227)
+[0mWaiting for lock on the build directory (held by process 775219)
+[0mWaiting for lock on the build directory (held by process 775227)
+[0mWaiting for lock on the build directory (held by process 775219)
+[0mWaiting for lock on the build directory (held by process 775227)
+[0mWaiting for lock on the build directory (held by process 775219)
+[0mWaiting for lock on the build directory (held by process 775227)
+06:57:59.208 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+06:57:59.223 [info] Starting Concord TTL manager with cleanup interval: 300000s
+06:57:59.281 [info] Concord VSR metadata quorum ready
+crash meta SIGKILL at 2026-10-20T22:58:08Z
+
+===== start meta bootstrap=false at 2026-10-20T22:58:09Z =====
+06:58:10.171 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+06:58:10.182 [info] Starting Concord TTL manager with cleanup interval: 300000s
+06:58:10.475 [info] Concord VSR metadata quorum pending: :quorum_unavailable
+06:58:14.623 [notice] SIGTERM received - shutting down
+

@@ -1,0 +1,5 @@
+WARNING: RUSTFS_ACCESS_KEY uses the default rustfsadmin credential. Set non-default credentials for production deployments; with an all-default pair, multi-node clusters additionally need RUSTFS_RPC_SECRET to derive internode RPC auth.
+WARNING: RUSTFS_SECRET_KEY uses the default rustfsadmin credential. Set non-default credentials for production deployments; with an all-default pair, multi-node clusters additionally need RUSTFS_RPC_SECRET to derive internode RPC auth.
+Initializing data directories: /data
+Initializing log directory: /logs
+Starting: /usr/bin/rustfs  /data

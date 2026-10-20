@@ -1,0 +1,127 @@
+{
+  "scenario": "A29",
+  "status": "passed",
+  "checks": [
+    {
+      "action": "seed",
+      "result": "passed",
+      "details": {
+        "acknowledged_versions": 11,
+        "marker": true,
+        "active_part": true
+      }
+    },
+    {
+      "action": "prepare",
+      "result": "passed",
+      "details": {
+        "backup_id": "1744b8135a708af355e63e67",
+        "actual_quiescence": true,
+        "verified_backup": true,
+        "checkpoint_processed": 1,
+        "checkpoint_offset": 556,
+        "prior_epoch_retained": true,
+        "actual_source_replication_factor": 2
+      }
+    },
+    {
+      "action": "gated",
+      "result": "passed",
+      "details": {
+        "both_endpoints_gated": true,
+        "other_bucket_writes": true,
+        "explicit_bytes_retained": true
+      }
+    },
+    {
+      "action": "gated",
+      "result": "passed",
+      "details": {
+        "both_endpoints_gated": true,
+        "other_bucket_writes": true,
+        "explicit_bytes_retained": true
+      }
+    },
+    {
+      "action": "rejoin",
+      "result": "passed",
+      "details": {
+        "topology": {
+          "statuses": [
+            {
+              "status": "normal",
+              "primary": "data-a",
+              "bootstrap": false,
+              "commit": 53,
+              "applied": 53,
+              "view": 1,
+              "configuration": "EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207",
+              "node_id": "meta"
+            },
+            {
+              "status": "normal",
+              "primary": "data-a",
+              "bootstrap": true,
+              "commit": 53,
+              "applied": 53,
+              "view": 1,
+              "configuration": "EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207",
+              "node_id": "data-a"
+            },
+            {
+              "status": "normal",
+              "primary": "data-a",
+              "bootstrap": true,
+              "commit": 53,
+              "applied": 53,
+              "view": 1,
+              "configuration": "EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207",
+              "node_id": "data-b"
+            }
+          ],
+          "ready": true
+        },
+        "checkpoint": {
+          "processed": 1,
+          "checkpoint_survived_coordinator_sigkill": true,
+          "exact_manifest_and_offset": true,
+          "former_owner_resume_and_cutover_fenced": true
+        },
+        "gate_survives_restart": true
+      }
+    },
+    {
+      "action": "finish",
+      "result": "passed",
+      "details": {
+        "resumed": {
+          "processed": 41,
+          "validated": true,
+          "resumed_bounded_batches": true,
+          "atomic_cutover": true,
+          "new_epoch": true
+        },
+        "revision_barrier": {
+          "actual_native_page": true,
+          "mutation_after_initial_descriptor": true,
+          "successful_page_contains_new_revision": true
+        },
+        "retained": {
+          "v1_sources_unchanged": 4,
+          "prior_epoch_nodes_unchanged": 28,
+          "verified_backup_id": "1744b8135a708af355e63e67",
+          "backup_manifest_unchanged": true,
+          "rollback_artifacts_retained": true
+        },
+        "concurrent_other_bucket_writes": 8,
+        "both_endpoint_inventories": true,
+        "raw_bytes_versions_and_multipart": true,
+        "source_unchanged": true
+      }
+    }
+  ],
+  "boto3": "1.43.114",
+  "botocore": "1.43.114",
+  "source_fingerprint": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+  "payload_sha256": "7cb6b307e7b804b53e1051a65539355036017fbad1c5e5ad56d8053228d45125"
+}

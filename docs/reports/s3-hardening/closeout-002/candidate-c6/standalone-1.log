@@ -1,0 +1,39 @@
+{"boto3": "1.43.114", "botocore": "1.43.114", "bucket": "hardening-p1-3f7476d3927c472e84", "checks": ["unsupported-selectors", "ambiguous-identities", "botocore-special-path-query-duplicate-header-signatures", "32-create-only-writers", "stale-if-match", "32-conditional-completions", "stale-and-current-multipart-if-match-across-endpoints", "multipart-key-binding", "independent-bad-checksums", "historical-bucket-delete"], "endpoints": ["http://127.0.0.1:51565"], "profile": "phase1-independent-http", "result": "passed"}
+PROFILE phase1 passed
+{"profile": "versions-lists", "endpoints": ["http://127.0.0.1:51565"], "boto3": "1.43.114", "result": "passed"}
+PROFILE versions_lists passed
+{
+  "status": "passed",
+  "checks": [
+    "location-and-region-all-endpoints",
+    "bucket-tagging-cross-endpoint-crud",
+    "version-tagging-retains-bytes-version-and-count",
+    "version-and-common-prefix-pagination",
+    "copy-replace-multipart-tags",
+    "delete-marker-tagging-preserves-marker",
+    "cors-persistence-preflight-cache-and-actual-auth"
+  ],
+  "endpoints": 1,
+  "boto3": "1.43.114",
+  "botocore": "1.43.114"
+}
+PROFILE tag_cors passed
+{"profile": "multipart", "result": "passed", "endpoints": ["http://127.0.0.1:51565"], "scope": "all", "boto3": "1.43.114", "remote_source_evidence": []}
+PROFILE multipart passed
+{"profile": "multipart-races", "event": "started", "bucket": "hardening-multipart-races-0aca2d1d5f71475e", "endpoints": ["http://127.0.0.1:51565"]}
+{"case": "response-loss", "discarded": "entire completion XML unread; response and socket closed after headers", "version_id": "1792535033814794-7iAhlQF21AY", "result": "passed"}
+{"case": "overwrite-0", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}
+{"case": "abort-0", "complete_ok": true, "abort_ok": false, "concurrent_part_ok": false, "terminal": "completed", "result": "passed"}
+{"case": "overwrite-1", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}
+{"case": "abort-1", "complete_ok": false, "abort_ok": true, "concurrent_part_ok": false, "terminal": "aborted", "result": "passed"}
+{"case": "overwrite-2", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}
+{"case": "abort-2", "complete_ok": false, "abort_ok": true, "concurrent_part_ok": false, "terminal": "aborted", "result": "passed"}
+{"case": "overwrite-3", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}
+{"case": "abort-3", "complete_ok": false, "abort_ok": true, "concurrent_part_ok": false, "terminal": "aborted", "result": "passed"}
+{"profile": "multipart-races", "result": "passed", "endpoints": ["http://127.0.0.1:51565"], "checks": [{"case": "response-loss", "discarded": "entire completion XML unread; response and socket closed after headers", "version_id": "1792535033814794-7iAhlQF21AY", "result": "passed"}, {"case": "overwrite-0", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}, {"case": "abort-0", "complete_ok": true, "abort_ok": false, "concurrent_part_ok": false, "terminal": "completed", "result": "passed"}, {"case": "overwrite-1", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}, {"case": "abort-1", "complete_ok": false, "abort_ok": true, "concurrent_part_ok": false, "terminal": "aborted", "result": "passed"}, {"case": "overwrite-2", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}, {"case": "abort-2", "complete_ok": false, "abort_ok": true, "concurrent_part_ok": false, "terminal": "aborted", "result": "passed"}, {"case": "overwrite-3", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}, {"case": "abort-3", "complete_ok": false, "abort_ok": true, "concurrent_part_ok": false, "terminal": "aborted", "result": "passed"}], "synchronization": "thread barriers; no sleeps"}
+PROFILE multipart_races passed
+{"profile": "selected-clients", "result": "passed", "versions": {"aws": "aws-cli/2.34.24 Python/3.13.15 Linux/6.18.48 source/x86_64.nixos.26", "mc": "mc version RELEASE.2025-08-13T08-35-41Z (commit-id=7394ce0dd2a80935aded936b09fa12cbb3cb8096)\nRuntime: go1.24.6 linux/amd64\nCopyright (c) 2015-2025 MinIO, Inc.\nLicense GNU AGPLv3 <https://www.gnu.org/licenses/agpl-3.0.html>"}, "endpoints": ["http://127.0.0.1:51565"]}
+PROFILE clients passed
+{"profile": "multipart-restart", "stage": "prepare", "result": "passed", "endpoints": ["http://127.0.0.1:51565"], "boto3": "1.43.114"}
+{"profile": "multipart-restart", "stage": "verify", "result": "passed", "endpoints": ["http://127.0.0.1:51565"], "boto3": "1.43.114"}
+Disposable standalone root /tmp/ess-s3-hardening-standalone-FIgbdR3k; exit 0

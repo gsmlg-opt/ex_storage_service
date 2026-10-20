@@ -1,0 +1,69 @@
+==> ex_storage_service
+Compiling 130 files (.ex)
+Generated ex_storage_service app
+==> ex_storage_service_cluster
+Compiling 7 files (.ex)
+Generated ex_storage_service_cluster app
+==> ex_storage_service_cli
+Compiling 1 file (.yrl)
+Compiling 1 file (.xrl)
+Compiling 22 files (.erl)
+Compiling 150 files (.ex)
+Generated ex_storage_service_cli app
+==> ex_storage_service_s3
+Compiling 33 files (.ex)
+Generated ex_storage_service_s3 app
+==> ex_storage_service_web
+Compiling 26 files (.ex)
+Generated ex_storage_service_web app
+==> ex_storage_service_web
+Bundling 40 @duskmoon-dev element(s)...
+Wrote /home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/assets/js/duskmoon_elements.js (689.2 KB, 40 element(s))
+Building Tailwind CSS...
+
+06:59:29.336 [error] GenServer DuskmoonBundler.Tailwind terminating
+** (DuskmoonBundler.JS.Runtime.Error) could not write to file "/home/gao/.npm_ex/duskmoon-bundler-js-runtimes/2d0fa604ac93fc244e1da26e47495880/runtime/4794192657eb-tailwind.ts": read-only file system
+    (duskmoon_bundler 9.16.16) lib/duskmoon_bundler/js/runtime.ex:126: DuskmoonBundler.JS.Runtime.start!/1
+    (duskmoon_bundler 9.16.16) lib/duskmoon_bundler/tailwind.ex:87: DuskmoonBundler.Tailwind.ensure_runtime/1
+    (duskmoon_bundler 9.16.16) lib/duskmoon_bundler/tailwind.ex:120: DuskmoonBundler.Tailwind.handle_call/3
+    (stdlib 7.3.0.1) gen_server.erl:2470: :gen_server.try_handle_call/4
+    (stdlib 7.3.0.1) gen_server.erl:2499: :gen_server.handle_msg/3
+    (stdlib 7.3.0.1) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+Last message (from #PID<0.95.0>): {:build, [sources: [%{pattern: "**/*.{ex,heex}", base: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/lib"}, %{pattern: "**/*.{js,ts,jsx,tsx}", base: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/assets"}, %{pattern: "**/*.{ex,heex}", base: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/deps/phoenix_duskmoon"}], css: "@import \"tailwindcss\";\n@plugin \"@duskmoon-dev/core/plugin\";\n/* WORKAROUND(upstream): duskmoon-dev/phoenix-duskmoon-ui#30 */\n/* Use direct CSS imports until phoenix_duskmoon/components is exported. */\n@import \"@duskmoon-dev/core/themes/sunshine\";\n@import \"@duskmoon-dev/core/themes/moonlight\";\n@import \"@duskmoon-dev/core/components\";\n@import \"../../../../deps/phoenix_duskmoon/assets/css/element-theme-bridge.css\";\n@source \"../../lib/ex_storage_service_web.ex\";\n@source \"../../lib/ex_storage_service_web/**/*.ex\";\n@source \"../../lib/ex_storage_service_web/**/*.heex\";\n@source \"../js/**/*.js\";\n\n:root {\n  --font-display: \"Iowan Old Style\", \"Palatino Linotype\", \"Book Antiqua\", serif;\n  --font-body: \"Avenir Next\", \"Trebuchet MS\", sans-serif;\n  --font-mono: \"JetBrains Mono\", \"SFMono-Regular\", monospace;\n}\n\nbody {\n  font-family: var(--font-body);\n}\n\nh1,\nh2,\nh3 {\n  font-family: var(--font-display);\n  letter-spacing: 0;\n}\n\ncode,\npre,\n.font-mono {\n  font-family: var(--font-mono);\n}\n\n.ess-dashboard-hero {\n  background: linear-gradient(\n    135deg,\n    var(--color-primary-container),\n    var(--color-tertiary-container)\n  );\n}\n\n.ess-card-hover {\n  transition: transform 0.15s ease, box-shadow 0.15s ease;\n}\n\n.ess-card-hover:hover {\n  transform: translateY(-2px);\n  box-shadow: var(--shadow-md);\n}\n\n.appbar .appbar-actions .appbar-action,\n.appbar .appbar-trailing > .appbar-action {\n  width: auto;\n  padding-inline: 0.75rem;\n  white-space: nowrap;\n  border-radius: var(--radius-md);\n}\n\n@media (width < 40rem) {\n  .ess-appbar .appbar-title {\n    display: none;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  *,\n  *::before,\n  *::after {\n    animation: none !important;\n    transition: none !important;\n  }\n}\n", css_base: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/assets/css", resolve_dirs: ["/home/gao/Workspace/gsmlg-opt/ex_storage_service/deps", "/home/gao/Workspace/gsmlg-opt/ex_storage_service/node_modules"], minify: false]}
+State: %{runtime: nil, sources: [%{pattern: "**/*.{ex,heex}", base: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/lib"}, %{pattern: "**/*.{js,ts,jsx,tsx}", base: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/assets"}, %{pattern: "**/*.{ex,heex}", base: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/deps/phoenix_duskmoon"}], resolve_dirs: [], scanner: nil, last_css: nil, default_resolve_dirs: []}
+Client #PID<0.95.0> is alive
+
+    (stdlib 7.3.0.1) gen.erl:243: :gen.do_call/4
+    (elixir 1.18.5) lib/gen_server.ex:1125: GenServer.call/3
+    (duskmoon_bundler 9.16.16) lib/mix/tasks/duskmoon_bundler.build.ex:213: anonymous fn/8 in Mix.Tasks.DuskmoonBundler.Build.build_tailwind/7
+    (stdlib 7.3.0.1) timer.erl:599: :timer.tc/2
+    (duskmoon_bundler 9.16.16) lib/mix/tasks/duskmoon_bundler.build.ex:211: Mix.Tasks.DuskmoonBundler.Build.build_tailwind/7
+    (duskmoon_bundler 9.16.16) lib/mix/tasks/duskmoon_bundler.build.ex:89: Mix.Tasks.DuskmoonBundler.Build.run/1
+    (mix 1.18.5) lib/mix/task.ex:495: anonymous fn/3 in Mix.Task.run_task/5
+    (mix 1.18.5) lib/mix/task.ex:561: Mix.Task.run_alias/6
+** (exit) exited in: GenServer.call(DuskmoonBundler.Tailwind, {:build, [sources: [%{pattern: "**/*.{ex,heex}", base: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/lib"}, %{pattern: "**/*.{js,ts,jsx,tsx}", base: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/assets"}, %{pattern: "**/*.{ex,heex}", base: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/deps/phoenix_duskmoon"}], css: "@import \"tailwindcss\";\n@plugin \"@duskmoon-dev/core/plugin\";\n/* WORKAROUND(upstream): duskmoon-dev/phoenix-duskmoon-ui#30 */\n/* Use direct CSS imports until phoenix_duskmoon/components is exported. */\n@import \"@duskmoon-dev/core/themes/sunshine\";\n@import \"@duskmoon-dev/core/themes/moonlight\";\n@import \"@duskmoon-dev/core/components\";\n@import \"../../../../deps/phoenix_duskmoon/assets/css/element-theme-bridge.css\";\n@source \"../../lib/ex_storage_service_web.ex\";\n@source \"../../lib/ex_storage_service_web/**/*.ex\";\n@source \"../../lib/ex_storage_service_web/**/*.heex\";\n@source \"../js/**/*.js\";\n\n:root {\n  --font-display: \"Iowan Old Style\", \"Palatino Linotype\", \"Book Antiqua\", serif;\n  --font-body: \"Avenir Next\", \"Trebuchet MS\", sans-serif;\n  --font-mono: \"JetBrains Mono\", \"SFMono-Regular\", monospace;\n}\n\nbody {\n  font-family: var(--font-body);\n}\n\nh1,\nh2,\nh3 {\n  font-family: var(--font-display);\n  letter-spacing: 0;\n}\n\ncode,\npre,\n.font-mono {\n  font-family: var(--font-mono);\n}\n\n.ess-dashboard-hero {\n  background: linear-gradient(\n    135deg,\n    var(--color-primary-container),\n    var(--color-tertiary-container)\n  );\n}\n\n.ess-card-hover {\n  transition: transform 0.15s ease, box-shadow 0.15s ease;\n}\n\n.ess-card-hover:hover {\n  transform: translateY(-2px);\n  box-shadow: var(--shadow-md);\n}\n\n.appbar .appbar-actions .appbar-action,\n.appbar .appbar-trailing > .appbar-action {\n  width: auto;\n  padding-inline: 0.75rem;\n  white-space: nowrap;\n  border-radius: var(--radius-md);\n}\n\n@media (width < 40rem) {\n  .ess-appbar .appbar-title {\n    display: none;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  *,\n  *::before,\n  *::after {\n    animation: none !important;\n    transition: none !important;\n  }\n}\n", css_base: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/assets/css", resolve_dirs: ["/home/gao/Workspace/gsmlg-opt/ex_storage_service/deps", "/home/gao/Workspace/gsmlg-opt/ex_storage_service/node_modules"], minify: false]}, :infinity)
+    ** (EXIT) an exception was raised:
+        ** (DuskmoonBundler.JS.Runtime.Error) could not write to file "/home/gao/.npm_ex/duskmoon-bundler-js-runtimes/2d0fa604ac93fc244e1da26e47495880/runtime/4794192657eb-tailwind.ts": read-only file system
+            (duskmoon_bundler 9.16.16) lib/duskmoon_bundler/js/runtime.ex:126: DuskmoonBundler.JS.Runtime.start!/1
+            (duskmoon_bundler 9.16.16) lib/duskmoon_bundler/tailwind.ex:87: DuskmoonBundler.Tailwind.ensure_runtime/1
+            (duskmoon_bundler 9.16.16) lib/duskmoon_bundler/tailwind.ex:120: DuskmoonBundler.Tailwind.handle_call/3
+            (stdlib 7.3.0.1) gen_server.erl:2470: :gen_server.try_handle_call/4
+            (stdlib 7.3.0.1) gen_server.erl:2499: :gen_server.handle_msg/3
+            (stdlib 7.3.0.1) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+    (elixir 1.18.5) lib/gen_server.ex:1128: GenServer.call/3
+    (duskmoon_bundler 9.16.16) lib/mix/tasks/duskmoon_bundler.build.ex:213: anonymous fn/8 in Mix.Tasks.DuskmoonBundler.Build.build_tailwind/7
+    (stdlib 7.3.0.1) timer.erl:599: :timer.tc/2
+    (duskmoon_bundler 9.16.16) lib/mix/tasks/duskmoon_bundler.build.ex:211: Mix.Tasks.DuskmoonBundler.Build.build_tailwind/7
+    (duskmoon_bundler 9.16.16) lib/mix/tasks/duskmoon_bundler.build.ex:89: Mix.Tasks.DuskmoonBundler.Build.run/1
+    (mix 1.18.5) lib/mix/task.ex:495: anonymous fn/3 in Mix.Task.run_task/5
+    (mix 1.18.5) lib/mix/task.ex:561: Mix.Task.run_alias/6
+    (mix 1.18.5) lib/mix/cli.ex:107: Mix.CLI.run_task/2
+** (exit) 1
+    (mix 1.18.5) lib/mix/tasks/cmd.ex:74: Mix.Tasks.Cmd.run/1
+    (mix 1.18.5) lib/mix/task.ex:495: anonymous fn/3 in Mix.Task.run_task/5
+    (mix 1.18.5) lib/mix/project.ex:476: Mix.Project.in_project/4
+    (elixir 1.18.5) lib/file.ex:1665: File.cd!/2
+    (mix 1.18.5) lib/mix/task.ex:659: anonymous fn/4 in Mix.Task.run_in_children_projects/2
+    (elixir 1.18.5) lib/enum.ex:2546: Enum."-reduce/3-lists^foldl/2-0-"/3
+    (mix 1.18.5) lib/mix/task.ex:658: Mix.Task.run_in_children_projects/2
+    (mix 1.18.5) lib/mix/project_stack.ex:237: Mix.ProjectStack.recur/1

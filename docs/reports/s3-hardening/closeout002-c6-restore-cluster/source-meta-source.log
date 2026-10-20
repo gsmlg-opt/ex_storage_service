@@ -1,0 +1,40 @@
+
+06:58:51.675 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+06:58:51.685 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+06:58:51.746 [info] Concord VSR metadata quorum ready
+{"restore_control":"boot_ready"}
+
+06:58:53.700 [notice] Application ex_storage_service_s3 exited: :stopped
+
+06:58:53.704 [notice] Application ex_storage_service_cluster exited: :stopped
+
+06:58:56.122 [notice] SIGTERM received - shutting down
+
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 778034)
+[0mWaiting for lock on the build directory (held by process 778034)
+[0mWaiting for lock on the build directory (held by process 778033)
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 778034)
+[0mWaiting for lock on the build directory (held by process 778033)
+[0mWaiting for lock on the build directory (held by process 778034)
+[0mWaiting for lock on the build directory (held by process 778034)
+[0mWaiting for lock on the build directory (held by process 778033)
+
+06:58:57.807 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+06:58:57.818 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+06:58:57.863 [info] Concord VSR metadata quorum ready
+{"restore_control":"boot_ready"}
+
+06:58:58.164 [notice] SIGTERM received - shutting down
+

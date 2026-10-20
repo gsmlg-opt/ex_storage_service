@@ -1,0 +1,24 @@
+
+07:05:36.144 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+07:05:36.155 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+07:05:36.188 [debug] API get: {:error, :not_found} (1ms)
+
+07:05:36.189 [info] Concord VSR metadata store ready
+
+07:05:36.216 [debug] API get: {:ok, %{name: "c6-real-concord-cleanup", generation: "PECttJy7bI30mfKqb98Dkw", creation_date: "2026-10-20T23:05:36.196782Z"}} (0ms)
+
+07:05:36.216 [debug] API get: {:ok, %{name: "c6-real-concord-cleanup", generation: "PECttJy7bI30mfKqb98Dkw", creation_date: "2026-10-20T23:05:36.196782Z"}} (0ms)
+
+07:05:36.223 [debug] API get: {:ok, %{name: "c6-real-concord-cleanup", generation: "PECttJy7bI30mfKqb98Dkw", creation_date: "2026-10-20T23:05:36.196782Z"}} (0ms)
+
+07:05:36.224 [debug] API get: {:ok, %{name: "c6-real-concord-cleanup", generation: "PECttJy7bI30mfKqb98Dkw", creation_date: "2026-10-20T23:05:36.196782Z"}} (0ms)
+
+07:05:36.229 [debug] API get: {:ok, %{name: "c6-real-concord-cleanup", generation: "PECttJy7bI30mfKqb98Dkw", creation_date: "2026-10-20T23:05:36.196782Z"}} (0ms)
+
+07:05:36.229 [debug] API get: {:ok, %{name: "c6-real-concord-cleanup", generation: "PECttJy7bI30mfKqb98Dkw", creation_date: "2026-10-20T23:05:36.196782Z"}} (0ms)
+{"status":"passed","mode":"exercise","receipt":"/tmp/ess-c6-real-concord-stage-20261020T230535Z/exercise.json","acceptance":false}

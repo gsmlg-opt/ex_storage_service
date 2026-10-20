@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "kind": "live-upstream-source-verification",
+  "observed_at": "2026-10-20T22:11:41.346502+00:00",
+  "ess_sha": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+  "upstream": {
+    "repository": "gsmlg-dev/concord",
+    "main_sha": "4b1c4fb7150d9d1e6473530f8a67144fe8c0552a",
+    "latest_tag": "v3.1.4",
+    "tag_sha": "4b1c4fb7150d9d1e6473530f8a67144fe8c0552a",
+    "release_published_at": "2026-10-20T15:38:25Z",
+    "open_pull_requests": 0
+  },
+  "issues": [
+    {
+      "number": 99,
+      "state": "closed",
+      "state_reason": "completed"
+    },
+    {
+      "number": 100,
+      "state": "closed",
+      "state_reason": "completed"
+    },
+    {
+      "number": 101,
+      "state": "open",
+      "closed_at": null,
+      "updated_at": "2026-10-20T17:00:36Z",
+      "timeline": [
+        "labeled",
+        "issue_type_added"
+      ]
+    },
+    {
+      "number": 102,
+      "state": "open",
+      "closed_at": null,
+      "updated_at": "2026-10-20T17:02:02Z",
+      "timeline": [
+        "labeled",
+        "issue_type_added"
+      ]
+    }
+  ],
+  "hex": [
+    {
+      "package": "concord",
+      "latest_stable": "3.1.4",
+      "payload_sha256": "9784cc7ba3f3345024ad319ddd16120bd12fd5526f834d80c1c5a28e0882d17d",
+      "exact_companions": {
+        "ex_turso": "3.1.4",
+        "viewstamped_replication": "3.1.4"
+      }
+    },
+    {
+      "package": "viewstamped_replication",
+      "latest_stable": "3.1.4",
+      "payload_sha256": "4266e059a176eda4fcee55807c488cee072e375368abab0139fd8cc156ef59aa"
+    },
+    {
+      "package": "ex_turso",
+      "latest_stable": "3.1.4",
+      "payload_sha256": "477b4380b71c0f5bcdc347c82fe8bcd3c67483e9842de0cd19e582c1d7d0c80a"
+    }
+  ],
+  "source_verification": {
+    "method": "Independent read-only worker live GitHub/Hex queries and immutable upstream SHA versus downloaded Hex payload versus installed deps; all inspected files identical. No performance workload or dependency mutation.",
+    "findings": [
+      {
+        "issue": 101,
+        "path": "apps/viewstamped_replication/lib/viewstamped_replication/protocol.ex",
+        "sha256": "d89a2b18f82c77484d46e75dc6586960bff97897b9469c28c8987574f0565f1c",
+        "evidence": "step/2 lines34-37 invokes assert_invariants! before singleton fast path; lines80-82 validate retained entries; applied_requests_indexed?/3 lines2136-2152 recursively visits applied log entries",
+        "repaired": false
+      },
+      {
+        "issue": 102,
+        "path": "apps/concord/lib/concord/state_machine/core.ex",
+        "sha256": "f961c1a9dbe71b37e1b9589890c1c8ba968f00ada08c0907ed3ebac7c6a78917",
+        "evidence": "apply_with_changes/4 lines140-148 returns :all for non-incremental commands; incremental_command?/1 lines155-166 excludes txn",
+        "repaired": false
+      },
+      {
+        "path": "apps/concord/lib/concord/state_machine.ex",
+        "sha256": "fb417d9970ded983b25fdd459e46d13b5c8c28a37f2d275dcb349164ce422699",
+        "evidence": "materialize/2 line199 delegates :all to full materialize/1; lines169-172 replace complete tables"
+      },
+      {
+        "path": "apps/concord/lib/concord/state_machine/observer.ex",
+        "sha256": "f23fac22c4b17a4a8e66e60ad86da759455e671f93b396084c71026c965da668",
+        "evidence": "changed_keys(:all)/3 lines53-54 combines all previous/current keys"
+      }
+    ]
+  },
+  "conclusion": {
+    "new_adoptable_fix": false,
+    "a28_status": "BLOCKED_UPSTREAM",
+    "acceptance": false,
+    "new_performance_measurements": false
+  }
+}

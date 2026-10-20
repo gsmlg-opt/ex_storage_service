@@ -1,0 +1,112 @@
+{
+  "uname": [
+    "Linux",
+    "ms04",
+    "6.18.48",
+    "#1-NixOS SMP PREEMPT_DYNAMIC Fri Aug 28 06:22:54 UTC 2026",
+    "x86_64",
+    ""
+  ],
+  "cpu_count": 16,
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "load": [
+    0.0732421875,
+    0.12744140625,
+    0.18212890625
+  ],
+  "monotonic_clock": {
+    "implementation": "clock_gettime(CLOCK_MONOTONIC)",
+    "monotonic": true,
+    "adjustable": false,
+    "resolution": 1e-09
+  },
+  "disk": {
+    "device": 66305,
+    "path": "/tmp",
+    "block_bytes": 4096,
+    "available_bytes": 372534996992
+  },
+  "meminfo": "MemTotal:       65676752 kB\nMemFree:        25270928 kB\nMemAvailable:   59473160 kB\nBuffers:         1518012 kB\nCached:         29565924 kB\nSwapCached:       168784 kB\nActive:          2087144 kB\nInactive:       32059704 kB\nActive(anon):    1567556 kB\nInactive(anon):  1836532 kB\nActive(file):     519588 kB\nInactive(file): 30223172 kB\nUnevictable:        1604 kB\nMlocked:            1568 kB\nSwapTotal:      72248812 kB\nSwapFree:       64677032 kB\nZswap:                 0 kB\nZswapped:              0 kB\nDirty:              2000 kB\nWriteback:             0 kB\nAnonPages:       3020088 kB\nMapped:           988180 kB\nShmem:            341468 kB\nKReclaimable:    4188852 kB\nSlab:            5012732 kB\nSReclaimable:    4188852 kB\nSUnreclaim:       823880 kB\nKernelStack:       24912 kB\nPageTables:       150996 kB\nSecPageTables:      1028 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    105087188 kB\nCommitted_AS:   23501832 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:      391880 kB\nVmallocChunk:          0 kB\nPercpu:            18752 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:     45056 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:     94208 kB\nFilePmdMapped:         0 kB\nCmaTotal:              0 kB\nCmaFree:               0 kB\nUnaccepted:            0 kB\nBalloon:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:     3425016 kB\nDirectMap2M:    50933760 kB\nDirectMap1G:    14680064 kB\n",
+  "pressure/cpu": "some avg10=0.00 avg60=0.00 avg300=0.00 total=133808252\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+  "pressure/io": "some avg10=0.11 avg60=0.15 avg300=0.11 total=1132604896\nfull avg10=0.11 avg60=0.15 avg300=0.11 total=1109066083\n",
+  "pressure/memory": "some avg10=0.00 avg60=0.00 avg300=0.00 total=4905871\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=4804514\n",
+  "self/cgroup": "0::/user.slice/user-1000.slice/session-521.scope\n",
+  "cgroups": {
+    "/sys/fs/cgroup/user.slice/user-1000.slice/session-521.scope": {
+      "cpu.max": "max 100000",
+      "memory.max": "max",
+      "io.max": ""
+    },
+    "/sys/fs/cgroup/user.slice/user-1000.slice": {
+      "cpu.max": "max 100000",
+      "memory.max": "max",
+      "io.max": ""
+    },
+    "/sys/fs/cgroup/user.slice": {
+      "cpu.max": "max 100000",
+      "memory.max": "max",
+      "cpuset.cpus.effective": "0-15",
+      "io.max": ""
+    },
+    "/sys/fs/cgroup": {
+      "cpuset.cpus.effective": "0-15"
+    }
+  },
+  "dependencies": {
+    "concord": "3.1.4",
+    "ex_turso": "3.1.4",
+    "http_fetch": "0.21.13",
+    "viewstamped_replication": "3.1.4"
+  },
+  "python": "3.13.15",
+  "client_checksum_environment": {
+    "AWS_REQUEST_CHECKSUM_CALCULATION": null,
+    "AWS_RESPONSE_CHECKSUM_VALIDATION": null
+  },
+  "toolchain": "Erlang/OTP 28 [erts-16.4.0.5] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.18.5 (compiled with Erlang/OTP 28)\n",
+  "disk_identity": "NAME              TYPE  FSTYPE              SIZE ROTA MOUNTPOINTS\nsda               disk  linux_raid_member  14.6T    1 \n\u2514\u2500md0             raid5 LVM2_member        43.7T    1 \n  \u2514\u2500data--vg-data lvm   ext4               43.7T    1 /data\nsdb               disk  linux_raid_member  14.6T    1 \n\u2514\u2500md0             raid5 LVM2_member        43.7T    1 \n  \u2514\u2500data--vg-data lvm   ext4               43.7T    1 /data\nsdc               disk  linux_raid_member  14.6T    1 \n\u2514\u2500md0             raid5 LVM2_member        43.7T    1 \n  \u2514\u2500data--vg-data lvm   ext4               43.7T    1 /data\nsdd               disk  linux_raid_member  14.6T    1 \n\u2514\u2500md0             raid5 LVM2_member        43.7T    1 \n  \u2514\u2500data--vg-data lvm   ext4               43.7T    1 /data\nnvme1n1           disk                    931.5G    0 \n\u2514\u2500nvme1n1p1       part  ext4              931.5G    0 /tmp\n                                                      /var/lib/postgresql\n                                                      /var/lib/docker\n                                                      /var/lib/containers/storage/overlay\n                                                      /var/lib/containers\n                                                      /fast/containers/storage/overlay\n                                                      /fast\nnvme0n1           disk                    931.5G    0 \n\u251c\u2500nvme0n1p1       part  vfat                  2G    0 /boot\n\u251c\u2500nvme0n1p2       part  ext4              860.6G    0 /tmp/ess-s3-hardening-tools\n\u2502                                                     /tmp/ess-s3-hardening-python\n\u2502                                                     /home/gao/Workspace/gsmlg-opt/ex_storage_service\n\u2502                                                     /nix/store\n\u2502                                                     /\n\u2514\u2500nvme0n1p3       part  swap               68.9G    0 [SWAP]\n",
+  "process_load": [
+    "    PID COMMAND         %CPU   RSS",
+    " 737398 python          18.8 30984",
+    " 737409 python          10.5 14340",
+    "   6998 openclaw-gatewa  1.7 1255880",
+    " 286419 codex            1.5 603240",
+    "   9868 beam.smp         0.4 49592",
+    " 252385 note-server      0.3 65772",
+    "   2996 text-embeddings  0.2 229792",
+    "  12254 chrome           0.1 56260",
+    "   2010 caddy            0.0 34672",
+    "   1384 beam.smp         0.0 21912",
+    "   2561 containerd       0.0 20984",
+    " 736375 .postgres-wrapp  0.0 50412",
+    " 289250 codex-code-mode  0.0 14324",
+    " 736326 .postgres-wrapp  0.0 39060",
+    " 734371 .postgres-wrapp  0.0 24076",
+    "   1984 tunnel-client    0.0 11968",
+    "  12033 chrome           0.0 22356",
+    " 721779 kworker/u64:3-k  0.0     0",
+    "  11839 chrome           0.0 100880",
+    "     16 rcu_preempt      0.0     0",
+    "  11768 .gnome-shell-wr  0.0 70528",
+    "   2011 dockerd          0.0 94988",
+    " 287561 .gnome-keyring-  0.0 11508",
+    " 657288 kworker/u64:1-e  0.0     0"
+  ]
+}

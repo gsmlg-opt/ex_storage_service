@@ -1,0 +1,40 @@
+
+===== start data-b bootstrap=true at 2026-10-20T22:57:58Z =====
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 775211)
+[0mWaiting for lock on the build directory (held by process 775219)
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 775219)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 775219)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 775219)
+==> ex_storage_service_web
+[0mWaiting for lock on the build directory (held by process 775219)
+06:57:59.201 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+06:57:59.214 [info] Starting Concord TTL manager with cleanup interval: 300000s
+06:57:59.272 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-QbRgmV4f/data-b and blob root /tmp/ess-s3-hardening-cluster-QbRgmV4f/data-b/blob
+06:57:59.295 [info] Concord VSR metadata quorum ready
+06:57:59.325 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9102 (http)
+06:57:59.330 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9002 (http)
+06:58:02.474 [warning] Outbox materialization failed: :idempotency_conflict
+crash data-b SIGKILL at 2026-10-20T22:58:04Z
+
+===== start data-b bootstrap=false at 2026-10-20T22:58:05Z =====
+06:58:05.776 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+06:58:05.786 [info] Starting Concord TTL manager with cleanup interval: 300000s
+06:58:05.832 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-QbRgmV4f/data-b and blob root /tmp/ess-s3-hardening-cluster-QbRgmV4f/data-b/blob
+06:58:05.846 [info] Concord VSR metadata quorum ready
+06:58:05.870 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9102 (http)
+06:58:05.874 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9002 (http)
+06:58:06.865 [warning] 'global' at node :"ess_data_b@127.0.0.1" requested disconnect from node :"ess_resilience_ctl_71d6e07127@127.0.0.1" in order to prevent overlapping partitions
+06:58:08.894 [warning] Outbox materialization failed: :cluster_not_ready
+06:58:08.895 [warning] Durable job scan failed: :cluster_not_ready
+06:58:12.188 [notice] SIGTERM received - shutting down
+

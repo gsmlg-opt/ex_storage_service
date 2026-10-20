@@ -1,0 +1,26 @@
+
+===== start meta bootstrap=true at 2026-10-20T22:46:16Z =====
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 766259)
+[0mWaiting for lock on the build directory (held by process 766267)
+[0mWaiting for lock on the build directory (held by process 766259)
+[0mWaiting for lock on the build directory (held by process 766267)
+[0mWaiting for lock on the build directory (held by process 766259)
+[0mWaiting for lock on the build directory (held by process 766267)
+[0mWaiting for lock on the build directory (held by process 766267)
+[0mWaiting for lock on the build directory (held by process 766267)
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 766259)
+[0mWaiting for lock on the build directory (held by process 766259)
+06:46:16.741 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+06:46:16.759 [info] Starting Concord TTL manager with cleanup interval: 300000s
+06:46:16.817 [info] Concord VSR metadata quorum ready
+06:46:49.072 [warning] 'global' at node :"ess_meta@127.0.0.1" requested disconnect from node :"resource_ctl_3749b6aba1@127.0.0.1" in order to prevent overlapping partitions
+06:47:03.622 [warning] 'global' at node :"ess_meta@127.0.0.1" requested disconnect from node :"resource_ctl_957d8910db@127.0.0.1" in order to prevent overlapping partitions
+06:55:23.387 [warning] 'global' at node :"ess_meta@127.0.0.1" requested disconnect from node :"resource_ctl_de32d2722c@127.0.0.1" in order to prevent overlapping partitions
+06:56:05.665 [warning] 'global' at node :"ess_meta@127.0.0.1" requested disconnect from node :"resource_ctl_0d99c1bf62@127.0.0.1" in order to prevent overlapping partitions
+06:56:51.602 [notice] SIGTERM received - shutting down
+

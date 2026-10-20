@@ -1,0 +1,53 @@
+curl: (7) Failed to connect to 127.0.0.1:9001 after 0 ms: Could not connect to server
+{"boto3": "1.43.114", "botocore": "1.43.114", "bucket": "hardening-p1-44815d8210374951ba", "checks": ["unsupported-selectors", "ambiguous-identities", "botocore-special-path-query-duplicate-header-signatures", "32-create-only-writers", "stale-if-match", "32-conditional-completions", "stale-and-current-multipart-if-match-across-endpoints", "multipart-key-binding", "independent-bad-checksums", "historical-bucket-delete"], "endpoints": ["http://127.0.0.1:9001", "http://127.0.0.1:9002"], "profile": "phase1-independent-http", "result": "passed"}
+PROFILE e2e/s3_hardening_phase1.py passed
+{"bucket": "hardening-iam-3bb166ef80064109", "checks": ["copy-source-denial-both-endpoints", "attached-deny-linearizable-both-endpoints", "missing-attached-deny-fails-closed-both-endpoints", "malformed-attached-deny-fails-closed-both-endpoints", "suspended-user-both-endpoints", "revoked-key-and-presign-both-endpoints"], "endpoints": ["http://127.0.0.1:9001", "http://127.0.0.1:9002"], "profile": "cluster-phase1-iam", "result": "passed", "scope": "all"}
+{"bucket": "hardening-iam-3bb166ef80064109", "bucket_race_statuses": [[404, 204], [404, 204], [404, 204], [404, 204], [404, 204], [404, 204], [404, 204], [404, 204]], "checks": ["copy-source-denial-both-endpoints", "attached-deny-linearizable-both-endpoints", "missing-attached-deny-fails-closed-both-endpoints", "malformed-attached-deny-fails-closed-both-endpoints", "suspended-user-both-endpoints", "revoked-key-and-presign-both-endpoints", "8-cross-endpoint-bucket-write-races", "multipart-bucket-delete-race"], "endpoints": ["http://127.0.0.1:9001", "http://127.0.0.1:9002"], "profile": "cluster-phase1-iam-bucket-races", "result": "passed", "scope": "all"}
+PROFILE e2e/cluster_iam_hardening.py passed
+{"profile": "versions-lists", "endpoints": ["http://127.0.0.1:9001", "http://127.0.0.1:9002"], "boto3": "1.43.114", "result": "passed"}
+PROFILE e2e/s3_hardening_versions_lists.py passed
+{
+  "status": "passed",
+  "checks": [
+    "location-and-region-all-endpoints",
+    "bucket-tagging-cross-endpoint-crud",
+    "version-tagging-retains-bytes-version-and-count",
+    "version-and-common-prefix-pagination",
+    "copy-replace-multipart-tags",
+    "delete-marker-tagging-preserves-marker",
+    "cors-persistence-preflight-cache-and-actual-auth"
+  ],
+  "endpoints": 2,
+  "boto3": "1.43.114",
+  "botocore": "1.43.114"
+}
+PROFILE e2e/s3_hardening_tag_cors.py passed
+{"profile": "multipart", "result": "passed", "endpoints": ["http://127.0.0.1:9001", "http://127.0.0.1:9002"], "scope": "all", "boto3": "1.43.114", "remote_source_evidence": [{"size": 42, "hash": "4c21436b1c74877afdd03206616204ddb2e68a46b4542e170f70045c6b498005", "replication_factor": 2, "write_quorum": 2, "schema": 1, "stage": "object", "removed_node": "data-a", "verified_peer": "data-b", "local_absent": true, "locations_unchanged": true}, {"size": 10, "hash": "3735089ae2b33b6ce0c01d68835c971f09d52c3bea1a14ac0daf2342d5022b28", "replication_factor": 2, "write_quorum": 2, "schema": 1, "stage": "part", "removed_node": "data-a", "verified_peer": "data-b", "local_absent": true, "locations_unchanged": true}]}
+PROFILE e2e/s3_hardening_multipart.py passed
+{"profile": "multipart-races", "event": "started", "bucket": "hardening-multipart-races-43fc045314394967", "endpoints": ["http://127.0.0.1:9001", "http://127.0.0.1:9002"]}
+{"case": "response-loss", "discarded": "entire completion XML unread; response and socket closed after headers", "version_id": "1792535232253761-bJuo5D_EKjw", "result": "passed"}
+{"case": "overwrite-0", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}
+{"case": "abort-0", "complete_ok": true, "abort_ok": false, "concurrent_part_ok": false, "terminal": "completed", "result": "passed"}
+{"case": "overwrite-1", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}
+{"case": "abort-1", "complete_ok": false, "abort_ok": true, "concurrent_part_ok": false, "terminal": "aborted", "result": "passed"}
+{"case": "overwrite-2", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}
+{"case": "abort-2", "complete_ok": true, "abort_ok": false, "concurrent_part_ok": false, "terminal": "completed", "result": "passed"}
+{"case": "overwrite-3", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}
+{"case": "abort-3", "complete_ok": true, "abort_ok": false, "concurrent_part_ok": false, "terminal": "completed", "result": "passed"}
+{"profile": "multipart-races", "result": "passed", "endpoints": ["http://127.0.0.1:9001", "http://127.0.0.1:9002"], "checks": [{"case": "response-loss", "discarded": "entire completion XML unread; response and socket closed after headers", "version_id": "1792535232253761-bJuo5D_EKjw", "result": "passed"}, {"case": "overwrite-0", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}, {"case": "abort-0", "complete_ok": true, "abort_ok": false, "concurrent_part_ok": false, "terminal": "completed", "result": "passed"}, {"case": "overwrite-1", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}, {"case": "abort-1", "complete_ok": false, "abort_ok": true, "concurrent_part_ok": false, "terminal": "aborted", "result": "passed"}, {"case": "overwrite-2", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}, {"case": "abort-2", "complete_ok": true, "abort_ok": false, "concurrent_part_ok": false, "terminal": "completed", "result": "passed"}, {"case": "overwrite-3", "complete_ok": true, "overwrite_ok": false, "final_part": "original", "result": "passed"}, {"case": "abort-3", "complete_ok": true, "abort_ok": false, "concurrent_part_ok": false, "terminal": "completed", "result": "passed"}], "synchronization": "thread barriers; no sleeps"}
+PROFILE e2e/s3_hardening_multipart_races.py passed
+{"profile": "selected-clients", "result": "passed", "versions": {"aws": "aws-cli/2.34.24 Python/3.13.15 Linux/6.18.48 source/x86_64.nixos.26", "mc": "mc version RELEASE.2025-08-13T08-35-41Z (commit-id=7394ce0dd2a80935aded936b09fa12cbb3cb8096)\nRuntime: go1.24.6 linux/amd64\nCopyright (c) 2015-2025 MinIO, Inc.\nLicense GNU AGPLv3 <https://www.gnu.org/licenses/agpl-3.0.html>"}, "endpoints": ["http://127.0.0.1:9001", "http://127.0.0.1:9002"]}
+PROFILE e2e/s3_hardening_clients.py passed
+{"profile": "multipart-restart", "stage": "prepare", "result": "passed", "endpoints": ["http://127.0.0.1:9001", "http://127.0.0.1:9002"], "boto3": "1.43.114"}
+curl: (7) Failed to connect to 127.0.0.1:9002 after 0 ms: Could not connect to server
+curl: (7) Failed to connect to 127.0.0.1:9002 after 0 ms: Could not connect to server
+{"profile": "multipart-restart", "stage": "verify", "result": "passed", "endpoints": ["http://127.0.0.1:9001", "http://127.0.0.1:9002"], "boto3": "1.43.114"}
+curl: (7) Failed to connect to 127.0.0.1:9002 after 0 ms: Could not connect to server
+curl: (7) Failed to connect to 127.0.0.1:9002 after 0 ms: Could not connect to server
+{"status":"passed","phase":"record","topology":{"commit":1159,"configuration":"EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207","primary":"data-b","statuses":[{"applied":1159,"bootstrap":true,"commit":1159,"configuration":"EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207","degraded":false,"node_id":"data-a","primary":"data-b","rf":2,"status":"normal","view":2,"w":2},{"applied":1159,"bootstrap":false,"commit":1159,"configuration":"EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207","degraded":false,"node_id":"data-b","primary":"data-b","rf":2,"status":"normal","view":2,"w":2},{"applied":1159,"bootstrap":true,"commit":1159,"configuration":"EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207","degraded":false,"node_id":"meta","primary":"data-b","rf":2,"status":"normal","view":2,"w":2}],"view":2}}
+{"status":"passed","phase":"elected","topology":{"commit":1159,"configuration":"EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207","primary":"meta","statuses":[{"applied":1159,"bootstrap":true,"commit":1159,"configuration":"EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207","degraded":false,"node_id":"data-a","primary":"meta","rf":2,"status":"normal","view":3,"w":2},{"applied":1159,"bootstrap":true,"commit":1159,"configuration":"EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207","degraded":false,"node_id":"meta","primary":"meta","rf":2,"status":"normal","view":3,"w":2}],"view":3}}
+{"primary_stopped": "data-b", "view_before": 2, "view_elected": 3, "rf": 2, "w": 2, "expected_write_status": 503}
+curl: (7) Failed to connect to 127.0.0.1:9002 after 0 ms: Could not connect to server
+curl: (7) Failed to connect to 127.0.0.1:9002 after 0 ms: Could not connect to server
+{"status":"passed","phase":"rejoined","topology":{"commit":1163,"configuration":"EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207","primary":"meta","statuses":[{"applied":1163,"bootstrap":true,"commit":1163,"configuration":"EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207","degraded":false,"node_id":"data-a","primary":"meta","rf":2,"status":"normal","view":3,"w":2},{"applied":1163,"bootstrap":false,"commit":1163,"configuration":"EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207","degraded":false,"node_id":"data-b","primary":"meta","rf":2,"status":"normal","view":3,"w":2},{"applied":1163,"bootstrap":true,"commit":1163,"configuration":"EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207","degraded":false,"node_id":"meta","primary":"meta","rf":2,"status":"normal","view":3,"w":2}],"view":3}}
+Disposable roots retained: /tmp/ess-s3-hardening-cluster-EcpQ3mdI; exit 0

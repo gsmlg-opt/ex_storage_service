@@ -1,0 +1,102 @@
+{
+  "scope": "all",
+  "checks": [
+    {
+      "name": "unsupported-selectors-zero-upstream-requests-preserve-body-and-versions",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "gateway-versions-multipart-tagging-guards-zero-upstream-requests",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "checksum-and-signed-payload-rejection-before-upstream",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "signed-chunks-and-trailers-valid-and-corrupt-truncated-trailing-rejection",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "external-replacement-deletion-freshness-cold-range-raw-attributes",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "current-rustfs-gateway-checksum-attributes-and-copy-roundtrip",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "normal-gateway-list-delete-and-batch-delete",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "truthful-denied-unavailable-throttled-get-head-put-delete-and-batch",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "truthful-unavailable-throttled-put-delete-preserve-local-and-upstream",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "mixed-gateway-batch-delete-real-success-and-path-specific-denial",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "real-upstream-socket-inactivity-timeout-no-stale-cache",
+      "passed": true,
+      "details": {
+        "elapsed_seconds": 60.004
+      }
+    },
+    {
+      "name": "real-delete-socket-inactivity-timeout-preserves-object-and-intent",
+      "passed": true,
+      "details": {
+        "elapsed_seconds": 60.008
+      }
+    },
+    {
+      "name": "durable-put-journal-full-beam-restart-local-recovery-no-upstream-retry",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "durable-delete-journal-full-beam-restart-local-recovery-no-upstream-retry",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "explicit-put-local-commit-failure-full-beam-restart-normal-reconciliation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "explicit-delete-local-commit-failure-full-beam-restart-normal-reconciliation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "retained-independent-mc-cloud-cache-compatibility",
+      "passed": true,
+      "details": null
+    }
+  ],
+  "versions": {
+    "boto3": "1.43.114",
+    "botocore": "1.43.114",
+    "rustfs_image": "sha256:f6b22807f10db2aee80b8a9ed1e36bd12c2fba25ac2d98dc3b0332a23f1a5c4d [\"rustfs/rustfs@sha256:1803faef57627e2d9c2e7d89d655d712ddded5389040054987163043fecb6a3c\"]",
+    "mc": "mc version RELEASE.2025-08-13T08-35-41Z (commit-id=7394ce0dd2a80935aded936b09fa12cbb3cb8096)\nRuntime: go1.24.6 linux/amd64\nCopyright (c) 2015-2025 MinIO, Inc.\nLicense GNU AGPLv3 <https://www.gnu.org/licenses/agpl-3.0.html>"
+  },
+  "object_sizes": {},
+  "complete": true
+}

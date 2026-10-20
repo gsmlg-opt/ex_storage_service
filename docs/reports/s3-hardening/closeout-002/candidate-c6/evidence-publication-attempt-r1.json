@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "exit_status": 1,
+  "utility_sha256": "e20d68aef541307942b3746d06371b36b79d010949a3078fe89e6db075e996e6",
+  "failure": "Sensitive value in non-log evidence; manual review required",
+  "failing_path": "docs/reports/s3-hardening/closeout-002/candidate-c6/evidence-tools/evidence_publication.py",
+  "reviewed_finding": "Archived utility line368 contains a 15-byte Python concatenation expression, not a credential value. Next tool permits only its exact path/file/token hashes. No original modified."
+}

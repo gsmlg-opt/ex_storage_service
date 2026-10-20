@@ -1,0 +1,23 @@
+{
+  "profile": "release",
+  "status": "blocked",
+  "starting_sha": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+  "ending_sha": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+  "source_sha256": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+  "commands": [
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_release.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c6-release"
+      ],
+      "mix_env": "prod",
+      "exit_status": 1,
+      "duration_seconds": 9.588,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c6/release-0.log"
+    }
+  ],
+  "started_at": "2026-10-20T22:59:19.771402+00:00",
+  "reason": "command exited 1; inspect retained log"
+}

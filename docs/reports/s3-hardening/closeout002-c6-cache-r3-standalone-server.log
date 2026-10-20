@@ -1,0 +1,11 @@
+07:00:18.779 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+07:00:18.790 [info] Starting Concord TTL manager with cleanup interval: 300000s
+07:00:18.823 [info] Concord VSR metadata store ready
+07:00:18.834 [info] Storage engine started with data root /tmp/ess-s3-hardening-standalone-mJsVsUXD and blob root /tmp/ess-s3-hardening-standalone-mJsVsUXD/cas
+07:00:18.857 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:39203 (http)
+Disposable hardening identity seeded
+07:00:19.240 [warning] SigV4 auth failed: Invalid credential scope — PUT /hardening-p1-8a937462acd14ead97/bad-scope
+07:00:20.844 [warning] SigV4 auth failed: Missing Authorization header — GET /hardening-tags-a67d041b24c24368b3/multipart

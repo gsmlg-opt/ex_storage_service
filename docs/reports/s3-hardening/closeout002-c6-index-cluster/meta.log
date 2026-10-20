@@ -1,0 +1,34 @@
+
+===== start meta bootstrap=true at 2026-10-20T22:28:06Z =====
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 763091)
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 763099)
+[0mWaiting for lock on the build directory (held by process 763091)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 763091)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 763091)
+==> ex_storage_service_web
+[0mWaiting for lock on the build directory (held by process 763091)
+06:28:06.838 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+06:28:06.850 [info] Starting Concord TTL manager with cleanup interval: 300000s
+06:28:06.899 [info] Concord VSR metadata quorum ready
+06:28:09.104 [notice] Application ex_storage_service_s3 exited: :stopped
+06:28:09.107 [notice] Application ex_storage_service_web exited: :stopped
+06:28:09.108 [notice] Application ex_storage_service_cluster exited: :stopped
+crash meta SIGKILL at 2026-10-20T22:28:09Z
+
+===== start meta bootstrap=false at 2026-10-20T22:28:11Z =====
+06:28:11.932 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+06:28:11.943 [info] Starting Concord TTL manager with cleanup interval: 300000s
+06:28:12.248 [info] Concord VSR metadata quorum pending: {:not_ready, %{node: :"ess_meta@127.0.0.1", engine: :vsr, storage: %{memory: 64315, size: 126, legacy_indexes: [], legacy_state_conflict_count: 0, legacy_state_conflicts: [], legacy_state_reconciliation_required: true, legacy_state_representation: :legacy}, cluster: %{status: :recovering, group_id: "ess-cluster-e2e", replica_id: "meta", commit_number: 49, view_number: 1, applied_number: 49, op_number: 49, primary_id: "data-a", configuration_hash: <<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>}, command_version: 0, wal_version: 1}}
+06:28:12.258 [warning] 'global' at node :"ess_meta@127.0.0.1" requested disconnect from node :"ess_index_ctl_3298b56209@127.0.0.1" in order to prevent overlapping partitions
+06:28:19.073 [notice] SIGTERM received - shutting down
+

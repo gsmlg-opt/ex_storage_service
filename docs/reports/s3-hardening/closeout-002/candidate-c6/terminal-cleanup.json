@@ -1,0 +1,1255 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "candidate_sha": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+  "source_sha256": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+  "current_sha": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+  "current_executable_fingerprint_verified": true,
+  "recorded_at": "2026-10-20T23:05:59.956982+00:00",
+  "acceptance": false,
+  "purpose": "read-only terminal fixture observation; fixture removal never promotes acceptance",
+  "status": "passed",
+  "exit_status": 0,
+  "terminal_drivers": {
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6": {
+      "status": "failed",
+      "exit_status": 1
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cache-prerequisite-retry": {
+      "status": "failed",
+      "exit_status": 1
+    }
+  },
+  "lane_receipts": [
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/correctness.json",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/standalone.json",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/gateway.json",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cluster.json",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/index.json",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resources.json",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/faults.json",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/crashes.json",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resilience.json",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/restore.json",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/release.json",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cache-prerequisite-retry/standalone.json",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cache-prerequisite-retry/release.json"
+  ],
+  "process_identity_checks": [
+    {
+      "source": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-fault-closeout002-c6-faults/observer-1792537026550629290.json",
+      "role": "observer",
+      "expected": {
+        "pid": 772128,
+        "start_ticks": 11270953,
+        "state": "R"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-fault-closeout002-c6-faults/observer-1792537026550629290.json",
+      "role": "beam",
+      "expected": {
+        "pid": 772092,
+        "start_ticks": 11270928,
+        "state": "S"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-fault-closeout002-c6-faults/observer-1792537031925079154.json",
+      "role": "observer",
+      "expected": {
+        "pid": 772641,
+        "start_ticks": 11271490,
+        "state": "R"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-fault-closeout002-c6-faults/observer-1792537031925079154.json",
+      "role": "beam",
+      "expected": {
+        "pid": 772605,
+        "start_ticks": 11271466,
+        "state": "S"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-resource-closeout002-c6-resources/observer-1792535308368336094.json",
+      "role": "observer",
+      "expected": {
+        "pid": 764022,
+        "start_ticks": 11099134,
+        "state": "R"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-resource-closeout002-c6-resources/observer-1792535308368336094.json",
+      "role": "beam",
+      "expected": {
+        "pid": 763986,
+        "start_ticks": 11099111,
+        "state": "S"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/resource-samples/data-a/observer-1792536378468408940.json",
+      "role": "observer",
+      "expected": {
+        "pid": 766535,
+        "start_ticks": 11206144,
+        "state": "R"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/resource-samples/data-a/observer-1792536378468408940.json",
+      "role": "beam",
+      "expected": {
+        "pid": 766259,
+        "start_ticks": 11205915,
+        "state": "S"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/resource-samples/data-b/observer-1792536378497545166.json",
+      "role": "observer",
+      "expected": {
+        "pid": 766537,
+        "start_ticks": 11206147,
+        "state": "R"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/resource-samples/data-b/observer-1792536378497545166.json",
+      "role": "beam",
+      "expected": {
+        "pid": 766267,
+        "start_ticks": 11205915,
+        "state": "S"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/resource-samples/meta/observer-1792536378435165655.json",
+      "role": "observer",
+      "expected": {
+        "pid": 766533,
+        "start_ticks": 11206141,
+        "state": "R"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/resource-samples/meta/observer-1792536378435165655.json",
+      "role": "beam",
+      "expected": {
+        "pid": 766251,
+        "start_ticks": 11205915,
+        "state": "S"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c6-resources/observer-1792535308368336094.json",
+      "role": "observer",
+      "expected": {
+        "pid": 764022,
+        "start_ticks": 11099134,
+        "state": "R"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c6-resources/observer-1792535308368336094.json",
+      "role": "beam",
+      "expected": {
+        "pid": 763986,
+        "start_ticks": 11099111,
+        "state": "S"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c6-resources-cluster/samples/data-a/observer-1792536378468408940.json",
+      "role": "observer",
+      "expected": {
+        "pid": 766535,
+        "start_ticks": 11206144,
+        "state": "R"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c6-resources-cluster/samples/data-a/observer-1792536378468408940.json",
+      "role": "beam",
+      "expected": {
+        "pid": 766259,
+        "start_ticks": 11205915,
+        "state": "S"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c6-resources-cluster/samples/data-b/observer-1792536378497545166.json",
+      "role": "observer",
+      "expected": {
+        "pid": 766537,
+        "start_ticks": 11206147,
+        "state": "R"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c6-resources-cluster/samples/data-b/observer-1792536378497545166.json",
+      "role": "beam",
+      "expected": {
+        "pid": 766267,
+        "start_ticks": 11205915,
+        "state": "S"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c6-resources-cluster/samples/meta/observer-1792536378435165655.json",
+      "role": "observer",
+      "expected": {
+        "pid": 766533,
+        "start_ticks": 11206141,
+        "state": "R"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c6-resources-cluster/samples/meta/observer-1792536378435165655.json",
+      "role": "beam",
+      "expected": {
+        "pid": 766251,
+        "start_ticks": 11205915,
+        "state": "S"
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false,
+      "zombie": false
+    },
+    {
+      "source": "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/supplemental-real-concord-stage-r2/exercise.json",
+      "role": "supplemental_beam",
+      "expected": {
+        "pid": 781571,
+        "start_ticks": 11321860
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false
+    },
+    {
+      "source": "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/supplemental-real-concord-stage-r2/recover.json",
+      "role": "supplemental_beam",
+      "expected": {
+        "pid": 781603,
+        "start_ticks": 11321927
+      },
+      "observed": null,
+      "original_identity_absent": true,
+      "original_identity_running": false
+    }
+  ],
+  "verifier_pid_namespace": "pid:[4026531836]",
+  "exact_known_erlang_names": {
+    "ess_meta": [
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QIjXcEFH/logs/meta.log",
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/meta.log",
+      "cluster_harness.sh:fixed isolated topology"
+    ],
+    "ess_data_a": [
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-a.log",
+      "cluster_harness.sh:fixed isolated topology"
+    ],
+    "ess_data_b": [
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QbRgmV4f/logs/data-b.log",
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-a.log",
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-b.log",
+      "cluster_harness.sh:fixed isolated topology"
+    ],
+    "resource_ctl_3749b6aba1": [
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-b.log",
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/meta.log"
+    ],
+    "resource_ctl_957d8910db": [
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/meta.log"
+    ],
+    "resource_ctl_de32d2722c": [
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/meta.log"
+    ],
+    "resource_ctl_0d99c1bf62": [
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/meta.log"
+    ],
+    "resource_ctl_7221ecb2fa": [
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-a.log"
+    ],
+    "resource_ctl_84b4b6e160": [
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-a.log"
+    ],
+    "resource_ctl_bbe8a2b98d": [
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-b.log"
+    ],
+    "resource_ctl_3533a74a1c": [
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-b.log"
+    ],
+    "resource_ctl_656d0e15a4": [
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-b.log"
+    ],
+    "resource_ctl_a4af7ea58d": [
+      "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-b.log"
+    ]
+  },
+  "epmd_query_exit_status": 0,
+  "matching_known_erlang_names": [],
+  "exact_known_listener_ports": {
+    "9001": {
+      "sources": [
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-6acqn6SH/logs/data-a.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-EcpQ3mdI/logs/data-a.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QIjXcEFH/logs/data-a.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QbRgmV4f/logs/data-a.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-a.log",
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cluster-2.log",
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/correctness-2.log",
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/crashes-2.log",
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/index-2.log",
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resilience-1.log",
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resources-2.log",
+        "cluster_harness.sh:data-a"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "9002": {
+      "sources": [
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-6acqn6SH/logs/data-b.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-EcpQ3mdI/logs/data-b.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QIjXcEFH/logs/data-b.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QbRgmV4f/logs/data-b.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-b.log",
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cluster-2.log",
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/crashes-2.log",
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resilience-1.log",
+        "cluster_harness.sh:data-b"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "9003": {
+      "sources": [
+        "cluster_harness.sh:metadata role must not listen"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "9101": {
+      "sources": [
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-6acqn6SH/logs/data-a.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-EcpQ3mdI/logs/data-a.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QIjXcEFH/logs/data-a.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QbRgmV4f/logs/data-a.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-a.log",
+        "cluster_harness.sh:data-a"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "9102": {
+      "sources": [
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-6acqn6SH/logs/data-b.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-EcpQ3mdI/logs/data-b.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QIjXcEFH/logs/data-b.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QbRgmV4f/logs/data-b.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-b.log",
+        "cluster_harness.sh:data-b"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "9103": {
+      "sources": [
+        "cluster_harness.sh:metadata role must not listen"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "19000": {
+      "sources": [
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-closeout002-c6-gateway/beam-1.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-closeout002-c6-gateway/beam-2.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-closeout002-c6-gateway/beam-3.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-closeout002-c6-gateway/beam-4.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-closeout002-c6-gateway/beam-5.log",
+        "gateway_hardening.py:default ESS port"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "19100": {
+      "sources": [
+        "gateway_hardening.py:default RustFS port"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "37785": {
+      "sources": [
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-1.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-10.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-11.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-12.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-2.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-3.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-4.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-5.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-6.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-7.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-8.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-9.log"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "39157": {
+      "sources": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/correctness-2.log"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "39203": {
+      "sources": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cache-prerequisite-retry/standalone-1.log"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "40789": {
+      "sources": [
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-resource-closeout002-c6-resources/beam-1.log"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "41109": {
+      "sources": [
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-backlog-closeout002-c6-resilience-backlog/beam-1.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-backlog-closeout002-c6-resilience-backlog/beam-2.log"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "45829": {
+      "sources": [
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-backlog-closeout002-c6-resilience-backlog/beam-1.log"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "51565": {
+      "sources": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/standalone-1.log"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    },
+    "60057": {
+      "sources": [
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-fault-closeout002-c6-faults/beam-1.log",
+        "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-fault-closeout002-c6-faults/beam-2.log"
+      ],
+      "listeners": 0,
+      "other_tcp_states": {}
+    }
+  },
+  "fixture_container_namespaces": [
+    {
+      "fixture_name_pattern": "ess-gateway-[a-f0-9]{12}",
+      "query_exit_status": 0,
+      "matching_names": [],
+      "absent": true,
+      "returned_container_ownership": "not inferred; no container touched"
+    },
+    {
+      "fixture_name_pattern": "ess-hardening-resource-[a-f0-9]{12}",
+      "query_exit_status": 0,
+      "matching_names": [],
+      "absent": true,
+      "returned_container_ownership": "not inferred; no container touched"
+    },
+    {
+      "fixture_name_pattern": "ess-hardening-fault-[a-f0-9]{12}",
+      "query_exit_status": 0,
+      "matching_names": [],
+      "absent": true,
+      "returned_container_ownership": "not inferred; no container touched"
+    },
+    {
+      "fixture_name_pattern": "ess-release-[a-f0-9]{32}",
+      "query_exit_status": 0,
+      "matching_names": [],
+      "absent": true,
+      "returned_container_ownership": "not inferred; no container touched"
+    }
+  ],
+  "disposable_root_inventory": [
+    {
+      "virtual_root": "/tmp/ess-c6-real-concord-stage-20261020T230439Z",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-c6-real-concord-stage-20261020T230439Z",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/supplemental-real-concord-stage/invocation.json"
+      ],
+      "exists": false,
+      "symlink": false,
+      "device": null,
+      "inode": null,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-c6-real-concord-stage-20261020T230535Z",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-c6-real-concord-stage-20261020T230535Z",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/supplemental-real-concord-stage-r2/exercise.json",
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/supplemental-real-concord-stage-r2/invocation.json"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 19016721,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-hardening-backlog-closeout002-c6-resilience-backlog",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-backlog-closeout002-c6-resilience-backlog",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resilience-2.log"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 18876601,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-hardening-crash-closeout002-c6-crashes",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/crashes-1.log"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 18876209,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-hardening-fault-closeout002-c6-faults",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-fault-closeout002-c6-faults",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/faults-1.log"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 18875747,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-hardening-resource-closeout002-c6-resources",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-resource-closeout002-c6-resources",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resources-1.log"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 18875837,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-hardening-restore-9v3KZvVE",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-restore-9v3KZvVE",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/restore-1.log"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 18877089,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-hardening-restore-W9mEm8uc",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-restore-W9mEm8uc",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/restore-1.log"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 18876643,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-hardening-retained-mt22Rd5z",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-retained-mt22Rd5z",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/standalone-2.log"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 18875171,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-s3-hardening-closeout002-c6-gateway",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-closeout002-c6-gateway",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/gateway-1.log",
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/gateway.json"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 18875159,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-s3-hardening-cluster-6acqn6SH",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-6acqn6SH",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/crashes-2.log"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 18876576,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-s3-hardening-cluster-EcpQ3mdI",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-EcpQ3mdI",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cluster-2.log"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 18874584,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-s3-hardening-cluster-QIjXcEFH",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QIjXcEFH",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/index-2.log"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 18875483,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-s3-hardening-cluster-QbRgmV4f",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QbRgmV4f",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resilience-1.log"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 18876446,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-s3-hardening-cluster-XnGYNhnq",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resources-2.log"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 18876166,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-s3-hardening-standalone-FIgbdR3k",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-standalone-FIgbdR3k",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/standalone-1.log"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 18875160,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    },
+    {
+      "virtual_root": "/tmp/ess-s3-hardening-standalone-mJsVsUXD",
+      "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-standalone-mJsVsUXD",
+      "referenced_by": [
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cache-prerequisite-retry/standalone-1.log"
+      ],
+      "exists": true,
+      "symlink": false,
+      "device": 66305,
+      "inode": 19016531,
+      "contents_not_read": true,
+      "deletion_authorized_by_this_receipt": false,
+      "credentials_policy": "retain privately; root must review archives before removal"
+    }
+  ],
+  "provenance": {
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/invocation.json": {
+      "bytes": 1554,
+      "sha256": "e60eafe64831ef309bb679df2e2ee13d756aac18178e97c47bc9e51813c97d5b"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cache-prerequisite-retry/invocation.json": {
+      "bytes": 3492,
+      "sha256": "1d01d8331b4cdcd20fa36653e78f52c7cdfe54c25e6fbac92e685aab8b730a1b"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/freeze.json": {
+      "bytes": 4455,
+      "sha256": "8177d26bf5c3a104a5a19f58cb0b73262e448145b7237115eaaf65a31caeeefe"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/supplemental-real-concord-stage/invocation.json": {
+      "bytes": 1832,
+      "sha256": "7f9b92260b14e77c69bb6bb1838aed992d100f081b094b7e2c60e2549bb3de23"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/supplemental-real-concord-stage-r2/invocation.json": {
+      "bytes": 4065,
+      "sha256": "edaafbd04d53b0e23cfd7c9388195654ab7f01bc1f8652c63ec6728c2636c5af"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/correctness.json": {
+      "bytes": 1730,
+      "sha256": "480504dd8e24f5dbbedc7dd95d229d79f20311a3c32001ece1fdfc6f1494e129"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/correctness-0.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/correctness-1.log": {
+      "bytes": 518,
+      "sha256": "05ecc053ac4d2c2a62ebecc3511b8717c31849533b53b2b948c3e438f5486428"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/correctness-2.log": {
+      "bytes": 8920,
+      "sha256": "132a16a3495d5eb22ef90ba1d17ae9ab45073e7a225a54ca7779caf0a2e22d99"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/correctness-3.log": {
+      "bytes": 1733,
+      "sha256": "002264bc58e7d1e20f09d07b383de8b1a39b6fbc903f08fa5ed8d3af88558953"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/standalone.json": {
+      "bytes": 1402,
+      "sha256": "034052ec6ae8b3635a566e901993a69b6f750341003a24cd7684b34aebb6a7b9"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/standalone-0.log": {
+      "bytes": 518,
+      "sha256": "6110402dcc24583d1995112e155a57bbf9ad500cefc8cd65acee57eb88ce0c20"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/standalone-1.log": {
+      "bytes": 4778,
+      "sha256": "b3b44670751590d50a0a6c1a22ad8e86facea944f4f23422325163ce89484171"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/standalone-2.log": {
+      "bytes": 101,
+      "sha256": "235c03e8344c5e087ccd945ddb80ea91b72780e4d6ab2c30cb15a75ebce5e62a"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/gateway.json": {
+      "bytes": 1035,
+      "sha256": "1dec19bec8b4aeddd64aff67fbe1a522c71fdf9bdfd0be12fb394870ed809ccb"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/gateway-0.log": {
+      "bytes": 518,
+      "sha256": "6110402dcc24583d1995112e155a57bbf9ad500cefc8cd65acee57eb88ce0c20"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/gateway-1.log": {
+      "bytes": 1268,
+      "sha256": "cec7da6101480c1b2bcd66a7dfea13e95ad1f376275264b5d57c0d63781648cd"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cluster.json": {
+      "bytes": 1331,
+      "sha256": "e9ba16fc1217d833cd6e78fafa8ccc5d389dcd76eda4a868519cda68f5e61097"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cluster-0.log": {
+      "bytes": 518,
+      "sha256": "6110402dcc24583d1995112e155a57bbf9ad500cefc8cd65acee57eb88ce0c20"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cluster-1.log": {
+      "bytes": 21120,
+      "sha256": "d0e2f623afca5f07c7ecf0c60d08cf5b311b54fdbd6f68a45792711ff809f054"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cluster-2.log": {
+      "bytes": 9866,
+      "sha256": "5694c60f6af71b89854e808ada7e837d32dc79d42c1d55618883b73dfac2e03d"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/index.json": {
+      "bytes": 1352,
+      "sha256": "c27a06f5160c8c14287e4a28160bfc2b65146ebad9cf59ef32947e1ce5e090a4"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/index-0.log": {
+      "bytes": 518,
+      "sha256": "6110402dcc24583d1995112e155a57bbf9ad500cefc8cd65acee57eb88ce0c20"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/index-1.log": {
+      "bytes": 202,
+      "sha256": "bd134dc1716055d2ce240af60c9b48cfc0aa6328e855643ec80d7a288e13fc70"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/index-2.log": {
+      "bytes": 523,
+      "sha256": "e3c7c4d935026aa00847cc54afb27b11e0776efaa6903bc0fa12aab4a1654607"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resources.json": {
+      "bytes": 1767,
+      "sha256": "2b9a493ba3ce027698404d3e4ad7e3f4d8be704d24b931ec08fee0469b1ab061"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resources-0.log": {
+      "bytes": 518,
+      "sha256": "6110402dcc24583d1995112e155a57bbf9ad500cefc8cd65acee57eb88ce0c20"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resources-1.log": {
+      "bytes": 249769,
+      "sha256": "b343c6451f81188b813ac9c83aa4a1d5a6f9b56c6d81cc1a7a56ea1402c4649e"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resources-2.log": {
+      "bytes": 280733,
+      "sha256": "310bddc2780c477fca1b243757477d60f2d2e640e9882251906c568977cf62cd"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resources-3.log": {
+      "bytes": 405,
+      "sha256": "fef8429cfb3d2fd50ec916d9c4b57011bdb29e8bcb7686dc5924278aabc63a41"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/faults.json": {
+      "bytes": 952,
+      "sha256": "360c67a4409510ba0572adf74901045ef9bf21dfd962a3cc21df3a2a454df62e"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/faults-0.log": {
+      "bytes": 518,
+      "sha256": "6110402dcc24583d1995112e155a57bbf9ad500cefc8cd65acee57eb88ce0c20"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/faults-1.log": {
+      "bytes": 418,
+      "sha256": "5dbb226ee61605ebb40236d5703b05fce2ea541723066fc8a9246ecc5758703b"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/crashes.json": {
+      "bytes": 1320,
+      "sha256": "017209194444117842186813a7c0ff589d0daf21ea9c25395b13499b9e549aee"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/crashes-0.log": {
+      "bytes": 518,
+      "sha256": "6110402dcc24583d1995112e155a57bbf9ad500cefc8cd65acee57eb88ce0c20"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/crashes-1.log": {
+      "bytes": 3013,
+      "sha256": "d0e671491eb567ae3a7931c3fcf8fb6ba66003a15c4eab6adddb38b46faefb9c"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/crashes-2.log": {
+      "bytes": 458,
+      "sha256": "362d68c60cb1c9f0d69b5c5e4e67163fdc8e14931c887bced9b1347aa66e21d8"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resilience.json": {
+      "bytes": 1339,
+      "sha256": "247fff0da96e7b7dd0a8ba3381dfd42c47d7a34fadc9f04171b3ae8c75c563a0"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resilience-0.log": {
+      "bytes": 518,
+      "sha256": "6110402dcc24583d1995112e155a57bbf9ad500cefc8cd65acee57eb88ce0c20"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resilience-1.log": {
+      "bytes": 604,
+      "sha256": "aa6f78193e2c1e27d5523e57c7803d619df53a73a50b0b031c86842e82da7681"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/resilience-2.log": {
+      "bytes": 231,
+      "sha256": "06e85db1152efcbfd6df329ee98f12c432be4761e746d5bd15992842e0745cbf"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/restore.json": {
+      "bytes": 972,
+      "sha256": "8e6c3d8e5f3568b92bfbc0bf92c3cccaa46f13a24798acdabb1d20131076afd3"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/restore-0.log": {
+      "bytes": 518,
+      "sha256": "6110402dcc24583d1995112e155a57bbf9ad500cefc8cd65acee57eb88ce0c20"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/restore-1.log": {
+      "bytes": 597,
+      "sha256": "daf953140ff191731bf317e7576d45eeeb2b8821ed2d548698d02bc12fff0140"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/release.json": {
+      "bytes": 726,
+      "sha256": "15fd97ca7bc3f5602eb166e2d72a94b1952c375147614f307657463376107908"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/release-0.log": {
+      "bytes": 9836,
+      "sha256": "3c6c18a5f5381b503de9791250a5d5f9887b2ef58763e21ea9e2e2a3faf9c226"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cache-prerequisite-retry/standalone.json": {
+      "bytes": 1093,
+      "sha256": "592a68a5f8d0e49e6737a978db67ba4c78af94f09637edcaef2e72a462d4e52d"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cache-prerequisite-retry/standalone-0.log": {
+      "bytes": 518,
+      "sha256": "6110402dcc24583d1995112e155a57bbf9ad500cefc8cd65acee57eb88ce0c20"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cache-prerequisite-retry/standalone-1.log": {
+      "bytes": 5404,
+      "sha256": "217435e20fe62ea79b5bdd158a4c03b5a8fbb60e04d49aa21d4d6043052288f2"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cache-prerequisite-retry/release.json": {
+      "bytes": 759,
+      "sha256": "acdb26ba2d7ac5ee206d0f1dcd01d0ce0f4d02a9525304b54080e59bb3812ec2"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/cache-prerequisite-retry/release-0.log": {
+      "bytes": 1862,
+      "sha256": "36d008ab8a585390fbfa7633222d8cc1d1f62ef096cdccfb3c23ee3b880332f8"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/supplemental-real-concord-stage-r2/exercise.json": {
+      "bytes": 3290,
+      "sha256": "0389edcd0b19b3d59eb301846b68322b0a3510ee3921f068e84e16cb352bc3e6"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c6/supplemental-real-concord-stage-r2/recover.json": {
+      "bytes": 1088,
+      "sha256": "a49a8df3ae67606a359ac7f3f32a0300728630299544145e60043f52a488cd31"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-backlog-closeout002-c6-resilience-backlog/beam-1.log": {
+      "bytes": 1067,
+      "sha256": "16b95fdf146cf6f7ac4018cbf3d2407b9329c78686e045d0c1fae6047d8fcedf"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-backlog-closeout002-c6-resilience-backlog/beam-2.log": {
+      "bytes": 887,
+      "sha256": "537b48bcf525dba0d8e18e4d599f3799fb6833cd823c04766a5307de1946556b"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-1.log": {
+      "bytes": 805,
+      "sha256": "0a9dc828c2381546af61e595c8dd5e2ebe25b42e4d5a98ca3b6d9e61a36c75c6"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-10.log": {
+      "bytes": 805,
+      "sha256": "8e2a798e029d419ca955e1b3fba570f86a11489afe14dd61c063fc4df3f0cec9"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-11.log": {
+      "bytes": 805,
+      "sha256": "3ebb9b0fe944648bffac364913696b7cb9cd6cdcd33b6a530519c7f95d7487a8"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-12.log": {
+      "bytes": 861,
+      "sha256": "e285536c839efd99a9cfa6b3641cce446ff0137d6b730fc5ce186deff4244841"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-2.log": {
+      "bytes": 805,
+      "sha256": "4cda88f99077ee8ce4486d633674b6712245316e99f48ee8702be03797d77be2"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-3.log": {
+      "bytes": 805,
+      "sha256": "c61cfee8559508bfb51cd3993eee336261184075ebebb3602a9f800a9da55691"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-4.log": {
+      "bytes": 805,
+      "sha256": "7c94832696d9a3689d47b4f41470e79625811cfd5f590d9e8de11015c45ab311"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-5.log": {
+      "bytes": 805,
+      "sha256": "77e9e2bd8f9826b34982248d51c01d1b63de8b3079a8ece2388385eb1d4f07e7"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-6.log": {
+      "bytes": 805,
+      "sha256": "1c3ea3b4bebde52ac62913346bcfa9b5a214f326e8d8fa6b3e8f23c4232ee8b5"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-7.log": {
+      "bytes": 805,
+      "sha256": "f48377b74bf31b752ae28595b954c3383d7abb5338a02f46ef2b7cb03f3af3e7"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-8.log": {
+      "bytes": 805,
+      "sha256": "6f27a4554d824b1ad7624506d1e0f575425f919dcb477fb57b063522b9833602"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-crash-closeout002-c6-crashes/beam-9.log": {
+      "bytes": 805,
+      "sha256": "f221f9135e38e9df48b86bca957842311540f55352785965560a3efbfd1056e2"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-fault-closeout002-c6-faults/beam-1.log": {
+      "bytes": 959,
+      "sha256": "be5250ef997d5343e8d875480fe537a373f6c1e6d8f3e777ff3d067cefd6df67"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-fault-closeout002-c6-faults/beam-2.log": {
+      "bytes": 859,
+      "sha256": "2392cefba451b12aff0fe582881461b42e373295b93efaac1db72a4680ba5e09"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-resource-closeout002-c6-resources/beam-1.log": {
+      "bytes": 871,
+      "sha256": "f556f1ccf307e37f42d84c3bd2745d12ecded97e94d4e3b52fd27d16a279fb4c"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-closeout002-c6-gateway/beam-1.log": {
+      "bytes": 1469,
+      "sha256": "cdd33aa1e4f9bed9dcaf1f6d6ac81ebe96814cc9d6672ee9275ec20f0d4b0cda"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-closeout002-c6-gateway/beam-2.log": {
+      "bytes": 799,
+      "sha256": "c365fb3125fadf7c6d866ab9899479b70b7715a37f39f306d850b314ecf8596d"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-closeout002-c6-gateway/beam-3.log": {
+      "bytes": 799,
+      "sha256": "d6f991b6f62ae1df4ffbf7df3b3a016dfde90d805afb47a88ff8ecc51c9a5313"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-closeout002-c6-gateway/beam-4.log": {
+      "bytes": 799,
+      "sha256": "f0eec17558450675c36ef068942f2a3f5d6e9bc32b19e89104dede7aa635d429"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-closeout002-c6-gateway/beam-5.log": {
+      "bytes": 3393,
+      "sha256": "109781e81d79c7aad5a7edf2c454427258cd6ba8be4e27689f8661ffe210f449"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-6acqn6SH/logs/meta.log": {
+      "bytes": 1273,
+      "sha256": "ae28867c0b4d3a0d85739d1a89110018dd5a49e297ff66e010ff0b60e6a9ade3"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-6acqn6SH/logs/data-a.log": {
+      "bytes": 1816,
+      "sha256": "61f62d7f505322bb2395844f5d3ca0eb5b48ce3ef07200892668cd05488652d3"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-6acqn6SH/logs/data-b.log": {
+      "bytes": 2699,
+      "sha256": "00b33bb23cb7bdcb2d8aa669d2accf785662dba75c9d454e9942527c43eef35a"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-EcpQ3mdI/logs/meta.log": {
+      "bytes": 1124,
+      "sha256": "a54912f079f565b1c224fc24d20acfad212ab8658299e85d13719655afa14a2b"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-EcpQ3mdI/logs/data-a.log": {
+      "bytes": 2281,
+      "sha256": "097a9c728435b66242c0b3c80c6758c53ee692b8a402d06da0bc5b9a02af8aac"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-EcpQ3mdI/logs/data-b.log": {
+      "bytes": 5495,
+      "sha256": "df876568e86f286594067bd6815fbfca05c53255db39adfd379f48947481d50f"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QIjXcEFH/logs/meta.log": {
+      "bytes": 2871,
+      "sha256": "8e3929a5595baa4c9a87c96f49faa16a8b898c703686140d8158c4b9dfea5176"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QIjXcEFH/logs/data-a.log": {
+      "bytes": 2204,
+      "sha256": "1fc95447c19da3654d58ba31a8f597af197da756ad2458443ad094a45c181baf"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QIjXcEFH/logs/data-b.log": {
+      "bytes": 2423,
+      "sha256": "b18d0fff80532a02d7a6d3f009fb15391dbfb0b93d37aff5ff3402c96b7543ff"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QbRgmV4f/logs/meta.log": {
+      "bytes": 2022,
+      "sha256": "1511a9ae15e16c328a5448d71c9858efd2dfb0aac1a1aa69f4056a573ab9efa7"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QbRgmV4f/logs/data-a.log": {
+      "bytes": 1542,
+      "sha256": "aeeaaa2bb4630d04f56affb30b70a3f9a4bb2bd73bf869f6ff57e13be8b314ef"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-QbRgmV4f/logs/data-b.log": {
+      "bytes": 2965,
+      "sha256": "ee064ee4a19933b888b9ec6b28d6bd22a99506adaad5066e79c1062e5f51e52e"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/meta.log": {
+      "bytes": 2081,
+      "sha256": "0519ef2ff2d049676ced98206e3f2d2882f38adf844bba036625c4c61f043731"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-a.log": {
+      "bytes": 2025,
+      "sha256": "0b8e0c1865a5113570044a77d86f62fe68f5dc61eea018084cc6070ef77001fb"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/logs/data-b.log": {
+      "bytes": 2178,
+      "sha256": "b76287c8e3a91013e912a1a91194eee1363ca63888b2d23cc6344f023fe894b8"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-fault-closeout002-c6-faults/observer-1792537026550629290.json": {
+      "bytes": 289,
+      "sha256": "7d69676158f8adec20d8dd5fcd48b646d1714a67ef8aa7eea561fcb9f725e279"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-fault-closeout002-c6-faults/observer-1792537031925079154.json": {
+      "bytes": 290,
+      "sha256": "f803990169031542f45e821829f6128f2173ce752c19fadffb9f1b0a736d5d07"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-resource-closeout002-c6-resources/observer-1792535308368336094.json": {
+      "bytes": 289,
+      "sha256": "9c209c26a84a0cbdc8d7e216157179f876be31591febe17cc7abfa4de1e39b0f"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/resource-samples/data-a/observer-1792536378468408940.json": {
+      "bytes": 290,
+      "sha256": "052d3da24072aea28a6f9fce4bebcdab284ba70eb2c264f53348d0b5e9335e6f"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/resource-samples/data-b/observer-1792536378497545166.json": {
+      "bytes": 290,
+      "sha256": "ecee4a6eaba77df8d12d27569fb4797a2a732b17c4b36baea092bca3cb34d25a"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/tmp/ess-s3-hardening-cluster-XnGYNhnq/resource-samples/meta/observer-1792536378435165655.json": {
+      "bytes": 290,
+      "sha256": "d014996e42684b8d963353d7830823424436ec320b04ca46e0101da180049436"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c6-resources/observer-1792535308368336094.json": {
+      "bytes": 289,
+      "sha256": "9c209c26a84a0cbdc8d7e216157179f876be31591febe17cc7abfa4de1e39b0f"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c6-resources-cluster/samples/data-a/observer-1792536378468408940.json": {
+      "bytes": 290,
+      "sha256": "052d3da24072aea28a6f9fce4bebcdab284ba70eb2c264f53348d0b5e9335e6f"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c6-resources-cluster/samples/data-b/observer-1792536378497545166.json": {
+      "bytes": 290,
+      "sha256": "ecee4a6eaba77df8d12d27569fb4797a2a732b17c4b36baea092bca3cb34d25a"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c6-resources-cluster/samples/meta/observer-1792536378435165655.json": {
+      "bytes": 290,
+      "sha256": "d014996e42684b8d963353d7830823424436ec320b04ca46e0101da180049436"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/verify_terminal_cleanup_r2.py": {
+      "bytes": 15261,
+      "sha256": "38680e135e18574aacbcc8da21451805702341d4c55bb9ab9d87b3bf10d0be60"
+    },
+    "/fast/build/ess-closeout-c6-acceptance/namespace-command-r2.json": {
+      "bytes": 565,
+      "sha256": "5624eeda3aaf10ba09d900f5c2f6977aa71e2a780289422c3f937eda550bbdec"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts/resource_observer.py": {
+      "bytes": 20701,
+      "sha256": "3ec8fcec0bb152086b72193d9d373dc124b6eee084dd7cbdb5f2de1a02d5a12f"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/cluster_harness.sh": {
+      "bytes": 5535,
+      "sha256": "ede2c512fc45e57df22ded84727fc11265ca666035bc4ec2fa51a089f6c5bcba"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/gateway_hardening.py": {
+      "bytes": 42097,
+      "sha256": "4597482ec736d4a19ac75881907c2ebecd07c538ae9a940990935ca1d4c8e37a"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/s3_hardening_resources.py": {
+      "bytes": 18478,
+      "sha256": "295e3bf45d3c3ba548f35566b1fd1589996746b4eae704e33e11e094438430f7"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/s3_hardening_faults.py": {
+      "bytes": 19002,
+      "sha256": "5ac8fb999676e22267fb54f6fb0bb98969abe53eafd5c8e897457441d18c930e"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/scripts/release/release.py": {
+      "bytes": 13255,
+      "sha256": "7b22d09c493eeb73d6099bbcc1318aa9ca6dc068caace5b390c5e8a7a8e7904f"
+    },
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/hardening_acceptance.py": {
+      "bytes": 15969,
+      "sha256": "b6ad57727bd364668d37dd4c9beac72fdb2de61375f137191ab4747da4250272"
+    }
+  },
+  "failures": [],
+  "limits": [
+    "No resource sample JSONL, credentials, process argv/environments, or private seed/control files read",
+    "Known PID/start identities only; zombie status is recorded separately from absence/reaping",
+    "No independent proof for unrecorded/reparented descendants, native helpers, or dynamic node names missing from outputs",
+    "Exact referenced ports only; occupied ports are not attributed to ESS without identity evidence",
+    "Other TCP states are counts at referenced local ports, not complete connection ownership or cleanup proof",
+    "Container prefix absence proves fixture namespace empty; returned matches are not assumed C6-owned",
+    "Only output-referenced disposable roots inventoried; contents, unreferenced roots and storage usage uninspected",
+    "Restore child PID namespaces and unrecorded helper ports remain outside direct PID verification",
+    "No fixture/container/process removed; root must privately archive and review credentials before later cleanup"
+  ]
+}

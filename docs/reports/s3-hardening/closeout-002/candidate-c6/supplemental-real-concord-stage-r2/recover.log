@@ -1,0 +1,14 @@
+
+07:05:36.816 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+07:05:36.827 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+07:05:36.860 [debug] API get: {:error, :not_found} (1ms)
+
+07:05:36.860 [info] Concord VSR metadata store ready
+
+07:05:36.869 [debug] API get: {:ok, %{name: "c6-real-concord-cleanup", creation_date: "2026-10-20T23:05:36.196782Z", generation: "PECttJy7bI30mfKqb98Dkw"}} (0ms)
+{"status":"passed","mode":"recover","receipt":"/tmp/ess-c6-real-concord-stage-20261020T230535Z/recover.json","acceptance":false}
