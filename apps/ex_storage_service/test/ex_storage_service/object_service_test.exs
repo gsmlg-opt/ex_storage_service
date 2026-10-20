@@ -64,6 +64,34 @@ defmodule ExStorageService.ObjectServiceTest do
     end
   end
 
+  defmodule ControlledAbortIntents do
+    defdelegate open(id, hash, size, node_id, generation, opts), to: OperationIntentsStub
+
+    def transition(id, state, opts) do
+      case Keyword.fetch!(opts, :barrier).({:intent_transition, id, state}) do
+        :ok -> OperationIntentsStub.transition(id, state, opts)
+        error -> error
+      end
+    end
+  end
+
+  defmodule FailedCustomStore do
+    defdelegate stage(data, opts), to: LocalCAS
+    def commit(_staged, _opts), do: {:error, {:sync, :enospc}}
+
+    def discard(staged, _opts) do
+      send(self(), {:custom_discard, staged.path})
+      :ok
+    end
+  end
+
+  defmodule FailedClusterCoordinator do
+    def ensure_blob(_context, staged, opts) do
+      :ok = Keyword.fetch!(opts, :barrier).({:coordinator_return, staged.path})
+      {:error, :blob_write_quorum_unavailable}
+    end
+  end
+
   defmodule ViewChangeEngine do
     @behaviour Concord.Engine
 
@@ -546,6 +574,220 @@ defmodule ExStorageService.ObjectServiceTest do
   end
 
   @tag :tmp_dir
+  test "confirmed abort reclaims four owned protected stages and preserves other bytes", %{
+    tmp_dir: root
+  } do
+    versioning = start_supervised!(VersioningStub)
+    owner = self()
+
+    barrier = fn {:intent_transition, id, state} ->
+      send(owner, {:abort_waiting, self(), id, state})
+
+      receive do
+        {:confirm_abort, ^id} -> :ok
+      after
+        5_000 -> {:error, :timeout}
+      end
+    end
+
+    opts = managed_service_opts(root, versioning, barrier)
+    blob_opts = Context.blob_store_options(opts[:context]) ++ [pack_module: NoPack]
+    {:ok, existing} = LocalCAS.stage("existing CAS bytes", blob_opts)
+    {:ok, ready} = LocalCAS.commit(existing, blob_opts)
+    {:ok, other} = LocalCAS.stage("other owner's protected bytes", blob_opts)
+    {:ok, other} = LocalCAS.protect(other, {:hosted, "shared-operation"}, blob_opts)
+    uploads = blob_opts[:tmp_dir]
+    baseline = temporary_bytes(uploads)
+    body = :binary.copy("bounded fixture", 1_024)
+
+    # This reproduces the confirmed-abort retention mechanism, not the unknown
+    # filesystem error from the original CopyObject resource receipt.
+    tasks =
+      for n <- 1..4 do
+        Task.async(fn ->
+          failed =
+            opts
+            |> Keyword.update!(
+              :metadata_opts,
+              &Keyword.put(&1, :operation_id, "shared-operation")
+            )
+            |> Keyword.update!(
+              :blob_store_opts,
+              &Keyword.put(&1, :faults, %{sync: {:error, :enospc}})
+            )
+
+          ObjectService.put("bucket", "failed-#{n}", body, "text/plain", %{}, failed)
+        end)
+      end
+
+    waiting =
+      for _ <- 1..4 do
+        assert_receive {:abort_waiting, pid, "shared-operation", :aborted}, 5_000
+        pid
+      end
+
+    assert temporary_bytes(uploads) == baseline + 4 * byte_size(body)
+    assert length(File.ls!(uploads)) == 5
+    Enum.each(waiting, &send(&1, {:confirm_abort, "shared-operation"}))
+
+    assert Enum.map(tasks, &Task.await(&1, 5_000)) ==
+             List.duplicate({:error, {:sync, :enospc}}, 4)
+
+    assert temporary_bytes(uploads) == baseline
+    assert File.ls!(uploads) == [Path.basename(other.path)]
+    assert File.read!(other.path) == "other owner's protected bytes"
+    assert File.read!(ready.path) == "existing CAS bytes"
+    assert VersioningStub.calls(versioning) == []
+  end
+
+  @tag :tmp_dir
+  test "reader commit failure reclaims its stage only after confirmed abort", %{tmp_dir: root} do
+    versioning = start_supervised!(VersioningStub)
+    owner = self()
+    barrier = fn event -> send(owner, event) && :ok end
+
+    opts =
+      managed_service_opts(root, versioning, barrier)
+      |> Keyword.update!(:blob_store_opts, &Keyword.put(&1, :faults, %{sync: {:error, :enospc}}))
+
+    reader = fn
+      :initial -> {:more, "reader fixture", :delivered}
+      :delivered -> {:done, :finished}
+    end
+
+    assert {:error, {:sync, :enospc}, :finished} =
+             ObjectService.put_from_reader(
+               "bucket",
+               "reader",
+               reader,
+               :initial,
+               "text/plain",
+               %{},
+               opts
+             )
+
+    assert_receive {:intent_transition, _, :aborted}
+    assert temporary_bytes(opts[:blob_store_opts][:tmp_dir]) == 0
+    assert File.ls!(opts[:blob_store_opts][:tmp_dir]) == []
+    assert VersioningStub.calls(versioning) == []
+  end
+
+  @tag :tmp_dir
+  test "nested storage uncertainty keeps protected stages and records unknown", %{tmp_dir: root} do
+    versioning = start_supervised!(VersioningStub)
+    owner = self()
+
+    for reason <- [:timeout, :unknown, :unknown_transaction_outcome] do
+      barrier = fn event -> send(owner, event) && :ok end
+
+      opts =
+        managed_service_opts(Path.join(root, Atom.to_string(reason)), versioning, barrier)
+        |> Keyword.update!(:blob_store_opts, &Keyword.put(&1, :faults, %{sync: {:error, reason}}))
+
+      assert {:error, {:sync, ^reason}} =
+               ObjectService.put(
+                 "bucket",
+                 "uncertain",
+                 "retain uncertain bytes",
+                 "text/plain",
+                 %{},
+                 opts
+               )
+
+      assert_receive {:intent_transition, _, :unknown}
+      refute_received {:intent_transition, _, :aborted}
+      uploads = opts[:blob_store_opts][:tmp_dir]
+      [name] = File.ls!(uploads)
+      assert String.starts_with?(name, "ess1-h-")
+      assert File.read!(Path.join(uploads, name)) == "retain uncertain bytes"
+    end
+
+    assert VersioningStub.calls(versioning) == []
+  end
+
+  @tag :tmp_dir
+  test "unconfirmed abort retains its owned protected stage", %{tmp_dir: root} do
+    versioning = start_supervised!(VersioningStub)
+
+    for reason <- [:timeout, :operation_intent_compare_failed] do
+      barrier = fn {:intent_transition, _id, :aborted} -> {:error, reason} end
+
+      opts =
+        managed_service_opts(Path.join(root, Atom.to_string(reason)), versioning, barrier)
+        |> Keyword.update!(
+          :blob_store_opts,
+          &Keyword.put(&1, :faults, %{sync: {:error, :enospc}})
+        )
+
+      assert {:error, {:sync, :enospc}} =
+               ObjectService.put(
+                 "bucket",
+                 "unconfirmed",
+                 "retain aborted bytes",
+                 "text/plain",
+                 %{},
+                 opts
+               )
+
+      uploads = opts[:blob_store_opts][:tmp_dir]
+      [name] = File.ls!(uploads)
+      assert String.starts_with?(name, "ess1-h-")
+      assert File.read!(Path.join(uploads, name)) == "retain aborted bytes"
+    end
+  end
+
+  @tag :tmp_dir
+  test "custom blob stores retain their existing discard contract", %{tmp_dir: root} do
+    versioning = start_supervised!(VersioningStub)
+    barrier = fn _ -> :ok end
+
+    opts =
+      Keyword.put(managed_service_opts(root, versioning, barrier), :blob_store, FailedCustomStore)
+
+    assert {:error, {:sync, :enospc}} =
+             ObjectService.put("bucket", "custom", "custom owned bytes", "text/plain", %{}, opts)
+
+    assert_receive {:custom_discard, path}
+    refute_received {:custom_discard, _}
+    assert File.read!(path) == "custom owned bytes"
+    assert VersioningStub.calls(versioning) == []
+  end
+
+  @tag :tmp_dir
+  test "cluster aggregate failure does not authorize protected stage deletion", %{tmp_dir: root} do
+    versioning = start_supervised!(VersioningStub)
+    owner = self()
+    barrier = fn event -> send(owner, event) && :ok end
+    opts = managed_service_opts(root, versioning, barrier)
+    context = opts[:context]
+
+    context = %{
+      context
+      | config: %{context.config | mode: :cluster, cluster_data_plane_enabled: true}
+    }
+
+    opts =
+      opts
+      |> Keyword.put(:context, context)
+      |> Keyword.put(:write_coordinator, FailedClusterCoordinator)
+
+    assert {:error, :blob_write_quorum_unavailable} =
+             ObjectService.put(
+               "bucket",
+               "cluster",
+               "retained cluster bytes",
+               "text/plain",
+               %{},
+               opts
+             )
+
+    assert_receive {:coordinator_return, path}
+    assert File.read!(path) == "retained cluster bytes"
+    assert String.starts_with?(Path.basename(path), "ess1-h-")
+    assert VersioningStub.calls(versioning) == []
+  end
+
+  @tag :tmp_dir
   test "after-blob-commit failure leaves one ready orphan and no metadata", %{tmp_dir: tmp_dir} do
     engine = start_supervised!(VersioningStub)
 
@@ -743,6 +985,28 @@ defmodule ExStorageService.ObjectServiceTest do
     [name] = File.ls!(uploads)
     assert String.starts_with?(name, "ess1-h-")
     assert File.read!(Path.join(uploads, name)) == "retained"
+  end
+
+  defp managed_service_opts(root, versioning, barrier) do
+    {:ok, config} =
+      InstanceConfig.new(
+        data_root: Path.join(root, "data"),
+        blob_root: Path.join(root, "cas"),
+        tmp_root: Path.join([root, "cas", "tmp"])
+      )
+
+    service_opts(root, versioning,
+      context: Context.new(config),
+      operation_intents: ControlledAbortIntents,
+      metadata_opts: [engine: versioning, barrier: barrier]
+    )
+  end
+
+  defp temporary_bytes(directory) do
+    directory
+    |> File.ls!()
+    |> Enum.map(&File.stat!(Path.join(directory, &1)).size)
+    |> Enum.sum()
   end
 
   defp service_opts(tmp_dir, engine, extra \\ []) do

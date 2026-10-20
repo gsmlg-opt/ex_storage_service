@@ -1,0 +1,19 @@
+==> ex_storage_service
+Compiling 1 file (.ex)
+Generated ex_storage_service app
+==> ex_storage_service_cluster
+Compiling 2 files (.ex)
+Generated ex_storage_service_cluster app
+==> ex_storage_service_s3
+Compiling 3 files (.ex)
+Generated ex_storage_service_s3 app
+==> ex_storage_service_web
+Compiling 1 file (.ex)
+Generated ex_storage_service_web app
+==> ex_storage_service
+Running ExUnit with seed: 652587, max_cases: 1
+Excluding tags: [cluster: true]
+
+.......................
+Finished in 0.5 seconds (0.5s async, 0.00s sync)
+23 tests, 0 failures

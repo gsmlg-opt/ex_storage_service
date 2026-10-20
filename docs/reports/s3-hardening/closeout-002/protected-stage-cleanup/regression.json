@@ -1,0 +1,179 @@
+{
+  "schema": 1,
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "kind": "scoped-protected-stage-cleanup-regression",
+  "status": "verified_scoped_regression",
+  "recorded_at": "2026-10-20T22:12:58.759161+00:00",
+  "base_commit": "24958901ce11319f9973811c3fcdca22d9b818e4",
+  "source_identity_note": "Receipts identify the base commit plus the actual uncommitted source fingerprint. This is not a future C6 freeze or release identity.",
+  "red_source_sha256": "e075997c6b8b5cc50a83da81aaedf56f41b73e2d9e47b427a15c1c8cc1f18526",
+  "tested_working_tree_source_sha256": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+  "source_files": [
+    {
+      "path": "apps/ex_storage_service/lib/ex_storage_service/object_service.ex",
+      "bytes": 36425,
+      "sha256": "9223b7074f0d3e7f5bfab2ef4d81ee62d3221453beed1f750f54c57fc7d55e10"
+    },
+    {
+      "path": "apps/ex_storage_service/test/ex_storage_service/object_service_test.exs",
+      "bytes": 33879,
+      "sha256": "286c6e8896e7729d040c59c40ee72bff43d01ed2ebef20657d91b891f20c9aef"
+    }
+  ],
+  "root_cause": "After a synchronous standalone LocalCAS commit failure, ObjectService could persist an aborted intent but its generic discard deliberately skipped protected stages. Anonymous-only staging recovery could not reclaim those protected paths. Known storage-wrapped timeout/unknown errors were also incorrectly classified as aborted.",
+  "repair": "Only the raw standalone store.commit failure branch passes its invocation-owned stage to finish_operation_intent. A matching successful aborted acknowledgement permits discarding that protected LocalCAS path. Known storage wrappers are unwrapped for uncertainty; unknown outcomes and unconfirmed aborts retain bytes. Post-commit hook, metadata publication, cluster and custom-store failures receive no new deletion authority.",
+  "checks": [
+    {
+      "name": "test-compile",
+      "command": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "exit_status": 0,
+      "duration_seconds": 7.035161944004358,
+      "source_sha256": "e075997c6b8b5cc50a83da81aaedf56f41b73e2d9e47b427a15c1c8cc1f18526",
+      "source_after": "e075997c6b8b5cc50a83da81aaedf56f41b73e2d9e47b427a15c1c8cc1f18526",
+      "receipt": {
+        "path": "docs/reports/s3-hardening/closeout-002/protected-stage-cleanup/test-compile.json",
+        "bytes": 471,
+        "sha256": "0b2d0f6073aa07edbf8de9406908b521b5f76ba5d2be1e27256317232470c79c"
+      },
+      "log": {
+        "path": "docs/reports/s3-hardening/closeout-002/protected-stage-cleanup/test-compile.log",
+        "bytes": 518,
+        "sha256": "05ecc053ac4d2c2a62ebecc3511b8717c31849533b53b2b948c3e438f5486428"
+      }
+    },
+    {
+      "name": "red",
+      "command": [
+        "mix",
+        "test",
+        "apps/ex_storage_service/test/ex_storage_service/object_service_test.exs",
+        "--max-cases",
+        "1",
+        "--no-color"
+      ],
+      "exit_status": 2,
+      "duration_seconds": 1.4367306640051538,
+      "source_sha256": "e075997c6b8b5cc50a83da81aaedf56f41b73e2d9e47b427a15c1c8cc1f18526",
+      "source_after": "e075997c6b8b5cc50a83da81aaedf56f41b73e2d9e47b427a15c1c8cc1f18526",
+      "receipt": {
+        "path": "docs/reports/s3-hardening/closeout-002/protected-stage-cleanup/red.json",
+        "bytes": 579,
+        "sha256": "f9ef05c4b06361154c6aaa6f70a8674ce722eda6dccc380e4c6a1c9b584ff08c"
+      },
+      "log": {
+        "path": "docs/reports/s3-hardening/closeout-002/protected-stage-cleanup/red.log",
+        "bytes": 1898,
+        "sha256": "3db9250e55b85f253c6b266dc7a4a8e18c64d10fb9d7cf25e9910c050c63067d"
+      }
+    },
+    {
+      "name": "format",
+      "command": [
+        "mix",
+        "format",
+        "apps/ex_storage_service/lib/ex_storage_service/object_service.ex",
+        "apps/ex_storage_service/test/ex_storage_service/object_service_test.exs"
+      ],
+      "exit_status": 0,
+      "duration_seconds": 0.41844193800352514,
+      "source_sha256": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+      "source_after": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+      "receipt": {
+        "path": "docs/reports/s3-hardening/closeout-002/protected-stage-cleanup/format.json",
+        "bytes": 600,
+        "sha256": "92d131d5ed9dd1c4262cfb92828ef6cbc191f90f4a09d5e688057d43ad751b8a"
+      },
+      "log": {
+        "path": "docs/reports/s3-hardening/closeout-002/protected-stage-cleanup/format.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "green",
+      "command": [
+        "mix",
+        "test",
+        "apps/ex_storage_service/test/ex_storage_service/object_service_test.exs",
+        "--max-cases",
+        "1",
+        "--no-color"
+      ],
+      "exit_status": 0,
+      "duration_seconds": 2.173159409998334,
+      "source_sha256": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+      "source_after": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+      "receipt": {
+        "path": "docs/reports/s3-hardening/closeout-002/protected-stage-cleanup/green.json",
+        "bytes": 570,
+        "sha256": "719fc406eec2b8088948d20bb4ef17e95fc768581ef8463440b49b80440d491d"
+      },
+      "log": {
+        "path": "docs/reports/s3-hardening/closeout-002/protected-stage-cleanup/green.log",
+        "bytes": 545,
+        "sha256": "4b4004f41a5ea6558fa0caf3ba6af161928f15f4687fea306e20e106ba8d247b"
+      }
+    }
+  ],
+  "red": {
+    "executed_tests": 23,
+    "failures": 3,
+    "exit_status": 2,
+    "seed": 108155,
+    "max_cases": 1,
+    "failures_observed": [
+      {
+        "test": "confirmed abort reclaims four owned protected stages and preserves other bytes",
+        "observed_temporary_bytes": 61469,
+        "expected_baseline_bytes": 29,
+        "retained_failed_stage_bytes": 61440
+      },
+      {
+        "test": "reader commit failure reclaims its stage only after confirmed abort",
+        "observed_temporary_bytes": 14,
+        "expected_temporary_bytes": 0
+      },
+      {
+        "test": "nested storage uncertainty keeps protected stages and records unknown",
+        "observed_intent_state": "aborted",
+        "expected_intent_state": "unknown"
+      }
+    ]
+  },
+  "green": {
+    "executed_tests": 23,
+    "failures": 0,
+    "exit_status": 0,
+    "seed": 652587,
+    "max_cases": 1,
+    "excluded_tag_filter": "cluster: true",
+    "verified_assertions": [
+      "Four live concurrent writers share an operation ID but own distinct nonce paths. After injected synchronous commit :enospc failures, all wait at the abort acknowledgement barrier with baseline29 plus61440 temporary bytes. Confirmed aborts return temporary bytes to baseline29.",
+      "Another protected stage retains its29 bytes and a preexisting CAS object retains exact content.",
+      "Reader commit failure returns the original error and final reader state; confirmed abort leaves zero temporary bytes.",
+      "Storage-wrapped timeout, unknown and unknown_transaction_outcome record unknown and retain complete protected stages.",
+      "Abort backend timeout and compare failure retain complete protected stages.",
+      "Custom-store discard behavior and cluster aggregate-error retention remain unchanged.",
+      "Existing post-commit orphan and uncertain-publication tests continue passing."
+    ]
+  },
+  "fault_fixture": "Real LocalCAS and isolated managed Context roots, with the existing per-call :sync durability fault hook and message barriers. Intent acknowledgements are controlled test adapters; no VM-wide config, sleep-based race, real ENOSPC, host disk fill or service interruption.",
+  "review": {
+    "status": "coordinator_reported_no_blocking_regression",
+    "scope": "Independent diff review reported by the coordinator; no separate automated review receipt is claimed."
+  },
+  "limitations": [
+    "Cleanup requires the current live caller to still own the exact staged path, a pre-metadata standalone LocalCAS commit failure, and a positive acknowledgement matching the operation ID and aborted state.",
+    "An aborted intent remains mutable; this change adds no directory sweep, terminal-state reinterpretation, grace change or deletion authority based on reading an aborted record.",
+    "Failed unlink is ignored by the existing error-return path and may leave bytes. LocalCAS.discard does not fsync the staging directory, so crash-durable absence is not established.",
+    "Process death before cleanup, uncertain commit outcomes and unconfirmed abort transitions can retain protected bytes.",
+    "Unit fixtures exercise acknowledgement gating using stubs. They do not prove durable-backend transition or crash/restart cleanup; unchanged fault and ENOSPC lanes remain required in full acceptance.",
+    "The original C5 CopyObject filesystem error remains unknown. This reproduces and repairs the proven retention mechanism without claiming to reproduce that original error.",
+    "This scoped23-test pass is not A30 resource, restart, C6 full acceptance, aggregate or release certification. Future candidate freezing and authoritative lanes remain coordinator-owned."
+  ]
+}

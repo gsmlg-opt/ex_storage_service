@@ -8,12 +8,12 @@ defmodule ExStorageService.ObjectService do
   global configuration.
   """
 
-  alias ExStorageService.BlobStore.LocalCAS
+  alias ExStorageService.BlobStore.{LocalCAS, StagedBlob}
   alias ExStorageService.Cluster.{ReadCoordinator, WriteCoordinator}
   alias ExStorageService.Context
   alias ExStorageService.Metadata
   alias ExStorageService.Metadata.OperationIntents
-  alias ExStorageService.Storage.Versioning
+  alias ExStorageService.Storage.{StagingRecovery, Versioning}
 
   @type result :: %{
           required(:version_id) => String.t() | nil,
@@ -346,13 +346,19 @@ defmodule ExStorageService.ObjectService do
          {:ok, staged} <- protect_staged(staged, context, opts) do
       case open_operation_intent(staged, context, opts) do
         {:ok, opts} ->
-          result =
-            case commit_staged_blob(blob_store(opts), staged, blob_opts(opts), opts) do
-              {:ok, ready} -> commit_ready_blob(bucket, key, ready, attributes, opts)
-              {:error, _reason} = error -> error
-            end
+          case commit_staged_blob(blob_store(opts), staged, blob_opts(opts), opts) do
+            {:ok, ready} ->
+              finish_operation_intent(
+                commit_ready_blob(bucket, key, ready, attributes, opts),
+                opts
+              )
 
-          finish_operation_intent(result, opts)
+            {:error, reason, :blob_commit_failed} ->
+              finish_operation_intent({:error, reason}, opts, staged)
+
+            {:error, _reason} = error ->
+              finish_operation_intent(error, opts)
+          end
 
         {:error, _reason} = error ->
           _ = discard_staged(blob_store(opts), staged, blob_opts(opts))
@@ -398,26 +404,51 @@ defmodule ExStorageService.ObjectService do
     end
   end
 
-  defp finish_operation_intent({:ok, _result} = result, _opts), do: result
+  defp finish_operation_intent(result, opts, owned_staged \\ nil)
 
-  defp finish_operation_intent({:error, reason} = error, opts) do
-    state =
-      if reason in [
-           :metadata_quorum_unavailable,
-           :unknown_transaction_outcome,
-           :timeout,
-           :unknown,
-           :cluster_not_ready,
-           :no_leader
-         ],
-         do: :unknown,
-         else: :aborted
+  defp finish_operation_intent({:ok, _result} = result, _opts, _owned_staged), do: result
+
+  defp finish_operation_intent({:error, reason} = error, opts, owned_staged) do
+    state = if uncertain_operation_reason?(reason), do: :unknown, else: :aborted
 
     if state == :unknown, do: ExStorageService.Telemetry.uncertain_operation(:hosted, :unknown)
     operation_id = Keyword.fetch!(metadata_opts(opts), :operation_id)
-    _ = operation_intents(opts).transition(operation_id, state, operation_intent_opts(nil, opts))
+
+    case operation_intents(opts).transition(operation_id, state, operation_intent_opts(nil, opts)) do
+      {:ok, %{operation_id: ^operation_id, state: :aborted}} when state == :aborted ->
+        discard_owned_aborted_stage(owned_staged, opts)
+
+      _other ->
+        :ok
+    end
+
     error
   end
+
+  defp uncertain_operation_reason?({phase, reason})
+       when phase in [:sync, :rename, :directory_sync, :stat, :verify, :discard, :commit],
+       do: uncertain_operation_reason?(reason)
+
+  defp uncertain_operation_reason?(reason),
+    do:
+      reason in [
+        :metadata_quorum_unavailable,
+        :unknown_transaction_outcome,
+        :timeout,
+        :unknown,
+        :cluster_not_ready,
+        :no_leader
+      ]
+
+  defp discard_owned_aborted_stage(%StagedBlob{} = staged, opts) do
+    # Only the active standalone writer's pre-metadata failure passes this path.
+    # An aborted intent is mutable and never authorizes sweeping other stages.
+    if blob_store(opts) == LocalCAS and StagingRecovery.protected?(staged.path),
+      do: LocalCAS.discard(staged, blob_opts(opts)),
+      else: :ok
+  end
+
+  defp discard_owned_aborted_stage(nil, _opts), do: :ok
 
   defp operation_intent_opts(context, opts) do
     protection_ms =
@@ -545,7 +576,7 @@ defmodule ExStorageService.ObjectService do
 
       {:error, reason} ->
         discard_staged(store, staged, blob_opts)
-        {:error, reason}
+        {:error, reason, :blob_commit_failed}
     end
   end
 

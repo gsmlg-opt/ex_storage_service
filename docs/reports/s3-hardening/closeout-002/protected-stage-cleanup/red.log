@@ -1,0 +1,45 @@
+==> ex_storage_service
+Running ExUnit with seed: 108155, max_cases: 1
+Excluding tags: [cluster: true]
+
+........
+
+  1) test reader commit failure reclaims its stage only after confirmed abort (ExStorageService.ObjectServiceTest)
+     apps/ex_storage_service/test/ex_storage_service/object_service_test.exs:644
+     Assertion with == failed
+     code:  assert temporary_bytes(opts[:blob_store_opts][:tmp_dir]) == 0
+     left:  14
+     right: 0
+     stacktrace:
+       test/ex_storage_service/object_service_test.exs:670: (test)
+
+..
+
+  2) test nested storage uncertainty keeps protected stages and records unknown (ExStorageService.ObjectServiceTest)
+     apps/ex_storage_service/test/ex_storage_service/object_service_test.exs:676
+     Assertion failed, no matching message after 100ms
+     Showing 1 of 1 message in the mailbox
+     code: assert_receive {:intent_transition, _, :unknown}
+     mailbox:
+       pattern: {:intent_transition, _, :unknown}
+       value:   {:intent_transition, "object-service-N3Dw5IDnd1cI47LT",
+                 :aborted}
+     stacktrace:
+       test/ex_storage_service/object_service_test.exs:697: anonymous fn/5 in ExStorageService.ObjectServiceTest."test nested storage uncertainty keeps protected stages and records unknown"/1
+       (elixir 1.18.5) lib/enum.ex:2546: Enum."-reduce/3-lists^foldl/2-0-"/3
+       test/ex_storage_service/object_service_test.exs:680: (test)
+
+..........
+
+  3) test confirmed abort reclaims four owned protected stages and preserves other bytes (ExStorageService.ObjectServiceTest)
+     apps/ex_storage_service/test/ex_storage_service/object_service_test.exs:577
+     Assertion with == failed
+     code:  assert temporary_bytes(uploads) == baseline
+     left:  61469
+     right: 29
+     stacktrace:
+       test/ex_storage_service/object_service_test.exs:636: (test)
+
+
+Finished in 0.7 seconds (0.7s async, 0.00s sync)
+23 tests, 3 failures

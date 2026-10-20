@@ -1,0 +1,17 @@
+{
+  "kind": "failing-before-owned-stage-cleanup-regression",
+  "candidate_sha": "24958901ce11319f9973811c3fcdca22d9b818e4",
+  "source_sha256": "e075997c6b8b5cc50a83da81aaedf56f41b73e2d9e47b427a15c1c8cc1f18526",
+  "command": [
+    "mix",
+    "test",
+    "apps/ex_storage_service/test/ex_storage_service/object_service_test.exs",
+    "--max-cases",
+    "1",
+    "--no-color"
+  ],
+  "started_at": "2026-10-20T22:04:46.398096+00:00",
+  "exit_status": 2,
+  "duration_seconds": 1.4367306640051538,
+  "source_after": "e075997c6b8b5cc50a83da81aaedf56f41b73e2d9e47b427a15c1c8cc1f18526"
+}

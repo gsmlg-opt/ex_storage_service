@@ -1,0 +1,17 @@
+{
+  "kind": "scoped-owned-stage-cleanup-regression",
+  "candidate_sha": "24958901ce11319f9973811c3fcdca22d9b818e4",
+  "source_sha256": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+  "command": [
+    "mix",
+    "test",
+    "apps/ex_storage_service/test/ex_storage_service/object_service_test.exs",
+    "--max-cases",
+    "1",
+    "--no-color"
+  ],
+  "started_at": "2026-10-20T22:07:25.026332+00:00",
+  "exit_status": 0,
+  "duration_seconds": 2.173159409998334,
+  "source_after": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb"
+}

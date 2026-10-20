@@ -1,0 +1,17 @@
+# Protected-stage cleanup regression
+
+The scoped regression passes: **23 tests, 0 failures, exit 0**. Before repair, the same test file ran **23 tests, 3 failures, exit 2**. Existing JSON command receipts and logs remain unchanged; `regression.json` records their exact hashes, commands and source fingerprints.
+
+The base commit is `24958901ce11319f9973811c3fcdca22d9b818e4`. RED used working-tree source fingerprint `e075997c6b8b5cc50a83da81aaedf56f41b73e2d9e47b427a15c1c8cc1f18526`; GREEN and scoped formatting used `97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb`. These identify tested uncommitted inputs, not a future C6 freeze or released commit.
+
+A synchronous standalone blob-commit failure could persist an aborted intent while generic discard skipped the protected stage. Anonymous-only recovery did not reclaim that path. Separately, storage-wrapped timeout/unknown reasons were marked aborted. The repair supplies the current invocation's stage only from the raw standalone commit-failure branch, requires a successful matching aborted acknowledgement, and then discards only that protected LocalCAS path. Known storage wrappers preserve unknown outcomes. Other publication phases, cluster aggregation and custom stores gain no deletion authority.
+
+The deterministic fixture uses real LocalCAS, isolated managed roots, per-call durability fault injection and message barriers. Four writers share an operation ID but hold distinct nonce paths. RED retained 61,469 temporary bytes against a 29-byte baseline; the 61,440 excess bytes belonged to failed writers. GREEN satisfies the baseline assertion while preserving the other protected stage and an existing CAS object. The reader case changes from 14 retained bytes to zero. Wrapped uncertainty changes from an aborted acknowledgement to unknown with complete bytes retained. Abort backend failure, custom-store, cluster and existing publication-recovery tests also pass.
+
+`test-compile.json` records the successful strict compile prerequisite before RED. `format.json` records scoped formatting. `green.json` records the later passing test command; it does not constitute a separate post-repair strict-compile receipt. The test run uses `--max-cases 1` and excludes the `cluster: true` tag; the small cluster branch fixture uses an injected coordinator and is not real topology acceptance.
+
+The coordinator reported no blocking issue in independent diff review. The acknowledgement tests use intent stubs and establish the caller's gating contract, not durable Concord transition behavior. Existing fault/ENOSPC lanes remain the place to exercise real backend transitions during full acceptance. Adding another backend test is not required for this scoped change before C6; that is a coverage recommendation, not a claim those lanes have run.
+
+Cleanup is limited to a live owner and positive matching abort acknowledgement. Failed unlink is ignored by the existing failure return and may retain bytes. Process death before cleanup can also retain bytes, and `LocalCAS.discard` does not fsync the staging directory. No crash sweeper, grace change, mutable-aborted scan or durable-unlink guarantee is introduced.
+
+The original C5 COPY error remains unknown. This fixture reproduces the proven retention mechanism, not that original filesystem failure. This receipt does not certify A30 resources, restart safety, the C6 aggregate or release. The coordinator must commit/freeze the candidate and run the authoritative lanes.
