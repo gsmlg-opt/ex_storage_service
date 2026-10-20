@@ -667,7 +667,12 @@ defmodule ExStorageService.ObjectService do
         {:ok, %{metadata: metadata, delete_marker: Map.get(metadata, :is_delete_marker, false)}}
 
       :error ->
-        head(bucket, key, version_id, opts)
+        # `copy/5` pins the destination generation for publication. Source
+        # selection pins its own bucket; it must not inherit that other fence.
+        source_opts =
+          Keyword.update(opts, :metadata_opts, [], &Keyword.delete(&1, :bucket_generation))
+
+        head(bucket, key, version_id, source_opts)
     end
   end
 

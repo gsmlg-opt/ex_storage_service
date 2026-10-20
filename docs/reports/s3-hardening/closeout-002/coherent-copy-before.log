@@ -1,0 +1,20 @@
+==> ex_storage_service_s3
+Running ExUnit with seed: 242221, max_cases: 1
+Excluding tags: [:test]
+Including tags: [location: {"test/ex_storage_service_s3/coherent_latest_http_test.exs", 202}]
+
+
+
+  1) test cross-bucket domain and signed copies keep source and destination generations independent (ExStorageServiceS3.CoherentLatestHTTPTest)
+     apps/ex_storage_service_s3/test/ex_storage_service_s3/coherent_latest_http_test.exs:202
+     match (=) failed
+     code:  assert {:ok, %{metadata: %{etag: etag}}} =
+              ObjectService.copy(context.bucket, "key", destination, "domain-copy")
+     left:  {:ok, %{metadata: %{etag: etag}}}
+     right: {:error, :bucket_generation_changed}
+     stacktrace:
+       test/ex_storage_service_s3/coherent_latest_http_test.exs:213: (test)
+
+
+Finished in 0.4 seconds (0.00s async, 0.4s sync)
+5 tests, 1 failure, 4 excluded

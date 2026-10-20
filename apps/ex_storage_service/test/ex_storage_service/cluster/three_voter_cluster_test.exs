@@ -42,6 +42,41 @@ defmodule ExStorageService.Cluster.ThreeVoterClusterTest do
     assert {:ok, "written-on-a"} =
              call(node_b, Concord, :get, [key, [consistency: :strong, timeout: 2_000]])
 
+    # These are metadata-selection fixtures, not RF/W blob-write certification.
+    # Exercise the object-domain selection against actual cross-node reads.
+    bucket = "coherent-metadata-#{suffix}"
+    assert :ok = call(node_a, ExStorageService.Metadata, :create_bucket, [bucket])
+
+    for version <- ["v1", "v2"] do
+      assert {:ok, %{version_id: ^version}} =
+               call(node_a, ExStorageService.Metadata.ObjectCommit, :put, [
+                 bucket,
+                 "key",
+                 %{size: 7, etag: version, content_hash: version, tags: %{"version" => version}},
+                 [version_id: version, operation_id: "#{bucket}-#{version}", timeout: 2_000]
+               ])
+    end
+
+    assert {:ok, %{version_id: "v2", metadata: %{etag: "v2", size: 7}}} =
+             call(node_b, ExStorageService.ObjectService, :head, [bucket, "key", []])
+
+    assert {:ok, _} =
+             call(node_a, ExStorageService.Metadata.ObjectCommit, :delete_version, [
+               bucket,
+               "key",
+               "v2",
+               [timeout: 2_000]
+             ])
+
+    assert {:ok, %{version_id: "v1", metadata: %{etag: "v1", size: 7}}} =
+             call(node_b, ExStorageService.ObjectService, :head, [bucket, "key", []])
+
+    assert {:error, :version_not_found} =
+             call(node_b, ExStorageService.ObjectService, :head, [bucket, "key", "v2", []])
+
+    assert {:ok, %{version_id: "v1", tags: %{"version" => "v1"}}} =
+             call(node_b, ExStorageService.Metadata.ObjectCommit, :get_tags, [bucket, "key", nil])
+
     snapshot_prefix = "phase10:snapshot:#{suffix}:"
     snapshot_keys = Enum.map(["a", "b"], &"#{snapshot_prefix}#{&1}")
 

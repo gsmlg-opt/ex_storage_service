@@ -112,19 +112,85 @@ defmodule ExStorageService.Metadata.ObjectCommit do
   @spec get_head(String.t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, :not_found | term()}
   def get_head(bucket, key, opts \\ []) do
-    backend = backend(opts)
+    with {:ok, selected} <- latest_record(backend(opts), bucket, key, opts) do
+      case selected.record do
+        nil -> {:error, :not_found}
+        %{value: version} -> {:ok, version_to_public(version)}
+      end
+    end
+  end
 
-    with {:ok, %{value: %{version_id: version_id}}} when is_binary(version_id) <-
-           backend.get(Keys.object_head(bucket, key), read_opts(opts)),
-         {:ok, %{value: version}} <-
-           backend.get(Keys.object_version(bucket, key, version_id), read_opts(opts)) do
-      {:ok, version_to_public(version)}
-    else
-      {:ok, nil} -> {:error, :not_found}
-      {:ok, %{value: %{version_id: nil}}} -> {:error, :not_found}
+  # Independent linearizable reads do not form a snapshot. Bracket the selected
+  # record with the head revision, including for the replaceable null version.
+  # Pin the bucket generation across retries, but not its revision: unrelated
+  # object writes touch that revision and must not invalidate this selection.
+  defp latest_record(backend, bucket, key, opts) do
+    with {:ok, generation} <- read_generation(backend, bucket, opts) do
+      latest_record(backend, bucket, key, generation, opts, max_attempts(opts))
+    end
+  end
+
+  defp latest_record(_backend, _bucket, _key, _generation, _opts, 0),
+    do: {:error, :compare_retry_exhausted}
+
+  defp latest_record(backend, bucket, key, generation, opts, attempts) do
+    head_key = Keys.object_head(bucket, key)
+    reads = selection_read_opts(opts)
+
+    with {:ok, head} <- backend.get(head_key, reads),
+         version_id = value_field(head, :version_id),
+         version_key =
+           if(is_binary(version_id), do: Keys.object_version(bucket, key, version_id)),
+         {:ok, record} <- if(version_key, do: backend.get(version_key, reads), else: {:ok, nil}),
+         {:ok, after_head} <- backend.get(head_key, reads),
+         :ok <- revalidate_generation(backend, bucket, generation, opts) do
+      cond do
+        head != after_head ->
+          latest_record(backend, bucket, key, generation, opts, attempts - 1)
+
+        version_key != nil and record == nil ->
+          {:error, :invalid_object_metadata}
+
+        true ->
+          {:ok,
+           %{
+             head: head,
+             key: version_key,
+             record: record,
+             version_id: version_id,
+             compare: [head_compare(head_key, head)]
+           }}
+      end
+    end
+  end
+
+  defp read_generation(backend, bucket, opts) do
+    with {:ok, record} <- backend.get("bucket:#{bucket}", selection_read_opts(opts)) do
+      case record do
+        nil ->
+          {:error, :bucket_not_found}
+
+        %{value: value} ->
+          generation = BucketLifecycle.generation(value)
+
+          if Keyword.has_key?(opts, :bucket_generation) and
+               opts[:bucket_generation] != generation,
+             do: {:error, :bucket_generation_changed},
+             else: {:ok, generation}
+      end
+    end
+  end
+
+  defp revalidate_generation(backend, bucket, generation, opts) do
+    case read_generation(backend, bucket, opts) do
+      {:ok, ^generation} -> :ok
+      {:ok, _changed} -> {:error, :bucket_generation_changed}
+      {:error, :bucket_not_found} -> {:error, :bucket_generation_changed}
       error -> error
     end
   end
+
+  defp selection_read_opts(opts), do: Keyword.put(read_opts(opts), :consistency, :linearizable)
 
   @doc false
   def has_state(bucket, key, opts \\ []) do
@@ -138,10 +204,16 @@ defmodule ExStorageService.Metadata.ObjectCommit do
   @spec get_version(String.t(), String.t(), String.t(), keyword()) ::
           {:ok, map()} | {:error, :not_found | term()}
   def get_version(bucket, key, version_id, opts \\ []) do
-    case backend(opts).get(Keys.object_version(bucket, key, version_id), read_opts(opts)) do
-      {:ok, %{value: version}} -> {:ok, version_to_public(version)}
-      {:ok, nil} -> {:error, :not_found}
-      error -> error
+    backend = backend(opts)
+
+    with {:ok, generation} <- read_generation(backend, bucket, opts),
+         {:ok, record} <-
+           backend.get(Keys.object_version(bucket, key, version_id), selection_read_opts(opts)),
+         :ok <- revalidate_generation(backend, bucket, generation, opts) do
+      case record do
+        %{value: version} -> {:ok, version_to_public(version)}
+        nil -> {:error, :not_found}
+      end
     end
   end
 
@@ -224,6 +296,16 @@ defmodule ExStorageService.Metadata.ObjectCommit do
       else: :ok
   end
 
+  defp tag_record(backend, bucket, key, nil, opts) do
+    with {:ok, selected} <- latest_record(backend, bucket, key, opts) do
+      cond do
+        selected.record != nil -> {:ok, selected}
+        selected.head == nil -> legacy_tags_if_unmigrated(backend, bucket, key, nil, opts)
+        true -> {:error, :object_not_found}
+      end
+    end
+  end
+
   defp tag_record(backend, bucket, key, version_id, opts) do
     head_key = Keys.object_head(bucket, key)
 
@@ -244,12 +326,24 @@ defmodule ExStorageService.Metadata.ObjectCommit do
              }}
 
           head == nil ->
-            legacy_tag_record(backend, bucket, key, version_id, opts)
+            legacy_tags_if_unmigrated(backend, bucket, key, version_id, opts)
 
           true ->
             {:error, if(is_nil(version_id), do: :object_not_found, else: :version_not_found)}
         end
       end
+    end
+  end
+
+  defp legacy_tags_if_unmigrated(backend, bucket, key, version_id, opts) do
+    with {:ok, false} <- ExStorageService.Metadata.ListIndex.authoritative?(bucket, opts) do
+      legacy_tag_record(backend, bucket, key, version_id, opts)
+    else
+      {:ok, true} ->
+        {:error, if(is_nil(version_id), do: :object_not_found, else: :version_not_found)}
+
+      error ->
+        error
     end
   end
 

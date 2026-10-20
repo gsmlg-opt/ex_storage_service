@@ -1,0 +1,14 @@
+==> ex_storage_service
+Running ExUnit with seed: 450279, max_cases: 1
+Excluding tags: [cluster: true]
+
+.....................................................................................................................................................................................
+Finished in 31.8 seconds (1.9s async, 29.8s sync)
+181 tests, 0 failures
+==> ex_storage_service_s3
+Running ExUnit with seed: 450279, max_cases: 1
+Excluding tags: [cluster: true]
+
+...................
+Finished in 8.3 seconds (0.00s async, 8.3s sync)
+19 tests, 0 failures

@@ -66,13 +66,16 @@ defmodule ExStorageService.Storage.Versioning do
 
   @spec get_version(String.t(), String.t(), String.t() | nil) ::
           {:ok, map()} | {:error, :not_found | term()}
-  def get_version(bucket, key, nil) do
-    case ObjectCommit.get_head(bucket, key) do
+  def get_version(bucket, key, version_id), do: get_version(bucket, key, version_id, [])
+
+  @doc false
+  def get_version(bucket, key, nil, opts) do
+    case ObjectCommit.get_head(bucket, key, opts) do
       {:ok, version} ->
         {:ok, version}
 
       {:error, :not_found} ->
-        with {:ok, false} <- ObjectCommit.has_state(bucket, key) do
+        with {:ok, false} <- ObjectCommit.has_state(bucket, key, opts) do
           get_v1_latest(bucket, key)
         else
           {:ok, true} -> {:error, :not_found}
@@ -84,13 +87,13 @@ defmodule ExStorageService.Storage.Versioning do
     end
   end
 
-  def get_version(bucket, key, version_id) do
-    case ObjectCommit.get_version(bucket, key, version_id) do
+  def get_version(bucket, key, version_id, opts) do
+    case ObjectCommit.get_version(bucket, key, version_id, opts) do
       {:ok, version} ->
         {:ok, version}
 
       {:error, :not_found} ->
-        with {:ok, false} <- ObjectCommit.has_state(bucket, key) do
+        with {:ok, false} <- ObjectCommit.has_state(bucket, key, opts) do
           get_v1_version(bucket, key, version_id)
         else
           {:ok, true} -> {:error, :not_found}

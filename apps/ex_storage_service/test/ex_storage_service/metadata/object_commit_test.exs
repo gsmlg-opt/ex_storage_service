@@ -329,6 +329,303 @@ defmodule ExStorageService.Metadata.ObjectCommitTest do
     defdelegate resolve_operation(key, opts), to: TestBackend
   end
 
+  defmodule ReadInterleavingBackend do
+    defdelegate transaction(spec, opts), to: TestBackend
+
+    def get(key, opts) do
+      result = TestBackend.get(key, opts)
+
+      {hook, error} =
+        Agent.get_and_update(Keyword.fetch!(opts, :engine), fn state ->
+          hooks = Map.get(state, :read_hooks, %{})
+
+          {hook, hooks} =
+            case Map.get(hooks, key) do
+              [hook | rest] -> {hook, Map.put(hooks, key, rest)}
+              hook -> {hook, Map.delete(hooks, key)}
+            end
+
+          state =
+            state
+            |> Map.put(:read_hooks, hooks)
+            |> Map.update(
+              :selection_reads,
+              [{key, opts[:consistency]}],
+              &[{key, opts[:consistency]} | &1]
+            )
+
+          {{hook, Map.get(state, :read_error)}, state}
+        end)
+
+      if hook, do: hook.()
+      if error, do: {:error, error}, else: result
+    end
+  end
+
+  defmodule ReadMetadata do
+    def head_bucket("bucket"), do: :ok
+  end
+
+  test "latest selection retries the reviewed head-read/current-delete interleaving" do
+    {:ok, engine} = TestBackend.start_link()
+    assert {:ok, _} = put(engine, "first", "v1")
+    assert {:ok, _} = put(engine, "second", "v2")
+
+    hook = fn ->
+      assert {:ok, _} =
+               ObjectCommit.delete_version("bucket", "key", "v2",
+                 backend: TestBackend,
+                 engine: engine,
+                 operation_id: "delete-current"
+               )
+    end
+
+    Agent.update(engine, &Map.put(&1, :read_hooks, %{Keys.object_head("bucket", "key") => hook}))
+
+    assert {:ok, %{version_id: "v1", etag: "etag-first", content_hash: "hash-first"}} =
+             ObjectCommit.get_head("bucket", "key",
+               backend: ReadInterleavingBackend,
+               engine: engine
+             )
+  end
+
+  test "object domain retries current deletion and returns one predecessor identity" do
+    {:ok, engine} = TestBackend.start_link()
+    assert {:ok, _} = put(engine, "first", "v1")
+    assert {:ok, _} = put(engine, "second", "v2")
+
+    hook_read(engine, Keys.object_head("bucket", "key"), fn ->
+      assert {:ok, _} =
+               ObjectCommit.delete_version(
+                 "bucket",
+                 "key",
+                 "v2",
+                 commit_opts(engine, "delete", "unused")
+               )
+    end)
+
+    assert {:ok,
+            %{
+              version_id: "v1",
+              metadata: %{etag: "etag-first", content_hash: "hash-first", size: 10}
+            }} =
+             domain_head(engine)
+
+    reads = Agent.get(engine, & &1.selection_reads)
+    assert Enum.all?(reads, fn {_key, consistency} -> consistency == :linearizable end)
+
+    assert Enum.all?(reads, fn {key, _} ->
+             key == "bucket:bucket" or String.starts_with?(key, "ess:v2:object_")
+           end)
+  end
+
+  test "latest selection detects null replacement and ABA by revision rather than version ID" do
+    for transition <- [:replacement, :aba] do
+      {:ok, engine} = TestBackend.start_link()
+      opts = [backend: TestBackend, engine: engine, bucket_versioning: true]
+
+      assert {:ok, %{version_id: "null"}} =
+               ObjectCommit.put("bucket", "key", metadata("old"), opts)
+
+      hook_read(engine, Keys.object_version("bucket", "key", "null"), fn ->
+        if transition == :aba,
+          do: assert({:ok, _} = ObjectCommit.delete_marker("bucket", "key", opts))
+
+        assert {:ok, %{version_id: "null"}} =
+                 ObjectCommit.put("bucket", "key", metadata("new"), opts)
+      end)
+
+      assert {:ok, %{version_id: "null", metadata: %{etag: "etag-new", content_hash: "hash-new"}}} =
+               domain_head(engine)
+    end
+  end
+
+  test "concurrent PUT invalidates latest selection without mixing version attributes" do
+    {:ok, engine} = TestBackend.start_link()
+    assert {:ok, _} = put(engine, "first", "v1")
+
+    hook_read(engine, Keys.object_version("bucket", "key", "v1"), fn ->
+      assert {:ok, _} = put(engine, "next", "v2")
+    end)
+
+    assert {:ok, %{version_id: "v2", metadata: %{etag: "etag-next", content_hash: "hash-next"}}} =
+             domain_head(engine)
+  end
+
+  test "latest delete-marker creation and removal retain marker and predecessor semantics" do
+    {:ok, engine} = TestBackend.start_link()
+    assert {:ok, _} = put(engine, "first", "v1")
+
+    hook_read(engine, Keys.object_version("bucket", "key", "v1"), fn ->
+      assert {:ok, _} =
+               ObjectCommit.delete_marker("bucket", "key", commit_opts(engine, "marker", "v2"))
+    end)
+
+    assert {:ok, %{version_id: "v2", delete_marker: true}} = domain_head(engine)
+
+    hook_read(engine, Keys.object_head("bucket", "key"), fn ->
+      assert {:ok, _} =
+               ObjectCommit.delete_version(
+                 "bucket",
+                 "key",
+                 "v2",
+                 commit_opts(engine, "remove", "unused")
+               )
+    end)
+
+    assert {:ok, %{version_id: "v1", delete_marker: false}} = domain_head(engine)
+  end
+
+  test "delete/recreate fences successful latest and explicit selections by bucket generation" do
+    for version_id <- [nil, "v1"] do
+      {:ok, engine} = TestBackend.start_link()
+      assert {:ok, _} = put(engine, "first", "v1")
+
+      hook_read(engine, Keys.object_version("bucket", "key", "v1"), fn ->
+        assert :ok = TestBackend.delete("bucket:bucket", engine: engine)
+
+        assert :ok =
+                 TestBackend.put("bucket:bucket", %{name: "bucket", generation: "recreated"},
+                   engine: engine
+                 )
+      end)
+
+      assert {:error, :bucket_generation_changed} = domain_head(engine, version_id)
+    end
+  end
+
+  test "stable missing reference is corruption and cannot resurrect legacy metadata" do
+    {:ok, engine} = TestBackend.start_link()
+    TestBackend.seed(engine, Keys.object_head("bucket", "key"), %{version_id: "missing"})
+    TestBackend.seed(engine, "obj:bucket:key", metadata("legacy"))
+    assert {:error, :invalid_object_metadata} = domain_head(engine)
+
+    assert {:error, :invalid_object_metadata} =
+             ObjectCommit.get_tags("bucket", "key", nil, read_test_opts(engine))
+  end
+
+  test "read retry exhaustion and backend availability failures never become object absence" do
+    {:ok, engine} = TestBackend.start_link()
+    assert {:ok, _} = put(engine, "first", "v1")
+
+    change_revision = fn ->
+      TestBackend.seed(engine, Keys.object_head("bucket", "key"), %{version_id: "v1"})
+    end
+
+    hook_read(
+      engine,
+      Keys.object_version("bucket", "key", "v1"),
+      List.duplicate(change_revision, 2)
+    )
+
+    assert {:error, :compare_retry_exhausted} = domain_head(engine, nil, max_attempts: 2)
+
+    for error <- [:timeout, :cluster_not_ready, :no_leader] do
+      Agent.update(engine, &Map.put(&1, :read_error, error))
+      assert {:error, ^error} = domain_head(engine)
+    end
+  end
+
+  test "explicit deleted version never falls back to the surviving latest version" do
+    {:ok, engine} = TestBackend.start_link()
+    assert {:ok, _} = put(engine, "first", "v1")
+    assert {:ok, _} = put(engine, "second", "v2")
+
+    assert {:ok, _} =
+             ObjectCommit.delete_version(
+               "bucket",
+               "key",
+               "v2",
+               commit_opts(engine, "delete", "unused")
+             )
+
+    assert {:error, :version_not_found} = domain_head(engine, "v2")
+    assert {:ok, %{version_id: "v1"}} = domain_head(engine)
+  end
+
+  test "availability failures during selected-version read and head revalidation propagate" do
+    for boundary <- [:head, :version] do
+      {:ok, engine} = TestBackend.start_link()
+      assert {:ok, _} = put(engine, "first", "v1")
+
+      key =
+        if boundary == :head,
+          do: Keys.object_head("bucket", "key"),
+          else: Keys.object_version("bucket", "key", "v1")
+
+      hook_read(engine, key, fn -> Agent.update(engine, &Map.put(&1, :read_error, :timeout)) end)
+      assert {:error, :timeout} = domain_head(engine)
+    end
+  end
+
+  test "latest tags retry the same controlled deletion and return predecessor tags" do
+    {:ok, engine} = TestBackend.start_link()
+    assert {:ok, _} = put(engine, "first", "v1")
+    assert {:ok, _} = put(engine, "second", "v2")
+
+    assert {:ok, _} =
+             ObjectCommit.set_tags("bucket", "key", "v1", %{"owner" => "first"},
+               backend: TestBackend,
+               engine: engine
+             )
+
+    hook_read(engine, Keys.object_head("bucket", "key"), fn ->
+      assert {:ok, _} =
+               ObjectCommit.delete_version(
+                 "bucket",
+                 "key",
+                 "v2",
+                 commit_opts(engine, "delete", "unused")
+               )
+    end)
+
+    assert {:ok, %{version_id: "v1", tags: %{"owner" => "first"}}} =
+             ObjectCommit.get_tags("bucket", "key", nil, read_test_opts(engine))
+  end
+
+  test "latest tag writes retry current deletion and atomically update only the predecessor" do
+    {:ok, engine} = TestBackend.start_link()
+    assert {:ok, _} = put(engine, "first", "v1")
+    assert {:ok, _} = put(engine, "second", "v2")
+
+    hook_read(engine, Keys.object_head("bucket", "key"), fn ->
+      assert {:ok, _} =
+               ObjectCommit.delete_version(
+                 "bucket",
+                 "key",
+                 "v2",
+                 commit_opts(engine, "delete", "unused")
+               )
+    end)
+
+    assert {:ok, %{version_id: "v1"}} =
+             ObjectCommit.set_tags(
+               "bucket",
+               "key",
+               nil,
+               %{"selected" => "first"},
+               read_test_opts(engine)
+             )
+
+    assert {:ok, %{version_id: "v1", tags: %{"selected" => "first"}}} =
+             ObjectCommit.get_version("bucket", "key", "v1", backend: TestBackend, engine: engine)
+
+    assert {:error, :not_found} =
+             ObjectCommit.get_version("bucket", "key", "v2", backend: TestBackend, engine: engine)
+  end
+
+  defp hook_read(engine, key, hook),
+    do: Agent.update(engine, &Map.put(&1, :read_hooks, %{key => hook}))
+
+  defp read_test_opts(engine), do: [backend: ReadInterleavingBackend, engine: engine]
+
+  defp domain_head(engine, version_id \\ nil, extra \\ []) do
+    ExStorageService.ObjectService.head("bucket", "key", version_id,
+      metadata: ReadMetadata,
+      metadata_opts: read_test_opts(engine) ++ extra
+    )
+  end
+
   test "index planning conflicts use the remaining object commit retry budget" do
     {:ok, backend} = TestBackend.start_link()
     assert {:ok, _} = put(backend, "initial", "initial")

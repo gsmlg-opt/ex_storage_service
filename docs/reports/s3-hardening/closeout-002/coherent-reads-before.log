@@ -1,0 +1,20 @@
+==> ex_storage_service
+Running ExUnit with seed: 443380, max_cases: 1
+Excluding tags: [:test]
+Including tags: [location: {"test/ex_storage_service/metadata/object_commit_test.exs", 347}]
+
+
+
+  1) test latest selection retries the reviewed head-read/current-delete interleaving (ExStorageService.Metadata.ObjectCommitTest)
+     apps/ex_storage_service/test/ex_storage_service/metadata/object_commit_test.exs:347
+     match (=) failed
+     code:  assert {:ok, %{version_id: "v1", etag: "etag-v1", content_hash: "hash-v1"}} =
+              ObjectCommit.get_head("bucket", "key", backend: ReadInterleavingBackend, engine: engine)
+     left:  {:ok, %{version_id: "v1", etag: "etag-v1", content_hash: "hash-v1"}}
+     right: {:error, :not_found}
+     stacktrace:
+       test/ex_storage_service/metadata/object_commit_test.exs:363: (test)
+
+
+Finished in 0.3 seconds (0.3s async, 0.00s sync)
+21 tests, 1 failure, 20 excluded
