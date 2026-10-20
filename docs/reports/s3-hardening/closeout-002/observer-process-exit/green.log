@@ -1,0 +1,9 @@
+test_disappeared_process_has_no_identity (test_resource_observer.ProcessIdentityTest.test_disappeared_process_has_no_identity) ... ok
+test_malformed_process_stat_is_not_absence (test_resource_observer.ProcessIdentityTest.test_malformed_process_stat_is_not_absence) ... ok
+test_permission_and_io_errors_are_not_absence (test_resource_observer.ProcessIdentityTest.test_permission_and_io_errors_are_not_absence) ... ok
+test_stop_verification_accepts_esrch_during_stat_read (test_resource_observer.ProcessIdentityTest.test_stop_verification_accepts_esrch_during_stat_read) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.002s
+
+OK

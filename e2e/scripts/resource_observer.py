@@ -40,7 +40,8 @@ def process_identity(pid):
     try:
         fields = Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()
         return {"pid": int(pid), "start_ticks": int(fields[19]), "state": fields[0]}
-    except (FileNotFoundError, NotADirectoryError):
+    except (FileNotFoundError, NotADirectoryError, ProcessLookupError):
+        # /proc reads can report ESRCH when the process exits after open.
         return None
 
 

@@ -1,5 +1,6 @@
 """Focused Port isolation checks; the original 100ms validator is unchanged."""
 import copy
+import errno
 import hashlib
 import json
 import os
@@ -83,6 +84,46 @@ def respond(process, generation, sequence):
         raise AssertionError(request)
     process.stdin.write(observer.encode(reply(request), observer.FRAME_BYTES))
     process.stdin.flush()
+
+
+class ProcessIdentityTest(unittest.TestCase):
+    def test_disappeared_process_has_no_identity(self):
+        for code in (errno.ENOENT, errno.ENOTDIR, errno.ESRCH):
+            with self.subTest(errno=code), mock.patch.object(
+                    observer.Path, "read_text", side_effect=OSError(code, os.strerror(code))) as read:
+                self.assertIsNone(observer.process_identity(123))
+                read.assert_called_once_with()
+
+    def test_permission_and_io_errors_are_not_absence(self):
+        for code in (errno.EACCES, errno.EPERM, errno.EIO):
+            error = OSError(code, os.strerror(code))
+            with self.subTest(errno=code), mock.patch.object(observer.Path, "read_text", side_effect=error):
+                with self.assertRaises(OSError) as raised:
+                    observer.process_identity(123)
+                self.assertIs(error, raised.exception)
+
+    def test_malformed_process_stat_is_not_absence(self):
+        for value in ("", "123 (process) S", "123 (process) S " + "0 " * 18 + "invalid"):
+            with self.subTest(stat=value), mock.patch.object(observer.Path, "read_text", return_value=value):
+                with self.assertRaises((IndexError, ValueError)):
+                    observer.process_identity(123)
+
+    def test_stop_verification_accepts_esrch_during_stat_read(self):
+        with tempfile.TemporaryDirectory(prefix="ess-observer-exit-race-") as directory:
+            root = Path(directory)
+            identity = {"pid": 123, "start_ticks": 456, "state": "S"}
+            path = root / "observer-exited.json"
+            path.write_text(json.dumps({"observer": identity}))
+            read = observer.Path.read_text
+
+            def exit_during_read(path, *args, **kwargs):
+                if path == Path("/proc/123/stat"):
+                    raise ProcessLookupError(errno.ESRCH, os.strerror(errno.ESRCH))
+                return read(path, *args, **kwargs)
+
+            with mock.patch.object(observer.Path, "read_text", autospec=True, side_effect=exit_during_read):
+                self.assertEqual([{"identity_file": str(path), "expected": identity,
+                                   "observed": None, "stopped": True}], observer.verify_stopped(root))
 
 
 class TemporaryDiskTest(unittest.TestCase):

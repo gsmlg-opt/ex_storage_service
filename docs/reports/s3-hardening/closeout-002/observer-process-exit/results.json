@@ -1,0 +1,56 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "scope": "Observer process-exit race; direct narrow implementation assignment",
+  "baseline_sha": "03412039107963d2d97198de22251117d1603983",
+  "observed_failure": {
+    "path": "../resource-staging/harness.log",
+    "sha256": "41cd698c98ba5c807d50f159446b8626953258ffb988be18ad8fcaed56678da5",
+    "suite_tests": 118,
+    "suite_exit_status": 1,
+    "error": "verify_stopped -> process_identity -> /proc/PID/stat read raised ProcessLookupError(errno=3)",
+    "other_error": "Resource cadence AST fixture NameError is independently owned by parent"
+  },
+  "root_cause": "A process can exit after /proc/PID/stat is opened but before it is read. Linux can return ESRCH rather than ENOENT; the identity reader handled only FileNotFoundError and NotADirectoryError.",
+  "repair": {
+    "e2e/scripts/resource_observer.py": "6d594fbf1b3cd0158eef2f03c7e2ef517f227671bdd80ddbd96d9308412e7b5d",
+    "e2e/test_resource_observer.py": "ae3098924da04deba606428f46403661ce10caf5ea920cb1181fd7f40113baf7",
+    "behavior": "Treat ProcessLookupError as absent OS identity. Preserve propagation of permission, I/O and malformed-stat errors.",
+    "sampling_timing_fields_limits_changed": false
+  },
+  "verification": {
+    "red": {
+      "command": "PAGER=cat PYTHONPATH=e2e /tmp/ess-s3-hardening-python/bin/python -m unittest -v test_resource_observer.ProcessIdentityTest",
+      "path": "red.log",
+      "sha256": "63af58c7a78ba2f175ff7fb17391edf902c8a036224d564c98dd5447f14d624f",
+      "exit_status": 1,
+      "tests": 4,
+      "errors": 2,
+      "duration_seconds": 0.004,
+      "reproduction": "Deterministically inject ESRCH at the /proc stat read, directly and through verify_stopped; no sleeps or real-process race required"
+    },
+    "green": {
+      "command": "PAGER=cat PYTHONPATH=e2e /tmp/ess-s3-hardening-python/bin/python -m unittest -v test_resource_observer.ProcessIdentityTest",
+      "path": "green.log",
+      "sha256": "7bb87947519baf037b3a58785211f13bcde8f2e8d46e331ea50eb90252db1943",
+      "exit_status": 0,
+      "tests": 4,
+      "duration_seconds": 0.002
+    },
+    "python_observer": {
+      "command": "PAGER=cat PYTHONPATH=e2e /tmp/ess-s3-hardening-python/bin/python -m unittest -v test_resource_observer.ProcessIdentityTest test_resource_observer.TemporaryDiskTest test_resource_observer.ObserverProtocolTest test_resource_observer.ExportBoundsTest",
+      "path": "python-observer.log",
+      "sha256": "49ad606c5c4adf499742cbedd01eb077b37f2e5674faa0ba93b1f70a47821f0c",
+      "exit_status": 0,
+      "tests": 27,
+      "duration_seconds": 8.424,
+      "session": 43485,
+      "reaped": true
+    },
+    "git_diff_check": {"exit_status": 0}
+  },
+  "observer_fix_sol_repair_rounds": 0,
+  "cumulative_worker_sol_repair_rounds": 1,
+  "astra_repair_counter": null,
+  "owned_processes_remaining": false,
+  "limits": "No BEAM, integration, heavyweight acceptance or release workloads executed. PortIsolationTest and test_resource_sampler require BEAM and remain for the parent-owned full harness. No commit or publication performed."
+}
