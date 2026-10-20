@@ -74,6 +74,7 @@ class AggregateTest(unittest.TestCase):
             (self.root / "resources.json").unlink()
             self.assertFalse(acceptance.run_profile("resources", args))
         self.assertEqual(1, run.call_count)
+        self.assertEqual(["mix", "compile", "--force", "--warnings-as-errors"], run.call_args.args[0])
 
     def test_requires_all_38_unique_audited_scenarios(self):
         self.assertEqual([], self.audit())

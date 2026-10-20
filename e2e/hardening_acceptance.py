@@ -158,7 +158,7 @@ def run_profile(profile, args):
     try:
         steps = commands(profile, args, label)
         if profile not in ("correctness", "release"):
-            steps.insert(0, ("prod", ["mix", "compile", "--warnings-as-errors"]))
+            steps.insert(0, ("prod", ["mix", "compile", "--force", "--warnings-as-errors"]))
         for index, (mode, argv) in enumerate(steps):
             log = args.output / f"{profile}-{index}.log"
             started = time.monotonic()
