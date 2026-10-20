@@ -1,0 +1,23 @@
+fatal: could not open '/dev/null' for reading and writing: Permission denied
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/hardening_acceptance.py", line 309, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/hardening_acceptance.py", line 295, in main
+    results = [run_profile(profile, args) for profile in selected]
+               ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/hardening_acceptance.py", line 151, in run_profile
+    record = {"profile": profile, "status": "in_progress", "starting_sha": sha(),
+                                                                           ~~~^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/hardening_acceptance.py", line 26, in sha
+    return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO, text=True).strip()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/subprocess.py", line 472, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', 'rev-parse', 'HEAD']' returned non-zero exit status 128.

@@ -1,0 +1,3730 @@
+{
+  "schema": 1,
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "scope": "Fresh C5 semantic audit of A29-A38; owns only this JSON, parent owns ledger/runtime",
+  "prepared_at": "2026-10-20T20:03:36.560363+00:00",
+  "candidate_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "freeze": {
+    "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/freeze.json",
+    "sha256": "f7eec656fb27ed06781cadefcc02ad01086afff35c84700281acabaf4332bb2b"
+  },
+  "evidence_policy": "Only fresh current-C5 executed assertions receive credit. Earlier candidate receipts are semantic references only and cannot certify this source. Missing, failed, skipped, incomplete, stale and unexecuted requirements remain unpassed. Parent owns ledger integration and actual aggregate execution.",
+  "status": "terminal_audit_incomplete",
+  "final_for_candidate": true,
+  "authoritative_run_exit_status": 1,
+  "aggregate_exit_status": null,
+  "aggregate_status": "coordinator_runs_after_audit_freeze",
+  "release_status": "not_attempted_full_acceptance_prerequisite",
+  "delivery_verification": {
+    "status": "pending",
+    "publication_status": "not_attempted_full_acceptance_prerequisite",
+    "scope_note": "A38 is a prepublication acceptance gate; authorized release and independent public artifact verification remain mandatory subsequent delivery obligations."
+  },
+  "acceptance_delivery_boundary": "The original A38 requires local release/container acceptance, explicitly no publication. This task additionally requires publication after complete acceptance. Keeping that downstream obligation separate avoids requiring publication before its own acceptance gate; task completion still requires both.",
+  "rows": [
+    {
+      "id": "A29",
+      "status": "verified",
+      "lanes": [
+        "correctness",
+        "index",
+        "cluster",
+        "restore"
+      ],
+      "clauses": [
+        {
+          "id": "A29.1",
+          "requirement": "Quiesced, verified-backup prerequisite and bounded legacy/v2 backfill/rebuild.",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/metadata/list_index/backfill_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/metadata/schema_and_migration_test.exs",
+            "e2e/scripts/index_cluster_control.exs",
+            "docs/operations/listing-index.md"
+          ],
+          "required_receipt_assertions": [
+            "actual_quiescence",
+            "verified_backup",
+            "batch_size=1 checkpoint processed=1 with positive offset",
+            "all unindexed legacy versions included"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-index-cluster/results.json",
+              "sha256": "7edf02c9ec5722cf7ef16cdbfb994c450d3f4740f996295775168702f8f75bd9",
+              "verified_assertions": [
+                "Actual writers quiesced and backup7265fab1cc337dccd9cbb3b2 verified; batch_size1 checkpoint processed1 offset556; sourceRF2 retained with indexed/unindexed legacy plus currentv2 data."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/index.json",
+              "sha256": "28261cb12afd70ace4eb181aa22fc2c19899ba6164228e846a35d1d22b87f4b6",
+              "verified_assertions": [
+                "Independent A29 command exit0 on exact C5 source in16.253s. Separate A28 preflight exits1; surrounding index lane remains blocked."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A29.2",
+          "requirement": "Interrupt actual coordinator, rejoin retained-root voter, resume exact checkpoint and fence former owner.",
+          "source_refs": [
+            "e2e/run_hardening_index_cluster.sh",
+            "e2e/s3_hardening_index_cluster.py",
+            "e2e/scripts/index_cluster_control.exs"
+          ],
+          "required_receipt_assertions": [
+            "actual SIGKILL/new PID",
+            "bootstrap=false retained roots",
+            "three-voter rejoin",
+            "phase/processed/offset/build_digest/source_manifest_digest unchanged",
+            "former owner resume/cutover rejected"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-index-cluster/results.json",
+              "sha256": "7edf02c9ec5722cf7ef16cdbfb994c450d3f4740f996295775168702f8f75bd9",
+              "verified_assertions": [
+                "Actual coordinator PID684956 interrupted and retained-root bootstrapfalse PID685266 rejoins all3normal/applied voters. Exact checkpoint phase/progress/manifest/offset survives; former owner resume/cutover fenced."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/index.json",
+              "sha256": "28261cb12afd70ace4eb181aa22fc2c19899ba6164228e846a35d1d22b87f4b6",
+              "verified_assertions": [
+                "Independent A29 command exit0 on exact C5 source in16.253s. Separate A28 preflight exits1; surrounding index lane remains blocked."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-index-cluster/restart-lifecycle.log",
+              "sha256": "ae3627791e95de46b9b23ba7fdbf217e5a3f1bf3f2b94e2c746650aa0edce10e",
+              "verified_assertions": [
+                "Actual distinct coordinator/restarted PIDs684956/685266 retained."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A29.3",
+          "requirement": "Target mutation/list gates remain after interruption while permitted independent operations continue.",
+          "source_refs": [
+            "e2e/s3_hardening_index_cluster.py"
+          ],
+          "required_receipt_assertions": [
+            "both endpoints target list/PUT/DELETE/MPU initiate return503 before and after restart",
+            "explicit historical bytes readable",
+            "independent bucket writes succeed"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-index-cluster/results.json",
+              "sha256": "7edf02c9ec5722cf7ef16cdbfb994c450d3f4740f996295775168702f8f75bd9",
+              "verified_assertions": [
+                "Both endpoints reject target list/PUT/DELETE/MPU initiation before and after restart; explicit historical bytes remain readable and independent-bucket writes succeed."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/index.json",
+              "sha256": "28261cb12afd70ace4eb181aa22fc2c19899ba6164228e846a35d1d22b87f4b6",
+              "verified_assertions": [
+                "Independent A29 command exit0 on exact C5 source in16.253s. Separate A28 preflight exits1; surrounding index lane remains blocked."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A29.4",
+          "requirement": "Bounded resume plus concurrent permitted writes validates atomic cutover and revision-barrier coherence.",
+          "source_refs": [
+            "e2e/scripts/index_cluster_control.exs",
+            "e2e/s3_hardening_index_cluster.py",
+            "apps/ex_storage_service/test/ex_storage_service/metadata/list_index_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/metadata/list_index/backfill_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "bounded batch resume and finite iteration budget",
+            "eight independent-bucket HTTP writes",
+            "validate before atomic new-epoch cutover",
+            "controlled descriptor-read/concurrent mutation race yields coherent successful page"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-index-cluster/results.json",
+              "sha256": "7edf02c9ec5722cf7ef16cdbfb994c450d3f4740f996295775168702f8f75bd9",
+              "verified_assertions": [
+                "Bounded resume processes41records, validates and atomically cuts over to new epoch;8concurrent independent-bucket writes pass. Actual native page races mutation after initial descriptor and returns coherent new revision."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/index.json",
+              "sha256": "28261cb12afd70ace4eb181aa22fc2c19899ba6164228e846a35d1d22b87f4b6",
+              "verified_assertions": [
+                "Independent A29 command exit0 on exact C5 source in16.253s. Separate A28 preflight exits1; surrounding index lane remains blocked."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A29.5",
+          "requirement": "Retain legacy v1/v2 barriers, history/delete markers, multipart state and rollback artifacts.",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/metadata/list_index/backfill_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/metadata/schema_and_migration_test.exs",
+            "e2e/scripts/index_cluster_control.exs",
+            "e2e/s3_hardening_index_cluster.py",
+            "docs/operations/listing-index.md"
+          ],
+          "required_receipt_assertions": [
+            "exact retained legacy records and old-epoch node values",
+            "complete version/marker and active MPU inventory",
+            "raw historical/current bytes",
+            "backup ID and manifest hash unchanged",
+            "no destructive startup rebuild"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-index-cluster/results.json",
+              "sha256": "7edf02c9ec5722cf7ef16cdbfb994c450d3f4740f996295775168702f8f75bd9",
+              "verified_assertions": [
+                "All4legacy records and28prior-epoch nodes unchanged; exact11version/marker plus activeMPU/rawbytes inventories checked at both endpoints. BackupID/manifest and rollback artifacts retained."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/index.json",
+              "sha256": "28261cb12afd70ace4eb181aa22fc2c19899ba6164228e846a35d1d22b87f4b6",
+              "verified_assertions": [
+                "Independent A29 command exit0 on exact C5 source in16.253s. Separate A28 preflight exits1; surrounding index lane remains blocked."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        }
+      ],
+      "notes": [
+        "A29 semantic success may be evaluated from its own current receipt even when A28 blocks the aggregate index lane; never mark the complete index lane passed from that partial result."
+      ]
+    },
+    {
+      "id": "A30",
+      "status": "failed_or_incomplete",
+      "lanes": [
+        "resources",
+        "faults",
+        "gateway",
+        "correctness"
+      ],
+      "clauses": [
+        {
+          "id": "A30.1",
+          "requirement": "Execute exact current resource manifests at 64MiB/1GiB and concurrency1/4.",
+          "source_refs": [
+            "e2e/resource_cases.py",
+            "e2e/s3_hardening_resources.py",
+            "e2e/s3_hardening_cluster_resources.py"
+          ],
+          "required_receipt_assertions": [
+            "Counter identity equality including names/size/concurrency",
+            "no duplicate/missing/unexpected groups",
+            "all group failure arrays empty"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resources/results.json",
+              "sha256": "0b836b999510ae84a8a4da33d352745d25236f0259d7aa7480cd8df85690b49c",
+              "verified_assertions": [
+                "Fresh C5local/gateway47/56groups execute,46failurefree. local-upload-part-copy1GiB/c4 completes4operations but fails actual observation coverage: temporary probe124508267ns and all6metric gaps150538973-151460126ns.9required groups remain unexecuted; no operation or numeric-envelope failure recorded for executed local groups."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/results.json",
+              "sha256": "8790a288ceb0157635924a66d811d4b5964deed982ade7a53af0e13948472d9e",
+              "verified_assertions": [
+                "Fresh C5cluster16/20groups execute,15failurefree. strict-quorum-replica-put1GiB/c4operationindex0 raisesRuntimeError;3otheroperations verify2ready replicas and hashes. All3nodes cadence/numeric windows pass for failedgroup;4required groups unexecuted. Root cause under coordinator diagnosis; no private controllerlog published."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/authoritative-exit.json",
+              "sha256": "1e1ee66456686eef23535dc8a474904e6c7b61fa9c8af3ff9857173da64e41d7",
+              "verified_assertions": [
+                "Unchanged complete resource lane rerun in private mount namespace with /tmp on second NVMe device 66305 instead of original 66308; preflight free409567641600bytes. CPU/memory limits, sizes/concurrency,100ms coverage/envelopes, authentication/checksums and RF/W unchanged. Candidate SHA/fingerprint unchanged; actual exit1 retained separately from original failed all-profile run."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resource-observation-analysis.json",
+              "sha256": "b952a12b521b97e21245e778597b7c4df7ba6d20c7e662a4a3a5bf82914a4f1e",
+              "verified_assertions": [
+                "Coordinator independently streamed108592rows across four exports; exact generation/sequence/count/extent/hash pass. All8BEAM/observer PID/start identities stopped. Local maximum probe26.608193ms/gap51.469496ms; cluster9.634109ms/34.671865ms, with original100ms criterion retained. Export/coverage success for executed cases does not certify missing cases."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/results.json",
+              "sha256": "2986d2ce342c53e1fc67e5adda5faaa306e00fcab05694d524938334b609e926",
+              "verified_assertions": [
+                "Supplemental local/gateway52/56groups execute,51failure-free. gateway-copy-to-local1GiB/c4 fails all4operations with ClientError and post_idle_temporary_not_zero. Four later1GiB/c4groups absent: gateway-hit-slow-get, gateway-slow-put, gateway-paced-upstream-put, gateway-paced-upstream-cold-get. Four stopped hosted-protected stages total4294967296bytes. Subsequent WAL/byte forensics narrow the failure to standalone CAS commit; exact reason remains unknown, with no proven permanent leakage."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/results.json",
+              "sha256": "0b7c8a9683c853663cbabbe3b84d4dbfbf11bea697f29a2d25164ff73c18c94b",
+              "verified_assertions": [
+                "Supplemental complete cluster20/20groups pass at64MiB/1GiB and concurrency1/4, including independent hashes/content and strictRF2/W2. All required names/size/concurrency identities present exactly; no failed, missing or unexpected cases. Original cluster verification timeout remains an immutable earlier failure."
+              ]
+            }
+          ],
+          "status": "incomplete",
+          "remaining": [
+            "Supplemental full local/gateway manifest has one failed and four unexecuted groups. Complete successful A30 acceptance remains absent; original47/56and16/20failed receipts unchanged."
+          ]
+        },
+        {
+          "id": "A30.2",
+          "requirement": "Local PUT/GET/COPY/multipart/UploadPartCopy and gateway write/miss/hit/COPY paths stream real data.",
+          "source_refs": [
+            "e2e/resource_cases.py",
+            "e2e/s3_hardening_resources.py"
+          ],
+          "required_receipt_assertions": [
+            "bounded generated/file payloads",
+            "actual independent streaming length/SHA256 and metadata identity",
+            "all14 local/gateway operation names times4 size/concurrency combinations"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resources/results.json",
+              "sha256": "0b836b999510ae84a8a4da33d352745d25236f0259d7aa7480cd8df85690b49c",
+              "verified_assertions": [
+                "Fresh C5local/gateway47/56groups execute,46failurefree. local-upload-part-copy1GiB/c4 completes4operations but fails actual observation coverage: temporary probe124508267ns and all6metric gaps150538973-151460126ns.9required groups remain unexecuted; no operation or numeric-envelope failure recorded for executed local groups."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/results.json",
+              "sha256": "8790a288ceb0157635924a66d811d4b5964deed982ade7a53af0e13948472d9e",
+              "verified_assertions": [
+                "Fresh C5cluster16/20groups execute,15failurefree. strict-quorum-replica-put1GiB/c4operationindex0 raisesRuntimeError;3otheroperations verify2ready replicas and hashes. All3nodes cadence/numeric windows pass for failedgroup;4required groups unexecuted. Root cause under coordinator diagnosis; no private controllerlog published."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/authoritative-exit.json",
+              "sha256": "1e1ee66456686eef23535dc8a474904e6c7b61fa9c8af3ff9857173da64e41d7",
+              "verified_assertions": [
+                "Unchanged complete resource lane rerun in private mount namespace with /tmp on second NVMe device 66305 instead of original 66308; preflight free409567641600bytes. CPU/memory limits, sizes/concurrency,100ms coverage/envelopes, authentication/checksums and RF/W unchanged. Candidate SHA/fingerprint unchanged; actual exit1 retained separately from original failed all-profile run."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resource-observation-analysis.json",
+              "sha256": "b952a12b521b97e21245e778597b7c4df7ba6d20c7e662a4a3a5bf82914a4f1e",
+              "verified_assertions": [
+                "Coordinator independently streamed108592rows across four exports; exact generation/sequence/count/extent/hash pass. All8BEAM/observer PID/start identities stopped. Local maximum probe26.608193ms/gap51.469496ms; cluster9.634109ms/34.671865ms, with original100ms criterion retained. Export/coverage success for executed cases does not certify missing cases."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/results.json",
+              "sha256": "2986d2ce342c53e1fc67e5adda5faaa306e00fcab05694d524938334b609e926",
+              "verified_assertions": [
+                "Supplemental local/gateway52/56groups execute,51failure-free. gateway-copy-to-local1GiB/c4 fails all4operations with ClientError and post_idle_temporary_not_zero. Four later1GiB/c4groups absent: gateway-hit-slow-get, gateway-slow-put, gateway-paced-upstream-put, gateway-paced-upstream-cold-get. Four stopped hosted-protected stages total4294967296bytes. Subsequent WAL/byte forensics narrow the failure to standalone CAS commit; exact reason remains unknown, with no proven permanent leakage."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/results.json",
+              "sha256": "0b7c8a9683c853663cbabbe3b84d4dbfbf11bea697f29a2d25164ff73c18c94b",
+              "verified_assertions": [
+                "Supplemental complete cluster20/20groups pass at64MiB/1GiB and concurrency1/4, including independent hashes/content and strictRF2/W2. All required names/size/concurrency identities present exactly; no failed, missing or unexpected cases. Original cluster verification timeout remains an immutable earlier failure."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r3/analysis.json",
+              "sha256": "f42d7cbf48526a697ce10a14d619ac93b187c50b12ab4623ea8d627046a1df05",
+              "verified_assertions": [
+                "Diagnostic52/52groups pass;490sanitized return events, four target requests complete, zero storage-error events, trace limit not reached. Both observer/BEAM PID/start identities stopped; terminal staging empty. Maximum probe25.011252ms/gap50.798143ms apply only to this intrusive diagnostic.",
+                "Original all-four CopyObject failure was not reproduced with original preceding history. Passing replay identifies neither the original exact error nor a verified service repair; original failed receipts and four unexecuted acceptance groups remain unpassed."
+              ]
+            }
+          ],
+          "status": "incomplete",
+          "remaining": [
+            "Supplemental1GiB/c4gateway-copy-to-local fails all4operations; four later local/gateway groups unexecuted. Full local/gateway contracts and independent readback remain unverified."
+          ]
+        },
+        {
+          "id": "A30.3",
+          "requirement": "Throttled upstream/downstream and authenticated replica/repair/cross-cluster transfers preserve bytes and strictRF2/W2.",
+          "source_refs": [
+            "e2e/s3_hardening_resources.py",
+            "e2e/s3_hardening_cluster_resources.py",
+            "e2e/scripts/cluster_resource_control.exs"
+          ],
+          "required_receipt_assertions": [
+            "all5 cluster operation names times4 combinations",
+            "paced sink exact bytes/hash",
+            "RF2/W2 unchanged; external replication does not count toward quorum"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resources/results.json",
+              "sha256": "0b836b999510ae84a8a4da33d352745d25236f0259d7aa7480cd8df85690b49c",
+              "verified_assertions": [
+                "Fresh C5local/gateway47/56groups execute,46failurefree. local-upload-part-copy1GiB/c4 completes4operations but fails actual observation coverage: temporary probe124508267ns and all6metric gaps150538973-151460126ns.9required groups remain unexecuted; no operation or numeric-envelope failure recorded for executed local groups."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/results.json",
+              "sha256": "8790a288ceb0157635924a66d811d4b5964deed982ade7a53af0e13948472d9e",
+              "verified_assertions": [
+                "Fresh C5cluster16/20groups execute,15failurefree. strict-quorum-replica-put1GiB/c4operationindex0 raisesRuntimeError;3otheroperations verify2ready replicas and hashes. All3nodes cadence/numeric windows pass for failedgroup;4required groups unexecuted. Root cause under coordinator diagnosis; no private controllerlog published."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/cluster-resource-failure.json",
+              "sha256": "409439a17eb3c289a4ad7d78cd6e71bb99ca61e97b1702d8ffbc77a9e5eaf79d",
+              "verified_assertions": [
+                "Sanitized failure resolves evaluated line 33 to BlobLocations.list(hash) timeout after HTTP PUT and local CAS hash/size validation succeeded. Three other indices verify hashes/two ready replicas. Backend timeout cause unestablished; failed-index complete verification and full matrix remain unpassed. Private controller log not published."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/authoritative-exit.json",
+              "sha256": "1e1ee66456686eef23535dc8a474904e6c7b61fa9c8af3ff9857173da64e41d7",
+              "verified_assertions": [
+                "Unchanged complete resource lane rerun in private mount namespace with /tmp on second NVMe device 66305 instead of original 66308; preflight free409567641600bytes. CPU/memory limits, sizes/concurrency,100ms coverage/envelopes, authentication/checksums and RF/W unchanged. Candidate SHA/fingerprint unchanged; actual exit1 retained separately from original failed all-profile run."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resource-observation-analysis.json",
+              "sha256": "b952a12b521b97e21245e778597b7c4df7ba6d20c7e662a4a3a5bf82914a4f1e",
+              "verified_assertions": [
+                "Coordinator independently streamed108592rows across four exports; exact generation/sequence/count/extent/hash pass. All8BEAM/observer PID/start identities stopped. Local maximum probe26.608193ms/gap51.469496ms; cluster9.634109ms/34.671865ms, with original100ms criterion retained. Export/coverage success for executed cases does not certify missing cases."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/results.json",
+              "sha256": "2986d2ce342c53e1fc67e5adda5faaa306e00fcab05694d524938334b609e926",
+              "verified_assertions": [
+                "Supplemental local/gateway52/56groups execute,51failure-free. gateway-copy-to-local1GiB/c4 fails all4operations with ClientError and post_idle_temporary_not_zero. Four later1GiB/c4groups absent: gateway-hit-slow-get, gateway-slow-put, gateway-paced-upstream-put, gateway-paced-upstream-cold-get. Four stopped hosted-protected stages total4294967296bytes. Subsequent WAL/byte forensics narrow the failure to standalone CAS commit; exact reason remains unknown, with no proven permanent leakage."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/results.json",
+              "sha256": "0b7c8a9683c853663cbabbe3b84d4dbfbf11bea697f29a2d25164ff73c18c94b",
+              "verified_assertions": [
+                "Supplemental complete cluster20/20groups pass at64MiB/1GiB and concurrency1/4, including independent hashes/content and strictRF2/W2. All required names/size/concurrency identities present exactly; no failed, missing or unexpected cases. Original cluster verification timeout remains an immutable earlier failure."
+              ]
+            }
+          ],
+          "status": "incomplete",
+          "remaining": [
+            "Supplemental full cluster manifest now passes all20groups with original strictRF2/W2. Full clause remains incomplete because1GiB/c4paced-upstream PUT/coldGET and other local/gateway cases remain unexecuted."
+          ]
+        },
+        {
+          "id": "A30.4",
+          "requirement": "All six metric windows retain actual <=100ms coverage without interpolation.",
+          "source_refs": [
+            "e2e/resource_cadence.py",
+            "e2e/scripts/resource_observer.py",
+            "e2e/scripts/resource_sampler.exs",
+            "e2e/test_resource_observer.py"
+          ],
+          "required_receipt_assertions": [
+            "binary/total/RSS/queue_max/queue_total/temporary active samples",
+            "native monotonic duration/gap plus wall edges <=100ms",
+            "no sampler generation change",
+            "previous_export attributes completed prior write only",
+            "observation requirement is not request-latency SLA"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resources/results.json",
+              "sha256": "0b836b999510ae84a8a4da33d352745d25236f0259d7aa7480cd8df85690b49c",
+              "verified_assertions": [
+                "Fresh C5local/gateway47/56groups execute,46failurefree. local-upload-part-copy1GiB/c4 completes4operations but fails actual observation coverage: temporary probe124508267ns and all6metric gaps150538973-151460126ns.9required groups remain unexecuted; no operation or numeric-envelope failure recorded for executed local groups."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/results.json",
+              "sha256": "8790a288ceb0157635924a66d811d4b5964deed982ade7a53af0e13948472d9e",
+              "verified_assertions": [
+                "Fresh C5cluster16/20groups execute,15failurefree. strict-quorum-replica-put1GiB/c4operationindex0 raisesRuntimeError;3otheroperations verify2ready replicas and hashes. All3nodes cadence/numeric windows pass for failedgroup;4required groups unexecuted. Root cause under coordinator diagnosis; no private controllerlog published."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/resource-observation-analysis.json",
+              "sha256": "549bb194271081f6742f5b559655fe6c61352189ddb4607ed19dc6aea8ce0c10",
+              "verified_assertions": [
+                "Coordinator independently streamed all four raw exports: local 25769, data-a 19943, data-b 19894 and meta 19994 rows. Exact sequences/generations/counts/byte extents/digests pass; observers stopped. This worker reviewed small analysis receipt, avoiding duplicate raw reads. Export integrity does not certify failed cadence or missing cases."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/authoritative-exit.json",
+              "sha256": "1e1ee66456686eef23535dc8a474904e6c7b61fa9c8af3ff9857173da64e41d7",
+              "verified_assertions": [
+                "Unchanged complete resource lane rerun in private mount namespace with /tmp on second NVMe device 66305 instead of original 66308; preflight free409567641600bytes. CPU/memory limits, sizes/concurrency,100ms coverage/envelopes, authentication/checksums and RF/W unchanged. Candidate SHA/fingerprint unchanged; actual exit1 retained separately from original failed all-profile run."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resource-observation-analysis.json",
+              "sha256": "b952a12b521b97e21245e778597b7c4df7ba6d20c7e662a4a3a5bf82914a4f1e",
+              "verified_assertions": [
+                "Coordinator independently streamed108592rows across four exports; exact generation/sequence/count/extent/hash pass. All8BEAM/observer PID/start identities stopped. Local maximum probe26.608193ms/gap51.469496ms; cluster9.634109ms/34.671865ms, with original100ms criterion retained. Export/coverage success for executed cases does not certify missing cases."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/results.json",
+              "sha256": "2986d2ce342c53e1fc67e5adda5faaa306e00fcab05694d524938334b609e926",
+              "verified_assertions": [
+                "Supplemental local/gateway52/56groups execute,51failure-free. gateway-copy-to-local1GiB/c4 fails all4operations with ClientError and post_idle_temporary_not_zero. Four later1GiB/c4groups absent: gateway-hit-slow-get, gateway-slow-put, gateway-paced-upstream-put, gateway-paced-upstream-cold-get. Four stopped hosted-protected stages total4294967296bytes. Subsequent WAL/byte forensics narrow the failure to standalone CAS commit; exact reason remains unknown, with no proven permanent leakage."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/results.json",
+              "sha256": "0b7c8a9683c853663cbabbe3b84d4dbfbf11bea697f29a2d25164ff73c18c94b",
+              "verified_assertions": [
+                "Supplemental complete cluster20/20groups pass at64MiB/1GiB and concurrency1/4, including independent hashes/content and strictRF2/W2. All required names/size/concurrency identities present exactly; no failed, missing or unexpected cases. Original cluster verification timeout remains an immutable earlier failure."
+              ]
+            }
+          ],
+          "status": "failed",
+          "remaining": [
+            "Original failed100ms observations remain retained. Supplemental executed windows all meet100ms, but four required local/gateway groups have no observation coverage. No complete local/gateway acceptance claimed."
+          ]
+        },
+        {
+          "id": "A30.5",
+          "requirement": "Predeclared fixed-concurrency numeric envelopes apply identically across object sizes.",
+          "source_refs": [
+            "docs/plans/s3-hardening-resource-envelope.md",
+            "e2e/s3_hardening_resources.py",
+            "e2e/s3_hardening_cluster_resources.py"
+          ],
+          "required_receipt_assertions": [
+            "binary <=64MiB+32MiB*c",
+            "total <=128MiB+48MiB*c",
+            "RSS <=256MiB+64MiB*c",
+            "queue_max<=128 and queue_total<=2048",
+            "temporary <=2*size*c+64MiB",
+            "baseline/peak/delta/post-idle and throughput retained"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resources/results.json",
+              "sha256": "0b836b999510ae84a8a4da33d352745d25236f0259d7aa7480cd8df85690b49c",
+              "verified_assertions": [
+                "Fresh C5local/gateway47/56groups execute,46failurefree. local-upload-part-copy1GiB/c4 completes4operations but fails actual observation coverage: temporary probe124508267ns and all6metric gaps150538973-151460126ns.9required groups remain unexecuted; no operation or numeric-envelope failure recorded for executed local groups."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/results.json",
+              "sha256": "8790a288ceb0157635924a66d811d4b5964deed982ade7a53af0e13948472d9e",
+              "verified_assertions": [
+                "Fresh C5cluster16/20groups execute,15failurefree. strict-quorum-replica-put1GiB/c4operationindex0 raisesRuntimeError;3otheroperations verify2ready replicas and hashes. All3nodes cadence/numeric windows pass for failedgroup;4required groups unexecuted. Root cause under coordinator diagnosis; no private controllerlog published."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/authoritative-exit.json",
+              "sha256": "1e1ee66456686eef23535dc8a474904e6c7b61fa9c8af3ff9857173da64e41d7",
+              "verified_assertions": [
+                "Unchanged complete resource lane rerun in private mount namespace with /tmp on second NVMe device 66305 instead of original 66308; preflight free409567641600bytes. CPU/memory limits, sizes/concurrency,100ms coverage/envelopes, authentication/checksums and RF/W unchanged. Candidate SHA/fingerprint unchanged; actual exit1 retained separately from original failed all-profile run."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resource-observation-analysis.json",
+              "sha256": "b952a12b521b97e21245e778597b7c4df7ba6d20c7e662a4a3a5bf82914a4f1e",
+              "verified_assertions": [
+                "Coordinator independently streamed108592rows across four exports; exact generation/sequence/count/extent/hash pass. All8BEAM/observer PID/start identities stopped. Local maximum probe26.608193ms/gap51.469496ms; cluster9.634109ms/34.671865ms, with original100ms criterion retained. Export/coverage success for executed cases does not certify missing cases."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/results.json",
+              "sha256": "2986d2ce342c53e1fc67e5adda5faaa306e00fcab05694d524938334b609e926",
+              "verified_assertions": [
+                "Supplemental local/gateway52/56groups execute,51failure-free. gateway-copy-to-local1GiB/c4 fails all4operations with ClientError and post_idle_temporary_not_zero. Four later1GiB/c4groups absent: gateway-hit-slow-get, gateway-slow-put, gateway-paced-upstream-put, gateway-paced-upstream-cold-get. Four stopped hosted-protected stages total4294967296bytes. Subsequent WAL/byte forensics narrow the failure to standalone CAS commit; exact reason remains unknown, with no proven permanent leakage."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/results.json",
+              "sha256": "0b7c8a9683c853663cbabbe3b84d4dbfbf11bea697f29a2d25164ff73c18c94b",
+              "verified_assertions": [
+                "Supplemental complete cluster20/20groups pass at64MiB/1GiB and concurrency1/4, including independent hashes/content and strictRF2/W2. All required names/size/concurrency identities present exactly; no failed, missing or unexpected cases. Original cluster verification timeout remains an immutable earlier failure."
+              ]
+            }
+          ],
+          "status": "incomplete",
+          "remaining": [
+            "Supplemental executed numeric windows satisfy predeclared envelopes; four missing local/gateway groups prevent complete fixed-concurrency/size comparison. Failed copy also violates post-idle temporary-zero contract."
+          ]
+        },
+        {
+          "id": "A30.6",
+          "requirement": "Controlled isolated runner provenance distinguishes observer/OS page cache overhead.",
+          "source_refs": [
+            "e2e/resource_cases.py",
+            "e2e/scripts/resource_observer.py"
+          ],
+          "required_receipt_assertions": [
+            "CPU affinity/cgroup limits/load/memory/pressure/disk/toolchain/dependency versions",
+            "scheduled time/probe start/probe duration/export windows",
+            "no overlapping task-owned heavy workload"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resources/results.json",
+              "sha256": "0b836b999510ae84a8a4da33d352745d25236f0259d7aa7480cd8df85690b49c",
+              "verified_assertions": [
+                "Fresh C5local/gateway47/56groups execute,46failurefree. local-upload-part-copy1GiB/c4 completes4operations but fails actual observation coverage: temporary probe124508267ns and all6metric gaps150538973-151460126ns.9required groups remain unexecuted; no operation or numeric-envelope failure recorded for executed local groups."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/results.json",
+              "sha256": "8790a288ceb0157635924a66d811d4b5964deed982ade7a53af0e13948472d9e",
+              "verified_assertions": [
+                "Fresh C5cluster16/20groups execute,15failurefree. strict-quorum-replica-put1GiB/c4operationindex0 raisesRuntimeError;3otheroperations verify2ready replicas and hashes. All3nodes cadence/numeric windows pass for failedgroup;4required groups unexecuted. Root cause under coordinator diagnosis; no private controllerlog published."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/resource-observation-analysis.json",
+              "sha256": "549bb194271081f6742f5b559655fe6c61352189ddb4607ed19dc6aea8ce0c10",
+              "verified_assertions": [
+                "Coordinator independently streamed all four raw exports: local 25769, data-a 19943, data-b 19894 and meta 19994 rows. Exact sequences/generations/counts/byte extents/digests pass; observers stopped. This worker reviewed small analysis receipt, avoiding duplicate raw reads. Export integrity does not certify failed cadence or missing cases."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/authoritative-exit.json",
+              "sha256": "1e1ee66456686eef23535dc8a474904e6c7b61fa9c8af3ff9857173da64e41d7",
+              "verified_assertions": [
+                "Unchanged complete resource lane rerun in private mount namespace with /tmp on second NVMe device 66305 instead of original 66308; preflight free409567641600bytes. CPU/memory limits, sizes/concurrency,100ms coverage/envelopes, authentication/checksums and RF/W unchanged. Candidate SHA/fingerprint unchanged; actual exit1 retained separately from original failed all-profile run."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resource-observation-analysis.json",
+              "sha256": "b952a12b521b97e21245e778597b7c4df7ba6d20c7e662a4a3a5bf82914a4f1e",
+              "verified_assertions": [
+                "Coordinator independently streamed108592rows across four exports; exact generation/sequence/count/extent/hash pass. All8BEAM/observer PID/start identities stopped. Local maximum probe26.608193ms/gap51.469496ms; cluster9.634109ms/34.671865ms, with original100ms criterion retained. Export/coverage success for executed cases does not certify missing cases."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/results.json",
+              "sha256": "2986d2ce342c53e1fc67e5adda5faaa306e00fcab05694d524938334b609e926",
+              "verified_assertions": [
+                "Supplemental local/gateway52/56groups execute,51failure-free. gateway-copy-to-local1GiB/c4 fails all4operations with ClientError and post_idle_temporary_not_zero. Four later1GiB/c4groups absent: gateway-hit-slow-get, gateway-slow-put, gateway-paced-upstream-put, gateway-paced-upstream-cold-get. Four stopped hosted-protected stages total4294967296bytes. Subsequent WAL/byte forensics narrow the failure to standalone CAS commit; exact reason remains unknown, with no proven permanent leakage."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/results.json",
+              "sha256": "0b7c8a9683c853663cbabbe3b84d4dbfbf11bea697f29a2d25164ff73c18c94b",
+              "verified_assertions": [
+                "Supplemental complete cluster20/20groups pass at64MiB/1GiB and concurrency1/4, including independent hashes/content and strictRF2/W2. All required names/size/concurrency identities present exactly; no failed, missing or unexpected cases. Original cluster verification timeout remains an immutable earlier failure."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/copy-retained-wal.json",
+              "sha256": "330d168770c391c5baf637a04dadda48dd50d111f0b105b8a3963f4db318cc60",
+              "verified_assertions": [
+                "Read-only CRC-verified retained WAL:1420frames/473unique results; target window has four successful pending-intent transactions, one failed comparison followed by successful retry, then four successful aborted transitions. No object metadata publication appears in the target window. Intended writes count only for succeeded transactions.",
+                "No persisted deterministic errors were found; this does not exclude pre-submit/query/client-wait/filesystem failures. Together with retained original protected stages and C5 source control flow, successful intent opens narrow the original failure to standalone CAS commit, not late staging protection or intent-open failure. Exact return reason remains unknown."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/copy-retained-bytes.json",
+              "sha256": "e4251e4366a8858e9d4bfdf3467a2ae9fd1617a41aab51a100dbced77c18e3b4",
+              "verified_assertions": [
+                "Independent bounded1MiB SHA256 inspection verifies existing1GiB CAS and all four retained1GiB hosted-protected stages:5368709120bytes match named hash. Excludes present-day corruption only; does not independently prove original commit/intent execution or cause.",
+                "Normal LocalCAS commit consumes the original stage before returning success. Retained original protected paths therefore cannot be explained solely by a later object-metadata failure after a normally completed CAS commit. Protected discard retention is deliberate pending recovery; permanent leakage is not established."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r3/diagnostic.json",
+              "sha256": "7c096dee6d38b93f156ac936b8a1375edf7144b0d88a59550b06bf9000743dc1",
+              "verified_assertions": [
+                "Unchanged C5 SHA/fingerprint; bounded intrusive return-tracing diagnostic actually exits0, terminal staging empty. Original52-group resource prefix only; four remaining required groups deliberately omitted. acceptance=false; cannot replace failed untraced acceptance or certify A30."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r3/analysis.json",
+              "sha256": "f42d7cbf48526a697ce10a14d619ac93b187c50b12ab4623ea8d627046a1df05",
+              "verified_assertions": [
+                "Diagnostic52/52groups pass;490sanitized return events, four target requests complete, zero storage-error events, trace limit not reached. Both observer/BEAM PID/start identities stopped; terminal staging empty. Maximum probe25.011252ms/gap50.798143ms apply only to this intrusive diagnostic.",
+                "Original all-four CopyObject failure was not reproduced with original preceding history. Passing replay identifies neither the original exact error nor a verified service repair; original failed receipts and four unexecuted acceptance groups remain unpassed."
+              ]
+            }
+          ],
+          "status": "incomplete",
+          "remaining": [
+            "Alternate-runner executed windows meet original100ms contract; original cadence cause remains unestablished. WAL/byte forensics narrow the supplemental copy failure to standalone CAS commit, but exact original reason and a verified repair remain unknown. Intrusive R3 replay passes52groups without reproducing it and cannot certify acceptance. Complete successful untraced local/gateway matrix remains absent."
+          ]
+        },
+        {
+          "id": "A30.7",
+          "requirement": "Independent upstream readback and terminal staging/process/connection cleanup.",
+          "source_refs": [
+            "e2e/s3_hardening_resources.py",
+            "e2e/s3_hardening_cluster_resources.py",
+            "e2e/run_hardening_resources.sh",
+            "e2e/run_hardening_cluster_resources.sh"
+          ],
+          "required_receipt_assertions": [
+            "streaming RustFS direct upstream upload readbacks outside measured window",
+            "post-idle temporary zero",
+            "before/after/final stage inventory",
+            "exact observer PID/start identity stopped before cleanup"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resources/results.json",
+              "sha256": "0b836b999510ae84a8a4da33d352745d25236f0259d7aa7480cd8df85690b49c",
+              "verified_assertions": [
+                "Fresh C5local/gateway47/56groups execute,46failurefree. local-upload-part-copy1GiB/c4 completes4operations but fails actual observation coverage: temporary probe124508267ns and all6metric gaps150538973-151460126ns.9required groups remain unexecuted; no operation or numeric-envelope failure recorded for executed local groups."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/results.json",
+              "sha256": "8790a288ceb0157635924a66d811d4b5964deed982ade7a53af0e13948472d9e",
+              "verified_assertions": [
+                "Fresh C5cluster16/20groups execute,15failurefree. strict-quorum-replica-put1GiB/c4operationindex0 raisesRuntimeError;3otheroperations verify2ready replicas and hashes. All3nodes cadence/numeric windows pass for failedgroup;4required groups unexecuted. Root cause under coordinator diagnosis; no private controllerlog published."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/resource-observation-analysis.json",
+              "sha256": "549bb194271081f6742f5b559655fe6c61352189ddb4607ed19dc6aea8ce0c10",
+              "verified_assertions": [
+                "Coordinator independently streamed all four raw exports: local 25769, data-a 19943, data-b 19894 and meta 19994 rows. Exact sequences/generations/counts/byte extents/digests pass; observers stopped. This worker reviewed small analysis receipt, avoiding duplicate raw reads. Export integrity does not certify failed cadence or missing cases."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/authoritative-exit.json",
+              "sha256": "1e1ee66456686eef23535dc8a474904e6c7b61fa9c8af3ff9857173da64e41d7",
+              "verified_assertions": [
+                "Unchanged complete resource lane rerun in private mount namespace with /tmp on second NVMe device 66305 instead of original 66308; preflight free409567641600bytes. CPU/memory limits, sizes/concurrency,100ms coverage/envelopes, authentication/checksums and RF/W unchanged. Candidate SHA/fingerprint unchanged; actual exit1 retained separately from original failed all-profile run."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resource-observation-analysis.json",
+              "sha256": "b952a12b521b97e21245e778597b7c4df7ba6d20c7e662a4a3a5bf82914a4f1e",
+              "verified_assertions": [
+                "Coordinator independently streamed108592rows across four exports; exact generation/sequence/count/extent/hash pass. All8BEAM/observer PID/start identities stopped. Local maximum probe26.608193ms/gap51.469496ms; cluster9.634109ms/34.671865ms, with original100ms criterion retained. Export/coverage success for executed cases does not certify missing cases."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/results.json",
+              "sha256": "2986d2ce342c53e1fc67e5adda5faaa306e00fcab05694d524938334b609e926",
+              "verified_assertions": [
+                "Supplemental local/gateway52/56groups execute,51failure-free. gateway-copy-to-local1GiB/c4 fails all4operations with ClientError and post_idle_temporary_not_zero. Four later1GiB/c4groups absent: gateway-hit-slow-get, gateway-slow-put, gateway-paced-upstream-put, gateway-paced-upstream-cold-get. Four stopped hosted-protected stages total4294967296bytes. Subsequent WAL/byte forensics narrow the failure to standalone CAS commit; exact reason remains unknown, with no proven permanent leakage."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/results.json",
+              "sha256": "0b7c8a9683c853663cbabbe3b84d4dbfbf11bea697f29a2d25164ff73c18c94b",
+              "verified_assertions": [
+                "Supplemental complete cluster20/20groups pass at64MiB/1GiB and concurrency1/4, including independent hashes/content and strictRF2/W2. All required names/size/concurrency identities present exactly; no failed, missing or unexpected cases. Original cluster verification timeout remains an immutable earlier failure."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/copy-retained-wal.json",
+              "sha256": "330d168770c391c5baf637a04dadda48dd50d111f0b105b8a3963f4db318cc60",
+              "verified_assertions": [
+                "Read-only CRC-verified retained WAL:1420frames/473unique results; target window has four successful pending-intent transactions, one failed comparison followed by successful retry, then four successful aborted transitions. No object metadata publication appears in the target window. Intended writes count only for succeeded transactions.",
+                "No persisted deterministic errors were found; this does not exclude pre-submit/query/client-wait/filesystem failures. Together with retained original protected stages and C5 source control flow, successful intent opens narrow the original failure to standalone CAS commit, not late staging protection or intent-open failure. Exact return reason remains unknown."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/copy-retained-bytes.json",
+              "sha256": "e4251e4366a8858e9d4bfdf3467a2ae9fd1617a41aab51a100dbced77c18e3b4",
+              "verified_assertions": [
+                "Independent bounded1MiB SHA256 inspection verifies existing1GiB CAS and all four retained1GiB hosted-protected stages:5368709120bytes match named hash. Excludes present-day corruption only; does not independently prove original commit/intent execution or cause.",
+                "Normal LocalCAS commit consumes the original stage before returning success. Retained original protected paths therefore cannot be explained solely by a later object-metadata failure after a normally completed CAS commit. Protected discard retention is deliberate pending recovery; permanent leakage is not established."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r3/analysis.json",
+              "sha256": "f42d7cbf48526a697ce10a14d619ac93b187c50b12ab4623ea8d627046a1df05",
+              "verified_assertions": [
+                "Diagnostic52/52groups pass;490sanitized return events, four target requests complete, zero storage-error events, trace limit not reached. Both observer/BEAM PID/start identities stopped; terminal staging empty. Maximum probe25.011252ms/gap50.798143ms apply only to this intrusive diagnostic.",
+                "Original all-four CopyObject failure was not reproduced with original preceding history. Passing replay identifies neither the original exact error nor a verified service repair; original failed receipts and four unexecuted acceptance groups remain unpassed."
+              ]
+            }
+          ],
+          "status": "incomplete",
+          "remaining": [
+            "All supplemental observer/BEAM identities stopped. Original four complete protected hosted stages totaling4GiB remain in isolated stopped fixture; successful pending intents and aborted transitions establish the CAS commit boundary but not the exact error or permanent leakage. R3 cleanup passes only its diagnostic52-group prefix; four required local/gateway readback/cleanup cases remain unexecuted in acceptance."
+          ]
+        },
+        {
+          "id": "A30.8",
+          "requirement": "Retain actual 2GiB tagged private-transport stream check separately from the 1GiB matrices.",
+          "source_refs": [
+            "apps/ex_storage_service_cluster/test/ex_storage_service_cluster/large_stream_test.exs",
+            "apps/ex_storage_service_cluster/test/test_helper.exs",
+            "e2e/hardening_acceptance.py"
+          ],
+          "required_receipt_assertions": [
+            "explicit --include large_stream command selected",
+            "actual2GiB authenticated HTTP upload/hash",
+            "sender/receiver process memory peaks below fixed bound"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/resources.json",
+              "sha256": "49663fbb86a40b10b2bad9cf6ca26f1b3cb9332b3891110df158361e724f1b49",
+              "verified_assertions": [
+                "Independent tagged2GiBtransport command exits0 despite failedlocal/cluster matrices."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/resources-3.log",
+              "sha256": "dc8b07b4416c0d119fbafed75d21b657874a55880fe3a349197fe9a53d881510",
+              "verified_assertions": [
+                "Actual1large_stream test passes. Sender processpeak8968bytes;receiverpeak21736bytes for2GiBstream. Separate2GiBcontract does not replace1GiBresourcecases."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resources-3.log",
+              "sha256": "558c9170024f99efff9c8252bbdba6cbab12f322eb291f678800a4b26d2ce806",
+              "verified_assertions": [
+                "Supplemental independent tagged2GiBtransport check again executes one test with zero failures."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        }
+      ],
+      "notes": [
+        "Manifest currently defines56 local/gateway and20 cluster groups; the manifest identities, not these historical totals, are authoritative.",
+        "At initial inspection the authoritative lanes excluded the tagged2GiB case; parent was notified before freeze. Recheck current commands before executing.",
+        "Sampler diagnosis/short protocol regressions are not full resource acceptance.",
+        "Retained WAL/bytes forensics and intrusive R3 replay are diagnosis only. The replay passes52groups but omits four required groups and does not reproduce or repair the original CAS commit error; no clause is promoted."
+      ]
+    },
+    {
+      "id": "A31",
+      "status": "verified",
+      "lanes": [
+        "correctness",
+        "faults",
+        "crashes",
+        "gateway",
+        "resources"
+      ],
+      "clauses": [
+        {
+          "id": "A31.1",
+          "requirement": "Disconnect/cancellation/upstream interruption/isolated ENOSPC fail truthfully without visible partial object/cache.",
+          "source_refs": [
+            "e2e/s3_hardening_faults.py",
+            "e2e/scripts/fault_hardening_control.exs",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/gateway_read_http_test.exs",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/late_stream_http_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "signed partial upload actually reaches staging",
+            "real response cancelled after65536 bytes",
+            "proxy interruption event observed",
+            "framed503 XML with no stale checksum/encoding headers",
+            "actual8MiB tmpfs ENOSPC; no host fill",
+            "retained original hash and absent partial cache/object"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/faults.json",
+              "sha256": "85f808507652df55a29085ae99f71cfa2f0bbdd3094feb5b503d38b6b556c36b",
+              "verified_assertions": [
+                "Fresh C5 faults lane allcommands exit0."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-faults/results.json",
+              "sha256": "5ca887016a6bc8623dd168a673f081b992ca1d27d8dd2808e68554eff779a5b1",
+              "verified_assertions": [
+                "All8checks pass: signed local/gateway upload disconnects, response cancellation, upstream interruption, restart, isolatedENOSPC and queue coverage. Interruption returns framed234byte503 XML with no object checksum headers; defaultSDK parses error. Actual private8MiB tmpfs reachesENOSPC after7complete chunks while prior bytes/cache visibility hold."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A31.2",
+          "requirement": "Restart preserves acknowledged local/gateway bytes and protected uncertainty.",
+          "source_refs": [
+            "e2e/s3_hardening_faults.py",
+            "e2e/s3_hardening_crashes.py",
+            "apps/ex_storage_service/test/ex_storage_service/storage/staging_recovery_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "whole-BEAM stop/new PID",
+            "exact pre-acknowledged bytes/version",
+            "anonymous dead-owner stages reclaimed",
+            "unknown/protected stages retained"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-crashes/results.json",
+              "sha256": "a516262579f26c346344e316b6e759b7eec45c18f66c0dc9df5b65bdf9650b22",
+              "verified_assertions": [
+                "All11actual crash boundaries exit137/restart distinct processes, preserve acknowledged versions/bytes, reclaim anonymous stages and retain protected uncertainty."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-faults/results.json",
+              "sha256": "5ca887016a6bc8623dd168a673f081b992ca1d27d8dd2808e68554eff779a5b1",
+              "verified_assertions": [
+                "Actual local/gateway restart after connection faults retains acknowledged bytes."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/gateway-artifacts/gateway-results.json",
+              "sha256": "429524f4e92714a1ae75992f886c67bd6b376bae070e87bc9d64cd94435fd873",
+              "verified_assertions": [
+                "All17gateway checks pass including durable journal and local-commit-failure recovery after fullBEAM restart."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A31.3",
+          "requirement": "No runaway owned tasks, unbounded queues, or permanent staging leaks.",
+          "source_refs": [
+            "e2e/s3_hardening_faults.py",
+            "e2e/resource_cadence.py",
+            "e2e/scripts/resource_observer.py",
+            "apps/ex_storage_service/test/ex_storage_service/storage/staging_recovery_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "terminal staging0 within original20s bound",
+            "queue_max<=128 queue_total<=2048",
+            "same-boot process delta<=32 where supplied",
+            "all online generation windows audited without padding",
+            "owned PID/start identities/process groups/listeners/containers stopped"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-faults/results.json",
+              "sha256": "5ca887016a6bc8623dd168a673f081b992ca1d27d8dd2808e68554eff779a5b1",
+              "verified_assertions": [
+                "Terminal8snapshots have staging_files/staging_bytes/queues0; process counts574-577 within declared delta32. All3online boot-generation windows pass100ms coverage, continuous queue maxima1/1. Bounded fault evidence does not certify missingA30cases."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/terminal-cleanup.json",
+              "sha256": "5cd80e7bb91733cfe6e7a948d6e1b53db78933c614461e0601a11ee7f633a51f",
+              "verified_assertions": [
+                "Actual original all-profile run completed. All eight captured resource observer/BEAM PID plus start identities absent; no owned Erlang names or containers remain. Per-lane process/port/group shutdown checks retained; unrelated processes untouched. Later bounded diagnostics and alternate-runner resource attempt have separate cleanup obligations."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": [],
+          "scope_note": "Verified fault-profile cleanup and original all-profile terminal process shutdown. Supplemental4GiB hosted-protected retention is separately unresolved under A30.7; no claim that protected uncertainty is a permanent leak or fully reconciled."
+        },
+        {
+          "id": "A31.4",
+          "requirement": "Cold ranges and cache eviction preserve selected body/metadata.",
+          "source_refs": [
+            "e2e/gateway_hardening.py",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/gateway_read_http_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/cloud_cache/local_store_concurrency_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "cold206/304/412/416 and current attributes",
+            "already-open reader survives cache unlink",
+            "full streamed checksum matches selected version"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/gateway-artifacts/gateway-results.json",
+              "sha256": "429524f4e92714a1ae75992f886c67bd6b376bae070e87bc9d64cd94435fd873",
+              "verified_assertions": [
+                "Fresh all17gateway checks pass including independentRustFS external replacement/deletion/freshness/cold-range/rawattributes."
+              ]
+            },
+            {
+              "source": "apps/ex_storage_service_s3/test/ex_storage_service_s3/gateway_read_http_test.exs:98-345",
+              "assertion": "Cold206 bytes, content-range,ETag,custom metadata; conditional304/412/416 and opened HTTP response after actual cache clear verified by streaming SHA256.",
+              "verified_assertions": []
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/cloud_cache/local_store_concurrency_test.exs:133-153",
+              "assertion": "Cache lock contention bounded and actual unlink/eviction preserves already-open reader bytes.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A31.5",
+          "requirement": "Pre-protection failure cannot create intent/journal/upstream publication.",
+          "source_refs": [
+            "apps/ex_storage_service/lib/ex_storage_service/storage/staging_recovery.ex",
+            "apps/ex_storage_service/test/ex_storage_service/storage/staging_recovery_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/cloud_cache/write_through_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/object_service_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "source open/sync/close errors propagated",
+            "no reservation or submission after data-sync failure",
+            "bounded cleanup; final reader state retained"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/storage/staging_recovery_test.exs:274-353",
+              "assertion": "Managed completed bytes open/sync/close before reservation/rename; injected data-open/sync/close failures retain anonymous bytes with no reservation/submit-ready stage.",
+              "verified_assertions": []
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/cloud_cache/write_through_test.exs:409-437",
+              "assertion": "Injected pre-protection data-sync failure creates no journal/upstream call/local metadata.",
+              "verified_assertions": []
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/object_service_test.exs:675-708",
+              "assertion": "Injected pre-protection data-sync failure creates no hosted intent or CAS object.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": [],
+          "scope_note": "Fresh C5 complete untagged domain tests prove this clause; no earlier candidate execution credit transferred."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "id": "A32",
+      "status": "verified",
+      "lanes": [
+        "correctness",
+        "faults",
+        "crashes",
+        "cluster"
+      ],
+      "clauses": [
+        {
+          "id": "A32.1",
+          "requirement": "Exercise every stage/protection/sync/rename/blob/metadata/response crash boundary.",
+          "source_refs": [
+            "e2e/s3_hardening_crashes.py",
+            "e2e/scripts/crash_hardening_control.exs"
+          ],
+          "required_receipt_assertions": [
+            "exact11 unique named boundaries",
+            "actual boundary witnesses",
+            "exit137/new PID",
+            "acknowledged version/body survives each restart"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-crashes/results.json",
+              "sha256": "a516262579f26c346344e316b6e759b7eec45c18f66c0dc9df5b65bdf9650b22",
+              "verified_assertions": [
+                "All11actual stage/protection/sync/rename/blob/metadata/response boundaries complete: each process exits137 and distinct restarted process preserves acknowledged content."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A32.2",
+          "requirement": "Pre-protection and post-intent sync semantics remain distinct.",
+          "source_refs": [
+            "e2e/s3_hardening_crashes.py",
+            "apps/ex_storage_service/lib/ex_storage_service/storage/staging_recovery.ex"
+          ],
+          "required_receipt_assertions": [
+            "protection_data_sync before reservation/intent/journal",
+            "anonymous stage reclaimed and object/intent absent",
+            "existing publication sync remains post-intent",
+            "uncertain protected bytes never silently deleted"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-crashes/results.json",
+              "sha256": "a516262579f26c346344e316b6e759b7eec45c18f66c0dc9df5b65bdf9650b22",
+              "verified_assertions": [
+                "Pre-protection crashes leave no intent; protected rename/directory stages retain uncertainty; sync/rename/blob/metadata boundaries preserve pending intents and hide uncommitted objects."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A32.3",
+          "requirement": "Response crash preserves exactly one committed version; nonresponse uncertainty remains unexposed.",
+          "source_refs": [
+            "e2e/s3_hardening_crashes.py"
+          ],
+          "required_receipt_assertions": [
+            "response intent committed and hash/version exact",
+            "other boundaries absent visible object",
+            "intent absent or pending per boundary"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-crashes/results.json",
+              "sha256": "a516262579f26c346344e316b6e759b7eec45c18f66c0dc9df5b65bdf9650b22",
+              "verified_assertions": [
+                "Response boundary retains committed object version1792528383839925-sBMpvm8wRCI and expected hash; all earlier nonresponse boundaries leave object unexposed with truthful absent/pending intent."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A32.4",
+          "requirement": "Remote durable acknowledgement crash/rejoin/resume preserves strict quorum and exactly-once metadata.",
+          "source_refs": [
+            "e2e/s3_hardening_replication_crash.py",
+            "e2e/run_hardening_replication_crash.sh",
+            "e2e/scripts/replication_crash_control.exs"
+          ],
+          "required_receipt_assertions": [
+            "all3 actual groups",
+            "data-b remote_durable_ack witness for data-a hash/size/generation",
+            "peer blob verified pending intent with no visible object/locations",
+            "bootstrap=false/new PID/three-voter rejoin",
+            "same operationID resumes once",
+            "two ready generation1 locations RF2/W2"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-crashes-replication/results.json",
+              "sha256": "5096a398235f439830f77e8e7a2b1771118add36b34b515621a9d52d20bb945d",
+              "verified_assertions": [
+                "All3remote durable-ack crash/rejoin/resume checks pass. Crash leaves pending intent and no visible object despite verified237568byte blob. Retained-root voter rejoins3normal/applied voters; same operation resumes once withRF2/W2 and2ready generation1replicas."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A32.5",
+          "requirement": "Current fault/contracts/crash receipts and owned cleanup all complete.",
+          "source_refs": [
+            "e2e/hardening_acceptance.py",
+            "e2e/s3_hardening_faults.py",
+            "e2e/s3_hardening_crashes.py"
+          ],
+          "required_receipt_assertions": [
+            "matching source fingerprint",
+            "zero command exits and no missing/failed groups",
+            "content and metadata readback, not liveness alone",
+            "all owned processes stopped"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/faults.json",
+              "sha256": "85f808507652df55a29085ae99f71cfa2f0bbdd3094feb5b503d38b6b556c36b",
+              "verified_assertions": [
+                "Fresh faultlane passed."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/crashes.json",
+              "sha256": "f3570958a5b940f26a25273181048a912bd64bdf0ee2e5db1e6e9a754be046a6",
+              "verified_assertions": [
+                "Fresh local/remote crashlane passed."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/terminal-cleanup.json",
+              "sha256": "5cd80e7bb91733cfe6e7a948d6e1b53db78933c614461e0601a11ee7f633a51f",
+              "verified_assertions": [
+                "Actual original all-profile run completed. All eight captured resource observer/BEAM PID plus start identities absent; no owned Erlang names or containers remain. Per-lane process/port/group shutdown checks retained; unrelated processes untouched. Later bounded diagnostics and alternate-runner resource attempt have separate cleanup obligations."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": [],
+          "scope_note": "Verified original fault/crash contracts and captured process cleanup; supplemental resource operation/protection outcome diagnosis is separate and remains unresolved under A30."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "id": "A33",
+      "status": "verified",
+      "lanes": [
+        "correctness",
+        "cluster",
+        "resilience"
+      ],
+      "clauses": [
+        {
+          "id": "A33.1",
+          "requirement": "Stop observed real primary; prove new election and retained-root restart/rejoin.",
+          "source_refs": [
+            "e2e/run_hardening_phase1_cluster.sh",
+            "e2e/run_hardening_resilience.sh",
+            "e2e/s3_hardening_resilience.py",
+            "e2e/scripts/cluster_primary_lifecycle.exs"
+          ],
+          "required_receipt_assertions": [
+            "record observed primary/view before stopping",
+            "different primary/new view",
+            "all three normal voters converge applied=commit",
+            "restart bootstrap=false"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-cluster-primary-loss.json",
+              "sha256": "70e22a7f8769a0312806eca6851e880469bcf562e7e01f4b63ef914d8f79075f",
+              "verified_assertions": [
+                "Observed data-b primary at view 2 stopped; meta elected at view 3. Retained-root bootstrap=false data-b rejoins all three normal voters at applied=commit=1160 with RF2/W2 and degraded=false."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/cluster.json",
+              "sha256": "5d8b3cc2194ab1619e818a0ecf9c15e925019e506bd6028c9d1f64a6ff7dc5e4",
+              "verified_assertions": [
+                "Exact C5 cluster command completed successfully."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A33.2",
+          "requirement": "Data outage retains reads and rejects strict writes without lowering RF/W.",
+          "source_refs": [
+            "e2e/s3_hardening_resilience.py",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/write_coordinator_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "new PUT/overwrite/part replacement/complete fail",
+            "acknowledged reads and part identity retained",
+            "RF2/W2/degradedfalse unchanged",
+            "metadata-primary outage may write only while both data replicas remain"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-result.json",
+              "sha256": "b5ff04773d01031bda26ccc37406f5063e19b393434f15634d810c96576e3844",
+              "verified_assertions": [
+                "Actual data-node outage retains acknowledged GETs and rejects new PUT, overwrite, part replacement and MPU completion; original part retained and failed mutations invisible. Metadata-primary loss elects data-a, allowing strict writes only with both data replicas available."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A33.3",
+          "requirement": "Recovery verifies ready same-generation physical replicas and resumes writes.",
+          "source_refs": [
+            "e2e/s3_hardening_resilience.py",
+            "e2e/scripts/resilience_hardening_control.exs"
+          ],
+          "required_receipt_assertions": [
+            "each fixture hash/size checked in both actual CAS roots",
+            "two ready generation1 locations",
+            "full reads and MPU completion succeed"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-result.json",
+              "sha256": "b5ff04773d01031bda26ccc37406f5063e19b393434f15634d810c96576e3844",
+              "verified_assertions": [
+                "Both physical CAS roots verify all six fixture hashes/lengths, each with two ready generation-1 locations. Retained-root data-b rejoins bootstrap=false; voters reach commit 63 and reads/MPU completion resume."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A33.4",
+          "requirement": "Retained-root bootstrap=true is rejected without mutating durable state.",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/cluster/three_voter_cluster_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "explicit --include cluster",
+            "negative recovery/bootstrap test executed",
+            "durable root bytes unchanged",
+            "bootstrap=false recovery retains committed state"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/cluster-1.log",
+              "sha256": "af3a3aaa22100c27f1f7e291130c19bbec503e2c7338b5e0cf2b813ddbff8085",
+              "verified_assertions": [
+                "Dedicated three-voter tagged test executes one test with zero failures."
+              ]
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/cluster/three_voter_cluster_test.exs:156-180",
+              "assertion": "Isolated retained-root bootstrap=true fails readiness and writes; durable storage remains byte-identical before subsequent bootstrap=false recovery.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A33.5",
+          "requirement": "Stale generations never satisfy durability.",
+          "source_refs": [
+            "e2e/s3_hardening_resilience.py",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/write_coordinator_test.exs",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/replica_availability_http_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "registeredgeneration2/livegeneration1 strict write fails503",
+            "existing acknowledged version unchanged",
+            "stale replica acknowledgement rejected"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-result.json",
+              "sha256": "b5ff04773d01031bda26ccc37406f5063e19b393434f15634d810c96576e3844",
+              "verified_assertions": [
+                "Registered generation 2 versus actual process generation 1 mismatch rejects strict writes while preserving acknowledged bytes; restoring supported generation state resumes strict writes."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        }
+      ],
+      "notes": []
+    },
+    {
+      "id": "A34",
+      "status": "verified",
+      "lanes": [
+        "correctness",
+        "resilience",
+        "cluster"
+      ],
+      "clauses": [
+        {
+          "id": "A34.1",
+          "requirement": "GC retains shared-key/history/MPU/live-reader/unknown-intent blobs.",
+          "source_refs": [
+            "e2e/s3_hardening_resilience.py",
+            "e2e/scripts/resilience_hardening_control.exs",
+            "apps/ex_storage_service/test/ex_storage_service/storage/cas_gc_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/metadata/operation_intents_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "actual sweeps per data root",
+            "exact rooted hashes and full versions remain",
+            "unknown intent never reclaimed"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-result.json",
+              "sha256": "b5ff04773d01031bda26ccc37406f5063e19b393434f15634d810c96576e3844",
+              "verified_assertions": [
+                "Three actual GC sweeps on both local and peer roots preserve shared keys, versions, active MPU parts, open-reader bytes and unknown-intent blob; all fixture checksums verified."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A34.2",
+          "requirement": "Deterministic packing/GC/open-reader interleavings preserve content.",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/storage/pack_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/storage/packer_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/storage/cas_gc_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "open loose reader survives pack/physical cleanup",
+            "active MPU and GC candidates retained",
+            "truncated pack keeps safe loose fallback"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-result.json",
+              "sha256": "b5ff04773d01031bda26ccc37406f5063e19b393434f15634d810c96576e3844",
+              "verified_assertions": [
+                "Actual cluster GC while a reader is open preserves its full checksum."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/storage/pack_test.exs:92-158",
+              "assertion": "A deterministic open loose reader survives packing and physical loose-file cleanup; truncated packs retain the loose fallback.",
+              "verified_assertions": []
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/storage/cas_gc_test.exs:82-208",
+              "assertion": "Active v1/v2 MPU, outbox, live GC candidate and packed fallback roots survive pack/GC interleavings.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": [],
+          "scope_note": "Fresh C5 complete untagged domain tests prove this clause; no earlier candidate execution credit transferred."
+        },
+        {
+          "id": "A34.3",
+          "requirement": "Actual corruption/repair interleaving preserves versions and RF.",
+          "source_refs": [
+            "e2e/s3_hardening_resilience.py",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/repair/handler_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/scrubber_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "real bitflip checksum detected",
+            "bounded shard repair restores verified bytes/two ready replicas",
+            "complete version inventory unchanged"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-result.json",
+              "sha256": "b5ff04773d01031bda26ccc37406f5063e19b393434f15634d810c96576e3844",
+              "verified_assertions": [
+                "Actual bitflip is detected; durable scrub plus bounded one-blob shard repair restores two verified ready replicas, with complete object version inventory unchanged."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A34.4",
+          "requirement": "Unsupported cluster packer/lifecycle modes remain guarded.",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/storage/pack_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/storage/packer_test.exs",
+            "apps/ex_storage_service/lib/ex_storage_service/instance_config.ex"
+          ],
+          "required_receipt_assertions": [
+            "direct Pack/Packer cluster rejection",
+            "runtime cluster legacy packer/lifecycle guard",
+            "loose bytes/location metadata retained"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-result.json",
+              "sha256": "b5ff04773d01031bda26ccc37406f5063e19b393434f15634d810c96576e3844",
+              "verified_assertions": [
+                "Actual cluster packer remains disabled; loose bytes and locations remain intact."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/storage/packer_test.exs:132",
+              "assertion": "Cluster packing leaves local blobs unpacked.",
+              "verified_assertions": []
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/instance_config_test.exs:208-221",
+              "assertion": "Cluster defaults disable legacy packer and lifecycle workers; explicit unsupported workers are rejected.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": [],
+          "scope_note": "Fresh C5 complete untagged domain tests prove this clause; no earlier candidate execution credit transferred."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "id": "A35",
+      "status": "verified",
+      "lanes": [
+        "correctness",
+        "resilience",
+        "restore",
+        "cluster"
+      ],
+      "clauses": [
+        {
+          "id": "A35.1",
+          "requirement": "Duplicate materialization, retry, lease expiry and takeover retain durable identity/fence.",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/metadata/durable_jobs_test.exs",
+            "e2e/scripts/resilience_hardening_control.exs"
+          ],
+          "required_receipt_assertions": [
+            "single durable job ID",
+            "barrier claim race one live lease",
+            "attempt/fence increment on takeover",
+            "ambiguous transaction resolution and retry backoff"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-result.json",
+              "sha256": "b5ff04773d01031bda26ccc37406f5063e19b393434f15634d810c96576e3844",
+              "verified_assertions": [
+                "Duplicate materialization retains the same durable job ID; actual expired-lease takeover advances attempts and fencing token to 2."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/metadata/durable_jobs_test.exs:229-424",
+              "assertion": "A deterministic barrier claim race allows one live lease; tests cover timeout identity resolution, ambiguous renewal/completion, and persisted retry backoff/exhaustion.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": [],
+          "scope_note": "Fresh C5 complete untagged domain tests prove this clause; no earlier candidate execution credit transferred."
+        },
+        {
+          "id": "A35.2",
+          "requirement": "Stale workers cannot renew/complete/fail/cleanup or change location metadata.",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/metadata/durable_jobs_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/repair/handler_test.exs",
+            "e2e/scripts/resilience_hardening_control.exs",
+            "e2e/scripts/restore_hardening_control.exs"
+          ],
+          "required_receipt_assertions": [
+            "old owner/generation/fencing token rejected",
+            "no stale successful state transition"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-result.json",
+              "sha256": "b5ff04773d01031bda26ccc37406f5063e19b393434f15634d810c96576e3844",
+              "verified_assertions": [
+                "Actual expired-lease takeover rejects stale-token renewal, completion and location mutation; restored-generation negative APIs separately reject old renewal/completion/failure/cleanup."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-cluster/restore-verification.json",
+              "sha256": "790515cc5f32e1b5fbb2f076653879a26e301a08099353ea6a9ebb5ed7cb1990",
+              "verified_assertions": [
+                "Old owner/generation/fence cannot renew, complete, fail or cleanup after restored generation advances."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A35.3",
+          "requirement": "Scrub detects real corruption and bounded repair restores two valid replicas.",
+          "source_refs": [
+            "e2e/s3_hardening_resilience.py",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/scrubber_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/repair/handler_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "bitflip detected",
+            "one-shard durable repair",
+            "verified physical hashes and unchanged object version inventory"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-result.json",
+              "sha256": "b5ff04773d01031bda26ccc37406f5063e19b393434f15634d810c96576e3844",
+              "verified_assertions": [
+                "Real corruption detected; bounded one-shard durable repair completes with two valid physical replicas and unchanged versions."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A35.4",
+          "requirement": "Range reads never publish partial repair; full GET repairs with stable identity.",
+          "source_refs": [
+            "e2e/s3_hardening_resilience.py",
+            "apps/ex_storage_service/test/ex_storage_service/blob_store/read_repair_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "32-byte range leaves absent local full replica",
+            "full GET restores verified CAS/location",
+            "VersionId and ETag unchanged"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-result.json",
+              "sha256": "b5ff04773d01031bda26ccc37406f5063e19b393434f15634d810c96576e3844",
+              "verified_assertions": [
+                "After local replica removal, 32-byte public range never publishes partial repair. Full GET restores checksum-verified local CAS and two generation-1 locations; VersionId/ETag remain unchanged."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A35.5",
+          "requirement": "Real external-peer outage backlog persists across full BEAM restart.",
+          "source_refs": [
+            "e2e/s3_hardening_replication_backlog.py",
+            "e2e/scripts/replication_backlog_control.exs"
+          ],
+          "required_receipt_assertions": [
+            "positive age and complete backlog scan",
+            "new PID",
+            "four stable job IDs/created_at",
+            "reclaimed attempts/fences increase",
+            "no exhausted terminal failure"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-backlog/results.json",
+              "sha256": "e0bc36f0adff94aa326e5761e064b54e88b2963ce68156174ba8de0fb0bab2c9",
+              "verified_assertions": [
+                "Real external-peer outage leaves two pending jobs aged 1236 ms in complete four-job scan. Full BEAM restart retains four IDs/created_at; two reclaimed jobs advance attempts/fences without terminal exhaustion."
+              ]
+            },
+            {
+              "source": "e2e/s3_hardening_replication_backlog.py:148-188",
+              "assertion": "The normal dispatcher fixture checks a distinct BEAM PID, stable job IDs and timestamps, and increased attempts and fencing tokens.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A35.6",
+          "requirement": "Normal dispatcher drains backlog to exact remote current bytes/deletion.",
+          "source_refs": [
+            "e2e/s3_hardening_replication_backlog.py"
+          ],
+          "required_receipt_assertions": [
+            "pending/running/failed/oldest age zero",
+            "remote current hash/size and deletion",
+            "explicit originally acknowledged local version still readable"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-backlog/results.json",
+              "sha256": "e0bc36f0adff94aa326e5761e064b54e88b2963ce68156174ba8de0fb0bab2c9",
+              "verified_assertions": [
+                "Normal dispatcher completes all four jobs: pending/running/failed/oldest-age counters zero. Independent remote current hash/size and deletion verified; explicitly acknowledged prior local version remains readable."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A35.7",
+          "requirement": "Eventual external replication never counts toward RF/W.",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/cluster/write_coordinator_test.exs",
+            "e2e/s3_hardening_resilience.py",
+            "e2e/s3_hardening_replication_backlog.py"
+          ],
+          "required_receipt_assertions": [
+            "strict one-replica write rejected regardless of external job success",
+            "two verified same-generation same-cluster receipts required"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-result.json",
+              "sha256": "b5ff04773d01031bda26ccc37406f5063e19b393434f15634d810c96576e3844",
+              "verified_assertions": [
+                "A one-data-replica outage rejects strict writes under unchanged RF2/W2; external replication never replaces same-cluster verified acknowledgements."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/cluster/write_coordinator_test.exs:76-157",
+              "assertion": "Only two verified same-cluster acknowledgements satisfy W2.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        }
+      ],
+      "notes": []
+    },
+    {
+      "id": "A36",
+      "status": "verified",
+      "lanes": [
+        "correctness",
+        "restore"
+      ],
+      "clauses": [
+        {
+          "id": "A36.1",
+          "requirement": "Backup quiesced boundary, then mutate/delete originals and recover with original roots inaccessible.",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "e2e/run_hardening_restore.sh"
+          ],
+          "required_receipt_assertions": [
+            "backup ID and consistency point",
+            "actual source changes and source processes stopped",
+            "fresh PID/mount namespace",
+            "all original roots absent",
+            "backup mount read-only"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-standalone/backup-boundary.json",
+              "sha256": "aed7bb70e751fe3f6c7d91e0251d4b43ed49d234623294bea0ee86c59a6a1f58",
+              "verified_assertions": [
+                "Quiesced verified backup records consistency point; real originals mutated/deleted afterward and source processes stopped."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-standalone/original-root-isolation.json",
+              "sha256": "fbcdfac99be5c100f15bbab23181f7e1b2fcb84ea7a8aa7a23725aa146fe5150",
+              "verified_assertions": [
+                "Fresh PID/mount namespaces make every original root inaccessible and mount backup read-only."
+              ]
+            },
+            {
+              "source": "e2e/s3_hardening_restore.py:298-341",
+              "assertion": "Real client mutations prove originals differ from the backup; isolated mounts hide originals and expose only the read-only bundle and recovery paths.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A36.2",
+          "requirement": "Empty isolated target advances identity/generation and fences imported leases/jobs/intents.",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "e2e/scripts/restore_hardening_control.exs",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "generation2 and fresh Erlang identities",
+            "empty-root/nonempty-root guard",
+            "running ownership cleared and fencing token advanced",
+            "pending/terminal jobs retained",
+            "old renew/complete/fail/cleanup rejected",
+            "unknown intent retained"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-standalone/restore-verification.json",
+              "sha256": "abd50555b04ad46e1ea4e41fbfab687eb12660f624867d9c27010e910869b6fe",
+              "verified_assertions": [
+                "All 1 empty targets verify at generation 2. Imported running leases fenced; pending/terminal jobs and unknown intents preserved; old renewal/completion/failure/cleanup rejected."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs:227-244",
+              "assertion": "Nonempty destination bytes are preserved and generation reuse is rejected.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A36.3",
+          "requirement": "Manifest/native metadata and every required body artifact are independently verified.",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/lib/ex_storage_service/operations/backup.ex",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "stream manifest/artifact/installed-copy SHA256+size",
+            "native decoded snapshot checksum",
+            "deterministic ETF scheme and legacy validation",
+            "reject unknown scheme",
+            "pack and sidecar segments included"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-standalone/restore-verification.json",
+              "sha256": "abd50555b04ad46e1ea4e41fbfab687eb12660f624867d9c27010e910869b6fe",
+              "verified_assertions": [
+                "Native verify_restore independently validates installed artifact hashes/lengths and metadata reference coverage before verified status."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-standalone/backup-boundary.json",
+              "sha256": "aed7bb70e751fe3f6c7d91e0251d4b43ed49d234623294bea0ee86c59a6a1f58",
+              "verified_assertions": [
+                "Backup c4ab04b00d6fae304b38378d captures 8 artifacts; standalone pack/sidecar included, cluster unpacked."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "source": "apps/ex_storage_service/lib/ex_storage_service/operations/backup_manifest.ex",
+              "assertion": "Artifact digests use bounded streaming and deterministic ETF checksums; executed tests retain legacy validation and reject unknown schemes.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A36.4",
+          "requirement": "Public restored content, history, tags/attributes/checksums, IAM/config and active MPU handling match backup.",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "e2e/scripts/restore_hardening_control.exs"
+          ],
+          "required_receipt_assertions": [
+            "complete versions/delete markers",
+            "every body streaming hash and attributes",
+            "restored IAM allows/denies",
+            "bucket versioning/CORS/tags/lifecycle/location",
+            "active part identities/checksums then actual completion",
+            "postactivation signed PUT"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-standalone/restore-verification.json",
+              "sha256": "abd50555b04ad46e1ea4e41fbfab687eb12660f624867d9c27010e910869b6fe",
+              "verified_assertions": [
+                "Independent SDK reads verify complete history/markers, streamed bytes/hash/length, tags/attributes/checksums, IAM allow/deny, bucket config and active MPU parts. Actual MPU completion and post-activation PUT succeed."
+              ]
+            },
+            {
+              "source": "e2e/s3_hardening_restore.py:425-452",
+              "assertion": "Independent SDK reads check exact prior inventories and bodies, policies, configuration and MPU contracts.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A36.5",
+          "requirement": "Required missing/corrupt artifacts and wrong/absent master keys fail verification.",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "wrong/empty key and missing/corrupt metadata/body negatives",
+            "actual master_key:nil rejected",
+            "manifest checksum/path traversal/symlink/duplicate inventory rejected",
+            "nine standalone negatives including pack/sidecar"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-standalone/negative-cases.json",
+              "sha256": "a132b54c8dd085959529f77e3a165b18efdd132d4268d392afae8a0c6baf6a17",
+              "verified_assertions": [
+                "All 9 real wrong/absent key and required missing/corrupt artifact negatives rejected."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs:98-165",
+              "assertion": "Executed tests reject unknown checksum schemes, nil master key, omitted references, duplicate artifacts, traversal and symlinks.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A36.6",
+          "requirement": "Existing command0 compatibility is preserved; every empty target uses command1 across all restarts.",
+          "source_refs": [
+            "config/runtime.exs",
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/lib/ex_storage_service/operations/backup.ex",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs",
+            "docs/operations/cluster-upgrade.md"
+          ],
+          "required_receipt_assertions": [
+            "existing source command0 unchanged",
+            "fresh recovered command1 before first boot and through import/verification/activation",
+            "Backup.restore rejects0 before changing marker",
+            "bootstrap true only initial empty cluster start; laterfalse",
+            "no automatic existing database reconciliation"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-standalone/restore-verification.json",
+              "sha256": "abd50555b04ad46e1ea4e41fbfab687eb12660f624867d9c27010e910869b6fe",
+              "verified_assertions": [
+                "Existing source command version 0 remains unchanged. Shared environment builder keeps fresh target command version 1 through recovery, quarantine restart, validation and activation."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "source": "e2e/s3_hardening_restore.py:97-109",
+              "assertion": "The shared environment builder uses command version 1 only for recovered targets and version 0 for existing source databases.",
+              "verified_assertions": []
+            },
+            {
+              "source": "e2e/s3_hardening_restore.py:406-421",
+              "assertion": "Only the first empty cluster start uses bootstrap=true; every restart uses false, with command version 1 retained by the same environment builder.",
+              "verified_assertions": []
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs:190-225",
+              "assertion": "Command version 0, unknown versions and status failures reject restore before changing the prepared target.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A36.7",
+          "requirement": "All outbound/destructive workers remain disabled until verified explicit activation; quarantine survives restart.",
+          "source_refs": [
+            "e2e/scripts/restore_hardening_control.exs",
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/lib/ex_storage_service/operations/backup.ex",
+            "docs/operations/cluster-upgrade.md"
+          ],
+          "required_receipt_assertions": [
+            "persistent quarantine over three starts",
+            "verify every target",
+            "unsafe destructive activation rejected",
+            "explicit complete eight-worker map allfalse persists",
+            "outbound canary0",
+            "recovery timing excludes setup/backup/negative cases"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-standalone/restore-verification.json",
+              "sha256": "abd50555b04ad46e1ea4e41fbfab687eb12660f624867d9c27010e910869b6fe",
+              "verified_assertions": [
+                "Quarantine survives restart; all targets verify before explicit activation. Unsafe GC activation rejected; all eight worker flags remain false after active restart. Recovery 9.693 seconds."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-standalone/canary-requests.json",
+              "sha256": "c84e185f302317d46cbb0a008735eb627aae03657cdf9356a53ba96c390697de",
+              "verified_assertions": [
+                "Actual outbound canary request count zero throughout recovery and explicit activation."
+              ]
+            },
+            {
+              "source": "e2e/s3_hardening_restore.py:401-421",
+              "assertion": "All targets verify and unsafe worker activation is rejected before explicit activation and public writer startup.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        }
+      ],
+      "notes": [
+        "Historical backup IDs/timings are not current-candidate proof. Attach current bundle manifests, isolation proof, per-target markers and fresh semantic audit."
+      ]
+    },
+    {
+      "id": "A37",
+      "status": "verified",
+      "lanes": [
+        "correctness",
+        "restore",
+        "cluster"
+      ],
+      "clauses": [
+        {
+          "id": "A37.1",
+          "requirement": "Backup quiesced boundary, then mutate/delete originals and recover with original roots inaccessible.",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "e2e/run_hardening_restore.sh"
+          ],
+          "required_receipt_assertions": [
+            "backup ID and consistency point",
+            "actual source changes and source processes stopped",
+            "fresh PID/mount namespace",
+            "all original roots absent",
+            "backup mount read-only"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-cluster/backup-boundary.json",
+              "sha256": "5adf84768d2825e0c936bce1c59121302b5d5de64ad95aac504dd53f69d1ddd0",
+              "verified_assertions": [
+                "Quiesced verified backup records consistency point; real originals mutated/deleted afterward and source processes stopped."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-cluster/original-root-isolation.json",
+              "sha256": "f9c5dfffaa92535115bdea8c10d7dc549a3a1cefbc293ca973cbcd1a290d7756",
+              "verified_assertions": [
+                "Fresh PID/mount namespaces make every original root inaccessible and mount backup read-only."
+              ]
+            },
+            {
+              "source": "e2e/s3_hardening_restore.py:298-341",
+              "assertion": "Real client mutations prove originals differ from the backup; isolated mounts hide originals and expose only the read-only bundle and recovery paths.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A37.2",
+          "requirement": "Empty isolated target advances identity/generation and fences imported leases/jobs/intents.",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "e2e/scripts/restore_hardening_control.exs",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "generation2 and fresh Erlang identities",
+            "empty-root/nonempty-root guard",
+            "running ownership cleared and fencing token advanced",
+            "pending/terminal jobs retained",
+            "old renew/complete/fail/cleanup rejected",
+            "unknown intent retained",
+            "clean three-voter topology strictRF2/W2"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-cluster/restore-verification.json",
+              "sha256": "790515cc5f32e1b5fbb2f076653879a26e301a08099353ea6a9ebb5ed7cb1990",
+              "verified_assertions": [
+                "All 3 empty targets verify at generation 2. Imported running leases fenced; pending/terminal jobs and unknown intents preserved; old renewal/completion/failure/cleanup rejected."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs:227-244",
+              "assertion": "Nonempty destination bytes are preserved and generation reuse is rejected.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A37.3",
+          "requirement": "Manifest/native metadata and every required body artifact are independently verified.",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/lib/ex_storage_service/operations/backup.ex",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "stream manifest/artifact/installed-copy SHA256+size",
+            "native decoded snapshot checksum",
+            "deterministic ETF scheme and legacy validation",
+            "reject unknown scheme",
+            "unpacked cluster only; do not promote standalone pack evidence"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-cluster/restore-verification.json",
+              "sha256": "790515cc5f32e1b5fbb2f076653879a26e301a08099353ea6a9ebb5ed7cb1990",
+              "verified_assertions": [
+                "Native verify_restore independently validates installed artifact hashes/lengths and metadata reference coverage before verified status."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-cluster/backup-boundary.json",
+              "sha256": "5adf84768d2825e0c936bce1c59121302b5d5de64ad95aac504dd53f69d1ddd0",
+              "verified_assertions": [
+                "Backup 899d10ef068eb87a9dbf7946 captures 12 artifacts; standalone pack/sidecar included, cluster unpacked."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "source": "apps/ex_storage_service/lib/ex_storage_service/operations/backup_manifest.ex",
+              "assertion": "Artifact digests use bounded streaming and deterministic ETF checksums; executed tests retain legacy validation and reject unknown schemes.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A37.4",
+          "requirement": "Public restored content, history, tags/attributes/checksums, IAM/config and active MPU handling match backup.",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "e2e/scripts/restore_hardening_control.exs"
+          ],
+          "required_receipt_assertions": [
+            "complete versions/delete markers",
+            "every body streaming hash and attributes",
+            "restored IAM allows/denies",
+            "bucket versioning/CORS/tags/lifecycle/location",
+            "active part identities/checksums then actual completion",
+            "postactivation signed PUT",
+            "both recovered data endpoints"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-cluster/restore-verification.json",
+              "sha256": "790515cc5f32e1b5fbb2f076653879a26e301a08099353ea6a9ebb5ed7cb1990",
+              "verified_assertions": [
+                "Independent SDK reads verify complete history/markers, streamed bytes/hash/length, tags/attributes/checksums, IAM allow/deny, bucket config and active MPU parts. Actual MPU completion and post-activation PUT succeed."
+              ]
+            },
+            {
+              "source": "e2e/s3_hardening_restore.py:425-452",
+              "assertion": "Independent SDK reads check exact prior inventories and bodies, policies, configuration and MPU contracts.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A37.5",
+          "requirement": "Required missing/corrupt artifacts and wrong/absent master keys fail verification.",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs"
+          ],
+          "required_receipt_assertions": [
+            "wrong/empty key and missing/corrupt metadata/body negatives",
+            "actual master_key:nil rejected",
+            "manifest checksum/path traversal/symlink/duplicate inventory rejected",
+            "six cluster negatives; packed mode remains unsupported"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-cluster/negative-cases.json",
+              "sha256": "e0382e8ba4219bbcdbab01495cd31bb78b91f82e1e134202341075503ae3ea3c",
+              "verified_assertions": [
+                "All 6 real wrong/absent key and required missing/corrupt artifact negatives rejected."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs:98-165",
+              "assertion": "Executed tests reject unknown checksum schemes, nil master key, omitted references, duplicate artifacts, traversal and symlinks.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A37.6",
+          "requirement": "Existing command0 compatibility is preserved; every empty target uses command1 across all restarts.",
+          "source_refs": [
+            "config/runtime.exs",
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/lib/ex_storage_service/operations/backup.ex",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs",
+            "docs/operations/cluster-upgrade.md"
+          ],
+          "required_receipt_assertions": [
+            "existing source command0 unchanged",
+            "fresh recovered command1 before first boot and through import/verification/activation",
+            "Backup.restore rejects0 before changing marker",
+            "bootstrap true only initial empty cluster start; laterfalse",
+            "no automatic existing database reconciliation"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-cluster/restore-verification.json",
+              "sha256": "790515cc5f32e1b5fbb2f076653879a26e301a08099353ea6a9ebb5ed7cb1990",
+              "verified_assertions": [
+                "Existing source command version 0 remains unchanged. Shared environment builder keeps fresh target command version 1 through recovery, quarantine restart, validation and activation."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "source": "e2e/s3_hardening_restore.py:97-109",
+              "assertion": "The shared environment builder uses command version 1 only for recovered targets and version 0 for existing source databases.",
+              "verified_assertions": []
+            },
+            {
+              "source": "e2e/s3_hardening_restore.py:406-421",
+              "assertion": "Only the first empty cluster start uses bootstrap=true; every restart uses false, with command version 1 retained by the same environment builder.",
+              "verified_assertions": []
+            },
+            {
+              "source": "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs:190-225",
+              "assertion": "Command version 0, unknown versions and status failures reject restore before changing the prepared target.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A37.7",
+          "requirement": "All outbound/destructive workers remain disabled until verified explicit activation; quarantine survives restart.",
+          "source_refs": [
+            "e2e/scripts/restore_hardening_control.exs",
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/lib/ex_storage_service/operations/backup.ex",
+            "docs/operations/cluster-upgrade.md"
+          ],
+          "required_receipt_assertions": [
+            "persistent quarantine over three starts",
+            "verify every target",
+            "unsafe destructive activation rejected",
+            "explicit complete eight-worker map allfalse persists",
+            "outbound canary0",
+            "recovery timing excludes setup/backup/negative cases"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-cluster/restore-verification.json",
+              "sha256": "790515cc5f32e1b5fbb2f076653879a26e301a08099353ea6a9ebb5ed7cb1990",
+              "verified_assertions": [
+                "Quarantine survives restart; all targets verify before explicit activation. Unsafe GC activation rejected; all eight worker flags remain false after active restart. Recovery 16.262 seconds."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-restore-cluster/canary-requests.json",
+              "sha256": "c84e185f302317d46cbb0a008735eb627aae03657cdf9356a53ba96c390697de",
+              "verified_assertions": [
+                "Actual outbound canary request count zero throughout recovery and explicit activation."
+              ]
+            },
+            {
+              "source": "e2e/s3_hardening_restore.py:401-421",
+              "assertion": "All targets verify and unsafe worker activation is rejected before explicit activation and public writer startup.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        }
+      ],
+      "notes": [
+        "Historical backup IDs/timings are not current-candidate proof. Attach current bundle manifests, isolation proof, per-target markers and fresh semantic audit."
+      ]
+    },
+    {
+      "id": "A38",
+      "status": "failed_or_incomplete",
+      "lanes": [
+        "correctness",
+        "standalone",
+        "gateway",
+        "cluster",
+        "index",
+        "resources",
+        "faults",
+        "crashes",
+        "resilience",
+        "restore",
+        "release"
+      ],
+      "clauses": [
+        {
+          "id": "A38.1",
+          "requirement": "All original A01\u2013A37 compound clauses, required A38 input gates and authoritative lane commands pass; the actual aggregate verifier remains a separate mandatory final gate.",
+          "source_refs": [
+            "e2e/hardening_acceptance.py",
+            "ess-s3-hardening/ACCEPTANCE_MATRIX.md",
+            "docs/plans/s3-hardening-results.json"
+          ],
+          "required_receipt_assertions": [
+            "every original scenario compound assertion and all required A38 input gates audited",
+            "all11 profiles present/passed and every commandexit0",
+            "current compatible candidate SHA plus exact executable-input fingerprint",
+            "no skipped/missing/cancelled/stale evidence",
+            "final actual aggregate exit0 required independently, not presumed from this input audit"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/authoritative-exit.json",
+              "sha256": "acc5360ae2012f446e514d2bb1e92978d54c48d209ca2cf59607cbfa6749e5f3",
+              "verified_assertions": [
+                "Actual original C5 authoritative all-profile command exits 1. All executable inputs retain frozen candidate SHA/fingerprint. This failed full run is immutable and cannot become a pass from a report edit."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/index.json",
+              "sha256": "28261cb12afd70ace4eb181aa22fc2c19899ba6164228e846a35d1d22b87f4b6",
+              "verified_assertions": [
+                "Independent A29 command exit0 on exact C5 source in16.253s. Separate A28 preflight exits1; surrounding index lane remains blocked."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/resources.json",
+              "sha256": "49663fbb86a40b10b2bad9cf6ca26f1b3cb9332b3891110df158361e724f1b49",
+              "verified_assertions": [
+                "Local/gateway and cluster measuredmatrices exit1; authoritative input gates remain blocked. Final aggregate execution pending coordinator."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/authoritative-exit.json",
+              "sha256": "1e1ee66456686eef23535dc8a474904e6c7b61fa9c8af3ff9857173da64e41d7",
+              "verified_assertions": [
+                "Unchanged complete resource lane rerun in private mount namespace with /tmp on second NVMe device 66305 instead of original 66308; preflight free409567641600bytes. CPU/memory limits, sizes/concurrency,100ms coverage/envelopes, authentication/checksums and RF/W unchanged. Candidate SHA/fingerprint unchanged; actual exit1 retained separately from original failed all-profile run."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resources.json",
+              "sha256": "717b7914b129700744f26e3aff14caceeec69d13b5de6060250c01e014244dfe",
+              "verified_assertions": [
+                "Supplemental full resources lane actually exits1: local/gateway fails; cluster and independent2GiB checks pass. No successful whole acceptance or publication prerequisite."
+              ]
+            }
+          ],
+          "status": "blocked",
+          "remaining": [
+            "A28 remains upstream-blocked. A30 supplemental cluster is complete, but local/gateway has one failed and four unexecuted groups; actual aggregate cannot pass while required acceptance is incomplete."
+          ]
+        },
+        {
+          "id": "A38.2",
+          "requirement": "Automatic PR/push correctness preserves complete core/S3/transport/web and CLI contracts.",
+          "source_refs": [
+            ".github/workflows/test.yml",
+            "e2e/run_correctness_tests.py",
+            "e2e/test_correctness_selection.py"
+          ],
+          "required_receipt_assertions": [
+            "discovered complete *_test.exs inventory",
+            "per-app tests/failures/excluded/skipped/executed counts",
+            "floors detect shrinking/empty selection",
+            "new coherent-read and root-dispatch regressions included",
+            "heavy tags separately executed"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/remote-ci-run.json",
+              "sha256": "a9d1ff39a9610ef82aa1ea38061bf91841e5a45efa23c83242b28e9a54e69bed",
+              "verified_assertions": [
+                "Hosted automatic Test run39487875049 completed successfully at exact C5SHA; prerequisite, forced warnings-as-errors compile, full correctness, harness and diagnostics uploads succeeded."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/remote-ci-correctness/correctness.json",
+              "sha256": "9d8389d07b671ceebc334f924db3638c69044cf12d3412a6184209e50bbb95fb",
+              "verified_assertions": [
+                "Hosted entire discovered core/S3/transport/web test roots execute1030 server tests and11 CLI daily contracts; zero failures/skips; suite floors retained and both new hardening regressions included."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/correctness-summary.json",
+              "sha256": "e4fc4fca64221c0cccd11059a9baac3e55d82ca689887698da4c2507ceba2727",
+              "verified_assertions": [
+                "Hosted113 and local113 harness tests pass; local fullCLI3491 executes. Required diagnostic artifacts downloaded; counts and SHA/fingerprint match fresh receipts."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/cluster.json",
+              "sha256": "5d8b3cc2194ab1619e818a0ecf9c15e925019e506bd6028c9d1f64a6ff7dc5e4",
+              "verified_assertions": [
+                "Fresh dedicated taggedthree-voter testcase exits0."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/resources-3.log",
+              "sha256": "dc8b07b4416c0d119fbafed75d21b657874a55880fe3a349197fe9a53d881510",
+              "verified_assertions": [
+                "Fresh dedicated tagged2GiBtransport case executes1test,0failures; both fastsuite heavy exclusions separately covered."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A38.3",
+          "requirement": "Production assets/release/container smoke and runtime metadata succeed.",
+          "source_refs": [
+            "e2e/run_hardening_release.sh",
+            "scripts/release/release.py",
+            "Dockerfile"
+          ],
+          "required_receipt_assertions": [
+            "assets.deploy",
+            "mix release ess",
+            "local Docker build",
+            "runtime version/source/build-time identity",
+            "actual /health and /health/ready plus operator RPC smoke",
+            "no registry publication in acceptance lane"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/release.json",
+              "sha256": "ad4dbaba3891d175231a7b59faba5f2b408fd2a9853a78d7e5ff841ed451d0fd",
+              "verified_assertions": [
+                "Fresh C5 local release lane exits 0 in 234.765 seconds with matching SHA and source fingerprint; no registry publication."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-release/container-smoke.json",
+              "sha256": "fc84b7b0460fc6fde39e4192284d780abbafea7325f57816b3098fb9180dcdd6",
+              "verified_assertions": [
+                "Actual local image reports all server app versions 0.6.10, C5 source SHA and build-start 2026-10-20T20:34:51Z. Runtime smoke checks /health and /health/ready plus read-only operator RPC. Bounded capacity complete, tracked staging zero, missing job/index statuses truthful and staging cursor closed."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-release/image-id.txt",
+              "sha256": "7e7f0444aba4b266f0535dc29eafce5adb56e30783610471c58e68aec4de70bd",
+              "verified_assertions": [
+                "Local image identity sha256:98e04d393d30e5e08bcdfde17a09d12b073dba470957c3265508e6f568e267fe; this is acceptance smoke, not a newly published patch artifact."
+              ]
+            },
+            {
+              "source": "e2e/run_hardening_release.sh:30-36",
+              "assertion": "Strict command builds production assets, Mix release ess and Docker image, then invokes actual runtime smoke; it performs no registry publication.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A38.4",
+          "requirement": "Diagnostics, metrics and readiness agree with normal/error/quorum behavior.",
+          "source_refs": [
+            "e2e/run_hardening_retained_standalone.sh",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/health_test.exs",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/upload_integrity_http_test.exs",
+            "e2e/scripts/operator_diagnostics_acceptance.exs",
+            "e2e/s3_hardening_resilience.py"
+          ],
+          "required_receipt_assertions": [
+            "admin/status/metrics checks",
+            "low-cardinality truthful failure metrics",
+            "readiness tracks metadata+strict data availability",
+            "no secret diagnostics"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/standalone.json",
+              "sha256": "020ad6a097fe9836d6bc0e25ae80b841864a464e77ed571377ebce0a87025551",
+              "verified_assertions": [
+                "All3 fresh standalone lane commands exit0 with matching C5SHA/fingerprint."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/standalone-2.log",
+              "sha256": "ce1928f0a20c77daf0cbc95fd2498d2b6b621cbca65f9bfdfee9e02917b057b6",
+              "verified_assertions": [
+                "Actual unchanged independentSDK exercise, authenticated admin/metrics, retained-root SIGKILL restart and persistence cleanup complete at C5SHA."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-release/container-smoke.json",
+              "sha256": "fc84b7b0460fc6fde39e4192284d780abbafea7325f57816b3098fb9180dcdd6",
+              "verified_assertions": [
+                "Actual local image reports all server app versions 0.6.10, C5 source SHA and build-start 2026-10-20T20:34:51Z. Runtime smoke checks /health and /health/ready plus read-only operator RPC. Bounded capacity complete, tracked staging zero, missing job/index statuses truthful and staging cursor closed."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-resilience-result.json",
+              "sha256": "b5ff04773d01031bda26ccc37406f5063e19b393434f15634d810c96576e3844",
+              "verified_assertions": [
+                "Actual strict RF2/W2 outage/election/rejoin and acknowledged data readbacks agree with available same-generation replicas."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection/correctness.json",
+              "sha256": "20a624798277b1270b79b1cb4dd5459b190acd1b9b4e9ca5281bd275b5f08995",
+              "verified_assertions": [
+                "Fresh complete C5 application inventories executed4521 tests: core600, transport39, S3370, web21, fullCLI3491; zero failures/skips. Only core cluster and transport large_stream cases excluded for dedicated lanes."
+              ]
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A38.5",
+          "requirement": "Upgrade/backfill/rollback notes reflect tested generation/index/command-format boundaries.",
+          "source_refs": [
+            "docs/operations/cluster-upgrade.md",
+            "docs/operations/listing-index.md",
+            "docs/plans/s3-hardening-resource-envelope.md",
+            "e2e/README.md",
+            "docs/s3-compatibility.md"
+          ],
+          "required_receipt_assertions": [
+            "old v1/v2 and missing descriptors",
+            "explicit quiesced verified backup before backfill",
+            "interrupt/rejoin/cutover receipts",
+            "retained old epochs and source records",
+            "rollback afterv2 requires compatible binary or both verified roots",
+            "command0existing versus command1empty distinction"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-index-cluster/results.json",
+              "sha256": "7edf02c9ec5722cf7ef16cdbfb994c450d3f4740f996295775168702f8f75bd9",
+              "verified_assertions": [
+                "Fresh A29 verifies legacy/current/missing-descriptor sources, verified backup, actual coordinator interruption/rejoin, bounded fenced cutover and retained old epochs."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/restore.json",
+              "sha256": "ee68e5034527e7af9a20027f8f3a0970fe09f7d93fac124aa9c1bf588d60537a",
+              "verified_assertions": [
+                "Both fresh isolated restore modes pass with existing source command 0 unchanged and empty targets command 1 through all restarts."
+              ]
+            },
+            {
+              "source": "docs/operations/listing-index.md:7-138",
+              "assertion": "Runbook requires quiesced writers and verified metadata/blob backup, retains authoritative v2 barriers and old v1 records, documents fenced takeover/new epochs, and preserves old-epoch/backup rollback boundaries.",
+              "verified_assertions": []
+            },
+            {
+              "source": "docs/operations/cluster-upgrade.md:12-33",
+              "assertion": "Runbook distinguishes existing command-0 databases from fresh command-1 restore targets; automatic existing-database format changes are prohibited.",
+              "verified_assertions": []
+            },
+            {
+              "source": "e2e/README.md:5-21",
+              "assertion": "Closeout restores full A01\u2013A38 publication gate while preserving valid narrower historical daily scope and exact-candidate correctness/heavy workflow boundaries.",
+              "verified_assertions": []
+            },
+            {
+              "source": "docs/plans/s3-hardening-resource-envelope.md",
+              "assertion": "Original 100 ms observation coverage and predeclared fixed-concurrency resource envelopes remain unchanged; executed numeric bounds do not certify missing cases.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        },
+        {
+          "id": "A38.6",
+          "requirement": "Publication guards reject missing, stale, failed or incomplete full-acceptance evidence and validate exact source and version-only mappings.",
+          "source_refs": [
+            ".github/workflows/s3-hardening.yml",
+            ".github/workflows/release.yml",
+            "scripts/release/verify_hardening.py",
+            "scripts/release/release.py",
+            "e2e/test_release_hardening_gate.py"
+          ],
+          "required_receipt_assertions": [
+            "gate tests reject wrong repository/workflow/nonmanual/failed run",
+            "gate tests reject missing aggregate or incomplete artifact",
+            "downloaded evidence is actually re-audited before publication",
+            "version-only retry maps to validated Release-Source",
+            "failed audit restores prepared checkout and prevents publication"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/correctness-3.log",
+              "sha256": "397afc0f3dad5e403b33ac3cdec7d52589c5f8816308a6e41b60cbabd9e5bfa8",
+              "verified_assertions": [
+                "Fresh complete Python harness discovery executed113 tests in21.173s and reportedOK, including test_release_hardening_gate.py. Injected isolation failure is a passing negative fixture."
+              ]
+            },
+            {
+              "source": "e2e/test_release_hardening_gate.py:33-221",
+              "assertion": "Tests require exact source/repository/manual successful full workflow and one successful aggregate; daily/skipped/cancelled/timed-out/missing/duplicate aggregate rejected. Disposable real Git fixtures verify exact version-only mapping, reject hidden extra changes/whitespace/missing provenance and restore release checkout after failed source audit. Mocked network fixture rejects absent download and proves original-source authoritative re-audit before publication.",
+              "verified_assertions": []
+            },
+            {
+              "source": "scripts/release/verify_hardening.py:17-92",
+              "assertion": "Production gate validates exact full-run and version-only source mapping, downloads required artifact with check=True, invokes authoritative verification against original source and restores prepared release checkout in finally.",
+              "verified_assertions": []
+            },
+            {
+              "source": ".github/workflows/release.yml:55-67",
+              "assertion": "Established release orchestration invokes verify_hardening with mandatory acceptance_run_id and prepared release mapping before tag/publication jobs.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": [],
+          "scope_note": "Prepublication guard behavior verified by fresh harness tests. Targeted network fixtures are mocked; no successful hosted full acceptance or publication claimed."
+        },
+        {
+          "id": "A38.7",
+          "requirement": "Local artifact smoke checks source/version identity, and release documentation distinguishes acceptance from subsequent publication verification.",
+          "source_refs": [
+            "e2e/run_hardening_release.sh",
+            "scripts/release/release.py",
+            ".github/workflows/release.yml",
+            "README.md"
+          ],
+          "required_receipt_assertions": [
+            "local built artifact runtime source/version/buildtime matches candidate",
+            "release notes preserve exact local versus published artifact scope",
+            "actual authorized patch publication and independent public artifact verification remain mandatory downstream delivery gates"
+          ],
+          "evidence": [
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-release/container-smoke.json",
+              "sha256": "fc84b7b0460fc6fde39e4192284d780abbafea7325f57816b3098fb9180dcdd6",
+              "verified_assertions": [
+                "Actual local image reports all server app versions 0.6.10, C5 source SHA and build-start 2026-10-20T20:34:51Z. Runtime smoke checks /health and /health/ready plus read-only operator RPC. Bounded capacity complete, tracked staging zero, missing job/index statuses truthful and staging cursor closed."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout002-c5-release/image-id.txt",
+              "sha256": "7e7f0444aba4b266f0535dc29eafce5adb56e30783610471c58e68aec4de70bd",
+              "verified_assertions": [
+                "Local image identity sha256:98e04d393d30e5e08bcdfde17a09d12b073dba470957c3265508e6f568e267fe; this is acceptance smoke, not a newly published patch artifact."
+              ]
+            },
+            {
+              "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/release.json",
+              "sha256": "ad4dbaba3891d175231a7b59faba5f2b408fd2a9853a78d7e5ff841ed451d0fd",
+              "verified_assertions": [
+                "Fresh C5 local release lane exits 0 in 234.765 seconds with matching SHA and source fingerprint; no registry publication."
+              ]
+            },
+            {
+              "source": "e2e/run_hardening_release.sh:1-3",
+              "assertion": "Acceptance explicitly builds and executes local artifacts only. Authorized patch publication and public artifact verification remain downstream requirements after full acceptance.",
+              "verified_assertions": []
+            }
+          ],
+          "status": "verified",
+          "remaining": []
+        }
+      ],
+      "notes": [
+        "Original A38 required no publishing; current CLOSEOUT-002 explicitly adds authorized release and independent artifact verification after full acceptance.",
+        "This terminal semantic audit freezes current C5 evidence while acceptance and publication remain incomplete. The coordinator runs the real aggregate only after this audit is frozen; no future exit status is predicted here."
+      ]
+    }
+  ],
+  "lane_snapshot": {
+    "correctness": {
+      "status": "passed",
+      "executed_tests": 4521,
+      "harness_tests": 113,
+      "failures": 0,
+      "skipped": 0,
+      "heavy_excluded": 2,
+      "full_cli_executed": 3491
+    },
+    "hosted_correctness": {
+      "status": "passed",
+      "run_id": 39487875049,
+      "candidate_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+      "server_executed": 1030,
+      "cli_daily_executed": 11,
+      "harness_tests": 113,
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39487875049"
+    },
+    "standalone": {
+      "status": "passed",
+      "commands": 3,
+      "same_candidate": true
+    },
+    "gateway": {
+      "status": "passed",
+      "groups": 17,
+      "same_candidate": true
+    },
+    "cluster": {
+      "status": "passed",
+      "tagged_three_voter_tests": 1,
+      "strict_rf": 2,
+      "strict_w": 2
+    },
+    "index": {
+      "status": "blocked",
+      "A28_preflight_exit_status": 1,
+      "independent_A29_exit_status": 0
+    },
+    "resources_local_gateway": {
+      "status": "failed",
+      "required": 56,
+      "executed": 47,
+      "failure_free": 46,
+      "missing": [
+        {
+          "name": "local-slow-put",
+          "size": 1073741824,
+          "concurrency": 4,
+          "count": 1
+        },
+        {
+          "name": "local-slow-get",
+          "size": 1073741824,
+          "concurrency": 4,
+          "count": 1
+        },
+        {
+          "name": "gateway-put",
+          "size": 1073741824,
+          "concurrency": 4,
+          "count": 1
+        },
+        {
+          "name": "gateway-cold-get",
+          "size": 1073741824,
+          "concurrency": 4,
+          "count": 1
+        },
+        {
+          "name": "gateway-copy-to-local",
+          "size": 1073741824,
+          "concurrency": 4,
+          "count": 1
+        },
+        {
+          "name": "gateway-hit-slow-get",
+          "size": 1073741824,
+          "concurrency": 4,
+          "count": 1
+        },
+        {
+          "name": "gateway-slow-put",
+          "size": 1073741824,
+          "concurrency": 4,
+          "count": 1
+        },
+        {
+          "name": "gateway-paced-upstream-put",
+          "size": 1073741824,
+          "concurrency": 4,
+          "count": 1
+        },
+        {
+          "name": "gateway-paced-upstream-cold-get",
+          "size": 1073741824,
+          "concurrency": 4,
+          "count": 1
+        }
+      ],
+      "unexpected": []
+    },
+    "resources_cluster": {
+      "status": "failed",
+      "required": 20,
+      "executed": 16,
+      "failure_free": 15,
+      "missing": [
+        {
+          "name": "authenticated-peer-get",
+          "size": 1073741824,
+          "concurrency": 4,
+          "count": 1
+        },
+        {
+          "name": "fenced-repair-pull",
+          "size": 1073741824,
+          "concurrency": 4,
+          "count": 1
+        },
+        {
+          "name": "fenced-repair-push",
+          "size": 1073741824,
+          "concurrency": 4,
+          "count": 1
+        },
+        {
+          "name": "cross-cluster-worker-paced-sink",
+          "size": 1073741824,
+          "concurrency": 4,
+          "count": 1
+        }
+      ],
+      "unexpected": []
+    },
+    "transport_2gib": {
+      "status": "passed",
+      "tests": 1
+    },
+    "faults": {
+      "status": "passed",
+      "checks": 8
+    },
+    "crashes": {
+      "status": "passed",
+      "local_boundaries": 11,
+      "remote_replication_checks": 3
+    },
+    "resilience": {
+      "status": "passed",
+      "groups": 8,
+      "backlog_checks": 2
+    },
+    "restore": {
+      "status": "passed",
+      "standalone_targets": 1,
+      "cluster_targets": 3,
+      "old_command_version": 0,
+      "empty_target_command_version": 1,
+      "workers_enabled": 0,
+      "outbound_canary_requests": 0
+    },
+    "release": {
+      "status": "passed",
+      "local_only": true,
+      "image_id": "sha256:98e04d393d30e5e08bcdfde17a09d12b073dba470957c3265508e6f568e267fe",
+      "version": "0.6.10",
+      "build_time": "2026-10-20T20:34:51Z"
+    },
+    "terminal_cleanup": {
+      "status": "passed",
+      "checked_identities": 8,
+      "remaining_owned_names": 0,
+      "remaining_owned_containers": 0,
+      "scope": "original C5 all-profile run only"
+    },
+    "supplemental_nvme_resources": {
+      "status": "blocked",
+      "actual_exit_status": 1,
+      "local_gateway": {
+        "required": 56,
+        "executed": 52,
+        "failure_free": 51,
+        "failed_groups": 1,
+        "missing_groups": 4
+      },
+      "cluster": {
+        "required": 20,
+        "executed": 20,
+        "failure_free": 20,
+        "status": "passed"
+      },
+      "transport_2gib": "passed",
+      "stopped_identities": 8,
+      "retained_hosted_protected_bytes": 4294967296
+    },
+    "supplemental_copy_diagnostic": {
+      "acceptance": false,
+      "actual_exit_status": 0,
+      "executed_groups": 52,
+      "passed_groups": 52,
+      "missing_required_groups": 4,
+      "intrusive_return_tracing": true,
+      "return_events": 490,
+      "storage_error_events": 0,
+      "stopped_identities": 2,
+      "terminal_staging": {},
+      "original_error_reproduced": false,
+      "verified_service_repair": false
+    }
+  },
+  "limitations": [
+    "Only fresh C5 execution credited; previous candidates provide source-semantic references only.",
+    "Original all-profile run and supplemental unchanged NVMe resource lane both actually exit1. Their failed receipts remain separate and immutable.",
+    "Supplemental cluster20/20 passes with independent hashes/strictRF2/W2. Local/gateway52/56has51failure-free, one failedcopy and four missinggroups; A30/A38 remain unpassed.",
+    "Original cadence failure is preserved. Supplemental executed windows meet100ms, but this does not certify unexecuted cases or establish original pause mechanism.",
+    "Original four complete hosted-protected stages total4GiB in stopped isolated fixture. WAL intent transitions plus retained paths and source control flow narrow original failure to standalone CAS commit; exact error remains unknown and no permanent leak is established.",
+    "Intrusive R3 traced replay passes52groups with490return events and empty terminal staging, but omits four required groups, does not reproduce the original error and supplies no acceptance promotion or verified service repair.",
+    "Coordinator owns actual final aggregate execution, ledger integration, retained-fixture recovery/cleanup and downstream authorized publication. No private cluster controller log published."
+  ],
+  "clause_counts": {
+    "total": 60,
+    "verified": 52,
+    "pending": 0,
+    "failed_or_incomplete": 8
+  },
+  "audited_at": "2026-10-20T21:40:34.926845+00:00",
+  "resource_measurements": {
+    "scope": "Executedgroups only, including failedgroups; no certification of missinggroups. Terminal small receipts inspected; large rawexports not read. No observer/runner/service rootcause attribution made.",
+    "units": "Bytes except queues and explicitnanoseconds; nominalpayloadthroughput includes controller/operationoverhead and is not awire-rate SLA.",
+    "summary": {
+      "local_gateway": {
+        "coverage": {
+          "required": 56,
+          "executed": 47,
+          "failure_free": 46,
+          "missing": [
+            {
+              "name": "local-slow-put",
+              "size": 1073741824,
+              "concurrency": 4,
+              "count": 1
+            },
+            {
+              "name": "local-slow-get",
+              "size": 1073741824,
+              "concurrency": 4,
+              "count": 1
+            },
+            {
+              "name": "gateway-put",
+              "size": 1073741824,
+              "concurrency": 4,
+              "count": 1
+            },
+            {
+              "name": "gateway-cold-get",
+              "size": 1073741824,
+              "concurrency": 4,
+              "count": 1
+            },
+            {
+              "name": "gateway-copy-to-local",
+              "size": 1073741824,
+              "concurrency": 4,
+              "count": 1
+            },
+            {
+              "name": "gateway-hit-slow-get",
+              "size": 1073741824,
+              "concurrency": 4,
+              "count": 1
+            },
+            {
+              "name": "gateway-slow-put",
+              "size": 1073741824,
+              "concurrency": 4,
+              "count": 1
+            },
+            {
+              "name": "gateway-paced-upstream-put",
+              "size": 1073741824,
+              "concurrency": 4,
+              "count": 1
+            },
+            {
+              "name": "gateway-paced-upstream-cold-get",
+              "size": 1073741824,
+              "concurrency": 4,
+              "count": 1
+            }
+          ],
+          "unexpected": []
+        },
+        "rows": [
+          {
+            "size": 67108864,
+            "concurrency": 1,
+            "executed_groups": 14,
+            "failure_free_groups": 14,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 5238064,
+              "total": 5248484,
+              "rss": 12550144,
+              "queue_max": 2,
+              "queue_total": 2,
+              "temporary": 134217728
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 5583888,
+              "total": 69917040,
+              "rss": 139608064,
+              "queue_max": 2,
+              "queue_total": 2,
+              "temporary": 134217728
+            },
+            "maximum_gap_ns": 26483404,
+            "maximum_probe_ns": 1442053,
+            "nominal_payload_throughput_bytes_per_second_range": [
+              10323704,
+              1378482384
+            ]
+          },
+          {
+            "size": 67108864,
+            "concurrency": 4,
+            "executed_groups": 14,
+            "failure_free_groups": 14,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 17651512,
+              "total": 17739216,
+              "rss": 37871616,
+              "queue_max": 4,
+              "queue_total": 8,
+              "temporary": 536870912
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 18367320,
+              "total": 91353080,
+              "rss": 165527552,
+              "queue_max": 4,
+              "queue_total": 8,
+              "temporary": 536870912
+            },
+            "maximum_gap_ns": 28585675,
+            "maximum_probe_ns": 3328687,
+            "nominal_payload_throughput_bytes_per_second_range": [
+              40732542,
+              4821416805
+            ]
+          },
+          {
+            "size": 1073741824,
+            "concurrency": 1,
+            "executed_groups": 14,
+            "failure_free_groups": 14,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 5342696,
+              "total": 5317292,
+              "rss": 15179776,
+              "queue_max": 2,
+              "queue_total": 2,
+              "temporary": 2147483648
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 7415240,
+              "total": 80946240,
+              "rss": 150319104,
+              "queue_max": 2,
+              "queue_total": 2,
+              "temporary": 2147483648
+            },
+            "maximum_gap_ns": 51709132,
+            "maximum_probe_ns": 26755020,
+            "nominal_payload_throughput_bytes_per_second_range": [
+              10532519,
+              1453468069
+            ]
+          },
+          {
+            "size": 1073741824,
+            "concurrency": 4,
+            "executed_groups": 5,
+            "failure_free_groups": 4,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 26681120,
+              "total": 29557676,
+              "rss": 32456704,
+              "queue_max": 12,
+              "queue_total": 14,
+              "temporary": 8589934592
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 27541064,
+              "total": 99463024,
+              "rss": 162754560,
+              "queue_max": 12,
+              "queue_total": 14,
+              "temporary": 8589934592
+            },
+            "maximum_gap_ns": 151460126,
+            "maximum_probe_ns": 124508267,
+            "nominal_payload_throughput_bytes_per_second_range": [
+              145502088,
+              5424682088
+            ]
+          }
+        ]
+      },
+      "cluster": {
+        "coverage": {
+          "required": 20,
+          "executed": 16,
+          "failure_free": 15,
+          "missing": [
+            {
+              "name": "authenticated-peer-get",
+              "size": 1073741824,
+              "concurrency": 4,
+              "count": 1
+            },
+            {
+              "name": "fenced-repair-pull",
+              "size": 1073741824,
+              "concurrency": 4,
+              "count": 1
+            },
+            {
+              "name": "fenced-repair-push",
+              "size": 1073741824,
+              "concurrency": 4,
+              "count": 1
+            },
+            {
+              "name": "cross-cluster-worker-paced-sink",
+              "size": 1073741824,
+              "concurrency": 4,
+              "count": 1
+            }
+          ],
+          "unexpected": []
+        },
+        "rows": [
+          {
+            "size": 67108864,
+            "concurrency": 1,
+            "executed_groups": 5,
+            "failure_free_groups": 5,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 5192904,
+              "total": 5301312,
+              "rss": 4651008,
+              "queue_max": 2,
+              "queue_total": 4,
+              "temporary": 67108864
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 5600416,
+              "total": 68331536,
+              "rss": 133574656,
+              "queue_max": 2,
+              "queue_total": 4,
+              "temporary": 67108864
+            },
+            "maximum_gap_ns": 32058281,
+            "maximum_probe_ns": 6901049,
+            "nominal_payload_throughput_bytes_per_second_range": [
+              9835680,
+              27726080
+            ]
+          },
+          {
+            "size": 67108864,
+            "concurrency": 4,
+            "executed_groups": 5,
+            "failure_free_groups": 5,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 17586904,
+              "total": 17766188,
+              "rss": 39727104,
+              "queue_max": 25,
+              "queue_total": 25,
+              "temporary": 268435456
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 20143216,
+              "total": 83874944,
+              "rss": 161128448,
+              "queue_max": 25,
+              "queue_total": 25,
+              "temporary": 268435456
+            },
+            "maximum_gap_ns": 32294373,
+            "maximum_probe_ns": 7264422,
+            "nominal_payload_throughput_bytes_per_second_range": [
+              38327152,
+              106555286
+            ]
+          },
+          {
+            "size": 1073741824,
+            "concurrency": 1,
+            "executed_groups": 5,
+            "failure_free_groups": 5,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 5004656,
+              "total": 5151396,
+              "rss": 13332480,
+              "queue_max": 2,
+              "queue_total": 5,
+              "temporary": 1073741824
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 5693560,
+              "total": 71328024,
+              "rss": 144089088,
+              "queue_max": 2,
+              "queue_total": 5,
+              "temporary": 1073741824
+            },
+            "maximum_gap_ns": 32197503,
+            "maximum_probe_ns": 7129332,
+            "nominal_payload_throughput_bytes_per_second_range": [
+              9502959,
+              32200617
+            ]
+          },
+          {
+            "size": 1073741824,
+            "concurrency": 4,
+            "executed_groups": 1,
+            "failure_free_groups": 0,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 20758800,
+              "total": 21237560,
+              "rss": 46571520,
+              "queue_max": 25,
+              "queue_total": 25,
+              "temporary": 4294967296
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 21312728,
+              "total": 88887312,
+              "rss": 176975872,
+              "queue_max": 25,
+              "queue_total": 25,
+              "temporary": 4294967296
+            },
+            "maximum_gap_ns": 55546233,
+            "maximum_probe_ns": 22777531,
+            "nominal_payload_throughput_bytes_per_second_range": [
+              33420581,
+              33420581
+            ]
+          }
+        ]
+      }
+    },
+    "raw_export_integrity": {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/resource-observation-analysis.json",
+      "sha256": "549bb194271081f6742f5b559655fe6c61352189ddb4607ed19dc6aea8ce0c10",
+      "verified_assertions": [
+        "Coordinator independently streamed all four raw exports: local 25769, data-a 19943, data-b 19894 and meta 19994 rows. Exact sequences/generations/counts/byte extents/digests pass; observers stopped. This worker reviewed small analysis receipt, avoiding duplicate raw reads. Export integrity does not certify failed cadence or missing cases."
+      ]
+    },
+    "runner": {
+      "local_gateway": {
+        "uname": [
+          "Linux",
+          "ms04",
+          "6.18.48",
+          "#1-NixOS SMP PREEMPT_DYNAMIC Fri Aug 28 06:22:54 UTC 2026",
+          "x86_64",
+          ""
+        ],
+        "cpu_count": 16,
+        "affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "load": [
+          2.1826171875,
+          1.384765625,
+          1.1923828125
+        ],
+        "disk": {
+          "device": 66308,
+          "path": "/tmp/ess-hardening-resource-closeout002-c5-resources",
+          "block_bytes": 4096,
+          "available_bytes": 44571754496
+        },
+        "cgroups": {
+          "/sys/fs/cgroup/user.slice/user-1000.slice/session-521.scope": {
+            "cpu.max": "max 100000",
+            "memory.max": "max",
+            "io.max": ""
+          },
+          "/sys/fs/cgroup/user.slice/user-1000.slice": {
+            "cpu.max": "max 100000",
+            "memory.max": "max",
+            "io.max": ""
+          },
+          "/sys/fs/cgroup/user.slice": {
+            "cpu.max": "max 100000",
+            "memory.max": "max",
+            "cpuset.cpus.effective": "0-15",
+            "io.max": ""
+          },
+          "/sys/fs/cgroup": {
+            "cpuset.cpus.effective": "0-15"
+          }
+        },
+        "dependencies": {
+          "concord": "3.1.4",
+          "ex_turso": "3.1.4",
+          "http_fetch": "0.21.13",
+          "viewstamped_replication": "3.1.4"
+        },
+        "python": "3.13.15",
+        "client_checksum_environment": {
+          "AWS_REQUEST_CHECKSUM_CALCULATION": null,
+          "AWS_RESPONSE_CHECKSUM_VALIDATION": null
+        },
+        "toolchain": "Erlang/OTP 28 [erts-16.4.0.5] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.18.5 (compiled with Erlang/OTP 28)\n"
+      },
+      "cluster": {
+        "uname": [
+          "Linux",
+          "ms04",
+          "6.18.48",
+          "#1-NixOS SMP PREEMPT_DYNAMIC Fri Aug 28 06:22:54 UTC 2026",
+          "x86_64",
+          ""
+        ],
+        "cpu_count": 16,
+        "affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "load": [
+          4.583984375,
+          1.93994140625,
+          1.35205078125
+        ],
+        "disk": {
+          "device": 66308,
+          "path": "/tmp/ess-s3-hardening-cluster-sfQ8N1mW",
+          "block_bytes": 4096,
+          "available_bytes": 41165914112
+        },
+        "cgroups": {
+          "/sys/fs/cgroup/user.slice/user-1000.slice/session-521.scope": {
+            "cpu.max": "max 100000",
+            "memory.max": "max",
+            "io.max": ""
+          },
+          "/sys/fs/cgroup/user.slice/user-1000.slice": {
+            "cpu.max": "max 100000",
+            "memory.max": "max",
+            "io.max": ""
+          },
+          "/sys/fs/cgroup/user.slice": {
+            "cpu.max": "max 100000",
+            "memory.max": "max",
+            "cpuset.cpus.effective": "0-15",
+            "io.max": ""
+          },
+          "/sys/fs/cgroup": {
+            "cpuset.cpus.effective": "0-15"
+          }
+        },
+        "dependencies": {
+          "concord": "3.1.4",
+          "ex_turso": "3.1.4",
+          "http_fetch": "0.21.13",
+          "viewstamped_replication": "3.1.4"
+        },
+        "python": "3.13.15",
+        "client_checksum_environment": {
+          "AWS_REQUEST_CHECKSUM_CALCULATION": null,
+          "AWS_RESPONSE_CHECKSUM_VALIDATION": null
+        },
+        "toolchain": "Erlang/OTP 28 [erts-16.4.0.5] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.18.5 (compiled with Erlang/OTP 28)\n"
+      }
+    },
+    "cluster_failure": {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/cluster-resource-failure.json",
+      "sha256": "409439a17eb3c289a4ad7d78cd6e71bb99ca61e97b1702d8ffbc77a9e5eaf79d",
+      "verified_assertions": [
+        "Sanitized failure resolves evaluated line 33 to BlobLocations.list(hash) timeout after HTTP PUT and local CAS hash/size validation succeeded. Three other indices verify hashes/two ready replicas. Backend timeout cause unestablished; failed-index complete verification and full matrix remain unpassed. Private controller log not published."
+      ]
+    },
+    "supplemental_nvme_r2": {
+      "status": "failed",
+      "actual_exit_status": 1,
+      "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+      "evidence": [
+        {
+          "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/authoritative-exit.json",
+          "sha256": "1e1ee66456686eef23535dc8a474904e6c7b61fa9c8af3ff9857173da64e41d7",
+          "verified_assertions": [
+            "Unchanged complete resource lane rerun in private mount namespace with /tmp on second NVMe device 66305 instead of original 66308; preflight free409567641600bytes. CPU/memory limits, sizes/concurrency,100ms coverage/envelopes, authentication/checksums and RF/W unchanged. Candidate SHA/fingerprint unchanged; actual exit1 retained separately from original failed all-profile run."
+          ]
+        },
+        {
+          "path": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resource-observation-analysis.json",
+          "sha256": "b952a12b521b97e21245e778597b7c4df7ba6d20c7e662a4a3a5bf82914a4f1e",
+          "verified_assertions": [
+            "Coordinator independently streamed108592rows across four exports; exact generation/sequence/count/extent/hash pass. All8BEAM/observer PID/start identities stopped. Local maximum probe26.608193ms/gap51.469496ms; cluster9.634109ms/34.671865ms, with original100ms criterion retained. Export/coverage success for executed cases does not certify missing cases."
+          ]
+        }
+      ],
+      "local_gateway": {
+        "required": 56,
+        "executed": 52,
+        "failure_free": 51,
+        "missing": [
+          [
+            "gateway-hit-slow-get",
+            1073741824,
+            4
+          ],
+          [
+            "gateway-slow-put",
+            1073741824,
+            4
+          ],
+          [
+            "gateway-paced-upstream-put",
+            1073741824,
+            4
+          ],
+          [
+            "gateway-paced-upstream-cold-get",
+            1073741824,
+            4
+          ]
+        ],
+        "failed": [
+          {
+            "name": "gateway-copy-to-local",
+            "size": 1073741824,
+            "concurrency": 4,
+            "failures": [
+              "post_idle_temporary_not_zero",
+              "operation_failed"
+            ],
+            "operation_errors": [
+              {
+                "index": 0,
+                "error_type": "ClientError"
+              },
+              {
+                "index": 1,
+                "error_type": "ClientError"
+              },
+              {
+                "index": 2,
+                "error_type": "ClientError"
+              },
+              {
+                "index": 3,
+                "error_type": "ClientError"
+              }
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "size": 67108864,
+            "concurrency": 1,
+            "executed_groups": 14,
+            "failure_free_groups": 14,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 5190344,
+              "total": 5273000,
+              "rss": 17526784,
+              "queue_max": 2,
+              "queue_total": 2,
+              "temporary": 134217728
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 5623280,
+              "total": 70289720,
+              "rss": 149151744,
+              "queue_max": 2,
+              "queue_total": 2,
+              "temporary": 134217728
+            },
+            "maximum_gap_ns": 26312986,
+            "maximum_probe_ns": 1316875,
+            "successful_group_nominal_payload_throughput_bytes_per_second_range": [
+              10433232,
+              1436842218
+            ]
+          },
+          {
+            "size": 67108864,
+            "concurrency": 4,
+            "executed_groups": 14,
+            "failure_free_groups": 14,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 19823128,
+              "total": 19941688,
+              "rss": 34455552,
+              "queue_max": 3,
+              "queue_total": 7,
+              "temporary": 536870912
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 20531464,
+              "total": 90510896,
+              "rss": 162500608,
+              "queue_max": 3,
+              "queue_total": 7,
+              "temporary": 536870912
+            },
+            "maximum_gap_ns": 28953828,
+            "maximum_probe_ns": 3763543,
+            "successful_group_nominal_payload_throughput_bytes_per_second_range": [
+              40952833,
+              4704455737
+            ]
+          },
+          {
+            "size": 1073741824,
+            "concurrency": 1,
+            "executed_groups": 14,
+            "failure_free_groups": 14,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 6417016,
+              "total": 6516440,
+              "rss": 13893632,
+              "queue_max": 2,
+              "queue_total": 2,
+              "temporary": 2147483648
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 8669384,
+              "total": 79266904,
+              "rss": 145805312,
+              "queue_max": 2,
+              "queue_total": 2,
+              "temporary": 2147483648
+            },
+            "maximum_gap_ns": 51469496,
+            "maximum_probe_ns": 26608193,
+            "successful_group_nominal_payload_throughput_bytes_per_second_range": [
+              10515605,
+              1441748981
+            ]
+          },
+          {
+            "size": 1073741824,
+            "concurrency": 4,
+            "executed_groups": 10,
+            "failure_free_groups": 9,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 20632936,
+              "total": 23954036,
+              "rss": 39055360,
+              "queue_max": 5,
+              "queue_total": 6,
+              "temporary": 8589934592
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 22059440,
+              "total": 97463784,
+              "rss": 173649920,
+              "queue_max": 5,
+              "queue_total": 6,
+              "temporary": 8589934592
+            },
+            "maximum_gap_ns": 39083550,
+            "maximum_probe_ns": 13892373,
+            "successful_group_nominal_payload_throughput_bytes_per_second_range": [
+              43168787,
+              5497937340
+            ]
+          }
+        ]
+      },
+      "cluster": {
+        "required": 20,
+        "executed": 20,
+        "failure_free": 20,
+        "missing": [],
+        "failed": [],
+        "rows": [
+          {
+            "size": 67108864,
+            "concurrency": 1,
+            "executed_groups": 5,
+            "failure_free_groups": 5,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 5168656,
+              "total": 5174184,
+              "rss": 8071168,
+              "queue_max": 4,
+              "queue_total": 4,
+              "temporary": 67108864
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 5597624,
+              "total": 70142040,
+              "rss": 135417856,
+              "queue_max": 4,
+              "queue_total": 4,
+              "temporary": 67108864
+            },
+            "maximum_gap_ns": 32085810,
+            "maximum_probe_ns": 6881979,
+            "successful_group_nominal_payload_throughput_bytes_per_second_range": [
+              9861023,
+              27725559
+            ]
+          },
+          {
+            "size": 67108864,
+            "concurrency": 4,
+            "executed_groups": 5,
+            "failure_free_groups": 5,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 17597304,
+              "total": 17972944,
+              "rss": 36102144,
+              "queue_max": 4,
+              "queue_total": 6,
+              "temporary": 268435456
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 20161664,
+              "total": 85909736,
+              "rss": 159592448,
+              "queue_max": 4,
+              "queue_total": 6,
+              "temporary": 268435456
+            },
+            "maximum_gap_ns": 34671865,
+            "maximum_probe_ns": 9634109,
+            "successful_group_nominal_payload_throughput_bytes_per_second_range": [
+              38646087,
+              106549792
+            ]
+          },
+          {
+            "size": 1073741824,
+            "concurrency": 1,
+            "executed_groups": 5,
+            "failure_free_groups": 5,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 3980504,
+              "total": 3730928,
+              "rss": 10133504,
+              "queue_max": 3,
+              "queue_total": 5,
+              "temporary": 1073741824
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 6772696,
+              "total": 74570200,
+              "rss": 142598144,
+              "queue_max": 3,
+              "queue_total": 5,
+              "temporary": 1073741824
+            },
+            "maximum_gap_ns": 32238004,
+            "maximum_probe_ns": 7258392,
+            "successful_group_nominal_payload_throughput_bytes_per_second_range": [
+              10449265,
+              32249724
+            ]
+          },
+          {
+            "size": 1073741824,
+            "concurrency": 4,
+            "executed_groups": 5,
+            "failure_free_groups": 5,
+            "maximum_delta_bytes_or_queue": {
+              "binary": 20774176,
+              "total": 21229836,
+              "rss": 42229760,
+              "queue_max": 11,
+              "queue_total": 13,
+              "temporary": 4294967296
+            },
+            "maximum_peak_bytes_or_queue": {
+              "binary": 21401424,
+              "total": 92621680,
+              "rss": 172822528,
+              "queue_max": 11,
+              "queue_total": 13,
+              "temporary": 4294967296
+            },
+            "maximum_gap_ns": 33559501,
+            "maximum_probe_ns": 8473038,
+            "successful_group_nominal_payload_throughput_bytes_per_second_range": [
+              41238563,
+              128468294
+            ]
+          }
+        ]
+      },
+      "terminal_staging": {
+        "hosted-protected": {
+          "count": 4,
+          "bytes": 4294967296
+        }
+      },
+      "retention_interpretation": "Classified bytes retained by stopped isolated fixture; protection and intent outcomes require service diagnosis, not proof of permanent leakage.",
+      "scope": "Original failed results above remain unchanged. This complete unchanged-manifest attempt changes only documented fixture filesystem. Successful-group nominal payload throughput includes operation/controller overhead; failed groups excluded from throughput ranges. Coordinator reviewed raw exports; worker inspected small analysis and terminal matrix summaries only."
+    }
+  }
+}

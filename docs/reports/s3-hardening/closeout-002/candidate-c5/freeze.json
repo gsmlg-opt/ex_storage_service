@@ -1,0 +1,58 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "starting_sha": "b17282d96a58eff962a35d807c9e7adb39af4774",
+  "candidate_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "frozen_at": "2026-10-20T19:56:58.330724+00:00",
+  "tracked_worktree_clean": "all executable inputs committed; only report/audit writes allowed during execution",
+  "fingerprint_rule": "sorted git cached and nonignored untracked names; include apps/config/e2e/scripts/.github, Mix/npm manifests and locks, Dockerfile/.dockerignore/.npmrc/.formatter.exs, docs/cli/compatibility/*.json; hash name NUL contents NUL. Other docs/reports excluded. No dependency/build output or external environment included; lock versions/toolchain recorded separately.",
+  "authoritative_command": [
+    "/tmp/ess-s3-hardening-python/bin/python",
+    "e2e/hardening_acceptance.py",
+    "run",
+    "--profile",
+    "all",
+    "--python",
+    "/tmp/ess-s3-hardening-python/bin/python",
+    "--mc",
+    "/tmp/ess-s3-hardening-tools/mc",
+    "--label",
+    "closeout002-c5",
+    "--output",
+    "docs/reports/s3-hardening/closeout-002/candidate-c5"
+  ],
+  "python": "/tmp/ess-s3-hardening-python/bin/python",
+  "mc": {
+    "path": "/tmp/ess-s3-hardening-tools/mc",
+    "sha256": "01f866e9c5f9b87c2b09116fa5d7c06695b106242d829a8bb32990c00312e891"
+  },
+  "publication": "not_attempted; full acceptance prerequisite",
+  "previous_candidate": {
+    "sha": "ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96",
+    "source_sha256": "b81e600afa491ca7bdf2f070128d769506f28098e8c68a6cf8ab428c7097efab",
+    "freeze": "docs/reports/s3-hardening/closeout-002/candidate-c4/freeze.json",
+    "ledger": "docs/reports/s3-hardening/closeout-002/candidate-c4/ledger-final.json",
+    "actual_run_exit_status": 1,
+    "actual_aggregate_exit_status": 1
+  },
+  "input_changes": "ESS backend normalizes view_change to existing retryable cluster_not_ready, preserving conservative unknown-intent retention and S3availability semantics; observer avoids completed-cache-file size stats while preserving exact temporary metric. No dependency, profile, threshold, checksum, auth or RF/W change.",
+  "lock_sha256": "9a0490448ff8b2c8a70a2aac35e4da2cea65c319dc14b3006d305f51993fe36a",
+  "resource_envelope_sha256": "8bb6e3eb681fce95b418dad989ce40f6a2cdb7218c4e1d5db030345f5ee230b6",
+  "environment_policy": {
+    "heavy_workloads": "serial, no task-owned overlapping builds/measurements",
+    "existing_database_command_version": "0 unchanged",
+    "empty_restore_targets_command_version": "1 retained through every restart/activation",
+    "thresholds": "original100ms coverage and predeclared object-size-independent envelopes unchanged",
+    "client_checksum_environment": {
+      "AWS_REQUEST_CHECKSUM_CALCULATION": "unset",
+      "AWS_RESPONSE_CHECKSUM_VALIDATION": "unset"
+    }
+  },
+  "runtime_environment": {
+    "PAGER": "cat",
+    "ERL_FLAGS": "+S 4:4 +SDcpu 2 +SDio 2",
+    "MIX_ENV": "per-lane authoritative entry point",
+    "checksum_overrides": "unset",
+    "diagnostic_wrapper_or_strace": "absent"
+  }
+}

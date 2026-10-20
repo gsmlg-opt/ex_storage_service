@@ -1,0 +1,473 @@
+{
+  "schema": 1,
+  "task_id": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "kind": "intrusive-observer-diagnostic-analysis",
+  "acceptance": false,
+  "status": "verified-diagnostic-only",
+  "verified_at": "2026-10-20T21:34:26.818698+00:00",
+  "candidate_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "diagnostic_exit_status": 0,
+  "scope": {
+    "groups": [
+      {
+        "name": "local-put",
+        "size": 1073741824,
+        "concurrency": 4
+      },
+      {
+        "name": "local-upload-part-copy",
+        "size": 1073741824,
+        "concurrency": 4
+      }
+    ],
+    "required_full_local_gateway_groups": 56,
+    "full_manifest_executed": false,
+    "repeat_scope": "one local PUT and one local UploadPartCopy 1GiB c4 group; all other production groups deliberately excluded in diagnostic workload.diff",
+    "instrumentation": "selected filesystem syscall summary plus bounded 25 ms main-thread monitor; intrusive and not acceptance"
+  },
+  "conclusions": [
+    "The original 124 ms observation-coverage issue was not reproduced.",
+    "Both narrowed groups passed retained numeric envelopes and 100 ms probe-coverage checks; independent export/cadence auditing passed.",
+    "This result does not certify A30, establish the historical gap cause, or replace failed R1/C5/full-resource receipts.",
+    "No syscall/monitor sample here establishes absence of unsampled pauses or main/writer-thread stalls outside this diagnostic."
+  ],
+  "inputs": [
+    {
+      "path": "run.py",
+      "bytes": 6369,
+      "sha256": "1f5f218bc4de9018d335023164af18e41862f465129866236cf384caf613ddb0",
+      "matches_run_receipt": true
+    },
+    {
+      "path": "launcher.py",
+      "bytes": 258,
+      "sha256": "19192892f0a43f9576f60c107321d9ddd091259ff575e752c4543a5a43f44859",
+      "matches_run_receipt": true
+    },
+    {
+      "path": "observer-python",
+      "bytes": 519,
+      "sha256": "8f718cf9cdea5a07b90fbcc31660ffea74ef532c4a4d855cd19fe059341bf4a7",
+      "matches_run_receipt": true
+    },
+    {
+      "path": "workload.py",
+      "bytes": 15446,
+      "sha256": "baaefe6e57cffe37673763d27d0cc6fe13305458a23a1135fde27b6a70e99943",
+      "matches_run_receipt": true
+    },
+    {
+      "path": "workload.diff",
+      "bytes": 5880,
+      "sha256": "07aaec7bca47c9b892d18474d2b7c0ac5c00bbc98fb2924c439a6209b3da84ed",
+      "matches_run_receipt": true
+    }
+  ],
+  "workload_diff_matches_frozen_production_source": true,
+  "traces": [
+    {
+      "path": "baseline-r2-traces/observer-syscalls.720838.txt",
+      "bytes": 557,
+      "sha256": "a52c15b3df8771830f9056a8b37bdfb05fefcdd39a86824d6f68efc9a9184a32",
+      "matches_run_receipt": true
+    }
+  ],
+  "trace_summary": {
+    "mode": "strace -f -qq -c -w; selected filesystem syscalls only",
+    "calls": 44868,
+    "summed_wall_seconds": 0.261937,
+    "longest_selected_syscall_seconds": 0.001402,
+    "longest_syscall": "openat",
+    "limitation": "Aggregated whole-observer syscall totals, without event timestamps/callsite attribution; excludes network, synchronization, scheduler, fsync and other unselected calls. Cannot correlate one syscall with a probe gap."
+  },
+  "monitor": {
+    "rows": 603,
+    "scheduled_period_ns": 25000000,
+    "maximum_rows_bound": 2400,
+    "rows_with_expected_main_thread": 588,
+    "empty_tail_indices": [
+      588,
+      589,
+      590,
+      591,
+      592,
+      593,
+      594,
+      595,
+      596,
+      597,
+      598,
+      599,
+      600,
+      601,
+      602
+    ],
+    "empty_tail_after_measured_operation": true,
+    "identities": [
+      {
+        "pid": 720840,
+        "start_ticks": 10463752
+      }
+    ],
+    "sampled_states": {
+      "S": 588
+    },
+    "max_scheduled_lateness_ns": 465509,
+    "max_collection_ns": 860683,
+    "max_actual_start_gap_ns": 25320736,
+    "main_thread_schedstat_delta": {
+      "runtime_ns": 407289677,
+      "runqueue_wait_ns": 2022690,
+      "timeslices": 73880
+    },
+    "limitation": "Only /proc/PID/task/PID is sampled. Writer and other threads are not sampled; scheduled 25 ms states cannot prove absence of intermediate stalls. Empty tail coincides with cleanup and is not used to infer resource coverage."
+  },
+  "export": {
+    "path": "workload/samples.jsonl",
+    "bytes": 2023180,
+    "sha256": "7a75d525aa15f5ef511c4e70d65142b01db2913df309596da5e12a8681d8f138",
+    "admitted_rows": 1049,
+    "persisted_rows": 1049,
+    "first_sequence": 0,
+    "last_sequence": 1048,
+    "sequence_and_generation_integrity": "passed",
+    "exact_extent_and_digest": "passed",
+    "maximum_encoded_row_bytes": 1951,
+    "queue_capacity": 128,
+    "maximum_queued_rows": 1,
+    "maximum_collection_duration_ns": 5972619,
+    "maximum_scheduled_lateness_ns": 646426
+  },
+  "groups": [
+    {
+      "name": "local-put",
+      "size": 1073741824,
+      "concurrency": 4,
+      "elapsed_ns": 5667011151,
+      "samples": 227,
+      "peak": {
+        "binary": 15031984,
+        "total": 77599672,
+        "rss": 151490560,
+        "queue_max": 2,
+        "queue_total": 3,
+        "temporary": 4288675840
+      },
+      "delta": {
+        "binary": 14677568,
+        "total": 15050972,
+        "rss": 28528640,
+        "queue_max": 2,
+        "queue_total": 3,
+        "temporary": 4288675840
+      },
+      "limits": {
+        "binary": 201326592,
+        "total": 335544320,
+        "rss": 536870912,
+        "queue_max": 128,
+        "queue_total": 2048,
+        "temporary": 8657043456
+      },
+      "post_idle_temporary": 0,
+      "cadence": {
+        "binary": {
+          "samples": 227,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1333492,
+          "end_edge_ns": 15877251,
+          "maximum_probe_ns": 273335,
+          "maximum_gap_ns": 26075253,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792528954535847269"
+          ]
+        },
+        "total": {
+          "samples": 227,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1333492,
+          "end_edge_ns": 15877251,
+          "maximum_probe_ns": 273335,
+          "maximum_gap_ns": 26075253,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792528954535847269"
+          ]
+        },
+        "rss": {
+          "samples": 227,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1532872,
+          "end_edge_ns": 15674635,
+          "maximum_probe_ns": 1835888,
+          "maximum_gap_ns": 28882031,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792528954535847269"
+          ]
+        },
+        "queue_max": {
+          "samples": 227,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1165545,
+          "end_edge_ns": 16515432,
+          "maximum_probe_ns": 1628970,
+          "maximum_gap_ns": 26827906,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792528954535847269"
+          ]
+        },
+        "queue_total": {
+          "samples": 227,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1165545,
+          "end_edge_ns": 16515432,
+          "maximum_probe_ns": 1628970,
+          "maximum_gap_ns": 26827906,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792528954535847269"
+          ]
+        },
+        "temporary": {
+          "samples": 227,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1922813,
+          "end_edge_ns": 15556381,
+          "maximum_probe_ns": 1430663,
+          "maximum_gap_ns": 29186655,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792528954535847269"
+          ]
+        }
+      },
+      "independent_cadence_and_peak_recomputation": "passed"
+    },
+    {
+      "name": "local-upload-part-copy",
+      "size": 1073741824,
+      "concurrency": 4,
+      "elapsed_ns": 12523038042,
+      "samples": 501,
+      "peak": {
+        "binary": 8684536,
+        "total": 72019920,
+        "rss": 140075008,
+        "queue_max": 3,
+        "queue_total": 4,
+        "temporary": 8589934592
+      },
+      "delta": {
+        "binary": 1958856,
+        "total": 2199372,
+        "rss": 5746688,
+        "queue_max": 3,
+        "queue_total": 4,
+        "temporary": 8589934592
+      },
+      "limits": {
+        "binary": 201326592,
+        "total": 335544320,
+        "rss": 536870912,
+        "queue_max": 128,
+        "queue_total": 2048,
+        "temporary": 8657043456
+      },
+      "post_idle_temporary": 0,
+      "cadence": {
+        "binary": {
+          "samples": 501,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 19698695,
+          "end_edge_ns": 3286449,
+          "maximum_probe_ns": 957906,
+          "maximum_gap_ns": 26624938,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792528954535847269"
+          ]
+        },
+        "total": {
+          "samples": 501,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 19698695,
+          "end_edge_ns": 3286449,
+          "maximum_probe_ns": 957906,
+          "maximum_gap_ns": 26624938,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792528954535847269"
+          ]
+        },
+        "rss": {
+          "samples": 501,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 20295002,
+          "end_edge_ns": 3023984,
+          "maximum_probe_ns": 726155,
+          "maximum_gap_ns": 26668204,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792528954535847269"
+          ]
+        },
+        "queue_max": {
+          "samples": 501,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 19639399,
+          "end_edge_ns": 3924925,
+          "maximum_probe_ns": 1580244,
+          "maximum_gap_ns": 26573741,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792528954535847269"
+          ]
+        },
+        "queue_total": {
+          "samples": 501,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 19639399,
+          "end_edge_ns": 3924925,
+          "maximum_probe_ns": 1580244,
+          "maximum_gap_ns": 26573741,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792528954535847269"
+          ]
+        },
+        "temporary": {
+          "samples": 501,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 20838509,
+          "end_edge_ns": 2864790,
+          "maximum_probe_ns": 923845,
+          "maximum_gap_ns": 26885407,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792528954535847269"
+          ]
+        }
+      },
+      "independent_cadence_and_peak_recomputation": "passed"
+    }
+  ],
+  "cleanup": {
+    "recorded_observer_stop_verified": true,
+    "current_original_process_identity_checks": [
+      {
+        "role": "beam",
+        "expected": {
+          "pid": 720802,
+          "start_ticks": 10463727,
+          "state": "S"
+        },
+        "current_observed": null,
+        "original_identity_live": false
+      },
+      {
+        "role": "observer",
+        "expected": {
+          "pid": 720840,
+          "start_ticks": 10463752,
+          "state": "R"
+        },
+        "current_observed": null,
+        "original_identity_live": false
+      }
+    ],
+    "workload_cleanup_errors": [],
+    "runtime_proxy_container_cleanup": "diagnostic exit 0 and completed finally block, with no cleanup_errors; container ID/name was not retained so no independent container identity check is claimed",
+    "fixture_root": "/tmp/ess-hardening-resource-closeout002-c5-observer-diag-baseline-r2",
+    "fixture_root_retained": true,
+    "fixture_deleted": false,
+    "fixture_policy": "workload intentionally retains disposable root; no fixture or historical receipt was deleted by this archive",
+    "worker_launched_workloads": false
+  },
+  "runner_provenance": "workload/results.json:runner and versions retain original host/cgroup/disk/toolchain/dependency/client details; no alternate runner inferred",
+  "validation": {
+    "recorded_receipt_identity": "passed",
+    "copied_input_and_trace_hashes": "passed",
+    "monitor_rows_and_identity": "passed",
+    "export_bytes_digest_sequences": "passed",
+    "recomputed_group_cadence_and_peaks": "passed",
+    "cleanup_original_observer_and_beam_identity": "passed",
+    "frozen_source_rechecked": "passed",
+    "archive_check_exit_status": 0
+  },
+  "artifacts_excluding_this_analysis": [
+    {
+      "path": "baseline-r2-traces/observer-syscalls.720838.txt",
+      "bytes": 557,
+      "sha256": "a52c15b3df8771830f9056a8b37bdfb05fefcdd39a86824d6f68efc9a9184a32"
+    },
+    {
+      "path": "command.log",
+      "bytes": 8689,
+      "sha256": "103f838244b9e364d9345e08b79beae750929641337fa416ce755bb179bf428e"
+    },
+    {
+      "path": "diagnostic.json",
+      "bytes": 2313,
+      "sha256": "7c84448ad9d9777ddf21a5d9871055714e4ebee0c22ace85428ecc60454f3914"
+    },
+    {
+      "path": "launcher.py",
+      "bytes": 258,
+      "sha256": "19192892f0a43f9576f60c107321d9ddd091259ff575e752c4543a5a43f44859"
+    },
+    {
+      "path": "observer-python",
+      "bytes": 519,
+      "sha256": "8f718cf9cdea5a07b90fbcc31660ffea74ef532c4a4d855cd19fe059341bf4a7"
+    },
+    {
+      "path": "run.py",
+      "bytes": 6369,
+      "sha256": "1f5f218bc4de9018d335023164af18e41862f465129866236cf384caf613ddb0"
+    },
+    {
+      "path": "thread-scheduling.jsonl",
+      "bytes": 239347,
+      "sha256": "a00c134ef3aa1501bb49a6e419384a8d22917283bf07f20e2b00a6734df8d18b"
+    },
+    {
+      "path": "workload/observer-1792528954535847269.json",
+      "bytes": 289,
+      "sha256": "92bbf5faf314428c942e6e8061b93f415f67b5b6a47a59c23baac210652afad9"
+    },
+    {
+      "path": "workload/observer-stop-verification.json",
+      "bytes": 778,
+      "sha256": "95e2af4b423e09ef4e90bbb77d7a5ebe098f83e80ba750aa9198d77da08a108c"
+    },
+    {
+      "path": "workload/resource-export-1792528954535847269.json",
+      "bytes": 422,
+      "sha256": "a0efa750d792f24113ac95d4f7cc41b8367b87a19d9ecddde6705da0335e312f"
+    },
+    {
+      "path": "workload/results.json",
+      "bytes": 17601,
+      "sha256": "da1e7e6b341ac5f3bdf21dd2b54787f9d1e810b7aa991832000da062204fe64c"
+    },
+    {
+      "path": "workload/samples.jsonl",
+      "bytes": 2023180,
+      "sha256": "7a75d525aa15f5ef511c4e70d65142b01db2913df309596da5e12a8681d8f138"
+    },
+    {
+      "path": "workload.diff",
+      "bytes": 5880,
+      "sha256": "07aaec7bca47c9b892d18474d2b7c0ac5c00bbc98fb2924c439a6209b3da84ed"
+    },
+    {
+      "path": "workload.py",
+      "bytes": 15446,
+      "sha256": "baaefe6e57cffe37673763d27d0cc6fe13305458a23a1135fde27b6a70e99943"
+    }
+  ]
+}

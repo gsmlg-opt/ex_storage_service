@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "checked_at": "2026-10-20T20:08:38.662792+00:00",
+  "candidate_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "hosted_run_id": 39487875049,
+  "hosted_url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39487875049",
+  "hosted_conclusion": "success",
+  "hosted_app_counts": {
+    "ex_storage_service": {
+      "tests": 601,
+      "failures": 0,
+      "excluded": 1,
+      "skipped": 0,
+      "executed": 600
+    },
+    "ex_storage_service_cluster": {
+      "tests": 40,
+      "failures": 0,
+      "excluded": 1,
+      "skipped": 0,
+      "executed": 39
+    },
+    "ex_storage_service_s3": {
+      "tests": 370,
+      "failures": 0,
+      "excluded": 0,
+      "skipped": 0,
+      "executed": 370
+    },
+    "ex_storage_service_web": {
+      "tests": 21,
+      "failures": 0,
+      "excluded": 0,
+      "skipped": 0,
+      "executed": 21
+    }
+  },
+  "hosted_cli_counts": {
+    "ex_storage_service_cli": {
+      "tests": 11,
+      "failures": 0,
+      "excluded": 0,
+      "skipped": 0,
+      "executed": 11
+    }
+  },
+  "hosted_server_executed": 1030,
+  "hosted_cli_executed": 11,
+  "hosted_python_tests": 113,
+  "local_app_counts": {
+    "ex_storage_service": {
+      "tests": 601,
+      "failures": 0,
+      "excluded": 1,
+      "skipped": 0,
+      "executed": 600
+    },
+    "ex_storage_service_cluster": {
+      "tests": 40,
+      "failures": 0,
+      "excluded": 1,
+      "skipped": 0,
+      "executed": 39
+    },
+    "ex_storage_service_cli": {
+      "tests": 3491,
+      "failures": 0,
+      "excluded": 0,
+      "skipped": 0,
+      "executed": 3491
+    },
+    "ex_storage_service_s3": {
+      "tests": 370,
+      "failures": 0,
+      "excluded": 0,
+      "skipped": 0,
+      "executed": 370
+    },
+    "ex_storage_service_web": {
+      "tests": 21,
+      "failures": 0,
+      "excluded": 0,
+      "skipped": 0,
+      "executed": 21
+    }
+  },
+  "local_executed": 4521,
+  "local_python_tests": 113,
+  "separate_heavy_tags": [
+    "cluster",
+    "large_stream"
+  ],
+  "artifact_integrity": {
+    "docs/reports/s3-hardening/closeout-002/candidate-c5/remote-ci-correctness/correctness.json": "9d8389d07b671ceebc334f924db3638c69044cf12d3412a6184209e50bbb95fb",
+    "docs/reports/s3-hardening/closeout-002/candidate-c5/remote-ci-correctness/cli.log": "da8b23ea4f6c3313d85323c00b82e41f7060fbdd0d2d81e08b1c56dee7980709",
+    "docs/reports/s3-hardening/closeout-002/candidate-c5/remote-ci-correctness/server.log": "d0be26cc14a0a1d2a25926123cac16c54e0bd8c45f4dce4779a43064f23e2be8"
+  },
+  "artifact_download_notes": "Initial guessed artifact name matched nothing; actual API inventory identified required correctness-selection-and-results and correctness-isolation-prerequisite. Both were downloaded successfully and inspected. No required artifact is missing."
+}

@@ -1,0 +1,309 @@
+sudo -n apt-get update
+Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+Get:7 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1397 kB]
+Get:8 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [308 kB]
+Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1704 kB]
+Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [342 kB]
+Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1805 kB]
+Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [411 kB]
+Get:13 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [626 kB]
+Get:14 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [12.4 kB]
+Get:15 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [565 kB]
+Get:16 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1145 kB]
+Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [231 kB]
+Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1222 kB]
+Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [246 kB]
+Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1713 kB]
+Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [392 kB]
+Fetched 12.5 MB in 1s (11.2 MB/s)
+Reading package lists...
+
+sudo -n apt-get install --yes apparmor apparmor-profiles bubblewrap zsh
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  libapparmor1 zsh-common
+Suggested packages:
+  apparmor-profiles-extra apparmor-utils zsh-doc
+The following NEW packages will be installed:
+  apparmor-profiles bubblewrap zsh zsh-common
+The following packages will be upgraded:
+  apparmor libapparmor1
+2 upgraded, 4 newly installed, 0 to remove and 83 not upgraded.
+Need to get 5767 kB of archives.
+After this operation, 19.6 MB of additional disk space will be used.
+Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+Get:2 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libapparmor1 amd64 4.0.1really4.0.1-0ubuntu0.24.04.9 [51.5 kB]
+Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 apparmor amd64 4.0.1really4.0.1-0ubuntu0.24.04.9 [640 kB]
+Get:4 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 bubblewrap amd64 0.9.0-1ubuntu0.3 [50.4 kB]
+Get:5 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 zsh-common all 5.9-6ubuntu2 [4173 kB]
+Get:6 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 zsh amd64 5.9-6ubuntu2 [812 kB]
+Get:7 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 apparmor-profiles all 4.0.1really4.0.1-0ubuntu0.24.04.9 [39.6 kB]
+Preconfiguring packages ...
+Fetched 5767 kB in 1s (10.1 MB/s)
+(Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 203540 files and directories currently installed.)
+Preparing to unpack .../0-libapparmor1_4.0.1really4.0.1-0ubuntu0.24.04.9_amd64.deb ...
+Unpacking libapparmor1:amd64 (4.0.1really4.0.1-0ubuntu0.24.04.9) over (4.0.1really4.0.1-0ubuntu0.24.04.8) ...
+Preparing to unpack .../1-apparmor_4.0.1really4.0.1-0ubuntu0.24.04.9_amd64.deb ...
+Unpacking apparmor (4.0.1really4.0.1-0ubuntu0.24.04.9) over (4.0.1really4.0.1-0ubuntu0.24.04.8) ...
+Selecting previously unselected package bubblewrap.
+Preparing to unpack .../2-bubblewrap_0.9.0-1ubuntu0.3_amd64.deb ...
+Unpacking bubblewrap (0.9.0-1ubuntu0.3) ...
+Selecting previously unselected package zsh-common.
+Preparing to unpack .../3-zsh-common_5.9-6ubuntu2_all.deb ...
+Unpacking zsh-common (5.9-6ubuntu2) ...
+Selecting previously unselected package zsh.
+Preparing to unpack .../4-zsh_5.9-6ubuntu2_amd64.deb ...
+Unpacking zsh (5.9-6ubuntu2) ...
+Selecting previously unselected package apparmor-profiles.
+Preparing to unpack .../5-apparmor-profiles_4.0.1really4.0.1-0ubuntu0.24.04.9_all.deb ...
+Unpacking apparmor-profiles (4.0.1really4.0.1-0ubuntu0.24.04.9) ...
+Setting up bubblewrap (0.9.0-1ubuntu0.3) ...
+Setting up libapparmor1:amd64 (4.0.1really4.0.1-0ubuntu0.24.04.9) ...
+Setting up zsh-common (5.9-6ubuntu2) ...
+Setting up apparmor (4.0.1really4.0.1-0ubuntu0.24.04.9) ...
+Installing new version of config file /etc/apparmor.d/transmission ...
+Reloading AppArmor profiles 
+Skipping profile in /etc/apparmor.d/disable: usr.bin.firefox
+Setting up zsh (5.9-6ubuntu2) ...
+Setting up apparmor-profiles (4.0.1really4.0.1-0ubuntu0.24.04.9) ...
+Processing triggers for man-db (2.12.0-4build2) ...
+Not building database; man-db/auto-update is not 'true'.
+Processing triggers for debianutils (5.17build1) ...
+Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+
+Running kernel seems to be up-to-date.
+
+Restarting services...
+ /etc/needrestart/restart.d/systemd-manager
+ systemctl restart php8.3-fpm.service
+Job for php8.3-fpm.service failed because a timeout was exceeded.
+See "systemctl status php8.3-fpm.service" and "journalctl -xeu php8.3-fpm.service" for details.
+
+Service restarts being deferred:
+ /etc/needrestart/restart.d/dbus.service
+
+No containers need to be restarted.
+
+User sessions running outdated binaries:
+ runner @ user manager service: systemd[1040]
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+
+uname -a
+Linux runnervm8k3b6 6.17.0-1022-azure #22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+
+dpkg-query -W apparmor apparmor-profiles bubblewrap zsh
+apparmor	4.0.1really4.0.1-0ubuntu0.24.04.9
+apparmor-profiles	4.0.1really4.0.1-0ubuntu0.24.04.9
+bubblewrap	0.9.0-1ubuntu0.3
+zsh	5.9-6ubuntu2
+
+dpkg-query -S /usr/share/apparmor/extra-profiles/bwrap-userns-restrict /usr/bin/bwrap
+apparmor-profiles: /usr/share/apparmor/extra-profiles/bwrap-userns-restrict
+bubblewrap: /usr/bin/bwrap
+
+sha256sum /usr/share/apparmor/extra-profiles/bwrap-userns-restrict /usr/bin/bwrap
+11d39094f044f0cda0febb3ad517b830301da6b2ce929664af09ee9e4dd264f9  /usr/share/apparmor/extra-profiles/bwrap-userns-restrict
+e318903862396f96de3df57264e0158682b952fd3fb53ac23d876413e7b30f71  /usr/bin/bwrap
+
+sudo -n apparmor_parser --version
+AppArmor parser version 4.0.1
+Copyright (C) 1999-2008 Novell Inc.
+Copyright 2009-2018 Canonical Ltd.
+
+sudo -n apparmor_parser -r /usr/share/apparmor/extra-profiles/bwrap-userns-restrict
+
+sudo -n aa-status
+apparmor module is loaded.
+146 profiles are loaded.
+51 profiles are in enforce mode.
+   /usr/bin/man
+   /usr/lib/snapd/snap-confine
+   /usr/sbin/chronyd
+   /usr/sbin/haveged
+   /usr/sbin/mysqld
+   avahi-daemon
+   bwrap
+   dnsmasq
+   dnsmasq//libvirt_leaseshelper
+   docker-default
+   identd
+   klogd
+   lsb_release
+   man_filter
+   man_groff
+   mdnsd
+   nmbd
+   nscd
+   nvidia_modprobe
+   nvidia_modprobe//kmod
+   passt
+   php-fpm
+   ping
+   plasmashell
+   plasmashell//QtWebEngineProcess
+   rsyslogd
+   samba-bgqd
+   samba-dcerpcd
+   samba-rpcd
+   samba-rpcd-classic
+   samba-rpcd-spoolss
+   smbd
+   smbldap-useradd
+   smbldap-useradd///etc/init.d/nscd
+   syslog-ng
+   syslogd
+   tcpdump
+   traceroute
+   ubuntu_pro_apt_news
+   ubuntu_pro_esm_cache
+   ubuntu_pro_esm_cache//apt_methods
+   ubuntu_pro_esm_cache//apt_methods_gpgv
+   ubuntu_pro_esm_cache//cloud_id
+   ubuntu_pro_esm_cache//dpkg
+   ubuntu_pro_esm_cache//ps
+   ubuntu_pro_esm_cache//ubuntu_distro_info
+   ubuntu_pro_esm_cache_systemctl
+   ubuntu_pro_esm_cache_systemd_detect_virt
+   unix-chkpwd
+   unpriv_bwrap
+   unprivileged_userns
+4 profiles are in complain mode.
+   transmission-cli
+   transmission-daemon
+   transmission-gtk
+   transmission-qt
+0 profiles are in prompt mode.
+0 profiles are in kill mode.
+91 profiles are in unconfined mode.
+   1password
+   Discord
+   MongoDB Compass
+   QtWebEngineProcess
+   balena-etcher
+   brave
+   buildah
+   cam
+   ch-checkns
+   ch-run
+   chrome
+   crun
+   devhelp
+   element-desktop
+   epiphany
+   evolution
+   firefox
+   flatpak
+   foliate
+   geary
+   github-desktop
+   goldendict
+   ipa_verify
+   kchmviewer
+   keybase
+   lc-compliance
+   libcamerify
+   linux-sandbox
+   loupe
+   lxc-attach
+   lxc-create
+   lxc-destroy
+   lxc-execute
+   lxc-stop
+   lxc-unshare
+   lxc-usernsexec
+   microsoft-edge-stable
+   mmdebstrap
+   msedge
+   nautilus
+   notepadqq
+   obsidian
+   opam
+   opera
+   pageedit
+   podman
+   polypane
+   privacybrowser
+   qcam
+   qmapshack
+   qutebrowser
+   rootlesskit
+   rpm
+   rssguard
+   runc
+   sbuild
+   sbuild-abort
+   sbuild-adduser
+   sbuild-apt
+   sbuild-checkpackages
+   sbuild-clean
+   sbuild-createchroot
+   sbuild-destroychroot
+   sbuild-distupgrade
+   sbuild-hold
+   sbuild-shell
+   sbuild-unhold
+   sbuild-update
+   sbuild-upgrade
+   scide
+   signal-desktop
+   slack
+   slirp4netns
+   steam
+   stress-ng
+   surfshark
+   systemd-coredump
+   thunderbird
+   toybox
+   trinity
+   tup
+   tuxedo-control-center
+   userbindmount
+   uwsgi-core
+   vdens
+   virtiofsd
+   vivaldi-bin
+   vpnns
+   vscode
+   wike
+   wpcom
+4 processes have profiles defined.
+4 processes are in enforce mode.
+   /usr/sbin/chronyd (944) 
+   /usr/sbin/chronyd (960) 
+   /usr/sbin/haveged (511) 
+   /usr/sbin/rsyslogd (899) rsyslogd
+0 processes are in complain mode.
+0 processes are in prompt mode.
+0 processes are in kill mode.
+0 processes are unconfined but have a profile defined.
+0 processes are in mixed mode.
+

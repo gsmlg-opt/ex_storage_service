@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/tmp/ess-s3-hardening-python/bin/python",
+    "e2e/hardening_acceptance.py",
+    "verify",
+    "--output",
+    "docs/reports/s3-hardening/closeout-002/candidate-c5"
+  ],
+  "starting_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_before": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "started_at": "2026-10-20T21:42:37.037571+00:00",
+  "monotonic_start_ns": 108240018729375,
+  "exit_status": 1,
+  "ending_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_after": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "finished_at": "2026-10-20T21:42:37.225483+00:00",
+  "monotonic_end_ns": 108240206640843
+}

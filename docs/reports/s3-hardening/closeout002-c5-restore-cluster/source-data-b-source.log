@@ -1,0 +1,87 @@
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 697577)
+[0mWaiting for lock on the build directory (held by process 697576)
+[0mWaiting for lock on the build directory (held by process 697576)
+[0mWaiting for lock on the build directory (held by process 697577)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 697577)
+[0mWaiting for lock on the build directory (held by process 697577)
+[0mWaiting for lock on the build directory (held by process 697576)
+==> ex_storage_service_web
+[0mWaiting for lock on the build directory (held by process 697577)
+
+04:34:21.634 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+04:34:21.646 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+04:34:21.701 [info] Storage engine started with data root /tmp/ess-hardening-restore-MMmiOC2f/source/data-b and blob root /tmp/ess-hardening-restore-MMmiOC2f/source/data-b/blob
+
+04:34:21.704 [info] Concord VSR metadata quorum ready
+
+04:34:21.729 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:33857 (http)
+
+04:34:21.734 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:43559 (http)
+{"restore_control":"boot_ready"}
+
+04:34:22.860 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:22.948 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:23.019 [debug] API get: {:error, :not_found} (1ms)
+
+04:34:23.019 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:23.152 [debug] API get: {:error, :not_found} (1ms)
+
+04:34:23.245 [debug] API get: {:error, :not_found} (1ms)
+
+04:34:23.364 [debug] API get: {:error, :not_found} (1ms)
+
+04:34:23.368 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:23.440 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:23.440 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:23.587 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:25.314 [notice] Application ex_storage_service_s3 exited: :stopped
+
+04:34:25.318 [notice] Application ex_storage_service_cluster exited: :stopped
+
+04:34:26.683 [warning] 'global' at node :"ess_restore_b6d9063ebf9a_source_data_b@127.0.0.1" requested disconnect from node :"ess_restore_control_10769abd38bd4515966733f07b968005@127.0.0.1" in order to prevent overlapping partitions
+
+04:34:26.695 [notice] SIGTERM received - shutting down
+
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 697939)
+[0mWaiting for lock on the build directory (held by process 697938)
+[0mWaiting for lock on the build directory (held by process 697939)
+[0mWaiting for lock on the build directory (held by process 697938)
+[0mWaiting for lock on the build directory (held by process 697939)
+[0mWaiting for lock on the build directory (held by process 697938)
+[0mWaiting for lock on the build directory (held by process 697939)
+[0mWaiting for lock on the build directory (held by process 697938)
+[0mWaiting for lock on the build directory (held by process 697939)
+
+04:34:28.376 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+04:34:28.387 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+04:34:28.447 [info] Storage engine started with data root /tmp/ess-hardening-restore-MMmiOC2f/source/data-b and blob root /tmp/ess-hardening-restore-MMmiOC2f/source/data-b/blob
+
+04:34:28.451 [info] Concord VSR metadata quorum ready
+
+04:34:28.474 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:33857 (http)
+
+04:34:28.477 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:43559 (http)
+{"restore_control":"boot_ready"}
+
+04:34:28.772 [notice] SIGTERM received - shutting down
+

@@ -1,0 +1,63 @@
+{
+  "profile": "resources",
+  "status": "blocked",
+  "starting_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "ending_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 7.184,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resources-0.log"
+    },
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_resources.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c5-nvme-r2-resources"
+      ],
+      "mix_env": "prod",
+      "exit_status": 1,
+      "duration_seconds": 817.687,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resources-1.log"
+    },
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_cluster_resources.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c5-nvme-r2-resources-cluster"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 637.025,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resources-2.log"
+    },
+    {
+      "argv": [
+        "mix",
+        "test",
+        "apps/ex_storage_service_cluster/test/ex_storage_service_cluster/large_stream_test.exs",
+        "--include",
+        "large_stream",
+        "--max-cases",
+        "1",
+        "--no-color"
+      ],
+      "mix_env": "test",
+      "exit_status": 0,
+      "duration_seconds": 5.372,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resources-3.log"
+    }
+  ],
+  "started_at": "2026-10-20T20:48:07.778821+00:00",
+  "reason": "command exited 1; inspect retained log"
+}

@@ -1,0 +1,22 @@
+[
+  "bwrap",
+  "--die-with-parent",
+  "--new-session",
+  "--ro-bind",
+  "/",
+  "/",
+  "--bind",
+  "/home/gao/Workspace/gsmlg-opt/ex_storage_service",
+  "/home/gao/Workspace/gsmlg-opt/ex_storage_service",
+  "--bind",
+  "/fast/build/ess-closeout-c5-nvme-resources/tmp",
+  "/tmp",
+  "--ro-bind",
+  "/tmp/ess-s3-hardening-python",
+  "/tmp/ess-s3-hardening-python",
+  "--ro-bind",
+  "/tmp/ess-s3-hardening-tools",
+  "/tmp/ess-s3-hardening-tools",
+  "--chdir",
+  "/home/gao/Workspace/gsmlg-opt/ex_storage_service"
+]

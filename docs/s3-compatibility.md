@@ -11,16 +11,23 @@ checksum scheme and legacy checks. Fresh restore targets require command version
 on every voter through quarantine, restarts and activation; existing databases
 retain compatibility default 0 and must never switch automatically.
 
-Current closeout candidate is `ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96`, source
-fingerprint `b81e600afa491ca7bdf2f070128d769506f28098e8c68a6cf8ab428c7097efab`.
-Its correctness lane passed 4,518 executed application tests and 109 Python harness
-tests with zero failures; two tagged cases require their dedicated heavy lanes.
+Current closeout candidate C5 is `83ddc379be879b947e19aecda45e615f4f45b530`, source
+fingerprint `64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288`.
+The full entry point exited 1: correctness, standalone, gateway, cluster, faults,
+crashes, resilience, restore and local release/container lanes passed; index and
+resources remain blocked. Correctness executed 4,521 application tests and 113
+Python harness tests with zero failures or skips. The backend maps interrupted view-change
+reads/transactions to retryable503 semantics and retains uncertain write intents;
+43focused backend/domain/S3tests pass. Observer temporary-disk measurement skips
+unneeded completed-cache-file stats without changing its metric or100mscriterion;
+52observer/cadence tests pass. These do not certify full resource acceptance.
+
 Standalone, all 17 RustFS gateway groups and both public cluster endpoints passed,
 including real leader election/rejoin and strict RF=2/W=2 during a data outage.
 Selected clients:
 Boto3/botocore 1.43.114, AWS CLI 2.34.24, mc RELEASE.2025-08-13T08-35-41Z,
 RustFS 1.0.1. Current receipts retain exact provenance under
-`docs/reports/s3-hardening/closeout-002/candidate-c4/`; original daily and
+`docs/reports/s3-hardening/closeout-002/candidate-c5/`; C4, original daily and
 Concord 3.1.3 receipts retain their separate historical scope.
 
 The dependency update changes only the Concord family lock entries; HTTP remains
@@ -28,13 +35,18 @@ The dependency update changes only the Concord family lock entries; HTTP remains
 read validation and full-state transaction work in 3.1.4, tracked by
 [Concord #101](https://github.com/gsmlg-dev/concord/issues/101) and
 [#102](https://github.com/gsmlg-dev/concord/issues/102). Mandatory 10k/100k scale
-acceptance remains blocked. Current faults, crashes, resilience, independent
-standalone/cluster restore and local release/container checks passed. Resource
-verification failed: local/gateway55/56groups (temporary-probe coverage) and
-cluster19/20groups (repair RPC returned view_change); unexecuted cases remain
-unpassed. Independent cluster index migration/rejoin/cutover passed. All 38
+acceptance remains blocked. The original C5 resource run executed local/gateway
+47/56 groups (one observation-coverage failure) and cluster16/20 groups (one
+post-upload metadata verification timeout). A separate unchanged resource run
+with private temporary roots on a second NVMe passed cluster20/20 and the
+independent2GiB transport check, but local/gateway stopped at52/56: four1GiB
+concurrent gateway-to-hosted COPY requests returned InternalError and four later
+groups remain unexecuted. Executed supplemental cadence and numeric envelopes
+passed; retained protected stages require diagnosis. The original failures are
+preserved, and smaller diagnostic successes do not certify complete resources.
+Independent cluster index migration/rejoin/cutover passed. All 38
 acceptance scenarios are not yet complete. See the
-[candidate freeze](reports/s3-hardening/closeout-002/candidate-c4/freeze.json),
+[candidate freeze](reports/s3-hardening/closeout-002/candidate-c5/freeze.json),
 [business feature record](plans/s3-feature-status.md) and
 [verification report](reports/s3-hardening-verification.md). Historical passes
 are not automatically relabeled as current-source executions.
@@ -166,7 +178,9 @@ interruption, rejoin and cutover fixture passed. Implementation and scoped tests
 do not establish full acceptance. Hosted tokens
 are bound to bucket/prefix/delimiter and do not promise an immutable snapshot
 across concurrent writes. Full transfer resource acceptance remains failed and
-incomplete: local/gateway55/56 and cluster19/20 groups executed.
+incomplete. The original C5 local/gateway47/56 and cluster16/20 failures remain;
+the supplemental local/gateway52/56 and cluster20/20 results above have separate
+provenance and do not supply the four unexecuted local/gateway cases.
 
 On first hosted mutation,legacy normalization includes at most256 historical rows
 plus current null slot under revision/bucket fencing. Original v1 records remain.
@@ -185,9 +199,10 @@ Follow the [recovery operations guide](operations/cluster-upgrade.md#independent
 
 ## Independent profiles and deliberate exclusions
 
-Current complete business profile receipts are under
-`docs/reports/s3-hardening/closeout-002/candidate-c4/` at the candidate and
-fingerprint above. Adjacent `closeout002-c4-*` receipts retain profile details.
+Current C5 complete business profile receipts are under
+`docs/reports/s3-hardening/closeout-002/candidate-c5/` at the candidate and
+the explicitly stated C5 fingerprint above. Adjacent `closeout002-c5-*` receipts
+retain profile details; earlier candidate evidence retains its original source.
 Standalone covers signed/default-checksum clients, versions/listing, multipart
 races/restart, attributes, tags, CORS and retained SDK/admin/metrics/persistence.
 Cluster repeats the supported profile on both data endpoints, forces remote
@@ -198,9 +213,9 @@ reconciliation restarts and retained mc24/0 compatibility. AWS CLI and mc transf
 commands are retained in the profile logs and gateway JSON; these results do not
 claim every command/flag in those clients works.
 
-Current standalone/cluster restore evidence is
-`docs/reports/s3-hardening/closeout002-c4-restore-standalone/` and
-`closeout002-c4-restore-cluster/`. The fixtures verify
+Current C5 standalone/cluster restore evidence is
+`docs/reports/s3-hardening/closeout002-c5-restore-standalone/` and
+`closeout002-c5-restore-cluster/`. The fixtures verify
 quiesced backup boundaries, inaccessible original roots, read-only backups,
 empty targets, quarantine restarts, job/intent retention and stale-fence rejection.
 Every public data endpoint checks versions/delete markers, exact hashes/size,
@@ -209,7 +224,7 @@ parts/completion and versioned PUT after activation. Packed standalone data
 restores without a loose-source fallback. All eight destructive/outbound worker
 flags remain false, and the outbound DELETE canary stays zero after activation.
 Historical restore evidence retains its own source in the verification history;
-these fresh C4 executions certify the candidate and fingerprint above.
+these C5 executions certify only the stated C5 SHA/fingerprint.
 
 Full AWS IAM/STS,ACL ownership,Object Lock,SSE/KMS,website hosting,S3 Select,
 directory buckets,erasure coding and multi-range reads are outside this delivery.
@@ -217,5 +232,6 @@ Excluded selectors/headers fail deliberately instead of falling through to CRUD.
 No new public STS/IAM service,virtual-hosted addressing or AWS infrastructure
 notification/lifecycle parity is advertised. Mandatory scale/resource results
 and final aggregate acceptance remain required before ESS-S3-HARDENING-001 can
-be called complete. Current local release/container smoke passed; no closeout
+be called complete. C5 local release/container health, readiness and operator
+smoke checks passed; signed object CRUD in that image was not certified. No closeout
 release, package or image has been published.

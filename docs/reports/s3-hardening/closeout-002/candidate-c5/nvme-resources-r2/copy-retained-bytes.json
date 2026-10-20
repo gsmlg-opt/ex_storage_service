@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "kind": "read-only-retained-copy-byte-inspection",
+  "acceptance": false,
+  "candidate_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "inspected_at": "2026-10-20T21:35:40.275577+00:00",
+  "method": "Independent Python SHA256 in bounded1MiB chunks after all owned heavy workloads stopped; original fixture read only.",
+  "input_script_sha256": "73add36a9355a70a059a4d8213d454c9a03c73c79cbb3c146a65ffeb1e3e7503",
+  "rows": [
+    {
+      "role": "existing_cas",
+      "path": "data/blob/objects/sha256/2c/06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+      "bytes": 1073741824,
+      "sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+      "matches_named_hash": true,
+      "duration_ns": 879822878
+    },
+    {
+      "role": "hosted_protected_stage",
+      "path": "data/tmp/uploads/ess1-h-9be64a6264f26dbf57de62c649d05366825d47269157b69292063df553c7fb4e-721627-8I9iH6IGB08uzHWcyCt7EdXH4zvgatOh-2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+      "bytes": 1073741824,
+      "sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+      "matches_named_hash": true,
+      "duration_ns": 845532767
+    },
+    {
+      "role": "hosted_protected_stage",
+      "path": "data/tmp/uploads/ess1-h-9be64a6264f26dbf57de62c649d05366825d47269157b69292063df553c7fb4e-721627-BEDX2lT-mvvMMZzaGWvVcYxjCRyssG4a-2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+      "bytes": 1073741824,
+      "sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+      "matches_named_hash": true,
+      "duration_ns": 885129735
+    },
+    {
+      "role": "hosted_protected_stage",
+      "path": "data/tmp/uploads/ess1-h-9be64a6264f26dbf57de62c649d05366825d47269157b69292063df553c7fb4e-721627-a0F_XklFsgZPb8ghuTrCk0G7pY1MkPr4-2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+      "bytes": 1073741824,
+      "sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+      "matches_named_hash": true,
+      "duration_ns": 1008083451
+    },
+    {
+      "role": "hosted_protected_stage",
+      "path": "data/tmp/uploads/ess1-h-9be64a6264f26dbf57de62c649d05366825d47269157b69292063df553c7fb4e-721627-o8jGNnrX9jQGB0c9u8MUMz8RjTDUZkkx-2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+      "bytes": 1073741824,
+      "sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+      "matches_named_hash": true,
+      "duration_ns": 831242446
+    }
+  ],
+  "bytes_verified": 5368709120,
+  "conclusion": "Existing CAS and all four retained protected stages are complete and independently match their named SHA256. This excludes present-day byte corruption at these paths, but does not prove that commit or intent-open ran or identify the original error."
+}

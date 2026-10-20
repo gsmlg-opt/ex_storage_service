@@ -1,0 +1,22 @@
+
+===== start data-a bootstrap=true at 2026-10-20T20:33:06Z =====
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 694103)
+[0mWaiting for lock on the build directory (held by process 694103)
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 694103)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 694103)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 694103)
+04:33:06.799 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+04:33:06.812 [info] Starting Concord TTL manager with cleanup interval: 300000s
+04:33:06.867 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-oxbJdUOM/data-a and blob root /tmp/ess-s3-hardening-cluster-oxbJdUOM/data-a/blob
+04:33:06.877 [info] Concord VSR metadata quorum ready
+04:33:06.896 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9101 (http)
+04:33:06.899 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9001 (http)
+04:33:14.497 [notice] SIGTERM received - shutting down
+

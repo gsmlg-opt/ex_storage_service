@@ -23,5 +23,31 @@
     "path": "docs/reports/s3-hardening/closeout-002/view-change/green.log",
     "sha256": "7d4fa1abe2846b2dc90e8b2b94080e0538f7ba071b2df69ddd69d68400df97f5"
   },
-  "provenance": "Assigned coherent_reads worker executed before/after same deterministic tests; actual stdout retained. Parent reviewed source diff. Full candidate verification follows separately."
+  "provenance": "Assigned coherent_reads worker executed before/after same deterministic tests; actual stdout retained. Parent reviewed source diff. Full candidate verification follows separately.",
+  "command": [
+    "mix",
+    "test",
+    "apps/ex_storage_service/test/ex_storage_service/metadata/backend_concord_test.exs",
+    "apps/ex_storage_service/test/ex_storage_service/object_service_test.exs",
+    "apps/ex_storage_service_s3/test/ex_storage_service_s3/handlers/shared_test.exs",
+    "--max-cases",
+    "1",
+    "--no-color"
+  ],
+  "environment": {
+    "PAGER": "cat",
+    "MIX_ENV": "test",
+    "ERL_FLAGS": "+S 4:4 +SDcpu 2 +SDio 2"
+  },
+  "execution": "PTY zsh set -o pipefail, stderr merged through tee; no source/runtime availability flags disabled.",
+  "prerequisite": {
+    "command": [
+      "mix",
+      "compile",
+      "--force",
+      "--warnings-as-errors"
+    ],
+    "exit_status": 0,
+    "reason": "Refresh cached compile-time build identity after report-only HEAD advanced; initial pre-ExUnit failure is not counted as regression red."
+  }
 }

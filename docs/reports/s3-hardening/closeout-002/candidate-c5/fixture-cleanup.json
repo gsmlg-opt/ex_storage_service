@@ -1,0 +1,383 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "started_at": "2026-10-20T21:44:05.494355+00:00",
+  "scope": "Only exact recorded owned disposable C5 resource/observer/copy fixtures; process start identities verified stopped before removal. Build caches, toolchains and unrelated paths untouched.",
+  "input_script_sha256": "72b46c87983e73486e9bd8c7ada691f8a1a9a4ed3ed7d064fd7061c7d77d2666",
+  "stopped_identities": [
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r1/workload/observer-1792530841877011576.json",
+      "role": "beam",
+      "expected": {
+        "pid": 728919,
+        "start_ticks": 10652461,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r1/workload/observer-1792530841877011576.json",
+      "role": "observer",
+      "expected": {
+        "pid": 728957,
+        "start_ticks": 10652485,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r2/workload/observer-1792530959660749156.json",
+      "role": "beam",
+      "expected": {
+        "pid": 729520,
+        "start_ticks": 10664239,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r2/workload/observer-1792530959660749156.json",
+      "role": "observer",
+      "expected": {
+        "pid": 729562,
+        "start_ticks": 10664264,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r3/workload/observer-1792531125058600561.json",
+      "role": "beam",
+      "expected": {
+        "pid": 730146,
+        "start_ticks": 10680778,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r3/workload/observer-1792531125058600561.json",
+      "role": "observer",
+      "expected": {
+        "pid": 730189,
+        "start_ticks": 10680803,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/observer-1792529296014442698.json",
+      "role": "beam",
+      "expected": {
+        "pid": 721627,
+        "start_ticks": 10497872,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/observer-1792529296014442698.json",
+      "role": "observer",
+      "expected": {
+        "pid": 721663,
+        "start_ticks": 10497899,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-b/observer-1792530115102071008.json",
+      "role": "beam",
+      "expected": {
+        "pid": 722766,
+        "start_ticks": 10579570,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-b/observer-1792530115102071008.json",
+      "role": "observer",
+      "expected": {
+        "pid": 723032,
+        "start_ticks": 10579808,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-a/observer-1792530115065270123.json",
+      "role": "beam",
+      "expected": {
+        "pid": 722757,
+        "start_ticks": 10579570,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-a/observer-1792530115065270123.json",
+      "role": "observer",
+      "expected": {
+        "pid": 723030,
+        "start_ticks": 10579804,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/meta/observer-1792530115030658947.json",
+      "role": "beam",
+      "expected": {
+        "pid": 722749,
+        "start_ticks": 10579569,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/meta/observer-1792530115030658947.json",
+      "role": "observer",
+      "expected": {
+        "pid": 723028,
+        "start_ticks": 10579801,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-observer-diag-baseline-r1/workload/observer-1792528835903558414.json",
+      "role": "beam",
+      "expected": {
+        "pid": 720298,
+        "start_ticks": 10451864,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-observer-diag-baseline-r1/workload/observer-1792528835903558414.json",
+      "role": "observer",
+      "expected": {
+        "pid": 720336,
+        "start_ticks": 10451889,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-observer-diag-baseline-r2/workload/observer-1792528954535847269.json",
+      "role": "beam",
+      "expected": {
+        "pid": 720802,
+        "start_ticks": 10463727,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-observer-diag-baseline-r2/workload/observer-1792528954535847269.json",
+      "role": "observer",
+      "expected": {
+        "pid": 720840,
+        "start_ticks": 10463752,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-resources/observer-1792527189170930902.json",
+      "role": "beam",
+      "expected": {
+        "pid": 685931,
+        "start_ticks": 10287191,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-resources/observer-1792527189170930902.json",
+      "role": "observer",
+      "expected": {
+        "pid": 685967,
+        "start_ticks": 10287215,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/data-b/observer-1792527836975824553.json",
+      "role": "beam",
+      "expected": {
+        "pid": 687878,
+        "start_ticks": 10351757,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/data-b/observer-1792527836975824553.json",
+      "role": "observer",
+      "expected": {
+        "pid": 688137,
+        "start_ticks": 10351995,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/data-a/observer-1792527836946338258.json",
+      "role": "beam",
+      "expected": {
+        "pid": 687870,
+        "start_ticks": 10351757,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/data-a/observer-1792527836946338258.json",
+      "role": "observer",
+      "expected": {
+        "pid": 688135,
+        "start_ticks": 10351992,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/meta/observer-1792527836912948226.json",
+      "role": "beam",
+      "expected": {
+        "pid": 687862,
+        "start_ticks": 10351756,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/meta/observer-1792527836912948226.json",
+      "role": "observer",
+      "expected": {
+        "pid": 688133,
+        "start_ticks": 10351989,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    }
+  ],
+  "private_forensics": [
+    {
+      "path": "/fast/build/ess-closeout-c5-private-forensics/original-copy-replica.wal",
+      "bytes": 1778266,
+      "sha256": "5d8a7a88c9ba348d8cee1e393451bba16759e4ddb762b1b03e0e0e45f6e91f27",
+      "publication": "private local only; contains raw fixture commands/logs and is intentionally excluded from Git/public evidence"
+    },
+    {
+      "path": "/fast/build/ess-closeout-c5-private-forensics/original-cluster-resource-control.log",
+      "bytes": 3747,
+      "sha256": "95c97459e8c076945838a941291a79336be40f397cc991afd6658e1e73744d48",
+      "publication": "private local only; contains raw fixture commands/logs and is intentionally excluded from Git/public evidence"
+    }
+  ],
+  "removed_roots": [
+    {
+      "path": "/tmp/ess-hardening-resource-closeout002-c5-resources",
+      "existed": true,
+      "files": 20,
+      "logical_file_bytes": 3406676592,
+      "absent_after": true
+    },
+    {
+      "path": "/tmp/ess-hardening-resource-closeout002-c5-observer-diag-baseline-r1",
+      "existed": true,
+      "files": 5,
+      "logical_file_bytes": 17458,
+      "absent_after": true
+    },
+    {
+      "path": "/tmp/ess-hardening-resource-closeout002-c5-observer-diag-baseline-r2",
+      "existed": true,
+      "files": 16,
+      "logical_file_bytes": 2149798323,
+      "absent_after": true
+    },
+    {
+      "path": "/tmp/ess-s3-hardening-cluster-sfQ8N1mW",
+      "existed": true,
+      "files": 116,
+      "logical_file_bytes": 13539816646,
+      "absent_after": true
+    },
+    {
+      "path": "/fast/build/ess-closeout-c5-nvme-resources/tmp/ess-hardening-resource-closeout002-c5-nvme-r2-resources",
+      "existed": true,
+      "files": 22,
+      "logical_file_bytes": 7647959406,
+      "absent_after": true
+    },
+    {
+      "path": "/fast/build/ess-closeout-c5-nvme-resources/tmp/ess-s3-hardening-cluster-xLZxLn22",
+      "existed": true,
+      "files": 157,
+      "logical_file_bytes": 13570291608,
+      "absent_after": true
+    },
+    {
+      "path": "/fast/build/ess-closeout-c5-nvme-resources/tmp/ess-s3-hardening-closeout002-c5-nvme-r2-resources-tests",
+      "existed": true,
+      "files": 1,
+      "logical_file_bytes": 92,
+      "absent_after": true
+    },
+    {
+      "path": "/fast/build/ess-closeout-c5-copy-diagnostic/tmp/ess-hardening-resource-closeout002-c5-copy-diag-r1",
+      "existed": true,
+      "files": 18,
+      "logical_file_bytes": 3224410343,
+      "absent_after": true
+    },
+    {
+      "path": "/fast/build/ess-closeout-c5-copy-diagnostic/tmp/ess-hardening-resource-closeout002-c5-copy-diag-r2",
+      "existed": true,
+      "files": 18,
+      "logical_file_bytes": 3225188659,
+      "absent_after": true
+    },
+    {
+      "path": "/fast/build/ess-closeout-c5-copy-diagnostic/tmp/ess-hardening-resource-closeout002-c5-copy-diag-r3",
+      "existed": true,
+      "files": 20,
+      "logical_file_bytes": 3353605382,
+      "absent_after": true
+    }
+  ],
+  "acceptance_effect": "None. Explicit fixture disposal after diagnosis does not repair the original post-idle4GiB retention or promote failed/incomplete resource results.",
+  "finished_at": "2026-10-20T21:44:06.394588+00:00"
+}

@@ -1,0 +1,138 @@
+{
+  "schema": 1,
+  "kind": "lossless-observation-evidence-archives",
+  "created_at": "2026-10-20T21:39:59.173585+00:00",
+  "candidate_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "acceptance_effect": "None. Failed and diagnostic evidence keeps its original status and scope. Original raw samples remain unchanged locally.",
+  "restoration": "For each row, stream-decompress archive_path to raw_path, then verify raw_bytes/raw_sha256 before running the original manifest/export analysis. Never infer missing observations.",
+  "input_script_sha256": "0bad3f83fea4675ca04eef837eb38e4b0a501e3ae11819d6e75b42576067c71c",
+  "archives": [
+    {
+      "raw_path": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r1/workload/samples.jsonl",
+      "raw_bytes": 3089780,
+      "raw_sha256": "002f5d1cfb68ca4b8723c3dbc4afa5f8618f14b13eec72658a633eeeae42c999",
+      "archive_path": "docs/reports/s3-hardening/closeout-002/candidate-c5/observation-archives/closeout002-c5-copy-diag-r1__workload__samples.jsonl.gz",
+      "archive_bytes": 419081,
+      "archive_sha256": "83c1484027a77509b14e020b9dab551c01c67980a0ad74c9cf476852c74d77bd",
+      "roundtrip_verified": true
+    },
+    {
+      "raw_path": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r2/workload/samples.jsonl",
+      "raw_bytes": 3794493,
+      "raw_sha256": "ab70edcae8c1fa50ff44471ed47099d0f67b2bffc8911f807a9a8cfa697539dd",
+      "archive_path": "docs/reports/s3-hardening/closeout-002/candidate-c5/observation-archives/closeout002-c5-copy-diag-r2__workload__samples.jsonl.gz",
+      "archive_bytes": 514075,
+      "archive_sha256": "0d9b5417592e72b1eaca7c5df89efa19f9adff19eb4cae51971e889b7eb4ed7c",
+      "roundtrip_verified": true
+    },
+    {
+      "raw_path": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r3/workload/samples.jsonl",
+      "raw_bytes": 63168096,
+      "raw_sha256": "be07c68018c48d6ad67d10ebc0d3595d842644c9d0c605b3b0abe1fd892d8166",
+      "archive_path": "docs/reports/s3-hardening/closeout-002/candidate-c5/observation-archives/closeout002-c5-copy-diag-r3__workload__samples.jsonl.gz",
+      "archive_bytes": 8345148,
+      "archive_sha256": "455585518e0d977098ee3c2a77e47b629f2a2d1fd459507e007a7383f2afad87",
+      "roundtrip_verified": true
+    },
+    {
+      "raw_path": "docs/reports/s3-hardening/closeout002-c5-faults/samples.jsonl",
+      "raw_bytes": 731842,
+      "raw_sha256": "781afeb961fbd42cac4f84facdc7c01cbc64a253e722c307adb0d62a9e9dc726",
+      "archive_path": "docs/reports/s3-hardening/closeout-002/candidate-c5/observation-archives/closeout002-c5-faults__samples.jsonl.gz",
+      "archive_bytes": 97310,
+      "archive_sha256": "4172eead154bb5bc5f36d856b5a7dd1ac8542835d6b281cf9cda151e077210b7",
+      "roundtrip_verified": true
+    },
+    {
+      "raw_path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/samples.jsonl",
+      "raw_bytes": 62876306,
+      "raw_sha256": "1a2b7d2570fb4b909d166003f8255bcb4ef4c57a768dcf5105daf69c7e8376de",
+      "archive_path": "docs/reports/s3-hardening/closeout-002/candidate-c5/observation-archives/closeout002-c5-nvme-r2-resources__samples.jsonl.gz",
+      "archive_bytes": 8313152,
+      "archive_sha256": "6c2142f627364bb193e85c87f29dfe18168aa1ee0942f64a7e8ed7a733562569",
+      "roundtrip_verified": true
+    },
+    {
+      "raw_path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-a/samples.jsonl",
+      "raw_bytes": 48745295,
+      "raw_sha256": "3208c8747e6c673e37221844d6f6ae05466a1ae1dae38880035d72663bc364a5",
+      "archive_path": "docs/reports/s3-hardening/closeout-002/candidate-c5/observation-archives/closeout002-c5-nvme-r2-resources-cluster__samples__data-a__samples.jsonl.gz",
+      "archive_bytes": 6514862,
+      "archive_sha256": "73276c3b6aefa0e300e3ab142b7ccbf1a1e52ce81c38c78735245af148fcf681",
+      "roundtrip_verified": true
+    },
+    {
+      "raw_path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-b/samples.jsonl",
+      "raw_bytes": 48612027,
+      "raw_sha256": "ce63942d71d7b7ed3beedf4d6242150b51a79e98c4f372d3cb6c4446468ebef2",
+      "archive_path": "docs/reports/s3-hardening/closeout-002/candidate-c5/observation-archives/closeout002-c5-nvme-r2-resources-cluster__samples__data-b__samples.jsonl.gz",
+      "archive_bytes": 6437894,
+      "archive_sha256": "a7a40361f5840633c76b28a8c96cebef6284073af155d98869763f19967645b3",
+      "roundtrip_verified": true
+    },
+    {
+      "raw_path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/meta/samples.jsonl",
+      "raw_bytes": 48774725,
+      "raw_sha256": "4f58cd78f5f524a33cf29a41e5c0b9ff3153094760c9382047dca45482a3e564",
+      "archive_path": "docs/reports/s3-hardening/closeout-002/candidate-c5/observation-archives/closeout002-c5-nvme-r2-resources-cluster__samples__meta__samples.jsonl.gz",
+      "archive_bytes": 6430835,
+      "archive_sha256": "37b13f672452834fc51ad81ad39807c66e98292f0cf3564e83e28fe9001c1766",
+      "roundtrip_verified": true
+    },
+    {
+      "raw_path": "docs/reports/s3-hardening/closeout002-c5-observer-diag-baseline-r1/workload/samples.jsonl",
+      "raw_bytes": 14945,
+      "raw_sha256": "a8a8aa27fee4eb572652712c68ef742acae35bc48edd98f467f4e59ad10d3ab1",
+      "archive_path": "docs/reports/s3-hardening/closeout-002/candidate-c5/observation-archives/closeout002-c5-observer-diag-baseline-r1__workload__samples.jsonl.gz",
+      "archive_bytes": 2441,
+      "archive_sha256": "5a8dc0f28d04330c69a1b2d4dd6206d84357243f3b3beefc33caa459b881b4e6",
+      "roundtrip_verified": true
+    },
+    {
+      "raw_path": "docs/reports/s3-hardening/closeout002-c5-observer-diag-baseline-r2/workload/samples.jsonl",
+      "raw_bytes": 2023180,
+      "raw_sha256": "7a75d525aa15f5ef511c4e70d65142b01db2913df309596da5e12a8681d8f138",
+      "archive_path": "docs/reports/s3-hardening/closeout-002/candidate-c5/observation-archives/closeout002-c5-observer-diag-baseline-r2__workload__samples.jsonl.gz",
+      "archive_bytes": 277119,
+      "archive_sha256": "0c0998b8c6c9345a507fd4cc48ffcb4774afa9e68ca36efc717f1d9674971491",
+      "roundtrip_verified": true
+    },
+    {
+      "raw_path": "docs/reports/s3-hardening/closeout002-c5-resources/samples.jsonl",
+      "raw_bytes": 49640899,
+      "raw_sha256": "ebab2538fbb27c92e645a8eb6cf5a011b8f1c4de8367a9c6810bef7e80c1383a",
+      "archive_path": "docs/reports/s3-hardening/closeout-002/candidate-c5/observation-archives/closeout002-c5-resources__samples.jsonl.gz",
+      "archive_bytes": 6540801,
+      "archive_sha256": "627feddf40f46d0366713843b1bf2c4be345e5887526df41fc0489bd6b7a252f",
+      "roundtrip_verified": true
+    },
+    {
+      "raw_path": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/data-a/samples.jsonl",
+      "raw_bytes": 38414562,
+      "raw_sha256": "49b092f210dce3c8af4913611a08d55d967b9d5839f94eb8d9f4a589d76e343c",
+      "archive_path": "docs/reports/s3-hardening/closeout-002/candidate-c5/observation-archives/closeout002-c5-resources-cluster__samples__data-a__samples.jsonl.gz",
+      "archive_bytes": 5116337,
+      "archive_sha256": "c61cdb720eecc75a51ab353ee7f7012315b1dc5563e46aa73b6e034a6439df10",
+      "roundtrip_verified": true
+    },
+    {
+      "raw_path": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/data-b/samples.jsonl",
+      "raw_bytes": 38285864,
+      "raw_sha256": "ef2060e4379b4877ba23a5737e1a2197c77f3e1c80e33f0e1168dd1ff833fd88",
+      "archive_path": "docs/reports/s3-hardening/closeout-002/candidate-c5/observation-archives/closeout002-c5-resources-cluster__samples__data-b__samples.jsonl.gz",
+      "archive_bytes": 5040833,
+      "archive_sha256": "ac8175c83448ec4c256f962a0aa49a0715917ec035152009eed9735999506ac1",
+      "roundtrip_verified": true
+    },
+    {
+      "raw_path": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/meta/samples.jsonl",
+      "raw_bytes": 38447796,
+      "raw_sha256": "320b79d63ce9dfeda1ac4bf66c5b5db0b3a4aa9ecac9d179663cdbedee7f7647",
+      "archive_path": "docs/reports/s3-hardening/closeout-002/candidate-c5/observation-archives/closeout002-c5-resources-cluster__samples__meta__samples.jsonl.gz",
+      "archive_bytes": 5059442,
+      "archive_sha256": "8558df6de2582a3260caac2d2e5e4c8cea7448d42bcfa3940267d1b09a0f3583",
+      "roundtrip_verified": true
+    }
+  ]
+}

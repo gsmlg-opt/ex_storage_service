@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "scope": "Evidence generation/forensic tools only; not frozen runtime or acceptance workload inputs. These scripts assemble and inspect preserved failed/diagnostic results; they do not turn those results into passes.",
+  "tools": [
+    {
+      "archived_input": "docs/reports/s3-hardening/closeout-002/candidate-c5/evidence-tools/ledger_integration.py",
+      "original_path": "/fast/build/ess-closeout-c5-ledger.py",
+      "sha256": "d9c7765956c09198926aa0291a0d031f51a7aca96a8246ebc02ec1d7fc929796"
+    },
+    {
+      "archived_input": "docs/reports/s3-hardening/closeout-002/candidate-c5/evidence-tools/archive_observations.py",
+      "original_path": "/fast/build/ess-closeout-c5-archive-observations.py",
+      "sha256": "0bad3f83fea4675ca04eef837eb38e4b0a501e3ae11819d6e75b42576067c71c"
+    },
+    {
+      "archived_input": "docs/reports/s3-hardening/closeout-002/candidate-c5/evidence-tools/inspect_retained_bytes.py",
+      "original_path": "/fast/build/ess-closeout-c5-copy-diagnostic/inspect_retained_bytes.py",
+      "sha256": "73add36a9355a70a059a4d8213d454c9a03c73c79cbb3c146a65ffeb1e3e7503"
+    },
+    {
+      "archived_input": "docs/reports/s3-hardening/closeout-002/candidate-c5/evidence-tools/inspect_retained_wal.exs",
+      "original_path": "/fast/build/ess-closeout-c5-copy-diagnostic/inspect_retained_wal.exs",
+      "sha256": "6f99acfe752e677904e0636882c14e23e312118d93e3fb53869c4ae90fc00e6b"
+    },
+    {
+      "archived_input": "docs/reports/s3-hardening/closeout-002/candidate-c5/evidence-tools/analyze_copy_r3.py",
+      "original_path": "/fast/build/ess-closeout-c5-copy-diagnostic/analyze_r3.py",
+      "sha256": "aae00019ba8c164dcca9ae95b72119f0213591e4a02539d0cd880fbdec852f1d"
+    },
+    {
+      "archived_input": "docs/reports/s3-hardening/closeout-002/candidate-c5/evidence-tools/analyze_nvme_resources.py",
+      "original_path": "/fast/build/ess-closeout-c5-nvme-resources/analyze.py",
+      "sha256": "b23331bdf5b4132fe85aac9f358017180625d9b9fa5622adbd5e09e1fd7800bf"
+    },
+    {
+      "archived_input": "docs/reports/s3-hardening/closeout-002/candidate-c5/evidence-tools/cleanup_fixtures.py",
+      "original_path": "/fast/build/ess-closeout-c5-cleanup.py",
+      "sha256": "72b46c87983e73486e9bd8c7ada691f8a1a9a4ed3ed7d064fd7061c7d77d2666"
+    }
+  ],
+  "tool_corrections": [
+    "COPY R3 analysis ignores observer diagnostic-list JSON when selecting observer process manifests; first analysis attempt exited1 before producing a receipt.",
+    "Ledger integration rejects out-of-range source locators; one audit locator was corrected before ledger was materialized."
+  ]
+}

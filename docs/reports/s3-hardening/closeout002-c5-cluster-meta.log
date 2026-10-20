@@ -1,0 +1,14 @@
+
+===== start meta bootstrap=true at 2026-10-20T20:11:18Z =====
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 683329)
+==> ex_storage_service_web
+[0mWaiting for lock on the build directory (held by process 683337)
+04:11:18.875 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+04:11:18.886 [info] Starting Concord TTL manager with cleanup interval: 300000s
+04:11:18.943 [info] Concord VSR metadata quorum ready
+04:12:36.122 [notice] SIGTERM received - shutting down
+

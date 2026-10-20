@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+python=/tmp/ess-s3-hardening-python/bin/python
+observer=/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts/resource_observer.py
+if [[ $# -ge 3 && "$1" == -B && "$2" == "$observer" && "$3" == sample ]]; then
+  exec strace -f -qq -c -w -S max-time \
+    -U calls,total-time,min-time,max-time,avg-time,name \
+    -e trace=stat,lstat,newfstatat,statx,fstat,getdents64,openat,close \
+    -o "$E2E_DIAG_TRACE_DIR/observer-syscalls.$$.txt" "$python" "$@"
+fi
+exec "$python" "$@"

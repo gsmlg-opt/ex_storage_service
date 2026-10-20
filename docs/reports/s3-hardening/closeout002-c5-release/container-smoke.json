@@ -1,0 +1,47 @@
+{
+  "build": {
+    "version": "0.6.10",
+    "environment": "prod",
+    "git_ref": "v0.6.10",
+    "git_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+    "build_time": "2026-10-20T20:34:51Z"
+  },
+  "versions": {
+    "ex_storage_service": "0.6.10",
+    "ex_storage_service_cluster": "0.6.10",
+    "ex_storage_service_s3": "0.6.10",
+    "ex_storage_service_web": "0.6.10"
+  },
+  "operator_diagnostics": {
+    "capacity": {
+      "complete": true,
+      "roots": {
+        "metadata": {
+          "complete": true,
+          "total_bytes": 983349346304,
+          "available_bytes": 409568014336
+        },
+        "blob": {
+          "complete": true,
+          "total_bytes": 983349346304,
+          "available_bytes": 409568014336
+        },
+        "tmp": {
+          "complete": true,
+          "total_bytes": 983349346304,
+          "available_bytes": 409568014336
+        }
+      },
+      "staging": {
+        "limit": 1024,
+        "tracked_bytes": 0,
+        "tracked_files": 0,
+        "complete_since_setup": true
+      }
+    },
+    "operation_namespaces": 3,
+    "missing_job": "not_found",
+    "missing_index": "bucket_not_found",
+    "staging_cursor": "opened_and_closed"
+  }
+}

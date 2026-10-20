@@ -1,0 +1,70 @@
+
+===== start data-b bootstrap=true at 2026-10-20T20:11:18Z =====
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 683329)
+[0mWaiting for lock on the build directory (held by process 683321)
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 683321)
+[0mWaiting for lock on the build directory (held by process 683329)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 683329)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 683329)
+==> ex_storage_service_web
+[0mWaiting for lock on the build directory (held by process 683329)
+04:11:18.907 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+04:11:18.921 [info] Starting Concord TTL manager with cleanup interval: 300000s
+04:11:18.984 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-Ngavhnzu/data-b and blob root /tmp/ess-s3-hardening-cluster-Ngavhnzu/data-b/blob
+04:11:19.009 [info] Concord VSR metadata quorum ready
+04:11:19.035 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9102 (http)
+04:11:19.039 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9002 (http)
+04:11:21.216 [warning] SigV4 auth failed: Invalid credential scope — PUT /hardening-p1-60265c400bb541febd/bad-scope
+04:11:31.171 [warning] Outbox materialization failed: :cluster_not_ready
+04:11:35.927 [warning] SigV4 auth failed: User account is suspended — GET /hardening-iam-6a0ff6953be145e8/probe
+04:11:36.931 [warning] SigV4 auth failed: InvalidAccessKeyId — GET /hardening-iam-6a0ff6953be145e8/probe
+04:11:42.315 [warning] SigV4 auth failed: Missing Authorization header — GET /hardening-tags-b8c312e3037a492a9e/multipart
+04:12:01.885 [notice] SIGTERM received - shutting down
+
+
+===== start data-b bootstrap=false at 2026-10-20T20:12:03Z =====
+04:12:03.593 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+04:12:03.603 [info] Starting Concord TTL manager with cleanup interval: 300000s
+04:12:03.664 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-Ngavhnzu/data-b and blob root /tmp/ess-s3-hardening-cluster-Ngavhnzu/data-b/blob
+04:12:04.119 [info] Concord VSR metadata quorum pending: :timeout
+04:12:04.156 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9102 (http)
+04:12:04.162 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9002 (http)
+04:12:16.405 [notice] SIGTERM received - shutting down
+
+
+===== start data-b bootstrap=false at 2026-10-20T20:12:18Z =====
+04:12:19.270 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+04:12:19.281 [info] Starting Concord TTL manager with cleanup interval: 300000s
+04:12:19.338 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-Ngavhnzu/data-b and blob root /tmp/ess-s3-hardening-cluster-Ngavhnzu/data-b/blob
+04:12:19.795 [info] Concord VSR metadata quorum pending: :timeout
+04:12:19.830 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9102 (http)
+04:12:19.835 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9002 (http)
+04:12:22.592 [warning] Outbox materialization failed: :cluster_not_ready
+04:12:24.572 [notice] SIGTERM received - shutting down
+
+
+===== start data-b bootstrap=false at 2026-10-20T20:12:27Z =====
+04:12:27.604 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+04:12:27.614 [info] Starting Concord TTL manager with cleanup interval: 300000s
+04:12:27.680 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-Ngavhnzu/data-b and blob root /tmp/ess-s3-hardening-cluster-Ngavhnzu/data-b/blob
+04:12:28.138 [info] Concord VSR metadata quorum pending: :timeout
+04:12:28.184 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9102 (http)
+04:12:28.189 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9002 (http)
+04:12:33.684 [notice] SIGTERM received - shutting down
+

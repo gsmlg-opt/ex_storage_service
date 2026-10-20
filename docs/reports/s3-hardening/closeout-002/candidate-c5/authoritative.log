@@ -1,0 +1,100 @@
+correctness: passed (docs/reports/s3-hardening/closeout-002/candidate-c5/correctness.json)
+standalone: passed (docs/reports/s3-hardening/closeout-002/candidate-c5/standalone.json)
+gateway: passed (docs/reports/s3-hardening/closeout-002/candidate-c5/gateway.json)
+cluster: passed (docs/reports/s3-hardening/closeout-002/candidate-c5/cluster.json)
+index: blocked (docs/reports/s3-hardening/closeout-002/candidate-c5/index.json)
+resources: blocked (docs/reports/s3-hardening/closeout-002/candidate-c5/resources.json)
+faults: passed (docs/reports/s3-hardening/closeout-002/candidate-c5/faults.json)
+crashes: passed (docs/reports/s3-hardening/closeout-002/candidate-c5/crashes.json)
+resilience: passed (docs/reports/s3-hardening/closeout-002/candidate-c5/resilience.json)
+restore: passed (docs/reports/s3-hardening/closeout-002/candidate-c5/restore.json)
+release: passed (docs/reports/s3-hardening/closeout-002/candidate-c5/release.json)
+A01: pending; every mandatory row must pass
+A02: pending; every mandatory row must pass
+A03: pending; every mandatory row must pass
+A04: pending; every mandatory row must pass
+A05: pending; every mandatory row must pass
+A06: pending; every mandatory row must pass
+A07: pending; every mandatory row must pass
+A08: pending; every mandatory row must pass
+A09: pending; every mandatory row must pass
+A10: pending; every mandatory row must pass
+A11: pending; every mandatory row must pass
+A12: pending; every mandatory row must pass
+A13: pending; every mandatory row must pass
+A14: pending; every mandatory row must pass
+A15: pending; every mandatory row must pass
+A16: pending; every mandatory row must pass
+A17: pending; every mandatory row must pass
+A18: pending; every mandatory row must pass
+A19: pending; every mandatory row must pass
+A20: pending; every mandatory row must pass
+A21: pending; every mandatory row must pass
+A22: pending; every mandatory row must pass
+A23: pending; every mandatory row must pass
+A24: pending; every mandatory row must pass
+A25: pending; every mandatory row must pass
+A26: pending; every mandatory row must pass
+A27: pending; every mandatory row must pass
+A28: blocked; every mandatory row must pass
+A29: pending; every mandatory row must pass
+A30: pending; every mandatory row must pass
+A31: pending; every mandatory row must pass
+A32: pending; every mandatory row must pass
+A33: pending; every mandatory row must pass
+A34: pending; every mandatory row must pass
+A35: pending; every mandatory row must pass
+A36: pending; every mandatory row must pass
+A37: pending; every mandatory row must pass
+A38: pending; every mandatory row must pass
+index: blocked or incomplete execution
+resources: blocked or incomplete execution
+A01: pending
+A02: pending
+A03: pending
+A04: pending
+A05: pending
+A06: pending
+A07: pending
+A08: pending
+A09: pending
+A10: pending
+A11: pending
+A12: pending
+A13: pending
+A14: pending
+A15: pending
+A16: pending
+A17: pending
+A18: pending
+A19: pending
+A20: pending
+A21: pending
+A22: pending
+A23: pending
+A24: pending
+A25: pending
+A26: pending
+A27: pending
+A28: blocked
+A29: pending
+A30: pending
+A31: pending
+A32: pending
+A33: pending
+A34: pending
+A35: pending
+A36: pending
+A37: pending
+A38: pending
+profile correctness: passed
+profile standalone: passed
+profile gateway: passed
+profile cluster: passed
+profile index: blocked
+profile resources: blocked
+profile faults: passed
+profile crashes: passed
+profile resilience: passed
+profile restore: passed
+profile release: passed

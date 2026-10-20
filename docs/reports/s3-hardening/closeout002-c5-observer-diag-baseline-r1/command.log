@@ -1,0 +1,20 @@
+Disposable resource root retained: /tmp/ess-hardening-resource-closeout002-c5-observer-diag-baseline-r1
+Traceback (most recent call last):
+  File "/fast/build/ess-hardening-c5-observer-diagnostic/launcher.py", line 6, in <module>
+    runpy.run_path(script, run_name="__main__")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/fast/build/ess-hardening-c5-observer-diagnostic/workload.py", line 306, in <module>
+    main()
+    ~~~~^^
+  File "/fast/build/ess-hardening-c5-observer-diagnostic/workload.py", line 184, in main
+    runtime.start()
+    ~~~~~~~~~~~~~^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/gateway_hardening.py", line 163, in start
+    wait_http(f"http://127.0.0.1:{self.port}/health", self.process)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/gateway_hardening.py", line 47, in wait_http
+    raise RuntimeError("owned service exited; inspect retained log")
+RuntimeError: owned service exited; inspect retained log

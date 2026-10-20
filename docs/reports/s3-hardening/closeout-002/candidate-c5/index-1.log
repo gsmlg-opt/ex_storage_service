@@ -1,0 +1,1 @@
+BLOCKED A28: gsmlg-dev/concord#101 (singleton read history traversal) and #102 (atomic transaction full-state materialization), reproduced on coordinated 3.1.4. No 10k/100k acceptance run is valid yet.

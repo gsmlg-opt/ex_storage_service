@@ -6,13 +6,40 @@
     "exit_status": 1,
     "tests": 4,
     "failures": 1,
-    "path": "docs/reports/s3-hardening/closeout-002/observer-cache-stats/red.json"
+    "path": "docs/reports/s3-hardening/closeout-002/observer-cache-stats/red.json",
+    "command": [
+      "/tmp/ess-s3-hardening-python/bin/python",
+      "-B",
+      "-m",
+      "unittest",
+      "test_resource_observer.TemporaryDiskTest",
+      "-v"
+    ],
+    "environment": {
+      "PAGER": "cat",
+      "PYTHONPATH": "e2e",
+      "SAMPLER_EVIDENCE_ROOT": "/tmp/ess-hardening-observer-stat-be34dd6-red"
+    },
+    "fixture_note": "Valid deterministic4test red followed correction of initial test-wrapper __enter__ assumption; first fixture-error attempt has no regression credit."
   },
   "green": {
     "exit_status": 0,
     "tests": 4,
     "failures": 0,
-    "path": "docs/reports/s3-hardening/closeout-002/observer-cache-stats/green.json"
+    "path": "docs/reports/s3-hardening/closeout-002/observer-cache-stats/green.json",
+    "command": [
+      "/tmp/ess-s3-hardening-python/bin/python",
+      "-B",
+      "-m",
+      "unittest",
+      "test_resource_observer.TemporaryDiskTest",
+      "-v"
+    ],
+    "environment": {
+      "PAGER": "cat",
+      "PYTHONPATH": "e2e",
+      "SAMPLER_EVIDENCE_ROOT": "/tmp/ess-hardening-observer-stat-be34dd6-green"
+    }
   },
   "scoped_suite": {
     "exit_status": 0,
@@ -21,7 +48,21 @@
     "modules": [
       "test_resource_observer",
       "test_resource_cadence"
-    ]
+    ],
+    "command": [
+      "/tmp/ess-s3-hardening-python/bin/python",
+      "-B",
+      "-m",
+      "unittest",
+      "test_resource_observer",
+      "test_resource_cadence",
+      "-v"
+    ],
+    "environment": {
+      "PAGER": "cat",
+      "PYTHONPATH": "e2e",
+      "SAMPLER_EVIDENCE_ROOT": "/tmp/ess-hardening-observer-stat-be34dd6-green"
+    }
   },
   "provenance": "Assigned list_buckets_dispatch worker actual deterministic red/green results; parent reviewed unchanged22byte total and explicit completed-file calls128to0. Full candidate correctness retains new stdout separately.",
   "limitations": [

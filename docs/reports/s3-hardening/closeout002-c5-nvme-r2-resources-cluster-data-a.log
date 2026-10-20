@@ -1,0 +1,26 @@
+
+===== start data-a bootstrap=true at 2026-10-20T21:01:52Z =====
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 722749)
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 722749)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 722749)
+[0mWaiting for lock on the build directory (held by process 722766)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 722749)
+==> ex_storage_service_web
+[0mWaiting for lock on the build directory (held by process 722749)
+05:01:53.297 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+05:01:53.315 [info] Starting Concord TTL manager with cleanup interval: 300000s
+05:01:53.396 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-xLZxLn22/data-a and blob root /tmp/ess-s3-hardening-cluster-xLZxLn22/data-a/blob
+05:01:53.421 [info] Concord VSR metadata quorum ready
+05:01:53.445 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9101 (http)
+05:01:53.449 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9001 (http)
+05:05:29.496 [warning] 'global' at node :"ess_data_a@127.0.0.1" requested disconnect from node :"resource_ctl_b9194b938a@127.0.0.1" in order to prevent overlapping partitions
+05:12:22.093 [warning] 'global' at node :"ess_data_a@127.0.0.1" requested disconnect from node :"resource_ctl_e2d1876c70@127.0.0.1" in order to prevent overlapping partitions
+05:12:27.012 [notice] SIGTERM received - shutting down
+

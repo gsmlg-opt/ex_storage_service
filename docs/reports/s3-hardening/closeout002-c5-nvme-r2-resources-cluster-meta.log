@@ -1,0 +1,22 @@
+
+===== start meta bootstrap=true at 2026-10-20T21:01:52Z =====
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 722757)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 722757)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 722766)
+[0mWaiting for lock on the build directory (held by process 722757)
+==> ex_storage_service_web
+[0mWaiting for lock on the build directory (held by process 722757)
+05:01:53.296 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+05:01:53.312 [info] Starting Concord TTL manager with cleanup interval: 300000s
+05:01:53.384 [info] Concord VSR metadata quorum ready
+05:02:08.416 [warning] 'global' at node :"ess_meta@127.0.0.1" requested disconnect from node :"resource_ctl_d48eb571f7@127.0.0.1" in order to prevent overlapping partitions
+05:02:40.144 [warning] 'global' at node :"ess_meta@127.0.0.1" requested disconnect from node :"resource_ctl_f25a657ccc@127.0.0.1" in order to prevent overlapping partitions
+05:02:40.151 [warning] 'global' at node :"ess_meta@127.0.0.1" requested disconnect from node :"resource_ctl_8cba2b817a@127.0.0.1" in order to prevent overlapping partitions
+05:12:28.232 [notice] SIGTERM received - shutting down
+

@@ -1,0 +1,92 @@
+==> ex_storage_service
+Running ExUnit with seed: 245211, max_cases: 1
+Excluding tags: [cluster: true]
+
+.........................................................................................................................03:57:43.012 [error] CloudCache DELETE failed remote/key: HTTP 403 — ""
+........03:57:43.084 [error] Replication DELETE failed for bucket/key to http://127.0.0.1:59219: HTTP 503 - ""
+......................................................................................................................................................................................................................................................................................................................................03:57:58.763 [warning] CasGC: failed to delete a1ff259af6be1ec4a8e8000b97ccbdf79107adc66b2da3c202d57998ec6f38ed: :invalid_quarantine_path
+.....................03:58:02.903 [warning] CAS migration: content missing for version-profile-8898 hash b24eaab99ada33bf078d28fc9c69569d104a0779e07690c6629f3d8d04c5d18c
+03:58:02.903 [warning] CAS migration: content missing for version-profile-8930 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+03:58:02.916 [warning] CAS migration: content missing for version-profile-8866 hash de5c8dd7696d37542b0be61079e5b9c7e0056225b2e063b277f817671356f575
+03:58:02.916 [warning] CAS migration: content missing for version-profile-8898 hash b24eaab99ada33bf078d28fc9c69569d104a0779e07690c6629f3d8d04c5d18c
+03:58:02.917 [warning] CAS migration: content missing for version-profile-8930 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+03:58:02.917 [warning] CAS migration: content missing for version-profile-8866 hash de5c8dd7696d37542b0be61079e5b9c7e0056225b2e063b277f817671356f575
+.03:58:02.976 [warning] CAS migration: content missing for version-profile-8898 hash b24eaab99ada33bf078d28fc9c69569d104a0779e07690c6629f3d8d04c5d18c
+03:58:02.976 [warning] CAS migration: content missing for version-profile-8930 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+03:58:02.976 [warning] CAS migration: content missing for version-profile-8866 hash de5c8dd7696d37542b0be61079e5b9c7e0056225b2e063b277f817671356f575
+.03:58:02.999 [warning] CAS migration: content missing for mig-9202 hash b69e304e208e1d7007ff76e7e6824a695b70e018c9cef205e87aae06360bd8eb
+03:58:03.000 [warning] CAS migration: content missing for version-profile-8898 hash b24eaab99ada33bf078d28fc9c69569d104a0779e07690c6629f3d8d04c5d18c
+03:58:03.000 [warning] CAS migration: content missing for version-profile-8930 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+03:58:03.000 [warning] CAS migration: content missing for version-profile-8866 hash de5c8dd7696d37542b0be61079e5b9c7e0056225b2e063b277f817671356f575
+............................................................................................................03:58:10.184 [warning] ContentGC: metadata scan failed; sweep aborted: :metadata_unavailable
+..............
+Finished in 62.8 seconds (13.2s async, 49.6s sync)
+601 tests, 0 failures, 1 excluded
+==> ex_storage_service_cluster
+Running ExUnit with seed: 245211, max_cases: 1
+Excluding tags: [large_stream: true]
+
+.....................................03:58:43.832 [error] GenServer #PID<0.7602.0> terminating
+** (Bandit.TransportError) Unable to obtain conn_data
+    (bandit 1.12.5) lib/bandit/socket_helpers.ex:72: Bandit.SocketHelpers.transport_error!/2
+    (bandit 1.12.5) lib/bandit/http1/handler.ex:9: Bandit.HTTP1.Handler.handle_connection/2
+    (bandit 1.12.5) lib/bandit/delegating_handler.ex:12: Bandit.DelegatingHandler.handle_connection/2
+    (bandit 1.12.5) lib/bandit/delegating_handler.ex:63: Bandit.DelegatingHandler.handle_bandit_continuation/2
+    (bandit 1.12.5) lib/bandit/delegating_handler.ex:8: Bandit.DelegatingHandler.handle_continue/2
+    (stdlib 7.3.0.1) gen_server.erl:2424: :gen_server.try_handle_continue/3
+    (stdlib 7.3.0.1) gen_server.erl:2291: :gen_server.loop/4
+    (stdlib 7.3.0.1) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+Process Label: {:thousand_island, :connection, {Bandit.DelegatingHandler, {{127, 0, 0, 1}, 33000}}}
+Last message: {:continue, :handle_connection}
+..
+Finished in 0.8 seconds (0.8s async, 0.00s sync)
+40 tests, 0 failures, 1 excluded
+==> ex_storage_service_cli
+Running ExUnit with seed: 245211, max_cases: 1
+Excluding tags: [large_stream: true]
+
+...........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................[31m✗ Error:[0m Download failed: Unsafe local download destination
+................................................................................................................................................................................................................................................................................................................................................................................................................................................................{"port":33955,"host":"127.0.0.1","method":"HEAD","event":"request","operation":"HeadObject","attempt":1,"region":"us-east-1"}
+{"status":200,"event":"response","operation":"HeadObject"}
+.................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................ESS_RESOURCE_EVIDENCE {"small":{"size":1048576,"requests":{"active":0,"maximum":1,"bytes":0,"queued":0,"high_bytes":131072,"high_requests":1},"samples":7,"peak_total":182485960,"baseline_total":181902520,"peak_binary":20884416,"baseline_binary":20549904,"peak_processes":914,"baseline_processes":907,"peak_mailbox":0,"peak_staging":917504},"budget":1048576,"large":{"size":67108864,"requests":{"active":0,"maximum":1,"bytes":0,"queued":0,"high_bytes":131072,"high_requests":1},"samples":405,"peak_total":183439960,"baseline_total":181967248,"peak_binary":21695104,"baseline_binary":20549488,"peak_processes":918,"baseline_processes":908,"peak_mailbox":1,"peak_staging":67108864},"fixed_overhead":67108864}
+.......................................................................................................................................................................................................................................................................................................................................
+Finished in 418.8 seconds (175.8s async, 242.9s sync)
+3491 tests, 0 failures
+==> ex_storage_service_s3
+Running ExUnit with seed: 245211, max_cases: 1
+Excluding tags: [large_stream: true]
+
+.............................04:05:43.219 request_id=request-phase7-incomplete [warning] blob response stream terminated
+........................................generated XML corpus: 5402 rejected cases, max input 4096 bytes
+......................04:05:44.105 [warning] SigV4 auth failed: Missing Authorization header — POST /health/cloud_cache
+............04:05:50.965 [error] Replication PUT failed for source/broken.bin to http://localhost:9001: {:request_failed, %ExStorageService.BlobStore.Source.RequestBodyError{reason: :upstream_closed}}
+...04:05:51.290 [error] Replication PUT repl-27602/d.txt: content "34b79ebbbdd248cd400be53835923b81af125e4c4bc956444f3f0701751007e0" missing from storage
+.............04:05:56.183 [warning] SigV4 auth failed: SignatureDoesNotMatch — GET /
+..............................04:06:08.751 [error] 4234- fatal: :unexpected_end
+
+04:06:08.752 [error] 4234- fatal: :unexpected_end
+
+04:06:08.765 [error] 4234- fatal: :unexpected_end
+
+04:06:08.766 [error] 4234- fatal: :unexpected_end
+
+04:06:08.778 [error] 4234- fatal: :unexpected_end
+
+04:06:08.779 [error] 4234- fatal: :unexpected_end
+
+..........................................................................................................................................................................04:07:09.980 [warning] SigV4 auth failed: Missing Authorization header — OPTIONS /cors-http-30354/key
+04:07:09.985 [warning] SigV4 auth failed: Missing Authorization header — GET /cors-http-30354/key
+...........................................04:07:24.658 [warning] SigV4 auth failed: Missing Authorization header — HEAD /signature
+.04:07:24.662 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+04:07:24.662 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+.04:07:24.667 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+......
+Finished in 106.2 seconds (1.2s async, 104.9s sync)
+370 tests, 0 failures
+==> ex_storage_service_web
+Running ExUnit with seed: 245211, max_cases: 1
+Excluding tags: [large_stream: true]
+
+.....................
+Finished in 0.2 seconds (0.1s async, 0.1s sync)
+21 tests, 0 failures

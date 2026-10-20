@@ -1,0 +1,62 @@
+{
+  "profile": "correctness",
+  "status": "passed",
+  "starting_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "ending_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "mix_env": "test",
+      "exit_status": 0,
+      "duration_seconds": 0.815,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/correctness-0.log"
+    },
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "mix_env": "test",
+      "exit_status": 0,
+      "duration_seconds": 7.283,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/correctness-1.log"
+    },
+    {
+      "argv": [
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "e2e/run_correctness_tests.py",
+        "--extended",
+        "--output",
+        "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/candidate-c5/suite-selection"
+      ],
+      "mix_env": "test",
+      "exit_status": 0,
+      "duration_seconds": 589.801,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/correctness-2.log"
+    },
+    {
+      "argv": [
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "e2e",
+        "-p",
+        "test_*.py"
+      ],
+      "mix_env": "test",
+      "exit_status": 0,
+      "duration_seconds": 21.388,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/correctness-3.log"
+    }
+  ],
+  "started_at": "2026-10-20T19:57:31.452660+00:00"
+}

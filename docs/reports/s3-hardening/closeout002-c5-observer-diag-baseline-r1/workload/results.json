@@ -1,0 +1,114 @@
+{
+  "status": "failed",
+  "profile": "all",
+  "acceptance": false,
+  "diagnostic": "local-upload-part-copy-1gib-c4",
+  "starting_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "groups": [],
+  "upload_verifications": [],
+  "versions": {
+    "boto3": "1.43.114",
+    "botocore": "1.43.114",
+    "rustfs": "sha256:f6b22807f10db2aee80b8a9ed1e36bd12c2fba25ac2d98dc3b0332a23f1a5c4d [\"rustfs/rustfs@sha256:1803faef57627e2d9c2e7d89d655d712ddded5389040054987163043fecb6a3c\"]"
+  },
+  "runner": {
+    "uname": [
+      "Linux",
+      "ms04",
+      "6.18.48",
+      "#1-NixOS SMP PREEMPT_DYNAMIC Fri Aug 28 06:22:54 UTC 2026",
+      "x86_64",
+      ""
+    ],
+    "cpu_count": 16,
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "load": [
+      0.67431640625,
+      2.50244140625,
+      2.03173828125
+    ],
+    "monotonic_clock": {
+      "implementation": "clock_gettime(CLOCK_MONOTONIC)",
+      "monotonic": true,
+      "adjustable": false,
+      "resolution": 1e-09
+    },
+    "disk": {
+      "device": 66308,
+      "path": "/tmp/ess-hardening-resource-closeout002-c5-observer-diag-baseline-r1",
+      "block_bytes": 4096,
+      "available_bytes": 27157712896
+    },
+    "meminfo": "MemTotal:       65676752 kB\nMemFree:         2597340 kB\nMemAvailable:   58791620 kB\nBuffers:          943056 kB\nCached:         52164580 kB\nSwapCached:       134128 kB\nActive:         11533848 kB\nInactive:       45151764 kB\nActive(anon):    2337544 kB\nInactive(anon):  1818524 kB\nActive(file):    9196304 kB\nInactive(file): 43333240 kB\nUnevictable:        1380 kB\nMlocked:            1344 kB\nSwapTotal:      72248812 kB\nSwapFree:       65302180 kB\nZswap:                 0 kB\nZswapped:              0 kB\nDirty:              3828 kB\nWriteback:             0 kB\nAnonPages:       3540616 kB\nMapped:          1306740 kB\nShmem:            578384 kB\nKReclaimable:    4394116 kB\nSlab:            5199136 kB\nSReclaimable:    4394116 kB\nSUnreclaim:       805020 kB\nKernelStack:       25136 kB\nPageTables:       153472 kB\nSecPageTables:      1028 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    105087188 kB\nCommitted_AS:   23672268 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:      392108 kB\nVmallocChunk:          0 kB\nPercpu:            18752 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:     43008 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:    208896 kB\nFilePmdMapped:      2048 kB\nCmaTotal:              0 kB\nCmaFree:               0 kB\nUnaccepted:            0 kB\nBalloon:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:     3425016 kB\nDirectMap2M:    50933760 kB\nDirectMap1G:    14680064 kB\n",
+    "pressure/cpu": "some avg10=0.00 avg60=0.20 avg300=0.47 total=128942686\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+    "pressure/io": "some avg10=0.02 avg60=0.30 avg300=1.41 total=1097067393\nfull avg10=0.02 avg60=0.29 avg300=1.34 total=1074458846\n",
+    "pressure/memory": "some avg10=0.00 avg60=0.00 avg300=0.00 total=3710764\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=3635615\n",
+    "self/cgroup": "0::/user.slice/user-1000.slice/session-521.scope\n",
+    "cgroups": {
+      "/sys/fs/cgroup/user.slice/user-1000.slice/session-521.scope": {
+        "cpu.max": "max 100000",
+        "memory.max": "max",
+        "io.max": ""
+      },
+      "/sys/fs/cgroup/user.slice/user-1000.slice": {
+        "cpu.max": "max 100000",
+        "memory.max": "max",
+        "io.max": ""
+      },
+      "/sys/fs/cgroup/user.slice": {
+        "cpu.max": "max 100000",
+        "memory.max": "max",
+        "cpuset.cpus.effective": "0-15",
+        "io.max": ""
+      },
+      "/sys/fs/cgroup": {
+        "cpuset.cpus.effective": "0-15"
+      }
+    },
+    "dependencies": {
+      "concord": "3.1.4",
+      "ex_turso": "3.1.4",
+      "http_fetch": "0.21.13",
+      "viewstamped_replication": "3.1.4"
+    },
+    "python": "3.13.15",
+    "client_checksum_environment": {
+      "AWS_REQUEST_CHECKSUM_CALCULATION": null,
+      "AWS_RESPONSE_CHECKSUM_VALIDATION": null
+    },
+    "toolchain": "Erlang/OTP 28 [erts-16.4.0.5] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.18.5 (compiled with Erlang/OTP 28)\n"
+  },
+  "required_cases": [
+    {
+      "name": "local-put",
+      "size": 1073741824,
+      "concurrency": 4
+    },
+    {
+      "name": "local-upload-part-copy",
+      "size": 1073741824,
+      "concurrency": 4
+    }
+  ],
+  "envelope": "docs/plans/s3-hardening-resource-envelope.md",
+  "error_type": "RuntimeError",
+  "ending_sha": "83ddc379be879b947e19aecda45e615f4f45b530"
+}

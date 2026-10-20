@@ -1,0 +1,35 @@
+
+===== start meta bootstrap=true at 2026-10-20T20:12:44Z =====
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 684964)
+[0mWaiting for lock on the build directory (held by process 684972)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 684964)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 684964)
+[0mWaiting for lock on the build directory (held by process 684972)
+[0mWaiting for lock on the build directory (held by process 684964)
+[0mWaiting for lock on the build directory (held by process 684972)
+[0mWaiting for lock on the build directory (held by process 684972)
+[0mWaiting for lock on the build directory (held by process 684964)
+[0mWaiting for lock on the build directory (held by process 684972)
+04:12:45.435 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+04:12:45.447 [info] Starting Concord TTL manager with cleanup interval: 300000s
+04:12:45.504 [info] Concord VSR metadata quorum ready
+04:12:48.194 [notice] Application ex_storage_service_s3 exited: :stopped
+04:12:48.197 [notice] Application ex_storage_service_web exited: :stopped
+04:12:48.197 [notice] Application ex_storage_service_cluster exited: :stopped
+crash meta SIGKILL at 2026-10-20T20:12:48Z
+
+===== start meta bootstrap=false at 2026-10-20T20:12:50Z =====
+04:12:51.173 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+04:12:51.186 [info] Starting Concord TTL manager with cleanup interval: 300000s
+04:12:51.469 [info] Concord VSR metadata quorum pending: {:not_ready, %{node: :"ess_meta@127.0.0.1", engine: :vsr, cluster: %{status: :recovering, group_id: "ess-cluster-e2e", replica_id: "meta", op_number: 49, primary_id: "data-a", view_number: 1, commit_number: 49, applied_number: 49, configuration_hash: <<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>}, storage: %{memory: 64315, size: 126, legacy_indexes: [], legacy_state_conflict_count: 0, legacy_state_conflicts: [], legacy_state_reconciliation_required: true, legacy_state_representation: :legacy}, command_version: 0, wal_version: 1}}
+04:12:59.844 [notice] SIGTERM received - shutting down
+

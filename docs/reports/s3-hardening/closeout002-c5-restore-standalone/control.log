@@ -1,0 +1,64 @@
+
+04:33:58.774 [debug] API put: :ok (8ms)
+
+04:33:58.780 [debug] API put: :ok (5ms)
+
+04:33:58.780 [debug] API get: {:error, :not_found} (0ms)
+
+04:33:58.786 [debug] API put: :ok (5ms)
+
+04:33:58.787 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:33:58.794 [debug] API put: :ok (6ms)
+
+04:33:58.801 [debug] API put: :ok (7ms)
+
+04:33:58.808 [debug] API put: :ok (7ms)
+
+04:33:58.808 [debug] API get: {:error, :not_found} (0ms)
+
+04:33:58.815 [debug] API put: :ok (6ms)
+
+04:33:58.815 [debug] API get: {:ok, %{id: "usr_dtykod5kokdf", name: "restore-reader", status: :active, created_at: "2026-10-20T20:33:58.794513Z", updated_at: "2026-10-20T20:33:58.794513Z"}} (0ms)
+
+04:33:58.822 [debug] API put: :ok (6ms)
+{"restore_control":{"operation":"seed","completed":true}}
+
+04:34:00.001 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:00.001 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:00.009 [debug] API put: :ok (6ms)
+
+04:34:00.009 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:00.016 [debug] API put: :ok (6ms)
+
+04:34:00.016 [info] Pack: packed 1 blobs into pack-9370552e5e32e5532018ae8edc5dc8dc441f163246cf994255b8bf14ebf7d08c (61 bytes)
+{"restore_control":{"operation":"pack","completed":true}}
+{"restore_control":{"operation":"quiesce","completed":true}}
+
+04:34:01.155 [debug] API put: :ok (8ms)
+
+04:34:01.162 [debug] API put: :ok (6ms)
+
+04:34:01.176 [debug] API put: :ok (5ms)
+
+04:34:01.198 [debug] API put: :ok (6ms)
+
+04:34:01.212 [debug] API put: :ok (5ms)
+{"restore_control":{"operation":"boundary","completed":true}}
+
+04:34:01.775 [info] Backup created successfully: /tmp/ess-hardening-restore-glmDANkO/bundle.partial-d0a52865eed4f3eddca3508f/concord_backup_20261020T203401.774635Z.backup
+{"restore_control":{"operation":"backup","completed":true}}
+
+04:34:12.946 [info] Applying backup from 2026-10-20 20:34:01.774496Z, 73 entries
+
+04:34:12.958 [info] Backup restored successfully from: /tmp/backup/concord_backup_20261020T203401.774635Z.backup
+{"restore_control":{"operation":"restore","completed":true}}
+{"restore_control":{"operation":"verify","completed":true}}
+
+04:34:15.880 [debug] API get: {:ok, %{size: 61, state: :unknown, hash: "9370552e5e32e5532018ae8edc5dc8dc441f163246cf994255b8bf14ebf7d08c", node_id: "data-a", node_generation: 1, schema: 2, created_at_ms: 1792528441212, operation_id: "restore-unknown", protected_until_ms: 1792532041212, updated_at_ms: 1792528441221}} (0ms)
+{"restore_control":{"operation":"fences","completed":true}}
+{"restore_control":{"operation":"reject-workers","completed":true}}
+{"restore_control":{"operation":"activate","completed":true}}

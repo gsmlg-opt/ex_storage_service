@@ -1,0 +1,8 @@
+{
+  "tmp_device": 66305,
+  "physical_device": 66305,
+  "available": 409567641600,
+  "namespace": "mnt:[4026533196]",
+  "python": "/tmp/ess-s3-hardening-python/bin/python",
+  "docker_socket": true
+}

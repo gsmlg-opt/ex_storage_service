@@ -1,0 +1,29 @@
+{
+  "checked_at": "2026-10-20T21:34:44.276086+00:00",
+  "issues": [
+    {
+      "number": 101,
+      "title": "[internal] Singleton reads still traverse unrelated retained log history in 3.1.4",
+      "state": "open",
+      "closed_at": null,
+      "html_url": "https://github.com/gsmlg-dev/concord/issues/101",
+      "updated_at": "2026-10-20T17:00:36Z",
+      "comments": 0
+    },
+    {
+      "number": 102,
+      "title": "[internal] Atomic transactions still trigger full-state materialization in 3.1.4",
+      "state": "open",
+      "closed_at": null,
+      "html_url": "https://github.com/gsmlg-dev/concord/issues/102",
+      "updated_at": "2026-10-20T17:02:02Z",
+      "comments": 0
+    }
+  ],
+  "latest_release": {
+    "tag_name": "v3.1.4",
+    "published_at": "2026-10-20T15:38:25Z",
+    "html_url": "https://github.com/gsmlg-dev/concord/releases/tag/v3.1.4"
+  },
+  "conclusion": "Current lock3.1.4 includes prior#99/#100fixes; distinct native traversal/materialization#101/#102remain open. No dependency source patched; mandatory scale cannot be certified by bounded diagnostics."
+}

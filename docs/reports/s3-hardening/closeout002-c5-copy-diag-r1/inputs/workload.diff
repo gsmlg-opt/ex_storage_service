@@ -1,0 +1,76 @@
+--- e2e/s3_hardening_resources.py
++++ nonacceptance-copy-workload.py
+@@ -71,10 +71,10 @@
+         "starting_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+         "source_sha256": source_fingerprint(), "groups": [], "upload_verifications": [], "versions": {
+         "boto3": boto3.__version__, "botocore": botocore.__version__},
+-        "runner": runner_details(root), "required_cases": manifest(args.profile),
++        "runner": runner_details(root), "required_cases": [{"name": name, "size": 1073741824, "concurrency": 4} for name in ["gateway-cold-get", "gateway-copy-to-local"]], "acceptance": False,
+         "envelope": "docs/plans/s3-hardening-resource-envelope.md"}
+     runtime = Runtime(root, port())
+-    runtime.requires = ["e2e/scripts/resource_sampler.exs", "e2e/scripts/resource_diagnostics.exs"]
++    runtime.requires = ["e2e/scripts/resource_sampler.exs", "e2e/scripts/resource_diagnostics.exs", "/fast/build/ess-closeout-c5-copy-diagnostic/copy_trace.exs"]
+     runtime.env["E2E_RESOURCE_ROOT"] = str(root)
+     upstream_port = port()
+     endpoint = f"http://127.0.0.1:{upstream_port}"
+@@ -99,6 +99,8 @@
+         return [json.loads(line) for line in content.split(b"\n")[:-1] if line]
+ 
+     def measured(name, size, concurrency, operation):
++        if name not in ["gateway-cold-get", "gateway-copy-to-local"]:
++            return
+         time.sleep(1.2)
+         baseline = samples()[-10:]
+         result["active_group"] = {"name": name, "size": size, "concurrency": concurrency}
+@@ -190,7 +192,7 @@
+         for bucket in ["resource-local", "resource-gateway"]:
+             s3.put_object(Bucket=bucket, Key="warm", Body=b"warm")
+             s3.get_object(Bucket=bucket, Key="warm")["Body"].read()
+-        for size in [64 * MIB, 1024 * MIB]:
++        for size in [1024 * MIB]:
+             payload = root / "payload.bin"
+             digest = hashlib.sha256()
+             block = bytes(range(256)) * 4096
+@@ -199,7 +201,7 @@
+                     output.write(block)
+                     digest.update(block)
+             expected_hash = digest.hexdigest()
+-            for concurrency in [1, 4]:
++            for concurrency in [4]:
+                 keys = [f"{size}-{concurrency}-{i}" for i in range(concurrency)]
+ 
+                 def upload(bucket, i, slow=False, upstream=False):
+@@ -263,33 +265,12 @@
+                     measured("local-slow-put", size, concurrency, lambda i: upload("resource-local", i, True))
+                     measured("local-slow-get", size, concurrency, lambda i: download("resource-local", i, True))
+                     measured("gateway-put", size, concurrency, lambda i: upload("resource-gateway", i))
+-                    verify_upstream_upload("gateway-put-upstream-readback", keys, size, concurrency, expected_hash)
+                     # Upstream-only keys force a real cache miss before cache-hit verification.
+                     keys = ["cold-" + key for key in keys]
+                     with ThreadPoolExecutor(max_workers=concurrency) as pool:
+                         list(pool.map(lambda i: upload("resource-upstream", i, upstream=True), range(concurrency)))
+                     measured("gateway-cold-get", size, concurrency, lambda i: download("resource-gateway", i))
+                     measured("gateway-copy-to-local", size, concurrency, lambda i: copy(i, "resource-gateway", "gateway-copy-"))
+-                    # Cache admission is intentionally bounded. Warm each entry
+-                    # separately so the following profile proves actual hits.
+-                    for i in range(concurrency):
+-                        download("resource-gateway", i)
+-                    before_gets = [proxy.count("GET", "/resource-upstream/" + key) for key in keys]
+-                    measured("gateway-hit-slow-get", size, concurrency, lambda i: download("resource-gateway", i, True))
+-                    assert before_gets == [proxy.count("GET", "/resource-upstream/" + key) for key in keys], "cache hit downloaded upstream body"
+-                    measured("gateway-slow-put", size, concurrency, lambda i: upload("resource-gateway", i, True))
+-                    verify_upstream_upload("gateway-slow-put-upstream-readback", keys, size, concurrency, expected_hash)
+-                keys = [f"paced-{size}-{concurrency}-{i}" for i in range(concurrency)]
+-                proxy.fault("pace-upload", "PUT", ["/resource-upstream/" + key for key in keys], rate=32 * MIB)
+-                measured("gateway-paced-upstream-put", size, concurrency, lambda i: upload("resource-gateway", i))
+-                verify_upstream_upload("gateway-paced-upstream-put-readback", keys, size, concurrency, expected_hash)
+-                proxy.clear()
+-                keys = ["paced-cold-" + key for key in keys]
+-                with ThreadPoolExecutor(max_workers=concurrency) as pool:
+-                    list(pool.map(lambda i: upload("resource-upstream", i, upstream=True), range(concurrency)))
+-                proxy.fault("pace-download", "GET", ["/resource-upstream/" + key for key in keys], rate=32 * MIB)
+-                measured("gateway-paced-upstream-cold-get", size, concurrency, lambda i: download("resource-gateway", i))
+-                proxy.clear()
+         if source_fingerprint() != result["source_sha256"]:
+             raise AssertionError("source changed during resource profile")
+         verify_coverage(result["groups"], result["required_cases"])

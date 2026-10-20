@@ -1,0 +1,36 @@
+{
+  "profile": "gateway",
+  "status": "passed",
+  "starting_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "ending_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 7.181,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/gateway-0.log"
+    },
+    {
+      "argv": [
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "e2e/gateway_hardening.py",
+        "--root",
+        "/tmp/ess-s3-hardening-closeout002-c5-gateway",
+        "--mc",
+        "/tmp/ess-s3-hardening-tools/mc"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 152.327,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/gateway-1.log"
+    }
+  ],
+  "started_at": "2026-10-20T20:08:27.769914+00:00"
+}

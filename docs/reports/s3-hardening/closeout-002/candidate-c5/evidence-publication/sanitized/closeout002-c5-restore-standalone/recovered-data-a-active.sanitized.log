@@ -1,0 +1,541 @@
+
+04:34:18.651 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+04:34:18.662 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+04:34:18.706 [debug] API get: {:error, :not_found} (1ms)
+
+04:34:18.706 [info] Concord VSR metadata store ready
+
+04:34:18.713 [info] Storage engine started with data root /tmp/recovery/targets/data-a and blob root /tmp/recovery/targets/data-a/blob
+
+04:34:18.731 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:34399 (http)
+{"restore_control":"boot_ready"}
+
+04:34:19.007 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.009 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.009 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.011 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.011 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.012 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.013 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.032 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.032 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.032 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.032 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.032 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.032 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.036 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.043 [debug] API get: {:ok, %{size: 61, state: :packed, hash: "sha256:9370552e5e32e5532018ae8edc5dc8dc441f163246cf994255b8bf14ebf7d08c", physical_path: "cas/packs/pack-9370552e5e32e5532018ae8edc5dc8dc441f163246cf994255b8bf14ebf7d08c.pack", created_at: "2026-10-20T20:34:00.009980Z", last_seen_at: "2026-10-20T20:34:00.009985Z", pack: %{offset: 0, hash: "9370552e5e32e5532018ae8edc5dc8dc441f163246cf994255b8bf14ebf7d08c"}, packed_at: 1792528440}} (0ms)
+
+04:34:19.043 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.043 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.046 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.046 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.046 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.046 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.046 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.046 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.047 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.049 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.049 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.049 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.049 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.049 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.049 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.049 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.049 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.049 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.049 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.051 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.051 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.051 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.051 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.051 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.051 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.051 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.051 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.052 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.052 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.053 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.053 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.053 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.054 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.054 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.054 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.054 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.055 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.056 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.056 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.056 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.056 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.056 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.056 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.056 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.056 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.056 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.059 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.059 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.059 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.059 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.059 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.059 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.059 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.060 [debug] API get: {:ok, %{size: 61, state: :packed, hash: "sha256:9370552e5e32e5532018ae8edc5dc8dc441f163246cf994255b8bf14ebf7d08c", physical_path: "cas/packs/pack-9370552e5e32e5532018ae8edc5dc8dc441f163246cf994255b8bf14ebf7d08c.pack", created_at: "2026-10-20T20:34:00.009980Z", last_seen_at: "2026-10-20T20:34:00.009985Z", pack: %{offset: 0, hash: "9370552e5e32e5532018ae8edc5dc8dc441f163246cf994255b8bf14ebf7d08c"}, packed_at: 1792528440}} (0ms)
+
+04:34:19.060 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.060 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.062 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.062 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.062 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.062 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.062 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.062 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.063 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.064 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.065 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.065 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.065 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.065 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.065 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.065 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.065 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.065 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.065 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.067 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.068 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.068 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.068 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.068 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.068 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.068 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.068 [debug] API get: {:ok, %{size: 5242898, state: :active, hash: "sha256:e7ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", physical_path: "cas/objects/sha256/e7/ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", created_at: "2026-10-20T20:33:59.424661Z", last_seen_at: "2026-10-20T20:33:59.424661Z"}} (0ms)
+
+04:34:19.069 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.069 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.074 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.074 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.074 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.075 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.075 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.075 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.075 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.077 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.077 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.077 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.077 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.077 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.077 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.077 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.077 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.078 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.078 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.080 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.081 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.081 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.081 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.081 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.081 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.082 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.082 [debug] API get: {:ok, :enabled} (0ms)
+
+04:34:19.083 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.084 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.084 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.084 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.084 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.084 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.085 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.086 [debug] API get: {:ok, [%{id: "", allowed_headers: ["x-example"], allowed_methods: ["GET"], allowed_origins: ["https://restore.example"], expose_headers: ["etag"], max_age_seconds: 60}]} (0ms)
+
+04:34:19.087 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.087 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.087 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.087 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.087 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.087 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.087 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.088 [debug] API get: {:ok, %{"owner" => "restore"}} (0ms)
+
+04:34:19.089 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.089 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.090 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.090 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.090 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.090 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.090 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.091 [debug] API get: {:ok, [%{id: "restore-retained-config", status: "Disabled", prefix: "never/", expiration_days: 30, transition_days: 0, transition_storage_class: "PACKED"}]} (0ms)
+
+04:34:19.094 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.094 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.094 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.094 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.094 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.094 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.094 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.096 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.096 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.096 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.096 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.096 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.096 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.106 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.815669Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_dtykod5kokdf"}} (0ms)
+
+04:34:19.106 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.815669Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_dtykod5kokdf"}} (0ms)
+
+04:34:19.106 [debug] API get: {:ok, %{id: "usr_dtykod5kokdf", name: "restore-reader", status: :active, created_at: "2026-10-20T20:33:58.794513Z", updated_at: "2026-10-20T20:33:58.794513Z"}} (0ms)
+
+04:34:19.106 [debug] API get: {:ok, ["pol_maamalilvfkl"]} (0ms)
+
+04:34:19.106 [debug] API get: {:ok, %{id: "pol_maamalilvfkl", name: "restore-reader-policy", created_at: "2026-10-20T20:33:58.801612Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:GetObject", "s3:GetObjectVersion", "s3:GetObjectTagging", "s3:GetObjectVersionTagging"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/*"]}]}} (0ms)
+
+04:34:19.106 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.107 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.107 [debug] API get: {:ok, %{size: 61, state: :packed, hash: "sha256:9370552e5e32e5532018ae8edc5dc8dc441f163246cf994255b8bf14ebf7d08c", physical_path: "cas/packs/pack-9370552e5e32e5532018ae8edc5dc8dc441f163246cf994255b8bf14ebf7d08c.pack", created_at: "2026-10-20T20:34:00.009980Z", last_seen_at: "2026-10-20T20:34:00.009985Z", pack: %{offset: 0, hash: "9370552e5e32e5532018ae8edc5dc8dc441f163246cf994255b8bf14ebf7d08c"}, packed_at: 1792528440}} (0ms)
+
+04:34:19.107 [debug] API get: {:ok, ["pol_maamalilvfkl"]} (0ms)
+
+04:34:19.107 [debug] API get: {:ok, %{id: "pol_maamalilvfkl", name: "restore-reader-policy", created_at: "2026-10-20T20:33:58.801612Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:GetObject", "s3:GetObjectVersion", "s3:GetObjectTagging", "s3:GetObjectVersionTagging"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/*"]}]}} (0ms)
+
+04:34:19.108 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.815669Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_dtykod5kokdf"}} (0ms)
+
+04:34:19.109 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.815669Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_dtykod5kokdf"}} (0ms)
+
+04:34:19.109 [debug] API get: {:ok, %{id: "usr_dtykod5kokdf", name: "restore-reader", status: :active, created_at: "2026-10-20T20:33:58.794513Z", updated_at: "2026-10-20T20:33:58.794513Z"}} (0ms)
+
+04:34:19.109 [debug] API get: {:ok, ["pol_maamalilvfkl"]} (0ms)
+
+04:34:19.109 [debug] API get: {:ok, %{id: "pol_maamalilvfkl", name: "restore-reader-policy", created_at: "2026-10-20T20:33:58.801612Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:GetObject", "s3:GetObjectVersion", "s3:GetObjectTagging", "s3:GetObjectVersionTagging"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/*"]}]}} (0ms)
+
+04:34:19.109 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.109 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.110 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.815669Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_dtykod5kokdf"}} (0ms)
+
+04:34:19.111 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.815669Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_dtykod5kokdf"}} (0ms)
+
+04:34:19.111 [debug] API get: {:ok, %{id: "usr_dtykod5kokdf", name: "restore-reader", status: :active, created_at: "2026-10-20T20:33:58.794513Z", updated_at: "2026-10-20T20:33:58.794513Z"}} (0ms)
+
+04:34:19.111 [debug] API get: {:ok, ["pol_maamalilvfkl"]} (0ms)
+
+04:34:19.111 [debug] API get: {:ok, %{id: "pol_maamalilvfkl", name: "restore-reader-policy", created_at: "2026-10-20T20:33:58.801612Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:GetObject", "s3:GetObjectVersion", "s3:GetObjectTagging", "s3:GetObjectVersionTagging"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/*"]}]}} (0ms)
+
+04:34:19.111 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.111 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.111 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.111 [debug] API get: {:ok, ["pol_maamalilvfkl"]} (0ms)
+
+04:34:19.111 [debug] API get: {:ok, %{id: "pol_maamalilvfkl", name: "restore-reader-policy", created_at: "2026-10-20T20:33:58.801612Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:GetObject", "s3:GetObjectVersion", "s3:GetObjectTagging", "s3:GetObjectVersionTagging"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/*"]}]}} (0ms)
+
+04:34:19.113 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.815669Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_dtykod5kokdf"}} (0ms)
+
+04:34:19.113 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.815669Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_dtykod5kokdf"}} (0ms)
+
+04:34:19.113 [debug] API get: {:ok, %{id: "usr_dtykod5kokdf", name: "restore-reader", status: :active, created_at: "2026-10-20T20:33:58.794513Z", updated_at: "2026-10-20T20:33:58.794513Z"}} (0ms)
+
+04:34:19.113 [debug] API get: {:ok, ["pol_maamalilvfkl"]} (0ms)
+
+04:34:19.113 [debug] API get: {:ok, %{id: "pol_maamalilvfkl", name: "restore-reader-policy", created_at: "2026-10-20T20:33:58.801612Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:GetObject", "s3:GetObjectVersion", "s3:GetObjectTagging", "s3:GetObjectVersionTagging"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/*"]}]}} (0ms)
+
+04:34:19.116 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.116 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.116 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.116 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.116 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.122 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.122 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.122 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.122 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.122 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.122 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.131 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.131 [debug] API get: {:ok, %{size: 5242880, hash: "5a8c8e5442ecdca78c46ca538a7abc96207b14bafabbc112df16870d63919e6c", checksums: %{"sha256" => "WoyOVELs3KeMRspTinq8liB7FLr6u8ES3xaHDWORnmw="}, etag: "ec3b0e2b645c9628b01a1aaf45d0ffc3", part_number: 1, uploaded_at: "2026-10-20T20:33:59.238693Z"}} (0ms)
+
+04:34:19.131 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.131 [debug] API get: {:ok, %{size: 18, hash: "7628fcab646c3f0dc3fce4a407392a50600e03e4dd7951fcdf512608fe689a0d", checksums: %{"sha256" => "dij8q2RsPw3D/OSkBzkqUGAOA+TdeVH831EmCP5omg0="}, etag: "37a661c4a10f81ffd1390b92a6fe800b", part_number: 2, uploaded_at: "2026-10-20T20:33:59.280598Z"}} (0ms)
+
+04:34:19.146 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.146 [debug] API get: {:ok, %{size: 5242880, hash: "5a8c8e5442ecdca78c46ca538a7abc96207b14bafabbc112df16870d63919e6c", checksums: %{"sha256" => "WoyOVELs3KeMRspTinq8liB7FLr6u8ES3xaHDWORnmw="}, etag: "ec3b0e2b645c9628b01a1aaf45d0ffc3", part_number: 1, uploaded_at: "2026-10-20T20:33:59.238693Z"}} (0ms)
+
+04:34:19.146 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.146 [debug] API get: {:ok, %{size: 18, hash: "7628fcab646c3f0dc3fce4a407392a50600e03e4dd7951fcdf512608fe689a0d", checksums: %{"sha256" => "dij8q2RsPw3D/OSkBzkqUGAOA+TdeVH831EmCP5omg0="}, etag: "37a661c4a10f81ffd1390b92a6fe800b", part_number: 2, uploaded_at: "2026-10-20T20:33:59.280598Z"}} (0ms)
+
+04:34:19.146 [debug] API get: {:ok, %{size: 5242880, state: :active, hash: "sha256:5a8c8e5442ecdca78c46ca538a7abc96207b14bafabbc112df16870d63919e6c", physical_path: "cas/objects/sha256/5a/8c8e5442ecdca78c46ca538a7abc96207b14bafabbc112df16870d63919e6c", created_at: "2026-10-20T20:33:59.231698Z", last_seen_at: "2026-10-20T20:33:59.231698Z"}} (0ms)
+
+04:34:19.146 [debug] API get: {:ok, %{size: 18, state: :active, hash: "sha256:7628fcab646c3f0dc3fce4a407392a50600e03e4dd7951fcdf512608fe689a0d", physical_path: "cas/objects/sha256/76/28fcab646c3f0dc3fce4a407392a50600e03e4dd7951fcdf512608fe689a0d", created_at: "2026-10-20T20:33:59.274530Z", last_seen_at: "2026-10-20T20:33:59.274530Z"}} (0ms)
+
+04:34:19.161 [debug] API get: {:ok, %{size: 5242898, state: :active, hash: "sha256:e7ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", physical_path: "cas/objects/sha256/e7/ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", created_at: "2026-10-20T20:33:59.424661Z", last_seen_at: "2026-10-20T20:33:59.424661Z"}} (0ms)
+
+04:34:19.171 [debug] API put: :ok (8ms)
+
+04:34:19.181 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.181 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.181 [debug] API get: {:ok, %{size: 5242898, state: :active, hash: "sha256:e7ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", physical_path: "cas/objects/sha256/e7/ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", created_at: "2026-10-20T20:33:59.424661Z", last_seen_at: "2026-10-20T20:33:59.424661Z"}} (0ms)
+
+04:34:19.181 [debug] API get: {:ok, %{size: 5242898, state: :active, hash: "sha256:e7ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", physical_path: "cas/objects/sha256/e7/ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", created_at: "2026-10-20T20:33:59.424661Z", last_seen_at: "2026-10-20T20:33:59.424661Z"}} (0ms)
+
+04:34:19.184 [debug] API get: {:ok, %{size: 5242898, state: :active, hash: "sha256:e7ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", physical_path: "cas/objects/sha256/e7/ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", created_at: "2026-10-20T20:33:59.424661Z", last_seen_at: "2026-10-20T20:33:59.424661Z"}} (0ms)
+
+04:34:19.195 [debug] API get: {:ok, %{size: 5242898, state: :active, hash: "sha256:e7ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", physical_path: "cas/objects/sha256/e7/ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", created_at: "2026-10-20T20:33:59.424661Z", last_seen_at: "2026-10-20T20:33:59.424661Z"}} (0ms)
+
+04:34:19.198 [debug] API get: {:ok, %{size: 5242898, state: :active, hash: "sha256:e7ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", physical_path: "cas/objects/sha256/e7/ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", created_at: "2026-10-20T20:33:59.424661Z", last_seen_at: "2026-10-20T20:33:59.424661Z"}} (0ms)
+
+04:34:19.199 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.222 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.222 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.222 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.222 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.222 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.222 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.222 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.222 [debug] API get: {:ok, %{size: 5242898, state: :active, hash: "sha256:e7ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", physical_path: "cas/objects/sha256/e7/ef9ac07a7a6c8d49d5ada7fc2f60d7934eea601722dc2410b14803980c0475", created_at: "2026-10-20T20:33:59.424661Z", last_seen_at: "2026-10-20T20:33:59.424661Z"}} (0ms)
+
+04:34:19.223 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.223 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.228 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.228 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.228 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.228 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.228 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.228 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.228 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.230 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.230 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.230 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.230 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.230 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.230 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.230 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.230 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.230 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.231 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.233 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.233 [debug] API get: {:ok, %{status: :active, created_at: "2026-10-20T20:33:58.787843Z", access_key_id: "[REDACTED_CREDENTIAL]", encrypted_secret: "[REDACTED_CREDENTIAL]", user_id: "usr_predo4ekvo4r"}} (0ms)
+
+04:34:19.233 [debug] API get: {:ok, %{id: "usr_predo4ekvo4r", name: "restore-admin", status: :active, created_at: "2026-10-20T20:33:58.765842Z", updated_at: "2026-10-20T20:33:58.765842Z"}} (0ms)
+
+04:34:19.233 [debug] API get: {:ok, ["pol_6bioboarrvuu"]} (0ms)
+
+04:34:19.233 [debug] API get: {:ok, %{id: "pol_6bioboarrvuu", name: "restore-admin-policy", created_at: "2026-10-20T20:33:58.774562Z", semantics: :aws_s3_v1, statements: [%{effect: :allow, actions: ["s3:*"], resources: ["*"]}, %{effect: :deny, actions: ["s3:PutObject"], resources: ["arn:aws:s3:::hardening-restore-f6448848c829/denied"]}]}} (0ms)
+
+04:34:19.233 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.233 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.234 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.235 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.235 [debug] API get: {:ok, %{name: "hardening-restore-f6448848c829", generation: "zDuFAu39U-0jwka43IKpgA", creation_date: "2026-10-20T20:33:58.926782Z"}} (0ms)
+
+04:34:19.254 [debug] API get: {:error, :not_found} (0ms)
+
+04:34:19.266 [notice] SIGTERM received - shutting down
+

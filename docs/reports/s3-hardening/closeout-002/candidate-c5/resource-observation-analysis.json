@@ -1,0 +1,228 @@
+{
+  "schema": 1,
+  "candidate_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "verified_at": "2026-10-20T20:38:04.774978+00:00",
+  "method": "Independent streaming verification; at most one row plus bounded slow-probe context retained. Export integrity does not certify cadence or missing cases.",
+  "exports": [
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-resources/resource-export-1792527189170930902.json",
+      "path": "docs/reports/s3-hardening/closeout002-c5-resources/samples.jsonl",
+      "sha256": "ebab2538fbb27c92e645a8eb6cf5a011b8f1c4de8367a9c6810bef7e80c1383a",
+      "bytes": 49640899,
+      "verified_rows": 25769,
+      "generation": "1792527189170930902",
+      "sequence_integrity": "contiguous from0",
+      "export_status": "passed",
+      "observer_same_identity_live": false,
+      "observer": {
+        "pid": 685967,
+        "start_ticks": 10287215,
+        "state": "R"
+      },
+      "slow_temporary_probes": [
+        {
+          "sequence": 25357,
+          "probe_ns": 124508267,
+          "scheduled_monotonic_ns": 103506202710191,
+          "collection_start_ns": 103506202806581,
+          "probe_start_ns": 103506204270425,
+          "probe_end_ns": 103506328778692,
+          "observer_cpu_delta_ns": 1161000,
+          "previous_export": {
+            "sampler_id": "1792527189170930902",
+            "sequence": 25356,
+            "encoded_bytes": 1929,
+            "encoding": {
+              "start_ns": 1792527823197883552,
+              "start_monotonic_ns": 103506179029613,
+              "end_ns": 1792527823197927241,
+              "end_monotonic_ns": 103506179073207,
+              "cpu_ns": 48417
+            },
+            "write": {
+              "start_ns": 1792527823197933415,
+              "start_monotonic_ns": 103506179079339,
+              "end_ns": 1792527823197951225,
+              "end_monotonic_ns": 103506179097158,
+              "cpu_ns": 20189
+            }
+          }
+        }
+      ]
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/data-a/resource-export-1792527836946338258.json",
+      "path": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/data-a/samples.jsonl",
+      "sha256": "49b092f210dce3c8af4913611a08d55d967b9d5839f94eb8d9f4a589d76e343c",
+      "bytes": 38414562,
+      "verified_rows": 19943,
+      "generation": "1792527836946338258",
+      "sequence_integrity": "contiguous from0",
+      "export_status": "passed",
+      "observer_same_identity_live": false,
+      "observer": {
+        "pid": 688135,
+        "start_ticks": 10351992,
+        "state": "R"
+      },
+      "slow_temporary_probes": []
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/data-b/resource-export-1792527836975824553.json",
+      "path": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/data-b/samples.jsonl",
+      "sha256": "ef2060e4379b4877ba23a5737e1a2197c77f3e1c80e33f0e1168dd1ff833fd88",
+      "bytes": 38285864,
+      "verified_rows": 19894,
+      "generation": "1792527836975824553",
+      "sequence_integrity": "contiguous from0",
+      "export_status": "passed",
+      "observer_same_identity_live": false,
+      "observer": {
+        "pid": 688137,
+        "start_ticks": 10351995,
+        "state": "R"
+      },
+      "slow_temporary_probes": []
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/meta/resource-export-1792527836912948226.json",
+      "path": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/meta/samples.jsonl",
+      "sha256": "320b79d63ce9dfeda1ac4bf66c5b5db0b3a4aa9ecac9d179663cdbedee7f7647",
+      "bytes": 38447796,
+      "verified_rows": 19994,
+      "generation": "1792527836912948226",
+      "sequence_integrity": "contiguous from0",
+      "export_status": "passed",
+      "observer_same_identity_live": false,
+      "observer": {
+        "pid": 688133,
+        "start_ticks": 10351989,
+        "state": "R"
+      },
+      "slow_temporary_probes": []
+    }
+  ],
+  "matrices": [
+    {
+      "path": "docs/reports/s3-hardening/closeout002-c5-resources/results.json",
+      "sha256": "0b836b999510ae84a8a4da33d352745d25236f0259d7aa7480cd8df85690b49c",
+      "status": "failed",
+      "required": 56,
+      "executed": 47,
+      "failure_free": 46,
+      "missing": [
+        [
+          "local-slow-put",
+          1073741824,
+          4
+        ],
+        [
+          "local-slow-get",
+          1073741824,
+          4
+        ],
+        [
+          "gateway-put",
+          1073741824,
+          4
+        ],
+        [
+          "gateway-cold-get",
+          1073741824,
+          4
+        ],
+        [
+          "gateway-copy-to-local",
+          1073741824,
+          4
+        ],
+        [
+          "gateway-hit-slow-get",
+          1073741824,
+          4
+        ],
+        [
+          "gateway-slow-put",
+          1073741824,
+          4
+        ],
+        [
+          "gateway-paced-upstream-put",
+          1073741824,
+          4
+        ],
+        [
+          "gateway-paced-upstream-cold-get",
+          1073741824,
+          4
+        ]
+      ],
+      "unexpected": [],
+      "failed": [
+        {
+          "name": "local-upload-part-copy",
+          "size": 1073741824,
+          "concurrency": 4,
+          "failures": [
+            "cadence:binary:interval_over100ms",
+            "cadence:total:interval_over100ms",
+            "cadence:rss:interval_over100ms",
+            "cadence:queue_max:interval_over100ms",
+            "cadence:queue_total:interval_over100ms",
+            "cadence:temporary:probe_too_slow",
+            "cadence:temporary:interval_over100ms"
+          ],
+          "operation_errors": []
+        }
+      ]
+    },
+    {
+      "path": "docs/reports/s3-hardening/closeout002-c5-resources-cluster/results.json",
+      "sha256": "8790a288ceb0157635924a66d811d4b5964deed982ade7a53af0e13948472d9e",
+      "status": "failed",
+      "required": 20,
+      "executed": 16,
+      "failure_free": 15,
+      "missing": [
+        [
+          "authenticated-peer-get",
+          1073741824,
+          4
+        ],
+        [
+          "fenced-repair-pull",
+          1073741824,
+          4
+        ],
+        [
+          "fenced-repair-push",
+          1073741824,
+          4
+        ],
+        [
+          "cross-cluster-worker-paced-sink",
+          1073741824,
+          4
+        ]
+      ],
+      "unexpected": [],
+      "failed": [
+        {
+          "name": "strict-quorum-replica-put",
+          "size": 1073741824,
+          "concurrency": 4,
+          "failures": [
+            "operation_failed"
+          ],
+          "operation_errors": [
+            {
+              "index": 0,
+              "error_type": "RuntimeError"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

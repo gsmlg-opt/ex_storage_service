@@ -1,0 +1,47 @@
+{
+  "profile": "index",
+  "status": "blocked",
+  "starting_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "ending_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 7.328,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/index-0.log"
+    },
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_index.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c5-index"
+      ],
+      "mix_env": "prod",
+      "exit_status": 1,
+      "duration_seconds": 0.032,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/index-1.log"
+    },
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_index_cluster.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c5-index-cluster"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 16.253,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/index-2.log"
+    }
+  ],
+  "started_at": "2026-10-20T20:12:37.483414+00:00",
+  "reason": "command exited 1; inspect retained log"
+}

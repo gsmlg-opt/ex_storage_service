@@ -1,0 +1,21 @@
+[
+  "docs/reports/s3-hardening/closeout002-c5-copy-diag-r1/workload/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c5-copy-diag-r2/workload/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c5-copy-diag-r3/workload/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c5-faults/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-a/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-b/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/meta/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c5-observer-diag-baseline-r1/workload/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c5-observer-diag-baseline-r2/workload/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/data-a/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/data-b/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c5-resources-cluster/samples/meta/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c5-resources/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c5-restore-cluster/recovered-data-a-active.log",
+  "docs/reports/s3-hardening/closeout002-c5-restore-cluster/recovered-data-b-active.log",
+  "docs/reports/s3-hardening/closeout002-c5-restore-cluster/source-data-a-source.log",
+  "docs/reports/s3-hardening/closeout002-c5-restore-standalone/recovered-data-a-active.log",
+  "docs/reports/s3-hardening/closeout002-c5-restore-standalone/source-data-a-source.log"
+]

@@ -1,0 +1,29 @@
+
+===== start data-a bootstrap=true at 2026-10-20T20:23:54Z =====
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 687862)
+[0mWaiting for lock on the build directory (held by process 687878)
+[0mWaiting for lock on the build directory (held by process 687878)
+[0mWaiting for lock on the build directory (held by process 687878)
+[0mWaiting for lock on the build directory (held by process 687878)
+[0mWaiting for lock on the build directory (held by process 687878)
+[0mWaiting for lock on the build directory (held by process 687862)
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 687862)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 687862)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 687862)
+04:23:55.150 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+04:23:55.163 [info] Starting Concord TTL manager with cleanup interval: 300000s
+04:23:55.228 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-sfQ8N1mW/data-a and blob root /tmp/ess-s3-hardening-cluster-sfQ8N1mW/data-a/blob
+04:23:55.250 [info] Concord VSR metadata quorum ready
+04:23:55.276 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9101 (http)
+04:23:55.280 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9001 (http)
+04:24:42.065 [warning] 'global' at node :"ess_data_a@127.0.0.1" requested disconnect from node :"resource_ctl_803d500373@127.0.0.1" in order to prevent overlapping partitions
+04:24:43.770 [warning] 'global' at node :"ess_data_a@127.0.0.1" requested disconnect from node :"resource_ctl_06804c1312@127.0.0.1" in order to prevent overlapping partitions
+04:32:14.547 [notice] SIGTERM received - shutting down
+

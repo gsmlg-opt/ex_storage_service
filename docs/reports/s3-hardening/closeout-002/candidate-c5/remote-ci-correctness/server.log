@@ -1,0 +1,60 @@
+==> ex_storage_service
+Running ExUnit with seed: 952950, max_cases: 1
+Excluding tags: [cluster: true]
+
+........................................................................................................................................................................................................................................................................................20:00:54.805 [error] CloudCache DELETE failed remote/key: HTTP 403 — ""
+......20:00:54.854 [error] Replication DELETE failed for bucket/key to http://127.0.0.1:43759: HTTP 503 - ""
+..................................................................................................................................................................20:00:57.199 [warning] ContentGC: metadata scan failed; sweep aborted: :metadata_unavailable
+..20:00:57.279 [warning] CAS migration: content missing for mig-6901 hash c2ed3bd4de6fd022ddc81e95bba8788e97823e6ae006683351d2245716ef420a
+.20:00:57.287 [warning] CAS migration: content missing for mig-6901 hash c2ed3bd4de6fd022ddc81e95bba8788e97823e6ae006683351d2245716ef420a
+20:00:57.287 [warning] CAS migration: content missing for mig-6901 hash c2ed3bd4de6fd022ddc81e95bba8788e97823e6ae006683351d2245716ef420a
+.20:00:57.299 [warning] CAS migration: content missing for mig-6901 hash c2ed3bd4de6fd022ddc81e95bba8788e97823e6ae006683351d2245716ef420a
+................................................................................................20:01:52.487 [warning] CasGC: failed to delete 3e73fa7032e41489b7a9b8d177dd7ed341fba4a2137fbf58bf0564818f1586bd: :invalid_quarantine_path
+....................................................
+Finished in 100.1 seconds (18.6s async, 81.4s sync)
+600 tests, 0 failures (1 excluded)
+==> ex_storage_service_cluster
+Running ExUnit with seed: 952950, max_cases: 1
+Excluding tags: [large_stream: true]
+
+.......................................
+Finished in 1.1 seconds (1.1s async, 0.00s sync)
+39 tests, 0 failures (1 excluded)
+==> ex_storage_service_s3
+Running ExUnit with seed: 952950, max_cases: 1
+Excluding tags: [large_stream: true]
+
+..............................20:02:19.223 request_id=request-phase7-incomplete [warning] blob response stream terminated
+.................................generated XML corpus: 5402 rejected cases, max input 4096 bytes
+.........................20:02:20.677 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+20:02:20.677 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+..20:02:20.701 [warning] SigV4 auth failed: Missing Authorization header — HEAD /signature
+.20:02:20.715 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+...........................................................................20:02:50.898 [error] Replication PUT failed for source/broken.bin to http://localhost:9001: {:request_failed, %ExStorageService.BlobStore.Source.RequestBodyError{reason: :upstream_closed}}
+.....20:02:51.862 [error] Replication PUT repl-13554/d.txt: content "34b79ebbbdd248cd400be53835923b81af125e4c4bc956444f3f0701751007e0" missing from storage
+...20:02:53.295 [error] 4234- fatal: :unexpected_end
+
+20:02:53.300 [error] 4234- fatal: :unexpected_end
+
+20:02:53.315 [error] 4234- fatal: :unexpected_end
+
+20:02:53.317 [error] 4234- fatal: :unexpected_end
+
+20:02:53.330 [error] 4234- fatal: :unexpected_end
+
+20:02:53.332 [error] 4234- fatal: :unexpected_end
+
+.................20:03:04.011 [warning] SigV4 auth failed: SignatureDoesNotMatch — GET /
+.....20:03:05.125 [warning] SigV4 auth failed: Missing Authorization header — POST /health/cloud_cache
+...........................................................20:03:32.104 [warning] SigV4 auth failed: Missing Authorization header — OPTIONS /cors-http-14290/key
+20:03:32.107 [warning] SigV4 auth failed: Missing Authorization header — GET /cors-http-14290/key
+...................................................................................................................
+Finished in 167.9 seconds (2.3s async, 165.5s sync)
+370 tests, 0 failures
+==> ex_storage_service_web
+Running ExUnit with seed: 952950, max_cases: 1
+Excluding tags: [large_stream: true]
+
+.....................
+Finished in 0.2 seconds (0.1s async, 0.1s sync)
+21 tests, 0 failures

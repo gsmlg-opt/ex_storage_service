@@ -1,0 +1,74 @@
+{
+  "kind": "bounded-gateway-copy-error-diagnostic",
+  "acceptance": false,
+  "candidate_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "command": [
+    "bwrap",
+    "--die-with-parent",
+    "--new-session",
+    "--ro-bind",
+    "/",
+    "/",
+    "--dev-bind",
+    "/dev",
+    "/dev",
+    "--bind",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service",
+    "--bind",
+    "/fast/build/ess-closeout-c5-copy-diagnostic/tmp",
+    "/tmp",
+    "--ro-bind",
+    "/tmp/ess-s3-hardening-python",
+    "/tmp/ess-s3-hardening-python",
+    "--ro-bind",
+    "/tmp/ess-s3-hardening-tools",
+    "/tmp/ess-s3-hardening-tools",
+    "--chdir",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service",
+    "/tmp/ess-s3-hardening-python/bin/python",
+    "/fast/build/ess-closeout-c5-copy-diagnostic/workload.py",
+    "--root",
+    "/tmp/ess-hardening-resource-closeout002-c5-copy-diag-r2",
+    "--evidence",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c5-copy-diag-r2/workload",
+    "--profile",
+    "all"
+  ],
+  "started_at": "2026-10-20T21:15:58.573800+00:00",
+  "monotonic_start_ns": 106641554956987,
+  "inputs": {
+    "copy_trace.exs": "2a5ab6d45d78f2e44e8b40f8c98d7cf3116c9a79b9629d1a9c7655f7d4e92820",
+    "workload.diff": "b48020cf63f8de2090652fa9176087af31526f237722e13ad672857ddec2113f",
+    "run.py": "fdc8259809b8b6f72ebe28b2ae1abe54f1ff8e5b0045fa327bce5218beff202e",
+    "workload.py": "e3b3a4e39bdd8c4541e81726181d24937f0b56c540b32f84ff5f956e9097f417"
+  },
+  "physical_tmp": "/fast/build/ess-closeout-c5-copy-diagnostic/tmp",
+  "required_cases": [
+    {
+      "name": "local-put",
+      "size": 1073741824,
+      "concurrency": 4
+    },
+    {
+      "name": "gateway-cold-get",
+      "size": 1073741824,
+      "concurrency": 4
+    },
+    {
+      "name": "gateway-copy-to-local",
+      "size": 1073741824,
+      "concurrency": 4
+    }
+  ],
+  "intrusive_return_tracing": true,
+  "criteria_sizes_concurrency_auth_checksums_RFW": "unchanged; two selected diagnostic groups only",
+  "child_pid": 729300,
+  "exit_status": 0,
+  "finished_at": "2026-10-20T21:16:49.266633+00:00",
+  "monotonic_end_ns": 106692247788225,
+  "ending_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_after": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "terminal_staging": {}
+}

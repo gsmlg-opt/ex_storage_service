@@ -1,0 +1,47 @@
+{
+  "profile": "cluster",
+  "status": "passed",
+  "starting_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "ending_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 7.232,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/cluster-0.log"
+    },
+    {
+      "argv": [
+        "mix",
+        "test",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/three_voter_cluster_test.exs",
+        "--include",
+        "cluster"
+      ],
+      "mix_env": "test",
+      "exit_status": 0,
+      "duration_seconds": 3.674,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/cluster-1.log"
+    },
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_phase1_cluster.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c5-cluster"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 79.075,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/cluster-2.log"
+    }
+  ],
+  "started_at": "2026-10-20T20:11:07.389132+00:00"
+}

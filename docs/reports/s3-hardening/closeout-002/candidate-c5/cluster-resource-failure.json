@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "candidate_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "group": {
+    "name": "strict-quorum-replica-put",
+    "size": 1073741824,
+    "concurrency": 4
+  },
+  "failed_index": 0,
+  "sanitized_error": "cluster resource RPC failed: badmatch {:error, :timeout} at evaluated source line33",
+  "resolved_statement": "{:ok, locations} = BlobLocations.list(hash)",
+  "source_path": "e2e/scripts/cluster_resource_control.exs",
+  "source_sha256": "d3cdc71ef028882d45ad8a1138605fab76e9ca414dcc212731f68c8d65a6cb10",
+  "private_log": {
+    "path": "/tmp/ess-s3-hardening-cluster-sfQ8N1mW/cluster-resource-control.log",
+    "sha256": "95c97459e8c076945838a941291a79336be40f397cc991afd6658e1e73744d48",
+    "published": false,
+    "reason": "May contain private fixture state. Only fixed sanitized error and statically resolved statement retained in public evidence."
+  },
+  "established": [
+    "HTTP PUT returned before the verify action was invoked.",
+    "The failed verification RPC completed LocalCAS.verify and size check before BlobLocations.list timed out.",
+    "Other3 indices verified independent content hashes and2 ready replicas.",
+    "All node observation cadence and numeric resource envelopes passed in this failed group.",
+    "Four later required groups were not executed."
+  ],
+  "unresolved": [
+    "Root cause of the backend list timeout is not established.",
+    "No whole-matrix resource acceptance or complete integrity claim for failed index0."
+  ]
+}

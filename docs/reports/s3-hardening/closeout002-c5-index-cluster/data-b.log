@@ -1,0 +1,33 @@
+
+===== start data-b bootstrap=true at 2026-10-20T20:12:44Z =====
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 684956)
+[0mWaiting for lock on the build directory (held by process 684964)
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 684956)
+[0mWaiting for lock on the build directory (held by process 684964)
+[0mWaiting for lock on the build directory (held by process 684956)
+[0mWaiting for lock on the build directory (held by process 684964)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 684964)
+==> ex_storage_service_web
+[0mWaiting for lock on the build directory (held by process 684964)
+04:12:45.430 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+04:12:45.442 [info] Starting Concord TTL manager with cleanup interval: 300000s
+04:12:45.506 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-F83pRvB2/data-b and blob root /tmp/ess-s3-hardening-cluster-F83pRvB2/data-b/blob
+04:12:45.541 [info] Concord VSR metadata quorum ready
+04:12:45.568 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9102 (http)
+04:12:45.572 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9002 (http)
+04:12:48.210 [notice] Application ex_storage_service_s3 exited: :stopped
+04:12:48.213 [notice] Application ex_storage_service_web exited: :stopped
+04:12:48.214 [notice] Application ex_storage_service_cluster exited: :stopped
+04:12:48.419 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-F83pRvB2/data-b and blob root /tmp/ess-s3-hardening-cluster-F83pRvB2/data-b/blob
+04:12:48.422 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9102 (http)
+04:12:48.427 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9002 (http)
+04:12:49.430 [warning] Outbox materialization failed: :cluster_not_ready
+04:12:49.431 [warning] Durable job scan failed: :cluster_not_ready
+04:12:57.410 [notice] SIGTERM received - shutting down
+

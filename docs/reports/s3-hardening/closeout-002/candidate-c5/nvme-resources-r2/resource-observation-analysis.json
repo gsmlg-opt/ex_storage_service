@@ -1,0 +1,333 @@
+{
+  "schema": 1,
+  "candidate_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "verified_at": "2026-10-20T21:13:42.829437+00:00",
+  "actual_exit_status": 1,
+  "method": "Independent bounded streaming verification of exact generation/sequence/count/extent/hash; integrity does not certify cadence or missing cases.",
+  "exports": [
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/resource-export-1792529296014442698.json",
+      "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/samples.jsonl",
+      "sha256": "1a2b7d2570fb4b909d166003f8255bcb4ef4c57a768dcf5105daf69c7e8376de",
+      "bytes": 62876306,
+      "verified_rows": 32637,
+      "generation": "1792529296014442698",
+      "status": "passed"
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-b/resource-export-1792530115102071008.json",
+      "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-b/samples.jsonl",
+      "sha256": "ce63942d71d7b7ed3beedf4d6242150b51a79e98c4f372d3cb6c4446468ebef2",
+      "bytes": 48612027,
+      "verified_rows": 25268,
+      "generation": "1792530115102071008",
+      "status": "passed"
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-a/resource-export-1792530115065270123.json",
+      "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-a/samples.jsonl",
+      "sha256": "3208c8747e6c673e37221844d6f6ae05466a1ae1dae38880035d72663bc364a5",
+      "bytes": 48745295,
+      "verified_rows": 25318,
+      "generation": "1792530115065270123",
+      "status": "passed"
+    },
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/meta/resource-export-1792530115030658947.json",
+      "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/meta/samples.jsonl",
+      "sha256": "4f58cd78f5f524a33cf29a41e5c0b9ff3153094760c9382047dca45482a3e564",
+      "bytes": 48774725,
+      "verified_rows": 25369,
+      "generation": "1792530115030658947",
+      "status": "passed"
+    }
+  ],
+  "matrices": [
+    {
+      "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/results.json",
+      "sha256": "2986d2ce342c53e1fc67e5adda5faaa306e00fcab05694d524938334b609e926",
+      "status": "failed",
+      "required": 56,
+      "executed": 52,
+      "failure_free": 51,
+      "missing": [
+        [
+          "gateway-hit-slow-get",
+          1073741824,
+          4
+        ],
+        [
+          "gateway-slow-put",
+          1073741824,
+          4
+        ],
+        [
+          "gateway-paced-upstream-put",
+          1073741824,
+          4
+        ],
+        [
+          "gateway-paced-upstream-cold-get",
+          1073741824,
+          4
+        ]
+      ],
+      "unexpected": [],
+      "failed": [
+        {
+          "name": "gateway-copy-to-local",
+          "size": 1073741824,
+          "concurrency": 4,
+          "failures": [
+            "post_idle_temporary_not_zero",
+            "operation_failed"
+          ],
+          "operation_errors": [
+            {
+              "index": 0,
+              "error_type": "ClientError"
+            },
+            {
+              "index": 1,
+              "error_type": "ClientError"
+            },
+            {
+              "index": 2,
+              "error_type": "ClientError"
+            },
+            {
+              "index": 3,
+              "error_type": "ClientError"
+            }
+          ]
+        }
+      ],
+      "maximum_probe_ms": 26.608193,
+      "maximum_gap_ms": 51.469496,
+      "per_size_concurrency": [
+        {
+          "size": 67108864,
+          "concurrency": 1,
+          "groups": 14,
+          "maximum_delta": {
+            "binary": 5190344,
+            "total": 5273000,
+            "rss": 17526784,
+            "temporary": 134217728,
+            "queue_max": 2,
+            "queue_total": 2
+          }
+        },
+        {
+          "size": 67108864,
+          "concurrency": 4,
+          "groups": 14,
+          "maximum_delta": {
+            "binary": 19823128,
+            "total": 19941688,
+            "rss": 34455552,
+            "temporary": 536870912,
+            "queue_max": 3,
+            "queue_total": 7
+          }
+        },
+        {
+          "size": 1073741824,
+          "concurrency": 1,
+          "groups": 14,
+          "maximum_delta": {
+            "binary": 6417016,
+            "total": 6516440,
+            "rss": 13893632,
+            "temporary": 2147483648,
+            "queue_max": 2,
+            "queue_total": 2
+          }
+        },
+        {
+          "size": 1073741824,
+          "concurrency": 4,
+          "groups": 10,
+          "maximum_delta": {
+            "binary": 20632936,
+            "total": 23954036,
+            "rss": 39055360,
+            "temporary": 8589934592,
+            "queue_max": 5,
+            "queue_total": 6
+          }
+        }
+      ]
+    },
+    {
+      "path": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/results.json",
+      "sha256": "0b7c8a9683c853663cbabbe3b84d4dbfbf11bea697f29a2d25164ff73c18c94b",
+      "status": "passed",
+      "required": 20,
+      "executed": 20,
+      "failure_free": 20,
+      "missing": [],
+      "unexpected": [],
+      "failed": [],
+      "maximum_probe_ms": 9.634109,
+      "maximum_gap_ms": 34.671865,
+      "per_size_concurrency": [
+        {
+          "size": 67108864,
+          "concurrency": 1,
+          "groups": 5,
+          "maximum_delta": {
+            "binary": 5168656,
+            "total": 5174184,
+            "rss": 8071168,
+            "temporary": 67108864,
+            "queue_max": 4,
+            "queue_total": 4
+          }
+        },
+        {
+          "size": 67108864,
+          "concurrency": 4,
+          "groups": 5,
+          "maximum_delta": {
+            "binary": 17597304,
+            "total": 17972944,
+            "rss": 36102144,
+            "temporary": 268435456,
+            "queue_max": 4,
+            "queue_total": 6
+          }
+        },
+        {
+          "size": 1073741824,
+          "concurrency": 1,
+          "groups": 5,
+          "maximum_delta": {
+            "binary": 3980504,
+            "total": 3730928,
+            "rss": 10133504,
+            "temporary": 1073741824,
+            "queue_max": 3,
+            "queue_total": 5
+          }
+        },
+        {
+          "size": 1073741824,
+          "concurrency": 4,
+          "groups": 5,
+          "maximum_delta": {
+            "binary": 20774176,
+            "total": 21229836,
+            "rss": 42229760,
+            "temporary": 4294967296,
+            "queue_max": 11,
+            "queue_total": 13
+          }
+        }
+      ]
+    }
+  ],
+  "terminal_cleanup": {
+    "status": "passed",
+    "recorded_identities": [
+      {
+        "source": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/observer-1792529296014442698.json",
+        "role": "beam",
+        "expected": {
+          "pid": 721627,
+          "start_ticks": 10497872,
+          "state": "S"
+        },
+        "observed": null,
+        "stopped": true
+      },
+      {
+        "source": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources/observer-1792529296014442698.json",
+        "role": "observer",
+        "expected": {
+          "pid": 721663,
+          "start_ticks": 10497899,
+          "state": "R"
+        },
+        "observed": null,
+        "stopped": true
+      },
+      {
+        "source": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-b/observer-1792530115102071008.json",
+        "role": "beam",
+        "expected": {
+          "pid": 722766,
+          "start_ticks": 10579570,
+          "state": "S"
+        },
+        "observed": null,
+        "stopped": true
+      },
+      {
+        "source": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-b/observer-1792530115102071008.json",
+        "role": "observer",
+        "expected": {
+          "pid": 723032,
+          "start_ticks": 10579808,
+          "state": "R"
+        },
+        "observed": null,
+        "stopped": true
+      },
+      {
+        "source": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-a/observer-1792530115065270123.json",
+        "role": "beam",
+        "expected": {
+          "pid": 722757,
+          "start_ticks": 10579570,
+          "state": "S"
+        },
+        "observed": null,
+        "stopped": true
+      },
+      {
+        "source": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/data-a/observer-1792530115065270123.json",
+        "role": "observer",
+        "expected": {
+          "pid": 723030,
+          "start_ticks": 10579804,
+          "state": "R"
+        },
+        "observed": null,
+        "stopped": true
+      },
+      {
+        "source": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/meta/observer-1792530115030658947.json",
+        "role": "beam",
+        "expected": {
+          "pid": 722749,
+          "start_ticks": 10579569,
+          "state": "S"
+        },
+        "observed": null,
+        "stopped": true
+      },
+      {
+        "source": "docs/reports/s3-hardening/closeout002-c5-nvme-r2-resources-cluster/samples/meta/observer-1792530115030658947.json",
+        "role": "observer",
+        "expected": {
+          "pid": 723028,
+          "start_ticks": 10579801,
+          "state": "R"
+        },
+        "observed": null,
+        "stopped": true
+      }
+    ],
+    "remaining_owned_erlang_names": [],
+    "remaining_owned_containers": []
+  },
+  "local_terminal_staging": {
+    "hosted-protected": {
+      "count": 4,
+      "bytes": 4294967296
+    }
+  },
+  "retention_interpretation": "Classified bytes retained by stopped isolated fixture; protection and intent outcomes require service diagnosis, not proof of permanent leakage."
+}

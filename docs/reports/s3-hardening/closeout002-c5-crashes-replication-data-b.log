@@ -1,0 +1,24 @@
+
+===== start data-b bootstrap=true at 2026-10-20T20:33:06Z =====
+04:33:06.660 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+04:33:06.671 [info] Starting Concord TTL manager with cleanup interval: 300000s
+04:33:06.758 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-oxbJdUOM/data-b and blob root /tmp/ess-s3-hardening-cluster-oxbJdUOM/data-b/blob
+04:33:06.774 [info] Concord VSR metadata quorum pending: :cluster_not_ready
+04:33:06.793 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9102 (http)
+04:33:06.801 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9002 (http)
+
+===== start data-b bootstrap=false at 2026-10-20T20:33:10Z =====
+04:33:10.565 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+04:33:10.575 [info] Starting Concord TTL manager with cleanup interval: 300000s
+04:33:10.629 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-oxbJdUOM/data-b and blob root /tmp/ess-s3-hardening-cluster-oxbJdUOM/data-b/blob
+04:33:10.638 [info] Concord VSR metadata quorum ready
+04:33:10.661 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9102 (http)
+04:33:10.665 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9002 (http)
+04:33:13.279 [notice] SIGTERM received - shutting down
+

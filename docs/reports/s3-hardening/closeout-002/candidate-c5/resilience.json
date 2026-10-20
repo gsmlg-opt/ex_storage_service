@@ -1,0 +1,46 @@
+{
+  "profile": "resilience",
+  "status": "passed",
+  "starting_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "ending_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 7.131,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/resilience-0.log"
+    },
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_resilience.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c5-resilience"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 18.358,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/resilience-1.log"
+    },
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_replication_backlog.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c5-resilience-backlog"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 7.081,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c5/resilience-2.log"
+    }
+  ],
+  "started_at": "2026-10-20T20:33:17.086912+00:00"
+}

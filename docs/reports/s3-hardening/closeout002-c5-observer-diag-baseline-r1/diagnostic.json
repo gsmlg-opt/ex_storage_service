@@ -1,0 +1,52 @@
+{
+  "kind": "intrusive-observer-diagnostic-only",
+  "acceptance": false,
+  "profile": "local-1GiB-c4",
+  "required_groups": 2,
+  "candidate_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "arm": "baseline",
+  "command": [
+    "/tmp/ess-s3-hardening-python/bin/python",
+    "/fast/build/ess-hardening-c5-observer-diagnostic/launcher.py",
+    "/fast/build/ess-hardening-c5-observer-diagnostic/workload.py",
+    "/fast/build/ess-hardening-c5-observer-diagnostic/observer-python",
+    "--root",
+    "/tmp/ess-hardening-resource-closeout002-c5-observer-diag-baseline-r1",
+    "--evidence",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c5-observer-diag-baseline-r1/workload",
+    "--profile",
+    "all"
+  ],
+  "environment": {
+    "PAGER": "cat",
+    "MIX_ENV": "prod",
+    "ERL_FLAGS": "+S 4:4 +SDcpu 2 +SDio 2",
+    "ESS_HARDENING_PHASE2": "true",
+    "ESS_HARDENING_FAILURES": "true",
+    "E2E_DIAG_TRACE_DIR": "/fast/build/ess-hardening-c5-observer-diagnostic/baseline-r1-traces"
+  },
+  "inputs": {
+    "run.py": "2fa31243c6b5d3d36b4ad9fb69a8c74be80c558725b66280934c45609c8cb738",
+    "launcher.py": "19192892f0a43f9576f60c107321d9ddd091259ff575e752c4543a5a43f44859",
+    "observer-python": "8f718cf9cdea5a07b90fbcc31660ffea74ef532c4a4d855cd19fe059341bf4a7",
+    "workload.py": "baaefe6e57cffe37673763d27d0cc6fe13305458a23a1135fde27b6a70e99943",
+    "workload.diff": "07aaec7bca47c9b892d18474d2b7c0ac5c00bbc98fb2924c439a6209b3da84ed"
+  },
+  "started_at": "2026-10-20T20:40:34.869626+00:00",
+  "monotonic_start_ns": 104517850782869,
+  "observation": "strace summary overhead and a bounded2400-row25ms thread monitor; not acceptance evidence",
+  "exit_status": 1,
+  "ending_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_after": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "finished_at": "2026-10-20T20:40:36.925583+00:00",
+  "monotonic_end_ns": 104519906740197,
+  "monitor_rows": 0,
+  "trace_files": [
+    {
+      "path": "/fast/build/ess-hardening-c5-observer-diagnostic/baseline-r1-traces/observer-syscalls.720334.txt",
+      "sha256": "0e2794ae1ba76493c6a30ad185bc91b5c4d4a737fc1e6dcec6c636fe2f08b018",
+      "bytes": 557
+    }
+  ]
+}

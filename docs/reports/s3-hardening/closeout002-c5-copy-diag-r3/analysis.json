@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "acceptance": false,
+  "candidate_sha": "83ddc379be879b947e19aecda45e615f4f45b530",
+  "source_sha256": "64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288",
+  "verified_at": "2026-10-20T21:38:49.032558+00:00",
+  "actual_exit_status": 0,
+  "scope": "Intrusive bounded trace of unchanged original resource prefix through group52; four remaining required groups omitted explicitly. This cannot certify A30 or replace the failed untraced resource suite.",
+  "verified_input_hashes": [
+    {
+      "path": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r3/inputs/copy_trace.exs",
+      "sha256": "885229ac1cb34580d925259ac619f91369c0a42f4f18cd7bd33f6caf2ca0df46"
+    },
+    {
+      "path": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r3/inputs/workload.diff",
+      "sha256": "ba6106861c1817ad60fd1b8049cee39931a41f6d0c6578d95f001bc0ed5b1068"
+    },
+    {
+      "path": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r3/inputs/run.py",
+      "sha256": "b7a22cf70b96b8e79f0b2a22f8a46e23e2dd71af17add20846c5a6850075a4fe"
+    },
+    {
+      "path": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r3/inputs/workload.py",
+      "sha256": "5a7a74c6f47caf74a415467dc444c62c3289388277e6c0506137a07442671c08"
+    }
+  ],
+  "groups": 52,
+  "return_events": 490,
+  "target_completed_requests": 4,
+  "target_return_counts": {
+    "stage_from_reader": 12,
+    "get_file": 8,
+    "stage_source": 8,
+    "protect": 4,
+    "protect_staged": 4,
+    "open_operation_intent": 4,
+    "commit_staged_blob": 4,
+    "commit_ready_blob": 4,
+    "put_from_reader": 4,
+    "put_hosted": 4,
+    "copy": 4
+  },
+  "storage_error_events": 0,
+  "trace_limit_reached": false,
+  "exports": [
+    {
+      "manifest": "docs/reports/s3-hardening/closeout002-c5-copy-diag-r3/workload/resource-export-1792531125058600561.json",
+      "rows": 32783,
+      "bytes": 63168096,
+      "sha256": "be07c68018c48d6ad67d10ebc0d3595d842644c9d0c605b3b0abe1fd892d8166"
+    }
+  ],
+  "stopped_identities": [
+    {
+      "role": "beam",
+      "expected": {
+        "pid": 730146,
+        "start_ticks": 10680778,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "role": "observer",
+      "expected": {
+        "pid": 730189,
+        "start_ticks": 10680803,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    }
+  ],
+  "terminal_staging": {},
+  "maximum_probe_ms": 25.011252,
+  "maximum_gap_ms": 50.798143,
+  "conclusion": "The original all-four CopyObject failure was not reproduced even with original preceding history. No exact error or service repair is inferred from this diagnostic pass."
+}

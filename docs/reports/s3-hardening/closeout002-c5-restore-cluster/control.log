@@ -1,0 +1,59 @@
+
+04:34:22.475 [debug] API put: :ok (14ms)
+
+04:34:22.489 [debug] API put: :ok (13ms)
+
+04:34:22.492 [debug] API get: {:error, :not_found} (2ms)
+
+04:34:22.506 [debug] API put: :ok (14ms)
+
+04:34:22.510 [debug] API get: {:ok, %{id: "usr_kwktesjgs2lt", name: "restore-admin", status: :active, updated_at: "2026-10-20T20:34:22.461167Z", created_at: "2026-10-20T20:34:22.461167Z"}} (2ms)
+
+04:34:22.525 [debug] API put: :ok (15ms)
+
+04:34:22.541 [debug] API put: :ok (15ms)
+
+04:34:22.556 [debug] API put: :ok (14ms)
+
+04:34:22.559 [debug] API get: {:error, :not_found} (2ms)
+
+04:34:22.574 [debug] API put: :ok (15ms)
+
+04:34:22.577 [debug] API get: {:ok, %{id: "usr_7oaqewensx3i", name: "restore-reader", status: :active, updated_at: "2026-10-20T20:34:22.526011Z", created_at: "2026-10-20T20:34:22.526011Z"}} (2ms)
+
+04:34:22.591 [debug] API put: :ok (14ms)
+{"restore_control":{"operation":"seed","completed":true}}
+{"restore_control":{"operation":"quiesce","completed":true}}
+{"restore_control":{"operation":"quiesce","completed":true}}
+{"restore_control":{"operation":"quiesce","completed":true}}
+
+04:34:25.892 [debug] API put: :ok (14ms)
+
+04:34:25.908 [debug] API put: :ok (15ms)
+
+04:34:25.940 [debug] API put: :ok (13ms)
+
+04:34:25.988 [debug] API put: :ok (13ms)
+
+04:34:26.026 [debug] API put: :ok (15ms)
+{"restore_control":{"operation":"boundary","completed":true}}
+
+04:34:26.595 [info] Backup created successfully: /tmp/ess-hardening-restore-MMmiOC2f/bundle.partial-1eaa7073664797983101ced2/concord_backup_20261020T203426.594689Z.backup
+{"restore_control":{"operation":"backup","completed":true}}
+
+04:34:38.084 [info] Applying backup from 2026-10-20 20:34:26.594448Z, 92 entries
+
+04:34:38.100 [info] Backup restored successfully from: /tmp/backup/concord_backup_20261020T203426.594689Z.backup
+{"restore_control":{"operation":"restore","completed":true}}
+{"restore_control":{"operation":"install","completed":true}}
+{"restore_control":{"operation":"install","completed":true}}
+{"restore_control":{"operation":"verify","completed":true}}
+{"restore_control":{"operation":"verify","completed":true}}
+{"restore_control":{"operation":"verify","completed":true}}
+
+04:34:44.139 [debug] API get: {:ok, %{size: 61, state: :unknown, hash: "9370552e5e32e5532018ae8edc5dc8dc441f163246cf994255b8bf14ebf7d08c", node_id: "data-a", node_generation: 1, schema: 2, created_at_ms: 1792528466026, operation_id: "restore-unknown", protected_until_ms: 1792532066026, updated_at_ms: 1792528466045}} (0ms)
+{"restore_control":{"operation":"fences","completed":true}}
+{"restore_control":{"operation":"reject-workers","completed":true}}
+{"restore_control":{"operation":"activate","completed":true}}
+{"restore_control":{"operation":"activate","completed":true}}
+{"restore_control":{"operation":"activate","completed":true}}

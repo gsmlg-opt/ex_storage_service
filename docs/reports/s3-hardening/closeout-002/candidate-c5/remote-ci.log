@@ -1,0 +1,669 @@
+Core, S3, transport and web correctness	Set up job	﻿2026-10-20T19:57:59.8990551Z Current runner version: '2.337.0'
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9013663Z ##[group]Runner Image Provisioner
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9014379Z Hosted Compute Agent
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9014970Z Version: 20261012.601
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9015523Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9016159Z Build Date: 2026-10-12T17:48:21Z
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9016810Z Worker ID: {c36c55e9-420e-4cc1-949c-eba629a8005d}
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9017397Z Region: westus
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9018224Z Cloud: Azure
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9018674Z ##[endgroup]
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9019911Z ##[group]Operating System
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9020522Z Ubuntu
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9020965Z 24.04.5
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9021466Z LTS
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9021917Z ##[endgroup]
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9022493Z ##[group]Runner Image
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9023057Z Image: ubuntu-24.04
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9023553Z Version: 20261012.334.1
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9024500Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9025914Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9026754Z ##[endgroup]
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9027927Z ##[group]GITHUB_TOKEN Permissions
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9029642Z Contents: read
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9030182Z Metadata: read
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9030748Z ##[endgroup]
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9032449Z Secret source: Actions
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9033189Z Cache mode: write
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9033950Z Prepare workflow directory
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9342628Z Prepare all required actions
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:57:59.9381080Z Getting action download info
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:58:00.3451918Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:58:00.5550333Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:58:00.7246963Z Download action repository 'erlef/setup-beam@v1' (SHA:54075bcc5e249e4758d363f27d099f55d843f124)
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:58:01.1231808Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:58:01.2949458Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+Core, S3, transport and web correctness	Set up job	2026-10-20T19:58:01.5976484Z Complete job name: Core, S3, transport and web correctness
+Core, S3, transport and web correctness	Run actions/checkout@v4	﻿2026-10-20T19:58:01.6746307Z ##[group]Run actions/checkout@v4
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6747406Z with:
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6748449Z   repository: gsmlg-opt/ex_storage_service
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6755500Z   token: ***
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6756193Z   ssh-strict: true
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6756906Z   ssh-user: git
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6757719Z   persist-credentials: true
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6758505Z   clean: true
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6759225Z   sparse-checkout-cone-mode: true
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6760059Z   fetch-depth: 1
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6760758Z   fetch-tags: false
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6761483Z   show-progress: true
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6762226Z   lfs: false
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6762949Z   submodules: false
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6763713Z   set-safe-directory: true
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6764549Z   allow-unsafe-pr-checkout: false
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6765632Z env:
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6766295Z   PAGER: cat
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6766969Z   MIX_ENV: test
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6767775Z   ELIXIR_VERSION: 1.19
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6768527Z   OTP_VERSION: 28
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.6769285Z ##[endgroup]
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.7659818Z Syncing repository: gsmlg-opt/ex_storage_service
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.7662978Z ##[group]Getting Git version info
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.7664870Z Working directory is '/home/runner/work/ex_storage_service/ex_storage_service'
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.7667820Z [command]/usr/bin/git version
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.7900398Z git version 2.55.0
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.7924030Z ##[endgroup]
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.7935896Z Temporarily overriding HOME='/home/runner/work/_temp/f02ca376-e0f3-4068-a85c-d4b4fdd89c10' before making global git config changes
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.7939439Z Adding repository directory to the temporary git global config as a safe directory
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.7942696Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ex_storage_service/ex_storage_service
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8004542Z Deleting the contents of '/home/runner/work/ex_storage_service/ex_storage_service'
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8007204Z ##[group]Initializing the repository
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8011173Z [command]/usr/bin/git init /home/runner/work/ex_storage_service/ex_storage_service
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8422689Z hint: Using 'master' as the name for the initial branch. This default branch name
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8424907Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8426456Z hint: to use in all of your new repositories, which will suppress this warning,
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8427824Z hint: call:
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8428729Z hint:
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8429761Z hint: 	git config --global init.defaultBranch <name>
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8430776Z hint:
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8431966Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8433779Z hint: 'development'. The just-created branch can be renamed via this command:
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8434943Z hint:
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8435612Z hint: 	git branch -m <name>
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8436373Z hint:
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8437359Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8439478Z Initialized empty Git repository in /home/runner/work/ex_storage_service/ex_storage_service/.git/
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8442477Z [command]/usr/bin/git remote add origin https://github.com/gsmlg-opt/ex_storage_service
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8494455Z ##[endgroup]
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8495698Z ##[group]Disabling automatic garbage collection
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8497039Z [command]/usr/bin/git config --local gc.auto 0
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8526937Z ##[endgroup]
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8532370Z ##[group]Setting up auth
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8533528Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8561715Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8840147Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.8869750Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.9055285Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.9084779Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:01.9274754Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:02.0270950Z ##[endgroup]
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:02.0272356Z ##[group]Fetching the repository
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:02.0280178Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +83ddc379be879b947e19aecda45e615f4f45b530:refs/remotes/origin/codex/ess-s3-hardening-closeout-002
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:04.8851154Z From https://github.com/gsmlg-opt/ex_storage_service
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:04.8852315Z  * [new ref]         83ddc379be879b947e19aecda45e615f4f45b530 -> origin/codex/ess-s3-hardening-closeout-002
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:04.8865618Z ##[endgroup]
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:04.8866274Z ##[group]Determining the checkout info
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:04.8866895Z ##[endgroup]
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:04.8868656Z [command]/usr/bin/git sparse-checkout disable
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:04.8921223Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:04.8952013Z ##[group]Checking out the ref
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:04.8957421Z [command]/usr/bin/git checkout --progress --force -B codex/ess-s3-hardening-closeout-002 refs/remotes/origin/codex/ess-s3-hardening-closeout-002
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:05.2558245Z Switched to a new branch 'codex/ess-s3-hardening-closeout-002'
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:05.2577818Z branch 'codex/ess-s3-hardening-closeout-002' set up to track 'origin/codex/ess-s3-hardening-closeout-002'.
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:05.2621244Z ##[endgroup]
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:05.2632594Z [command]/usr/bin/git log -1 --format=%H
+Core, S3, transport and web correctness	Run actions/checkout@v4	2026-10-20T19:58:05.2650454Z 83ddc379be879b947e19aecda45e615f4f45b530
+Core, S3, transport and web correctness	Run actions/setup-python@v5	﻿2026-10-20T19:58:05.2872185Z ##[group]Run actions/setup-python@v5
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.2872468Z with:
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.2872644Z   python-version: 3.12
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.2872836Z   check-latest: false
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.2874908Z   token: ***
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.2875101Z   update-environment: true
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.2875304Z   allow-prereleases: false
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.2875499Z   freethreaded: false
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.2875670Z env:
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.2875826Z   PAGER: cat
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.2876008Z   MIX_ENV: test
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.2876184Z   ELIXIR_VERSION: 1.19
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.2876362Z   OTP_VERSION: 28
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.2876533Z ##[endgroup]
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.3899756Z ##[group]Installed versions
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.4058119Z (node:2105) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.4058737Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.4059174Z Successfully set up CPython (3.12.15)
+Core, S3, transport and web correctness	Run actions/setup-python@v5	2026-10-20T19:58:05.4059933Z ##[endgroup]
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	﻿2026-10-20T19:58:05.4232164Z ##[group]Run python3 -m pip install -r e2e/hardening-requirements.txt
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:05.4232679Z ^[[36;1mpython3 -m pip install -r e2e/hardening-requirements.txt^[[0m
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:05.4473058Z shell: /usr/bin/bash -e {0}
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:05.4473368Z env:
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:05.4473552Z   PAGER: cat
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:05.4473721Z   MIX_ENV: test
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:05.4473895Z   ELIXIR_VERSION: 1.19
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:05.4474104Z   OTP_VERSION: 28
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:05.4474335Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:05.4474700Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:05.4475052Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:05.4475357Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:05.4475652Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:05.4475953Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:05.4476220Z ##[endgroup]
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:06.8861255Z Collecting boto3==1.43.114 (from -r e2e/hardening-requirements.txt (line 2))
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:06.9600732Z   Downloading boto3-1.43.114-py3-none-any.whl.metadata (6.6 kB)
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.1413155Z Collecting botocore==1.43.114 (from -r e2e/hardening-requirements.txt (line 3))
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.1512239Z   Downloading botocore-1.43.114-py3-none-any.whl.metadata (5.6 kB)
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.2587787Z Collecting jmespath<2.0.0,>=0.7.1 (from boto3==1.43.114->-r e2e/hardening-requirements.txt (line 2))
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.2685222Z   Downloading jmespath-1.1.0-py3-none-any.whl.metadata (7.6 kB)
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.2816724Z Collecting s3transfer<0.20.0,>=0.19.0 (from boto3==1.43.114->-r e2e/hardening-requirements.txt (line 2))
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.2912303Z   Downloading s3transfer-0.19.3-py3-none-any.whl.metadata (1.7 kB)
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.3591405Z Collecting python-dateutil<3.0.0,>=2.1 (from botocore==1.43.114->-r e2e/hardening-requirements.txt (line 3))
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.3690234Z   Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.4131615Z Collecting urllib3!=2.2.0,<3,>=1.25.4 (from botocore==1.43.114->-r e2e/hardening-requirements.txt (line 3))
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.4229647Z   Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.5057006Z Collecting six>=1.5 (from python-dateutil<3.0.0,>=2.1->botocore==1.43.114->-r e2e/hardening-requirements.txt (line 3))
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.5153731Z   Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.5376700Z Downloading boto3-1.43.114-py3-none-any.whl (140 kB)
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.5679062Z Downloading botocore-1.43.114-py3-none-any.whl (16.1 MB)
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.8084800Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.1/16.1 MB 70.8 MB/s  0:00:00
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.8189305Z Downloading jmespath-1.1.0-py3-none-any.whl (20 kB)
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.8302942Z Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.8447752Z Downloading s3transfer-0.19.3-py3-none-any.whl (90 kB)
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.9513921Z Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:07.9635303Z Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:08.0781112Z Installing collected packages: urllib3, six, jmespath, python-dateutil, botocore, s3transfer, boto3
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:08.8632716Z 
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:08.8643827Z Successfully installed boto3-1.43.114 botocore-1.43.114 jmespath-1.1.0 python-dateutil-2.9.0.post0 s3transfer-0.19.3 six-1.17.0 urllib3-2.8.0
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:08.8650657Z 
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:08.8650896Z [notice] A new release of pip is available: 26.2.1 -> 26.2.2
+Core, S3, transport and web correctness	Install pinned independent client for harness contract imports	2026-10-20T19:58:08.8651279Z [notice] To update, run: pip install --upgrade pip
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	﻿2026-10-20T19:58:08.9903431Z ##[group]Run python3 scripts/release/reserve_journal_ports.py
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:08.9903833Z ^[[36;1mpython3 scripts/release/reserve_journal_ports.py^[[0m
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:08.9960196Z shell: /usr/bin/bash -e {0}
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:08.9960415Z env:
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:08.9960577Z   PAGER: cat
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:08.9960744Z   MIX_ENV: test
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:08.9960909Z   ELIXIR_VERSION: 1.19
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:08.9961104Z   OTP_VERSION: 28
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:08.9961322Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:08.9961675Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:08.9962018Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:08.9962316Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:08.9962607Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:08.9962908Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:08.9963161Z ##[endgroup]
+Core, S3, transport and web correctness	Reserve explicit journal mutex ports on the test runner	2026-10-20T19:58:09.1411097Z {"journal_ports": "49152-65535", "reserved_ports": "49152-65535"}
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	﻿2026-10-20T19:58:09.2167345Z ##[group]Run python3 e2e/scripts/ci_isolation.py --output docs/reports/s3-hardening/isolation-ci-39487875049-1
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.2168128Z ^[[36;1mpython3 e2e/scripts/ci_isolation.py --output docs/reports/s3-hardening/isolation-ci-39487875049-1^[[0m
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.2224309Z shell: /usr/bin/bash -e {0}
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.2224514Z env:
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.2224680Z   PAGER: cat
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.2224842Z   MIX_ENV: test
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.2225008Z   ELIXIR_VERSION: 1.19
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.2225195Z   OTP_VERSION: 28
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.2225412Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.2225747Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.2226080Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.2226380Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.2226674Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.2226967Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.2227263Z ##[endgroup]
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:09.3696382Z sudo -n apt-get update
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T19:58:19.6511624Z sudo -n apt-get install --yes apparmor apparmor-profiles bubblewrap zsh
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T20:00:03.6653210Z uname -a
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T20:00:03.6674468Z dpkg-query -W apparmor apparmor-profiles bubblewrap zsh
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T20:00:03.6765571Z dpkg-query -S /usr/share/apparmor/extra-profiles/bwrap-userns-restrict /usr/bin/bwrap
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T20:00:03.7566848Z sha256sum /usr/share/apparmor/extra-profiles/bwrap-userns-restrict /usr/bin/bwrap
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T20:00:03.7596386Z sudo -n apparmor_parser --version
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T20:00:03.7659951Z sudo -n apparmor_parser -r /usr/share/apparmor/extra-profiles/bwrap-userns-restrict
+Core, S3, transport and web correctness	Install CLI contract shell and isolated observer prerequisites	2026-10-20T20:00:03.7770607Z sudo -n aa-status
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	﻿2026-10-20T20:00:03.8298717Z ##[group]Run erlef/setup-beam@v1
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8298968Z with:
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8299141Z   elixir-version: 1.19
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8299333Z   otp-version: 28
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8301390Z   github-token: ***
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8301587Z   otp-architecture: 64
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8301775Z   install-hex: true
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8301944Z   install-rebar: true
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8302119Z   version-type: loose
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8302304Z   disable_problem_matchers: false
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8302535Z   hexpm-mirrors: https://builds.hex.pm
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8302766Z env:
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8302917Z   PAGER: cat
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8303080Z   MIX_ENV: test
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8303272Z   ELIXIR_VERSION: 1.19
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8303447Z   OTP_VERSION: 28
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8303670Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8304013Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8304349Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8304696Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8304985Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8305276Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:03.8305530Z ##[endgroup]
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:04.0384901Z ##[group]Installing Erlang/OTP OTP-28.5.0.8 - built on amd64/ubuntu-24.04
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:04.5605404Z [command]/usr/bin/tar zx --strip-components=1 --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/41505b8c-2342-48fe-bc5a-98529a165e8a -f /home/runner/work/_temp/ed087044-c4b5-4691-8e24-d4c85fb16996
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:07.3110909Z [command]/home/runner/work/_temp/.setup-beam/otp/Install -minimal /home/runner/work/_temp/.setup-beam/otp
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:07.3392478Z Installed Erlang/OTP version
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:07.3403940Z [command]/home/runner/work/_temp/.setup-beam/otp/bin/erl -version
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:07.3522007Z Erlang (SMP,ASYNC_THREADS) (BEAM) emulator version 16.4.0.7
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:07.3582187Z ##[endgroup]
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:07.3582792Z [command]/home/runner/work/_temp/.setup-beam/otp/bin/erl -noshell -eval io:format(erlang:system_info(otp_release)), halt().
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:07.5495237Z 28::debug::Was not able to coerce latest with semver
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:07.5507593Z Using Elixir 1.19.6 (built for Erlang/OTP 28)
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:07.5508516Z ##[group]Installing Elixir v1.19.6-otp-28
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:08.2065703Z [command]/usr/bin/unzip -o -q /home/runner/work/_temp/4ec109a8-baea-4b6e-96d7-a29e92ae6d6d
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:08.7505661Z Installed Elixir version
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:08.7521626Z [command]/home/runner/work/_temp/.setup-beam/elixir/bin/elixir -v
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:08.9336230Z Erlang/OTP 28 [erts-16.4.0.7] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:08.9337101Z 
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:08.9376699Z Elixir 1.19.6 (compiled with Erlang/OTP 28)
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:08.9416096Z ##[endgroup]
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:08.9419526Z ##[group]Running mix local.rebar,--force
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:08.9432339Z [command]/home/runner/work/_temp/.setup-beam/elixir/bin/mix local.rebar --force
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:09.5848818Z * creating /home/runner/.mix/elixir/1-19-otp-28/rebar3
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:09.5908740Z ##[endgroup]
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:09.5909238Z ##[group]Running mix local.hex,--force
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:09.5922084Z [command]/home/runner/work/_temp/.setup-beam/elixir/bin/mix local.hex --force
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:10.1744592Z * creating /home/runner/.mix/archives/hex-2.5.4
+Core, S3, transport and web correctness	Run erlef/setup-beam@v1	2026-10-20T20:00:10.1808374Z ##[endgroup]
+Core, S3, transport and web correctness	Run actions/cache@v4	﻿2026-10-20T20:00:10.2440428Z ##[group]Run actions/cache@v4
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2440705Z with:
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2441048Z   path: deps
+Core, S3, transport and web correctness	Run actions/cache@v4	_build
+Core, S3, transport and web correctness	Run actions/cache@v4	
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2441379Z   key: Linux-mix-1.19-28-af3ee11512aafada4fc4533d858a4b244df9939e463d01614c1fb24f305cffe7
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2441770Z   restore-keys: Linux-mix-1.19-28-
+Core, S3, transport and web correctness	Run actions/cache@v4	
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2442025Z   enableCrossOsArchive: false
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2442244Z   fail-on-cache-miss: false
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2442435Z   lookup-only: false
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2442616Z   save-always: false
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2442782Z env:
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2442960Z   PAGER: cat
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2443121Z   MIX_ENV: test
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2443290Z   ELIXIR_VERSION: 1.19
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2443462Z   OTP_VERSION: 28
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2443683Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2444022Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2444359Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2444698Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2444999Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2445296Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2445604Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2445923Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.2446202Z ##[endgroup]
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.3327051Z (node:4438) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.3327874Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.6040993Z Cache hit for: Linux-mix-1.19-28-af3ee11512aafada4fc4533d858a4b244df9939e463d01614c1fb24f305cffe7
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:10.6123245Z (node:4438) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:11.8837841Z Received 4194304 of 482165566 (0.9%), 4.0 MBs/sec
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:12.8850566Z Received 134217728 of 482165566 (27.8%), 63.9 MBs/sec
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:13.8870337Z Received 281018368 of 482165566 (58.3%), 89.2 MBs/sec
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:14.8884923Z Received 423624704 of 482165566 (87.9%), 100.9 MBs/sec
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:15.3268924Z Received 482165566 of 482165566 (100.0%), 103.5 MBs/sec
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:15.3288097Z Cache Size: ~460 MB (482165566 B)
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:15.3344839Z [command]/usr/bin/tar -xf /home/runner/work/_temp/459b4818-2963-4a12-bddf-56e79678c753/cache.tzst -P -C /home/runner/work/ex_storage_service/ex_storage_service --use-compress-program unzstd
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:18.9856617Z Cache restored successfully
+Core, S3, transport and web correctness	Run actions/cache@v4	2026-10-20T20:00:19.1143551Z Cache restored from key: Linux-mix-1.19-28-af3ee11512aafada4fc4533d858a4b244df9939e463d01614c1fb24f305cffe7
+Core, S3, transport and web correctness	Run mix deps.get	﻿2026-10-20T20:00:19.1315751Z ##[group]Run mix deps.get
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1316030Z ^[[36;1mmix deps.get^[[0m
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1378311Z shell: /usr/bin/bash -e {0}
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1378541Z env:
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1378708Z   PAGER: cat
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1378875Z   MIX_ENV: test
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1379040Z   ELIXIR_VERSION: 1.19
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1379218Z   OTP_VERSION: 28
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1379443Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1379794Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1380132Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1380433Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1380736Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1381030Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1381335Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1381657Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:19.1382140Z ##[endgroup]
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.1216363Z Resolving Hex dependencies...
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.4414964Z Resolution completed in 0.314s
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5024941Z Unchanged:
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5025582Z   bandit 1.12.5 VULNERABLE!
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5050421Z     EEF-CVE-2026-105659 (HIGH)
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5051224Z     aka: CVE-2026-105659, GHSA-69m6-wcv4-rwcf
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5052539Z     HTTP/2 blocked-send deadlines reset on every WINDOW_UPDATE, letting a trickle pin stream processes indefinitely in Bandit
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5053851Z     https://osv.dev/vulnerability/EEF-CVE-2026-105659
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5054414Z 
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5054817Z     EEF-CVE-2026-105660 (MEDIUM)
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5055405Z     aka: CVE-2026-105660, GHSA-v53v-9hvg-37jf
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5056264Z     Unvalidated HTTP/1 request-target authority lets a client choose conn.host and conn.port in Bandit
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5057219Z     https://osv.dev/vulnerability/EEF-CVE-2026-105660
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5057992Z   castore 1.0.21
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5058517Z   cc_precompiler 0.1.11
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5059051Z   concord 3.1.4
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5059576Z   db_connection 2.10.2
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5060103Z   dns_cluster 0.3.1
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5060603Z   dotenvy 1.2.1
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5061113Z   duskmoon_bundler 9.16.16
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5061675Z   duskmoon_bundler_runtime 9.16.16
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5062390Z   duskmoon_hex_solver 9.16.16
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5062993Z   duskmoon_npm 9.16.16
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5063548Z   duskmoon_oxc 9.16.16
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5064099Z   duskmoon_oxide 9.16.16
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5064661Z   duskmoon_quickbeam 9.16.16
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5065243Z   duskmoon_vize 9.16.16
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5065782Z   earmark_parser 1.4.46
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5066302Z   elixir_make 0.10.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5066818Z   elixir_quic 0.21.13
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5067332Z   elixir_quic_http3 0.21.13
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5067987Z   ex_doc 0.40.4
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5068510Z   ex_ssl 0.21.13
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5069024Z   ex_turso 3.1.4
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5069550Z   file_system 1.1.1
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5070059Z   finch 0.24.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5070526Z   fine 0.1.6
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5070920Z   glob_ex 0.1.12
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5071303Z   gsmlg_toml 1.0.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5071695Z   hpax 1.1.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5072083Z   http_core 0.21.13
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5072492Z   http_event_source 0.21.13
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5072927Z   http_fetch 0.21.13
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5073355Z   http_runtime 0.21.13
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5073769Z   http_web_socket 0.21.13
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5074199Z   jason 1.4.5
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5074617Z   json_codec 0.3.1
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5075017Z   json_spec 1.2.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5075424Z   lazy_html 0.1.13
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5075848Z   makeup 1.2.3
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5076262Z   makeup_elixir 1.0.1
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5076684Z   makeup_erlang 1.1.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5077090Z   mdex 0.14.2
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5078162Z   mdex_gfm 0.2.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5078456Z   mdex_mermaid 0.3.6
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5078747Z   mdex_native 0.2.11
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5079020Z   mime 2.0.7
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5079260Z   mint 1.11.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5079510Z   mint_web_socket 1.0.6
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5079803Z   nimble_options 1.1.1
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5080118Z   nimble_parsec 1.4.2
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5080406Z   nimble_pool 1.1.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5080684Z   phoenix 1.8.15
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5080980Z   phoenix_duskmoon 9.16.11
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5081294Z   phoenix_html 4.3.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5081599Z   phoenix_live_dashboard 0.9.1
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5082065Z   phoenix_live_reload 1.7.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5082329Z   phoenix_live_view 1.2.12
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5082547Z   phoenix_pubsub 2.4.1
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5082750Z   phoenix_template 1.1.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5082973Z   plug 1.20.3
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5083159Z   plug_crypto 2.2.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5083343Z   req 0.7.5
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5083522Z   rustler 0.38.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5083719Z   rustler_precompiled 0.10.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5084100Z   telemetry 1.4.2
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5084289Z   telemetry_metrics 1.2.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5084493Z   telemetry_poller 1.3.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5084708Z   thousand_island 1.5.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5084910Z   viewstamped_replication 3.1.4
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5085123Z   websock 0.5.3
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5085360Z   websock_adapter 0.6.0
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5085560Z   zigler_precompiled 0.1.6
+Core, S3, transport and web correctness	Run mix deps.get	2026-10-20T20:00:20.5433067Z Found packages with security advisories, see above for details
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	﻿2026-10-20T20:00:21.3063891Z ##[group]Run mix compile --force --warnings-as-errors
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3064394Z ^[[36;1mmix compile --force --warnings-as-errors^[[0m
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3128220Z shell: /usr/bin/bash -e {0}
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3128449Z env:
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3128626Z   PAGER: cat
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3128793Z   MIX_ENV: test
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3128962Z   ELIXIR_VERSION: 1.19
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3129138Z   OTP_VERSION: 28
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3129368Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3129744Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3130080Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3130381Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3130693Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3130998Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3131307Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3131673Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:21.3131952Z ##[endgroup]
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:22.0271178Z ==> ex_storage_service
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:22.0288571Z Compiling 130 files (.ex)
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:25.3873893Z Generated ex_storage_service app
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:25.7119776Z ==> ex_storage_service_cluster
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:25.7120699Z Compiling 7 files (.ex)
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:25.9417810Z Generated ex_storage_service_cluster app
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:27.1907156Z ==> ex_storage_service_cli
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:27.1908104Z Compiling 1 file (.yrl)
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:27.2638396Z Compiling 1 file (.xrl)
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:27.3224960Z Compiling 22 files (.erl)
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:28.3962027Z Compiling 150 files (.ex)
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:32.7158877Z Generated ex_storage_service_cli app
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:33.0434753Z ==> ex_storage_service_s3
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:33.0435692Z Compiling 33 files (.ex)
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:33.8979788Z Generated ex_storage_service_s3 app
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:34.1284877Z ==> ex_storage_service_web
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:34.1285491Z Compiling 27 files (.ex)
+Core, S3, transport and web correctness	Run mix compile --force --warnings-as-errors	2026-10-20T20:00:35.3616629Z Generated ex_storage_service_web app
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	﻿2026-10-20T20:00:35.6490404Z ##[group]Run python3 e2e/run_correctness_tests.py --output docs/reports/s3-hardening/correctness-ci-39487875049-1
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6491058Z ^[[36;1mpython3 e2e/run_correctness_tests.py --output docs/reports/s3-hardening/correctness-ci-39487875049-1^[[0m
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6549312Z shell: /usr/bin/bash -e {0}
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6549521Z env:
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6549688Z   PAGER: cat
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6549860Z   MIX_ENV: test
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6550033Z   ELIXIR_VERSION: 1.19
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6550211Z   OTP_VERSION: 28
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6550437Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6550779Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6551109Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6551409Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6551709Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6552002Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6552345Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6552673Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:35.6553126Z ##[endgroup]
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:36.6834190Z ==> ex_storage_service
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:36.9724753Z Running ExUnit with seed: 952950, max_cases: 1
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:36.9959221Z Excluding tags: [cluster: true]
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:36.9965436Z 
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:54.8079864Z ........................................................................................................................................................................................................................................................................................20:00:54.805 [error] CloudCache DELETE failed remote/key: HTTP 403 — ""
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:54.8546255Z ......20:00:54.854 [error] Replication DELETE failed for bucket/key to http://127.0.0.1:43759: HTTP 503 - ""
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:57.2002728Z ..................................................................................................................................................................20:00:57.199 [warning] ContentGC: metadata scan failed; sweep aborted: :metadata_unavailable
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:57.2801447Z ..20:00:57.279 [warning] CAS migration: content missing for mig-6901 hash c2ed3bd4de6fd022ddc81e95bba8788e97823e6ae006683351d2245716ef420a
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:57.2874777Z .20:00:57.287 [warning] CAS migration: content missing for mig-6901 hash c2ed3bd4de6fd022ddc81e95bba8788e97823e6ae006683351d2245716ef420a
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:57.2879779Z 20:00:57.287 [warning] CAS migration: content missing for mig-6901 hash c2ed3bd4de6fd022ddc81e95bba8788e97823e6ae006683351d2245716ef420a
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:00:57.2996656Z .20:00:57.299 [warning] CAS migration: content missing for mig-6901 hash c2ed3bd4de6fd022ddc81e95bba8788e97823e6ae006683351d2245716ef420a
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:01:52.4880433Z ................................................................................................20:01:52.487 [warning] CasGC: failed to delete 3e73fa7032e41489b7a9b8d177dd7ed341fba4a2137fbf58bf0564818f1586bd: :invalid_quarantine_path
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:17.1108508Z ....................................................
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:17.1112075Z Finished in 100.1 seconds (18.6s async, 81.4s sync)
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:17.1112528Z 600 tests, 0 failures (1 excluded)
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:17.1131763Z ==> ex_storage_service_cluster
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:17.1188992Z Running ExUnit with seed: 952950, max_cases: 1
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:17.1203022Z Excluding tags: [large_stream: true]
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:17.1220256Z 
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:18.2514286Z .......................................
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:18.2514982Z Finished in 1.1 seconds (1.1s async, 0.00s sync)
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:18.2515987Z 39 tests, 0 failures (1 excluded)
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:18.2526985Z ==> ex_storage_service_s3
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:18.2581386Z Running ExUnit with seed: 952950, max_cases: 1
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:18.2598325Z Excluding tags: [large_stream: true]
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:18.2601297Z 
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:19.2279325Z ..............................20:02:19.223 request_id=request-phase7-incomplete [warning] blob response stream terminated
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:19.8789087Z .................................generated XML corpus: 5402 rejected cases, max input 4096 bytes
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:20.6791009Z .........................20:02:20.677 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:20.6814184Z 20:02:20.677 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:20.7030556Z ..20:02:20.701 [warning] SigV4 auth failed: Missing Authorization header — HEAD /signature
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:20.7168348Z .20:02:20.715 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:50.8989142Z ...........................................................................20:02:50.898 [error] Replication PUT failed for source/broken.bin to http://localhost:9001: {:request_failed, %ExStorageService.BlobStore.Source.RequestBodyError{reason: :upstream_closed}}
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:51.8625033Z .....20:02:51.862 [error] Replication PUT repl-13554/d.txt: content "34b79ebbbdd248cd400be53835923b81af125e4c4bc956444f3f0701751007e0" missing from storage
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:53.2992924Z ...20:02:53.295 [error] 4234- fatal: :unexpected_end
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:53.2993714Z 
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:53.3009213Z 20:02:53.300 [error] 4234- fatal: :unexpected_end
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:53.3009682Z 
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:53.3161809Z 20:02:53.315 [error] 4234- fatal: :unexpected_end
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:53.3162656Z 
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:53.3178718Z 20:02:53.317 [error] 4234- fatal: :unexpected_end
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:53.3179233Z 
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:53.3311303Z 20:02:53.330 [error] 4234- fatal: :unexpected_end
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:53.3311606Z 
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:53.3325663Z 20:02:53.332 [error] 4234- fatal: :unexpected_end
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:02:53.3326130Z 
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:03:04.0121014Z .................20:03:04.011 [warning] SigV4 auth failed: SignatureDoesNotMatch — GET /
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:03:05.1261589Z .....20:03:05.125 [warning] SigV4 auth failed: Missing Authorization header — POST /health/cloud_cache
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:03:32.1046223Z ...........................................................20:03:32.104 [warning] SigV4 auth failed: Missing Authorization header — OPTIONS /cors-http-14290/key
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:03:32.1077095Z 20:03:32.107 [warning] SigV4 auth failed: Missing Authorization header — GET /cors-http-14290/key
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:06.2415704Z ...................................................................................................................
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:06.2416400Z Finished in 167.9 seconds (2.3s async, 165.5s sync)
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:06.2416829Z 370 tests, 0 failures
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:06.2427483Z ==> ex_storage_service_web
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:06.2487126Z Running ExUnit with seed: 952950, max_cases: 1
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:06.2488413Z Excluding tags: [large_stream: true]
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:06.2489098Z 
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:06.5333034Z .....................
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:06.5333506Z Finished in 0.2 seconds (0.1s async, 0.1s sync)
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:06.5333900Z 21 tests, 0 failures
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:07.8309288Z ==> ex_storage_service_cli
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:08.0546952Z Running ExUnit with seed: 41595, max_cases: 1
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:08.0555103Z 
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:08.1515310Z ...........
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:08.1535003Z Finished in 0.09 seconds (0.07s async, 0.02s sync)
+Core, S3, transport and web correctness	Run complete fast suites and retain actual selection/counts	2026-10-20T20:05:08.1536830Z 11 tests, 0 failures
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	﻿2026-10-20T20:05:08.1739509Z ##[group]Run python3 -m unittest discover -s e2e -p 'test_*.py'
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1740047Z ^[[36;1mpython3 -m unittest discover -s e2e -p 'test_*.py'^[[0m
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1796900Z shell: /usr/bin/bash -e {0}
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1797225Z env:
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1797483Z   PAGER: cat
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1797912Z   MIX_ENV: test
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1798218Z   ELIXIR_VERSION: 1.19
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1798519Z   OTP_VERSION: 28
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1798857Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1799304Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1799841Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1800242Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1800684Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1801133Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1801534Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1802154Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:08.1802517Z ##[endgroup]
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:09.4060054Z ...isolation prerequisite failed: Command '['bwrap']' returned non-zero exit status 1.
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:09.4091474Z {"primary_stopped": "meta", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 200}
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:09.4105135Z {"primary_stopped": "data-a", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 503}
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:09.4118120Z {"primary_stopped": "data-b", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 503}
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.1392281Z ......................................From /tmp/ess-release-gate-52p72yqa/origin
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.1393038Z  * branch            main       -> FETCH_HEAD
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.1693309Z Previous HEAD position was 98ebd53 tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.1695007Z HEAD is now at d1c34f6 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.1877031Z Previous HEAD position was d1c34f6 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.1879011Z HEAD is now at 98ebd53 tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.2368445Z Previous HEAD position was 98ebd53 tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.2370391Z HEAD is now at d1c34f6 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.2508009Z From /tmp/ess-release-gate-52p72yqa/origin
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.2508472Z  * branch            main       -> FETCH_HEAD
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.2796206Z HEAD is now at d1c34f6 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.2975031Z Previous HEAD position was d1c34f6 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.2977363Z HEAD is now at 98ebd53 tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.3460590Z Previous HEAD position was 98ebd53 tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.3462506Z HEAD is now at d1c34f6 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.4019459Z .HEAD is now at 428c0d6 tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.4498875Z Previous HEAD position was 428c0d6 tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.4501014Z HEAD is now at 8273600 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.4888956Z .HEAD is now at 428c0d6 tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.5367498Z Previous HEAD position was 428c0d6 tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.5369661Z HEAD is now at 8273600 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.6090682Z .HEAD is now at 428c0d6 tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.6576099Z Previous HEAD position was 428c0d6 tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:12.6578037Z HEAD is now at 8273600 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:32.4682100Z .....................................................................
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:32.4682608Z ----------------------------------------------------------------------
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:32.4682929Z Ran 113 tests in 23.069s
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:32.4683096Z 
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T20:05:32.4683174Z OK
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	﻿2026-10-20T20:05:32.4996484Z ##[group]Run actions/upload-artifact@v4
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4996723Z with:
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4996912Z   name: correctness-selection-and-results
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4997205Z   path: docs/reports/s3-hardening/correctness-ci-39487875049-1/
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4997482Z   if-no-files-found: error
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4997816Z   compression-level: 6
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4998005Z   overwrite: false
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4998186Z   include-hidden-files: false
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4998377Z env:
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4998528Z   PAGER: cat
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4998688Z   MIX_ENV: test
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4998859Z   ELIXIR_VERSION: 1.19
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4999042Z   OTP_VERSION: 28
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4999264Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4999609Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.4999950Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.5000273Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.5000617Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.5000917Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.5001233Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.5001560Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.5001841Z ##[endgroup]
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.6285639Z (node:6950) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.6286337Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.6331096Z With the provided path, there will be 3 files uploaded
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.6334743Z Artifact name is valid!
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:32.6335580Z Root directory input is valid!
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:33.0181185Z Beginning upload of artifact content to blob storage
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:33.0358413Z (node:6950) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:33.3535294Z Uploaded bytes 3195
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:33.4382266Z Finished uploading artifact content to blob storage!
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:33.4382945Z SHA256 digest of uploaded artifact zip is c6975ab246470fca7be57d125748483ce581d15d783666bb5950253bbcc90345
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:33.4383793Z Finalizing artifact upload
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:33.8187926Z Artifact correctness-selection-and-results.zip successfully finalized. Artifact ID 12295210724
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:33.8188827Z Artifact correctness-selection-and-results has been successfully uploaded! Final size is 3195 bytes. Artifact ID is 12295210724
+Core, S3, transport and web correctness	Retain correctness evidence even on failure	2026-10-20T20:05:33.8194199Z Artifact download URL: https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39487875049/artifacts/12295210724
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	﻿2026-10-20T20:05:33.8335847Z ##[group]Run actions/upload-artifact@v4
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8336279Z with:
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8336584Z   name: correctness-isolation-prerequisite
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8337056Z   path: docs/reports/s3-hardening/isolation-ci-39487875049-1/
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8337497Z   if-no-files-found: error
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8337971Z   compression-level: 6
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8338251Z   overwrite: false
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8338522Z   include-hidden-files: false
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8338806Z env:
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8339033Z   PAGER: cat
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8339283Z   MIX_ENV: test
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8339534Z   ELIXIR_VERSION: 1.19
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8339796Z   OTP_VERSION: 28
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8340140Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8340679Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8341214Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8341691Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8342242Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8342722Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8343211Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8343753Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.8344194Z ##[endgroup]
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.9738216Z (node:6963) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.9738889Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.9795529Z With the provided path, there will be 2 files uploaded
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.9800005Z Artifact name is valid!
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:33.9800595Z Root directory input is valid!
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:34.3514179Z Beginning upload of artifact content to blob storage
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:34.3669903Z (node:6963) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:34.6523214Z Uploaded bytes 3879
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:34.7346688Z Finished uploading artifact content to blob storage!
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:34.7347387Z SHA256 digest of uploaded artifact zip is 653f3e29468a7f7601327025feec67536da80b05635bc099991b12fa7030c7f7
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:34.7348678Z Finalizing artifact upload
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:34.9959625Z Artifact correctness-isolation-prerequisite.zip successfully finalized. Artifact ID 12293993782
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:34.9960429Z Artifact correctness-isolation-prerequisite has been successfully uploaded! Final size is 3879 bytes. Artifact ID is 12293993782
+Core, S3, transport and web correctness	Retain namespace prerequisite diagnostics even on failure	2026-10-20T20:05:34.9966121Z Artifact download URL: https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39487875049/artifacts/12293993782
+Core, S3, transport and web correctness	Post Run actions/cache@v4	﻿2026-10-20T20:05:35.0541237Z Post job cleanup.
+Core, S3, transport and web correctness	Post Run actions/cache@v4	2026-10-20T20:05:35.1461667Z Cache hit occurred on the primary key Linux-mix-1.19-28-af3ee11512aafada4fc4533d858a4b244df9939e463d01614c1fb24f305cffe7, not saving cache.
+Core, S3, transport and web correctness	Post Run actions/cache@v4	2026-10-20T20:05:35.1462978Z (node:6987) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Core, S3, transport and web correctness	Post Run actions/cache@v4	2026-10-20T20:05:35.1463821Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Core, S3, transport and web correctness	Post Run actions/setup-python@v5	﻿2026-10-20T20:05:35.1558124Z Post job cleanup.
+Core, S3, transport and web correctness	Post Run actions/setup-python@v5	2026-10-20T20:05:35.2551066Z (node:6995) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Core, S3, transport and web correctness	Post Run actions/setup-python@v5	2026-10-20T20:05:35.2552408Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Core, S3, transport and web correctness	Post Run actions/checkout@v4	﻿2026-10-20T20:05:35.2717544Z Post job cleanup.
+Core, S3, transport and web correctness	Post Run actions/checkout@v4	2026-10-20T20:05:35.3449326Z [command]/usr/bin/git version
+Core, S3, transport and web correctness	Post Run actions/checkout@v4	2026-10-20T20:05:35.3484236Z git version 2.55.0
+Core, S3, transport and web correctness	Post Run actions/checkout@v4	2026-10-20T20:05:35.3514378Z Temporarily overriding HOME='/home/runner/work/_temp/3375d5c8-d75a-4f45-86fe-538e31fe6f60' before making global git config changes
+Core, S3, transport and web correctness	Post Run actions/checkout@v4	2026-10-20T20:05:35.3515445Z Adding repository directory to the temporary git global config as a safe directory
+Core, S3, transport and web correctness	Post Run actions/checkout@v4	2026-10-20T20:05:35.3520535Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ex_storage_service/ex_storage_service
+Core, S3, transport and web correctness	Post Run actions/checkout@v4	2026-10-20T20:05:35.3553529Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Core, S3, transport and web correctness	Post Run actions/checkout@v4	2026-10-20T20:05:35.3588114Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Core, S3, transport and web correctness	Post Run actions/checkout@v4	2026-10-20T20:05:35.3800648Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Core, S3, transport and web correctness	Post Run actions/checkout@v4	2026-10-20T20:05:35.3845314Z http.https://github.com/.extraheader
+Core, S3, transport and web correctness	Post Run actions/checkout@v4	2026-10-20T20:05:35.3864709Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+Core, S3, transport and web correctness	Post Run actions/checkout@v4	2026-10-20T20:05:35.3909259Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Core, S3, transport and web correctness	Post Run actions/checkout@v4	2026-10-20T20:05:35.4128561Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Core, S3, transport and web correctness	Post Run actions/checkout@v4	2026-10-20T20:05:35.4162262Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Core, S3, transport and web correctness	Complete job	﻿2026-10-20T20:05:35.4498686Z Cleaning up orphan processes
+Core, S3, transport and web correctness	Complete job	2026-10-20T20:05:35.4774277Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
