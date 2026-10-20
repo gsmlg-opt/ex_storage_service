@@ -1,5 +1,6 @@
 """Retain daily interoperability and require full acceptance before publication."""
 from pathlib import Path
+import re
 import unittest
 
 
@@ -9,6 +10,21 @@ ROOT = Path(__file__).resolve().parents[2]
 class DailyWorkflowTest(unittest.TestCase):
     def workflow(self, name):
         return (ROOT / ".github/workflows" / name).read_text()
+
+    def test_cached_jobs_recompile_candidate_identity_before_running_child_mix(self):
+        for name, job, consumer in (
+                ("ci.yml", "compile", None),
+                ("cluster-e2e.yml", "tagged-cluster", "mix test"),
+                ("cluster-e2e.yml", "cluster-s3", "Start three-node cluster"),
+                ("e2e-test.yml", "e2e", "mix assets.deploy"),
+                ("cloud-cache-e2e.yml", "cloud-cache-e2e", "mix assets.deploy")):
+            with self.subTest(workflow=name, job=job):
+                text = self.workflow(name).split(f"  {job}:\n", 1)[1]
+                # Next top-level job is outside this candidate's cache boundary.
+                text = re.split(r"\n  [a-z][a-z0-9-]*:\n", text, maxsplit=1)[0]
+                compile_at = text.index("mix compile --force --warnings-as-errors")
+                if consumer:
+                    self.assertLess(compile_at, text.index(consumer))
 
     def test_release_retains_daily_business_and_independent_artifact_gates(self):
         text = self.workflow("release.yml")

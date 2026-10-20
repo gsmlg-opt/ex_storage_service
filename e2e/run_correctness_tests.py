@@ -18,7 +18,9 @@ SERVER_APPS = ("ex_storage_service", "ex_storage_service_cluster",
                "ex_storage_service_s3", "ex_storage_service_web")
 # Floors detect accidental health-only/empty selections; they do not select tests.
 MINIMUM_TESTS = dict(zip(SERVER_APPS, (587, 40, 357, 21)))
-SUMMARY = re.compile(r"(\d+) tests?, (\d+) failures?(?:, (\d+) excluded)?(?:, (\d+) skipped)?")
+SUMMARY = re.compile(
+    r"(\d+) tests?, (\d+) failures?(?:, (\d+) excluded)?(?:, (\d+) skipped)?"
+    r"(?: \((\d+) excluded\))?")
 
 
 def counts(log):
@@ -26,9 +28,16 @@ def counts(log):
     for line in log.splitlines():
         if line.startswith("==> "):
             app = line[4:].strip()
-        match = SUMMARY.search(line)
+        match = SUMMARY.fullmatch(line.strip())
         if match and app:
-            total, failures, excluded, skipped = (int(value or 0) for value in match.groups())
+            printed, failures, old_excluded, skipped, new_excluded = match.groups()
+            if old_excluded is not None and new_excluded is not None:
+                continue
+            # 1.18 includes exclusions in its printed total; 1.19 omits them
+            # and appends a parenthesized count. Skips remain in both totals.
+            excluded = int(old_excluded or new_excluded or 0)
+            total = int(printed) + int(new_excluded or 0)
+            failures, skipped = int(failures), int(skipped or 0)
             result[app] = dict(tests=total, failures=failures, excluded=excluded, skipped=skipped,
                                executed=total - excluded - skipped)
     return result

@@ -1,0 +1,117 @@
+.FFFF.EEEEE...
+======================================================================
+ERROR: test_cached_jobs_recompile_candidate_identity_before_running_child_mix (scripts.release.test_daily_workflows.DailyWorkflowTest.test_cached_jobs_recompile_candidate_identity_before_running_child_mix) (workflow='ci.yml', job='compile')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/scripts/release/test_daily_workflows.py", line 25, in test_cached_jobs_recompile_candidate_identity_before_running_child_mix
+    compile_at = text.index("mix compile --force --warnings-as-errors")
+ValueError: substring not found
+
+======================================================================
+ERROR: test_cached_jobs_recompile_candidate_identity_before_running_child_mix (scripts.release.test_daily_workflows.DailyWorkflowTest.test_cached_jobs_recompile_candidate_identity_before_running_child_mix) (workflow='cluster-e2e.yml', job='tagged-cluster')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/scripts/release/test_daily_workflows.py", line 25, in test_cached_jobs_recompile_candidate_identity_before_running_child_mix
+    compile_at = text.index("mix compile --force --warnings-as-errors")
+ValueError: substring not found
+
+======================================================================
+ERROR: test_cached_jobs_recompile_candidate_identity_before_running_child_mix (scripts.release.test_daily_workflows.DailyWorkflowTest.test_cached_jobs_recompile_candidate_identity_before_running_child_mix) (workflow='cluster-e2e.yml', job='cluster-s3')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/scripts/release/test_daily_workflows.py", line 25, in test_cached_jobs_recompile_candidate_identity_before_running_child_mix
+    compile_at = text.index("mix compile --force --warnings-as-errors")
+ValueError: substring not found
+
+======================================================================
+ERROR: test_cached_jobs_recompile_candidate_identity_before_running_child_mix (scripts.release.test_daily_workflows.DailyWorkflowTest.test_cached_jobs_recompile_candidate_identity_before_running_child_mix) (workflow='e2e-test.yml', job='e2e')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/scripts/release/test_daily_workflows.py", line 25, in test_cached_jobs_recompile_candidate_identity_before_running_child_mix
+    compile_at = text.index("mix compile --force --warnings-as-errors")
+ValueError: substring not found
+
+======================================================================
+ERROR: test_cached_jobs_recompile_candidate_identity_before_running_child_mix (scripts.release.test_daily_workflows.DailyWorkflowTest.test_cached_jobs_recompile_candidate_identity_before_running_child_mix) (workflow='cloud-cache-e2e.yml', job='cloud-cache-e2e')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/scripts/release/test_daily_workflows.py", line 25, in test_cached_jobs_recompile_candidate_identity_before_running_child_mix
+    compile_at = text.index("mix compile --force --warnings-as-errors")
+ValueError: substring not found
+
+======================================================================
+FAIL: test_ambiguous_or_truncated_summary_is_not_credited (e2e.test_correctness_selection.SelectionTest.test_ambiguous_or_truncated_summary_is_not_credited) (summary='599 tests, 0 failures, 1 excluded (1 excluded)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_correctness_selection.py", line 43, in test_ambiguous_or_truncated_summary_is_not_credited
+    self.assertTrue(validate(counts("==> ex_storage_service\n" + summary),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             {"ex_storage_service": 599}))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_ambiguous_or_truncated_summary_is_not_credited (e2e.test_correctness_selection.SelectionTest.test_ambiguous_or_truncated_summary_is_not_credited) (summary='599 tests, 0 failures, 1 invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_correctness_selection.py", line 43, in test_ambiguous_or_truncated_summary_is_not_credited
+    self.assertTrue(validate(counts("==> ex_storage_service\n" + summary),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             {"ex_storage_service": 599}))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_elixir_119_excluded_counts_match_118_discovered_and_executed_counts (e2e.test_correctness_selection.SelectionTest.test_elixir_119_excluded_counts_match_118_discovered_and_executed_counts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_correctness_selection.py", line 26, in test_elixir_119_excluded_counts_match_118_discovered_and_executed_counts
+    self.assertEqual(expected, counts(new))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'ex_[25 chars]': 599, 'failures': 0, 'excluded': 1, 'skipped[18 chars]598}} != {'ex_[25 chars]': 598, 'failures': 0, 'excluded': 0, 'skipped[18 chars]598}}
+- {'ex_storage_service': {'excluded': 1,
+?                                     ^
+
++ {'ex_storage_service': {'excluded': 0,
+?                                     ^
+
+                          'executed': 598,
+                          'failures': 0,
+                          'skipped': 0,
+-                         'tests': 599}}
+?                                    ^
+
++                         'tests': 598}}
+?                                    ^
+
+
+======================================================================
+FAIL: test_elixir_119_skips_fail_without_double_subtracting_exclusions (e2e.test_correctness_selection.SelectionTest.test_elixir_119_skips_fail_without_double_subtracting_exclusions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_correctness_selection.py", line 35, in test_elixir_119_skips_fail_without_double_subtracting_exclusions
+    self.assertEqual({"ex_storage_service": dict(tests=599, failures=1, excluded=1,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                skipped=2, executed=596)}, result)
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'ex_[25 chars]': 599, 'failures': 1, 'excluded': 1, 'skipped[18 chars]596}} != {'ex_[25 chars]': 598, 'failures': 1, 'excluded': 0, 'skipped[18 chars]596}}
+- {'ex_storage_service': {'excluded': 1,
+?                                     ^
+
++ {'ex_storage_service': {'excluded': 0,
+?                                     ^
+
+                          'executed': 596,
+                          'failures': 1,
+                          'skipped': 2,
+-                         'tests': 599}}
+?                                    ^
+
++                         'tests': 598}}
+?                                    ^
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.003s
+
+FAILED (failures=4, errors=5)

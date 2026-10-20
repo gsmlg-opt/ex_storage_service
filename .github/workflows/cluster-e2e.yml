@@ -36,6 +36,7 @@ jobs:
           key: ${{ runner.os }}-mix-cluster-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
 
       - run: mix deps.get
+      - run: mix compile --force --warnings-as-errors
 
       - name: Run tagged three-voter test
         run: |
@@ -85,7 +86,7 @@ jobs:
         run: python3 -m pip install -r e2e/requirements.txt
 
       - name: Compile
-        run: mix compile --warnings-as-errors
+        run: mix compile --force --warnings-as-errors
 
       - name: Start three-node cluster
         run: |

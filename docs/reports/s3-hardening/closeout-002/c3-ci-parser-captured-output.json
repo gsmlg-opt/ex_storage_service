@@ -1,0 +1,85 @@
+{
+  "status": "passed",
+  "checked_at": "2026-10-20T18:15:36.656936+00:00",
+  "source_sha256": "89f2e1408f0173fd05565189b1083831176e8aa457271243826c4497a3f13ca0",
+  "actual_captured_output": {
+    "1.18.5": {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c2/suite-selection/server.log",
+      "sha256": "055ae7a1bc764deada99a4c2e998673df3c9648f1b2b912f44b18fc243b5bb01",
+      "counts": {
+        "ex_storage_service": {
+          "tests": 599,
+          "failures": 0,
+          "excluded": 1,
+          "skipped": 0,
+          "executed": 598
+        },
+        "ex_storage_service_cluster": {
+          "tests": 40,
+          "failures": 0,
+          "excluded": 1,
+          "skipped": 0,
+          "executed": 39
+        },
+        "ex_storage_service_cli": {
+          "tests": 3491,
+          "failures": 0,
+          "excluded": 0,
+          "skipped": 0,
+          "executed": 3491
+        },
+        "ex_storage_service_s3": {
+          "tests": 369,
+          "failures": 0,
+          "excluded": 0,
+          "skipped": 0,
+          "executed": 369
+        },
+        "ex_storage_service_web": {
+          "tests": 21,
+          "failures": 0,
+          "excluded": 0,
+          "skipped": 0,
+          "executed": 21
+        }
+      },
+      "errors": []
+    },
+    "1.19": {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c2/remote-ci-correctness/server.log",
+      "sha256": "557f8b3561c656e4923016169034c13f2c82453ef2257152aa0a79ae1f192fdc",
+      "counts": {
+        "ex_storage_service": {
+          "tests": 599,
+          "failures": 0,
+          "excluded": 1,
+          "skipped": 0,
+          "executed": 598
+        },
+        "ex_storage_service_cluster": {
+          "tests": 40,
+          "failures": 0,
+          "excluded": 1,
+          "skipped": 0,
+          "executed": 39
+        },
+        "ex_storage_service_s3": {
+          "tests": 369,
+          "failures": 0,
+          "excluded": 0,
+          "skipped": 0,
+          "executed": 369
+        },
+        "ex_storage_service_web": {
+          "tests": 21,
+          "failures": 0,
+          "excluded": 0,
+          "skipped": 0,
+          "executed": 21
+        }
+      },
+      "errors": []
+    }
+  },
+  "scope": "Parser validation of actual preserved outputs only; not a fresh hosted CI execution."
+}
