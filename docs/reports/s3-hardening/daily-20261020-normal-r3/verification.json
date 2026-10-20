@@ -1,0 +1,78 @@
+{
+  "status": "passed",
+  "verified_at": "2026-10-20T03:54:47.000650+00:00",
+  "source_sha256": "f854dedc7146316f830beffea13dcf42c6a9d62ad2525003190de60ed30012ee",
+  "source_unchanged": true,
+  "daily_groups_passed": 14,
+  "python_syntax": "passed",
+  "elixir_fixture_format": {
+    "command": "PAGER=cat ERL_FLAGS='+S 4:4 +SDcpu 2 +SDio 2' mix format --check-formatted e2e/scripts/daily_hardening_server.exs",
+    "exit_status": 0,
+    "provenance": "Executed separately after fixture correction and after daily r3; both exits 0."
+  },
+  "commands": [
+    {
+      "argv": [
+        "bash",
+        "-n",
+        "e2e/run_hardening_daily.sh"
+      ],
+      "exit_status": 0,
+      "output": ""
+    },
+    {
+      "argv": [
+        "yq",
+        ".jobs | keys",
+        ".github/workflows/s3-hardening.yml"
+      ],
+      "exit_status": 0,
+      "output": "[\n  \"daily\",\n  \"extended-lane\",\n  \"full-acceptance\"\n]"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_status": 0,
+      "output": ""
+    }
+  ],
+  "independent_fixture_cleanup": [
+    {
+      "attempt": "r1",
+      "recorded_status": "failed",
+      "root_absent": true,
+      "pid_absent": true,
+      "listener_closed": true
+    },
+    {
+      "attempt": "r2",
+      "recorded_status": "failed",
+      "root_absent": true,
+      "pid_absent": true,
+      "listener_closed": true
+    },
+    {
+      "attempt": "r3",
+      "recorded_status": "passed",
+      "root_absent": true,
+      "pid_absent": true,
+      "listener_closed": true
+    }
+  ],
+  "historical_full_matrix": {
+    "statuses": {
+      "passed": 35,
+      "in_progress": 3
+    },
+    "unpassed": [
+      "A28",
+      "A30",
+      "A38"
+    ],
+    "rerun": false
+  },
+  "github_workflow_dispatched": false
+}

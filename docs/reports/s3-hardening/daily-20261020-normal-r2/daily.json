@@ -1,0 +1,110 @@
+{
+  "profile": "daily",
+  "status": "failed",
+  "starting_sha": "3477bc540c3732dba3d47a7e08779783f9be25fc",
+  "source_sha256": "fbe69255860303568f4592f1a6c77f2420307877c7aa7b4a5d05c3ee8ce65d06",
+  "started_at": "2026-10-20T03:52:23.884980+00:00",
+  "checks": [
+    {
+      "name": "production-compile",
+      "status": "passed",
+      "seconds": 0.565
+    },
+    {
+      "name": "server-health-and-readiness",
+      "status": "passed",
+      "seconds": 0.632
+    },
+    {
+      "name": "bucket-create-list-head-location-tags",
+      "status": "passed",
+      "seconds": 0.061
+    },
+    {
+      "name": "put-head-get-range-checksum-attributes",
+      "status": "passed",
+      "seconds": 0.061
+    },
+    {
+      "name": "default-sdk-checksum-gzip-bytes",
+      "status": "passed",
+      "seconds": 0.028
+    },
+    {
+      "name": "list-prefix-delimiter-pagination",
+      "status": "passed",
+      "seconds": 0.089
+    },
+    {
+      "name": "object-tags-copy-replace-delete-tags",
+      "status": "passed",
+      "seconds": 0.076
+    },
+    {
+      "name": "presigned-get-put-and-authentication",
+      "status": "passed",
+      "seconds": 0.031
+    },
+    {
+      "name": "cors-configuration-preflight-authenticated-read",
+      "status": "failed",
+      "seconds": 0.015
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "exit_status": 0
+    },
+    {
+      "argv": [
+        "mix",
+        "run",
+        "--no-start",
+        "--no-compile",
+        "--no-halt",
+        "e2e/scripts/daily_hardening_server.exs"
+      ]
+    }
+  ],
+  "scope": {
+    "mode": "standalone",
+    "client_concurrency": 1,
+    "largest_part_bytes": 5242880,
+    "multipart_parts": 2,
+    "authentication": true,
+    "sdk_checksum_defaults": true,
+    "extended_acceptance_executed": false
+  },
+  "versions": {
+    "python": "3.13.15",
+    "boto3": "1.43.114",
+    "botocore": "1.43.114",
+    "beam": "Erlang/OTP 28 [erts-16.4.0.5] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.18.5 (compiled with Erlang/OTP 28)",
+    "concord": "3.1.3",
+    "viewstamped_replication": "3.1.3",
+    "ex_turso": "3.1.3",
+    "http_fetch": "0.21.13"
+  },
+  "disposable_root": "/tmp/ess-s3-daily-xz0wjon1",
+  "server_pid": 207978,
+  "endpoint": "http://127.0.0.1:49375",
+  "readiness_http_status": 200,
+  "sdk_checksum_policy": {
+    "request": "when_supported",
+    "response": "when_supported"
+  },
+  "error_type": "AssertionError",
+  "error": "CORS configuration",
+  "server_stopped": true,
+  "listener_closed": true,
+  "disposable_root_removed": true,
+  "ending_sha": "3477bc540c3732dba3d47a7e08779783f9be25fc",
+  "ending_source_sha256": "fbe69255860303568f4592f1a6c77f2420307877c7aa7b4a5d05c3ee8ce65d06",
+  "finished_at": "2026-10-20T03:52:26.760662+00:00",
+  "seconds": 2.876
+}

@@ -104,6 +104,19 @@ The codebase is structured as an umbrella project with five apps:
 - Reference issues or PRs if appropriate.
 
 ### Testing & Validation Requirements
+- Current user scope (2026-10-20): verify normal daily use with
+  `PAGER=cat bash e2e/run_hardening_daily.sh /absolute/venv/bin/python unique-run`.
+  Use sequential requests, small fixtures, real authentication and default SDK
+  checksums. Do not run scale, stress, high-concurrency, extreme/fault/crash or
+  multi-GiB profiles for this delivery. Retain extended tests and historical
+  failures; the original all-38 matrix is not the current completion gate.
+- Daily application contracts use `PAGER=cat bash e2e/run_daily_unit_tests.sh all`
+  (`core` or `cli` for package-specific checks), with `--max-cases 1`.
+  The root release runs these contracts plus the authenticated daily HTTP profile.
+  CLI package probes use `--verification-profile daily` for one normal installed
+  helper check; the default `extended` profile retains all 11 helper cases.
+  Full CLI suites, resource/provider checks and the platform matrix require manual
+  `extended: true`; cluster, cloud-cache and restart E2E workflows are manual-only.
 - All new features must be accompanied by tests.
 - When fixing a bug, write a reproducing test case first to prevent future regression.
 - Cloud-cache E2E uses RustFS as the upstream server through the generic
@@ -114,7 +127,15 @@ The codebase is structured as an umbrella project with five apps:
 - CLI resource acceptance uses the test-only `ESS_RESOURCE_LARGE_BYTES` in bytes:
   default `67108864` (64 MiB), explicit multi-GiB acceptance `2147483648` (2 GiB).
   It does not configure production transfer limits.
-- Always run the specific test suite of the application you modified before committing:
+- Resource acceptance runners set the private `E2E_RESOURCE_PYTHON` to their
+  absolute pinned Python executable and `E2E_RESOURCE_ROOT` to disposable
+  observation output. The Port observer inherits the BEAM's PID/mount namespace,
+  records fresh filesystem/RSS observations and retains native BEAM metric
+  windows. Keep the original 100 ms coverage and resource envelopes; verify the
+  observer's OS identity has stopped before fixture cleanup. These variables
+  configure test instrumentation only.
+- For explicitly extended work, run the relevant complete application suite;
+  use the daily contracts above for the current delivery:
   - Core app tests: `mix test apps/ex_storage_service/test`
   - S3 app tests: `mix test apps/ex_storage_service_s3/test`
   - Web app tests: `mix test apps/ex_storage_service_web/test`
@@ -122,6 +143,9 @@ The codebase is structured as an umbrella project with five apps:
 
 ### Documentation Rules
 - Keep documentation up-to-date.
+- `ESS_S3_REGION` sets the hosted S3 location and region response headers
+  (default `us-east-1`). It does not constrain existing accepted SigV4 region
+  scopes or replace per-upstream gateway signing regions.
 - Preserve existing docstrings (`@doc`) and module docs (`@moduledoc`) unless deliberately refactoring them.
 - Document any new environment variables in both `README.md` and `AGENTS.md`.
 - Appbar build metadata uses the optional build-time variables
@@ -202,9 +226,20 @@ The codebase is structured as an umbrella project with five apps:
   Defaults must start the existing standalone instance and both listeners.
   `ESS_DATA_ROOT` remains the compatibility fallback for split roots.
   `ESS_RA_ROOT` is retained as a legacy embedding compatibility value but is
-  not used by Concord 3. Concord/VSR is shared application infrastructure;
+  not used by Concord 3. Require Concord `~> 3.1.3` with matching VSR/ExTurso
+  packages. New backup checksums use the declared deterministic ETF scheme;
+  preserve legacy validation, reject unknown schemes, and verify restore on the
+  same OTP major before a runtime upgrade. Concord/VSR is shared application infrastructure;
   support only one Concord metadata instance per BEAM until the cluster phases
   replace this constraint.
+- `ESS_CONCORD_COMMAND_VERSION` accepts only `0` or `1` and defaults to `0`
+  for existing-database compatibility. Empty restore targets must explicitly
+  use `1` on every target voter and retain `1` through recovery, every restart
+  and activation so restored revision-aware metadata remains readable. Never
+  switch an existing version `0` database without explicit migration: quiesce
+  writers, retain a verified backup and perform Concord's legacy-state
+  reconciliation before resuming writes. Do not migrate or switch existing
+  command formats automatically.
 - `ESS_METADATA_SCHEMA` activates atomic metadata writes (`v2` by default).
   `v1` is read-only compatibility mode: reject object mutations rather than
   restoring the unsafe legacy multi-write sequence. Keep v1 reads, never

@@ -1,0 +1,70 @@
+{
+  "profile": "daily",
+  "status": "failed",
+  "starting_sha": "3477bc540c3732dba3d47a7e08779783f9be25fc",
+  "source_sha256": "1ab315ec893f148d5dc547de74b34fc95d1ffd9ac981dd788460dabb08c57be0",
+  "started_at": "2026-10-20T03:50:40.139657+00:00",
+  "checks": [
+    {
+      "name": "production-compile",
+      "status": "passed",
+      "seconds": 0.565
+    },
+    {
+      "name": "server-health-and-readiness",
+      "status": "failed",
+      "seconds": 30.062
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "exit_status": 0
+    },
+    {
+      "argv": [
+        "mix",
+        "run",
+        "--no-start",
+        "--no-compile",
+        "--no-halt",
+        "e2e/scripts/daily_hardening_server.exs"
+      ]
+    }
+  ],
+  "scope": {
+    "mode": "standalone",
+    "client_concurrency": 1,
+    "largest_part_bytes": 5242880,
+    "multipart_parts": 2,
+    "authentication": true,
+    "sdk_checksum_defaults": true,
+    "extended_acceptance_executed": false
+  },
+  "versions": {
+    "python": "3.13.15",
+    "boto3": "1.43.114",
+    "botocore": "1.43.114",
+    "beam": "Erlang/OTP 28 [erts-16.4.0.5] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.18.5 (compiled with Erlang/OTP 28)",
+    "concord": "3.1.3",
+    "viewstamped_replication": "3.1.3",
+    "ex_turso": "3.1.3",
+    "http_fetch": "0.21.13"
+  },
+  "disposable_root": "/tmp/ess-s3-daily-s9ye556t",
+  "server_pid": 207691,
+  "endpoint": "http://127.0.0.1:39237",
+  "error_type": "AssertionError",
+  "error": "daily server did not become ready; see server.log",
+  "server_stopped": true,
+  "listener_closed": true,
+  "disposable_root_removed": true,
+  "ending_sha": "3477bc540c3732dba3d47a7e08779783f9be25fc",
+  "ending_source_sha256": "1ab315ec893f148d5dc547de74b34fc95d1ffd9ac981dd788460dabb08c57be0",
+  "finished_at": "2026-10-20T03:51:12.041307+00:00",
+  "seconds": 31.901
+}

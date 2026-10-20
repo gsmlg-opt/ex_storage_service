@@ -10,6 +10,30 @@ Concord 2.x Ra state is a separate compatibility boundary. Do not point
 Concord 3 at a Concord 2 state directory. Export through a binary that supports
 the source format before following this runbook.
 
+The current core requires Concord `~> 3.1.3` with matching VSR and ExTurso
+packages. New native backups declare `:sha256_deterministic_etf_v1`; ESS verifies
+that encoding before using snapshot entries. Verify recovery on the same OTP
+major before a runtime-major upgrade. Legacy backups keep their original
+checksum semantics, including rejection of mismatches. Recreate affected legacy
+backups on their originating VM after upgrading; never bypass verification or
+relabel an old checksum as the new scheme.
+
+Empty recovery targets must set `ESS_CONCORD_COMMAND_VERSION=1` before their
+first Concord start, and retain it through every quarantine and activation
+restart on all voters. Version 1 rebuilds the revision records used by ESS;
+the frozen version 0 restore updates only the legacy value representation.
+`Backup.restore/3` rejects version 0 before importing or changing its marker.
+For embedded consumers, set `command_version: 1` in `config :concord, :vsr`
+before starting the dependency instead. Do not change existing installations
+from the compatibility default 0 merely to adopt the new package. Their
+[upstream migration procedure](https://github.com/gsmlg-dev/concord/blob/v3.1.2/docs/v1/configuration.md)
+requires quiesced writers, treatment of legacy indexes, explicit
+`:reconcile_legacy_state` and confirmation of the resulting current-state
+status. This runbook restores into empty targets; it performs no in-place
+command-version migration.
+The supplied cluster Compose file forwards this setting to every voter; set it
+in the recovery environment file before starting those empty targets.
+
 All commands run from the repository root. Keep the original backup until the
 rollback window is closed.
 
@@ -38,8 +62,20 @@ export ESS_UPGRADE_BACKUP_ROOT="$PWD/deploy/cluster/backups"
 
 ## 1. Quiesce and back up standalone
 
-Block new S3 writers, wait for in-flight requests to finish, and keep the
-standalone BEAM running long enough to take a linearizable logical backup.
+Block new S3 writers, drain in-flight requests, and stop maintenance/outbound
+workers as well as listeners. A disabled public writer or cluster data plane
+does not disable every GC/lifecycle/replication worker. The running release can
+quiesce its local instance while retaining Concord for a logical export:
+
+```sh
+/path/to/ess/bin/ess rpc \
+  'with {:ok, context} <- ExStorageService.Context.default(), do: ExStorageService.Operations.Backup.quiesce(context)'
+```
+
+Quiesce every participating node and any explicit listing-index build before
+copying artifacts. Do not resume writes, maintenance, or operator backfill until
+the backup is fully verified. A backup is a quiesced boundary, not an online
+snapshot assembled from unrelated live copies.
 
 Release RPC:
 
@@ -50,16 +86,18 @@ Release RPC:
   'Concord.Backup.verify("/absolute/writable/backup/CONCORD_FILE.backup")'
 ```
 
-Source equivalent:
+Source equivalent: first stop the original BEAM; never open the same metadata
+root from a second concurrent process. These short-lived export processes keep
+the local instance and public/admin listeners disabled:
 
 ```sh
-PAGER=cat MIX_ENV=prod mix run -e \
+PAGER=cat ESS_AUTO_START=false ESS_PUBLIC_S3_ENABLED=false ESS_WEB_ENABLED=false MIX_ENV=prod mix run -e \
   'IO.inspect(Concord.Backup.create(path: System.fetch_env!("ESS_UPGRADE_BACKUP_ROOT"), timeout: 120_000))'
 export PRE_V2_BACKUP="$(
   find "$ESS_UPGRADE_BACKUP_ROOT" -maxdepth 1 -type f -name 'concord_backup_*.backup' \
     -printf '%T@ %p\n' | sort -n | tail -1 | cut -d' ' -f2-
 )"
-PAGER=cat MIX_ENV=prod mix run -e \
+PAGER=cat ESS_AUTO_START=false ESS_PUBLIC_S3_ENABLED=false ESS_WEB_ENABLED=false MIX_ENV=prod mix run -e \
   'case Concord.Backup.verify(System.fetch_env!("PRE_V2_BACKUP")) do {:ok, :valid} = ok -> IO.inspect(ok); other -> raise "invalid backup: #{inspect(other)}" end'
 ```
 
@@ -84,6 +122,76 @@ printf '%s' "$ESS_MASTER_KEY" | sha256sum \
 
 Store the actual `ESS_MASTER_KEY` only in the secret manager, separately from
 these archives.
+
+### Independent same-mode recovery bundles
+
+For recovery of an existing standalone installation or the supported fixed
+three-voter/two-data-node cluster, use `ExStorageService.Operations.Backup`.
+The upgrade's standalone-to-cluster transformation below remains a separate
+procedure; the recovery wrapper deliberately rejects mode/topology changes.
+
+After quiescence, `Backup.create(context, "/private/backups/backup-id")`
+publishes a private bundle only after snapshot, artifact and reference
+verification. Cluster creation requires `sources: contexts` for every configured
+voter; the coordinator must have read access to the declared quiesced node-local
+blob/tmp roots. Metadata nodes contribute topology identity, not blob files.
+The bundle includes immutable packs and sidecars, multipart data, IAM/config,
+job state, intents and journal-referenced staging bytes. It excludes reconstructible
+gateway cache and upstream-only bodies. It does not copy VSR state between groups.
+
+```sh
+/path/to/ess/bin/ess rpc \
+  'with {:ok, context} <- ExStorageService.Context.default(), do: ExStorageService.Operations.Backup.create(context, "/private/backups/backup-id")'
+/path/to/ess/bin/ess rpc \
+  'ExStorageService.Operations.Backup.verify("/private/backups/backup-id")'
+```
+
+Keep the original master key separately provisioned. The private manifest binds
+its fingerprint; wrong or absent keys fail verification before import. Checksums
+detect incomplete/corrupt artifacts; they do not authenticate a maliciously
+replaced bundle. Never print decrypted credentials into verification reports.
+
+Prepare completely empty target roots offline with the target configuration and
+a strictly higher generation for each retained logical node ID. For cluster,
+use new Erlang node names, isolated roots/network and the same supported ordered
+voter identities. `prepare/3` writes a persistent recovery marker before boot:
+
+```sh
+/path/to/ess/bin/ess eval \
+  'with {:ok, config} <- ExStorageService.InstanceConfig.from_application_env(), do: ExStorageService.Operations.Backup.prepare(ExStorageService.Context.new(config), "/private/backups/backup-id")'
+```
+
+Boot with `ESS_AUTO_START=false`, `ESS_PUBLIC_S3_ENABLED=false`,
+`ESS_WEB_ENABLED=false`, and `ESS_CLUSTER_DATA_PLANE_ENABLED=false`.
+The recovery marker rejects an unsafe normal startup and suppresses the private
+blob listener. Bootstrap clean cluster voters once, then restart all with
+bootstrap=false before import. Call `Backup.restore(context, bundle)` once on
+data A, then `Backup.install(context, bundle)` on each other voter. Restore
+fences imported running jobs, re-registers each installed voter, verifies copied
+bytes before recording higher-generation locations, and retains unknown intents.
+Never lower RF=2/W=2 to complete recovery.
+
+Call `Backup.verify_restore(context, bundle)` on every target. The original roots
+must be inaccessible during verification. `Backup.activate(context, bundle,
+workers: complete_worker_map)` is a separate explicit gate that repeats
+verification. The complete map includes multipart_gc, content_gc, cas_gc, packer,
+lifecycle, cross_cluster_replication, repair and scrub. All-false is a supported
+initial policy: recovered S3 can be enabled while historical maintenance and
+outbound work stays disabled. Startup rejects any worker policy that differs
+from the explicitly activated map. Unresolved intents/journals/GC locks prevent
+activation of workers; do not silently discard them to bypass that guard.
+Publication GC guards remain ordinary byte-protection records and do not block
+activation. When a pending/unknown intent has been explicitly reconciled through
+the supported intent transaction API, pass the same reviewed
+`intent_resolutions: %{"operation-id" => :committed}` (or `:aborted`) to
+`verify_restore` and `activate`. Verification still compares its hash, size,
+owner/generation, protection deadline, and every other immutable field; only the
+declared terminal state and a nondecreasing update timestamp may differ.
+
+Retain backup ID, consistency point, recovery duration, isolation proof and
+sanitized verification output. The disposable A36/A37 runner is
+`bash e2e/run_hardening_restore.sh /absolute/pinned/python unique-label all`;
+namespace/prerequisite failures are failures, never passing skips.
 
 ## 2. Migrate the quiesced standalone KV to v2
 
@@ -137,9 +245,16 @@ empty data-A volume. The one-off container runs as root so the host backup
 directory may remain private; the running release later reads only the
 appuser-owned `0400` copy:
 
+For these empty recovery targets, explicitly put
+`ESS_CONCORD_COMMAND_VERSION=1` in the edited `.env` before the first boot.
+Keep it at1 on every voter through all restarts and activation. Existing
+version0 installations retain their compatibility setting until an explicit
+quiesced migration; do not change the Compose default for existing data.
+
 ```sh
 cp deploy/cluster/.env.example deploy/cluster/.env
 ${EDITOR:-vi} deploy/cluster/.env
+test "$(awk -F= '$1 == "ESS_CONCORD_COMMAND_VERSION" {print $2}' deploy/cluster/.env)" = 1
 export V2_BACKUP_BASENAME="$(basename "$V2_BACKUP")"
 docker compose --env-file deploy/cluster/.env \
   -f deploy/cluster/compose.yml run --rm --no-deps --user root \
@@ -362,6 +477,11 @@ bounded; continue until `next_cursor` is nil.
 
 `Concord.Backup.restore/2` is destructive: it overwrites the complete
 replicated KV snapshot. Quiesce writers and verify the backup first.
+
+Use empty targets already started with `ESS_CONCORD_COMMAND_VERSION=1` on
+every voter, and retain1 through recovery and activation restarts. These raw
+calls bypass the ESS wrapper's command-format guard. Setting an environment
+variable in an RPC shell does not reconfigure a running release.
 
 Release RPC:
 

@@ -1,0 +1,46 @@
+{
+  "version": "0.6.9",
+  "verification_profile": "daily",
+  "source_sha": "3477bc540c3732dba3d47a7e08779783f9be25fc",
+  "source_dirty": true,
+  "probe_source_sha": "3477bc540c3732dba3d47a7e08779783f9be25fc",
+  "package_sha256": "5469ceba39c29181dda7a41841ae8922d2bf60ccbf23b578920038d7ad71f27c",
+  "hex_inner_checksum": "69eee556516d7450defbde0c8cea45e72ec1749f8cbd3426973602e1e7c6175d",
+  "escript_sha256": "184563e89f1b77065e283214beb091b41c36f10e9d7c30fa6c1d8a23aeb8b0d0",
+  "escript_entries": 1355,
+  "os": "Linux",
+  "architecture": "x86_64",
+  "runtime": "Erlang/OTP 28 [erts-16.4.0.5] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.18.5 (compiled with Erlang/OTP 28)",
+  "package_source": "local-source-tar",
+  "credential_process": {
+    "total": 1,
+    "os": "linux",
+    "otp": "28",
+    "verification_profile": "daily",
+    "module_source": "installed-escript",
+    "architecture": "x86_64-pc-linux-gnu",
+    "failures": 0,
+    "skipped": 0,
+    "excluded": 0,
+    "checks": [
+      "literal-argv",
+      "typed-credentials",
+      "stderr-discard",
+      "record-redaction"
+    ]
+  },
+  "checks": [
+    "source-assets",
+    "published-dependencies",
+    "strict-compile",
+    "escript-assets",
+    "local-install",
+    "source-independent-runtime",
+    "model-skeleton",
+    "actual-http-unicode",
+    "actual-http-binary-stdout",
+    "hex-payload-integrity",
+    "installed-credential-process",
+    "installed-pager-pty"
+  ]
+}

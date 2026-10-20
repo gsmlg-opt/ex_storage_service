@@ -1,0 +1,42 @@
+{
+  "at": "2026-10-19T19:23:26.091262+00:00",
+  "goal": "ESS-S3-HARDENING-001",
+  "dependency_update_status": "passed",
+  "concord_vsr_exturso_version": "3.1.3",
+  "http_family_version": "0.21.13",
+  "starting_sha": "3477bc540c3732dba3d47a7e08779783f9be25fc",
+  "ending_sha": "3477bc540c3732dba3d47a7e08779783f9be25fc",
+  "source_sha256": "60ada0faafb210257f799f275f6709be0830dd4168b27e093ca2572eb6eac781",
+  "implementation_uncommitted": true,
+  "accepted_rows": 35,
+  "unpassed_rows": [
+    "A28",
+    "A30",
+    "A38"
+  ],
+  "phase1": "accepted",
+  "phase2": "accepted",
+  "phase3": "implemented_partial_verification_not_accepted",
+  "full_hardening_acceptance": false,
+  "application_runtime": false,
+  "active_build": false,
+  "all_workers_terminal": true,
+  "canonical_cleanup": "passed:285identities/137groups",
+  "last_diagnostic_cleanup": "originalgatefailed; actualobserver/tracer+11identities/6groups/tasks/listeners/exactcontainer independentlyabsent",
+  "actual_aggregate": "docs/reports/s3-hardening/concord-refresh-20261020/aggregate-checkpoint-r3.json",
+  "aggregate_exit_status": 1,
+  "current_report": "docs/reports/s3-hardening/concord-refresh-20261020/CONCORD_UPDATE.md",
+  "genuine_remaining_verification_limits": {
+    "A28": "Original normal-invariant10k/100k workload timed out10800.086s; no complete measurement rows. Current3.1.3prefix2958puts/170.843s reaches no10kmeasurement. Cause unclassified; no evidenced small ESS optimization or released runtime improvement.",
+    "A30": "Originallocal39/56passed andcluster15/20passed then100msmetriccoveragefailures. Corrected diagnostic32/56passed thenpretarget33cadencefailure;0relevanttraceevents retained. Numeric bounds passing cannot replace missingcoverage.",
+    "A38": "Complete index/resources profiles absent orfailed; aggregateexit1."
+  },
+  "smallest_unblock_actions": {
+    "A28": "Provide a verified released normal-commit performance improvement or separately evidenced targeted ESS optimization, preserving guards; then execute full original10k/100k workload and all measurement bounds. No attribution to99/100 without evidence.",
+    "A30": "Obtain reliable fresh100ms observations on a controlled runner or decisive bounded causal evidence for the measured gap before applying a repair; then execute complete originallocal56+cluster20 profiles/readbacks. Preserve workloads, thresholds and deadlines.",
+    "A38": "After A28/A30 pass, audit full rows and rerun actual aggregate. Current35passes retain their source identity."
+  },
+  "no_unchanged_runtime_retry": true,
+  "no_dependency_patch_or_threshold_relaxation": true,
+  "no_commit_push_publish_deploy_or_production_operations": true
+}

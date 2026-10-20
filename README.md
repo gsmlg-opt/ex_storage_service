@@ -338,7 +338,7 @@ Repository layout:
 - **Users** - Create, suspend, activate, delete IAM users and manage access keys
 - **Policies** - Create and manage IAM policies
 - **Audit log** - Search administrative and S3 events
-- **Metrics** - Prometheus text endpoint at `/metrics`
+- **Metrics** - Prometheus text endpoint at `/metrics`; see [capacity and transfer diagnostics](docs/operations/capacity-metrics.md) and [replication backlog](docs/operations/replication-backlog.md)
 
 ## Configuration
 
@@ -351,6 +351,7 @@ Repository layout:
 | `ESS_TMP_ROOT` | `${ESS_BLOB_ROOT}/tmp` | Staging files; must share a filesystem with the blob root for atomic publication |
 | `ESS_RA_ROOT` | `${ESS_DATA_ROOT}/ra` | Legacy embedding compatibility value; Concord 3 does not use Ra storage |
 | `ESS_METADATA_ROOT` | `${ESS_DATA_ROOT}/concord` | Node-local Concord/VSR metadata state |
+| `ESS_CONCORD_COMMAND_VERSION` | `0` | Concord command format; accepts only `0` or `1`. Empty restore targets require explicit `1`, retained through recovery, restart and activation; existing databases require explicit migration before switching |
 | `ESS_MODE` | `standalone` | `standalone` for the local service or `cluster` for the guarded three-voter metadata mode |
 | `ESS_NODE_ROLE` | `data` | Node role: `data` or, in cluster mode, `metadata` |
 | `ESS_NODE_ID` | `default` | Stable voter identity; required in cluster mode and must match one member entry |
@@ -384,6 +385,7 @@ Repository layout:
 | `ESS_WEB_ENABLED` | `true` | Start the Phoenix admin listener |
 | `ESS_METADATA_SCHEMA` | `v2` | Metadata activation decision; `v1` permits compatibility reads but rejects object mutations |
 | `ESS_S3_PORT` | `9000` | S3 API port |
+| `ESS_S3_REGION` | `us-east-1` | Hosted bucket location and region response headers; preserves accepted SigV4 region scopes |
 | `ESS_ADMIN_PORT` | `4900` | Admin portal port |
 | `ESS_S3_AUTH_ENABLED` | `false` | Require SigV4 authentication and IAM authorization for S3 requests |
 | `ESS_ADMIN_USER` | `admin` | Root admin username |
@@ -497,6 +499,18 @@ standalone S3 client escript. Release-container equivalents, Concord backup
 and restore steps, full-shard preflight requirements, and rollback boundaries
 are documented in
 [the standalone-to-cluster upgrade runbook](docs/operations/cluster-upgrade.md).
+Public listings require a ready transactional listing index. Existing buckets
+need the quiesced, backup-verified [resumable index build](docs/operations/listing-index.md)
+before writers resume; legacy records and rollback artifacts are retained.
+The [S3 compatibility profile](docs/s3-compatibility.md) describes supported modes;
+[hardening verification](docs/reports/s3-hardening-verification.md) records current
+results and unresolved acceptance blockers.
+Resource acceptance runners set private `E2E_RESOURCE_PYTHON` to the absolute
+pinned interpreter and `E2E_RESOURCE_ROOT` to disposable observation output.
+Their Port observer shares the BEAM's PID/mount namespace and records fresh
+filesystem/RSS measurements alongside the original BEAM metric windows.
+The original 100 ms coverage and resource bounds apply; observer shutdown is
+verified before fixture cleanup. These variables configure test instrumentation.
 The supported local A/B/C topology is in
 [the three-node Compose example](deploy/cluster/README.md).
 
@@ -582,6 +596,25 @@ metadata, retain a complete backup of the old metadata state and plan an
 explicit export/restore boundary; starting the new binary creates or recovers
 only the VSR state under `ESS_METADATA_ROOT`.
 
+The core requires Concord `~> 3.1.3`; the lockfile selects matching Concord,
+Viewstamped Replication and ExTurso 3.1.3 packages. They retain the 3.1.2 fixes for
+committed-prefix transition validation, primary-discovery read deadlines, native
+range pagination and new-backup checksum portability. Version 3.1.3 changes only
+package versions and release notes relative to 3.1.2. New backups declare deterministic ETF checksums;
+verify restoration on the same OTP major before changing runtimes. Existing
+legacy backups retain their original checksum rules: an invalid checksum stays
+invalid, and affected backups must be recreated on their originating VM after
+upgrading. Unknown checksum schemes are rejected.
+
+`ESS_CONCORD_COMMAND_VERSION` defaults to `0` to preserve existing databases.
+For an empty restore target, explicitly set it to `1` on every target voter
+before restoration, and keep `1` through recovery, every restart and activation.
+Command version `1` restores the revision-aware state required by ESS metadata
+reads. Do not switch an existing version `0` database to `1` without an explicit
+migration: quiesce writers, retain a verified backup and perform Concord's
+legacy-state reconciliation before resuming writes. ESS never changes existing
+command formats or reconciles legacy state automatically.
+
 Production startup refuses insecure defaults for enabled listeners:
 
 - `ESS_S3_AUTH_ENABLED` must be true when the S3 listener is enabled.
@@ -639,6 +672,26 @@ The admin UI uses Duskmoon Bundler and DuskMoon:
 
 ### End-to-End Checks
 
+For the current daily-use verification scope (2026-10-20), run the sequential
+standalone Boto3 profile with a private Python environment containing the pinned
+`e2e/hardening-requirements.txt` clients:
+
+```bash
+PAGER=cat bash e2e/run_hardening_daily.sh /absolute/venv/bin/python unique-run
+```
+
+It checks normal S3 operations with small payloads, authentication and default
+SDK checksums, and retains `daily.json` plus logs under
+`docs/reports/s3-hardening/daily-unique-run/`. Scale, stress, high-concurrency,
+extreme/fault/crash and multi-GiB profiles are outside the current delivery.
+The original extended acceptance evidence remains separate.
+
+Run the small application contracts with
+`PAGER=cat bash e2e/run_daily_unit_tests.sh all`; `core` and `cli` select package
+contracts separately. The runner limits ExUnit to one case at a time. Release
+validation combines these contracts with the daily HTTP checks and fresh package,
+escript and image verification.
+
 The `e2e/` directory contains S3 compatibility checks that run against a local
 server. See [e2e/README.md](e2e/README.md) for the exact environment setup and
 commands.
@@ -673,19 +726,21 @@ Cloud-cache E2E upstream settings:
 GitHub Actions workflows include:
 
 - **CI** (`ci.yml`) - compile with warnings as errors and check formatting
-- **Test** (`test.yml`) - run the test suite
+- **S3 Hardening** (`s3-hardening.yml`) - daily-use standalone checks by default; extended acceptance requires explicit manual selection
+- **Test** (`test.yml`) - run selected daily application contracts
+- **CLI Compatibility** (`cli-compatibility.yml`) - verify a Linux package installation by default; manual `extended: true` retains full suites, resource/provider checks and the platform matrix
 - **Build** (`build.yml`) - build the development image with `edge` and source-SHA tags
 - **Release** (`release.yml`) - the sole manual release entry, publishing all components with one version and canonical `v<version>` tag
-- **E2E Test** (`e2e-test.yml`) - run the standalone signed-S3/admin exercise and restart persistence check
-- **Cluster Integration** (`cluster-e2e.yml`) - run the tagged three-voter test separately from the active-active Boto3 failure/restart harness and upload node logs
-- **Cloud Cache E2E** (`cloud-cache-e2e.yml`) - validate cloud cache against RustFS
+- **E2E Test** (`e2e-test.yml`) - manually run the standalone signed-S3/admin exercise and restart persistence check
+- **Cluster Integration** (`cluster-e2e.yml`) - manually run the retained three-voter and active-active failure/restart checks
+- **Cloud Cache E2E** (`cloud-cache-e2e.yml`) - manually validate cloud cache against RustFS
 - **Publish CLI** (`publish-cli.yml`) - reusable release job for `ex_storage_service_cli` and downloadable CLI assets
 - **Publish core** (`publish-core.yml`) - reusable release job for the embeddable `ex_storage_service` package
 
-Dispatch `release.yml` with `version` (for example, `0.6.9`) and `git_ref` (the
+Dispatch `release.yml` with `version` (for example, `0.6.10`) and `git_ref` (the
 full current `main` source SHA). The workflow aligns all application versions,
 validates the release, and publishes the GHCR image, both Hex packages and CLI
-assets under `v0.6.9`. Only this workflow updates the image's version and `latest`
+assets under `v0.6.10`. Only this workflow updates the image's version and `latest`
 tags. Existing Hex versions are reused only when their verified payload exactly
 matches the candidate. The earlier `cli-v0.6.8` release remains available for
 historical download links; future releases use only `v<version>`.
