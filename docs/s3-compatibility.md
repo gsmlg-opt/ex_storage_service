@@ -11,16 +11,16 @@ checksum scheme and legacy checks. Fresh restore targets require command version
 on every voter through quarantine, restarts and activation; existing databases
 retain compatibility default 0 and must never switch automatically.
 
-Current closeout candidate is `ffec95ec12acd1c2005b6b418a980a4d47353dc3`, source
-fingerprint `bcf1a50fff1ebc45265436ca04e17b61df1710e31a5291ad6653c29f4c5798e1`.
-Its correctness lane passed 4,518 executed application tests and 88 Python harness
+Current closeout candidate is `ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96`, source
+fingerprint `b81e600afa491ca7bdf2f070128d769506f28098e8c68a6cf8ab428c7097efab`.
+Its correctness lane passed 4,518 executed application tests and 109 Python harness
 tests with zero failures; two tagged cases require their dedicated heavy lanes.
 Standalone, all 17 RustFS gateway groups and both public cluster endpoints passed,
 including real leader election/rejoin and strict RF=2/W=2 during a data outage.
 Selected clients:
 Boto3/botocore 1.43.114, AWS CLI 2.34.24, mc RELEASE.2025-08-13T08-35-41Z,
 RustFS 1.0.1. Current receipts retain exact provenance under
-`docs/reports/s3-hardening/closeout-002/candidate-c2/`; original daily and
+`docs/reports/s3-hardening/closeout-002/candidate-c4/`; original daily and
 Concord 3.1.3 receipts retain their separate historical scope.
 
 The dependency update changes only the Concord family lock entries; HTTP remains
@@ -28,11 +28,13 @@ The dependency update changes only the Concord family lock entries; HTTP remains
 read validation and full-state transaction work in 3.1.4, tracked by
 [Concord #101](https://github.com/gsmlg-dev/concord/issues/101) and
 [#102](https://github.com/gsmlg-dev/concord/issues/102). Mandatory 10k/100k scale
-acceptance remains blocked. Current resource, fault, crash, resilience, restore
-and release lanes remain in progress; their historical passes do not certify this
-candidate. Independent cluster index migration/rejoin/cutover passed. All 38
+acceptance remains blocked. Current faults, crashes, resilience, independent
+standalone/cluster restore and local release/container checks passed. Resource
+verification failed: local/gateway55/56groups (temporary-probe coverage) and
+cluster19/20groups (repair RPC returned view_change); unexecuted cases remain
+unpassed. Independent cluster index migration/rejoin/cutover passed. All 38
 acceptance scenarios are not yet complete. See the
-[candidate freeze](reports/s3-hardening/closeout-002/candidate-freeze.json),
+[candidate freeze](reports/s3-hardening/closeout-002/candidate-c4/freeze.json),
 [business feature record](plans/s3-feature-status.md) and
 [verification report](reports/s3-hardening-verification.md). Historical passes
 are not automatically relabeled as current-source executions.
@@ -163,7 +165,8 @@ scale acceptance remains unexecuted; the separate current cluster backfill,
 interruption, rejoin and cutover fixture passed. Implementation and scoped tests
 do not establish full acceptance. Hosted tokens
 are bound to bucket/prefix/delimiter and do not promise an immutable snapshot
-across concurrent writes. Full transfer resource acceptance remains in progress.
+across concurrent writes. Full transfer resource acceptance remains failed and
+incomplete: local/gateway55/56 and cluster19/20 groups executed.
 
 On first hosted mutation,legacy normalization includes at most256 historical rows
 plus current null slot under revision/bucket fencing. Original v1 records remain.
@@ -183,8 +186,8 @@ Follow the [recovery operations guide](operations/cluster-upgrade.md#independent
 ## Independent profiles and deliberate exclusions
 
 Current complete business profile receipts are under
-`docs/reports/s3-hardening/closeout-002/candidate-c2/` at the candidate and
-fingerprint above. Adjacent `closeout002-c2-*` receipts retain profile details.
+`docs/reports/s3-hardening/closeout-002/candidate-c4/` at the candidate and
+fingerprint above. Adjacent `closeout002-c4-*` receipts retain profile details.
 Standalone covers signed/default-checksum clients, versions/listing, multipart
 races/restart, attributes, tags, CORS and retained SDK/admin/metrics/persistence.
 Cluster repeats the supported profile on both data endpoints, forces remote
@@ -195,9 +198,9 @@ reconciliation restarts and retained mc24/0 compatibility. AWS CLI and mc transf
 commands are retained in the profile logs and gateway JSON; these results do not
 claim every command/flag in those clients works.
 
-Historical standalone/cluster restore evidence is
-`docs/reports/s3-hardening/concord313-refresh-original-r1-restore-standalone/` and
-`concord313-refresh-original-r1-restore-cluster/`. The original fixtures verify
+Current standalone/cluster restore evidence is
+`docs/reports/s3-hardening/closeout002-c4-restore-standalone/` and
+`closeout002-c4-restore-cluster/`. The fixtures verify
 quiesced backup boundaries, inaccessible original roots, read-only backups,
 empty targets, quarantine restarts, job/intent retention and stale-fence rejection.
 Every public data endpoint checks versions/delete markers, exact hashes/size,
@@ -205,8 +208,8 @@ attributes/checksums/tags, bucket configuration, IAM grants/denials, multipart
 parts/completion and versioned PUT after activation. Packed standalone data
 restores without a loose-source fallback. All eight destructive/outbound worker
 flags remain false, and the outbound DELETE canary stays zero after activation.
-That evidence retains its own source in the verification history and does not
-replace the pending current-candidate recovery executions.
+Historical restore evidence retains its own source in the verification history;
+these fresh C4 executions certify the candidate and fingerprint above.
 
 Full AWS IAM/STS,ACL ownership,Object Lock,SSE/KMS,website hosting,S3 Select,
 directory buckets,erasure coding and multi-range reads are outside this delivery.
@@ -214,5 +217,5 @@ Excluded selectors/headers fail deliberately instead of falling through to CRUD.
 No new public STS/IAM service,virtual-hosted addressing or AWS infrastructure
 notification/lifecycle parity is advertised. Mandatory scale/resource results
 and final aggregate acceptance remain required before ESS-S3-HARDENING-001 can
-be called complete. Current release/container smoke remains pending; no closeout
+be called complete. Current local release/container smoke passed; no closeout
 release, package or image has been published.

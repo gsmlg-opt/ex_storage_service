@@ -1,0 +1,22 @@
+{
+  "profile": "release",
+  "status": "passed",
+  "starting_sha": "ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96",
+  "ending_sha": "ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96",
+  "source_sha256": "b81e600afa491ca7bdf2f070128d769506f28098e8c68a6cf8ab428c7097efab",
+  "commands": [
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_release.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c4-release"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 223.051,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c4/release-0.log"
+    }
+  ],
+  "started_at": "2026-10-20T19:33:09.551584+00:00"
+}

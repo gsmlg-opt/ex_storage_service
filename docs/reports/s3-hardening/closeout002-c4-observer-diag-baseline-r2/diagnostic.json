@@ -1,0 +1,50 @@
+{
+  "kind": "intrusive-observer-diagnostic-only",
+  "acceptance": false,
+  "profile": "upstream",
+  "required_groups": 8,
+  "candidate_sha": "ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96",
+  "source_sha256": "b81e600afa491ca7bdf2f070128d769506f28098e8c68a6cf8ab428c7097efab",
+  "arm": "baseline",
+  "command": [
+    "/tmp/ess-s3-hardening-python/bin/python",
+    "/fast/build/ess-hardening-c4-observer-diagnostic/launcher.py",
+    "e2e/s3_hardening_resources.py",
+    "/fast/build/ess-hardening-c4-observer-diagnostic/observer-python",
+    "--root",
+    "/tmp/ess-hardening-resource-closeout002-c4-observer-diag-baseline-r2",
+    "--evidence",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c4-observer-diag-baseline-r2/workload",
+    "--profile",
+    "upstream"
+  ],
+  "environment": {
+    "PAGER": "cat",
+    "MIX_ENV": "prod",
+    "ERL_FLAGS": "+S 4:4",
+    "ESS_HARDENING_PHASE2": "true",
+    "ESS_HARDENING_FAILURES": "true",
+    "E2E_DIAG_TRACE_DIR": "/fast/build/ess-hardening-c4-observer-diagnostic/baseline-r2-traces"
+  },
+  "inputs": {
+    "run.py": "742f65537cc91067fba9e9c0f4fbe0c7e16cab77f4b31186c1c00d09277a4c20",
+    "launcher.py": "b309f77141de7d00ca5def7dd95c6c04cc6b326d14432666178a1f250a05e5d1",
+    "observer-python": "8f718cf9cdea5a07b90fbcc31660ffea74ef532c4a4d855cd19fe059341bf4a7"
+  },
+  "started_at": "2026-10-20T19:45:08.087494+00:00",
+  "monotonic_start_ns": 101191068652605,
+  "observation": "strace summary overhead and a bounded1200-row50ms thread monitor; not acceptance evidence",
+  "exit_status": 0,
+  "ending_sha": "ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96",
+  "source_after": "b81e600afa491ca7bdf2f070128d769506f28098e8c68a6cf8ab428c7097efab",
+  "finished_at": "2026-10-20T19:48:24.266944+00:00",
+  "monotonic_end_ns": 101387248101184,
+  "monitor_rows": 952,
+  "trace_files": [
+    {
+      "path": "/fast/build/ess-hardening-c4-observer-diagnostic/baseline-r2-traces/observer-syscalls.656937.txt",
+      "sha256": "cc60c7c56da2aaa1e25659a88abae11cbd681735d39f25d45727390e1797eaf8",
+      "bytes": 557
+    }
+  ]
+}

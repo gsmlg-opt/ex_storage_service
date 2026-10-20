@@ -1,0 +1,73 @@
+correctness: passed (docs/reports/s3-hardening/closeout-002/candidate-c4/correctness.json)
+standalone: passed (docs/reports/s3-hardening/closeout-002/candidate-c4/standalone.json)
+gateway: passed (docs/reports/s3-hardening/closeout-002/candidate-c4/gateway.json)
+cluster: passed (docs/reports/s3-hardening/closeout-002/candidate-c4/cluster.json)
+index: blocked (docs/reports/s3-hardening/closeout-002/candidate-c4/index.json)
+resources: blocked (docs/reports/s3-hardening/closeout-002/candidate-c4/resources.json)
+faults: passed (docs/reports/s3-hardening/closeout-002/candidate-c4/faults.json)
+crashes: passed (docs/reports/s3-hardening/closeout-002/candidate-c4/crashes.json)
+resilience: passed (docs/reports/s3-hardening/closeout-002/candidate-c4/resilience.json)
+restore: passed (docs/reports/s3-hardening/closeout-002/candidate-c4/restore.json)
+release: passed (docs/reports/s3-hardening/closeout-002/candidate-c4/release.json)
+A28: blocked; every mandatory row must pass
+A29: pending; every mandatory row must pass
+A30: pending; every mandatory row must pass
+A31: pending; every mandatory row must pass
+A32: pending; every mandatory row must pass
+A33: pending; every mandatory row must pass
+A34: pending; every mandatory row must pass
+A35: pending; every mandatory row must pass
+A36: pending; every mandatory row must pass
+A37: pending; every mandatory row must pass
+A38: pending; every mandatory row must pass
+index: blocked or incomplete execution
+resources: blocked or incomplete execution
+A01: passed
+A02: passed
+A03: passed
+A04: passed
+A05: passed
+A06: passed
+A07: passed
+A08: passed
+A09: passed
+A10: passed
+A11: passed
+A12: passed
+A13: passed
+A14: passed
+A15: passed
+A16: passed
+A17: passed
+A18: passed
+A19: passed
+A20: passed
+A21: passed
+A22: passed
+A23: passed
+A24: passed
+A25: passed
+A26: passed
+A27: passed
+A28: blocked
+A29: pending
+A30: pending
+A31: pending
+A32: pending
+A33: pending
+A34: pending
+A35: pending
+A36: pending
+A37: pending
+A38: pending
+profile correctness: passed
+profile standalone: passed
+profile gateway: passed
+profile cluster: passed
+profile index: blocked
+profile resources: blocked
+profile faults: passed
+profile crashes: passed
+profile resilience: passed
+profile restore: passed
+profile release: passed

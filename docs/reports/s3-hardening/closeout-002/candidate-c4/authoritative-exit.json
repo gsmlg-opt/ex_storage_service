@@ -1,0 +1,11 @@
+{
+  "candidate_sha": "ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96",
+  "source_sha256": "b81e600afa491ca7bdf2f070128d769506f28098e8c68a6cf8ab428c7097efab",
+  "observed_at": "2026-10-20T19:39:22.522472+00:00",
+  "tool_session": 16836,
+  "pid": 589944,
+  "start_ticks": 9766413,
+  "exit_status": 1,
+  "scope": "Actual authoritative all-profile command tool completion; initial aggregate preserved before final semantic reconciliation.",
+  "initial_aggregate": "docs/reports/s3-hardening/closeout-002/candidate-c4/aggregate-initial.json"
+}

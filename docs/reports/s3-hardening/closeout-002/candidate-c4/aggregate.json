@@ -1,0 +1,11 @@
+{
+  "goal": "ESS-S3-HARDENING-001",
+  "status": "blocked",
+  "errors": [
+    "A28: blocked; every mandatory row must pass",
+    "A30: failed; every mandatory row must pass",
+    "A38: blocked; every mandatory row must pass",
+    "index: blocked or incomplete execution",
+    "resources: blocked or incomplete execution"
+  ]
+}

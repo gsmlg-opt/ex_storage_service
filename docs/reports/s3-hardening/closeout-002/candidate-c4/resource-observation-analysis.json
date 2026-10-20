@@ -1,0 +1,172 @@
+{
+  "candidate_sha": "ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96",
+  "source_sha256": "b81e600afa491ca7bdf2f070128d769506f28098e8c68a6cf8ab428c7097efab",
+  "checked_at": "2026-10-20T19:42:00.774292+00:00",
+  "raw_integrity": [
+    {
+      "samples": "docs/reports/s3-hardening/closeout002-c4-resources/samples.jsonl",
+      "manifest": "docs/reports/s3-hardening/closeout002-c4-resources/resource-export-1792522908210928338.json",
+      "sha256": "d3ddfae79a6b718cc7d41e8a9d12779276c5a0130a2da7b96569714d133c0c42",
+      "bytes": 82406304,
+      "rows": 43056,
+      "contiguous_exact_generation": true,
+      "status": "passed",
+      "maximum_queued_rows": 102,
+      "temporary_probes_over50ms": [
+        {
+          "sequence": 41422,
+          "scheduled_monotonic_ns": 99626851499396,
+          "collection": {
+            "start_ns": 1792523943870465804,
+            "start_monotonic_ns": 99626851612044,
+            "end_ns": 1792523943972718635,
+            "end_monotonic_ns": 99626953864557
+          },
+          "temporary_probe": {
+            "start_ns": 1792523943871360961,
+            "start_monotonic_ns": 99626852506817,
+            "end_ns": 1792523943972645527,
+            "end_monotonic_ns": 99626953791584
+          },
+          "observer_process_cpu_delta_seconds": 0.0007669999999997401,
+          "observer_rss": 22044672,
+          "preceding_row_export": {
+            "sampler_id": "1792522908210928338",
+            "sequence": 41421,
+            "encoded_bytes": 1918,
+            "encoding": {
+              "start_ns": 1792523943846658667,
+              "start_monotonic_ns": 99626827804638,
+              "end_ns": 1792523943846684773,
+              "end_monotonic_ns": 99626827830655,
+              "cpu_ns": 29442
+            },
+            "write": {
+              "start_ns": 1792523943846687995,
+              "start_monotonic_ns": 99626827833865,
+              "end_ns": 1792523943846699791,
+              "end_monotonic_ns": 99626827845655,
+              "cpu_ns": 12842
+            }
+          },
+          "scope": "Process CPU delta includes exporter and collection; cannot distinguish blocking syscall vs descheduling."
+        }
+      ],
+      "maximum_export_write": {
+        "sampler_id": "1792522908210928338",
+        "sequence": 40785,
+        "encoded_bytes": 1918,
+        "encoding": {
+          "start_ns": 1792523927946618963,
+          "start_monotonic_ns": 99610927764849,
+          "end_ns": 1792523927946639167,
+          "end_monotonic_ns": 99610927785023,
+          "cpu_ns": 21439
+        },
+        "write": {
+          "start_ns": 1792523927946643157,
+          "start_monotonic_ns": 99610927789008,
+          "end_ns": 1792523930503603296,
+          "end_monotonic_ns": 99613484749351,
+          "cpu_ns": 32515
+        }
+      }
+    },
+    {
+      "samples": "docs/reports/s3-hardening/closeout002-c4-resources-cluster/samples/data-a/samples.jsonl",
+      "manifest": "docs/reports/s3-hardening/closeout002-c4-resources-cluster/samples/data-a/resource-export-1792523987929484103.json",
+      "sha256": "a64ffaf3c71121daf47371a99864599c3fe06ea2d6d98b6033aa44dc4f7003b6",
+      "bytes": 50239152,
+      "rows": 26183,
+      "contiguous_exact_generation": true,
+      "status": "passed",
+      "maximum_queued_rows": 72,
+      "temporary_probes_over50ms": [],
+      "maximum_export_write": {
+        "sampler_id": "1792523987929484103",
+        "sequence": 25239,
+        "encoded_bytes": 1921,
+        "encoding": {
+          "start_ns": 1792524618963049719,
+          "start_monotonic_ns": 100301944195694,
+          "end_ns": 1792524618963075498,
+          "end_monotonic_ns": 100301944221381,
+          "cpu_ns": 28125
+        },
+        "write": {
+          "start_ns": 1792524618963078327,
+          "start_monotonic_ns": 100301944224220,
+          "end_ns": 1792524620786352964,
+          "end_monotonic_ns": 100303767498965,
+          "cpu_ns": 38783
+        }
+      }
+    },
+    {
+      "samples": "docs/reports/s3-hardening/closeout002-c4-resources-cluster/samples/data-b/samples.jsonl",
+      "manifest": "docs/reports/s3-hardening/closeout002-c4-resources-cluster/samples/data-b/resource-export-1792523987960588090.json",
+      "sha256": "ade8d06d57db309d35c05b888164ebf5c692d4711cb36b6b76d30de7a5bec120",
+      "bytes": 50130847,
+      "rows": 26133,
+      "contiguous_exact_generation": true,
+      "status": "passed",
+      "maximum_queued_rows": 72,
+      "temporary_probes_over50ms": [],
+      "maximum_export_write": {
+        "sampler_id": "1792523987960588090",
+        "sequence": 25239,
+        "encoded_bytes": 1930,
+        "encoding": {
+          "start_ns": 1792524618969313391,
+          "start_monotonic_ns": 100301950459427,
+          "end_ns": 1792524618969355508,
+          "end_monotonic_ns": 100301950501451,
+          "cpu_ns": 45346
+        },
+        "write": {
+          "start_ns": 1792524618969360657,
+          "start_monotonic_ns": 100301950506544,
+          "end_ns": 1792524620786441007,
+          "end_monotonic_ns": 100303767587343,
+          "cpu_ns": 81921
+        }
+      }
+    },
+    {
+      "samples": "docs/reports/s3-hardening/closeout002-c4-resources-cluster/samples/meta/samples.jsonl",
+      "manifest": "docs/reports/s3-hardening/closeout002-c4-resources-cluster/samples/meta/resource-export-1792523987889432823.json",
+      "sha256": "596c18c7b70e69daf0deab7d1b772f84e587c147ab151dd46912460a9f6ddd9e",
+      "bytes": 50279193,
+      "rows": 26234,
+      "contiguous_exact_generation": true,
+      "status": "passed",
+      "maximum_queued_rows": 72,
+      "temporary_probes_over50ms": [],
+      "maximum_export_write": {
+        "sampler_id": "1792523987889432823",
+        "sequence": 25242,
+        "encoded_bytes": 1919,
+        "encoding": {
+          "start_ns": 1792524618969386942,
+          "start_monotonic_ns": 100301950532931,
+          "end_ns": 1792524618969422243,
+          "end_monotonic_ns": 100301950568182,
+          "cpu_ns": 39072
+        },
+        "write": {
+          "start_ns": 1792524618969426790,
+          "start_monotonic_ns": 100301950572665,
+          "end_ns": 1792524620786439257,
+          "end_monotonic_ns": 100303767585517,
+          "cpu_ns": 67315
+        }
+      }
+    }
+  ],
+  "conclusions": [
+    "C4 export completeness verified independently by streaming raw bytes, exact sequences/counts/generation and digest; this does not certify cadence.",
+    "Local temporary probe over100ms delayed all subsequent fresh metrics; no numeric-envelope failure was reported.",
+    "Cluster group19 failed Repair.Handler.perform with view_change; source line mapping alone cannot identify the nested operation or why election began.",
+    "The final local and cluster manifest cases remain unexecuted. No interpolation or criteria change."
+  ]
+}

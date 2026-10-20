@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "acceptance": false,
+  "kind": "bounded-intrusive-observer-diagnosis",
+  "candidate_sha": "ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96",
+  "source_sha256": "b81e600afa491ca7bdf2f070128d769506f28098e8c68a6cf8ab428c7097efab",
+  "actual_exit_status": 0,
+  "groups_executed": 8,
+  "group_failures": [],
+  "maximum_probe_ns": {
+    "binary": 515788,
+    "total": 515788,
+    "rss": 1308777,
+    "queue_max": 3160897,
+    "queue_total": 3160897,
+    "temporary": 19668800
+  },
+  "maximum_gap_ns": {
+    "binary": 26035619,
+    "total": 26035619,
+    "rss": 26761408,
+    "queue_max": 26770528,
+    "queue_total": 26770528,
+    "temporary": 44338237
+  },
+  "monitor_rows": 952,
+  "monitor_max_schedule_delay_ns": 1831012,
+  "monitor_max_collection_duration_ns": 952535,
+  "cleanup_identities": [
+    {
+      "role": "beam",
+      "expected": {
+        "pid": 656891,
+        "start_ticks": 10119159,
+        "state": "S"
+      },
+      "same_identity_live": false
+    },
+    {
+      "role": "observer",
+      "expected": {
+        "pid": 656939,
+        "start_ticks": 10119184,
+        "state": "R"
+      },
+      "same_identity_live": false
+    }
+  ],
+  "export_checks": [
+    {
+      "identity_file": "/tmp/ess-hardening-resource-closeout002-c4-observer-diag-baseline-r2/observer-1792525508862001761.json",
+      "expected": {
+        "pid": 656939,
+        "start_ticks": 10119184,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true,
+      "export_manifest": "/tmp/ess-hardening-resource-closeout002-c4-observer-diag-baseline-r2/resource-export-1792525508862001761.json",
+      "export": {
+        "schema": 1,
+        "generation": "1792525508862001761",
+        "observer": {
+          "pid": 656939,
+          "start_ticks": 10119184,
+          "state": "R"
+        },
+        "status": "passed",
+        "admitted_rows": 7783,
+        "persisted_rows": 7783,
+        "first_sequence": 0,
+        "last_sequence": 7782,
+        "output_start": 0,
+        "output_bytes": 15021649,
+        "sha256": "1fd9acf23b1ea6eba80d0a1a8db9f8a790e18205196b6cddda13d333061c36ee",
+        "queue_capacity": 128,
+        "queued_byte_limit": 2097152,
+        "row_byte_limit": 16384,
+        "maximum_queued_rows": 2
+      }
+    }
+  ],
+  "conclusion": "All8upstream groups passed in this smaller intrusive diagnostic. Original C4 slow probe was not reproduced; syscall summaries and scheduler samples cannot establish its cause. This is neither full56group acceptance nor before/after proof of a cadence repair. No unchanged nvme-arm replay is justified by these results.",
+  "observations": [
+    "453553traced filesystem syscalls,2.131976s aggregate wall time; largest syscall getdents64=19.261ms,newfstatat=2.395ms. Tracing changes timing.",
+    "Static audit finds avoidable completed-cache-file stats, but no measured-value defect or demonstrated causal relation to C4gap."
+  ]
+}

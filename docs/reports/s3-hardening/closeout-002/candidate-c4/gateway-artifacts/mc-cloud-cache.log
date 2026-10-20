@@ -1,0 +1,106 @@
+═══ Setting up mc aliases ═══
+Added `ess` successfully.
+Added `rustfs-upstream` successfully.
+
+═══ 1. File Operations ═══
+── 1.1 Create file ──
+`/tmp/tmp.G2iyKAiE3k/upload.wdy7f8` -> `ess/gateway-hardening/test-file.txt`
+┌───────┬─────────────┬──────────┬─────────┐
+│ Total │ Transferred │ Duration │ Speed   │
+│ 17 B  │ 17 B        │ 00m00s   │ 176 B/s │
+└───────┴─────────────┴──────────┴─────────┘
+  ✅ PASS: File visible on ESS
+  ✅ PASS: File visible on upstream RustFS
+── 1.2 Download file ──
+  ✅ PASS: Downloaded content matches
+── 1.3 Update file ──
+`/tmp/tmp.G2iyKAiE3k/upload.lJ3kuo` -> `ess/gateway-hardening/test-file.txt`
+┌───────┬─────────────┬──────────┬─────────┐
+│ Total │ Transferred │ Duration │ Speed   │
+│ 15 B  │ 15 B        │ 00m00s   │ 357 B/s │
+└───────┴─────────────┴──────────┴─────────┘
+  ✅ PASS: Updated content on ESS
+  ✅ PASS: Updated content on upstream
+── 1.4 Copy file ──
+`ess/gateway-hardening/test-file.txt` -> `ess/gateway-hardening/test-file-copy.txt`
+┌───────┬─────────────┬──────────┬─────────┐
+│ Total │ Transferred │ Duration │ Speed   │
+│ 15 B  │ 15 B        │ 00m00s   │ 289 B/s │
+└───────┴─────────────┴──────────┴─────────┘
+  ✅ PASS: Copied file on ESS
+── 1.5 Move file ──
+`ess/gateway-hardening/test-file-copy.txt` -> `ess/gateway-hardening/test-file-moved.txt`
+┌───────┬─────────────┬──────────┬─────────┐
+│ Total │ Transferred │ Duration │ Speed   │
+│ 15 B  │ 15 B        │ 00m00s   │ 247 B/s │
+└───────┴─────────────┴──────────┴─────────┘
+  ✅ PASS: Moved file present on ESS
+  ✅ PASS: Original file gone after move
+── 1.6 Remove file ──
+Removed `ess/gateway-hardening/test-file-moved.txt`.
+  ✅ PASS: Removed file gone from ESS
+  ✅ PASS: Removed file gone from upstream
+Removed `ess/gateway-hardening/test-file.txt`.
+
+═══ 2. Directory Operations ═══
+── 2.1 Create directory with files ──
+`/tmp/tmp.G2iyKAiE3k/upload.ZSsbaL` -> `ess/gateway-hardening/mydir/file-a.txt`
+┌───────┬─────────────┬──────────┬─────────┐
+│ Total │ Transferred │ Duration │ Speed   │
+│ 14 B  │ 14 B        │ 00m00s   │ 366 B/s │
+└───────┴─────────────┴──────────┴─────────┘
+`/tmp/tmp.G2iyKAiE3k/upload.MSD56w` -> `ess/gateway-hardening/mydir/file-b.txt`
+┌───────┬─────────────┬──────────┬─────────┐
+│ Total │ Transferred │ Duration │ Speed   │
+│ 14 B  │ 14 B        │ 00m00s   │ 332 B/s │
+└───────┴─────────────┴──────────┴─────────┘
+`/tmp/tmp.G2iyKAiE3k/upload.SUtGb8` -> `ess/gateway-hardening/mydir/subdir/file-c.txt`
+┌───────┬─────────────┬──────────┬─────────┐
+│ Total │ Transferred │ Duration │ Speed   │
+│ 16 B  │ 16 B        │ 00m00s   │ 395 B/s │
+└───────┴─────────────┴──────────┴─────────┘
+  ✅ PASS: Directory visible on ESS
+  ✅ PASS: Directory visible on upstream
+── 2.2 List directory contents ──
+  ✅ PASS: file-a in dir listing
+  ✅ PASS: file-b in dir listing
+  ✅ PASS: subdir in dir listing
+── 2.3 Download directory files ──
+  ✅ PASS: Dir file-a content
+  ✅ PASS: Subdir file-c content
+── 2.4 Copy directory ──
+`ess/gateway-hardening/mydir/file-a.txt` -> `ess/gateway-hardening/mydir-copy/file-a.txt`
+`ess/gateway-hardening/mydir/subdir/file-c.txt` -> `ess/gateway-hardening/mydir-copy/subdir/file-c.txt`
+`ess/gateway-hardening/mydir/file-b.txt` -> `ess/gateway-hardening/mydir-copy/file-b.txt`
+┌───────┬─────────────┬──────────┬─────────┐
+│ Total │ Transferred │ Duration │ Speed   │
+│ 44 B  │ 44 B        │ 00m00s   │ 277 B/s │
+└───────┴─────────────┴──────────┴─────────┘
+  ✅ PASS: Copied dir on ESS
+  ✅ PASS: Copied dir file content
+── 2.5 Move directory ──
+`ess/gateway-hardening/mydir-copy/file-a.txt` -> `ess/gateway-hardening/mydir-moved/file-a.txt`
+`ess/gateway-hardening/mydir-copy/subdir/file-c.txt` -> `ess/gateway-hardening/mydir-moved/subdir/file-c.txt`
+`ess/gateway-hardening/mydir-copy/file-b.txt` -> `ess/gateway-hardening/mydir-moved/file-b.txt`
+┌───────┬─────────────┬──────────┬─────────┐
+│ Total │ Transferred │ Duration │ Speed   │
+│ 44 B  │ 44 B        │ 00m00s   │ 377 B/s │
+└───────┴─────────────┴──────────┴─────────┘
+  ✅ PASS: Moved dir present
+  ✅ PASS: Original dir gone after move
+── 2.6 Remove directory ──
+Removed `ess/gateway-hardening/mydir-moved/file-a.txt`.
+Removed `ess/gateway-hardening/mydir-moved/file-b.txt`.
+Removed `ess/gateway-hardening/mydir-moved/subdir/file-c.txt`.
+  ✅ PASS: Removed dir gone from ESS
+── 2.7 Remove original directory ──
+Removed `ess/gateway-hardening/mydir/file-a.txt`.
+Removed `ess/gateway-hardening/mydir/file-b.txt`.
+Removed `ess/gateway-hardening/mydir/subdir/file-c.txt`.
+  ✅ PASS: Original dir gone from ESS
+  ✅ PASS: Original dir gone from upstream
+
+
+══════════════════════════════════════════════
+  Results: 24 passed, 0 failed
+══════════════════════════════════════════════

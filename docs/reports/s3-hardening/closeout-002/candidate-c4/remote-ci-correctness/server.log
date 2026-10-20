@@ -1,0 +1,69 @@
+==> ex_storage_service
+Running ExUnit with seed: 707341, max_cases: 1
+Excluding tags: [cluster: true]
+
+.................................................................................................................................................................................................................................................................................18:46:33.713 [error] Replication DELETE failed for bucket/key to http://127.0.0.1:48911: HTTP 503 - ""
+...........18:46:33.841 [error] CloudCache DELETE failed remote/key: HTTP 403 — ""
+...................................................................................................................................................18:46:46.848 [warning] CasGC: failed to delete 52f5c2f9a06283850b812a8b594815665aa220f7e42f7ae9aaac402e0c1f4d30: :invalid_quarantine_path
+..................................................................................................18:47:07.216 [warning] ContentGC: metadata scan failed; sweep aborted: :metadata_unavailable
+..................................................18:47:14.942 [warning] CAS migration: content missing for version-profile-6707 hash a5b49136820fad63240a7bcc75fca169fa6befbb12043b449d4a5f5c702283ea
+18:47:14.954 [warning] CAS migration: content missing for version-profile-6659 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+18:47:14.965 [warning] CAS migration: content missing for version-profile-10226 hash 95124d4b20f3ac6bd9fbff7a54d2d50efb5cb99dae8c318d6eff157c3689d647
+.18:47:14.996 [warning] CAS migration: content missing for version-profile-6707 hash a5b49136820fad63240a7bcc75fca169fa6befbb12043b449d4a5f5c702283ea
+18:47:14.997 [warning] CAS migration: content missing for version-profile-6659 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+18:47:15.010 [warning] CAS migration: content missing for version-profile-10226 hash 95124d4b20f3ac6bd9fbff7a54d2d50efb5cb99dae8c318d6eff157c3689d647
+18:47:15.013 [warning] CAS migration: content missing for version-profile-6707 hash a5b49136820fad63240a7bcc75fca169fa6befbb12043b449d4a5f5c702283ea
+18:47:15.014 [warning] CAS migration: content missing for version-profile-6659 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+18:47:15.015 [warning] CAS migration: content missing for version-profile-10226 hash 95124d4b20f3ac6bd9fbff7a54d2d50efb5cb99dae8c318d6eff157c3689d647
+.18:47:15.049 [warning] CAS migration: content missing for version-profile-6707 hash a5b49136820fad63240a7bcc75fca169fa6befbb12043b449d4a5f5c702283ea
+18:47:15.050 [warning] CAS migration: content missing for mig-11042 hash c26f793302f5f13e8c3113e1630c0a9f6627f631f9717804fbd5147a48a00370
+18:47:15.051 [warning] CAS migration: content missing for version-profile-6659 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+18:47:15.053 [warning] CAS migration: content missing for version-profile-10226 hash 95124d4b20f3ac6bd9fbff7a54d2d50efb5cb99dae8c318d6eff157c3689d647
+.................
+Finished in 55.0 seconds (20.0s async, 35.0s sync)
+598 tests, 0 failures (1 excluded)
+==> ex_storage_service_cluster
+Running ExUnit with seed: 707341, max_cases: 1
+Excluding tags: [large_stream: true]
+
+.......................................
+Finished in 1.0 seconds (1.0s async, 0.00s sync)
+39 tests, 0 failures (1 excluded)
+==> ex_storage_service_s3
+Running ExUnit with seed: 707341, max_cases: 1
+Excluding tags: [large_stream: true]
+
+....................................generated XML corpus: 5402 rejected cases, max input 4096 bytes
+..........................18:47:24.552 request_id=request-phase7-incomplete [warning] blob response stream terminated
+....................................................................................................................18:47:48.053 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+.18:47:48.065 [warning] SigV4 auth failed: Missing Authorization header — HEAD /signature
+..18:47:48.078 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+18:47:48.078 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+...18:47:48.651 [error] Replication PUT repl-6164/d.txt: content "34b79ebbbdd248cd400be53835923b81af125e4c4bc956444f3f0701751007e0" missing from storage
+..18:47:48.904 [error] Replication PUT failed for source/broken.bin to http://localhost:9001: {:request_failed, %ExStorageService.BlobStore.Source.RequestBodyError{reason: :upstream_closed}}
+............18:47:53.638 [warning] SigV4 auth failed: SignatureDoesNotMatch — GET /
+........................18:48:21.469 [warning] SigV4 auth failed: Missing Authorization header — POST /health/cloud_cache
+....................................18:48:37.458 [error] 4234- fatal: :unexpected_end
+
+18:48:37.466 [error] 4234- fatal: :unexpected_end
+
+18:48:37.488 [error] 4234- fatal: :unexpected_end
+
+18:48:37.490 [error] 4234- fatal: :unexpected_end
+
+18:48:37.508 [error] 4234- fatal: :unexpected_end
+
+18:48:37.510 [error] 4234- fatal: :unexpected_end
+
+.......................................18:48:56.880 [warning] SigV4 auth failed: Missing Authorization header — OPTIONS /cors-http-15186/key
+18:48:56.884 [warning] SigV4 auth failed: Missing Authorization header — GET /cors-http-15186/key
+........................................................................
+Finished in 120.5 seconds (3.0s async, 117.4s sync)
+369 tests, 0 failures
+==> ex_storage_service_web
+Running ExUnit with seed: 707341, max_cases: 1
+Excluding tags: [large_stream: true]
+
+.....................
+Finished in 0.3 seconds (0.1s async, 0.1s sync)
+21 tests, 0 failures

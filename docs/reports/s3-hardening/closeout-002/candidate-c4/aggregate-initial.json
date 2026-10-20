@@ -1,0 +1,19 @@
+{
+  "goal": "ESS-S3-HARDENING-001",
+  "status": "blocked",
+  "errors": [
+    "A28: blocked; every mandatory row must pass",
+    "A29: pending; every mandatory row must pass",
+    "A30: pending; every mandatory row must pass",
+    "A31: pending; every mandatory row must pass",
+    "A32: pending; every mandatory row must pass",
+    "A33: pending; every mandatory row must pass",
+    "A34: pending; every mandatory row must pass",
+    "A35: pending; every mandatory row must pass",
+    "A36: pending; every mandatory row must pass",
+    "A37: pending; every mandatory row must pass",
+    "A38: pending; every mandatory row must pass",
+    "index: blocked or incomplete execution",
+    "resources: blocked or incomplete execution"
+  ]
+}

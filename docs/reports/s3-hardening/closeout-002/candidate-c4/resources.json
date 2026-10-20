@@ -1,0 +1,63 @@
+{
+  "profile": "resources",
+  "status": "blocked",
+  "starting_sha": "ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96",
+  "ending_sha": "ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96",
+  "source_sha256": "b81e600afa491ca7bdf2f070128d769506f28098e8c68a6cf8ab428c7097efab",
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 5.841,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c4/resources-0.log"
+    },
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_resources.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c4-resources"
+      ],
+      "mix_env": "prod",
+      "exit_status": 1,
+      "duration_seconds": 1078.126,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c4/resources-1.log"
+    },
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_cluster_resources.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c4-resources-cluster"
+      ],
+      "mix_env": "prod",
+      "exit_status": 1,
+      "duration_seconds": 658.626,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c4/resources-2.log"
+    },
+    {
+      "argv": [
+        "mix",
+        "test",
+        "apps/ex_storage_service_cluster/test/ex_storage_service_cluster/large_stream_test.exs",
+        "--include",
+        "large_stream",
+        "--max-cases",
+        "1",
+        "--no-color"
+      ],
+      "mix_env": "test",
+      "exit_status": 0,
+      "duration_seconds": 5.479,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c4/resources-3.log"
+    }
+  ],
+  "started_at": "2026-10-20T19:01:41.551286+00:00",
+  "reason": "command exited 1; inspect retained log"
+}

@@ -1,0 +1,1 @@
+[{"case": "wrong-key", "rejected": true}, {"case": "missing-key", "rejected": true}, {"case": "metadata-missing", "rejected": true}, {"case": "metadata-corrupt", "rejected": true}, {"case": "body-missing", "rejected": true}, {"case": "body-corrupt", "rejected": true}]

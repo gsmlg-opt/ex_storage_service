@@ -1,0 +1,128 @@
+{
+  "status": "passed",
+  "uid": 1001,
+  "commands": [
+    {
+      "command": [
+        "sudo",
+        "-n",
+        "apt-get",
+        "update"
+      ],
+      "exit_status": 0
+    },
+    {
+      "command": [
+        "sudo",
+        "-n",
+        "apt-get",
+        "install",
+        "--yes",
+        "apparmor",
+        "apparmor-profiles",
+        "bubblewrap",
+        "zsh"
+      ],
+      "exit_status": 0
+    },
+    {
+      "command": [
+        "uname",
+        "-a"
+      ],
+      "exit_status": 0
+    },
+    {
+      "command": [
+        "dpkg-query",
+        "-W",
+        "apparmor",
+        "apparmor-profiles",
+        "bubblewrap",
+        "zsh"
+      ],
+      "exit_status": 0
+    },
+    {
+      "command": [
+        "dpkg-query",
+        "-S",
+        "/usr/share/apparmor/extra-profiles/bwrap-userns-restrict",
+        "/usr/bin/bwrap"
+      ],
+      "exit_status": 0
+    },
+    {
+      "command": [
+        "sha256sum",
+        "/usr/share/apparmor/extra-profiles/bwrap-userns-restrict",
+        "/usr/bin/bwrap"
+      ],
+      "exit_status": 0
+    },
+    {
+      "command": [
+        "sudo",
+        "-n",
+        "apparmor_parser",
+        "--version"
+      ],
+      "exit_status": 0
+    },
+    {
+      "command": [
+        "sudo",
+        "-n",
+        "apparmor_parser",
+        "-r",
+        "/usr/share/apparmor/extra-profiles/bwrap-userns-restrict"
+      ],
+      "exit_status": 0
+    },
+    {
+      "command": [
+        "sudo",
+        "-n",
+        "aa-status"
+      ],
+      "exit_status": 0
+    }
+  ],
+  "namespace_policy": {
+    "apparmor_restrict_unprivileged_userns": "1",
+    "unprivileged_userns_clone": "1"
+  },
+  "apparmor_context": "unconfined",
+  "private_tmpfs": {
+    "uid": 1001,
+    "namespace": "mnt:[4026532269]",
+    "device": 52,
+    "capacity": 8388608,
+    "bytes": 1048576,
+    "sha256": "8f990ba0b577b51cf009ea049368c16bbda1b21e1b93be07a824758bb253c39b",
+    "host": {
+      "uid": 1001,
+      "namespace": "mnt:[4026531832]",
+      "device": 2049
+    },
+    "command": [
+      "bwrap",
+      "--die-with-parent",
+      "--ro-bind",
+      "/",
+      "/",
+      "--dev",
+      "/dev",
+      "--proc",
+      "/proc",
+      "--bind",
+      "/tmp/ess-ci-isolation-tii0kx81",
+      "/tmp/ess-ci-isolation-tii0kx81",
+      "--size",
+      "8388608",
+      "--tmpfs",
+      "/tmp/ess-ci-isolation-tii0kx81/tmp",
+      "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python3"
+    ]
+  }
+}

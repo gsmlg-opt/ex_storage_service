@@ -1,0 +1,105 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "remote-durable-ack-origin-crash-isolates-uncertain-operation",
+      "passed": true,
+      "detail": {
+        "node": "data-a",
+        "w": 2,
+        "object": {
+          "exists": false
+        },
+        "blob": {
+          "size": 237568,
+          "exists": true,
+          "verified": true
+        },
+        "locations": [],
+        "intent": "pending",
+        "intent_hash": "3df1d60583cfb429cf437c65816bb2a9b7c93d4ace347916dadcf6df1475dcda",
+        "rf": 2
+      }
+    },
+    {
+      "name": "retained-root-rejoin-preserves-data-and-uncertainty",
+      "passed": true,
+      "detail": {
+        "statuses": [
+          {
+            "id": "meta",
+            "status": "normal",
+            "primary": "meta",
+            "bootstrap": true,
+            "commit": 12,
+            "applied": 12,
+            "view": 0,
+            "configuration": "<<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>"
+          },
+          {
+            "id": "data-a",
+            "status": "normal",
+            "primary": "meta",
+            "bootstrap": true,
+            "commit": 12,
+            "applied": 12,
+            "view": 0,
+            "configuration": "<<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>"
+          },
+          {
+            "id": "data-b",
+            "status": "normal",
+            "primary": "meta",
+            "bootstrap": false,
+            "commit": 12,
+            "applied": 12,
+            "view": 0,
+            "configuration": "<<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>"
+          }
+        ],
+        "ready": true
+      }
+    },
+    {
+      "name": "same-internal-operation-resumes-strict-quorum-exactly-one-version",
+      "passed": true,
+      "detail": {
+        "node": "data-b",
+        "w": 2,
+        "object": {
+          "size": 237568,
+          "exists": true,
+          "hash": "3df1d60583cfb429cf437c65816bb2a9b7c93d4ace347916dadcf6df1475dcda",
+          "version_id": "1792524695745918-o2Q3htFNkW4"
+        },
+        "blob": {
+          "size": 237568,
+          "exists": true,
+          "verified": true
+        },
+        "locations": [
+          {
+            "node": "data-a",
+            "size": 237568,
+            "state": "ready",
+            "generation": 1
+          },
+          {
+            "node": "data-b",
+            "size": 237568,
+            "state": "ready",
+            "generation": 1
+          }
+        ],
+        "intent": "committed",
+        "intent_hash": "3df1d60583cfb429cf437c65816bb2a9b7c93d4ace347916dadcf6df1475dcda",
+        "rf": 2
+      }
+    }
+  ],
+  "source_sha": "ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96",
+  "versions": {
+    "boto3": "1.43.114",
+    "botocore": "1.43.114"
+  }
+}

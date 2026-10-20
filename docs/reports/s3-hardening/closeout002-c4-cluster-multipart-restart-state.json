@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "stage": "prepared",
+  "bucket": "hardening-multipart-restart-dc13987ca20d469d",
+  "endpoints": [
+    "http://127.0.0.1:9001",
+    "http://127.0.0.1:9002"
+  ],
+  "objects": {
+    "active": {
+      "upload_id": "2dd428737e2b2f8c9c4e020c91393cff",
+      "parts": [
+        {
+          "PartNumber": 1,
+          "ETag": "\"79b281060d337b9b2b84ccf390adcf74\"",
+          "ChecksumSHA256": "oplo+tLngqqfIECjXwWtuX7Yl56x9XLIyOp4Y34nXzw="
+        },
+        {
+          "PartNumber": 2,
+          "ETag": "\"011d6256f6fce6dd7f460ebb384cd9a7\"",
+          "ChecksumSHA256": "y9iUCpaG21b4M46m8Wr+VC38pGkLCr67SnNxxez46tc="
+        }
+      ],
+      "size": 5242897,
+      "sha256": "8ea005f2f5d527979f2206e872c9fc4b91e501f25e9e781cec44d574a2c08726",
+      "checksum": "xFqFPKKq7fgbLp6Qa7diV6UtfDJWOoJvaPy3mq60TUU=-2"
+    },
+    "completed": {
+      "upload_id": "e508da93309f037dc83288f9dc15be55",
+      "parts": [
+        {
+          "PartNumber": 1,
+          "ETag": "\"7b8456e1e74c378f45861f53619e75b6\"",
+          "ChecksumSHA256": "snb+8GNprRMVQa+xxIHwYWSDZFD4Zw6O6n2n5EG06G8="
+        },
+        {
+          "PartNumber": 2,
+          "ETag": "\"2a4661734b5f430242a6fec1551231df\"",
+          "ChecksumSHA256": "Yh1FOlQC4ip7LGFFVxlg8BxVFteQiBSQEeU4L0O2/ds="
+        }
+      ],
+      "size": 5242900,
+      "sha256": "3a815618bcd870778ff3acc8342d12569d3a76934bf045da79a439e06566f74b",
+      "checksum": "OfQ9GA2gww2ZoMHuOQC8jzvagO7OufrqtqTH/L7ulc8=-2",
+      "version_id": "1792522842637909-gljMr7byDPo"
+    }
+  }
+}

@@ -1,0 +1,168 @@
+==> ex_storage_service_cli
+Compiling 2 files (.erl)
+Generated ex_storage_service_cli app
+==> ex_storage_service
+Running ExUnit with seed: 777099, max_cases: 32
+Including tags: [:cluster]
+
+
+02:59:57.378 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+02:59:57.401 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+02:59:57.865 [info] Concord VSR metadata quorum pending: :quorum_unavailable
+
+02:59:57.881 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+02:59:57.903 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+02:59:58.021 [info] Concord VSR metadata quorum ready
+
+02:59:58.037 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+02:59:58.062 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+02:59:58.136 [info] Concord VSR metadata quorum ready
+
+02:59:58.155 [debug] API put: :ok (10ms)
+
+02:59:58.176 [debug] API get: {:ok, "written-on-a"} (14ms)
+
+02:59:58.252 [debug] API get: {:ok, %{name: "coherent-metadata-1", generation: "fSJb4tO4TbMen6pCOoEA3A", creation_date: "2026-10-20T18:59:58.180211Z"}} (0ms)
+
+02:59:58.278 [debug] API get: {:ok, %{name: "coherent-metadata-1", generation: "fSJb4tO4TbMen6pCOoEA3A", creation_date: "2026-10-20T18:59:58.180211Z"}} (2ms)
+
+02:59:58.281 [debug] API get: {:ok, %{name: "coherent-metadata-1", generation: "fSJb4tO4TbMen6pCOoEA3A", creation_date: "2026-10-20T18:59:58.180211Z"}} (0ms)
+
+02:59:58.300 [debug] API put: :ok (14ms)
+
+02:59:58.316 [debug] API put: :ok (15ms)
+
+02:59:58.332 [debug] API put: :ok (13ms)
+
+02:59:58.342 [error] ** Connection attempt from node :"ess_phase4_c_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:58.442 [error] ** Connection attempt from node :"ess_phase4_c_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:58.543 [error] ** Connection attempt from node :"ess_phase4_c_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:58.560 [error] ** Connection attempt from node :"ess_phase4_a_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:58.644 [error] ** Connection attempt from node :"ess_phase4_c_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:58.745 [error] ** Connection attempt from node :"ess_phase4_c_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:58.843 [debug] API put: {:error, :quorum_unavailable} (500ms)
+
+02:59:58.848 [error] ** Connection attempt from node :"ess_phase4_a_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:58.853 [error] ** Connection attempt from node :"ess_phase4_a_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:58.857 [debug] API put: :ok (14ms)
+
+02:59:58.861 [debug] API get: {:ok, "committed"} (0ms)
+
+02:59:58.874 [debug] API put: :ok (11ms)
+
+02:59:58.876 [debug] API get: {:ok, "two-voter-majority"} (2ms)
+
+02:59:59.040 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+02:59:59.063 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+02:59:59.069 [error] ** Connection attempt from node :"ess_phase4_a_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:59.096 [error] GenServer {ViewstampedReplication.Registry, {:replica, "phase4-cluster", "node-c"}} terminating
+** (stop) {:storage_recovery_failed, :bootstrap_requires_empty_storage}
+Last message: {:continue, :recover_storage}
+State: %ViewstampedReplication.Replica{configuration: %ViewstampedReplication.Configuration{group_id: "phase4-cluster", replica_id: "node-c", members: [%ViewstampedReplication.Member{id: "node-a", endpoint: :"ess_phase4_a_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-b", endpoint: :"ess_phase4_b_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-c", endpoint: :"ess_phase4_c_1@127.0.0.1"}]}, protocol_state: %ViewstampedReplication.Protocol.State{group_id: "phase4-cluster", configuration: %ViewstampedReplication.Configuration{group_id: "phase4-cluster", replica_id: "node-c", members: [%ViewstampedReplication.Member{id: "node-a", endpoint: :"ess_phase4_a_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-b", endpoint: :"ess_phase4_b_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-c", endpoint: :"ess_phase4_c_1@127.0.0.1"}]}, replica_id: "node-c", status: :recovering, view_number: 0, last_normal_view: 0, op_number: 0, commit_number: 0, applied_number: 0, log: %ViewstampedReplication.Log{base_op_number: 0, entries: []}, client_table: %{}, applied_request_index: nil, prepare_acks: %{}, pending_reads: %{}, read_sequence: 0, start_view_change_votes: %{}, do_view_change_messages: %{}, pending_clients: %{}, recovery_nonce: nil, recovery_responses: %{}, recovery_attempt: 0, applying_number: nil, snapshot: nil, snapshot_op_number: 0, do_view_change_sent: MapSet.new([]), timer_tokens: %{}, timer_sequence: 0, timeouts: %{read: 1000, primary: 1000, heartbeat: 500, recovery: 1000, view_change: 1000}}, state_machine: Concord.Engine.VSR.StateMachine, state_machine_state: %Concord.StateMachine.Core.State{store: %{}, current: %{}, history: %{}, current_keys: {0, nil}, history_keys: {0, nil}, leases: %{}, indexes: %{}, index_entries: %{}, requests: %{}, representation: :current, command_count: 0, revision: 0, compact_revision: 0, next_lease_id: 1}, storage: ViewstampedReplication.Storage.File, storage_state: %ViewstampedReplication.Storage.File{directory: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/tmp/ExStorageService.Cluster.ThreeVoterClusterTest/test-three-voters-preserve-quorum-and-isolate-the-metadata-only-role-9fa44c0b/node-c/vsr", wal_path: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/tmp/ExStorageService.Cluster.ThreeVoterClusterTest/test-three-voters-preserve-quorum-and-isolate-the-metadata-only-role-9fa44c0b/node-c/vsr/replica.wal", checkpoint_path: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/tmp/ExStorageService.Cluster.ThreeVoterClusterTest/test-three-voters-preserve-quorum-and-isolate-the-metadata-only-role-9fa44c0b/node-c/vsr/checkpoint.vsr", memory: %ViewstampedReplication.Storage.Memory{configuration_hash: <<219, 64, 181, 18, 176, 7, 240, 60, 171, 23, 31, 229, 2, 30, 252, 14, 154, 190, 207, 166, 97, 143, 1, 255, 229, 189, 5, 246, 107, 189, 122, 49>>, replica_id: "node-c", hard_state: %{}, log: %ViewstampedReplication.Log{base_op_number: 0, entries: []}, commit_number: 0, applied_number: 0, snapshot: nil, client_table: %{}}, write_version: 1, sequence: 0}, transport: ViewstampedReplication.Transport.Distribution, transport_state: %ViewstampedReplication.Transport.Distribution{endpoints: %{"node-a" => :"ess_phase4_a_1@127.0.0.1", "node-b" => :"ess_phase4_b_1@127.0.0.1", "node-c" => :"ess_phase4_c_1@127.0.0.1"}}, bootstrap: true, durable_applied_number: 0, timers: %{}}
+
+02:59:59.112 [error] GenServer {ViewstampedReplication.Registry, {:replica, "phase4-cluster", "node-c"}} terminating
+** (stop) {:storage_recovery_failed, :bootstrap_requires_empty_storage}
+Last message: {:continue, :recover_storage}
+State: %ViewstampedReplication.Replica{configuration: %ViewstampedReplication.Configuration{group_id: "phase4-cluster", replica_id: "node-c", members: [%ViewstampedReplication.Member{id: "node-a", endpoint: :"ess_phase4_a_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-b", endpoint: :"ess_phase4_b_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-c", endpoint: :"ess_phase4_c_1@127.0.0.1"}]}, protocol_state: %ViewstampedReplication.Protocol.State{group_id: "phase4-cluster", configuration: %ViewstampedReplication.Configuration{group_id: "phase4-cluster", replica_id: "node-c", members: [%ViewstampedReplication.Member{id: "node-a", endpoint: :"ess_phase4_a_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-b", endpoint: :"ess_phase4_b_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-c", endpoint: :"ess_phase4_c_1@127.0.0.1"}]}, replica_id: "node-c", status: :recovering, view_number: 0, last_normal_view: 0, op_number: 0, commit_number: 0, applied_number: 0, log: %ViewstampedReplication.Log{base_op_number: 0, entries: []}, client_table: %{}, applied_request_index: nil, prepare_acks: %{}, pending_reads: %{}, read_sequence: 0, start_view_change_votes: %{}, do_view_change_messages: %{}, pending_clients: %{}, recovery_nonce: nil, recovery_responses: %{}, recovery_attempt: 0, applying_number: nil, snapshot: nil, snapshot_op_number: 0, do_view_change_sent: MapSet.new([]), timer_tokens: %{}, timer_sequence: 0, timeouts: %{read: 1000, primary: 1000, heartbeat: 500, recovery: 1000, view_change: 1000}}, state_machine: Concord.Engine.VSR.StateMachine, state_machine_state: %Concord.StateMachine.Core.State{store: %{}, current: %{}, history: %{}, current_keys: {0, nil}, history_keys: {0, nil}, leases: %{}, indexes: %{}, index_entries: %{}, requests: %{}, representation: :current, command_count: 0, revision: 0, compact_revision: 0, next_lease_id: 1}, storage: ViewstampedReplication.Storage.File, storage_state: %ViewstampedReplication.Storage.File{directory: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/tmp/ExStorageService.Cluster.ThreeVoterClusterTest/test-three-voters-preserve-quorum-and-isolate-the-metadata-only-role-9fa44c0b/node-c/vsr", wal_path: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/tmp/ExStorageService.Cluster.ThreeVoterClusterTest/test-three-voters-preserve-quorum-and-isolate-the-metadata-only-role-9fa44c0b/node-c/vsr/replica.wal", checkpoint_path: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/tmp/ExStorageService.Cluster.ThreeVoterClusterTest/test-three-voters-preserve-quorum-and-isolate-the-metadata-only-role-9fa44c0b/node-c/vsr/checkpoint.vsr", memory: %ViewstampedReplication.Storage.Memory{configuration_hash: <<219, 64, 181, 18, 176, 7, 240, 60, 171, 23, 31, 229, 2, 30, 252, 14, 154, 190, 207, 166, 97, 143, 1, 255, 229, 189, 5, 246, 107, 189, 122, 49>>, replica_id: "node-c", hard_state: %{}, log: %ViewstampedReplication.Log{base_op_number: 0, entries: []}, commit_number: 0, applied_number: 0, snapshot: nil, client_table: %{}}, write_version: 1, sequence: 0}, transport: ViewstampedReplication.Transport.Distribution, transport_state: %ViewstampedReplication.Transport.Distribution{endpoints: %{"node-a" => :"ess_phase4_a_1@127.0.0.1", "node-b" => :"ess_phase4_b_1@127.0.0.1", "node-c" => :"ess_phase4_c_1@127.0.0.1"}}, bootstrap: true, durable_applied_number: 0, timers: %{}}
+
+02:59:59.116 [error] GenServer {ViewstampedReplication.Registry, {:replica, "phase4-cluster", "node-c"}} terminating
+** (stop) {:storage_recovery_failed, :bootstrap_requires_empty_storage}
+Last message: {:continue, :recover_storage}
+State: %ViewstampedReplication.Replica{configuration: %ViewstampedReplication.Configuration{group_id: "phase4-cluster", replica_id: "node-c", members: [%ViewstampedReplication.Member{id: "node-a", endpoint: :"ess_phase4_a_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-b", endpoint: :"ess_phase4_b_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-c", endpoint: :"ess_phase4_c_1@127.0.0.1"}]}, protocol_state: %ViewstampedReplication.Protocol.State{group_id: "phase4-cluster", configuration: %ViewstampedReplication.Configuration{group_id: "phase4-cluster", replica_id: "node-c", members: [%ViewstampedReplication.Member{id: "node-a", endpoint: :"ess_phase4_a_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-b", endpoint: :"ess_phase4_b_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-c", endpoint: :"ess_phase4_c_1@127.0.0.1"}]}, replica_id: "node-c", status: :recovering, view_number: 0, last_normal_view: 0, op_number: 0, commit_number: 0, applied_number: 0, log: %ViewstampedReplication.Log{base_op_number: 0, entries: []}, client_table: %{}, applied_request_index: nil, prepare_acks: %{}, pending_reads: %{}, read_sequence: 0, start_view_change_votes: %{}, do_view_change_messages: %{}, pending_clients: %{}, recovery_nonce: nil, recovery_responses: %{}, recovery_attempt: 0, applying_number: nil, snapshot: nil, snapshot_op_number: 0, do_view_change_sent: MapSet.new([]), timer_tokens: %{}, timer_sequence: 0, timeouts: %{read: 1000, primary: 1000, heartbeat: 500, recovery: 1000, view_change: 1000}}, state_machine: Concord.Engine.VSR.StateMachine, state_machine_state: %Concord.StateMachine.Core.State{store: %{}, current: %{}, history: %{}, current_keys: {0, nil}, history_keys: {0, nil}, leases: %{}, indexes: %{}, index_entries: %{}, requests: %{}, representation: :current, command_count: 0, revision: 0, compact_revision: 0, next_lease_id: 1}, storage: ViewstampedReplication.Storage.File, storage_state: %ViewstampedReplication.Storage.File{directory: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/tmp/ExStorageService.Cluster.ThreeVoterClusterTest/test-three-voters-preserve-quorum-and-isolate-the-metadata-only-role-9fa44c0b/node-c/vsr", wal_path: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/tmp/ExStorageService.Cluster.ThreeVoterClusterTest/test-three-voters-preserve-quorum-and-isolate-the-metadata-only-role-9fa44c0b/node-c/vsr/replica.wal", checkpoint_path: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/tmp/ExStorageService.Cluster.ThreeVoterClusterTest/test-three-voters-preserve-quorum-and-isolate-the-metadata-only-role-9fa44c0b/node-c/vsr/checkpoint.vsr", memory: %ViewstampedReplication.Storage.Memory{configuration_hash: <<219, 64, 181, 18, 176, 7, 240, 60, 171, 23, 31, 229, 2, 30, 252, 14, 154, 190, 207, 166, 97, 143, 1, 255, 229, 189, 5, 246, 107, 189, 122, 49>>, replica_id: "node-c", hard_state: %{}, log: %ViewstampedReplication.Log{base_op_number: 0, entries: []}, commit_number: 0, applied_number: 0, snapshot: nil, client_table: %{}}, write_version: 1, sequence: 0}, transport: ViewstampedReplication.Transport.Distribution, transport_state: %ViewstampedReplication.Transport.Distribution{endpoints: %{"node-a" => :"ess_phase4_a_1@127.0.0.1", "node-b" => :"ess_phase4_b_1@127.0.0.1", "node-c" => :"ess_phase4_c_1@127.0.0.1"}}, bootstrap: true, durable_applied_number: 0, timers: %{}}
+
+02:59:59.120 [error] GenServer {ViewstampedReplication.Registry, {:replica, "phase4-cluster", "node-c"}} terminating
+** (stop) {:storage_recovery_failed, :bootstrap_requires_empty_storage}
+Last message: {:continue, :recover_storage}
+State: %ViewstampedReplication.Replica{configuration: %ViewstampedReplication.Configuration{group_id: "phase4-cluster", replica_id: "node-c", members: [%ViewstampedReplication.Member{id: "node-a", endpoint: :"ess_phase4_a_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-b", endpoint: :"ess_phase4_b_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-c", endpoint: :"ess_phase4_c_1@127.0.0.1"}]}, protocol_state: %ViewstampedReplication.Protocol.State{group_id: "phase4-cluster", configuration: %ViewstampedReplication.Configuration{group_id: "phase4-cluster", replica_id: "node-c", members: [%ViewstampedReplication.Member{id: "node-a", endpoint: :"ess_phase4_a_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-b", endpoint: :"ess_phase4_b_1@127.0.0.1"}, %ViewstampedReplication.Member{id: "node-c", endpoint: :"ess_phase4_c_1@127.0.0.1"}]}, replica_id: "node-c", status: :recovering, view_number: 0, last_normal_view: 0, op_number: 0, commit_number: 0, applied_number: 0, log: %ViewstampedReplication.Log{base_op_number: 0, entries: []}, client_table: %{}, applied_request_index: nil, prepare_acks: %{}, pending_reads: %{}, read_sequence: 0, start_view_change_votes: %{}, do_view_change_messages: %{}, pending_clients: %{}, recovery_nonce: nil, recovery_responses: %{}, recovery_attempt: 0, applying_number: nil, snapshot: nil, snapshot_op_number: 0, do_view_change_sent: MapSet.new([]), timer_tokens: %{}, timer_sequence: 0, timeouts: %{read: 1000, primary: 1000, heartbeat: 500, recovery: 1000, view_change: 1000}}, state_machine: Concord.Engine.VSR.StateMachine, state_machine_state: %Concord.StateMachine.Core.State{store: %{}, current: %{}, history: %{}, current_keys: {0, nil}, history_keys: {0, nil}, leases: %{}, indexes: %{}, index_entries: %{}, requests: %{}, representation: :current, command_count: 0, revision: 0, compact_revision: 0, next_lease_id: 1}, storage: ViewstampedReplication.Storage.File, storage_state: %ViewstampedReplication.Storage.File{directory: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/tmp/ExStorageService.Cluster.ThreeVoterClusterTest/test-three-voters-preserve-quorum-and-isolate-the-metadata-only-role-9fa44c0b/node-c/vsr", wal_path: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/tmp/ExStorageService.Cluster.ThreeVoterClusterTest/test-three-voters-preserve-quorum-and-isolate-the-metadata-only-role-9fa44c0b/node-c/vsr/replica.wal", checkpoint_path: "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/tmp/ExStorageService.Cluster.ThreeVoterClusterTest/test-three-voters-preserve-quorum-and-isolate-the-metadata-only-role-9fa44c0b/node-c/vsr/checkpoint.vsr", memory: %ViewstampedReplication.Storage.Memory{configuration_hash: <<219, 64, 181, 18, 176, 7, 240, 60, 171, 23, 31, 229, 2, 30, 252, 14, 154, 190, 207, 166, 97, 143, 1, 255, 229, 189, 5, 246, 107, 189, 122, 49>>, replica_id: "node-c", hard_state: %{}, log: %ViewstampedReplication.Log{base_op_number: 0, entries: []}, commit_number: 0, applied_number: 0, snapshot: nil, client_table: %{}}, write_version: 1, sequence: 0}, transport: ViewstampedReplication.Transport.Distribution, transport_state: %ViewstampedReplication.Transport.Distribution{endpoints: %{"node-a" => :"ess_phase4_a_1@127.0.0.1", "node-b" => :"ess_phase4_b_1@127.0.0.1", "node-c" => :"ess_phase4_c_1@127.0.0.1"}}, bootstrap: true, durable_applied_number: 0, timers: %{}}
+
+02:59:59.142 [error] ** Connection attempt from node :"ess_phase4_c_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:59.143 [error] ** Connection attempt from node :"ess_phase4_c_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:59.147 [info] Concord VSR metadata quorum pending: :cluster_not_ready
+
+02:59:59.152 [error] ** Connection attempt from node :"ess_phase4_c_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:59.253 [error] ** Connection attempt from node :"ess_phase4_c_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:59.455 [error] ** Connection attempt from node :"ess_phase4_c_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:59.556 [error] ** Connection attempt from node :"ess_phase4_c_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:59.579 [error] ** Connection attempt from node :"ess_phase4_a_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:59.613 [error] ** Connection attempt from node :"ess_phase4_a_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:59.619 [error] ** Connection attempt from node :"ess_phase4_a_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:59.624 [error] ** Connection attempt from node :"ess_phase4_a_1@127.0.0.1" rejected. Invalid challenge reply. **
+
+
+02:59:59.653 [debug] API put: {:error, :quorum_unavailable} (502ms)
+
+02:59:59.654 [notice] Application ex_storage_service exited: :stopped
+
+02:59:59.654 [notice] Application concord exited: :stopped
+
+02:59:59.659 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+02:59:59.660 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+02:59:59.674 [info] Concord VSR metadata quorum ready
+
+02:59:59.685 [debug] API get: {:ok, "written-on-a"} (0ms)
+
+02:59:59.686 [debug] API get: {:ok, "two-voter-majority"} (0ms)
+.
+Finished in 2.8 seconds (0.00s async, 2.8s sync)
+1 test, 0 failures

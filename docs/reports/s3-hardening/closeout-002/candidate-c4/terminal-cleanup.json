@@ -1,0 +1,99 @@
+{
+  "status": "passed",
+  "checked_at": "2026-10-20T19:39:22.540759+00:00",
+  "candidate_sha": "ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96",
+  "identities": [
+    {
+      "source": "docs/reports/s3-hardening/closeout002-c4-resources/observer-1792522908210928338.json",
+      "role": "observer",
+      "expected": {
+        "pid": 618579,
+        "start_ticks": 9859119,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "source": "docs/reports/s3-hardening/closeout002-c4-resources/observer-1792522908210928338.json",
+      "role": "beam",
+      "expected": {
+        "pid": 618533,
+        "start_ticks": 9859095,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "source": "docs/reports/s3-hardening/closeout002-c4-resources-cluster/samples/data-b/observer-1792523987960588090.json",
+      "role": "observer",
+      "expected": {
+        "pid": 620570,
+        "start_ticks": 9967094,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "source": "docs/reports/s3-hardening/closeout002-c4-resources-cluster/samples/data-b/observer-1792523987960588090.json",
+      "role": "beam",
+      "expected": {
+        "pid": 620311,
+        "start_ticks": 9966852,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "source": "docs/reports/s3-hardening/closeout002-c4-resources-cluster/samples/data-a/observer-1792523987929484103.json",
+      "role": "observer",
+      "expected": {
+        "pid": 620568,
+        "start_ticks": 9967091,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "source": "docs/reports/s3-hardening/closeout002-c4-resources-cluster/samples/data-a/observer-1792523987929484103.json",
+      "role": "beam",
+      "expected": {
+        "pid": 620303,
+        "start_ticks": 9966852,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "source": "docs/reports/s3-hardening/closeout002-c4-resources-cluster/samples/meta/observer-1792523987889432823.json",
+      "role": "observer",
+      "expected": {
+        "pid": 620566,
+        "start_ticks": 9967087,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    },
+    {
+      "source": "docs/reports/s3-hardening/closeout002-c4-resources-cluster/samples/meta/observer-1792523987889432823.json",
+      "role": "beam",
+      "expected": {
+        "pid": 620295,
+        "start_ticks": 9966851,
+        "state": "S"
+      },
+      "observed": null,
+      "stopped": true
+    }
+  ],
+  "remaining_owned_erlang_names": [],
+  "remaining_owned_containers": [],
+  "process_scope": "Checks observer/BEAM PID+start identities and owned names/containers; per-lane harnesses retain their own shutdown and port/group cleanup. No unrelated process modified.",
+  "retained_roots": "Private fixtures, immutable backups and diagnostics retained. Retained data is not an active process or permanent staging leak."
+}

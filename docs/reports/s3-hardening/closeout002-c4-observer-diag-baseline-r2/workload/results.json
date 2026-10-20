@@ -1,0 +1,1924 @@
+{
+  "status": "passed",
+  "profile": "upstream",
+  "starting_sha": "ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96",
+  "source_sha256": "b81e600afa491ca7bdf2f070128d769506f28098e8c68a6cf8ab428c7097efab",
+  "groups": [
+    {
+      "name": "gateway-paced-upstream-put",
+      "size": 67108864,
+      "concurrency": 1,
+      "start_ns": 1792525511499813778,
+      "start_monotonic_ns": 101194480960030,
+      "repetitions": 1,
+      "details": [
+        null
+      ],
+      "end_ns": 1792525514021301053,
+      "end_monotonic_ns": 101197002447051,
+      "start_ms": 1792525511499,
+      "end_ms": 1792525514021,
+      "samples": 101,
+      "baseline": {
+        "binary": 414208,
+        "total": 63218248,
+        "rss": 130207744,
+        "temporary": 0
+      },
+      "peak": {
+        "binary": 2477928,
+        "total": 65310632,
+        "rss": 141475840,
+        "queue_max": 1,
+        "queue_total": 2,
+        "temporary": 130744320
+      },
+      "delta": {
+        "binary": 2063720,
+        "total": 2092384,
+        "rss": 11268096,
+        "queue_max": 1,
+        "queue_total": 2,
+        "temporary": 130744320
+      },
+      "limits": {
+        "binary": 100663296,
+        "total": 184549376,
+        "rss": 335544320,
+        "queue_max": 128,
+        "queue_total": 2048,
+        "temporary": 201326592
+      },
+      "post_idle": {
+        "sampler_id": "1792525508862001761",
+        "sequence": 252,
+        "scheduled_monotonic_ns": 101198193671456,
+        "time": 1792525515214,
+        "collection": {
+          "start_ns": 1792525515212692466,
+          "start_monotonic_ns": 101198193838863,
+          "end_ns": 1792525515214322629,
+          "end_monotonic_ns": 101198195468522
+        },
+        "rss": 132280320,
+        "temporary": 0,
+        "beam_exchange": {
+          "start_ns": 1792525515212692466,
+          "start_monotonic_ns": 101198193838863,
+          "end_ns": 1792525515213633510,
+          "end_monotonic_ns": 101198194779899
+        },
+        "observer": {
+          "rss": 21442560,
+          "user_seconds": 0.115683,
+          "system_seconds": 0.066388,
+          "max_rss": 20828160
+        },
+        "binary": 393576,
+        "total": 63315408,
+        "queue_max": 0,
+        "queue_total": 0,
+        "probes": {
+          "binary": {
+            "start_ns": 1792525515213388964,
+            "start_monotonic_ns": -576460745429382624,
+            "end_ns": 1792525515213509741,
+            "end_monotonic_ns": -576460745429261821
+          },
+          "total": {
+            "start_ns": 1792525515213388964,
+            "start_monotonic_ns": -576460745429382624,
+            "end_ns": 1792525515213509741,
+            "end_monotonic_ns": -576460745429261821
+          },
+          "queue_max": {
+            "start_ns": 1792525515212879206,
+            "start_monotonic_ns": -576460745429892256,
+            "end_ns": 1792525515213388757,
+            "end_monotonic_ns": -576460745429382765
+          },
+          "queue_total": {
+            "start_ns": 1792525515212879206,
+            "start_monotonic_ns": -576460745429892256,
+            "end_ns": 1792525515213388757,
+            "end_monotonic_ns": -576460745429382765
+          },
+          "rss": {
+            "start_ns": 1792525515213635279,
+            "start_monotonic_ns": 101198194781144,
+            "end_ns": 1792525515213772566,
+            "end_monotonic_ns": 101198194918466
+          },
+          "temporary": {
+            "start_ns": 1792525515213774208,
+            "start_monotonic_ns": 101198194920054,
+            "end_ns": 1792525515214208316,
+            "end_monotonic_ns": 101198195354170
+          }
+        },
+        "previous_export": {
+          "sampler_id": "1792525508862001761",
+          "sequence": 251,
+          "encoded_bytes": 1917,
+          "encoding": {
+            "start_ns": 1792525515189293606,
+            "start_monotonic_ns": 101198170439670,
+            "end_ns": 1792525515189333790,
+            "end_monotonic_ns": 101198170479720,
+            "cpu_ns": 48638
+          },
+          "write": {
+            "start_ns": 1792525515189398377,
+            "start_monotonic_ns": 101198170544252,
+            "end_ns": 1792525515189538738,
+            "end_monotonic_ns": 101198170684679,
+            "cpu_ns": 33594
+          }
+        }
+      },
+      "cadence": {
+        "binary": {
+          "samples": 101,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 13909362,
+          "end_edge_ns": 7768620,
+          "maximum_probe_ns": 217537,
+          "maximum_gap_ns": 25789830,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "total": {
+          "samples": 101,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 13909362,
+          "end_edge_ns": 7768620,
+          "maximum_probe_ns": 217537,
+          "maximum_gap_ns": 25789830,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "rss": {
+          "samples": 101,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 14285729,
+          "end_edge_ns": 7586682,
+          "maximum_probe_ns": 823477,
+          "maximum_gap_ns": 26480021,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_max": {
+          "samples": 101,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 13791242,
+          "end_edge_ns": 8400882,
+          "maximum_probe_ns": 1204589,
+          "maximum_gap_ns": 26262250,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_total": {
+          "samples": 101,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 13791242,
+          "end_edge_ns": 8400882,
+          "maximum_probe_ns": 1204589,
+          "maximum_gap_ns": 26262250,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "temporary": {
+          "samples": 101,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 14563051,
+          "end_edge_ns": 7455842,
+          "maximum_probe_ns": 795428,
+          "maximum_gap_ns": 26683617,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        }
+      },
+      "failures": []
+    },
+    {
+      "name": "gateway-paced-upstream-cold-get",
+      "size": 67108864,
+      "concurrency": 1,
+      "start_ns": 1792525516715210325,
+      "start_monotonic_ns": 101199696356532,
+      "repetitions": 1,
+      "details": [
+        null
+      ],
+      "end_ns": 1792525518972576277,
+      "end_monotonic_ns": 101201953722436,
+      "start_ms": 1792525516715,
+      "end_ms": 1792525518972,
+      "samples": 90,
+      "baseline": {
+        "binary": 393928,
+        "total": 63326608,
+        "rss": 129671168,
+        "temporary": 0
+      },
+      "peak": {
+        "binary": 716848,
+        "total": 63742344,
+        "rss": 127094784,
+        "queue_max": 1,
+        "queue_total": 2,
+        "temporary": 129368064
+      },
+      "delta": {
+        "binary": 322920,
+        "total": 415736,
+        "rss": -2576384,
+        "queue_max": 1,
+        "queue_total": 2,
+        "temporary": 129368064
+      },
+      "limits": {
+        "binary": 100663296,
+        "total": 184549376,
+        "rss": 335544320,
+        "queue_max": 128,
+        "queue_total": 2048,
+        "temporary": 201326592
+      },
+      "post_idle": {
+        "sampler_id": "1792525508862001761",
+        "sequence": 450,
+        "scheduled_monotonic_ns": 101203143671456,
+        "time": 1792525520164,
+        "collection": {
+          "start_ns": 1792525520162684121,
+          "start_monotonic_ns": 101203143830011,
+          "end_ns": 1792525520164078215,
+          "end_monotonic_ns": 101203145224095
+        },
+        "rss": 121143296,
+        "temporary": 0,
+        "beam_exchange": {
+          "start_ns": 1792525520162684121,
+          "start_monotonic_ns": 101203143830011,
+          "end_ns": 1792525520163565415,
+          "end_monotonic_ns": 101203144711267
+        },
+        "observer": {
+          "rss": 21446656,
+          "user_seconds": 0.18108,
+          "system_seconds": 0.12536899999999998,
+          "max_rss": 20828160
+        },
+        "binary": 659568,
+        "total": 63675136,
+        "queue_max": 0,
+        "queue_total": 0,
+        "probes": {
+          "binary": {
+            "start_ns": 1792525520163255319,
+            "start_monotonic_ns": -576460740479516282,
+            "end_ns": 1792525520163406926,
+            "end_monotonic_ns": -576460740479364543
+          },
+          "total": {
+            "start_ns": 1792525520163255319,
+            "start_monotonic_ns": -576460740479516282,
+            "end_ns": 1792525520163406926,
+            "end_monotonic_ns": -576460740479364543
+          },
+          "queue_max": {
+            "start_ns": 1792525520162793274,
+            "start_monotonic_ns": -576460740479978184,
+            "end_ns": 1792525520163255086,
+            "end_monotonic_ns": -576460740479516385
+          },
+          "queue_total": {
+            "start_ns": 1792525520162793274,
+            "start_monotonic_ns": -576460740479978184,
+            "end_ns": 1792525520163255086,
+            "end_monotonic_ns": -576460740479516385
+          },
+          "rss": {
+            "start_ns": 1792525520163566020,
+            "start_monotonic_ns": 101203144711866,
+            "end_ns": 1792525520163718205,
+            "end_monotonic_ns": 101203144864056
+          },
+          "temporary": {
+            "start_ns": 1792525520163718815,
+            "start_monotonic_ns": 101203144864660,
+            "end_ns": 1792525520164006790,
+            "end_monotonic_ns": 101203145152642
+          }
+        },
+        "previous_export": {
+          "sampler_id": "1792525508862001761",
+          "sequence": 449,
+          "encoded_bytes": 1928,
+          "encoding": {
+            "start_ns": 1792525520139196539,
+            "start_monotonic_ns": 101203120342491,
+            "end_ns": 1792525520139221637,
+            "end_monotonic_ns": 101203120367502,
+            "cpu_ns": 29408
+          },
+          "write": {
+            "start_ns": 1792525520139244546,
+            "start_monotonic_ns": 101203120390401,
+            "end_ns": 1792525520139259853,
+            "end_monotonic_ns": 101203120405710,
+            "cpu_ns": 11961
+          }
+        }
+      },
+      "cadence": {
+        "binary": {
+          "samples": 90,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 23385420,
+          "end_edge_ns": 9067725,
+          "maximum_probe_ns": 246447,
+          "maximum_gap_ns": 25945897,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "total": {
+          "samples": 90,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 23385420,
+          "end_edge_ns": 9067725,
+          "maximum_probe_ns": 246447,
+          "maximum_gap_ns": 25945897,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "rss": {
+          "samples": 90,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 23692785,
+          "end_edge_ns": 8852888,
+          "maximum_probe_ns": 547236,
+          "maximum_gap_ns": 26145867,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_max": {
+          "samples": 90,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 23289223,
+          "end_edge_ns": 9746996,
+          "maximum_probe_ns": 1398391,
+          "maximum_gap_ns": 26502961,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_total": {
+          "samples": 90,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 23289223,
+          "end_edge_ns": 9746996,
+          "maximum_probe_ns": 1398391,
+          "maximum_gap_ns": 26502961,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "temporary": {
+          "samples": 90,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 24167459,
+          "end_edge_ns": 8712166,
+          "maximum_probe_ns": 1506866,
+          "maximum_gap_ns": 26634924,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        }
+      },
+      "failures": []
+    },
+    {
+      "name": "gateway-paced-upstream-put",
+      "size": 67108864,
+      "concurrency": 4,
+      "start_ns": 1792525521388319645,
+      "start_monotonic_ns": 101204369465836,
+      "repetitions": 1,
+      "details": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "end_ns": 1792525524146816251,
+      "end_monotonic_ns": 101207127962188,
+      "start_ms": 1792525521388,
+      "end_ms": 1792525524146,
+      "samples": 111,
+      "baseline": {
+        "binary": 650960,
+        "total": 63698160,
+        "rss": 118431744,
+        "temporary": 0
+      },
+      "peak": {
+        "binary": 8658832,
+        "total": 71819968,
+        "rss": 138420224,
+        "queue_max": 2,
+        "queue_total": 7,
+        "temporary": 298844160
+      },
+      "delta": {
+        "binary": 8007872,
+        "total": 8121808,
+        "rss": 19988480,
+        "queue_max": 2,
+        "queue_total": 7,
+        "temporary": 298844160
+      },
+      "limits": {
+        "binary": 201326592,
+        "total": 335544320,
+        "rss": 536870912,
+        "queue_max": 128,
+        "queue_total": 2048,
+        "temporary": 603979776
+      },
+      "post_idle": {
+        "sampler_id": "1792525508862001761",
+        "sequence": 657,
+        "scheduled_monotonic_ns": 101208318671456,
+        "time": 1792525525338,
+        "collection": {
+          "start_ns": 1792525525337628502,
+          "start_monotonic_ns": 101208318774834,
+          "end_ns": 1792525525338977230,
+          "end_monotonic_ns": 101208320123117
+        },
+        "rss": 124608512,
+        "temporary": 0,
+        "beam_exchange": {
+          "start_ns": 1792525525337628502,
+          "start_monotonic_ns": 101208318774834,
+          "end_ns": 1792525525338533327,
+          "end_monotonic_ns": 101208319679183
+        },
+        "observer": {
+          "rss": 21446656,
+          "user_seconds": 0.252226,
+          "system_seconds": 0.191442,
+          "max_rss": 20828160
+        },
+        "binary": 1471800,
+        "total": 65014856,
+        "queue_max": 0,
+        "queue_total": 0,
+        "probes": {
+          "binary": {
+            "start_ns": 1792525525338312996,
+            "start_monotonic_ns": -576460735304458604,
+            "end_ns": 1792525525338442362,
+            "end_monotonic_ns": -576460735304329238
+          },
+          "total": {
+            "start_ns": 1792525525338312996,
+            "start_monotonic_ns": -576460735304458604,
+            "end_ns": 1792525525338442362,
+            "end_monotonic_ns": -576460735304329238
+          },
+          "queue_max": {
+            "start_ns": 1792525525337813264,
+            "start_monotonic_ns": -576460735304958213,
+            "end_ns": 1792525525338312812,
+            "end_monotonic_ns": -576460735304458721
+          },
+          "queue_total": {
+            "start_ns": 1792525525337813264,
+            "start_monotonic_ns": -576460735304958213,
+            "end_ns": 1792525525338312812,
+            "end_monotonic_ns": -576460735304458721
+          },
+          "rss": {
+            "start_ns": 1792525525338533864,
+            "start_monotonic_ns": 101208319679717,
+            "end_ns": 1792525525338608725,
+            "end_monotonic_ns": 101208319754630
+          },
+          "temporary": {
+            "start_ns": 1792525525338609366,
+            "start_monotonic_ns": 101208319755216,
+            "end_ns": 1792525525338896446,
+            "end_monotonic_ns": 101208320042351
+          }
+        },
+        "previous_export": {
+          "sampler_id": "1792525508862001761",
+          "sequence": 656,
+          "encoded_bytes": 1918,
+          "encoding": {
+            "start_ns": 1792525525314542153,
+            "start_monotonic_ns": 101208295688135,
+            "end_ns": 1792525525314569394,
+            "end_monotonic_ns": 101208295715282,
+            "cpu_ns": 31851
+          },
+          "write": {
+            "start_ns": 1792525525314584788,
+            "start_monotonic_ns": 101208295730646,
+            "end_ns": 1792525525314603424,
+            "end_monotonic_ns": 101208295749322,
+            "cpu_ns": 17591
+          }
+        }
+      },
+      "cadence": {
+        "binary": {
+          "samples": 111,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 590569,
+          "end_edge_ns": 7824593,
+          "maximum_probe_ns": 306459,
+          "maximum_gap_ns": 25814608,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "total": {
+          "samples": 111,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 590569,
+          "end_edge_ns": 7824593,
+          "maximum_probe_ns": 306459,
+          "maximum_gap_ns": 25814608,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "rss": {
+          "samples": 111,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1220126,
+          "end_edge_ns": 7486311,
+          "maximum_probe_ns": 512122,
+          "maximum_gap_ns": 26078385,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_max": {
+          "samples": 111,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 431532,
+          "end_edge_ns": 9029415,
+          "maximum_probe_ns": 1508318,
+          "maximum_gap_ns": 26429135,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_total": {
+          "samples": 111,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 431532,
+          "end_edge_ns": 9029415,
+          "maximum_probe_ns": 1508318,
+          "maximum_gap_ns": 26429135,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "temporary": {
+          "samples": 111,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1782902,
+          "end_edge_ns": 7276893,
+          "maximum_probe_ns": 977302,
+          "maximum_gap_ns": 26656226,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        }
+      },
+      "failures": []
+    },
+    {
+      "name": "gateway-paced-upstream-cold-get",
+      "size": 67108864,
+      "concurrency": 4,
+      "start_ns": 1792525526987513938,
+      "start_monotonic_ns": 101209968660197,
+      "repetitions": 1,
+      "details": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "end_ns": 1792525529281072052,
+      "end_monotonic_ns": 101212262218054,
+      "start_ms": 1792525526987,
+      "end_ms": 1792525529281,
+      "samples": 92,
+      "baseline": {
+        "binary": 1472360,
+        "total": 64947140,
+        "rss": 117374976,
+        "temporary": 0
+      },
+      "peak": {
+        "binary": 4463320,
+        "total": 68014992,
+        "rss": 126971904,
+        "queue_max": 2,
+        "queue_total": 5,
+        "temporary": 295174144
+      },
+      "delta": {
+        "binary": 2990960,
+        "total": 3067852,
+        "rss": 9596928,
+        "queue_max": 2,
+        "queue_total": 5,
+        "temporary": 295174144
+      },
+      "limits": {
+        "binary": 201326592,
+        "total": 335544320,
+        "rss": 536870912,
+        "queue_max": 128,
+        "queue_total": 2048,
+        "temporary": 603979776
+      },
+      "post_idle": {
+        "sampler_id": "1792525508862001761",
+        "sequence": 862,
+        "scheduled_monotonic_ns": 101213443671456,
+        "time": 1792525530465,
+        "collection": {
+          "start_ns": 1792525530462800400,
+          "start_monotonic_ns": 101213443946311,
+          "end_ns": 1792525530465226354,
+          "end_monotonic_ns": 101213446372250
+        },
+        "rss": 125091840,
+        "temporary": 0,
+        "beam_exchange": {
+          "start_ns": 1792525530462800400,
+          "start_monotonic_ns": 101213443946311,
+          "end_ns": 1792525530464080017,
+          "end_monotonic_ns": 101213445226077
+        },
+        "observer": {
+          "rss": 21446656,
+          "user_seconds": 0.327305,
+          "system_seconds": 0.26539,
+          "max_rss": 20828160
+        },
+        "binary": 2308160,
+        "total": 65996120,
+        "queue_max": 0,
+        "queue_total": 0,
+        "probes": {
+          "binary": {
+            "start_ns": 1792525530463516795,
+            "start_monotonic_ns": -576460730179254806,
+            "end_ns": 1792525530463718250,
+            "end_monotonic_ns": -576460730179053191
+          },
+          "total": {
+            "start_ns": 1792525530463516795,
+            "start_monotonic_ns": -576460730179254806,
+            "end_ns": 1792525530463718250,
+            "end_monotonic_ns": -576460730179053191
+          },
+          "queue_max": {
+            "start_ns": 1792525530463051856,
+            "start_monotonic_ns": -576460730179719619,
+            "end_ns": 1792525530463516623,
+            "end_monotonic_ns": -576460730179254905
+          },
+          "queue_total": {
+            "start_ns": 1792525530463051856,
+            "start_monotonic_ns": -576460730179719619,
+            "end_ns": 1792525530463516623,
+            "end_monotonic_ns": -576460730179254905
+          },
+          "rss": {
+            "start_ns": 1792525530464081904,
+            "start_monotonic_ns": 101213445227791,
+            "end_ns": 1792525530464415369,
+            "end_monotonic_ns": 101213445561326
+          },
+          "temporary": {
+            "start_ns": 1792525530464417339,
+            "start_monotonic_ns": 101213445563198,
+            "end_ns": 1792525530465055474,
+            "end_monotonic_ns": 101213446201531
+          }
+        },
+        "previous_export": {
+          "sampler_id": "1792525508862001761",
+          "sequence": 861,
+          "encoded_bytes": 1929,
+          "encoding": {
+            "start_ns": 1792525530439266381,
+            "start_monotonic_ns": 101213420412373,
+            "end_ns": 1792525530439290962,
+            "end_monotonic_ns": 101213420436825,
+            "cpu_ns": 28218
+          },
+          "write": {
+            "start_ns": 1792525530439303904,
+            "start_monotonic_ns": 101213420449755,
+            "end_ns": 1792525530439319748,
+            "end_monotonic_ns": 101213420465607,
+            "cpu_ns": 15073
+          }
+        }
+      },
+      "cadence": {
+        "binary": {
+          "samples": 92,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1110624,
+          "end_edge_ns": 17421497,
+          "maximum_probe_ns": 158551,
+          "maximum_gap_ns": 25999145,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "total": {
+          "samples": 92,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1110624,
+          "end_edge_ns": 17421497,
+          "maximum_probe_ns": 158551,
+          "maximum_gap_ns": 25999145,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "rss": {
+          "samples": 92,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1316494,
+          "end_edge_ns": 16865447,
+          "maximum_probe_ns": 376141,
+          "maximum_gap_ns": 26370008,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_max": {
+          "samples": 92,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 996652,
+          "end_edge_ns": 18076182,
+          "maximum_probe_ns": 1539959,
+          "maximum_gap_ns": 26646435,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_total": {
+          "samples": 92,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 996652,
+          "end_edge_ns": 18076182,
+          "maximum_probe_ns": 1539959,
+          "maximum_gap_ns": 26646435,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "temporary": {
+          "samples": 92,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1624416,
+          "end_edge_ns": 16486723,
+          "maximum_probe_ns": 1084531,
+          "maximum_gap_ns": 26769243,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        }
+      },
+      "failures": []
+    },
+    {
+      "name": "gateway-paced-upstream-put",
+      "size": 1073741824,
+      "concurrency": 1,
+      "start_ns": 1792525532662280534,
+      "start_monotonic_ns": 101215643426676,
+      "repetitions": 1,
+      "details": [
+        null
+      ],
+      "end_ns": 1792525571583683052,
+      "end_monotonic_ns": 101254564829272,
+      "start_ms": 1792525532662,
+      "end_ms": 1792525571583,
+      "samples": 1557,
+      "baseline": {
+        "binary": 2308856,
+        "total": 65763772,
+        "rss": 124919808,
+        "temporary": 0
+      },
+      "peak": {
+        "binary": 7338584,
+        "total": 70870360,
+        "rss": 141717504,
+        "queue_max": 1,
+        "queue_total": 1,
+        "temporary": 2147483648
+      },
+      "delta": {
+        "binary": 5029728,
+        "total": 5106588,
+        "rss": 16797696,
+        "queue_max": 1,
+        "queue_total": 1,
+        "temporary": 2147483648
+      },
+      "limits": {
+        "binary": 100663296,
+        "total": 184549376,
+        "rss": 335544320,
+        "queue_max": 128,
+        "queue_total": 2048,
+        "temporary": 2214592512
+      },
+      "post_idle": {
+        "sampler_id": "1792525508862001761",
+        "sequence": 2554,
+        "scheduled_monotonic_ns": 101255743671456,
+        "time": 1792525572764,
+        "collection": {
+          "start_ns": 1792525572762647121,
+          "start_monotonic_ns": 101255743793321,
+          "end_ns": 1792525572764235744,
+          "end_monotonic_ns": 101255745381593
+        },
+        "rss": 124981248,
+        "temporary": 0,
+        "beam_exchange": {
+          "start_ns": 1792525572762647121,
+          "start_monotonic_ns": 101255743793321,
+          "end_ns": 1792525572763701714,
+          "end_monotonic_ns": 101255744847648
+        },
+        "observer": {
+          "rss": 21655552,
+          "user_seconds": 0.9017449999999999,
+          "system_seconds": 0.791674,
+          "max_rss": 21221376
+        },
+        "binary": 2106880,
+        "total": 65678696,
+        "queue_max": 0,
+        "queue_total": 0,
+        "probes": {
+          "binary": {
+            "start_ns": 1792525572763381102,
+            "start_monotonic_ns": -576460687879390491,
+            "end_ns": 1792525572763528524,
+            "end_monotonic_ns": -576460687879242948
+          },
+          "total": {
+            "start_ns": 1792525572763381102,
+            "start_monotonic_ns": -576460687879390491,
+            "end_ns": 1792525572763528524,
+            "end_monotonic_ns": -576460687879242948
+          },
+          "queue_max": {
+            "start_ns": 1792525572762911426,
+            "start_monotonic_ns": -576460687879860042,
+            "end_ns": 1792525572763380953,
+            "end_monotonic_ns": -576460687879390588
+          },
+          "queue_total": {
+            "start_ns": 1792525572762911426,
+            "start_monotonic_ns": -576460687879860042,
+            "end_ns": 1792525572763380953,
+            "end_monotonic_ns": -576460687879390588
+          },
+          "rss": {
+            "start_ns": 1792525572763702533,
+            "start_monotonic_ns": 101255744848397,
+            "end_ns": 1792525572763809735,
+            "end_monotonic_ns": 101255744955608
+          },
+          "temporary": {
+            "start_ns": 1792525572763810372,
+            "start_monotonic_ns": 101255744956216,
+            "end_ns": 1792525572764157517,
+            "end_monotonic_ns": 101255745303371
+          }
+        },
+        "previous_export": {
+          "sampler_id": "1792525508862001761",
+          "sequence": 2553,
+          "encoded_bytes": 1940,
+          "encoding": {
+            "start_ns": 1792525572739472826,
+            "start_monotonic_ns": 101255720618800,
+            "end_ns": 1792525572739499200,
+            "end_monotonic_ns": 101255720645069,
+            "cpu_ns": 31436
+          },
+          "write": {
+            "start_ns": 1792525572739516448,
+            "start_monotonic_ns": 101255720662316,
+            "end_ns": 1792525572739536106,
+            "end_monotonic_ns": 101255720681971,
+            "cpu_ns": 19032
+          }
+        }
+      },
+      "cadence": {
+        "binary": {
+          "samples": 1557,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1400985,
+          "end_edge_ns": 20081417,
+          "maximum_probe_ns": 262745,
+          "maximum_gap_ns": 26035619,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "total": {
+          "samples": 1557,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1400985,
+          "end_edge_ns": 20081417,
+          "maximum_probe_ns": 262745,
+          "maximum_gap_ns": 26035619,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "rss": {
+          "samples": 1557,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 2249008,
+          "end_edge_ns": 19851058,
+          "maximum_probe_ns": 795779,
+          "maximum_gap_ns": 26676625,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_max": {
+          "samples": 1557,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1232582,
+          "end_edge_ns": 20843529,
+          "maximum_probe_ns": 1408508,
+          "maximum_gap_ns": 26569914,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_total": {
+          "samples": 1557,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 1232582,
+          "end_edge_ns": 20843529,
+          "maximum_probe_ns": 1408508,
+          "maximum_gap_ns": 26569914,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "temporary": {
+          "samples": 1557,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 2889007,
+          "end_edge_ns": 19711168,
+          "maximum_probe_ns": 1228938,
+          "maximum_gap_ns": 27162062,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        }
+      },
+      "failures": []
+    },
+    {
+      "name": "gateway-paced-upstream-cold-get",
+      "size": 1073741824,
+      "concurrency": 1,
+      "start_ns": 1792525578285114516,
+      "start_monotonic_ns": 101261266260658,
+      "repetitions": 1,
+      "details": [
+        null
+      ],
+      "end_ns": 1792525613981593467,
+      "end_monotonic_ns": 101296962739424,
+      "start_ms": 1792525578285,
+      "end_ms": 1792525613981,
+      "samples": 1428,
+      "baseline": {
+        "binary": 2107288,
+        "total": 65793164,
+        "rss": 124981248,
+        "temporary": 0
+      },
+      "peak": {
+        "binary": 2573832,
+        "total": 66387240,
+        "rss": 124989440,
+        "queue_max": 2,
+        "queue_total": 3,
+        "temporary": 2147483648
+      },
+      "delta": {
+        "binary": 466544,
+        "total": 594076,
+        "rss": 8192,
+        "queue_max": 2,
+        "queue_total": 3,
+        "temporary": 2147483648
+      },
+      "limits": {
+        "binary": 100663296,
+        "total": 184549376,
+        "rss": 335544320,
+        "queue_max": 128,
+        "queue_total": 2048,
+        "temporary": 2214592512
+      },
+      "post_idle": {
+        "sampler_id": "1792525508862001761",
+        "sequence": 4250,
+        "scheduled_monotonic_ns": 101298143671456,
+        "time": 1792525615164,
+        "collection": {
+          "start_ns": 1792525615162828781,
+          "start_monotonic_ns": 101298143974750,
+          "end_ns": 1792525615164605298,
+          "end_monotonic_ns": 101298145751194
+        },
+        "rss": 120823808,
+        "temporary": 0,
+        "beam_exchange": {
+          "start_ns": 1792525615162828781,
+          "start_monotonic_ns": 101298143974750,
+          "end_ns": 1792525615163778059,
+          "end_monotonic_ns": 101298144923981
+        },
+        "observer": {
+          "rss": 21655552,
+          "user_seconds": 1.525623,
+          "system_seconds": 1.340166,
+          "max_rss": 21221376
+        },
+        "binary": 636608,
+        "total": 64770248,
+        "queue_max": 0,
+        "queue_total": 0,
+        "probes": {
+          "binary": {
+            "start_ns": 1792525615163529610,
+            "start_monotonic_ns": -576460645479241990,
+            "end_ns": 1792525615163602184,
+            "end_monotonic_ns": -576460645479169417
+          },
+          "total": {
+            "start_ns": 1792525615163529610,
+            "start_monotonic_ns": -576460645479241990,
+            "end_ns": 1792525615163602184,
+            "end_monotonic_ns": -576460645479169417
+          },
+          "queue_max": {
+            "start_ns": 1792525615163009859,
+            "start_monotonic_ns": -576460645479761601,
+            "end_ns": 1792525615163529430,
+            "end_monotonic_ns": -576460645479242107
+          },
+          "queue_total": {
+            "start_ns": 1792525615163009859,
+            "start_monotonic_ns": -576460645479761601,
+            "end_ns": 1792525615163529430,
+            "end_monotonic_ns": -576460645479242107
+          },
+          "rss": {
+            "start_ns": 1792525615163779118,
+            "start_monotonic_ns": 101298144924972,
+            "end_ns": 1792525615163994771,
+            "end_monotonic_ns": 101298145140675
+          },
+          "temporary": {
+            "start_ns": 1792525615163996148,
+            "start_monotonic_ns": 101298145141995,
+            "end_ns": 1792525615164493991,
+            "end_monotonic_ns": 101298145639841
+          }
+        },
+        "previous_export": {
+          "sampler_id": "1792525508862001761",
+          "sequence": 4249,
+          "encoded_bytes": 1919,
+          "encoding": {
+            "start_ns": 1792525615139846900,
+            "start_monotonic_ns": 101298120992890,
+            "end_ns": 1792525615139875175,
+            "end_monotonic_ns": 101298121021039,
+            "cpu_ns": 31535
+          },
+          "write": {
+            "start_ns": 1792525615139897367,
+            "start_monotonic_ns": 101298121043221,
+            "end_ns": 1792525615139912729,
+            "end_monotonic_ns": 101298121058589,
+            "cpu_ns": 12487
+          }
+        }
+      },
+      "cadence": {
+        "binary": {
+          "samples": 1428,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 3335370,
+          "end_edge_ns": 18223309,
+          "maximum_probe_ns": 246139,
+          "maximum_gap_ns": 26019678,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "total": {
+          "samples": 1428,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 3335370,
+          "end_edge_ns": 18223309,
+          "maximum_probe_ns": 246139,
+          "maximum_gap_ns": 26019678,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "rss": {
+          "samples": 1428,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 3810507,
+          "end_edge_ns": 17976594,
+          "maximum_probe_ns": 783998,
+          "maximum_gap_ns": 26610642,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_max": {
+          "samples": 1428,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 3256009,
+          "end_edge_ns": 18884344,
+          "maximum_probe_ns": 1366708,
+          "maximum_gap_ns": 26536035,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_total": {
+          "samples": 1428,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 3256009,
+          "end_edge_ns": 18884344,
+          "maximum_probe_ns": 1366708,
+          "maximum_gap_ns": 26536035,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "temporary": {
+          "samples": 1428,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 4564469,
+          "end_edge_ns": 17621177,
+          "maximum_probe_ns": 19668800,
+          "maximum_gap_ns": 44338237,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        }
+      },
+      "failures": []
+    },
+    {
+      "name": "gateway-paced-upstream-put",
+      "size": 1073741824,
+      "concurrency": 4,
+      "start_ns": 1792525616543041119,
+      "start_monotonic_ns": 101299524187292,
+      "repetitions": 1,
+      "details": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "end_ns": 1792525655989140040,
+      "end_monotonic_ns": 101338970286059,
+      "start_ms": 1792525616543,
+      "end_ms": 1792525655989,
+      "samples": 1577,
+      "baseline": {
+        "binary": 637028,
+        "total": 64766608,
+        "rss": 120823808,
+        "temporary": 0
+      },
+      "peak": {
+        "binary": 11917056,
+        "total": 76221616,
+        "rss": 146968576,
+        "queue_max": 2,
+        "queue_total": 6,
+        "temporary": 4299620352
+      },
+      "delta": {
+        "binary": 11280028,
+        "total": 11455008,
+        "rss": 26144768,
+        "queue_max": 2,
+        "queue_total": 6,
+        "temporary": 4299620352
+      },
+      "limits": {
+        "binary": 201326592,
+        "total": 335544320,
+        "rss": 536870912,
+        "queue_max": 128,
+        "queue_total": 2048,
+        "temporary": 8657043456
+      },
+      "post_idle": {
+        "sampler_id": "1792525508862001761",
+        "sequence": 5931,
+        "scheduled_monotonic_ns": 101340168671456,
+        "time": 1792525657189,
+        "collection": {
+          "start_ns": 1792525657187625733,
+          "start_monotonic_ns": 101340168771930,
+          "end_ns": 1792525657189174665,
+          "end_monotonic_ns": 101340170320515
+        },
+        "rss": 119341056,
+        "temporary": 0,
+        "beam_exchange": {
+          "start_ns": 1792525657187625733,
+          "start_monotonic_ns": 101340168771930,
+          "end_ns": 1792525657188596632,
+          "end_monotonic_ns": 101340169743008
+        },
+        "observer": {
+          "rss": 21655552,
+          "user_seconds": 2.250732,
+          "system_seconds": 2.00596,
+          "max_rss": 21221376
+        },
+        "binary": 432248,
+        "total": 64917392,
+        "queue_max": 0,
+        "queue_total": 0,
+        "probes": {
+          "binary": {
+            "start_ns": 1792525657188289938,
+            "start_monotonic_ns": -576460603454481656,
+            "end_ns": 1792525657188402439,
+            "end_monotonic_ns": -576460603454369123
+          },
+          "total": {
+            "start_ns": 1792525657188289938,
+            "start_monotonic_ns": -576460603454481656,
+            "end_ns": 1792525657188402439,
+            "end_monotonic_ns": -576460603454369123
+          },
+          "queue_max": {
+            "start_ns": 1792525657187801407,
+            "start_monotonic_ns": -576460603454970060,
+            "end_ns": 1792525657188289793,
+            "end_monotonic_ns": -576460603454481753
+          },
+          "queue_total": {
+            "start_ns": 1792525657187801407,
+            "start_monotonic_ns": -576460603454970060,
+            "end_ns": 1792525657188289793,
+            "end_monotonic_ns": -576460603454481753
+          },
+          "rss": {
+            "start_ns": 1792525657188597747,
+            "start_monotonic_ns": 101340169743594,
+            "end_ns": 1792525657188758566,
+            "end_monotonic_ns": 101340169904437
+          },
+          "temporary": {
+            "start_ns": 1792525657188759189,
+            "start_monotonic_ns": 101340169905038,
+            "end_ns": 1792525657189099651,
+            "end_monotonic_ns": 101340170245504
+          }
+        },
+        "previous_export": {
+          "sampler_id": "1792525508862001761",
+          "sequence": 5930,
+          "encoded_bytes": 1919,
+          "encoding": {
+            "start_ns": 1792525657164058976,
+            "start_monotonic_ns": 101340145204985,
+            "end_ns": 1792525657164086019,
+            "end_monotonic_ns": 101340145231871,
+            "cpu_ns": 31940
+          },
+          "write": {
+            "start_ns": 1792525657164108896,
+            "start_monotonic_ns": 101340145254793,
+            "end_ns": 1792525657164121843,
+            "end_monotonic_ns": 101340145267747,
+            "cpu_ns": 13335
+          }
+        }
+      },
+      "cadence": {
+        "binary": {
+          "samples": 1578,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 20996694,
+          "end_edge_ns": 771829,
+          "maximum_probe_ns": 515788,
+          "maximum_gap_ns": 25993157,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "total": {
+          "samples": 1578,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 20996694,
+          "end_edge_ns": 771829,
+          "maximum_probe_ns": 515788,
+          "maximum_gap_ns": 25993157,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "rss": {
+          "samples": 1578,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 21343393,
+          "end_edge_ns": 250420,
+          "maximum_probe_ns": 758409,
+          "maximum_gap_ns": 26334213,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_max": {
+          "samples": 1578,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 20878423,
+          "end_edge_ns": 1420885,
+          "maximum_probe_ns": 1916099,
+          "maximum_gap_ns": 26770528,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_total": {
+          "samples": 1578,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 20878423,
+          "end_edge_ns": 1420885,
+          "maximum_probe_ns": 1916099,
+          "maximum_gap_ns": 26770528,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "temporary": {
+          "samples": 1577,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 21722070,
+          "end_edge_ns": 25484695,
+          "maximum_probe_ns": 3076714,
+          "maximum_gap_ns": 27876636,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        }
+      },
+      "failures": []
+    },
+    {
+      "name": "gateway-paced-upstream-cold-get",
+      "size": 1073741824,
+      "concurrency": 4,
+      "start_ns": 1792525664293663663,
+      "start_monotonic_ns": 101347274809830,
+      "repetitions": 1,
+      "details": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "end_ns": 1792525701028166784,
+      "end_monotonic_ns": 101384009312736,
+      "start_ms": 1792525664293,
+      "end_ms": 1792525701028,
+      "samples": 1469,
+      "baseline": {
+        "binary": 449216,
+        "total": 64919884,
+        "rss": 119341056,
+        "temporary": 0
+      },
+      "peak": {
+        "binary": 2881152,
+        "total": 67495136,
+        "rss": 126451712,
+        "queue_max": 2,
+        "queue_total": 5,
+        "temporary": 4893507584
+      },
+      "delta": {
+        "binary": 2431936,
+        "total": 2575252,
+        "rss": 7110656,
+        "queue_max": 2,
+        "queue_total": 5,
+        "temporary": 4893507584
+      },
+      "limits": {
+        "binary": 201326592,
+        "total": 335544320,
+        "rss": 536870912,
+        "queue_max": 128,
+        "queue_total": 2048,
+        "temporary": 8657043456
+      },
+      "post_idle": {
+        "sampler_id": "1792525508862001761",
+        "sequence": 7732,
+        "scheduled_monotonic_ns": 101385193671456,
+        "time": 1792525702214,
+        "collection": {
+          "start_ns": 1792525702212795928,
+          "start_monotonic_ns": 101385193941820,
+          "end_ns": 1792525702214602812,
+          "end_monotonic_ns": 101385195748703
+        },
+        "rss": 125034496,
+        "temporary": 0,
+        "beam_exchange": {
+          "start_ns": 1792525702212795928,
+          "start_monotonic_ns": 101385193941820,
+          "end_ns": 1792525702213747855,
+          "end_monotonic_ns": 101385194893712
+        },
+        "observer": {
+          "rss": 21655552,
+          "user_seconds": 3.170853,
+          "system_seconds": 2.739121,
+          "max_rss": 21221376
+        },
+        "binary": 1460472,
+        "total": 65972488,
+        "queue_max": 0,
+        "queue_total": 0,
+        "probes": {
+          "binary": {
+            "start_ns": 1792525702213476769,
+            "start_monotonic_ns": -576460558429294826,
+            "end_ns": 1792525702213582493,
+            "end_monotonic_ns": -576460558429189064
+          },
+          "total": {
+            "start_ns": 1792525702213476769,
+            "start_monotonic_ns": -576460558429294826,
+            "end_ns": 1792525702213582493,
+            "end_monotonic_ns": -576460558429189064
+          },
+          "queue_max": {
+            "start_ns": 1792525702213020500,
+            "start_monotonic_ns": -576460558429750999,
+            "end_ns": 1792525702213476587,
+            "end_monotonic_ns": -576460558429294959
+          },
+          "queue_total": {
+            "start_ns": 1792525702213020500,
+            "start_monotonic_ns": -576460558429750999,
+            "end_ns": 1792525702213476587,
+            "end_monotonic_ns": -576460558429294959
+          },
+          "rss": {
+            "start_ns": 1792525702213748525,
+            "start_monotonic_ns": 101385194894380,
+            "end_ns": 1792525702213979889,
+            "end_monotonic_ns": 101385195125743
+          },
+          "temporary": {
+            "start_ns": 1792525702213980488,
+            "start_monotonic_ns": 101385195126335,
+            "end_ns": 1792525702214495498,
+            "end_monotonic_ns": 101385195641349
+          }
+        },
+        "previous_export": {
+          "sampler_id": "1792525508862001761",
+          "sequence": 7731,
+          "encoded_bytes": 1920,
+          "encoding": {
+            "start_ns": 1792525702189710804,
+            "start_monotonic_ns": 101385170856717,
+            "end_ns": 1792525702189729336,
+            "end_monotonic_ns": 101385170875192,
+            "cpu_ns": 21837
+          },
+          "write": {
+            "start_ns": 1792525702189746416,
+            "start_monotonic_ns": 101385170892264,
+            "end_ns": 1792525702189758685,
+            "end_monotonic_ns": 101385170904539,
+            "cpu_ns": 8791
+          }
+        }
+      },
+      "cadence": {
+        "binary": {
+          "samples": 1469,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 22598740,
+          "end_edge_ns": 14594218,
+          "maximum_probe_ns": 178792,
+          "maximum_gap_ns": 25917278,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "total": {
+          "samples": 1469,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 22598740,
+          "end_edge_ns": 14594218,
+          "maximum_probe_ns": 178792,
+          "maximum_gap_ns": 25917278,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "rss": {
+          "samples": 1469,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 23076077,
+          "end_edge_ns": 14338448,
+          "maximum_probe_ns": 1308777,
+          "maximum_gap_ns": 26761408,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_max": {
+          "samples": 1469,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 22500843,
+          "end_edge_ns": 15266939,
+          "maximum_probe_ns": 3160897,
+          "maximum_gap_ns": 26661793,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "queue_total": {
+          "samples": 1469,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 22500843,
+          "end_edge_ns": 15266939,
+          "maximum_probe_ns": 3160897,
+          "maximum_gap_ns": 26661793,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        },
+        "temporary": {
+          "samples": 1469,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 23909955,
+          "end_edge_ns": 14130611,
+          "maximum_probe_ns": 1893061,
+          "maximum_gap_ns": 27674195,
+          "intervals_over100ms": 0,
+          "sampler_ids": [
+            "1792525508862001761"
+          ]
+        }
+      },
+      "failures": []
+    }
+  ],
+  "upload_verifications": [
+    {
+      "name": "gateway-paced-upstream-put-readback",
+      "status": "passed",
+      "size": 67108864,
+      "concurrency": 1,
+      "expected_sha256": "281e519df3077b557c6b03f5da83c4e8d397219259615dd7c3308f89cae8f2a6",
+      "checked_objects": 1,
+      "check_count": 3,
+      "objects": [
+        {
+          "path": "/resource-upstream/paced-67108864-1-0",
+          "bytes": 67108864,
+          "sha256": "281e519df3077b557c6b03f5da83c4e8d397219259615dd7c3308f89cae8f2a6",
+          "metadata_sha256": "281e519df3077b557c6b03f5da83c4e8d397219259615dd7c3308f89cae8f2a6"
+        }
+      ]
+    },
+    {
+      "name": "gateway-paced-upstream-put-readback",
+      "status": "passed",
+      "size": 67108864,
+      "concurrency": 4,
+      "expected_sha256": "281e519df3077b557c6b03f5da83c4e8d397219259615dd7c3308f89cae8f2a6",
+      "checked_objects": 4,
+      "check_count": 12,
+      "objects": [
+        {
+          "path": "/resource-upstream/paced-67108864-4-0",
+          "bytes": 67108864,
+          "sha256": "281e519df3077b557c6b03f5da83c4e8d397219259615dd7c3308f89cae8f2a6",
+          "metadata_sha256": "281e519df3077b557c6b03f5da83c4e8d397219259615dd7c3308f89cae8f2a6"
+        },
+        {
+          "path": "/resource-upstream/paced-67108864-4-1",
+          "bytes": 67108864,
+          "sha256": "281e519df3077b557c6b03f5da83c4e8d397219259615dd7c3308f89cae8f2a6",
+          "metadata_sha256": "281e519df3077b557c6b03f5da83c4e8d397219259615dd7c3308f89cae8f2a6"
+        },
+        {
+          "path": "/resource-upstream/paced-67108864-4-2",
+          "bytes": 67108864,
+          "sha256": "281e519df3077b557c6b03f5da83c4e8d397219259615dd7c3308f89cae8f2a6",
+          "metadata_sha256": "281e519df3077b557c6b03f5da83c4e8d397219259615dd7c3308f89cae8f2a6"
+        },
+        {
+          "path": "/resource-upstream/paced-67108864-4-3",
+          "bytes": 67108864,
+          "sha256": "281e519df3077b557c6b03f5da83c4e8d397219259615dd7c3308f89cae8f2a6",
+          "metadata_sha256": "281e519df3077b557c6b03f5da83c4e8d397219259615dd7c3308f89cae8f2a6"
+        }
+      ]
+    },
+    {
+      "name": "gateway-paced-upstream-put-readback",
+      "status": "passed",
+      "size": 1073741824,
+      "concurrency": 1,
+      "expected_sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+      "checked_objects": 1,
+      "check_count": 3,
+      "objects": [
+        {
+          "path": "/resource-upstream/paced-1073741824-1-0",
+          "bytes": 1073741824,
+          "sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+          "metadata_sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3"
+        }
+      ]
+    },
+    {
+      "name": "gateway-paced-upstream-put-readback",
+      "status": "passed",
+      "size": 1073741824,
+      "concurrency": 4,
+      "expected_sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+      "checked_objects": 4,
+      "check_count": 12,
+      "objects": [
+        {
+          "path": "/resource-upstream/paced-1073741824-4-0",
+          "bytes": 1073741824,
+          "sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+          "metadata_sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3"
+        },
+        {
+          "path": "/resource-upstream/paced-1073741824-4-1",
+          "bytes": 1073741824,
+          "sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+          "metadata_sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3"
+        },
+        {
+          "path": "/resource-upstream/paced-1073741824-4-2",
+          "bytes": 1073741824,
+          "sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+          "metadata_sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3"
+        },
+        {
+          "path": "/resource-upstream/paced-1073741824-4-3",
+          "bytes": 1073741824,
+          "sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3",
+          "metadata_sha256": "2c06ade942ee3f17a048dd1064b2fab046a4bb95386d8bb41b68dc6711ac2af3"
+        }
+      ]
+    }
+  ],
+  "versions": {
+    "boto3": "1.43.114",
+    "botocore": "1.43.114",
+    "rustfs": "sha256:f6b22807f10db2aee80b8a9ed1e36bd12c2fba25ac2d98dc3b0332a23f1a5c4d [\"rustfs/rustfs@sha256:1803faef57627e2d9c2e7d89d655d712ddded5389040054987163043fecb6a3c\"]"
+  },
+  "runner": {
+    "uname": [
+      "Linux",
+      "ms04",
+      "6.18.48",
+      "#1-NixOS SMP PREEMPT_DYNAMIC Fri Aug 28 06:22:54 UTC 2026",
+      "x86_64",
+      ""
+    ],
+    "cpu_count": 16,
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "load": [
+      0.046875,
+      0.87744140625,
+      1.61279296875
+    ],
+    "monotonic_clock": {
+      "implementation": "clock_gettime(CLOCK_MONOTONIC)",
+      "monotonic": true,
+      "adjustable": false,
+      "resolution": 1e-09
+    },
+    "disk": {
+      "device": 66308,
+      "path": "/tmp/ess-hardening-resource-closeout002-c4-observer-diag-baseline-r2",
+      "block_bytes": 4096,
+      "available_bytes": 47124733952
+    },
+    "meminfo": "MemTotal:       65676752 kB\nMemFree:         2711652 kB\nMemAvailable:   56593604 kB\nBuffers:          962940 kB\nCached:         49803160 kB\nSwapCached:        75000 kB\nActive:         10730648 kB\nInactive:       45787108 kB\nActive(anon):    2377612 kB\nInactive(anon):  3987412 kB\nActive(file):    8353036 kB\nInactive(file): 41799696 kB\nUnevictable:        1172 kB\nMlocked:            1136 kB\nSwapTotal:      72248812 kB\nSwapFree:       67516660 kB\nZswap:                 0 kB\nZswapped:              0 kB\nDirty:              2100 kB\nWriteback:             8 kB\nAnonPages:       5723028 kB\nMapped:          1437840 kB\nShmem:            613680 kB\nKReclaimable:    4458600 kB\nSlab:            5250488 kB\nSReclaimable:    4458600 kB\nSUnreclaim:       791888 kB\nKernelStack:       25440 kB\nPageTables:       155208 kB\nSecPageTables:      1028 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    105087188 kB\nCommitted_AS:   23973784 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:      392480 kB\nVmallocChunk:          0 kB\nPercpu:            18752 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:     51200 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:    626688 kB\nFilePmdMapped:         0 kB\nCmaTotal:              0 kB\nCmaFree:               0 kB\nUnaccepted:            0 kB\nBalloon:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:     3425016 kB\nDirectMap2M:    50933760 kB\nDirectMap1G:    14680064 kB\n",
+    "pressure/cpu": "some avg10=0.00 avg60=0.00 avg300=0.13 total=121966468\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+    "pressure/io": "some avg10=0.04 avg60=0.12 avg300=0.48 total=1033793956\nfull avg10=0.04 avg60=0.12 avg300=0.47 total=1013832596\n",
+    "pressure/memory": "some avg10=0.00 avg60=0.00 avg300=0.00 total=2467726\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=2422413\n",
+    "self/cgroup": "0::/user.slice/user-1000.slice/session-521.scope\n",
+    "cgroups": {
+      "/sys/fs/cgroup/user.slice/user-1000.slice/session-521.scope": {
+        "cpu.max": "max 100000",
+        "memory.max": "max",
+        "io.max": ""
+      },
+      "/sys/fs/cgroup/user.slice/user-1000.slice": {
+        "cpu.max": "max 100000",
+        "memory.max": "max",
+        "io.max": ""
+      },
+      "/sys/fs/cgroup/user.slice": {
+        "cpu.max": "max 100000",
+        "memory.max": "max",
+        "cpuset.cpus.effective": "0-15",
+        "io.max": ""
+      },
+      "/sys/fs/cgroup": {
+        "cpuset.cpus.effective": "0-15"
+      }
+    },
+    "dependencies": {
+      "concord": "3.1.4",
+      "ex_turso": "3.1.4",
+      "http_fetch": "0.21.13",
+      "viewstamped_replication": "3.1.4"
+    },
+    "python": "3.13.15",
+    "client_checksum_environment": {
+      "AWS_REQUEST_CHECKSUM_CALCULATION": null,
+      "AWS_RESPONSE_CHECKSUM_VALIDATION": null
+    },
+    "toolchain": "Erlang/OTP 28 [erts-16.4.0.5] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.18.5 (compiled with Erlang/OTP 28)\n"
+  },
+  "required_cases": [
+    {
+      "name": "gateway-paced-upstream-put",
+      "size": 67108864,
+      "concurrency": 1
+    },
+    {
+      "name": "gateway-paced-upstream-cold-get",
+      "size": 67108864,
+      "concurrency": 1
+    },
+    {
+      "name": "gateway-paced-upstream-put",
+      "size": 67108864,
+      "concurrency": 4
+    },
+    {
+      "name": "gateway-paced-upstream-cold-get",
+      "size": 67108864,
+      "concurrency": 4
+    },
+    {
+      "name": "gateway-paced-upstream-put",
+      "size": 1073741824,
+      "concurrency": 1
+    },
+    {
+      "name": "gateway-paced-upstream-cold-get",
+      "size": 1073741824,
+      "concurrency": 1
+    },
+    {
+      "name": "gateway-paced-upstream-put",
+      "size": 1073741824,
+      "concurrency": 4
+    },
+    {
+      "name": "gateway-paced-upstream-cold-get",
+      "size": 1073741824,
+      "concurrency": 4
+    }
+  ],
+  "envelope": "docs/plans/s3-hardening-resource-envelope.md",
+  "active_group": null,
+  "ending_sha": "ae74de4d15bc0012b88f7b7034c9b6c6bbb18d96"
+}
