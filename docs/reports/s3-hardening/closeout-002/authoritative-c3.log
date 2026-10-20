@@ -1,0 +1,24 @@
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/hardening_acceptance.py", line 309, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/hardening_acceptance.py", line 295, in main
+    results = [run_profile(profile, args) for profile in selected]
+               ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/hardening_acceptance.py", line 165, in run_profile
+    code = run_command(argv, dict(environment, MIX_ENV=mode), log, args.timeout)
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/hardening_acceptance.py", line 92, in run_command
+    return process.wait(timeout=timeout)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/subprocess.py", line 1280, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/subprocess.py", line 2079, in _wait
+    time.sleep(delay)
+    ~~~~~~~~~~^^^^^^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/hardening_acceptance.py", line 308, in <lambda>
+    signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
+                                             ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/hardening_acceptance.py", line 308, in <genexpr>
+    signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
+KeyboardInterrupt

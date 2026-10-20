@@ -42,6 +42,14 @@ of the historical 10,800-second timeout remains unproven. A28 is blocked on
 unchanged expensive replay. Full 10k/100k acceptance remains unexecuted.
 [Diagnostic receipt and measurements](s3-hardening/closeout-002/a28-diagnostic-r1/README.md).
 
+Candidate C3 (`bb43cfc`, fingerprint `a53cb0aa…389ab`) implements the bounded
+observer repair and passing scoped regressions (103 harness tests locally).
+Hosted app/CLI correctness passed, but required private-tmpfs observer testing
+failed because `bwrap` could not set up its UID map. The serial local run was
+interrupted before heavy profiles to repair this CI prerequisite and freeze a
+new candidate: actual run exit130, actual interrupted aggregate exit1. Its
+partial evidence is retained; no C3 complete-row or full-acceptance pass exists.
+
 Candidate C2 is `ffec95ec12acd1c2005b6b418a980a4d47353dc3`, source
 fingerprint `bcf1a50fff1ebc45265436ca04e17b61df1710e31a5291ad6653c29f4c5798e1`.
 The authoritative all-profile command completed all eleven lanes serially and

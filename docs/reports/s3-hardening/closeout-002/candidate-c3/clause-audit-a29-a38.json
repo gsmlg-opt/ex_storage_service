@@ -1,0 +1,1133 @@
+{
+  "schema": 1,
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "scope": "Current C3 semantic audit of A29-A38; report-only worker, no ledger or executable changes",
+  "audited_at": "2026-10-20T18:25:34.803936+00:00",
+  "candidate_sha": "bb43cfcfb4d804ac852a08538a21c8d9ce926cbf",
+  "source_sha256": "a53cb0aa554833101a3bbf0d71608424454ccfd493207e642d3722cb840389ab",
+  "freeze": {
+    "path": "docs/reports/s3-hardening/closeout-002/candidate-c3/freeze.json",
+    "sha256": "432c49c0f0f1a07d8ced0997f716c8a0bdee72de96be9e8951c387c8ab32e5ac"
+  },
+  "evidence_policy": "Only fresh current-C3 executed assertions receive credit. Prior candidate receipts guide inspection but cannot certify this source. Missing, partial, failed, skipped, stale and unexecuted requirements remain unpassed. Parent owns ledger integration and actual aggregate execution.",
+  "status": "in_progress",
+  "final_for_candidate": false,
+  "authoritative_run_exit_status": null,
+  "aggregate_exit_status": null,
+  "aggregate_status": "pending_parent_integration",
+  "release_status": "not_attempted_acceptance_incomplete",
+  "delivery_verification": {
+    "status": "pending",
+    "publication_status": "not_attempted_acceptance_incomplete",
+    "scope_note": "A38 is a prepublication acceptance gate; authorized release and independent public artifact verification remain mandatory subsequent delivery obligations."
+  },
+  "rows": [
+    {
+      "id": "A29",
+      "status": "pending_current_candidate_evidence",
+      "clauses": [
+        {
+          "id": "A29.1",
+          "requirement": "Quiesced, verified-backup prerequisite and bounded legacy/v2 backfill/rebuild.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/metadata/list_index/backfill_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/metadata/schema_and_migration_test.exs",
+            "e2e/scripts/index_cluster_control.exs",
+            "docs/operations/listing-index.md"
+          ],
+          "evidence": [],
+          "remaining": [
+            "actual_quiescence",
+            "verified_backup",
+            "batch_size=1 checkpoint processed=1 with positive offset",
+            "all unindexed legacy versions included"
+          ]
+        },
+        {
+          "id": "A29.2",
+          "requirement": "Interrupt actual coordinator, rejoin retained-root voter, resume exact checkpoint and fence former owner.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/run_hardening_index_cluster.sh",
+            "e2e/s3_hardening_index_cluster.py",
+            "e2e/scripts/index_cluster_control.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "actual SIGKILL/new PID",
+            "bootstrap=false retained roots",
+            "three-voter rejoin",
+            "phase/processed/offset/build_digest/source_manifest_digest unchanged",
+            "former owner resume/cutover rejected"
+          ]
+        },
+        {
+          "id": "A29.3",
+          "requirement": "Target mutation/list gates remain after interruption while permitted independent operations continue.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_index_cluster.py"
+          ],
+          "evidence": [],
+          "remaining": [
+            "both endpoints target list/PUT/DELETE/MPU initiate return503 before and after restart",
+            "explicit historical bytes readable",
+            "independent bucket writes succeed"
+          ]
+        },
+        {
+          "id": "A29.4",
+          "requirement": "Bounded resume plus concurrent permitted writes validates atomic cutover and revision-barrier coherence.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/scripts/index_cluster_control.exs",
+            "e2e/s3_hardening_index_cluster.py",
+            "apps/ex_storage_service/test/ex_storage_service/metadata/list_index_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/metadata/list_index/backfill_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "bounded batch resume and finite iteration budget",
+            "eight independent-bucket HTTP writes",
+            "validate before atomic new-epoch cutover",
+            "controlled descriptor-read/concurrent mutation race yields coherent successful page"
+          ]
+        },
+        {
+          "id": "A29.5",
+          "requirement": "Retain legacy v1/v2 barriers, history/delete markers, multipart state and rollback artifacts.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/metadata/list_index/backfill_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/metadata/schema_and_migration_test.exs",
+            "e2e/scripts/index_cluster_control.exs",
+            "e2e/s3_hardening_index_cluster.py",
+            "docs/operations/listing-index.md"
+          ],
+          "evidence": [],
+          "remaining": [
+            "exact retained legacy records and old-epoch node values",
+            "complete version/marker and active MPU inventory",
+            "raw historical/current bytes",
+            "backup ID and manifest hash unchanged",
+            "no destructive startup rebuild"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A30",
+      "status": "pending_current_candidate_evidence",
+      "clauses": [
+        {
+          "id": "A30.1",
+          "requirement": "Execute exact current resource manifests at 64MiB/1GiB and concurrency1/4.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/resource_cases.py",
+            "e2e/s3_hardening_resources.py",
+            "e2e/s3_hardening_cluster_resources.py"
+          ],
+          "evidence": [],
+          "remaining": [
+            "Counter identity equality including names/size/concurrency",
+            "no duplicate/missing/unexpected groups",
+            "all group failure arrays empty"
+          ]
+        },
+        {
+          "id": "A30.2",
+          "requirement": "Local PUT/GET/COPY/multipart/UploadPartCopy and gateway write/miss/hit/COPY paths stream real data.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/resource_cases.py",
+            "e2e/s3_hardening_resources.py"
+          ],
+          "evidence": [],
+          "remaining": [
+            "bounded generated/file payloads",
+            "actual independent streaming length/SHA256 and metadata identity",
+            "all14 local/gateway operation names times4 size/concurrency combinations"
+          ]
+        },
+        {
+          "id": "A30.3",
+          "requirement": "Throttled upstream/downstream and authenticated replica/repair/cross-cluster transfers preserve bytes and strictRF2/W2.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_resources.py",
+            "e2e/s3_hardening_cluster_resources.py",
+            "e2e/scripts/cluster_resource_control.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "all5 cluster operation names times4 combinations",
+            "paced sink exact bytes/hash",
+            "RF2/W2 unchanged; external replication does not count toward quorum"
+          ]
+        },
+        {
+          "id": "A30.4",
+          "requirement": "All six metric windows retain actual <=100ms coverage without interpolation.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/resource_cadence.py",
+            "e2e/scripts/resource_observer.py",
+            "e2e/scripts/resource_sampler.exs",
+            "e2e/test_resource_observer.py"
+          ],
+          "evidence": [],
+          "remaining": [
+            "binary/total/RSS/queue_max/queue_total/temporary active samples",
+            "native monotonic duration/gap plus wall edges <=100ms",
+            "no sampler generation change",
+            "previous_export attributes completed prior write only",
+            "observation requirement is not request-latency SLA"
+          ]
+        },
+        {
+          "id": "A30.5",
+          "requirement": "Predeclared fixed-concurrency numeric envelopes apply identically across object sizes.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "docs/plans/s3-hardening-resource-envelope.md",
+            "e2e/s3_hardening_resources.py",
+            "e2e/s3_hardening_cluster_resources.py"
+          ],
+          "evidence": [],
+          "remaining": [
+            "binary <=64MiB+32MiB*c",
+            "total <=128MiB+48MiB*c",
+            "RSS <=256MiB+64MiB*c",
+            "queue_max<=128 and queue_total<=2048",
+            "temporary <=2*size*c+64MiB",
+            "baseline/peak/delta/post-idle and throughput retained"
+          ]
+        },
+        {
+          "id": "A30.6",
+          "requirement": "Controlled isolated runner provenance distinguishes observer/OS page cache overhead.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/resource_cases.py",
+            "e2e/scripts/resource_observer.py"
+          ],
+          "evidence": [],
+          "remaining": [
+            "CPU affinity/cgroup limits/load/memory/pressure/disk/toolchain/dependency versions",
+            "scheduled time/probe start/probe duration/export windows",
+            "no overlapping task-owned heavy workload"
+          ]
+        },
+        {
+          "id": "A30.7",
+          "requirement": "Independent upstream readback and terminal staging/process/connection cleanup.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_resources.py",
+            "e2e/s3_hardening_cluster_resources.py",
+            "e2e/run_hardening_resources.sh",
+            "e2e/run_hardening_cluster_resources.sh"
+          ],
+          "evidence": [],
+          "remaining": [
+            "streaming RustFS direct upstream upload readbacks outside measured window",
+            "post-idle temporary zero",
+            "before/after/final stage inventory",
+            "exact observer PID/start identity stopped before cleanup"
+          ]
+        },
+        {
+          "id": "A30.8",
+          "requirement": "Retain actual 2GiB tagged private-transport stream check separately from the 1GiB matrices.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "apps/ex_storage_service_cluster/test/ex_storage_service_cluster/large_stream_test.exs",
+            "apps/ex_storage_service_cluster/test/test_helper.exs",
+            "e2e/hardening_acceptance.py"
+          ],
+          "evidence": [],
+          "remaining": [
+            "explicit --include large_stream command selected",
+            "actual2GiB authenticated HTTP upload/hash",
+            "sender/receiver process memory peaks below fixed bound"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A31",
+      "status": "pending_current_candidate_evidence",
+      "clauses": [
+        {
+          "id": "A31.1",
+          "requirement": "Disconnect/cancellation/upstream interruption/isolated ENOSPC fail truthfully without visible partial object/cache.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_faults.py",
+            "e2e/scripts/fault_hardening_control.exs",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/gateway_read_http_test.exs",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/late_stream_http_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "signed partial upload actually reaches staging",
+            "real response cancelled after65536 bytes",
+            "proxy interruption event observed",
+            "framed503 XML with no stale checksum/encoding headers",
+            "actual8MiB tmpfs ENOSPC; no host fill",
+            "retained original hash and absent partial cache/object"
+          ]
+        },
+        {
+          "id": "A31.2",
+          "requirement": "Restart preserves acknowledged local/gateway bytes and protected uncertainty.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_faults.py",
+            "e2e/s3_hardening_crashes.py",
+            "apps/ex_storage_service/test/ex_storage_service/storage/staging_recovery_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "whole-BEAM stop/new PID",
+            "exact pre-acknowledged bytes/version",
+            "anonymous dead-owner stages reclaimed",
+            "unknown/protected stages retained"
+          ]
+        },
+        {
+          "id": "A31.3",
+          "requirement": "No runaway owned tasks, unbounded queues, or permanent staging leaks.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_faults.py",
+            "e2e/resource_cadence.py",
+            "e2e/scripts/resource_observer.py",
+            "apps/ex_storage_service/test/ex_storage_service/storage/staging_recovery_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "terminal staging0 within original20s bound",
+            "queue_max<=128 queue_total<=2048",
+            "same-boot process delta<=32 where supplied",
+            "all online generation windows audited without padding",
+            "owned PID/start identities/process groups/listeners/containers stopped"
+          ]
+        },
+        {
+          "id": "A31.4",
+          "requirement": "Cold ranges and cache eviction preserve selected body/metadata.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/gateway_hardening.py",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/gateway_read_http_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/cloud_cache/local_store_concurrency_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "cold206/304/412/416 and current attributes",
+            "already-open reader survives cache unlink",
+            "full streamed checksum matches selected version"
+          ]
+        },
+        {
+          "id": "A31.5",
+          "requirement": "Pre-protection failure cannot create intent/journal/upstream publication.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "apps/ex_storage_service/lib/ex_storage_service/storage/staging_recovery.ex",
+            "apps/ex_storage_service/test/ex_storage_service/storage/staging_recovery_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/cloud_cache/write_through_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/object_service_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "source open/sync/close errors propagated",
+            "no reservation or submission after data-sync failure",
+            "bounded cleanup; final reader state retained"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A32",
+      "status": "pending_current_candidate_evidence",
+      "clauses": [
+        {
+          "id": "A32.1",
+          "requirement": "Exercise every stage/protection/sync/rename/blob/metadata/response crash boundary.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_crashes.py",
+            "e2e/scripts/crash_hardening_control.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "exact11 unique named boundaries",
+            "actual boundary witnesses",
+            "exit137/new PID",
+            "acknowledged version/body survives each restart"
+          ]
+        },
+        {
+          "id": "A32.2",
+          "requirement": "Pre-protection and post-intent sync semantics remain distinct.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_crashes.py",
+            "apps/ex_storage_service/lib/ex_storage_service/storage/staging_recovery.ex"
+          ],
+          "evidence": [],
+          "remaining": [
+            "protection_data_sync before reservation/intent/journal",
+            "anonymous stage reclaimed and object/intent absent",
+            "existing publication sync remains post-intent",
+            "uncertain protected bytes never silently deleted"
+          ]
+        },
+        {
+          "id": "A32.3",
+          "requirement": "Response crash preserves exactly one committed version; nonresponse uncertainty remains unexposed.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_crashes.py"
+          ],
+          "evidence": [],
+          "remaining": [
+            "response intent committed and hash/version exact",
+            "other boundaries absent visible object",
+            "intent absent or pending per boundary"
+          ]
+        },
+        {
+          "id": "A32.4",
+          "requirement": "Remote durable acknowledgement crash/rejoin/resume preserves strict quorum and exactly-once metadata.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_replication_crash.py",
+            "e2e/run_hardening_replication_crash.sh",
+            "e2e/scripts/replication_crash_control.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "all3 actual groups",
+            "data-b remote_durable_ack witness for data-a hash/size/generation",
+            "peer blob verified pending intent with no visible object/locations",
+            "bootstrap=false/new PID/three-voter rejoin",
+            "same operationID resumes once",
+            "two ready generation1 locations RF2/W2"
+          ]
+        },
+        {
+          "id": "A32.5",
+          "requirement": "Current fault/contracts/crash receipts and owned cleanup all complete.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/hardening_acceptance.py",
+            "e2e/s3_hardening_faults.py",
+            "e2e/s3_hardening_crashes.py"
+          ],
+          "evidence": [],
+          "remaining": [
+            "matching source fingerprint",
+            "zero command exits and no missing/failed groups",
+            "content and metadata readback, not liveness alone",
+            "all owned processes stopped"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A33",
+      "status": "pending_current_candidate_evidence",
+      "clauses": [
+        {
+          "id": "A33.1",
+          "requirement": "Stop observed real primary; prove new election and retained-root restart/rejoin.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/run_hardening_phase1_cluster.sh",
+            "e2e/run_hardening_resilience.sh",
+            "e2e/s3_hardening_resilience.py",
+            "e2e/scripts/cluster_primary_lifecycle.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "record observed primary/view before stopping",
+            "different primary/new view",
+            "all three normal voters converge applied=commit",
+            "restart bootstrap=false"
+          ]
+        },
+        {
+          "id": "A33.2",
+          "requirement": "Data outage retains reads and rejects strict writes without lowering RF/W.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_resilience.py",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/write_coordinator_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "new PUT/overwrite/part replacement/complete fail",
+            "acknowledged reads and part identity retained",
+            "RF2/W2/degradedfalse unchanged",
+            "metadata-primary outage may write only while both data replicas remain"
+          ]
+        },
+        {
+          "id": "A33.3",
+          "requirement": "Recovery verifies ready same-generation physical replicas and resumes writes.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_resilience.py",
+            "e2e/scripts/resilience_hardening_control.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "each fixture hash/size checked in both actual CAS roots",
+            "two ready generation1 locations",
+            "full reads and MPU completion succeed"
+          ]
+        },
+        {
+          "id": "A33.4",
+          "requirement": "Retained-root bootstrap=true is rejected without mutating durable state.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/cluster/three_voter_cluster_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "explicit --include cluster",
+            "negative recovery/bootstrap test executed",
+            "durable root bytes unchanged",
+            "bootstrap=false recovery retains committed state"
+          ]
+        },
+        {
+          "id": "A33.5",
+          "requirement": "Stale generations never satisfy durability.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_resilience.py",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/write_coordinator_test.exs",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/replica_availability_http_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "registeredgeneration2/livegeneration1 strict write fails503",
+            "existing acknowledged version unchanged",
+            "stale replica acknowledgement rejected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A34",
+      "status": "pending_current_candidate_evidence",
+      "clauses": [
+        {
+          "id": "A34.1",
+          "requirement": "GC retains shared-key/history/MPU/live-reader/unknown-intent blobs.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_resilience.py",
+            "e2e/scripts/resilience_hardening_control.exs",
+            "apps/ex_storage_service/test/ex_storage_service/storage/cas_gc_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/metadata/operation_intents_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "actual sweeps per data root",
+            "exact rooted hashes and full versions remain",
+            "unknown intent never reclaimed"
+          ]
+        },
+        {
+          "id": "A34.2",
+          "requirement": "Deterministic packing/GC/open-reader interleavings preserve content.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/storage/pack_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/storage/packer_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/storage/cas_gc_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "open loose reader survives pack/physical cleanup",
+            "active MPU and GC candidates retained",
+            "truncated pack keeps safe loose fallback"
+          ]
+        },
+        {
+          "id": "A34.3",
+          "requirement": "Actual corruption/repair interleaving preserves versions and RF.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_resilience.py",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/repair/handler_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/scrubber_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "real bitflip checksum detected",
+            "bounded shard repair restores verified bytes/two ready replicas",
+            "complete version inventory unchanged"
+          ]
+        },
+        {
+          "id": "A34.4",
+          "requirement": "Unsupported cluster packer/lifecycle modes remain guarded.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/storage/pack_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/storage/packer_test.exs",
+            "apps/ex_storage_service/lib/ex_storage_service/instance_config.ex"
+          ],
+          "evidence": [],
+          "remaining": [
+            "direct Pack/Packer cluster rejection",
+            "runtime cluster legacy packer/lifecycle guard",
+            "loose bytes/location metadata retained"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A35",
+      "status": "pending_current_candidate_evidence",
+      "clauses": [
+        {
+          "id": "A35.1",
+          "requirement": "Duplicate materialization, retry, lease expiry and takeover retain durable identity/fence.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/metadata/durable_jobs_test.exs",
+            "e2e/scripts/resilience_hardening_control.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "single durable job ID",
+            "barrier claim race one live lease",
+            "attempt/fence increment on takeover",
+            "ambiguous transaction resolution and retry backoff"
+          ]
+        },
+        {
+          "id": "A35.2",
+          "requirement": "Stale workers cannot renew/complete/fail/cleanup or change location metadata.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/metadata/durable_jobs_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/repair/handler_test.exs",
+            "e2e/scripts/resilience_hardening_control.exs",
+            "e2e/scripts/restore_hardening_control.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "old owner/generation/fencing token rejected",
+            "no stale successful state transition"
+          ]
+        },
+        {
+          "id": "A35.3",
+          "requirement": "Scrub detects real corruption and bounded repair restores two valid replicas.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_resilience.py",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/scrubber_test.exs",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/repair/handler_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "bitflip detected",
+            "one-shard durable repair",
+            "verified physical hashes and unchanged object version inventory"
+          ]
+        },
+        {
+          "id": "A35.4",
+          "requirement": "Range reads never publish partial repair; full GET repairs with stable identity.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_resilience.py",
+            "apps/ex_storage_service/test/ex_storage_service/blob_store/read_repair_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "32-byte range leaves absent local full replica",
+            "full GET restores verified CAS/location",
+            "VersionId and ETag unchanged"
+          ]
+        },
+        {
+          "id": "A35.5",
+          "requirement": "Real external-peer outage backlog persists across full BEAM restart.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_replication_backlog.py",
+            "e2e/scripts/replication_backlog_control.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "positive age and complete backlog scan",
+            "new PID",
+            "four stable job IDs/created_at",
+            "reclaimed attempts/fences increase",
+            "no exhausted terminal failure"
+          ]
+        },
+        {
+          "id": "A35.6",
+          "requirement": "Normal dispatcher drains backlog to exact remote current bytes/deletion.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_replication_backlog.py"
+          ],
+          "evidence": [],
+          "remaining": [
+            "pending/running/failed/oldest age zero",
+            "remote current hash/size and deletion",
+            "explicit originally acknowledged local version still readable"
+          ]
+        },
+        {
+          "id": "A35.7",
+          "requirement": "Eventual external replication never counts toward RF/W.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "apps/ex_storage_service/test/ex_storage_service/cluster/write_coordinator_test.exs",
+            "e2e/s3_hardening_resilience.py",
+            "e2e/s3_hardening_replication_backlog.py"
+          ],
+          "evidence": [],
+          "remaining": [
+            "strict one-replica write rejected regardless of external job success",
+            "two verified same-generation same-cluster receipts required"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A36",
+      "status": "pending_current_candidate_evidence",
+      "clauses": [
+        {
+          "id": "A36.1",
+          "requirement": "Backup quiesced boundary, then mutate/delete originals and recover with original roots inaccessible.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "e2e/run_hardening_restore.sh"
+          ],
+          "evidence": [],
+          "remaining": [
+            "backup ID and consistency point",
+            "actual source changes and source processes stopped",
+            "fresh PID/mount namespace",
+            "all original roots absent",
+            "backup mount read-only"
+          ]
+        },
+        {
+          "id": "A36.2",
+          "requirement": "Empty isolated target advances identity/generation and fences imported leases/jobs/intents.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "e2e/scripts/restore_hardening_control.exs",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "generation2 and fresh Erlang identities",
+            "empty-root/nonempty-root guard",
+            "running ownership cleared and fencing token advanced",
+            "pending/terminal jobs retained",
+            "old renew/complete/fail/cleanup rejected",
+            "unknown intent retained"
+          ]
+        },
+        {
+          "id": "A36.3",
+          "requirement": "Manifest/native metadata and every required body artifact are independently verified.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/lib/ex_storage_service/operations/backup.ex",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "stream manifest/artifact/installed-copy SHA256+size",
+            "native decoded snapshot checksum",
+            "deterministic ETF scheme and legacy validation",
+            "reject unknown scheme",
+            "pack and sidecar segments included"
+          ]
+        },
+        {
+          "id": "A36.4",
+          "requirement": "Public restored content, history, tags/attributes/checksums, IAM/config and active MPU handling match backup.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "e2e/scripts/restore_hardening_control.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "complete versions/delete markers",
+            "every body streaming hash and attributes",
+            "restored IAM allows/denies",
+            "bucket versioning/CORS/tags/lifecycle/location",
+            "active part identities/checksums then actual completion",
+            "postactivation signed PUT"
+          ]
+        },
+        {
+          "id": "A36.5",
+          "requirement": "Required missing/corrupt artifacts and wrong/absent master keys fail verification.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "wrong/empty key and missing/corrupt metadata/body negatives",
+            "actual master_key:nil rejected",
+            "manifest checksum/path traversal/symlink/duplicate inventory rejected",
+            "nine standalone negatives including pack/sidecar"
+          ]
+        },
+        {
+          "id": "A36.6",
+          "requirement": "Existing command0 compatibility is preserved; every empty target uses command1 across all restarts.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "config/runtime.exs",
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/lib/ex_storage_service/operations/backup.ex",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs",
+            "docs/operations/cluster-upgrade.md"
+          ],
+          "evidence": [],
+          "remaining": [
+            "existing source command0 unchanged",
+            "fresh recovered command1 before first boot and through import/verification/activation",
+            "Backup.restore rejects0 before changing marker",
+            "bootstrap true only initial empty cluster start; laterfalse",
+            "no automatic existing database reconciliation"
+          ]
+        },
+        {
+          "id": "A36.7",
+          "requirement": "All outbound/destructive workers remain disabled until verified explicit activation; quarantine survives restart.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/scripts/restore_hardening_control.exs",
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/lib/ex_storage_service/operations/backup.ex",
+            "docs/operations/cluster-upgrade.md"
+          ],
+          "evidence": [],
+          "remaining": [
+            "persistent quarantine over three starts",
+            "verify every target",
+            "unsafe destructive activation rejected",
+            "explicit complete eight-worker map allfalse persists",
+            "outbound canary0",
+            "recovery timing excludes setup/backup/negative cases"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A37",
+      "status": "pending_current_candidate_evidence",
+      "clauses": [
+        {
+          "id": "A37.1",
+          "requirement": "Backup quiesced boundary, then mutate/delete originals and recover with original roots inaccessible.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "e2e/run_hardening_restore.sh"
+          ],
+          "evidence": [],
+          "remaining": [
+            "backup ID and consistency point",
+            "actual source changes and source processes stopped",
+            "fresh PID/mount namespace",
+            "all original roots absent",
+            "backup mount read-only"
+          ]
+        },
+        {
+          "id": "A37.2",
+          "requirement": "Empty isolated target advances identity/generation and fences imported leases/jobs/intents.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "e2e/scripts/restore_hardening_control.exs",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "generation2 and fresh Erlang identities",
+            "empty-root/nonempty-root guard",
+            "running ownership cleared and fencing token advanced",
+            "pending/terminal jobs retained",
+            "old renew/complete/fail/cleanup rejected",
+            "unknown intent retained",
+            "clean three-voter topology strictRF2/W2"
+          ]
+        },
+        {
+          "id": "A37.3",
+          "requirement": "Manifest/native metadata and every required body artifact are independently verified.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/lib/ex_storage_service/operations/backup.ex",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "stream manifest/artifact/installed-copy SHA256+size",
+            "native decoded snapshot checksum",
+            "deterministic ETF scheme and legacy validation",
+            "reject unknown scheme",
+            "unpacked cluster only; do not promote standalone pack evidence"
+          ]
+        },
+        {
+          "id": "A37.4",
+          "requirement": "Public restored content, history, tags/attributes/checksums, IAM/config and active MPU handling match backup.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "e2e/scripts/restore_hardening_control.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "complete versions/delete markers",
+            "every body streaming hash and attributes",
+            "restored IAM allows/denies",
+            "bucket versioning/CORS/tags/lifecycle/location",
+            "active part identities/checksums then actual completion",
+            "postactivation signed PUT",
+            "both recovered data endpoints"
+          ]
+        },
+        {
+          "id": "A37.5",
+          "requirement": "Required missing/corrupt artifacts and wrong/absent master keys fail verification.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs"
+          ],
+          "evidence": [],
+          "remaining": [
+            "wrong/empty key and missing/corrupt metadata/body negatives",
+            "actual master_key:nil rejected",
+            "manifest checksum/path traversal/symlink/duplicate inventory rejected",
+            "six cluster negatives; packed mode remains unsupported"
+          ]
+        },
+        {
+          "id": "A37.6",
+          "requirement": "Existing command0 compatibility is preserved; every empty target uses command1 across all restarts.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "config/runtime.exs",
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/lib/ex_storage_service/operations/backup.ex",
+            "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs",
+            "docs/operations/cluster-upgrade.md"
+          ],
+          "evidence": [],
+          "remaining": [
+            "existing source command0 unchanged",
+            "fresh recovered command1 before first boot and through import/verification/activation",
+            "Backup.restore rejects0 before changing marker",
+            "bootstrap true only initial empty cluster start; laterfalse",
+            "no automatic existing database reconciliation"
+          ]
+        },
+        {
+          "id": "A37.7",
+          "requirement": "All outbound/destructive workers remain disabled until verified explicit activation; quarantine survives restart.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/scripts/restore_hardening_control.exs",
+            "e2e/s3_hardening_restore.py",
+            "apps/ex_storage_service/lib/ex_storage_service/operations/backup.ex",
+            "docs/operations/cluster-upgrade.md"
+          ],
+          "evidence": [],
+          "remaining": [
+            "persistent quarantine over three starts",
+            "verify every target",
+            "unsafe destructive activation rejected",
+            "explicit complete eight-worker map allfalse persists",
+            "outbound canary0",
+            "recovery timing excludes setup/backup/negative cases"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A38",
+      "status": "pending_current_candidate_evidence",
+      "clauses": [
+        {
+          "id": "A38.1",
+          "requirement": "All original A01\u2013A37 compound clauses, required A38 input gates and authoritative lane commands pass; the actual aggregate verifier remains a separate mandatory final gate.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/hardening_acceptance.py",
+            "ess-s3-hardening/ACCEPTANCE_MATRIX.md",
+            "docs/plans/s3-hardening-results.json"
+          ],
+          "evidence": [],
+          "remaining": [
+            "every original scenario compound assertion and all required A38 input gates audited",
+            "all11 profiles present/passed and every commandexit0",
+            "current compatible candidate SHA plus exact executable-input fingerprint",
+            "no skipped/missing/cancelled/stale evidence",
+            "final actual aggregate exit0 required independently, not presumed from this input audit"
+          ]
+        },
+        {
+          "id": "A38.2",
+          "requirement": "Automatic PR/push correctness preserves complete core/S3/transport/web and CLI contracts.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            ".github/workflows/test.yml",
+            "e2e/run_correctness_tests.py",
+            "e2e/test_correctness_selection.py"
+          ],
+          "evidence": [],
+          "remaining": [
+            "discovered complete *_test.exs inventory",
+            "per-app tests/failures/excluded/skipped/executed counts",
+            "floors detect shrinking/empty selection",
+            "new coherent-read and root-dispatch regressions included",
+            "heavy tags separately executed"
+          ]
+        },
+        {
+          "id": "A38.3",
+          "requirement": "Production assets/release/container smoke and runtime metadata succeed.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/run_hardening_release.sh",
+            "scripts/release/release.py",
+            "Dockerfile"
+          ],
+          "evidence": [],
+          "remaining": [
+            "assets.deploy",
+            "mix release ess",
+            "local Docker build",
+            "runtime version/source/build-time identity",
+            "actual /health and /health/ready plus operator RPC smoke",
+            "no registry publication in acceptance lane"
+          ]
+        },
+        {
+          "id": "A38.4",
+          "requirement": "Diagnostics, metrics and readiness agree with normal/error/quorum behavior.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/run_hardening_retained_standalone.sh",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/health_test.exs",
+            "apps/ex_storage_service_s3/test/ex_storage_service_s3/upload_integrity_http_test.exs",
+            "e2e/scripts/operator_diagnostics_acceptance.exs",
+            "e2e/s3_hardening_resilience.py"
+          ],
+          "evidence": [],
+          "remaining": [
+            "admin/status/metrics checks",
+            "low-cardinality truthful failure metrics",
+            "readiness tracks metadata+strict data availability",
+            "no secret diagnostics"
+          ]
+        },
+        {
+          "id": "A38.5",
+          "requirement": "Upgrade/backfill/rollback notes reflect tested generation/index/command-format boundaries.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "docs/operations/cluster-upgrade.md",
+            "docs/operations/listing-index.md",
+            "docs/plans/s3-hardening-resource-envelope.md",
+            "e2e/README.md",
+            "docs/s3-compatibility.md"
+          ],
+          "evidence": [],
+          "remaining": [
+            "old v1/v2 and missing descriptors",
+            "explicit quiesced verified backup before backfill",
+            "interrupt/rejoin/cutover receipts",
+            "retained old epochs and source records",
+            "rollback afterv2 requires compatible binary or both verified roots",
+            "command0existing versus command1empty distinction"
+          ]
+        },
+        {
+          "id": "A38.6",
+          "requirement": "Publication guards reject missing, stale, failed or incomplete full-acceptance evidence and validate exact source and version-only mappings.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            ".github/workflows/s3-hardening.yml",
+            ".github/workflows/release.yml",
+            "scripts/release/verify_hardening.py",
+            "scripts/release/release.py",
+            "e2e/test_release_hardening_gate.py"
+          ],
+          "evidence": [],
+          "remaining": [
+            "gate tests reject wrong repository/workflow/nonmanual/failed run",
+            "gate tests reject missing aggregate or incomplete artifact",
+            "downloaded evidence is actually re-audited before publication",
+            "version-only retry maps to validated Release-Source",
+            "failed audit restores prepared checkout and prevents publication"
+          ]
+        },
+        {
+          "id": "A38.7",
+          "requirement": "Local artifact smoke checks source/version identity, and release documentation distinguishes acceptance from subsequent publication verification.",
+          "status": "pending_current_candidate_evidence",
+          "source_refs": [
+            "e2e/run_hardening_release.sh",
+            "scripts/release/release.py",
+            ".github/workflows/release.yml",
+            "README.md"
+          ],
+          "evidence": [],
+          "remaining": [
+            "local built artifact runtime source/version/buildtime matches candidate",
+            "release notes preserve exact local versus published artifact scope",
+            "actual authorized patch publication and independent public artifact verification remain mandatory downstream delivery gates"
+          ]
+        }
+      ]
+    }
+  ],
+  "lane_snapshot": {},
+  "limitations": [
+    "No prior-candidate source promotion.",
+    "Worker owns only this audit JSON and launches no builds, services or measurement workloads."
+  ],
+  "clause_counts": {
+    "total": 60,
+    "verified": 0,
+    "failed_or_incomplete": 60
+  }
+}

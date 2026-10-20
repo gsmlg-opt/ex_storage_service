@@ -1,0 +1,15 @@
+{
+  "checked_at": "2026-10-20T18:26:39.744427+00:00",
+  "candidate_sha": "bb43cfcfb4d804ac852a08538a21c8d9ce926cbf",
+  "source_sha256": "a53cb0aa554833101a3bbf0d71608424454ccfd493207e642d3722cb840389ab",
+  "authoritative_pid": 566348,
+  "environment_whitelist": {
+    "AWS_REQUEST_CHECKSUM_CALCULATION": "unset",
+    "AWS_RESPONSE_CHECKSUM_VALIDATION": "unset"
+  },
+  "effective_request_checksum_calculation": "when_supported",
+  "effective_response_checksum_validation": "when_supported",
+  "signature_version": "s3v4",
+  "addressing_style": "path",
+  "scope": "No-network dummy-credential construction using actual workload client helper and live authoritative inherited checksum policy only. Supplemental provenance; actual lane requests/hashes required."
+}

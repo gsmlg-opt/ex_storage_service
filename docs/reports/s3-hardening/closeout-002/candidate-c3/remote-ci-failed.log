@@ -1,0 +1,59 @@
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	﻿2026-10-20T18:27:36.1177542Z ##[group]Run python3 -m unittest discover -s e2e -p 'test_*.py'
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1177954Z ^[[36;1mpython3 -m unittest discover -s e2e -p 'test_*.py'^[[0m
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1208564Z shell: /usr/bin/bash -e {0}
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1208805Z env:
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1208979Z   PAGER: cat
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1209141Z   MIX_ENV: test
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1209308Z   ELIXIR_VERSION: 1.19
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1209481Z   OTP_VERSION: 28
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1209705Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1210041Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1210368Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1210682Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1210980Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1211276Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1211581Z   INSTALL_DIR_FOR_OTP: /home/runner/work/_temp/.setup-beam/otp
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1211943Z   INSTALL_DIR_FOR_ELIXIR: /home/runner/work/_temp/.setup-beam/elixir
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.1212214Z ##[endgroup]
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.6062476Z {"primary_stopped": "meta", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 200}
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.6077523Z {"primary_stopped": "data-a", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 503}
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:36.6090919Z {"primary_stopped": "data-b", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 503}
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.4122978Z ...................................From /tmp/ess-release-gate-3__mf8v2/origin
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.4123533Z  * branch            main       -> FETCH_HEAD
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.4328742Z Previous HEAD position was f3883aa tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.4331269Z HEAD is now at d2749d9 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.4447643Z Previous HEAD position was d2749d9 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.4450317Z HEAD is now at f3883aa tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.4833905Z Previous HEAD position was f3883aa tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.4837235Z HEAD is now at d2749d9 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.4936481Z From /tmp/ess-release-gate-3__mf8v2/origin
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.4936878Z  * branch            main       -> FETCH_HEAD
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.5132588Z HEAD is now at d2749d9 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.5249418Z Previous HEAD position was d2749d9 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.5252567Z HEAD is now at f3883aa tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.5628120Z Previous HEAD position was f3883aa tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.5631265Z HEAD is now at d2749d9 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.6035266Z .HEAD is now at f3883aa tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.6417966Z Previous HEAD position was f3883aa tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.6421051Z HEAD is now at d2749d9 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.6717881Z .HEAD is now at f3883aa tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.7086767Z Previous HEAD position was f3883aa tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.7089747Z HEAD is now at d2749d9 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.7635487Z .HEAD is now at f3883aa tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.8002458Z Previous HEAD position was f3883aa tested source
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:38.8004974Z HEAD is now at d2749d9 chore(release): v1.0.1
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1413278Z ..........................................................F......
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1414179Z ======================================================================
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1415536Z FAIL: test_private_bwrap_tmpfs_is_observed_inside_beam_namespace (test_resource_observer.PortIsolationTest.test_private_bwrap_tmpfs_is_observed_inside_beam_namespace)
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1417570Z ----------------------------------------------------------------------
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1418211Z Traceback (most recent call last):
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1430917Z   File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/test_resource_observer.py", line 760, in test_private_bwrap_tmpfs_is_observed_inside_beam_namespace
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1432785Z     self.assertEqual(0, completed.returncode, completed.stderr)
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1433596Z AssertionError: 0 != 1 : bwrap: setting up uid map: Permission denied
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1434066Z 
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1434083Z 
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1434484Z ----------------------------------------------------------------------
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1435066Z Ran 103 tests in 20.536s
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1435296Z 
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1435519Z FAILED (failures=1)
+Core, S3, transport and web correctness	Verify acceptance harness and release gate contracts	2026-10-20T18:27:57.1773163Z ##[error]Process completed with exit code 1.

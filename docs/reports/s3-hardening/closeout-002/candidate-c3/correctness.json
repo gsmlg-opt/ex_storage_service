@@ -1,0 +1,34 @@
+{
+  "profile": "correctness",
+  "status": "blocked",
+  "starting_sha": "bb43cfcfb4d804ac852a08538a21c8d9ce926cbf",
+  "ending_sha": "bb43cfcfb4d804ac852a08538a21c8d9ce926cbf",
+  "source_sha256": "a53cb0aa554833101a3bbf0d71608424454ccfd493207e642d3722cb840389ab",
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "mix_env": "test",
+      "exit_status": 0,
+      "duration_seconds": 0.715,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c3/correctness-0.log"
+    },
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "mix_env": "test",
+      "exit_status": 0,
+      "duration_seconds": 5.833,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c3/correctness-1.log"
+    }
+  ],
+  "started_at": "2026-10-20T18:24:41.631343+00:00",
+  "reason": "interrupted; owned command stopped"
+}

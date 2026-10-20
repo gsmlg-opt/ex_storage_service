@@ -1,0 +1,215 @@
+{
+  "candidate_sha": "bb43cfcfb4d804ac852a08538a21c8d9ce926cbf",
+  "source_sha256": "a53cb0aa554833101a3bbf0d71608424454ccfd493207e642d3722cb840389ab",
+  "checked_at": "2026-10-20T18:33:22.717083+00:00",
+  "run": {
+    "conclusion": "failure",
+    "databaseId": 39474411278,
+    "headSha": "bb43cfcfb4d804ac852a08538a21c8d9ce926cbf",
+    "jobs": [
+      {
+        "completedAt": "2026-10-20T18:28:01Z",
+        "conclusion": "failure",
+        "databaseId": 118806535480,
+        "name": "Core, S3, transport and web correctness",
+        "startedAt": "2026-10-20T18:24:15Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-20T18:24:17Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-20T18:24:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:24:20Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-10-20T18:24:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:24:20Z",
+            "conclusion": "success",
+            "name": "Run actions/setup-python@v5",
+            "number": 3,
+            "startedAt": "2026-10-20T18:24:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:24:22Z",
+            "conclusion": "success",
+            "name": "Install pinned independent client for harness contract imports",
+            "number": 4,
+            "startedAt": "2026-10-20T18:24:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:24:22Z",
+            "conclusion": "success",
+            "name": "Reserve explicit journal mutex ports on the test runner",
+            "number": 5,
+            "startedAt": "2026-10-20T18:24:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:24:30Z",
+            "conclusion": "success",
+            "name": "Install CLI contract shell and isolated observer prerequisites",
+            "number": 6,
+            "startedAt": "2026-10-20T18:24:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:24:35Z",
+            "conclusion": "success",
+            "name": "Run erlef/setup-beam@v1",
+            "number": 7,
+            "startedAt": "2026-10-20T18:24:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:24:43Z",
+            "conclusion": "success",
+            "name": "Run actions/cache@v4",
+            "number": 8,
+            "startedAt": "2026-10-20T18:24:35Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:24:45Z",
+            "conclusion": "success",
+            "name": "Run mix deps.get",
+            "number": 9,
+            "startedAt": "2026-10-20T18:24:43Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:24:58Z",
+            "conclusion": "success",
+            "name": "Run mix compile --force --warnings-as-errors",
+            "number": 10,
+            "startedAt": "2026-10-20T18:24:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:27:36Z",
+            "conclusion": "success",
+            "name": "Run complete fast suites and retain actual selection/counts",
+            "number": 11,
+            "startedAt": "2026-10-20T18:24:58Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:27:57Z",
+            "conclusion": "failure",
+            "name": "Verify acceptance harness and release gate contracts",
+            "number": 12,
+            "startedAt": "2026-10-20T18:27:36Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:27:58Z",
+            "conclusion": "success",
+            "name": "Retain correctness evidence even on failure",
+            "number": 13,
+            "startedAt": "2026-10-20T18:27:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:27:58Z",
+            "conclusion": "skipped",
+            "name": "Post Run actions/cache@v4",
+            "number": 24,
+            "startedAt": "2026-10-20T18:27:58Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:27:58Z",
+            "conclusion": "skipped",
+            "name": "Post Run actions/setup-python@v5",
+            "number": 25,
+            "startedAt": "2026-10-20T18:27:58Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:27:58Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 26,
+            "startedAt": "2026-10-20T18:27:58Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-20T18:27:58Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 27,
+            "startedAt": "2026-10-20T18:27:58Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39474411278/job/118806535480"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39474411278"
+  },
+  "app_and_cli_selection": {
+    "status": "passed",
+    "app_counts": {
+      "ex_storage_service": {
+        "tests": 599,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 598
+      },
+      "ex_storage_service_cluster": {
+        "tests": 40,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 39
+      },
+      "ex_storage_service_s3": {
+        "tests": 369,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 369
+      },
+      "ex_storage_service_web": {
+        "tests": 21,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 21
+      }
+    },
+    "cli_counts": {
+      "ex_storage_service_cli": {
+        "tests": 11,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 11
+      }
+    },
+    "exit_status": 0,
+    "cli_exit_status": 0
+  },
+  "harness": {
+    "tests": 103,
+    "failures": 1,
+    "failed_case": "test_resource_observer.PortIsolationTest.test_private_bwrap_tmpfs_is_observed_inside_beam_namespace",
+    "error": "bwrap: setting up uid map: Permission denied",
+    "receipt": "docs/reports/s3-hardening/closeout-002/candidate-c3/remote-ci-failed.log",
+    "sha256": "68e0805178b5afe48b9b89f37608677db89d81701a723beeda421716b45fa90e"
+  },
+  "diagnosis_scope": "Required isolated namespace prerequisite failed on hostedrunner; no skippedcaseorpassingharnessclaim. Exactkernel/AppArmorrootcauseawaitsrunnerconfigurationdiagnosis. Parserrepaired: allserverandCLIcontractselectionpassed.",
+  "local_authoritative_outcome": "InterruptedbeforeheavyprofilesbecauseCIconfigurationrepairrequiresnewfreeze;actualexit130,actualinterruptedaggregateexit1."
+}

@@ -1,0 +1,104 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "candidate_sha": "bb43cfcfb4d804ac852a08538a21c8d9ce926cbf",
+  "requested_at": "2026-10-20T18:32:09.410267+00:00",
+  "reason": "Exact-candidate hostedCI failed required bwrap uidmap prerequisite. CIconfigurationrepairrequiresnewfrozeninputs. InterruptserialC3beforeresource/scale work, preservepartialoutcomesunpassed.",
+  "authoritative_pid": 566348,
+  "owned_descendant_identities_before_signal": [
+    {
+      "pid": 566348,
+      "start_ticks": 9636449
+    },
+    {
+      "pid": 566532,
+      "start_ticks": 9637116
+    },
+    {
+      "pid": 566533,
+      "start_ticks": 9637119
+    },
+    {
+      "pid": 566550,
+      "start_ticks": 9637121
+    },
+    {
+      "pid": 567301,
+      "start_ticks": 9637909
+    },
+    {
+      "pid": 585355,
+      "start_ticks": 9681221
+    },
+    {
+      "pid": 567302,
+      "start_ticks": 9637909
+    },
+    {
+      "pid": 585364,
+      "start_ticks": 9681223
+    }
+  ],
+  "signal": "SIGTERM",
+  "authoritative_session": 66442,
+  "authoritative_exit_status": 130,
+  "terminal_at": "2026-10-20T18:32:34.745210+00:00",
+  "owned_identity_checks": [
+    {
+      "pid": 566348,
+      "start_ticks": 9636449,
+      "same_identity": false,
+      "state": "absent",
+      "running": false
+    },
+    {
+      "pid": 566532,
+      "start_ticks": 9637116,
+      "same_identity": false,
+      "state": "absent",
+      "running": false
+    },
+    {
+      "pid": 566533,
+      "start_ticks": 9637119,
+      "same_identity": false,
+      "state": "absent",
+      "running": false
+    },
+    {
+      "pid": 566550,
+      "start_ticks": 9637121,
+      "same_identity": false,
+      "state": "absent",
+      "running": false
+    },
+    {
+      "pid": 567301,
+      "start_ticks": 9637909,
+      "same_identity": false,
+      "state": "absent",
+      "running": false
+    },
+    {
+      "pid": 585355,
+      "start_ticks": 9681221,
+      "same_identity": false,
+      "state": "absent",
+      "running": false
+    },
+    {
+      "pid": 567302,
+      "start_ticks": 9637909,
+      "same_identity": false,
+      "state": "absent",
+      "running": false
+    },
+    {
+      "pid": 585364,
+      "start_ticks": 9681223,
+      "same_identity": false,
+      "state": "absent",
+      "running": false
+    }
+  ],
+  "remaining_owned_running": []
+}
