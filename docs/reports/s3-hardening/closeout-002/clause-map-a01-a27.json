@@ -1,0 +1,3306 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "purpose": "Read-only clause/source map. Attach compatible current-candidate receipts later; no acceptance promotion.",
+  "inspected_head": "b17282d96a58eff962a35d807c9e7adb39af4774",
+  "candidate_commit": null,
+  "candidate_source_fingerprint": null,
+  "status": "pending_execution_evidence",
+  "matrix": "ess-s3-hardening/ACCEPTANCE_MATRIX.md",
+  "clause_labels_source": "docs/plans/s3-hardening-results.json titles only; historical success prose and results not imported",
+  "source_registry": {
+    "operation": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/operation_routing_test.exs",
+      "sha256": "e3c778458205d991154eba3b480e147798b15d5137999a94913955386fe8e41f",
+      "named_tests": [
+        {
+          "name": "unsupported subresources cannot overwrite or delete bytes",
+          "line": 16
+        },
+        {
+          "name": "tagging operations change only tags and never fall through to object CRUD",
+          "line": 38
+        },
+        {
+          "name": "conflicting and duplicate selectors fail before mutation",
+          "line": 54
+        },
+        {
+          "name": "benign SDK query parameters do not prevent ordinary CRUD",
+          "line": 67
+        },
+        {
+          "name": "HEAD errors are bodyless",
+          "line": 72
+        },
+        {
+          "name": "oversized keys and custom metadata fail before mutation",
+          "line": 78
+        },
+        {
+          "name": "copy headers cannot select multipart initiation or completion",
+          "line": 91
+        },
+        {
+          "name": "copy source rejects duplicate and empty version identities",
+          "line": 134
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "root_listing": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/list_buckets_operation_test.exs",
+      "sha256": "b970572a084df1729476e0ddfa568fa871b4740f831b18fd28987de45ac70ecf",
+      "named_tests": [
+        {
+          "name": "root listing accepts SDK metadata and preserves its query pairs",
+          "line": 6
+        },
+        {
+          "name": "presigned authentication combines with SDK metadata without choosing an operation",
+          "line": 15
+        },
+        {
+          "name": "root listing rejects unsupported features and operation selectors",
+          "line": 29
+        },
+        {
+          "name": "root listing rejects duplicate query names including equivalent encoded names",
+          "line": 49
+        },
+        {
+          "name": "SDK metadata does not enable other root methods",
+          "line": 61
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "authorization_http": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/authorization_http_test.exs",
+      "sha256": "bb8e8095a78063f0df3e233a5707b2f0c458da1a704603c4406a185f7e9622a9",
+      "named_tests": [
+        {
+          "name": "independent raw signatures retain root SDK metadata and require listing permission",
+          "line": 37
+        },
+        {
+          "name": "independent presigned root listing keeps x-id signed",
+          "line": 66
+        },
+        {
+          "name": "independently signed copy requires source read separately from destination write",
+          "line": 85
+        },
+        {
+          "name": "standard actions allow HEAD while an unmarked HEAD-only policy cannot GET",
+          "line": 108
+        },
+        {
+          "name": "signed historical CopyObject needs version access and copies the selected bytes",
+          "line": 129
+        },
+        {
+          "name": "all signed multipart endpoints reject another key or bucket without changing parts",
+          "line": 151
+        },
+        {
+          "name": "signed mixed batch deletion retains forbidden objects and quiet still returns errors",
+          "line": 208
+        },
+        {
+          "name": "signed batches distinguish current deletion, historical deletion and forbidden versions",
+          "line": 232
+        },
+        {
+          "name": "signed batch integrity and document limits reject without deleting retained versions",
+          "line": 273
+        },
+        {
+          "name": "independent presigns enforce policy changes, key revocation, user suspension and expiry",
+          "line": 304
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "authorization": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/authorization_hardening_test.exs",
+      "sha256": "4b29a012c81a00207efd24e9064f9b05d779927d09c16845529cfd1eb744fe8a",
+      "named_tests": [
+        {
+          "name": "copy needs independent source read and destination write grants",
+          "line": 41
+        },
+        {
+          "name": "copying an explicit version requires GetObjectVersion",
+          "line": 60
+        },
+        {
+          "name": "presigned identities still require current policies",
+          "line": 76
+        },
+        {
+          "name": "all multipart endpoints bind upload id to its original key",
+          "line": 82
+        },
+        {
+          "name": "batch deletion authorizes each object and reports denied entries",
+          "line": 110
+        },
+        {
+          "name": "upstream deletion failures preserve local objects for single and batch requests",
+          "line": 136
+        },
+        {
+          "name": "batch integrity and entry limits reject before any deletion",
+          "line": 194
+        },
+        {
+          "name": "explicit batch versions require DeleteObjectVersion and preserve latest versions",
+          "line": 218
+        },
+        {
+          "name": "multipart completion retains initiation attributes and honors atomic create-only conditions",
+          "line": 244
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "policy": {
+      "path": "apps/ex_storage_service/test/ex_storage_service/iam/policy_hardening_test.exs",
+      "sha256": "490f5a82ff2cae6a9be132f67764b5616692133a67bb82a120fdfb8d83d054e2",
+      "named_tests": [
+        {
+          "name": "canonical and legacy resource prefixes preserve the same exact scope",
+          "line": 25
+        },
+        {
+          "name": "a missing attached deny policy fails the entire policy read closed",
+          "line": 31
+        },
+        {
+          "name": "unsupported policy conditions are rejected rather than ignored",
+          "line": 38
+        },
+        {
+          "name": "legacy HEAD-only grants do not become GET grants",
+          "line": 45
+        },
+        {
+          "name": "legacy PutObject is not broadened to multipart initiation",
+          "line": 59
+        },
+        {
+          "name": "standard actions authorize HEAD and multipart while legacy denies remain effective",
+          "line": 68
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "part_copy": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/upload_part_copy_http_test.exs",
+      "sha256": "c39a64e78e784285c9273c674b3a3da365def2d4de957fd185e9fe0bd4251dfe",
+      "named_tests": [
+        {
+          "name": "independent signed part copies require source version permission and pin ranges and conditions",
+          "line": 8
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "upload_integrity": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/upload_integrity_test.exs",
+      "sha256": "ff83b3ef2cbb48556680940dc894b4266ff753750f5602c3be9df64d7d206f7a",
+      "named_tests": [
+        {
+          "name": "altered declared SHA256 is rejected by the staging reader",
+          "line": 7
+        },
+        {
+          "name": "invalid Content-MD5 is rejected independently of payload SHA256",
+          "line": 19
+        },
+        {
+          "name": "aws-chunked rejects bytes after the terminal chunk",
+          "line": 28
+        },
+        {
+          "name": "all mandatory wire algorithms verify independent 123456789 vectors",
+          "line": 32
+        },
+        {
+          "name": "unknown algorithms and invalid checksum encodings fail before body delivery",
+          "line": 62
+        },
+        {
+          "name": "unsigned checksum trailers validate framing, lengths, data and trailer checksum",
+          "line": 74
+        },
+        {
+          "name": "plain reader enforces size and declared decoded length",
+          "line": 100
+        },
+        {
+          "name": "signed chunks validate an independently generated HMAC chain at every boundary",
+          "line": 111
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "upload_integrity_http": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/upload_integrity_http_test.exs",
+      "sha256": "6f54bfc185ffd3bdf9bc2b91b461810d255aaeccd1f3d1043f182e52a327da2b",
+      "named_tests": [
+        {
+          "name": "a valid signature cannot authorize altered bytes or create a version",
+          "line": 38
+        },
+        {
+          "name": "HTTP checksum, precondition, unknown operation and returned 404 have truthful metrics",
+          "line": 52
+        },
+        {
+          "name": "all required wire algorithms and Content-MD5 validate on actual HTTP",
+          "line": 73
+        },
+        {
+          "name": "unsigned trailers reject corruption, truncation and post-terminal bytes",
+          "line": 98
+        },
+        {
+          "name": "signed streaming chunks verify each signature and terminal signature",
+          "line": 131
+        },
+        {
+          "name": "presigned headers, signature parameters and key revocation remain enforced",
+          "line": 174
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "sigv4": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/auth/sig_v4_test.exs",
+      "sha256": "0d002f324c7c31fc24c5a1b945ef862fc92e7481198b446b49acb42d5c9c34cd",
+      "named_tests": [
+        {
+          "name": "parses a valid Authorization header",
+          "line": 87
+        },
+        {
+          "name": "parses header with three signed headers",
+          "line": 101
+        },
+        {
+          "name": "returns error for completely malformed header",
+          "line": 111
+        },
+        {
+          "name": "returns error for missing Credential field",
+          "line": 116
+        },
+        {
+          "name": "returns error for malformed Credential (missing parts)",
+          "line": 121
+        },
+        {
+          "name": "returns error for empty string",
+          "line": 130
+        },
+        {
+          "name": "builds canonical request for a simple GET",
+          "line": 140
+        },
+        {
+          "name": "builds canonical request for PUT with path",
+          "line": 158
+        },
+        {
+          "name": "sorts query string parameters",
+          "line": 170
+        },
+        {
+          "name": "handles empty query string",
+          "line": 183
+        },
+        {
+          "name": "handles DELETE method",
+          "line": 193
+        },
+        {
+          "name": "preserves already-encoded path characters",
+          "line": 209
+        },
+        {
+          "name": "builds correct string to sign structure",
+          "line": 232
+        },
+        {
+          "name": "signing_key returns a 32-byte binary",
+          "line": 257
+        },
+        {
+          "name": "signing_key is deterministic",
+          "line": 262
+        },
+        {
+          "name": "different secrets produce different signing keys",
+          "line": 268
+        },
+        {
+          "name": "compute_signature returns a 64-char lowercase hex string",
+          "line": 274
+        },
+        {
+          "name": "compute_signature matches known AWS example",
+          "line": 282
+        },
+        {
+          "name": "succeeds with a correctly signed GET request",
+          "line": 318
+        },
+        {
+          "name": "succeeds with a correctly signed PUT request",
+          "line": 325
+        },
+        {
+          "name": "succeeds with query string parameters",
+          "line": 332
+        },
+        {
+          "name": "returns error when signature is wrong",
+          "line": 339
+        },
+        {
+          "name": "returns error when Authorization header is missing",
+          "line": 358
+        },
+        {
+          "name": "returns error when Authorization header is malformed",
+          "line": 365
+        },
+        {
+          "name": "returns error when get_secret_fn returns nil (invalid access key)",
+          "line": 374
+        },
+        {
+          "name": "query encoding preserves duplicate pairs, literal plus and empty values",
+          "line": 383
+        },
+        {
+          "name": "signed duplicate headers combine in wire order and trim sequential whitespace",
+          "line": 401
+        },
+        {
+          "name": "independent AWS S3 GET range fixture matches the documented canonical hash and signature",
+          "line": 419
+        },
+        {
+          "name": "a matching cryptographic signature cannot use a different service",
+          "line": 446
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "read_semantics": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/read_semantics_http_test.exs",
+      "sha256": "ae4d7129a97e3636b56f5760aaee0d3518f89781c6f541acec85946664569456",
+      "named_tests": [
+        {
+          "name": "signed and independently presigned response overrides survive full and ranged GET",
+          "line": 31
+        },
+        {
+          "name": "override injection and duplicate values never become response headers",
+          "line": 77
+        },
+        {
+          "name": "GET and HEAD evaluate strong/weak ETags and date precedence",
+          "line": 88
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "conditionals": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/conditional_write_test.exs",
+      "sha256": "11c1ca8a5007eee5bcf5695b7daa4506af92e55d9b1dd6a2a7275309996f4572",
+      "named_tests": [
+        {
+          "name": "32 synchronized create-only writers publish exactly one object",
+          "line": 11
+        },
+        {
+          "name": "stale If-Match cannot replace an updated head",
+          "line": 42
+        },
+        {
+          "name": "copy source conditions apply to the pinned source identity",
+          "line": 50
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "object_commit": {
+      "path": "apps/ex_storage_service/test/ex_storage_service/metadata/object_commit_test.exs",
+      "sha256": "4cb468290682e52c1d01b3d8477cacf5e4d7f3b7f508434285d427ae40ce8b52",
+      "named_tests": [
+        {
+          "name": "latest selection retries the reviewed head-read/current-delete interleaving",
+          "line": 369
+        },
+        {
+          "name": "object domain retries current deletion and returns one predecessor identity",
+          "line": 392
+        },
+        {
+          "name": "latest selection detects null replacement and ABA by revision rather than version ID",
+          "line": 422
+        },
+        {
+          "name": "concurrent PUT invalidates latest selection without mixing version attributes",
+          "line": 443
+        },
+        {
+          "name": "latest delete-marker creation and removal retain marker and predecessor semantics",
+          "line": 455
+        },
+        {
+          "name": "delete/recreate fences successful latest and explicit selections by bucket generation",
+          "line": 479
+        },
+        {
+          "name": "stable missing reference is corruption and cannot resurrect legacy metadata",
+          "line": 497
+        },
+        {
+          "name": "read retry exhaustion and backend availability failures never become object absence",
+          "line": 507
+        },
+        {
+          "name": "explicit deleted version never falls back to the surviving latest version",
+          "line": 529
+        },
+        {
+          "name": "availability failures during selected-version read and head revalidation propagate",
+          "line": 546
+        },
+        {
+          "name": "latest tags retry the same controlled deletion and return predecessor tags",
+          "line": 561
+        },
+        {
+          "name": "latest tag writes retry current deletion and atomically update only the predecessor",
+          "line": 586
+        },
+        {
+          "name": "index planning conflicts use the remaining object commit retry budget",
+          "line": 629
+        },
+        {
+          "name": "index planning conflicts use the remaining explicit-version tag retry budget",
+          "line": 651
+        },
+        {
+          "name": "index planning conflicts use the remaining explicit-version delete retry budget",
+          "line": 675
+        },
+        {
+          "name": "exhausted index conflicts do not publish the attempted object or operation",
+          "line": 697
+        },
+        {
+          "name": "stable index corruption is returned without retrying or publishing an object",
+          "line": 721
+        },
+        {
+          "name": "commits an immutable version, head, blob, and operation atomically",
+          "line": 750
+        },
+        {
+          "name": "commits quorum durability, locations, and repair events atomically",
+          "line": 766
+        },
+        {
+          "name": "does not publish a ready location over an authorized cleanup reservation",
+          "line": 910
+        },
+        {
+          "name": "rebuilds and retries after a compare failure",
+          "line": 1048
+        },
+        {
+          "name": "commits supplied durable events in the object transaction",
+          "line": 1056
+        },
+        {
+          "name": "uses the latest v1 version as migration context for the first v2 write",
+          "line": 1081
+        },
+        {
+          "name": "resolves an ambiguous timeout by operation id without a second version",
+          "line": 1096
+        },
+        {
+          "name": "ambiguous multipart publication atomically retains its completion result on retry",
+          "line": 1105
+        },
+        {
+          "name": "rejects reusing an operation id for a different logical request",
+          "line": 1195
+        },
+        {
+          "name": "resolves an ambiguous timeout by the exact transaction attempt",
+          "line": 1210
+        },
+        {
+          "name": "100 concurrent puts retain every immutable version and one valid head",
+          "line": 1222
+        },
+        {
+          "name": "concurrent puts and delete markers retain every operation",
+          "line": 1261
+        },
+        {
+          "name": "never writes a v2 mutable object version list",
+          "line": 1301
+        },
+        {
+          "name": "deleting the head protects its replacement from a concurrent delete",
+          "line": 1317
+        },
+        {
+          "name": "v1 compatibility mode rejects mutations instead of using sequential writes",
+          "line": 1338
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "bucket_lifecycle": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/bucket_lifecycle_test.exs",
+      "sha256": "c474eaebc9350bbc61379260f1d810a21ad6690a4c81de08369f8e9ac1bcfd8b",
+      "named_tests": [
+        {
+          "name": "injected bucket deletion failure returns a sanitized HTTP error and preserves the bucket",
+          "line": 18
+        },
+        {
+          "name": "historical versions and delete markers prevent deletion",
+          "line": 34
+        },
+        {
+          "name": "incomplete uploads block bucket deletion until aborted",
+          "line": 52
+        },
+        {
+          "name": "staged work cannot commit into a recreated bucket generation",
+          "line": 61
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "bucket_lifecycle_fault": {
+      "path": "apps/ex_storage_service/test/ex_storage_service/metadata/bucket_lifecycle_fault_test.exs",
+      "sha256": "15de05c87e673a5a6d0b5bddd70120069b3a30c992e56bc3ad4cc72f51be488d",
+      "named_tests": [
+        {
+          "name": "uncertain delete outcome is returned without success or blind transaction replay",
+          "line": 21
+        },
+        {
+          "name": "missing bucket never initiates a delete transaction",
+          "line": 36
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "bucket_control": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/bucket_and_control_http_test.exs",
+      "sha256": "bc1cfdda1b2ec7383beac9910e03e4f2bf6a878a07afa841cb63e6a8e40a55cb",
+      "named_tests": [
+        {
+          "name": "signed bucket deletion rejects historical versions and remaining delete markers",
+          "line": 36
+        },
+        {
+          "name": "malformed read dates are ignored safely and malformed ranges cannot serve object bytes",
+          "line": 64
+        },
+        {
+          "name": "signed oversized multipart completion preserves uploaded parts and existing object",
+          "line": 102
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "bucket_config": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/bucket_configuration_hardening_test.exs",
+      "sha256": "06086bd36d665fc34da9fb1f88243a3056f7ac989ecd843629d596f404e78ebc",
+      "named_tests": [
+        {
+          "name": "buffered configurations reject oversized and malformed XML over HTTP without mutation",
+          "line": 20
+        },
+        {
+          "name": "PUT config requests cannot mutate a bucket recreated while their bodies arrive",
+          "line": 81
+        },
+        {
+          "name": "DELETE configuration for a missing bucket reports absence instead of success",
+          "line": 110
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "control_xml": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/handlers/control_xml_test.exs",
+      "sha256": "fd6cf61b95c03c04fdde21a4549e3936ab67c030ad77d5647d9d434b48206e36",
+      "named_tests": [
+        {
+          "name": "tag XML accepts S3 namespaces and UTF8 without losing literal text",
+          "line": 5
+        },
+        {
+          "name": "control XML rejects entities, extra roots, attributes and structural ambiguity",
+          "line": 24
+        },
+        {
+          "name": "CORS serialization round trips normalized rules and rejects duplicate singleton fields",
+          "line": 46
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "errors": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/error_framing_test.exs",
+      "sha256": "23586c3a86a36d949ed215db31419c88b4b38549eebd5d4504bba3d9b6a0a6d1",
+      "named_tests": [
+        {
+          "name": "every common error path leaves HEAD bodyless and uses S3 SlowDown503",
+          "line": 73
+        },
+        {
+          "name": "an error after object HEAD removes payload headers while preserving version diagnostics",
+          "line": 82
+        },
+        {
+          "name": "every early body-bearing error closes HTTP1 instead of consuming another request",
+          "line": 137
+        },
+        {
+          "name": "real TCP Expect100-continue rejection closes before the next request can be mistaken for a body",
+          "line": 154
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "late_stream": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/late_stream_http_test.exs",
+      "sha256": "a3f4455696c68e06bbe619857d1c9aa9089c8549771fcf890b11ae79d629d5a4",
+      "named_tests": [
+        {
+          "name": "failure after headers truncates the transfer without appending an error document",
+          "line": 24
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "versioning": {
+      "path": "apps/ex_storage_service/test/ex_storage_service/storage/versioning_profile_test.exs",
+      "sha256": "9e9ffccc350678afe9f4808bb345619fab1ff7c1ad8f6d42306df0a71974b065",
+      "named_tests": [
+        {
+          "name": "never-enabled buckets replace one readable null version",
+          "line": 21
+        },
+        {
+          "name": "unversioned delete leaves no historical object or delete marker",
+          "line": 32
+        },
+        {
+          "name": "enabling retains an earlier null version",
+          "line": 40
+        },
+        {
+          "name": "suspended writes replace only null and preserve numbered history",
+          "line": 51
+        },
+        {
+          "name": "suspended deletion replaces null with one marker and deleting it reveals history",
+          "line": 63
+        },
+        {
+          "name": "deleting v2 history never resurrects legacy object records in reads or listings",
+          "line": 81
+        },
+        {
+          "name": "explicitly migrated legacy null reads and deletions match the exposed version identity",
+          "line": 94
+        },
+        {
+          "name": "deleting an explicitly migrated historical version does not silently no-op",
+          "line": 108
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "version_http": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/version_profile_http_test.exs",
+      "sha256": "4cabe30f56a9e28b7ca8d9022d13d31648f28b1a0285e491d20418e2aafa83cb",
+      "named_tests": [
+        {
+          "name": "current and explicit version GET HEAD range and 304 identify the served version",
+          "line": 46
+        },
+        {
+          "name": "explicit delete markers use 405 with identity and Last-Modified while latest uses 404",
+          "line": 70
+        },
+        {
+          "name": "missing explicit versions report NoSuchVersion and HEAD remains empty",
+          "line": 94
+        },
+        {
+          "name": "GET bucket versions is a version listing and never an ordinary object list",
+          "line": 104
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "version_listing": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/version_listing_http_test.exs",
+      "sha256": "53a01b198d5ebca7695085c41abcd139c715a06a6ee2688928788f03d8ee6696",
+      "named_tests": [
+        {
+          "name": "single-entry pages expose all versions and markers exactly once",
+          "line": 61
+        },
+        {
+          "name": "prefix delimiter common-prefix pages and zero limits preserve marker contracts",
+          "line": 76
+        },
+        {
+          "name": "URL encoding covers keys prefixes delimiters and key markers with XML escaping",
+          "line": 91
+        },
+        {
+          "name": "invalid markers and parameters reject while list-version permission remains distinct",
+          "line": 114
+        },
+        {
+          "name": "suspended null overwrites and markers expose one null version without replacing numbered history",
+          "line": 153
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "listing_http": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/listing_profile_http_test.exs",
+      "sha256": "fee3a2174a4812d5faa9ab85f12704f86574234837b892b769ccb09cb9a72e98",
+      "named_tests": [
+        {
+          "name": "zero and malformed limits are deliberate",
+          "line": 39
+        },
+        {
+          "name": "v1 markers and v2 opaque context-bound continuation paginate prefixes",
+          "line": 57
+        },
+        {
+          "name": "encoding is opt-in and start-after applies to keys and common prefixes",
+          "line": 88
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "backfill": {
+      "path": "apps/ex_storage_service/test/ex_storage_service/metadata/list_index/backfill_test.exs",
+      "sha256": "04d4c9160b9592927e429cb5f63f062f5d54f1716fd252c5faaeba47d527526d",
+      "named_tests": [
+        {
+          "name": "quiescence and verified backup are mandatory before a gate is installed",
+          "line": 126
+        },
+        {
+          "name": "all unindexed legacy history is normalized in bounded resumable publications",
+          "line": 141
+        },
+        {
+          "name": "v2 deletion barriers suppress retained legacy values and remain durable",
+          "line": 181
+        },
+        {
+          "name": "both multipart namespaces are merged and terminal upload records remain",
+          "line": 198
+        },
+        {
+          "name": "a version and checkpoint cannot publish without verified blob evidence",
+          "line": 239
+        },
+        {
+          "name": "real CAS probes reject missing or corrupt replicas and preserve descriptor RF",
+          "line": 256
+        },
+        {
+          "name": "takeover fences the old owner and resumes the same manifest checkpoint",
+          "line": 340
+        },
+        {
+          "name": "a compare failure leaves both publication and checkpoint untouched",
+          "line": 365
+        },
+        {
+          "name": "a permitted shared-blob write conflicts safely and resumes the same checkpoint",
+          "line": 383
+        },
+        {
+          "name": "lost committed responses resolve the original atomic checkpoint",
+          "line": 437
+        },
+        {
+          "name": "changed source revisions and changed manifests fail closed",
+          "line": 454
+        },
+        {
+          "name": "conflicting same-number parts stop capture without publishing readiness",
+          "line": 474
+        },
+        {
+          "name": "stable corrupt tree nodes prevent validation and cutover",
+          "line": 496
+        },
+        {
+          "name": "framed manifests are sorted externally and reject frame corruption",
+          "line": 513
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "multipart": {
+      "path": "apps/ex_storage_service/test/ex_storage_service/storage/multipart_hardening_test.exs",
+      "sha256": "b4ce672c11ec8367b4c4fc7befc2abfefa434cdee97961e7379a7364a0139156",
+      "named_tests": [
+        {
+          "name": "four concurrent initiations preserve every upload and exact index count",
+          "line": 15
+        },
+        {
+          "name": "multipart index counts and part roots follow overwrite, freeze, completion and abort",
+          "line": 57
+        },
+        {
+          "name": "a rebuilding index rejects part streaming before consuming its source",
+          "line": 85
+        },
+        {
+          "name": "parts paginate by marker with protocol bounds",
+          "line": 107
+        },
+        {
+          "name": "upload pages preserve equal-key upload markers and common prefixes",
+          "line": 130
+        },
+        {
+          "name": "freeze fences late parts and abort, and a released condition can retry",
+          "line": 159
+        },
+        {
+          "name": "completion result and initiation attributes survive a finalization failure",
+          "line": 173
+        },
+        {
+          "name": "invalid completion part lists never freeze an upload",
+          "line": 244
+        },
+        {
+          "name": "a reader started before completion cannot replace the frozen part",
+          "line": 258
+        },
+        {
+          "name": "part number and count limits reject before freezing or publishing",
+          "line": 284
+        },
+        {
+          "name": "a reader finishing after abort cannot publish a part",
+          "line": 305
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "multipart_http": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/multipart_profile_http_test.exs",
+      "sha256": "a7cf229e6965ed4a24b7025839c40a60a1be25b105f5a8fe914556a4267df3a4",
+      "named_tests": [
+        {
+          "name": "negotiated composite checksum, tags and attributes survive completion retries",
+          "line": 16
+        },
+        {
+          "name": "bad negotiated completion checksum leaves no object and permits valid retry",
+          "line": 145
+        },
+        {
+          "name": "all negotiated checksum algorithms round-trip through multipart HTTP",
+          "line": 184
+        },
+        {
+          "name": "part and upload pages expose bounded markers and reject invalid parameters",
+          "line": 241
+        },
+        {
+          "name": "strict completion XML and part order errors preserve upload and object state",
+          "line": 270
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "multipart_contention": {
+      "path": "apps/ex_storage_service/test/ex_storage_service/storage/multipart_completion_contention_test.exs",
+      "sha256": "f9d9f4a73e8d2649507d24a89367b6397d8865230205297ddd1af2d246640798",
+      "named_tests": [
+        {
+          "name": "unrelated #{@transition} preserves an already planned object publication",
+          "line": 91
+        },
+        {
+          "name": "completion preparation and release reject a rebuilding index",
+          "line": 155
+        },
+        {
+          "name": "completion preparation and release cannot cross bucket generations",
+          "line": 170
+        },
+        {
+          "name": "composition compare losses consume one finite preparation budget",
+          "line": 191
+        },
+        {
+          "name": "successful freeze retains budget already consumed by compare losses",
+          "line": 207
+        },
+        {
+          "name": "successful freeze and composition do not consume the last conflict allowance",
+          "line": 223
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "attributes": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/attributes_profile_http_test.exs",
+      "sha256": "fbca93a76f41ed84763376a222fa68b8229f6e6ef839ad7f87f88fac469d7cfe",
+      "named_tests": [
+        {
+          "name": "PUT preserves genuine gzip bytes, metadata, tags, attributes and verified checksum",
+          "line": 35
+        },
+        {
+          "name": "COPY and REPLACE independently preserve or replace metadata and tags",
+          "line": 71
+        },
+        {
+          "name": "invalid upload tags cannot publish bytes",
+          "line": 111
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "gateway_attributes": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/gateway_attributes_http_test.exs",
+      "sha256": "185d71cfcfa5481c76bff0644e6d5914056816d4216e304dd71fee253c7bb35d",
+      "named_tests": [
+        {
+          "name": "verified upload checksums and raw encoded attributes reach upstream and return on HEAD",
+          "line": 85
+        },
+        {
+          "name": "copy to gateway recomputes a source composite checksum and preserves system headers",
+          "line": 123
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "gateway_read": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/gateway_read_http_test.exs",
+      "sha256": "466f638950f456124bbffd36f38c3aa6e03c9e8f889346a9ead092293c007b0e",
+      "named_tests": [
+        {
+          "name": "cold ranges, warm cache and out-of-band replacement expose one current identity",
+          "line": 98
+        },
+        {
+          "name": "gateway cache and real upstream errors expose finite operational outcomes",
+          "line": 138
+        },
+        {
+          "name": "deleted, denied and unavailable upstream never serve a stale cache",
+          "line": 161
+        },
+        {
+          "name": "truncated upstream download returns framed XML without stale object checksum or cache",
+          "line": 180
+        },
+        {
+          "name": "cache eviction cannot invalidate an already-open HTTP response",
+          "line": 207
+        },
+        {
+          "name": "remote-only gateway copy is bounded and never trusts stale source metadata",
+          "line": 245
+        },
+        {
+          "name": "UploadPartCopy pins a remote-only gateway range and persists negotiated checksums",
+          "line": 299
+        },
+        {
+          "name": "conditions and invalid cold ranges are evaluated against upstream identity",
+          "line": 335
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "tagging": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/tagging_http_test.exs",
+      "sha256": "88ba44698c3c024dc30330ab89c35f2e295b5cfab48892b141ef9e35f6a69ff4",
+      "named_tests": [
+        {
+          "name": "bucket and version tag CRUD never replace bytes or mint extra versions",
+          "line": 59
+        },
+        {
+          "name": "bucket tag limits and missing object versions fail without changing accepted state",
+          "line": 93
+        },
+        {
+          "name": "unsupported gateway object tagging rejects before any upstream request or local mutation",
+          "line": 120
+        },
+        {
+          "name": "version tagging permissions are separate from current tags and object reads",
+          "line": 154
+        },
+        {
+          "name": "malformed, oversized, duplicate and excessive tags preserve the last accepted set",
+          "line": 202
+        },
+        {
+          "name": "tagging a delete marker never removes its version",
+          "line": 222
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "tagging_auth": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/tagging_authorization_http_test.exs",
+      "sha256": "0843dd84c660a311b03774f1495ae752e75ae37e7da2bf11b898e75e335fc017",
+      "named_tests": [
+        {
+          "name": "tagged PUT needs destination PutObjectTagging and denied replacement preserves history",
+          "line": 42
+        },
+        {
+          "name": "tagged multipart initiation needs tag grant before creating an upload",
+          "line": 66
+        },
+        {
+          "name": "COPY checks actual source tags against destination grant, with version read independent",
+          "line": 83
+        },
+        {
+          "name": "REPLACE supplied tags need destination grant while empty REPLACE and untagged copies do not",
+          "line": 111
+        },
+        {
+          "name": "legacy PutObject allow does not gain tagging or multipart privileges",
+          "line": 143
+        },
+        {
+          "name": "tag count is omitted without tag read permission while object GET still succeeds",
+          "line": 160
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "tags": {
+      "path": "apps/ex_storage_service/test/ex_storage_service/storage/tags_test.exs",
+      "sha256": "c353eadaa221e378e71dcf3de6858395f511303cafff85a70a8ce5d27b2723d9",
+      "named_tests": [
+        {
+          "name": "tag maps and URL encoded headers retain Unicode and literal delimiters",
+          "line": 5
+        },
+        {
+          "name": "duplicate, reserved, malformed and excessive tags fail before persistence",
+          "line": 13
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "cors": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/cors_location_http_test.exs",
+      "sha256": "c62450d42e5e1eae015ccf515e8b732b787b2f41c0b2b6bd518cd0b3d9be6ec2",
+      "named_tests": [
+        {
+          "name": "persisted CORS scopes preflight and actual headers without authenticating actual reads",
+          "line": 40
+        },
+        {
+          "name": "bad, oversized and unauthorized CORS updates preserve persisted rules",
+          "line": 156
+        },
+        {
+          "name": "configured location and region headers agree without tightening signing regions",
+          "line": 192
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "bucket_cors": {
+      "path": "apps/ex_storage_service/test/ex_storage_service/storage/bucket_cors_test.exs",
+      "sha256": "f35318ca90f16d1833c79b4e37be6a4a9fcd1fa6b5a382256e6f885a26bf873e",
+      "named_tests": [
+        {
+          "name": "origin, method and every requested header must match the same rule",
+          "line": 5
+        },
+        {
+          "name": "invalid wildcard, headers, count, method and max age fail validation",
+          "line": 29
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "checksum_ranges": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/checksum_range_http_test.exs",
+      "sha256": "54eafbb1d9630f0153754bb250ef81d8c706c5445dfe0d58d9abc094165a47d9",
+      "named_tests": [
+        {
+          "name": "hosted current and explicit-version ranges omit whole-object checksums",
+          "line": 7
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "coherent_http": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/coherent_latest_http_test.exs",
+      "sha256": "04248d7528635081610940ed81e39f5092213afa9113e6ca8d30bf2c193df78a",
+      "named_tests": [
+        {
+          "name": "signed #{method} retries current deletion after head capture and preserves response identity",
+          "line": 139
+        },
+        {
+          "name": "actual bucket deletion and recreation cannot switch an in-flight selected generation",
+          "line": 173
+        },
+        {
+          "name": "cross-bucket domain and signed copies keep source and destination generations independent",
+          "line": 202
+        },
+        {
+          "name": "ordinary signed Router GET HEAD COPY and latest tags preserve the selected version",
+          "line": 245
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "three_voter": {
+      "path": "apps/ex_storage_service/test/ex_storage_service/cluster/three_voter_cluster_test.exs",
+      "sha256": "91db5aa3e969b769bb35fc7c43090cec33dbb39f4e6aef525896adb6cc062e88",
+      "named_tests": [
+        {
+          "name": "three voters preserve quorum and isolate the metadata-only role",
+          "line": 12
+        }
+      ],
+      "note": "Source inventory, not actual executed count; generated/parameterized cases may add tests."
+    },
+    "phase1": {
+      "path": "e2e/s3_hardening_phase1.py",
+      "sha256": "d0124066b09695a4996c11e2b50261966af71627f93042903594eee92a85dde2",
+      "functions": [
+        "check",
+        "status",
+        "raw",
+        "signed_wire",
+        "signature_profile",
+        "synchronized",
+        "main"
+      ],
+      "named_checks": [
+        "botocore-special-path-query-duplicate-header-signatures",
+        "32-conditional-completions",
+        "stale-and-current-multipart-if-match-across-endpoints",
+        "multipart-key-binding",
+        "independent-bad-checksums",
+        "historical-bucket-delete"
+      ]
+    },
+    "cluster_iam": {
+      "path": "e2e/cluster_iam_hardening.py",
+      "sha256": "6928bdc9230ae3f3f68135969e6c0f55f3afcd3ad0404c4e2881e585b6f3f9f2",
+      "functions": [
+        "check",
+        "client",
+        "status",
+        "url_status",
+        "race",
+        "control",
+        "iam_checks",
+        "bucket_races",
+        "main"
+      ],
+      "named_checks": [
+        "copy-source-denial-both-endpoints",
+        "attached-deny-linearizable-both-endpoints",
+        "missing-attached-deny-fails-closed-both-endpoints",
+        "malformed-attached-deny-fails-closed-both-endpoints",
+        "suspended-user-both-endpoints",
+        "revoked-key-and-presign-both-endpoints"
+      ]
+    },
+    "gateway": {
+      "path": "e2e/gateway_hardening.py",
+      "sha256": "4597482ec736d4a19ac75881907c2ebecd07c538ae9a940990935ca1d4c8e37a",
+      "functions": [
+        "check",
+        "wait_http",
+        "client",
+        "error",
+        "raw",
+        "signed_chunk_put",
+        "main"
+      ],
+      "named_checks": [
+        "retained-independent-mc-cloud-cache-compatibility",
+        "unsupported-selectors-zero-upstream-requests-preserve-body-and-versions",
+        "gateway-versions-multipart-tagging-guards-zero-upstream-requests",
+        "checksum-and-signed-payload-rejection-before-upstream",
+        "signed-chunks-and-trailers-valid-and-corrupt-truncated-trailing-rejection",
+        "external-replacement-deletion-freshness-cold-range-raw-attributes",
+        "current-rustfs-gateway-checksum-attributes-and-copy-roundtrip",
+        "normal-gateway-list-delete-and-batch-delete",
+        "truthful-denied-unavailable-throttled-get-head-put-delete-and-batch",
+        "truthful-unavailable-throttled-put-delete-preserve-local-and-upstream",
+        "mixed-gateway-batch-delete-real-success-and-path-specific-denial",
+        "real-upstream-socket-inactivity-timeout-no-stale-cache",
+        "real-delete-socket-inactivity-timeout-preserves-object-and-intent",
+        "durable-put-journal-full-beam-restart-local-recovery-no-upstream-retry",
+        "durable-delete-journal-full-beam-restart-local-recovery-no-upstream-retry",
+        "explicit-put-local-commit-failure-full-beam-restart-normal-reconciliation",
+        "explicit-delete-local-commit-failure-full-beam-restart-normal-reconciliation"
+      ]
+    },
+    "versions_lists": {
+      "path": "e2e/s3_hardening_versions_lists.py",
+      "sha256": "2ede64382f8a2019270093b41552002be253ca6b9396e15b8b66504d2fbfdb6a",
+      "functions": [
+        "check",
+        "wire_head",
+        "main"
+      ],
+      "named_checks": []
+    },
+    "tag_cors": {
+      "path": "e2e/s3_hardening_tag_cors.py",
+      "sha256": "fd354ba3253c7f3b7aed3b072a593543763a37488d138dd7684ee670cd9ceb82",
+      "functions": [
+        "check",
+        "error",
+        "tag_set",
+        "tags",
+        "unsigned",
+        "cleanup",
+        "main"
+      ],
+      "named_checks": [
+        "location-and-region-all-endpoints",
+        "bucket-tagging-cross-endpoint-crud",
+        "version-tagging-retains-bytes-version-and-count",
+        "version-and-common-prefix-pagination",
+        "copy-replace-multipart-tags",
+        "delete-marker-tagging-preserves-marker",
+        "cors-persistence-preflight-cache-and-actual-auth"
+      ]
+    },
+    "mpu_profile": {
+      "path": "e2e/s3_hardening_multipart.py",
+      "sha256": "f7b6db9c49a324ac28fca48650a4ea7d1585ea565051207d508b3404db6f07d4",
+      "functions": [
+        "check",
+        "check_error",
+        "remove_local_source",
+        "check_part_copy",
+        "main"
+      ],
+      "named_checks": []
+    },
+    "mpu_races": {
+      "path": "e2e/s3_hardening_multipart_races.py",
+      "sha256": "a99b0960f42284fafa830dad0c2f39f8904d7b8c516b0de1713607985c4f20e0",
+      "functions": [
+        "outcome",
+        "synchronized",
+        "allowed",
+        "digest",
+        "composite",
+        "part",
+        "complete",
+        "versions",
+        "verify_object",
+        "discard_completion_body",
+        "initiate",
+        "response_loss",
+        "overwrite_race",
+        "abort_race",
+        "main"
+      ],
+      "named_checks": []
+    },
+    "mpu_restart": {
+      "path": "e2e/s3_hardening_multipart_restart.py",
+      "sha256": "7a692bddabcb59ff5edff4f9a6e19c365370e754d50c689ff8a4beb1d19306d6",
+      "functions": [
+        "check",
+        "clients",
+        "prepare",
+        "check_parts",
+        "check_object",
+        "verify",
+        "main"
+      ],
+      "named_checks": []
+    },
+    "clients": {
+      "path": "e2e/s3_hardening_clients.py",
+      "sha256": "534b5bacd6b38cc437bd5e8c0952e7659b880dc03123a0547534d35b84effc24",
+      "functions": [
+        "main"
+      ],
+      "named_checks": []
+    },
+    "retained": {
+      "path": "e2e/run_hardening_retained_standalone.sh",
+      "sha256": "00d0c8fcfc40838d82e36369d89ace41eb566080e1576016c1b798c817d6093d"
+    },
+    "correctness": {
+      "path": "e2e/run_correctness_tests.py",
+      "sha256": "ce6cb2614ff84c2283e6dfe9a10f4842c3105a9c4342b37b004fdb48263032ce",
+      "functions": [
+        "counts",
+        "validate",
+        "run",
+        "main"
+      ],
+      "named_checks": []
+    },
+    "core_workflow": {
+      "path": ".github/workflows/test.yml",
+      "sha256": "0dfc53726030a9ad4a47c96c243bf9279a442f7a6bc2916df4e9061b778052dc"
+    },
+    "hardening_workflow": {
+      "path": ".github/workflows/s3-hardening.yml",
+      "sha256": "579d728f9e7c1f0b6afe7091a23790c3ff9ad7eedbe23e1da60c8024f27d9ef4"
+    },
+    "mc_gateway": {
+      "path": "e2e/cloud_cache_e2e.sh",
+      "sha256": "bb47bfaba2220ff36d22515c5091f54c0d2b010fb8e60f368b9ef394ff718bd5"
+    },
+    "compatibility": {
+      "path": "docs/s3-compatibility.md",
+      "sha256": "ffc490eb30f0e38e7abb8116a03ece1ae504517d8784e8b90fe2cf9b787d2a25"
+    },
+    "multipart_compose": {
+      "path": "apps/ex_storage_service/test/ex_storage_service/storage/multipart_test.exs",
+      "sha256": "602295bd7a77070d5f792d8414adf432b48318878ba70bac144e41fbdc739ca2",
+      "named_tests": [
+        {
+          "name": "store_part writes enumerable data without requiring a buffered binary",
+          "line": 27
+        },
+        {
+          "name": "store_part_from_reader returns the final reader state",
+          "line": 41
+        },
+        {
+          "name": "completed multipart content lands in the global CAS",
+          "line": 66
+        },
+        {
+          "name": "store_part commits the part to the global CAS and records its hash",
+          "line": 85
+        },
+        {
+          "name": "standalone store_part protects bytes before publishing part metadata",
+          "line": 104
+        },
+        {
+          "name": "complete_upload creates a manifest describing the parts",
+          "line": 128
+        },
+        {
+          "name": "complete_upload streams a part that only exists in a pack",
+          "line": 153
+        },
+        {
+          "name": "complete_upload with a never-uploaded part returns missing_part",
+          "line": 183
+        },
+        {
+          "name": "metadata failure leaves the prepared blob orphaned and upload retryable",
+          "line": 193
+        }
+      ]
+    },
+    "legacy_features": {
+      "path": "apps/ex_storage_service_s3/test/ex_storage_service_s3/extended_features_test.exs",
+      "sha256": "a8bb09dc10286c4b2cc941a490d6638a2daed93b12e14aa2fd46027ffaf94ae1",
+      "named_tests": [
+        {
+          "name": "generates a valid URL with required query parameters",
+          "line": 40
+        },
+        {
+          "name": "respects custom expiry",
+          "line": 66
+        },
+        {
+          "name": "clamps expiry to maximum of 604800 seconds",
+          "line": 78
+        },
+        {
+          "name": "generates consistent signatures for the same inputs",
+          "line": 90
+        },
+        {
+          "name": "different keys produce different signatures",
+          "line": 104
+        },
+        {
+          "name": "validates a correctly signed URL",
+          "line": 122
+        },
+        {
+          "name": "rejects tampered signature",
+          "line": 154
+        },
+        {
+          "name": "rejects expired URL",
+          "line": 186
+        },
+        {
+          "name": "rejects unknown access key",
+          "line": 215
+        },
+        {
+          "name": "default versioning state is disabled",
+          "line": 238
+        },
+        {
+          "name": "enable and suspend versioning",
+          "line": 243
+        },
+        {
+          "name": "cannot set versioning to disabled",
+          "line": 256
+        },
+        {
+          "name": "put_version creates versions when versioning is enabled",
+          "line": 261
+        },
+        {
+          "name": "delete with versioning creates delete marker",
+          "line": 307
+        },
+        {
+          "name": "suspended versioning uses null version id",
+          "line": 339
+        },
+        {
+          "name": "versioning API via HTTP",
+          "line": 360
+        },
+        {
+          "name": "versioning API rejects XML with a DOCTYPE declaration",
+          "line": 393
+        },
+        {
+          "name": "put and get lifecycle rules",
+          "line": 418
+        },
+        {
+          "name": "delete lifecycle rules",
+          "line": 447
+        },
+        {
+          "name": "should_expire? evaluates rules correctly",
+          "line": 460
+        },
+        {
+          "name": "should_expire? with empty prefix matches all objects",
+          "line": 479
+        },
+        {
+          "name": "disabled rules are ignored",
+          "line": 488
+        },
+        {
+          "name": "lifecycle API via HTTP",
+          "line": 497
+        },
+        {
+          "name": "lifecycle API roundtrips transition rules",
+          "line": 538
+        },
+        {
+          "name": "lifecycle API rejects XML with a DOCTYPE declaration",
+          "line": 573
+        },
+        {
+          "name": "put and get notification config",
+          "line": 603
+        },
+        {
+          "name": "delete notification config",
+          "line": 626
+        },
+        {
+          "name": "event_matches? with wildcard patterns",
+          "line": 639
+        },
+        {
+          "name": "event_matches? with exact patterns",
+          "line": 646
+        },
+        {
+          "name": "build_event creates proper event structure",
+          "line": 651
+        },
+        {
+          "name": "notification API via HTTP",
+          "line": 666
+        },
+        {
+          "name": "notification API rejects XML with a DOCTYPE declaration",
+          "line": 708
+        }
+      ]
+    },
+    "lifecycle": {
+      "path": "apps/ex_storage_service/test/ex_storage_service/storage/lifecycle_test.exs",
+      "sha256": "445bc362d4a7cd392875fa5db88811ba7b99c5ace2e7f4edb80f3aa6d2e9c0b8",
+      "named_tests": [
+        {
+          "name": "transition rules pack old matching objects without deleting metadata",
+          "line": 21
+        }
+      ]
+    },
+    "http_client": {
+      "path": "apps/ex_storage_service/test/ex_storage_service/http_client_test.exs",
+      "sha256": "68a44e793e092bdbabc8615ee440aa899fec49d97e4bbf7a77441c11104c549e",
+      "named_tests": [
+        {
+          "name": "preserves request bytes and JSON response bytes without automatic decoding",
+          "line": 7
+        },
+        {
+          "name": "fixed-length uploads lazily split large binary and iodata producer items",
+          "line": 22
+        },
+        {
+          "name": "cloud staged files stream explicit lengths and signed raw attributes",
+          "line": 74
+        },
+        {
+          "name": "socket read inactivity exposes the transport timeout reason before response headers",
+          "line": 114
+        },
+        {
+          "name": "consumes chunked responses and reports interrupted streams as errors",
+          "line": 138
+        },
+        {
+          "name": "buffered requests preserve gzip and deflate entity bytes and headers",
+          "line": 156
+        },
+        {
+          "name": "streaming fetch preserves compressed chunks and acknowledgement backpressure",
+          "line": 168
+        },
+        {
+          "name": "HEAD returns headers without reading the advertised response body",
+          "line": 196
+        },
+        {
+          "name": "returns redirects and failed HTTP responses to the caller",
+          "line": 207
+        },
+        {
+          "name": "connection failures return error tuples",
+          "line": 215
+        },
+        {
+          "name": "per-request timeout closes a connection that never returns a response",
+          "line": 223
+        },
+        {
+          "name": "cloud uploads preserve SigV4 headers, encoded keys, and binary bodies",
+          "line": 247
+        },
+        {
+          "name": "cloud downloads preserve binary data and not-found errors",
+          "line": 267
+        },
+        {
+          "name": "cloud downloads preserve stored gzip and deflate object bytes",
+          "line": 279
+        },
+        {
+          "name": "cloud HEAD parses tuple response headers",
+          "line": 288
+        },
+        {
+          "name": "cloud listing preserves pagination, XML, and request query parameters",
+          "line": 312
+        },
+        {
+          "name": "cloud file download pins the validator and stages large raw bytes",
+          "line": 350
+        },
+        {
+          "name": "cloud download failure and size limits remove partial staging",
+          "line": 384
+        },
+        {
+          "name": "cloud staged mutations never consume an arbitrary upstream response document",
+          "line": 406
+        },
+        {
+          "name": "external replication does not consume arbitrary mutation response documents",
+          "line": 433
+        },
+        {
+          "name": "cloud deletion remains idempotent and connectivity reports forbidden credentials",
+          "line": 448
+        },
+        {
+          "name": "notification API delivers the object event as JSON to the webhook",
+          "line": 453
+        }
+      ]
+    }
+  },
+  "lane_requirements": {
+    "correctness": {
+      "entry": "e2e/hardening_acceptance.py commands(correctness)",
+      "selection": "e2e/run_correctness_tests.py --extended: complete core/transport/S3/web/CLI suites, max-cases1; existing cluster/large_stream exclusions have separate mandatory lanes",
+      "receipts": [
+        "correctness.json",
+        "suite-selection/correctness.json",
+        "suite-selection/server.log"
+      ],
+      "static_minimum_test_floors": {
+        "core": 587,
+        "transport": 40,
+        "s3": 357,
+        "web": 21,
+        "cli": 3491
+      },
+      "actual_counts": null
+    },
+    "standalone": {
+      "entry": "e2e/run_hardening_phase2_standalone.sh <pinned-python> <unique-label>",
+      "scope": "all, not features",
+      "profiles": [
+        "phase1",
+        "versions_lists",
+        "tag_cors",
+        "multipart",
+        "multipart_races",
+        "clients",
+        "multipart_restart prepare/verify"
+      ],
+      "additional_entry": "e2e/run_hardening_retained_standalone.sh",
+      "receipts": [
+        "standalone.json",
+        "standalone command logs",
+        "retained results.json",
+        "restart lifecycle/state"
+      ]
+    },
+    "cluster": {
+      "entry": "e2e/run_hardening_phase1_cluster.sh <pinned-python> <unique-label>",
+      "scope": "all; authoritative run_profile sets ESS_HARDENING_PHASE2=true and ESS_HARDENING_FAILURES=true",
+      "topology": "isolated ordered three voters, both public data endpoints, strict RF2/W2",
+      "profiles": [
+        "phase1",
+        "cluster_iam",
+        "versions_lists",
+        "tag_cors",
+        "multipart",
+        "multipart_races",
+        "clients",
+        "multipart_restart prepare/verify",
+        "cluster_e2e data-failure/election/rejoin/persistence"
+      ],
+      "additional_entry": "mix test apps/ex_storage_service/test/ex_storage_service/cluster/three_voter_cluster_test.exs --include cluster",
+      "receipts": [
+        "cluster.json",
+        "cluster command logs",
+        "per-node logs",
+        "primary-loss.json",
+        "multipart-remote-object-evidence.json",
+        "multipart-remote-part-evidence.json",
+        "multipart restart lifecycle/state"
+      ]
+    },
+    "gateway": {
+      "entry": "e2e/gateway_hardening.py --root <fresh-isolated-root> --mc <absolute-verified-mc>",
+      "scope": "default all, never features",
+      "receipts": [
+        "gateway.json",
+        "gateway-artifacts/gateway-results.json",
+        "gateway command log",
+        "retained mc compatibility log"
+      ],
+      "predicates": [
+        "lane passed and every command exit0",
+        "gateway-results.complete=true",
+        "every named check passed",
+        "actual RustFS/client versions retained",
+        "owned runtime/listener/container cleanup verified"
+      ]
+    }
+  },
+  "independent_clients": {
+    "pin_source": "e2e/hardening-requirements.txt",
+    "pinned_python_packages": {
+      "boto3": "1.43.114",
+      "botocore": "1.43.114"
+    },
+    "current_execution_versions": null,
+    "historical_versions_reference_only": {
+      "aws": "2.34.24",
+      "mc": "RELEASE.2025-08-13T08-35-41Z",
+      "boto3": "1.43.114",
+      "botocore": "1.43.114"
+    },
+    "required_actual_versions": [
+      "AWS must report CLI v2 from selected-clients output",
+      "mc --version from selected-clients and gateway",
+      "Boto3/botocore runtime importlib output",
+      "RustFS resolved image from gateway-results.json"
+    ],
+    "normal_profile": "10MiB fixture; AWS CLI cp upload/download/copy/ls/head and mc cp/stat/ls/cat/copy/rm; file SHA256 and metadata verified. Negative/race fixtures adjust automatic retries without changing checksum defaults.",
+    "checksum_prerequisite": "Harness code has no when_required/disabled checksum overrides but inherits environment. Record AWS_REQUEST_CHECKSUM_CALCULATION and AWS_RESPONSE_CHECKSUM_VALIDATION absent/when_supported plus actual effective Boto config; inherited overrides cannot certify default coverage.",
+    "credential_boundary": "loopback isolated endpoints and disposable credentials; limited cluster user checks destination-only copy denial, missing/corrupt attached deny, policy changes, suspension/revocation and old presigns on both endpoints"
+  },
+  "evidence_policy": [
+    "Every clause remains pending until all required lanes have compatible actual candidate receipts and substantive assertions.",
+    "Historical 35/38 and narrower daily passes are not current-candidate certification.",
+    "Wrapper success alone is insufficient: inspect named profiles, all exits, effective defaults, client versions, strict RF/W and cleanup.",
+    "Missing/skipped/failed/cancelled/timed-out cases cannot pass.",
+    "Static count floors are anti-shrink guards, not executed counts.",
+    "Compatibility document historical 3.1.3/full-business statements require parent reconciliation against new 3.1.4 receipts."
+  ],
+  "rows": [
+    {
+      "id": "A01",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A01.1",
+          "requirement": "unsupported selectors leave bytes/history/config/upstream unchanged",
+          "source_refs": [
+            "operation",
+            "bucket_config",
+            "gateway",
+            "phase1"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A01.2",
+          "requirement": "tagging mutates tags alone",
+          "source_refs": [
+            "operation",
+            "tagging",
+            "tag_cors"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Unsupported operation selectors never execute CRUD. ACL/retention/legal-hold and other unsupported requests leave object bytes, version history, bucket configuration, and upstream requests unchanged. Tagging changes only tags once supported.",
+      "required_lanes": [
+        "Contract",
+        "HTTP"
+      ]
+    },
+    {
+      "id": "A02",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A02.1",
+          "requirement": "conflicting/duplicate selectors rejected",
+          "source_refs": [
+            "operation",
+            "root_listing",
+            "authorization_http",
+            "phase1"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A02.2",
+          "requirement": "malformed IDs/part numbers and copy/MPU ambiguity handled",
+          "source_refs": [
+            "operation",
+            "phase1"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A02.3",
+          "requirement": "harmless SDK controls do not select CRUD",
+          "source_refs": [
+            "operation",
+            "root_listing",
+            "authorization_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Conflicting subresources, duplicate operation selectors, malformed IDs/part numbers, and ambiguous copy/multipart requests are handled deliberately; harmless SDK parameters do not accidentally select another operation.",
+      "required_lanes": [
+        "Contract",
+        "HTTP"
+      ]
+    },
+    {
+      "id": "A03",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A03.1",
+          "requirement": "copy source/version permission",
+          "source_refs": [
+            "authorization",
+            "authorization_http",
+            "part_copy"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A03.2",
+          "requirement": "destination write permission",
+          "source_refs": [
+            "authorization",
+            "authorization_http",
+            "cluster_iam"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A03.3",
+          "requirement": "destination-only denied for CopyObject and UploadPartCopy",
+          "source_refs": [
+            "authorization_http",
+            "part_copy",
+            "cluster_iam"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "CopyObject and UploadPartCopy require appropriate source/version access and destination write access. A user with only destination access cannot copy a protected source.",
+      "required_lanes": [
+        "Contract",
+        "HTTP"
+      ]
+    },
+    {
+      "id": "A04",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A04.1",
+          "requirement": "all4 MPU operations bound to bucket/key",
+          "source_refs": [
+            "authorization",
+            "authorization_http",
+            "phase1"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A04.2",
+          "requirement": "unauthorized cannot read parts or use uploadID as capability",
+          "source_refs": [
+            "authorization_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "UploadPart, ListParts, Complete, and Abort cannot operate on an upload under the wrong bucket or key. Unauthorized callers cannot obtain part metadata or use an upload ID as a capability.",
+      "required_lanes": [
+        "Contract",
+        "HTTP"
+      ]
+    },
+    {
+      "id": "A05",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A05.1",
+          "requirement": "canonical AWS actions/ARNs",
+          "source_refs": [
+            "policy",
+            "authorization_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A05.2",
+          "requirement": "legacy scope retained",
+          "source_refs": [
+            "policy",
+            "tagging_auth"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A05.3",
+          "requirement": "HEAD-only does not permit GET",
+          "source_refs": [
+            "policy",
+            "authorization_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A05.4",
+          "requirement": "deny effective across aliases",
+          "source_refs": [
+            "policy",
+            "authorization_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Standard AWS action mappings and canonical S3 ARNs work. Legacy ESS policies retain their intended scope. An old HEAD-only allow is not broadened to GET; explicit deny remains effective across aliases.",
+      "required_lanes": [
+        "Contract",
+        "HTTP"
+      ]
+    },
+    {
+      "id": "A06",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A06.1",
+          "requirement": "missing/unreadable attached records failclosed",
+          "source_refs": [
+            "policy",
+            "cluster_iam"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A06.2",
+          "requirement": "changed deny/suspension/revocation enforced at declared cluster consistency",
+          "source_refs": [
+            "cluster_iam",
+            "authorization_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Missing/unreadable policy records, including an attached deny policy, fail closed. Revoked keys, suspended users, and changed policies are enforced under the declared cluster read consistency.",
+      "required_lanes": [
+        "Contract",
+        "Cluster"
+      ]
+    },
+    {
+      "id": "A07",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A07.1",
+          "requirement": "current/version entries separate permissions",
+          "source_refs": [
+            "authorization",
+            "authorization_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A07.2",
+          "requirement": "mixed failures and quiet errors",
+          "source_refs": [
+            "authorization_http",
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A07.3",
+          "requirement": "limits and integrity",
+          "source_refs": [
+            "authorization",
+            "authorization_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A07.4",
+          "requirement": "permitted key cannot authorize denied sibling",
+          "source_refs": [
+            "authorization_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A07.5",
+          "requirement": "truthful upstream perentry outcomes",
+          "source_refs": [
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "DeleteObjects handles object/version entries separately, mixed authorization and per-entry failures, quiet responses, limits, and integrity requirements. A permitted entry does not authorize another key.",
+      "required_lanes": [
+        "Contract",
+        "HTTP",
+        "Gateway"
+      ]
+    },
+    {
+      "id": "A08",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A08.1",
+          "requirement": "valid signed declared hash with altered body rejects",
+          "source_refs": [
+            "upload_integrity_http",
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A08.2",
+          "requirement": "hosted/upstream previous body/history unchanged",
+          "source_refs": [
+            "upload_integrity_http",
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "A correctly signed request with a declared payload hash but altered body is rejected before any visible hosted or upstream mutation. Previous bytes and versions remain intact.",
+      "required_lanes": [
+        "HTTP",
+        "Gateway"
+      ]
+    },
+    {
+      "id": "A09",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A09.1",
+          "requirement": "independent MD5 and algorithm checksum vectors valid/invalid",
+          "source_refs": [
+            "upload_integrity",
+            "upload_integrity_http",
+            "phase1"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A09.2",
+          "requirement": "CAS/ETag distinction",
+          "source_refs": [
+            "upload_integrity",
+            "upload_integrity_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A09.3",
+          "requirement": "unsupported declaration cannot succeed unvalidated",
+          "source_refs": [
+            "upload_integrity",
+            "upload_integrity_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Correct and incorrect Content-MD5 and supported algorithm-specific checksums are exercised independently of the CAS hash/ETag. Declared unsupported algorithms never receive an unvalidated success.",
+      "required_lanes": [
+        "Contract",
+        "HTTP"
+      ]
+    },
+    {
+      "id": "A10",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A10.1",
+          "requirement": "signed chain and unsigned trailer applicable checks",
+          "source_refs": [
+            "upload_integrity",
+            "upload_integrity_http",
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A10.2",
+          "requirement": "decoded length/framing/terminal signature/trailer checksum",
+          "source_refs": [
+            "upload_integrity",
+            "upload_integrity_http",
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A10.3",
+          "requirement": "corruption/truncation/termination/trailing bytes cannot publish",
+          "source_refs": [
+            "upload_integrity",
+            "upload_integrity_http",
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Accepted signed and unsigned-trailer aws-chunked modes validate their applicable signature chain, length, framing, and checksum trailers. Corruption, truncation, malformed termination, or prohibited trailing bytes cannot publish an object.",
+      "required_lanes": [
+        "Contract",
+        "HTTP",
+        "Gateway"
+      ]
+    },
+    {
+      "id": "A11",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A11.1",
+          "requirement": "independent AWS/Botocore oracle",
+          "source_refs": [
+            "sigv4",
+            "phase1"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A11.2",
+          "requirement": "space/plus/percent/Unicode",
+          "source_refs": [
+            "phase1"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A11.3",
+          "requirement": "repeated/empty queries and duplicate headers",
+          "source_refs": [
+            "sigv4",
+            "phase1"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A11.4",
+          "requirement": "scope and slash/dot path semantics",
+          "source_refs": [
+            "sigv4",
+            "phase1"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Independent signature fixtures cover spaces, literal plus, percent escapes, Unicode, repeated/empty query values, duplicate headers, invalid credential scope, and meaningful path slashes/dot segments. ESS is not its only signing oracle.",
+      "required_lanes": [
+        "Contract",
+        "HTTP"
+      ]
+    },
+    {
+      "id": "A12",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A12.1",
+          "requirement": "GET/PUT presigning",
+          "source_refs": [
+            "authorization_http",
+            "upload_integrity_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A12.2",
+          "requirement": "signed overrides",
+          "source_refs": [
+            "read_semantics"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A12.3",
+          "requirement": "expiry and revocation/resource policy",
+          "source_refs": [
+            "authorization_http",
+            "upload_integrity_http",
+            "cluster_iam"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A12.4",
+          "requirement": "signed parameter or constrained header tamper denied",
+          "source_refs": [
+            "read_semantics",
+            "upload_integrity_http",
+            "authorization_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Presigned GET/PUT, signed response overrides, expiration, key revocation, and resource permissions behave correctly. Changing a signed parameter or constrained header fails.",
+      "required_lanes": [
+        "HTTP"
+      ]
+    },
+    {
+      "id": "A13",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A13.1",
+          "requirement": "32 synchronized PUT writers exactly1 winner",
+          "source_refs": [
+            "conditionals",
+            "phase1"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A13.2",
+          "requirement": "stale IfMatch denied",
+          "source_refs": [
+            "conditionals",
+            "phase1"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A13.3",
+          "requirement": "32 conditional completions exactly1 winner",
+          "source_refs": [
+            "multipart_contention",
+            "phase1"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A13.4",
+          "requirement": "crossendpoint stale/current completion invariants",
+          "source_refs": [
+            "phase1"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "At least 32 synchronized create-only writers yield exactly one success. Stale If-Match writes fail. Conditional multipart completion and races across both cluster endpoints preserve the same invariants.",
+      "required_lanes": [
+        "Contract",
+        "HTTP",
+        "Cluster"
+      ]
+    },
+    {
+      "id": "A14",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A14.1",
+          "requirement": "history/marker blocks bucket deletion",
+          "source_refs": [
+            "bucket_lifecycle",
+            "bucket_control",
+            "phase1"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A14.2",
+          "requirement": "write/completion/delete/recreate races generation fenced",
+          "source_refs": [
+            "bucket_lifecycle",
+            "bucket_config",
+            "cluster_iam",
+            "coherent_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A14.3",
+          "requirement": "delete failure cannot return success",
+          "source_refs": [
+            "bucket_lifecycle_fault",
+            "bucket_lifecycle"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Historical versions/delete markers prevent bucket deletion. Racing writes, completions, and delete/recreate cannot create orphan-visible objects or revive old state. Injected delete failure never returns success.",
+      "required_lanes": [
+        "Contract",
+        "HTTP",
+        "Cluster"
+      ]
+    },
+    {
+      "id": "A15",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A15.1",
+          "requirement": "denied/unavailable/timeout not fabricated success/NoSuchKey",
+          "source_refs": [
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A15.2",
+          "requirement": "cache and index identity retained",
+          "source_refs": [
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A15.3",
+          "requirement": "mixed batch outcomes truthful",
+          "source_refs": [
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Upstream denied/unavailable/timeout responses are not returned as successful deletes or fabricated NoSuchKey. Failed writes/deletes preserve truthful cache/index state and per-entry batch outcomes.",
+      "required_lanes": [
+        "Gateway"
+      ]
+    },
+    {
+      "id": "A16",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A16.1",
+          "requirement": "external success/local failure durable restart reconciliation",
+          "source_refs": [
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A16.2",
+          "requirement": "unknown external outcomes no blind destructive replay",
+          "source_refs": [
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A16.3",
+          "requirement": "no extra upstream versions/markers",
+          "source_refs": [
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Upstream mutation success followed by local commit failure is recovered through durable reconciliation after restart. Unknown external outcomes do not cause blind destructive retry or unexpected additional versions.",
+      "required_lanes": [
+        "Gateway"
+      ]
+    },
+    {
+      "id": "A17",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A17.1",
+          "requirement": "outofband replacement/deletion freshness",
+          "source_refs": [
+            "gateway",
+            "gateway_read"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A17.2",
+          "requirement": "body/size/ETag/attrs one identity",
+          "source_refs": [
+            "gateway",
+            "gateway_attributes"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A17.3",
+          "requirement": "excluded mode feature zero upstream requests",
+          "source_refs": [
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Out-of-band upstream replacement/deletion and stale cache entries obey the documented freshness policy. Served body, size, ETag, and attributes refer to one upstream identity. Excluded feature/mode combinations fail before mutation.",
+      "required_lanes": [
+        "Gateway"
+      ]
+    },
+    {
+      "id": "A18",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A18.1",
+          "requirement": "control XML limits and malformed XML/dates/ranges safe",
+          "source_refs": [
+            "control_xml",
+            "bucket_control",
+            "bucket_config"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A18.2",
+          "requirement": "sanitized errors",
+          "source_refs": [
+            "errors",
+            "bucket_lifecycle",
+            "late_stream"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A18.3",
+          "requirement": "HEAD bodyless",
+          "source_refs": [
+            "operation",
+            "errors",
+            "version_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A18.4",
+          "requirement": "late failure closes stream without appended error",
+          "source_refs": [
+            "late_stream"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Oversized control/XML requests and malformed XML/dates/ranges fail safely. No secret or internal exception detail leaks. HEAD errors have no object/XML body; late stream failures terminate rather than append error content.",
+      "required_lanes": [
+        "Contract",
+        "HTTP"
+      ]
+    },
+    {
+      "id": "A19",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A19.1",
+          "requirement": "never/enabled/suspended/null/marker state",
+          "source_refs": [
+            "versioning",
+            "versions_lists"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A19.2",
+          "requirement": "versions pagination/IsLatest",
+          "source_refs": [
+            "version_listing",
+            "tag_cors",
+            "versions_lists"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A19.3",
+          "requirement": "explicit GET/HEAD/DELETE/COPY",
+          "source_refs": [
+            "version_http",
+            "versions_lists",
+            "coherent_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A19.4",
+          "requirement": "served version/error headers",
+          "source_refs": [
+            "version_http",
+            "versions_lists"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Versions work across never-enabled/enabled/suspended buckets: null version, delete markers, ListObjectVersions pagination/IsLatest, explicit-version GET/HEAD/DELETE/COPY, and correct version/error headers.",
+      "required_lanes": [
+        "Contract",
+        "HTTP",
+        "Cluster"
+      ]
+    },
+    {
+      "id": "A20",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A20.1",
+          "requirement": "v1/v2 prefix/delimiter/seek/continuation",
+          "source_refs": [
+            "listing_http",
+            "versions_lists"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A20.2",
+          "requirement": "encoding/max0/maxbounds/commonprefix-only",
+          "source_refs": [
+            "listing_http",
+            "versions_lists"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A20.3",
+          "requirement": "malformed context tokens",
+          "source_refs": [
+            "listing_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A20.4",
+          "requirement": "v1 records do not resurrect below v2 deletion",
+          "source_refs": [
+            "versioning",
+            "backfill",
+            "object_commit"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "ListObjects v1/v2 handle prefixes, delimiters, start-after/markers, continuation, encoding, zero/max page sizes, common-prefix-only pages, and malformed tokens. Legacy records cannot reappear beneath newer v2 deletions.",
+      "required_lanes": [
+        "Contract",
+        "HTTP",
+        "Cluster"
+      ]
+    },
+    {
+      "id": "A21",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A21.1",
+          "requirement": "upload/part pagination including equal keys",
+          "source_refs": [
+            "multipart",
+            "multipart_http",
+            "mpu_profile"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A21.2",
+          "requirement": "source version/range/auth/preconditions",
+          "source_refs": [
+            "part_copy",
+            "gateway_read",
+            "mpu_profile"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A21.3",
+          "requirement": "completion order/ETag/limits",
+          "source_refs": [
+            "multipart",
+            "multipart_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A21.4",
+          "requirement": "local/remote/packed source composition",
+          "source_refs": [
+            "multipart",
+            "mpu_profile",
+            "multipart_compose"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": [],
+          "scope_note": "Packed-only composition is a standalone domain test with loose part removed and nonzero pack offset. Cluster harness separately removes actual object and part only on data-a, verifies data-b and unchanged RF2/W2/location metadata before HTTP operations; packing remains disabled in cluster mode."
+        }
+      ],
+      "matrix_requirement": "ListMultipartUploads and ListParts paginate correctly. UploadPartCopy respects source versions/ranges and authorization, and completion validates parts/order/ETags/limits using supported local and remote sources.",
+      "required_lanes": [
+        "Contract",
+        "HTTP",
+        "Cluster"
+      ]
+    },
+    {
+      "id": "A22",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A22.1",
+          "requirement": "init attrs/tags/checksums survive",
+          "source_refs": [
+            "multipart_http",
+            "mpu_profile"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A22.2",
+          "requirement": "part overwrite/abort/complete and latewrite fences",
+          "source_refs": [
+            "multipart",
+            "mpu_races"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A22.3",
+          "requirement": "finalization failure recovery",
+          "source_refs": [
+            "multipart",
+            "multipart_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A22.4",
+          "requirement": "lost response/restart exactly1 internal completion",
+          "source_refs": [
+            "mpu_races",
+            "mpu_restart"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Multipart initialization attributes survive completion. Concurrent part overwrite/abort/complete, late writes, finalization failure, response loss, and restart do not corrupt the final object or duplicate an internal completion.",
+      "required_lanes": [
+        "Contract",
+        "HTTP",
+        "Cluster"
+      ]
+    },
+    {
+      "id": "A23",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A23.1",
+          "requirement": "system/user attrs/checksum PUT/MPU/COPY/REPLACE/GET/HEAD",
+          "source_refs": [
+            "attributes",
+            "multipart_http",
+            "mpu_profile",
+            "checksum_ranges"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A23.2",
+          "requirement": "supported gateway roundtrip",
+          "source_refs": [
+            "gateway",
+            "gateway_attributes"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A23.3",
+          "requirement": "genuine gzip bytes preserved",
+          "source_refs": [
+            "attributes",
+            "gateway",
+            "gateway_attributes"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Object system/user attributes and applicable checksums round-trip through PUT, multipart, COPY/REPLACE, GET, HEAD, and supported gateway operations. Genuine gzip bytes and Content-Encoding are preserved.",
+      "required_lanes": [
+        "HTTP",
+        "Gateway"
+      ]
+    },
+    {
+      "id": "A24",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A24.1",
+          "requirement": "bucket/current/version tag CRUD permissions/limits",
+          "source_refs": [
+            "tags",
+            "tagging",
+            "tagging_auth",
+            "tag_cors"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A24.2",
+          "requirement": "COPY/MPU tag semantics",
+          "source_refs": [
+            "attributes",
+            "tagging_auth",
+            "multipart_http",
+            "tag_cors"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A24.3",
+          "requirement": "deletetags preserves version/body",
+          "source_refs": [
+            "tagging",
+            "tag_cors",
+            "object_commit",
+            "coherent_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Bucket/object/version Tagging CRUD uses correct permissions and limits; COPY and multipart tag semantics are correct. Tag deletion never removes object bytes or a version.",
+      "required_lanes": [
+        "Contract",
+        "HTTP",
+        "Cluster"
+      ]
+    },
+    {
+      "id": "A25",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A25.1",
+          "requirement": "configured location/region",
+          "source_refs": [
+            "cors",
+            "tag_cors"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A25.2",
+          "requirement": "persisted CORS preflight allowed/denied",
+          "source_refs": [
+            "bucket_cors",
+            "cors",
+            "tag_cors"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A25.3",
+          "requirement": "actual request authentication and Vary/cache scope",
+          "source_refs": [
+            "cors",
+            "tag_cors"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "GetBucketLocation and configured region behavior are consistent. CORS rules persist; permitted/denied preflights and actual response headers work without bypassing real-request authentication or overbroad caching.",
+      "required_lanes": [
+        "Contract",
+        "HTTP"
+      ]
+    },
+    {
+      "id": "A26",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A26.1",
+          "requirement": "special keys/XML escaping",
+          "source_refs": [
+            "phase1",
+            "version_listing",
+            "versions_lists"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A26.2",
+          "requirement": "GET/HEAD conditions/overrides",
+          "source_refs": [
+            "read_semantics",
+            "version_http"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A26.3",
+          "requirement": "full/ranged/coldcache body+headers",
+          "source_refs": [
+            "checksum_ranges",
+            "gateway_read",
+            "gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Special keys and XML escaping round-trip. GET/HEAD conditions, signed response overrides, full/ranged reads, and cold-cache ranges return correct content and headers.",
+      "required_lanes": [
+        "HTTP",
+        "Gateway"
+      ]
+    },
+    {
+      "id": "A27",
+      "status": "pending",
+      "clauses": [
+        {
+          "id": "A27.1",
+          "requirement": "record selected AWSCLI2/Boto3/mc versions",
+          "source_refs": [
+            "clients",
+            "phase1",
+            "gateway",
+            "retained"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A27.2",
+          "requirement": "normal signing/checksum compatibility",
+          "source_refs": [
+            "clients",
+            "phase1",
+            "gateway",
+            "mc_gateway"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A27.3",
+          "requirement": "HTTP/Gateway/Cluster profiles",
+          "source_refs": [
+            "clients",
+            "phase1",
+            "gateway",
+            "cluster_iam",
+            "retained"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A27.4",
+          "requirement": "support doc maps cases",
+          "source_refs": [
+            "compatibility"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        },
+        {
+          "id": "A27.5",
+          "requirement": "existing core/web/CLI and retained standalone workflows",
+          "source_refs": [
+            "correctness",
+            "core_workflow",
+            "hardening_workflow",
+            "retained"
+          ],
+          "status": "pending",
+          "current_candidate_evidence": []
+        }
+      ],
+      "matrix_requirement": "Recorded current selected AWS CLI v2, Boto3, and mc versions pass the declared compatibility profiles using normal signing/checksum behavior. Supported matrix entries map to passing tests; existing core/web/CLI workflows remain intact.",
+      "required_lanes": [
+        "HTTP",
+        "Gateway",
+        "Cluster"
+      ]
+    }
+  ],
+  "compatibility_operation_map": [
+    {
+      "operation": "ListBuckets GET `/`; bucket PUT/HEAD/DELETE",
+      "declared_modes": "H,C; ESS-local bucket state for G",
+      "scenario_refs": [
+        "A02",
+        "A05",
+        "A14"
+      ],
+      "source_refs": [
+        "root_listing",
+        "authorization_http",
+        "bucket_control",
+        "bucket_lifecycle"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "ListObjects GET bucket; v2 `list-type=2`",
+      "declared_modes": "H,C,G; G delegates tokens upstream",
+      "scenario_refs": [
+        "A20"
+      ],
+      "source_refs": [
+        "listing_http",
+        "versions_lists"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "Versioning GET/PUT `?versioning`",
+      "declared_modes": "H,C; G501",
+      "scenario_refs": [
+        "A19"
+      ],
+      "source_refs": [
+        "versioning",
+        "versions_lists"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "ListObjectVersions GET `?versions`",
+      "declared_modes": "H,C; G501",
+      "scenario_refs": [
+        "A19"
+      ],
+      "source_refs": [
+        "version_listing",
+        "tag_cors"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "Object GET/HEAD",
+      "declared_modes": "H,C; G current only",
+      "scenario_refs": [
+        "A12",
+        "A19",
+        "A26"
+      ],
+      "source_refs": [
+        "version_http",
+        "read_semantics",
+        "checksum_ranges",
+        "coherent_http"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "PUT object",
+      "declared_modes": "H,C,G; cluster G writes503",
+      "scenario_refs": [
+        "A08",
+        "A09",
+        "A13",
+        "A23"
+      ],
+      "source_refs": [
+        "upload_integrity_http",
+        "conditionals",
+        "attributes"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "DELETE object; POST `?delete`",
+      "declared_modes": "H,C,G current only; cluster G writes503",
+      "scenario_refs": [
+        "A07",
+        "A19"
+      ],
+      "source_refs": [
+        "authorization_http",
+        "versions_lists",
+        "gateway"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "COPY PUT object with `x-amz-copy-source`",
+      "declared_modes": "H,C,G current; cluster G writes503",
+      "scenario_refs": [
+        "A03",
+        "A23",
+        "A24"
+      ],
+      "source_refs": [
+        "authorization_http",
+        "attributes",
+        "tagging_auth",
+        "gateway"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "Initiate MPU POST `?uploads`; upload PUT `?uploadId&partNumber`; complete POST `?uploadId`",
+      "declared_modes": "H,C; G501",
+      "scenario_refs": [
+        "A04",
+        "A13",
+        "A21",
+        "A22",
+        "A23"
+      ],
+      "source_refs": [
+        "authorization_http",
+        "multipart_http",
+        "mpu_profile",
+        "mpu_races",
+        "mpu_restart"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "UploadPartCopy PUT with uploadId/partNumber and copy source",
+      "declared_modes": "H,C destinations; gateway source pinned",
+      "scenario_refs": [
+        "A03",
+        "A21"
+      ],
+      "source_refs": [
+        "part_copy",
+        "gateway_read",
+        "mpu_profile"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "ListUploads GET `?uploads`; ListParts GET `?uploadId`; Abort DELETE `?uploadId`",
+      "declared_modes": "H,C; G501",
+      "scenario_refs": [
+        "A04",
+        "A21"
+      ],
+      "source_refs": [
+        "authorization_http",
+        "multipart_http",
+        "mpu_profile"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "Bucket tags GET/PUT/DELETE `?tagging`",
+      "declared_modes": "H,C ESS-local",
+      "scenario_refs": [
+        "A24"
+      ],
+      "source_refs": [
+        "tagging",
+        "tags",
+        "tag_cors"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "Object/version tags GET/PUT/DELETE `?tagging[&versionId]`",
+      "declared_modes": "H,C; G501",
+      "scenario_refs": [
+        "A24"
+      ],
+      "source_refs": [
+        "tagging",
+        "tagging_auth",
+        "tag_cors",
+        "coherent_http"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "Location GET `?location`; CORS GET/PUT/DELETE `?cors`; OPTIONS",
+      "declared_modes": "H,C ESS-local",
+      "scenario_refs": [
+        "A25"
+      ],
+      "source_refs": [
+        "cors",
+        "bucket_cors",
+        "tag_cors"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "Lifecycle GET/PUT/DELETE `?lifecycle`",
+      "declared_modes": "ESS-local configuration; cluster lifecycle/packing workers remain guarded",
+      "scenario_refs": [
+        "A01",
+        "A18",
+        "A27"
+      ],
+      "source_refs": [
+        "legacy_features",
+        "bucket_config",
+        "lifecycle"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    },
+    {
+      "operation": "Notifications GET/PUT/DELETE `?notification`",
+      "declared_modes": "ESS-local configuration; existing worker/role guards retained",
+      "scenario_refs": [
+        "A01",
+        "A18",
+        "A27"
+      ],
+      "source_refs": [
+        "legacy_features",
+        "bucket_config",
+        "http_client"
+      ],
+      "status": "pending",
+      "current_candidate_evidence": []
+    }
+  ],
+  "cluster_permission_audit": {
+    "policy_consistency_source": "apps/ex_storage_service/lib/ex_storage_service/iam/policy.ex get_policy/1 and user attachments use consistency: :linearizable",
+    "negative_cases": "cluster_iam.iam_checks: destination-only CopyObject denied with no destination, attached deny, missing/corrupt attached deny, suspension, revoked key; old presigned URLs denied after mutations; positive controls after detach/reactivation",
+    "scope_requirement": "all; features skips missing/corrupt attached-deny cases and bucket races and cannot certify those clauses",
+    "HTTP_permission_cases": "AuthorizationHTTPTest independently signs current/version copy, all four unauthorized multipart operations, wrong bucket/key, separate mixed/version delete grants, HEAD aliases and root ListAllMyBuckets."
+  },
+  "audit_validation": {
+    "source_files_exist_and_hashes_match": true,
+    "matrix_rows": 27,
+    "clauses": 90,
+    "compatibility_operations": 16,
+    "all_execution_statuses": "pending",
+    "application_runtimes_started": false,
+    "source_files_edited": false,
+    "historical_acceptance_imported": false
+  }
+}

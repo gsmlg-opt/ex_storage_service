@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import sys
 import time
+from functools import lru_cache
 
 REPO = Path(__file__).resolve().parents[1]
 PROFILES = ("correctness", "standalone", "gateway", "cluster", "index", "resources", "faults", "crashes", "resilience", "restore", "release")
@@ -25,14 +26,38 @@ def sha():
     return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO, text=True).strip()
 
 
+def executable_input(relative):
+    return (relative.parts[0] in ("apps", "config", "e2e", "scripts", ".github")
+        or (relative.parts[:3] == ("docs", "cli", "compatibility") and relative.suffix == ".json")
+        or relative.name in ("mix.exs", "mix.lock", "Dockerfile", ".dockerignore", "package.json",
+                             "package-lock.json", ".npmrc", ".formatter.exs"))
+
+
+@lru_cache(maxsize=128)
+def compatible_revision(candidate, current):
+    """Reports may follow the frozen candidate without requiring their future SHA.
+
+    Only report/document descendants qualify; the content fingerprint separately
+    fences all working-tree executable inputs, including uncommitted files.
+    """
+    if candidate == current:
+        return True
+    if not isinstance(candidate, str) or not re.fullmatch(r"[0-9a-f]{40}", candidate):
+        return False
+    if subprocess.run(["git", "merge-base", "--is-ancestor", candidate, current], cwd=REPO,
+                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode:
+        return False
+    changes = subprocess.check_output(["git", "diff", "--name-only", "-z", candidate, current], cwd=REPO)
+    return not any(executable_input(Path(os.fsdecode(name))) for name in changes.split(b"\0") if name)
+
+
 def source_fingerprint():
     """Also fence uncommitted source changes; HEAD alone is not a build identity."""
     names = subprocess.check_output(["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"], cwd=REPO)
     digest = hashlib.sha256()
     for name in sorted(set(names.split(b"\0")) - {b""}):
         relative = Path(os.fsdecode(name))
-        if relative.parts[0] not in ("apps", "config", "e2e", "scripts", ".github") and relative.name not in (
-                "mix.exs", "mix.lock", "Dockerfile", ".dockerignore", "package.json", "package-lock.json", ".formatter.exs"):
+        if not executable_input(relative):
             continue
         path = REPO / relative
         digest.update(name + b"\0")
@@ -78,8 +103,10 @@ def commands(profile, args, label):
     python = str(Path(args.python).absolute())
     if profile == "correctness":
         return [("test", ["mix", "format", "--check-formatted"]),
-                ("test", ["mix", "compile", "--warnings-as-errors"]),
-                ("test", ["mix", "test"])]
+                ("test", ["mix", "compile", "--force", "--warnings-as-errors"]),
+                ("test", [python, "e2e/run_correctness_tests.py", "--extended", "--output",
+                          str(args.output / "suite-selection")]),
+                ("test", [python, "-m", "unittest", "discover", "-s", "e2e", "-p", "test_*.py"])]
     if profile == "standalone":
         return [("prod", ["bash", "e2e/run_hardening_phase2_standalone.sh", python, label]),
                 ("prod", ["bash", "e2e/run_hardening_retained_standalone.sh", python, label + "-retained"])]
@@ -98,7 +125,9 @@ def commands(profile, args, label):
                 ("prod", ["bash", "e2e/run_hardening_replication_crash.sh", python, label + "-replication"])]
     if profile == "resources":
         return [("prod", ["bash", "e2e/run_hardening_resources.sh", python, label]),
-                ("prod", ["bash", "e2e/run_hardening_cluster_resources.sh", python, label + "-cluster"])]
+                ("prod", ["bash", "e2e/run_hardening_cluster_resources.sh", python, label + "-cluster"]),
+                ("test", ["mix", "test", "apps/ex_storage_service_cluster/test/ex_storage_service_cluster/large_stream_test.exs",
+                          "--include", "large_stream", "--max-cases", "1", "--no-color"])]
     if profile == "resilience":
         return [("prod", ["bash", "e2e/run_hardening_resilience.sh", python, label]),
                 ("prod", ["bash", "e2e/run_hardening_replication_backlog.sh", python, label + "-backlog"])]
@@ -140,9 +169,14 @@ def run_profile(profile, args):
             write_json(result_path, record)
             if code:
                 record.update(status="blocked", reason=f"command exited {code}; inspect retained log")
-                break
+                # Scale and migration, and the two resource topologies, are
+                # independent. Retain both real outcomes after a failed case;
+                # a failed prerequisite compile still stops the whole lane.
+                if profile not in ("index", "resources") or index == 0:
+                    break
         else:
-            record["status"] = "passed"
+            if all(command["exit_status"] == 0 for command in record["commands"]):
+                record["status"] = "passed"
     except (OSError, ValueError) as failure:
         record.update(status="blocked", reason=str(failure))
     except BaseException:
@@ -190,6 +224,18 @@ def audit(ledger, lane_directory):
             path = (REPO / item.get("path", "")).resolve()
             if not path.is_relative_to(REPO) or not path.is_file() or path.stat().st_size == 0:
                 errors.append(f"{name}: missing or unsafe evidence path")
+        if value.get("schema", 1) >= 2:
+            clauses = row.get("clauses", [])
+            if not clauses:
+                errors.append(f"{name}: missing clause-level acceptance audit")
+            for clause in clauses:
+                clause_name = clause.get("id", name + ".unknown")
+                if clause.get("status") != "passed" or not clause.get("evidence"):
+                    errors.append(f"{clause_name}: pending, failed or missing clause evidence")
+                for item in clause.get("evidence", []):
+                    path = (REPO / item.get("path", "")).resolve()
+                    if not path.is_relative_to(REPO) or not path.is_file() or path.stat().st_size == 0:
+                        errors.append(f"{clause_name}: missing or unsafe clause evidence path")
         # An explicit complete-row audit is required; log presence alone cannot
         # prove every assertion of a compound acceptance scenario.
         if not row.get("assertion_audit") or not isinstance(row.get("assertion_audit"), list) or not all(
@@ -199,7 +245,7 @@ def audit(ledger, lane_directory):
         for field in ("command", "mode", "toolchain", "starting_sha", "ending_sha", "source_sha256"):
             if not verification.get(field):
                 errors.append(f"{name}: missing verification.{field}")
-        if verification.get("ending_sha") != current_sha:
+        if not compatible_revision(verification.get("ending_sha"), current_sha):
             errors.append(f"{name}: verification belongs to another revision")
         if verification.get("source_sha256") != current_source:
             errors.append(f"{name}: verification belongs to different source contents")
@@ -216,7 +262,7 @@ def audit(ledger, lane_directory):
                 or not record.get("commands")
                 or any(command.get("exit_status") != 0 for command in record["commands"])):
             errors.append(f"{profile}: blocked or incomplete execution")
-        if record.get("ending_sha") != current_sha:
+        if not compatible_revision(record.get("ending_sha"), current_sha):
             errors.append(f"{profile}: execution belongs to another revision")
         if record.get("source_sha256") != current_source:
             errors.append(f"{profile}: execution belongs to different source contents")

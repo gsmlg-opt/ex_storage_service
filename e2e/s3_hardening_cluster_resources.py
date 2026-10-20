@@ -21,6 +21,7 @@ from gateway_hardening import client
 from hardening_acceptance import source_fingerprint
 from s3_hardening_resources import MIB, PacedFile
 from resource_cadence import execute_group, measure_samples
+from resource_cases import manifest, runner_details, verify_coverage
 
 
 class ReplicaSink:
@@ -111,7 +112,7 @@ def main():
               "versions": {"boto3": boto3.__version__, "botocore": botocore.__version__},
               "envelope": "docs/plans/s3-hardening-resource-envelope.md",
               "sampling_ms": 25, "peer_rate_bytes_per_second": 32 * MIB,
-              "runner": {"uname": list(os.uname()), "cpu_count": os.cpu_count()},
+              "runner": runner_details(root), "required_cases": manifest("cluster"),
               "scope": "strict replica PUT; authenticated peer GET; fenced repair pull/push; real external handler/worker"}
 
     def save():
@@ -275,7 +276,7 @@ def main():
 
                 measured("cross-cluster-worker-paced-sink", size, concurrency, external)
                 save()
-        assert len(result["groups"]) == 20
+        verify_coverage(result["groups"], result["required_cases"])
         result["final_staging"] = staging_snapshot()
         assert all(row["files"] == 0 for row in result["final_staging"].values()), "final leaked staging files"
         result.pop("active_group", None)

@@ -511,6 +511,9 @@ Their Port observer shares the BEAM's PID/mount namespace and records fresh
 filesystem/RSS measurements alongside the original BEAM metric windows.
 The original 100 ms coverage and resource bounds apply; observer shutdown is
 verified before fixture cleanup. These variables configure test instrumentation.
+Index diagnostics use test-only `ESS_INDEX_PROGRESS` for bounded JSONL progress
+and `ESS_INDEX_SOURCE_SHA256` / `ESS_INDEX_SOURCE_HEAD` for source identity.
+They do not change production storage settings.
 The supported local A/B/C topology is in
 [the three-node Compose example](deploy/cluster/README.md).
 
@@ -596,11 +599,13 @@ metadata, retain a complete backup of the old metadata state and plan an
 explicit export/restore boundary; starting the new binary creates or recovers
 only the VSR state under `ESS_METADATA_ROOT`.
 
-The core requires Concord `~> 3.1.3`; the lockfile selects matching Concord,
-Viewstamped Replication and ExTurso 3.1.3 packages. They retain the 3.1.2 fixes for
+The core requires Concord `~> 3.1.4`; the lockfile selects matching Concord,
+Viewstamped Replication and ExTurso 3.1.4 packages. They retain the 3.1.2 fixes for
 committed-prefix transition validation, primary-discovery read deadlines, native
-range pagination and new-backup checksum portability. Version 3.1.3 changes only
-package versions and release notes relative to 3.1.2. New backups declare deterministic ETF checksums;
+range pagination and new-backup checksum portability. Version 3.1.4 makes ordinary
+VSR compatibility-view/observer updates incremental and bounds ready singleton
+read allocation. Reads still validate the retained log; version-one command
+admission still checks representations. New backups declare deterministic ETF checksums;
 verify restoration on the same OTP major before changing runtimes. Existing
 legacy backups retain their original checksum rules: an invalid checksum stays
 invalid, and affected backups must be recreated on their originating VM after
@@ -672,7 +677,7 @@ The admin UI uses Duskmoon Bundler and DuskMoon:
 
 ### End-to-End Checks
 
-For the current daily-use verification scope (2026-10-20), run the sequential
+For lightweight daily interoperability, run the sequential
 standalone Boto3 profile with a private Python environment containing the pinned
 `e2e/hardening-requirements.txt` clients:
 
@@ -682,15 +687,18 @@ PAGER=cat bash e2e/run_hardening_daily.sh /absolute/venv/bin/python unique-run
 
 It checks normal S3 operations with small payloads, authentication and default
 SDK checksums, and retains `daily.json` plus logs under
-`docs/reports/s3-hardening/daily-unique-run/`. Scale, stress, high-concurrency,
-extreme/fault/crash and multi-GiB profiles are outside the current delivery.
-The original extended acceptance evidence remains separate.
+`docs/reports/s3-hardening/daily-unique-run/`. The closeout delivery requires all
+original A01–A38 clauses, including isolated scale, resources, faults, cluster
+and restoration. Historical daily evidence retains its narrower scope.
 
 Run the small application contracts with
 `PAGER=cat bash e2e/run_daily_unit_tests.sh all`; `core` and `cli` select package
-contracts separately. The runner limits ExUnit to one case at a time. Release
-validation combines these contracts with the daily HTTP checks and fresh package,
-escript and image verification.
+contracts separately. Automatic correctness runs complete core/S3/transport/web
+suites plus CLI contracts using `python3 e2e/run_correctness_tests.py --output
+docs/reports/s3-hardening/unique-correctness`; `--extended` includes the full CLI
+suite. Receipts contain selected files and actual per-application counts.
+Release validation first requires candidate-specific full acceptance, then daily
+HTTP checks and fresh package, escript and image verification.
 
 The `e2e/` directory contains S3 compatibility checks that run against a local
 server. See [e2e/README.md](e2e/README.md) for the exact environment setup and
@@ -727,7 +735,7 @@ GitHub Actions workflows include:
 
 - **CI** (`ci.yml`) - compile with warnings as errors and check formatting
 - **S3 Hardening** (`s3-hardening.yml`) - daily-use standalone checks by default; extended acceptance requires explicit manual selection
-- **Test** (`test.yml`) - run selected daily application contracts
+- **Test** (`test.yml`) - complete fast core, S3, transport and web correctness suites, retained CLI contracts and harness checks
 - **CLI Compatibility** (`cli-compatibility.yml`) - verify a Linux package installation by default; manual `extended: true` retains full suites, resource/provider checks and the platform matrix
 - **Build** (`build.yml`) - build the development image with `edge` and source-SHA tags
 - **Release** (`release.yml`) - the sole manual release entry, publishing all components with one version and canonical `v<version>` tag
@@ -737,10 +745,12 @@ GitHub Actions workflows include:
 - **Publish CLI** (`publish-cli.yml`) - reusable release job for `ex_storage_service_cli` and downloadable CLI assets
 - **Publish core** (`publish-core.yml`) - reusable release job for the embeddable `ex_storage_service` package
 
-Dispatch `release.yml` with `version` (for example, `0.6.10`) and `git_ref` (the
-full current `main` source SHA). The workflow aligns all application versions,
+Dispatch `release.yml` with the next available shared `version`, `git_ref` (the
+full current `main` source SHA), and `acceptance_run_id` (a successful extended
+`s3-hardening.yml` run for that exact SHA). It downloads and revalidates all
+acceptance evidence before making the version commit. The workflow aligns all application versions,
 validates the release, and publishes the GHCR image, both Hex packages and CLI
-assets under `v0.6.10`. Only this workflow updates the image's version and `latest`
+assets under `v<version>`. Only this workflow updates the image's version and `latest`
 tags. Existing Hex versions are reused only when their verified payload exactly
 matches the candidate. The earlier `cli-v0.6.8` release remains available for
 historical download links; future releases use only `v<version>`.

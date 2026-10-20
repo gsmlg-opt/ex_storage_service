@@ -1,0 +1,34 @@
+..........From /tmp/tmpwhszlkh7/origin
+ * branch            main       -> FETCH_HEAD
+..From /tmp/tmpmbt20o8o/origin
+ * branch            main       -> FETCH_HEAD
+To /tmp/tmpmbt20o8o/origin.git
+   b69c4a2..8d98c66  HEAD -> main
+ * [new tag]         v0.6.8 -> v0.6.8
+From /tmp/tmpmbt20o8o/origin
+ * branch            main       -> FETCH_HEAD
+Previous HEAD position was b69c4a2 fixture
+HEAD is now at 8d98c66 chore(release): v0.6.8
+.From /tmp/tmp83zok6oc/origin
+ * branch            main       -> FETCH_HEAD
+To /tmp/tmp83zok6oc/origin.git
+   b69c4a2..8d98c66  HEAD -> main
+ * [new tag]         v0.6.8 -> v0.6.8
+From /tmp/tmp83zok6oc/origin
+ * branch            main       -> FETCH_HEAD
+.From /tmp/tmpce395jv9/origin
+ * branch            main       -> FETCH_HEAD
+.From /tmp/tmpb7irfuro/origin
+ * branch            main       -> FETCH_HEAD
+.From /tmp/tmp035jl2e_/origin
+ * branch            main       -> FETCH_HEAD
+To /tmp/tmp035jl2e_/origin.git
+   b69c4a2..8d98c66  HEAD -> main
+ * [new tag]         v0.6.8 -> v0.6.8
+.From /tmp/tmp8z_tt7qg/origin
+ * branch            main       -> FETCH_HEAD
+...........
+----------------------------------------------------------------------
+Ran 28 tests in 0.964s
+
+OK

@@ -1,0 +1,180 @@
+{
+  "entered_monotonic_ns": 91271289769010,
+  "released_monotonic_ns": 91271440078107,
+  "measurement": {
+    "samples": 4,
+    "baseline": {
+      "binary": 1,
+      "total": 2,
+      "rss": 21508096,
+      "temporary": 0
+    },
+    "peak": {
+      "binary": 1,
+      "total": 2,
+      "rss": 21508096,
+      "queue_max": 0,
+      "queue_total": 0,
+      "temporary": 0
+    },
+    "delta": {
+      "binary": 0,
+      "total": 0,
+      "rss": 0,
+      "queue_max": 0,
+      "queue_total": 0,
+      "temporary": 0
+    },
+    "limits": {},
+    "post_idle": {
+      "sampler_id": "export-barrier",
+      "sequence": 3,
+      "scheduled_monotonic_ns": 91271489249274,
+      "time": 1792515588508,
+      "collection": {
+        "start_ns": 1792515588508371542,
+        "start_monotonic_ns": 91271489519120,
+        "end_ns": 1792515588508678359,
+        "end_monotonic_ns": 91271489824220
+      },
+      "rss": 21508096,
+      "temporary": 0,
+      "beam_exchange": {
+        "start_ns": 1792515588508371542,
+        "start_monotonic_ns": 91271489519120,
+        "end_ns": 1792515588508582205,
+        "end_monotonic_ns": 91271489728208
+      },
+      "observer": {
+        "rss": 15142912,
+        "user_seconds": 0.017372,
+        "system_seconds": 0.004091,
+        "max_rss": 21204992
+      },
+      "binary": 1,
+      "total": 2,
+      "queue_max": 0,
+      "queue_total": 0,
+      "probes": {
+        "binary": {
+          "start_ns": 1792515588508463937,
+          "start_monotonic_ns": 91271489609910,
+          "end_ns": 1792515588508464445,
+          "end_monotonic_ns": 91271489610326
+        },
+        "total": {
+          "start_ns": 1792515588508463937,
+          "start_monotonic_ns": 91271489609910,
+          "end_ns": 1792515588508464445,
+          "end_monotonic_ns": 91271489610326
+        },
+        "queue_max": {
+          "start_ns": 1792515588508463937,
+          "start_monotonic_ns": 91271489609910,
+          "end_ns": 1792515588508464445,
+          "end_monotonic_ns": 91271489610326
+        },
+        "queue_total": {
+          "start_ns": 1792515588508463937,
+          "start_monotonic_ns": 91271489609910,
+          "end_ns": 1792515588508464445,
+          "end_monotonic_ns": 91271489610326
+        },
+        "rss": {
+          "start_ns": 1792515588508583711,
+          "start_monotonic_ns": 91271489729580,
+          "end_ns": 1792515588508635054,
+          "end_monotonic_ns": 91271489780942
+        },
+        "temporary": {
+          "start_ns": 1792515588508636127,
+          "start_monotonic_ns": 91271489781990,
+          "end_ns": 1792515588508652543,
+          "end_monotonic_ns": 91271489798407
+        }
+      }
+    },
+    "cadence": {
+      "binary": {
+        "samples": 4,
+        "max_interval_ns": 100000000,
+        "start_edge_ns": 62204,
+        "end_edge_ns": 214422,
+        "maximum_probe_ns": 765,
+        "maximum_gap_ns": 175005682,
+        "intervals_over100ms": 1,
+        "sampler_ids": [
+          "export-barrier"
+        ]
+      },
+      "total": {
+        "samples": 4,
+        "max_interval_ns": 100000000,
+        "start_edge_ns": 62204,
+        "end_edge_ns": 214422,
+        "maximum_probe_ns": 765,
+        "maximum_gap_ns": 175005682,
+        "intervals_over100ms": 1,
+        "sampler_ids": [
+          "export-barrier"
+        ]
+      },
+      "rss": {
+        "samples": 4,
+        "max_interval_ns": 100000000,
+        "start_edge_ns": 248192,
+        "end_edge_ns": 94648,
+        "maximum_probe_ns": 119694,
+        "maximum_gap_ns": 175139081,
+        "intervals_over100ms": 1,
+        "sampler_ids": [
+          "export-barrier"
+        ]
+      },
+      "queue_max": {
+        "samples": 4,
+        "max_interval_ns": 100000000,
+        "start_edge_ns": 62204,
+        "end_edge_ns": 214422,
+        "maximum_probe_ns": 765,
+        "maximum_gap_ns": 175005682,
+        "intervals_over100ms": 1,
+        "sampler_ids": [
+          "export-barrier"
+        ]
+      },
+      "queue_total": {
+        "samples": 4,
+        "max_interval_ns": 100000000,
+        "start_edge_ns": 62204,
+        "end_edge_ns": 214422,
+        "maximum_probe_ns": 765,
+        "maximum_gap_ns": 175005682,
+        "intervals_over100ms": 1,
+        "sampler_ids": [
+          "export-barrier"
+        ]
+      },
+      "temporary": {
+        "samples": 4,
+        "max_interval_ns": 100000000,
+        "start_edge_ns": 267373,
+        "end_edge_ns": 42232,
+        "maximum_probe_ns": 20293,
+        "maximum_gap_ns": 175117149,
+        "intervals_over100ms": 1,
+        "sampler_ids": [
+          "export-barrier"
+        ]
+      }
+    },
+    "failures": [
+      "cadence:binary:interval_over100ms",
+      "cadence:total:interval_over100ms",
+      "cadence:rss:interval_over100ms",
+      "cadence:queue_max:interval_over100ms",
+      "cadence:queue_total:interval_over100ms",
+      "cadence:temporary:interval_over100ms"
+    ]
+  }
+}

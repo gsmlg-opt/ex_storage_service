@@ -1,4 +1,4 @@
-"""Keep automatic and release checks within the declared daily-use scope."""
+"""Retain daily interoperability and require full acceptance before publication."""
 from pathlib import Path
 import unittest
 
@@ -17,6 +17,11 @@ class DailyWorkflowTest(unittest.TestCase):
                         "release.py smoke", "verify_published.py"):
             self.assertIn(command, text)
         self.assertNotIn("          mix test\n", text)
+        self.assertIn("verify_hardening.py", text)
+        self.assertIn("inputs.acceptance_run_id", text)
+        self.assertLess(text.index("release.py prepare"), text.index("verify_hardening.py"))
+        self.assertLess(text.index("verify_hardening.py"), text.index("release.py commit"))
+        self.assertIn('--prepared "$RUNNER_TEMP/prepared-release.json"', text)
 
     def test_reusable_publication_checks_fresh_candidates_and_public_consumers(self):
         core = self.workflow("publish-core.yml")
@@ -37,7 +42,8 @@ class DailyWorkflowTest(unittest.TestCase):
         for job in ("unit-wire-executable", "resources", "providers"):
             self.assertIn(f"  {job}:\n    if: github.event_name == 'workflow_dispatch' && inputs.extended", cli)
         self.assertIn("default: false", cli)
-        self.assertIn("run_daily_unit_tests.sh all", self.workflow("test.yml"))
+        self.assertIn("run_correctness_tests.py", self.workflow("test.yml"))
+        self.assertIn("if-no-files-found: error", self.workflow("test.yml"))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,33 @@
+{
+  "identity": {
+    "generation": "1792515857670992422",
+    "beam": {
+      "pid": 381039,
+      "start_ticks": 9154048,
+      "state": "S"
+    },
+    "observer": {
+      "pid": 381069,
+      "start_ticks": 9154065,
+      "state": "R"
+    },
+    "namespaces": {
+      "pid": "pid:[4026531836]",
+      "mnt": "mnt:[4026531832]"
+    },
+    "python": "/run/current-system/sw/bin/python",
+    "tmp_device": 66308
+  },
+  "shutdown": [
+    {
+      "identity_file": "/tmp/ess-observer-death-58v915h3/observer-1792515857670992422.json",
+      "expected": {
+        "pid": 381069,
+        "start_ticks": 9154065,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    }
+  ]
+}

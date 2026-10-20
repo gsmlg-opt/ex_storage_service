@@ -18,6 +18,7 @@ import uuid
 
 import boto3
 import botocore
+from resource_cases import manifest, runner_details, verify_coverage
 from gateway_hardening import Runtime, client, wait_http
 from gateway_fault_proxy import FaultProxy
 from hardening_acceptance import source_fingerprint
@@ -70,8 +71,7 @@ def main():
         "starting_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
         "source_sha256": source_fingerprint(), "groups": [], "upload_verifications": [], "versions": {
         "boto3": boto3.__version__, "botocore": botocore.__version__},
-        "runner": {"cpu_count": os.cpu_count(), "uname": list(os.uname()),
-                   "memory": Path("/proc/meminfo").read_text().splitlines()[0]},
+        "runner": runner_details(root), "required_cases": manifest(args.profile),
         "envelope": "docs/plans/s3-hardening-resource-envelope.md"}
     runtime = Runtime(root, port())
     runtime.requires = ["e2e/scripts/resource_sampler.exs", "e2e/scripts/resource_diagnostics.exs"]
@@ -292,6 +292,7 @@ def main():
                 proxy.clear()
         if source_fingerprint() != result["source_sha256"]:
             raise AssertionError("source changed during resource profile")
+        verify_coverage(result["groups"], result["required_cases"])
         result["active_group"] = None
         result["status"] = "passed"
     except BaseException as failure:

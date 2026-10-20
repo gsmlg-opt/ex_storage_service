@@ -1,8 +1,28 @@
 # End-to-End Tests
 
-## Current daily-use profile — 2026-10-20
+## Closeout gate — 2026-10-21
 
-The current user-authorized gate is a sequential standalone Boto3 exercise of
+ESS-S3-HARDENING-CLOSEOUT-002 restores full A01–A38 acceptance as the publication
+gate. Isolated scale/resource/concurrency/fault/cluster/restore runs are authorized;
+run heavy work serially on a shared runner. Daily receipts from v0.6.10 remain
+valid for their original narrower scope and are not full acceptance.
+
+Automatic PR/push correctness runs complete core, S3, transport and web suites,
+with retained daily CLI contracts. Local and CI use the same command:
+
+```bash
+PAGER=cat python3 e2e/run_correctness_tests.py --output docs/reports/s3-hardening/unique-correctness
+```
+
+The receipt records the complete discovered file inventory, per-app counts,
+failures, skips and exclusions. Missing/shrunken suites fail. Full acceptance uses
+the same runner with `--extended` for the entire CLI suite; existing cluster and
+large-stream tags remain in dedicated heavy lanes. Publication requires a
+successful extended workflow for the exact candidate through `acceptance_run_id`.
+
+## Retained daily-use profile
+
+The lightweight daily profile is a sequential standalone Boto3 exercise of
 normal bucket/object CRUD, listing/COPY, attributes/tags, versions,
 CORS/location, multipart and presigned operations. It uses disposable roots,
 authenticated real HTTP, small payloads and default SDK checksums:
@@ -16,11 +36,8 @@ virtual environment first. Pass its absolute Python path and a unique run label.
 The runner writes `docs/reports/s3-hardening/daily-unique-run/daily.json` and
 retained logs, and shuts down its own server. No new production setting is added.
 
-Do not run scale, stress, high-concurrency, extreme/fault/crash or multi-GiB
-profiles for the current delivery. The full suites below remain available as
-historical extended verification; their assertions are preserved. A daily pass
-does not promote unexecuted original A01–A38 clauses. The historical matrix
-remains 35/38, with A28/A30/A38 unpassed, and is no longer this delivery's gate.
+A daily pass does not promote unexecuted original A01–A38 clauses. The historical
+35/38 result retains its source and scope, with A28/A30/A38 unpassed.
 
 ## Earlier feature profiles — 2026-10-19
 
@@ -65,6 +82,23 @@ The independent lanes are `correctness`, `standalone`, `gateway`, `cluster`,
 `--profile NAME` runs only one
 lane; it does not certify the whole goal. Each command has a deadline, a retained
 log, source revision/content fingerprint, and a non-success result on failure.
+The fingerprint includes `apps/`, `config/`, `e2e/`, `scripts/`, `.github/`,
+Mix/npm manifests and locks, Dockerfile, .dockerignore, .npmrc, .formatter.exs and
+`docs/cli/compatibility/*.json` generator/test inputs. Other documentation and
+reports are explicitly excluded. A report-only descendant of a frozen
+candidate may cite that candidate; any executable-input diff or fingerprint
+mismatch rejects reuse. Reports do not have to contain their own future commit.
+The resource lane includes the retained tagged two-GiB authenticated transport
+test in addition to every local/gateway and cluster manifest case. Independent
+resource topologies and index migration still run after a workload failure;
+the lane remains blocked and a failed prerequisite compile stops its workloads.
+The index scale entry point refuses the reproduced Concord 3.1.4 blockers
+[#101](https://github.com/gsmlg-dev/concord/issues/101) and
+[#102](https://github.com/gsmlg-dev/concord/issues/102) before expensive fixtures.
+Use the smaller `index_setup_probe.exs` and `index_upstream_probe.exs` diagnostics
+to validate a released upstream repair before admitting another full scale run.
+`ESS_INDEX_PROGRESS` selects bounded JSONL diagnostic progress;
+`ESS_INDEX_SOURCE_SHA256` and `ESS_INDEX_SOURCE_HEAD` record its source identity.
 Roots, containers, processes and credentials belong to disposable harnesses.
 The gateway lane requires Docker and the verified `mc` binary; isolated restore
 requires working bubblewrap user/PID/mount namespaces. Prerequisite failure is

@@ -1,0 +1,15 @@
+test_exact_version_only_retry_mapping_is_accepted (test_release_hardening_gate.PreparedReleaseGateTest.test_exact_version_only_retry_mapping_is_accepted) ... ERROR
+
+======================================================================
+ERROR: test_exact_version_only_retry_mapping_is_accepted (test_release_hardening_gate.PreparedReleaseGateTest.test_exact_version_only_retry_mapping_is_accepted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_release_hardening_gate.py", line 113, in test_exact_version_only_retry_mapping_is_accepted
+    self.assertEqual(self.source, gate.validate_prepared(self.prepared, self.release))
+                                  ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'verify_hardening' has no attribute 'validate_prepared'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.064s
+
+FAILED (errors=1)

@@ -1,0 +1,40 @@
+test_established_prepare_reuses_tag_from_source_and_release_checkouts (test_release_hardening_gate.PreparedReleaseGateTest.test_established_prepare_reuses_tag_from_source_and_release_checkouts) ... From /tmp/ess-release-gate-_f_98bp6/origin
+ * branch            main       -> FETCH_HEAD
+Previous HEAD position was 204dbde tested source
+HEAD is now at 6b2b8ea chore(release): v1.0.1
+Previous HEAD position was 6b2b8ea chore(release): v1.0.1
+HEAD is now at 204dbde tested source
+Previous HEAD position was 204dbde tested source
+HEAD is now at 6b2b8ea chore(release): v1.0.1
+From /tmp/ess-release-gate-_f_98bp6/origin
+ * branch            main       -> FETCH_HEAD
+HEAD is now at 6b2b8ea chore(release): v1.0.1
+Previous HEAD position was 6b2b8ea chore(release): v1.0.1
+HEAD is now at 204dbde tested source
+Previous HEAD position was 204dbde tested source
+HEAD is now at 6b2b8ea chore(release): v1.0.1
+ok
+test_exact_version_only_retry_mapping_is_accepted (test_release_hardening_gate.PreparedReleaseGateTest.test_exact_version_only_retry_mapping_is_accepted) ... HEAD is now at 204dbde tested source
+Previous HEAD position was 204dbde tested source
+HEAD is now at 6b2b8ea chore(release): v1.0.1
+ok
+test_failed_audit_restores_clean_release_checkout (test_release_hardening_gate.PreparedReleaseGateTest.test_failed_audit_restores_clean_release_checkout) ... HEAD is now at 2215989 tested source
+Previous HEAD position was 2215989 tested source
+HEAD is now at f6a9765 chore(release): v1.0.1
+ok
+test_main_requires_the_artifact_and_reaudits_original_source (test_release_hardening_gate.PreparedReleaseGateTest.test_main_requires_the_artifact_and_reaudits_original_source) ... HEAD is now at 2215989 tested source
+Previous HEAD position was 2215989 tested source
+HEAD is now at f6a9765 chore(release): v1.0.1
+ok
+test_mismatched_release_source_and_nonversion_changes_are_rejected (test_release_hardening_gate.PreparedReleaseGateTest.test_mismatched_release_source_and_nonversion_changes_are_rejected) ... ok
+test_missing_source_trailer_is_rejected (test_release_hardening_gate.PreparedReleaseGateTest.test_missing_source_trailer_is_rejected) ... ok
+test_preparation_without_a_version_change_audits_the_same_commit (test_release_hardening_gate.PreparedReleaseGateTest.test_preparation_without_a_version_change_audits_the_same_commit) ... ok
+test_version_file_whitespace_cannot_hide_in_release_mapping (test_release_hardening_gate.PreparedReleaseGateTest.test_version_file_whitespace_cannot_hide_in_release_mapping) ... ok
+test_accepts_only_successful_exact_candidate (test_release_hardening_gate.ReleaseGateTest.test_accepts_only_successful_exact_candidate) ... ok
+test_daily_success_cannot_replace_the_full_job (test_release_hardening_gate.ReleaseGateTest.test_daily_success_cannot_replace_the_full_job) ... ok
+test_duplicate_aggregate_jobs_are_rejected (test_release_hardening_gate.ReleaseGateTest.test_duplicate_aggregate_jobs_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.743s
+
+OK

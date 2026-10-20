@@ -2,7 +2,7 @@ name: Test
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'codex/**']
   pull_request:
     branches: [main]
 
@@ -14,24 +14,31 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  PAGER: cat
   MIX_ENV: test
   ELIXIR_VERSION: "1.19"
   OTP_VERSION: "28"
 
 jobs:
   test:
-    name: Daily application contracts
+    name: Core, S3, transport and web correctness
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned independent client for harness contract imports
+        run: python3 -m pip install -r e2e/hardening-requirements.txt
 
       - name: Reserve explicit journal mutex ports on the test runner
         run: python3 scripts/release/reserve_journal_ports.py
 
-      - name: Install the shell used by CLI completion contract tests
+      - name: Install CLI contract shell and isolated observer prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install --yes zsh
+          sudo apt-get install --yes zsh bubblewrap
 
       - uses: erlef/setup-beam@v1
         with:
@@ -48,4 +55,15 @@ jobs:
             ${{ runner.os }}-mix-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-
 
       - run: mix deps.get
-      - run: bash e2e/run_daily_unit_tests.sh all
+      - run: mix compile --force --warnings-as-errors
+      - name: Run complete fast suites and retain actual selection/counts
+        run: python3 e2e/run_correctness_tests.py --output docs/reports/s3-hardening/correctness-ci-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Verify acceptance harness and release gate contracts
+        run: python3 -m unittest discover -s e2e -p 'test_*.py'
+      - name: Retain correctness evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: correctness-selection-and-results
+          path: docs/reports/s3-hardening/correctness-ci-${{ github.run_id }}-${{ github.run_attempt }}/
+          if-no-files-found: error

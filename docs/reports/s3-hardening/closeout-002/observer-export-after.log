@@ -1,0 +1,6 @@
+test_blocked_export_is_attributed_by_the_next_row_without_hiding_coverage_failure (test_resource_observer.ObserverProtocolTest.test_blocked_export_is_attributed_by_the_next_row_without_hiding_coverage_failure) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.256s
+
+OK

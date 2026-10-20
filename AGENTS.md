@@ -104,15 +104,24 @@ The codebase is structured as an umbrella project with five apps:
 - Reference issues or PRs if appropriate.
 
 ### Testing & Validation Requirements
-- Current user scope (2026-10-20): verify normal daily use with
+- ESS-S3-HARDENING-CLOSEOUT-002 (2026-10-21) supersedes the earlier
+  delivery-specific daily-only restriction. Complete all A01–A38 clauses and
+  isolated scale, resource, concurrency, faults, cluster, restore and release
+  lanes before publication. Run heavy workloads serially on a shared runner.
+  Preserve v0.6.10's daily receipts as valid evidence for their narrower scope.
+- Retain lightweight daily interoperability with
   `PAGER=cat bash e2e/run_hardening_daily.sh /absolute/venv/bin/python unique-run`.
   Use sequential requests, small fixtures, real authentication and default SDK
-  checksums. Do not run scale, stress, high-concurrency, extreme/fault/crash or
-  multi-GiB profiles for this delivery. Retain extended tests and historical
-  failures; the original all-38 matrix is not the current completion gate.
+  checksums. A daily pass does not certify full hardening acceptance.
 - Daily application contracts use `PAGER=cat bash e2e/run_daily_unit_tests.sh all`
   (`core` or `cli` for package-specific checks), with `--max-cases 1`.
-  The root release runs these contracts plus the authenticated daily HTTP profile.
+  Automatic PR/push correctness uses `python3 e2e/run_correctness_tests.py
+  --output docs/reports/s3-hardening/unique-correctness`; it selects complete
+  core, S3, transport and web suites plus the retained CLI contracts and records
+  discovered files and actual counts. `--extended` also selects the full CLI
+  suite. Existing cluster/large_stream tags require the separate heavy lanes.
+  The root release requires the exact candidate's successful full-acceptance
+  workflow run through `acceptance_run_id`, then validates daily HTTP and artifacts.
   CLI package probes use `--verification-profile daily` for one normal installed
   helper check; the default `extended` profile retains all 11 helper cases.
   Full CLI suites, resource/provider checks and the platform matrix require manual
@@ -134,8 +143,10 @@ The codebase is structured as an umbrella project with five apps:
   windows. Keep the original 100 ms coverage and resource envelopes; verify the
   observer's OS identity has stopped before fixture cleanup. These variables
   configure test instrumentation only.
-- For explicitly extended work, run the relevant complete application suite;
-  use the daily contracts above for the current delivery:
+- Index diagnostics use test-only `ESS_INDEX_PROGRESS` for a bounded JSONL
+  progress path and `ESS_INDEX_SOURCE_SHA256` / `ESS_INDEX_SOURCE_HEAD` for the
+  recorded source identity. They do not configure production reads or writes.
+- For closeout and explicitly extended work, run the relevant complete application suite:
   - Core app tests: `mix test apps/ex_storage_service/test`
   - S3 app tests: `mix test apps/ex_storage_service_s3/test`
   - Web app tests: `mix test apps/ex_storage_service_web/test`
@@ -226,7 +237,7 @@ The codebase is structured as an umbrella project with five apps:
   Defaults must start the existing standalone instance and both listeners.
   `ESS_DATA_ROOT` remains the compatibility fallback for split roots.
   `ESS_RA_ROOT` is retained as a legacy embedding compatibility value but is
-  not used by Concord 3. Require Concord `~> 3.1.3` with matching VSR/ExTurso
+  not used by Concord 3. Require Concord `~> 3.1.4` with matching VSR/ExTurso
   packages. New backup checksums use the declared deterministic ETF scheme;
   preserve legacy validation, reject unknown schemes, and verify restore on the
   same OTP major before a runtime upgrade. Concord/VSR is shared application infrastructure;

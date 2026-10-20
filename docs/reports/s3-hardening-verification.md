@@ -1,4 +1,63 @@
-## Current daily-use verification result — 2026-10-20
+## ESS-S3-HARDENING-CLOSEOUT-002 — current closeout
+
+Full acceptance is **in progress; no release is authorized to publish yet**.
+Starting checkout was clean `main@b17282d96a58eff962a35d807c9e7adb39af4774`.
+The closeout supersedes only the earlier delivery-specific daily restriction.
+The daily and 35/38 receipts below retain their original source and scope.
+Current candidate rows and all clause audits are in
+[`s3-hardening-results.json`](../plans/s3-hardening-results.json), with a
+[byte-identical historical ledger](s3-hardening/closeout-002/historical-results-b17282d.json).
+
+Implemented repairs and scoped verification:
+
+- Latest selection now uses bounded linearizable head/version/head reads,
+  revision comparison and bucket-generation revalidation. Changed selections
+  retry; stable missing references are integrity failures and exhausted retries
+  remain retryable availability failures. GET/HEAD/COPY and latest tags share the
+  domain boundary. Explicit versions retain their identity. The deterministic
+  reviewed race failed before the fix; scoped domain and signed HTTP regressions
+  passed afterward, including the cross-bucket COPY source-fence correction.
+- Root ListBuckets dispatch recognizes the declared harmless query parameters
+  and rejects duplicate decoded names, unsupported features and conflicting
+  selectors. Raw signed query data is preserved. Independent signatures and raw
+  HTTP exercise percent encoding, denied permissions and signed-value mutation.
+  The baseline suite failed 2/5; the corrected regression suite passed 5/5 and
+  the authorization/operation subset passed 61/61 on Concord 3.1.4.
+- PR/push correctness selects full core/S3/transport/web suites plus CLI
+  contracts, with file inventory/count guards. Heavy lanes retain cluster,
+  resource, scale, faults, crashes, resilience, restore and local release checks.
+  Publication verifies a successful full-acceptance run for its prepared source,
+  re-audits downloaded evidence and retains version-only commit provenance.
+
+Concord/VSR/ExTurso are now locked to **3.1.4**, HTTP to **0.21.13**.
+The smaller real ObjectCommit diagnostic demonstrates two remaining A28 defects:
+with a fixed 1,000-key target and 1,000 added unrelated commits, ESS page
+reads/bytes stay 100/26,620 while native validation visits grow 100,400→200,400.
+Last-500 setup timings identify transaction materialization/observer/persistence
+work; zero conflicts and no checkpoints do not support a root-contention cause.
+These nested timings must not be added as independent shares. The exact cause
+of the historical 10,800-second timeout remains unproven. A28 is blocked on
+[Concord #101](https://github.com/gsmlg-dev/concord/issues/101) and
+[#102](https://github.com/gsmlg-dev/concord/issues/102); the preflight prevents an
+unchanged expensive replay. Full 10k/100k acceptance remains unexecuted.
+[Diagnostic receipt and measurements](s3-hardening/closeout-002/a28-diagnostic-r1/README.md).
+
+A30 instrumentation now separates scheduled collection, metric and BEAM exchange
+windows from the previous sample's completed JSON encoding/output write. A
+controlled 150ms blocked export still fails the original 100ms coverage rule and
+is correctly attributed. The observer's 14 tests pass, including isolated FIFO,
+private ENOSPC roots and process cleanup; full workload coverage remains pending.
+The case manifest checks actual path/size/concurrency identities, not totals.
+
+Scoped red/green logs and diagnostic receipts are under
+[`closeout-002/`](s3-hardening/closeout-002/). Candidate SHA/fingerprint, complete
+lane counts, resource outcomes, aggregate exit and remote CI remain pending.
+No tag, release, Hex package or image has been published for this closeout.
+Existing command-format 0 databases remain unchanged. Empty recovery targets
+must explicitly use format 1 on every voter through quarantine, restart and
+activation; legacy records/backups and explicit backfill/cutover remain required.
+
+## Historical daily-use verification — original 2026-10-20 scope
 
 The user explicitly narrowed this delivery to normal daily-use verification.
 The sequential authenticated standalone Boto3 profile passed **14/14 groups**,

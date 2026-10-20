@@ -12,10 +12,15 @@ on:
         required: true
         default: "main"
         type: string
+      acceptance_run_id:
+        description: "Successful extended s3-hardening.yml run for this exact source SHA"
+        required: true
+        type: string
 
 permissions:
   contents: write
   packages: write
+  actions: read
 
 concurrency:
   group: umbrella-release
@@ -52,6 +57,13 @@ jobs:
         id: prepared
         run: |
           python3 scripts/release/release.py prepare --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/prepared-release.json"
+      - name: Require complete tested-source hardening before publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/release/verify_hardening.py \
+            --repo '${{ github.repository }}' --run-id '${{ inputs.acceptance_run_id }}' \
+            --prepared "$RUNNER_TEMP/prepared-release.json"
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: "1.19.6"

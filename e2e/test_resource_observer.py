@@ -189,6 +189,11 @@ o.temporary_bytes = slow
                     self.assertEqual([], rows, "invalid response exported an observation")
                 else:
                     self.assertGreaterEqual(len(rows), 6)
+                    for row in rows:
+                        exchange = row["beam_exchange"]
+                        self.assertLessEqual(row["scheduled_monotonic_ns"], row["collection"]["start_monotonic_ns"])
+                        self.assertLessEqual(exchange["start_monotonic_ns"], exchange["end_monotonic_ns"])
+                        self.assertLessEqual(exchange["end_monotonic_ns"], row["probes"]["rss"]["start_monotonic_ns"])
                     measured = measure_samples(rows, rows[:1], rows[0]["collection"]["start_ns"],
                                                rows[-1]["collection"]["end_ns"], {})
                     self.assertTrue(any("over100ms" in failure or "probe_too_slow" in failure
@@ -215,6 +220,109 @@ o.temporary_bytes = slow
 
     def test_slow_export_fails_the_original_validator(self):
         self.run_protocol("slow-export")
+
+    def test_blocked_export_is_attributed_by_the_next_row_without_hiding_coverage_failure(self):
+        with tempfile.TemporaryDirectory(prefix="ess-observer-export-barrier-") as directory:
+            root = roots(directory)
+            entered_read, entered_write = os.pipe()
+            release_read, release_write = os.pipe()
+            wrapper = '''
+write = o.write_all
+def blocked(fd, value):
+    if fd != 1 and o.json.loads(value)["sequence"] == 1:
+        os.write(ENTERED, str(time.monotonic_ns()).encode() + b"\\n")
+        if os.read(RELEASE, 1) != b"r":
+            raise RuntimeError("export barrier was not released")
+    write(fd, value)
+o.write_all = blocked
+'''.replace("ENTERED", str(entered_write)).replace("RELEASE", str(release_read))
+            code = ("import os,sys,time;sys.path.insert(0," + repr(str(REPO / "e2e/scripts")) + ")\n"
+                    "import resource_observer as o\n" + wrapper + "o.main()\n")
+            command = [sys.executable, "-B", "-c", code, "sample", "--root", str(root),
+                       "--tmp", str(root / "tmp"), "--data", str(root / "data"),
+                       "--beam-pid", str(os.getpid()), "--generation", "export-barrier"]
+            process = None
+            try:
+                process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE, pass_fds=(entered_write, release_read),
+                                           env=dict(os.environ, PAGER="cat"))
+                os.close(entered_write)
+                entered_write = None
+                os.close(release_read)
+                release_read = None
+                for sequence in range(4):
+                    self.assertTrue(select.select([process.stdout], [], [], 3)[0], "request missing")
+                    request = json.loads(process.stdout.readline(4097))
+                    self.assertEqual({"generation": "export-barrier", "sequence": sequence}, request)
+                    process.stdin.write(observer.encode(reply(request), observer.FRAME_BYTES))
+                    process.stdin.flush()
+                    if sequence == 1:
+                        self.assertTrue(select.select([entered_read], [], [], 3)[0], "export barrier missing")
+                        entered_ns = int(os.read(entered_read, 128))
+                        # Hold an acknowledged output-write barrier, rather than
+                        # guessing when the observer reached it from a sleep.
+                        deadline = entered_ns + 150_000_000
+                        while time.monotonic_ns() < deadline:
+                            select.select([], [], [], max(0, deadline - time.monotonic_ns()) / 1_000_000_000)
+                        released_ns = time.monotonic_ns()
+                        os.write(release_write, b"r")
+                process.stdin.close()
+                process.stdin = None
+                process.wait(timeout=3)
+                self.assertEqual(0, process.returncode, process.stderr.read().decode())
+            finally:
+                if process is not None:
+                    if process.poll() is None:
+                        process.kill()
+                    process.communicate(timeout=3)
+                for fd in (entered_read, entered_write, release_read, release_write):
+                    if fd is not None:
+                        os.close(fd)
+            self.assertTrue(all(item["stopped"] for item in observer.verify_stopped(root)))
+            raw = (root / "samples.jsonl").read_bytes()
+            lines = raw.splitlines(keepends=True)
+            rows = [json.loads(line) for line in lines]
+            self.assertEqual(list(range(4)), [row["sequence"] for row in rows])
+            measured = measure_samples(rows, rows[:1], rows[0]["collection"]["start_ns"],
+                                       rows[-1]["collection"]["end_ns"], {})
+            retain("blocked-export-barrier", {"entered_monotonic_ns": entered_ns,
+                                              "released_monotonic_ns": released_ns,
+                                              "measurement": measured}, raw)
+            self.assertGreaterEqual(released_ns - entered_ns, 150_000_000)
+            for metric in observer.BEAM_METRICS + ("rss", "temporary"):
+                self.assertIn("cadence:" + metric + ":interval_over100ms", measured["failures"])
+            self.assertIsNone(rows[0]["previous_export"])
+            for previous, current, line in zip(rows, rows[1:], lines):
+                exported = current["previous_export"]
+                self.assertEqual({"sampler_id", "sequence", "encoded_bytes", "encoding", "write"},
+                                 set(exported))
+                self.assertEqual(previous["sampler_id"], exported["sampler_id"])
+                self.assertEqual(previous["sequence"], exported["sequence"])
+                self.assertEqual(len(line), exported["encoded_bytes"])
+                for name in ("encoding", "write"):
+                    window = exported[name]
+                    self.assertEqual(set(observer.WINDOW_KEYS) | {"cpu_ns"}, set(window))
+                    self.assertTrue(all(type(value) is int for value in window.values()))
+                    self.assertGreaterEqual(window["cpu_ns"], 0)
+                    self.assertLessEqual(window["start_ns"], window["end_ns"])
+                    self.assertLessEqual(window["start_monotonic_ns"], window["end_monotonic_ns"])
+                self.assertLessEqual(previous["collection"]["end_monotonic_ns"],
+                                     exported["encoding"]["start_monotonic_ns"])
+                self.assertLessEqual(exported["encoding"]["end_monotonic_ns"],
+                                     exported["write"]["start_monotonic_ns"])
+                self.assertLessEqual(exported["write"]["end_monotonic_ns"],
+                                     current["collection"]["start_monotonic_ns"])
+            blocked = rows[2]["previous_export"]["write"]
+            self.assertLessEqual(blocked["start_monotonic_ns"], entered_ns)
+            self.assertGreaterEqual(blocked["end_monotonic_ns"], released_ns)
+            self.assertGreater(blocked["end_monotonic_ns"] - blocked["start_monotonic_ns"], 100_000_000)
+            self.assertLess(rows[2]["previous_export"]["encoding"]["end_monotonic_ns"] -
+                            rows[2]["previous_export"]["encoding"]["start_monotonic_ns"], 100_000_000)
+            for window in (rows[1]["collection"], rows[1]["beam_exchange"], *rows[1]["probes"].values()):
+                self.assertLess(window["end_monotonic_ns"] - window["start_monotonic_ns"], 100_000_000)
+            # A completed export appears only in its next row; the final write
+            # has no following row and must not invent a terminal observation.
+            self.assertEqual([0, 1, 2], [row["previous_export"]["sequence"] for row in rows[1:]])
 
 
 class PortIsolationTest(unittest.TestCase):
@@ -253,10 +361,7 @@ Process.sleep(200)
                 actual = observer.process_identity(pid)
                 self.assertTrue(actual is None or actual["state"] == "Z", actual)
 
-    def test_deterministic_fifo_old_red_and_port_green(self):
-        old = json.loads((REPO / "docs/reports/s3-hardening/sampler-dirty-io-diagnostic-r1/"
-                          "rerun-1/sdio2-blocked/results.json").read_text())
-        self.assertIn("cadence:rss:probe_too_slow", old["measurement"]["failures"])
+    def test_fifo_contention_preserves_port_observer_coverage(self):
         with tempfile.TemporaryDirectory(prefix="ess-observer-fifo-") as directory:
             root = roots(directory)
             (root / "tmp/probe.tmp").write_bytes(b"staging")
@@ -271,8 +376,7 @@ Process.sleep(200)
             process = None
             release = None
             try:
-                process = subprocess.Popen(["elixir", str(REPO / "docs/reports/s3-hardening/"
-                    "sampler-dirty-io-diagnostic-r1/probe.exs")], cwd=REPO,
+                process = subprocess.Popen(["elixir", str(REPO / "e2e/scripts/fixtures/resource_fifo_probe.exs")], cwd=REPO,
                     env=dict(environment(root), DIAGNOSTIC_BLOCKERS="2"),
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
                 self.assertTrue(select.select([process.stdout], [], [], 10)[0])
@@ -297,7 +401,7 @@ Process.sleep(200)
                 receipt = observer.verify_stopped(root)
                 self.assertEqual(1, len(receipt))
                 retain("fifo-port-green", {"measurement": measured, "beam": complete,
-                       "shutdown": receipt, "old_red": old["measurement"]["failures"]}, raw)
+                       "shutdown": receipt}, raw)
             finally:
                 for writer in writers:
                     os.write(writer, b"x")

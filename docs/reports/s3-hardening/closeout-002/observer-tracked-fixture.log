@@ -1,0 +1,19 @@
+test_blocked_export_is_attributed_by_the_next_row_without_hiding_coverage_failure (test_resource_observer.ObserverProtocolTest.test_blocked_export_is_attributed_by_the_next_row_without_hiding_coverage_failure) ... ok
+test_cleanup_verification_rejects_a_live_os_identity (test_resource_observer.ObserverProtocolTest.test_cleanup_verification_rejects_a_live_os_identity) ... ok
+test_cleanup_verification_rejects_other_malformed_identity_files (test_resource_observer.ObserverProtocolTest.test_cleanup_verification_rejects_other_malformed_identity_files) ... ok
+test_delayed_ipc_fails_the_original_validator (test_resource_observer.ObserverProtocolTest.test_delayed_ipc_fails_the_original_validator) ... ok
+test_invalid_protocol_never_exports_a_sample (test_resource_observer.ObserverProtocolTest.test_invalid_protocol_never_exports_a_sample) ... ok
+test_malformed_stale_and_invalid_windows_are_rejected (test_resource_observer.ObserverProtocolTest.test_malformed_stale_and_invalid_windows_are_rejected) ... ok
+test_partial_oversized_multiple_and_malformed_frames_are_bounded (test_resource_observer.ObserverProtocolTest.test_partial_oversized_multiple_and_malformed_frames_are_bounded) ... ok
+test_public_cleanup_verification_can_repeat_with_a_new_observer (test_resource_observer.ObserverProtocolTest.test_public_cleanup_verification_can_repeat_with_a_new_observer) ... ok
+test_slow_export_fails_the_original_validator (test_resource_observer.ObserverProtocolTest.test_slow_export_fails_the_original_validator) ... ok
+test_slow_scan_fails_the_original_validator (test_resource_observer.ObserverProtocolTest.test_slow_scan_fails_the_original_validator) ... ok
+test_beam_rejects_malformed_stale_and_oversized_helper_requests (test_resource_observer.PortIsolationTest.test_beam_rejects_malformed_stale_and_oversized_helper_requests) ... ok
+test_fifo_contention_preserves_port_observer_coverage (test_resource_observer.PortIsolationTest.test_fifo_contention_preserves_port_observer_coverage) ... ok
+test_owner_and_worker_death_stop_the_other_side (test_resource_observer.PortIsolationTest.test_owner_and_worker_death_stop_the_other_side) ... ok
+test_private_bwrap_tmpfs_is_observed_inside_beam_namespace (test_resource_observer.PortIsolationTest.test_private_bwrap_tmpfs_is_observed_inside_beam_namespace) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 7.605s
+
+OK

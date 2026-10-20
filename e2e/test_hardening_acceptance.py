@@ -23,6 +23,8 @@ class AggregateTest(unittest.TestCase):
         self.log = self.root / "executed.log"
         self.log.write_text("real assertion output fixture\n")
         self.rows = [{"id": f"A{index:02}", "status": "passed",
+                      "clauses": [{"id": f"A{index:02}.1", "status": "passed",
+                                   "evidence": [{"path": "executed.log"}]}],
                       "assertion_audit": ["named test covers every required assertion"],
                       "evidence": [{"path": "executed.log"}],
                       "verification": {"command": "test", "exit_status": 0,
@@ -37,17 +39,61 @@ class AggregateTest(unittest.TestCase):
                 "commands": [{"exit_status": 0, "log": "executed.log"}]}))
 
     def audit(self):
-        self.ledger.write_text(json.dumps({"scenarios": self.rows}))
+        self.ledger.write_text(json.dumps({"schema": 2, "scenarios": self.rows}))
         with patch.object(acceptance, "REPO", self.root), \
                 patch.object(acceptance, "sha", return_value="source"), \
                 patch.object(acceptance, "source_fingerprint", return_value="fingerprint"), \
                 contextlib.redirect_stdout(io.StringIO()):
             return acceptance.audit(self.ledger, self.root)
 
+    def test_independent_resource_and_migration_commands_retain_failure_and_still_run(self):
+        for profile in ("resources", "index"):
+            with self.subTest(profile=profile):
+                args = SimpleNamespace(output=self.root, label="test", timeout=5)
+                with patch.object(acceptance, "REPO", self.root), \
+                        patch.object(acceptance, "sha", return_value="source"), \
+                        patch.object(acceptance, "source_fingerprint", return_value="fingerprint"), \
+                        patch.object(acceptance, "commands", return_value=[("prod", ["first"]), ("prod", ["second"])]), \
+                        patch.object(acceptance, "run_command", side_effect=[0, 1, 0]) as run, \
+                        contextlib.redirect_stdout(io.StringIO()):
+                    (self.root / f"{profile}.json").unlink()
+                    self.assertFalse(acceptance.run_profile(profile, args))
+                record = json.loads((self.root / f"{profile}.json").read_text())
+                self.assertEqual(3, run.call_count)
+                self.assertEqual("blocked", record["status"])
+                self.assertEqual([0, 1, 0], [row["exit_status"] for row in record["commands"]])
+
+    def test_failed_resource_compile_does_not_start_workloads(self):
+        args = SimpleNamespace(output=self.root, label="test", timeout=5)
+        with patch.object(acceptance, "REPO", self.root), \
+                patch.object(acceptance, "sha", return_value="source"), \
+                patch.object(acceptance, "source_fingerprint", return_value="fingerprint"), \
+                patch.object(acceptance, "commands", return_value=[("prod", ["workload"])]), \
+                patch.object(acceptance, "run_command", return_value=1) as run, \
+                contextlib.redirect_stdout(io.StringIO()):
+            (self.root / "resources.json").unlink()
+            self.assertFalse(acceptance.run_profile("resources", args))
+        self.assertEqual(1, run.call_count)
+
     def test_requires_all_38_unique_audited_scenarios(self):
         self.assertEqual([], self.audit())
         self.rows[-1]["id"] = "A01"
         self.assertTrue(any("exactly once" in error for error in self.audit()))
+
+    def test_a_passed_label_cannot_certify_unexecuted_or_missing_clauses(self):
+        row = self.rows[0]
+        clause = row["clauses"][0]
+        self.assertEqual([], self.audit())
+        for update in ({"status": "pending"}, {"status": "blocked"}, {"evidence": []},
+                       {"evidence": [{"path": "missing.log"}]},
+                       {"evidence": [{"path": "../outside.log"}]}):
+            original = dict(clause)
+            clause.update(update)
+            self.assertTrue(any("A01.1" in error for error in self.audit()))
+            clause.clear()
+            clause.update(original)
+        row["clauses"] = []
+        self.assertIn("A01: missing clause-level acceptance audit", self.audit())
 
     def test_missing_or_empty_row_source_is_rejected(self):
         self.assertEqual([], self.audit())
@@ -181,11 +227,78 @@ class AggregateTest(unittest.TestCase):
             if profile == "resources":
                 expected.append(("prod", ["bash", "e2e/run_hardening_cluster_resources.sh",
                                           str(Path("/usr/bin/python3").absolute()), "isolated-cluster"]))
+                expected.append(("test", ["mix", "test", "apps/ex_storage_service_cluster/test/ex_storage_service_cluster/large_stream_test.exs",
+                                          "--include", "large_stream", "--max-cases", "1", "--no-color"]))
             self.assertEqual(expected,
                              acceptance.commands(profile, SimpleNamespace(python="/usr/bin/python3"), "isolated"))
             path = self.root / f"{profile}.json"
             path.unlink()
             self.assertTrue(any(profile + ": pending" in error for error in self.audit()))
+
+
+class CandidateRevisionTest(unittest.TestCase):
+    def test_fingerprint_fences_build_and_cli_reference_inputs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+
+            def git(*argv):
+                return subprocess.check_output(["git", "-c", "user.name=Acceptance Test",
+                    "-c", "user.email=acceptance@example.invalid", "-c", "core.hooksPath=/dev/null",
+                    *argv], cwd=root, text=True, stderr=subprocess.DEVNULL).strip()
+
+            git("init")
+            (root / "README.md").write_text("documentation\n")
+            git("add", ".")
+            git("commit", "-m", "initial")
+            with patch.object(acceptance, "REPO", root):
+                for name in (".npmrc", "docs/cli/compatibility/reference-lock.json",
+                             "docs/cli/compatibility/provider-limits.json"):
+                    with self.subTest(name=name):
+                        candidate = git("rev-parse", "HEAD")
+                        fingerprint = acceptance.source_fingerprint()
+                        target = root / name
+                        target.parent.mkdir(parents=True, exist_ok=True)
+                        target.write_text("changed build input\n")
+                        self.assertNotEqual(fingerprint, acceptance.source_fingerprint())
+                        git("add", ".")
+                        git("commit", "-m", "input")
+                        self.assertFalse(acceptance.compatible_revision(candidate, git("rev-parse", "HEAD")))
+                fingerprint = acceptance.source_fingerprint()
+                (root / "README.md").write_text("updated report\n")
+                self.assertEqual(fingerprint, acceptance.source_fingerprint())
+                acceptance.compatible_revision.cache_clear()
+
+    def test_only_document_descendants_can_reuse_frozen_candidate_evidence(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+
+            def git(*argv):
+                return subprocess.check_output(["git", "-c", "user.name=Acceptance Test",
+                    "-c", "user.email=acceptance@example.invalid", "-c", "core.hooksPath=/dev/null",
+                    *argv], cwd=root, text=True, stderr=subprocess.DEVNULL).strip()
+
+            git("init")
+            (root / "apps").mkdir()
+            (root / "apps/runtime.ex").write_text("candidate\n")
+            git("add", ".")
+            git("commit", "-m", "candidate")
+            candidate = git("rev-parse", "HEAD")
+            (root / "report.md").write_text("verified candidate evidence\n")
+            git("add", ".")
+            git("commit", "-m", "report")
+            report = git("rev-parse", "HEAD")
+            with patch.object(acceptance, "REPO", root):
+                acceptance.compatible_revision.cache_clear()
+                self.assertTrue(acceptance.compatible_revision(candidate, report))
+                self.assertFalse(acceptance.compatible_revision(report, candidate))
+                for path in ("apps/runtime.ex", "e2e/harness.py", ".github/workflows/test.yml"):
+                    target = root / path
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_text("changed executable input\n")
+                    git("add", ".")
+                    git("commit", "-m", "runtime change")
+                    self.assertFalse(acceptance.compatible_revision(candidate, git("rev-parse", "HEAD")))
+                acceptance.compatible_revision.cache_clear()
 
 
 if __name__ == "__main__":

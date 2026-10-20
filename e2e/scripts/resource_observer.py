@@ -182,6 +182,7 @@ def sample(args):
         output.write(encode(identity, ROW_BYTES))
     output = os.open(Path(args.root) / "samples.jsonl", os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
     sequence, deadline = 0, time.monotonic_ns()
+    previous_export = None
     expires = deadline + MAX_DURATION_NS
     output_bytes = os.fstat(output).st_size
     try:
@@ -190,8 +191,10 @@ def sample(args):
                 raise RuntimeError("resource observer lifetime/row limit exceeded")
             wait_slot(0, deadline)
             collection = {"start_ns": time.time_ns(), "start_monotonic_ns": time.monotonic_ns()}
+            exchange = dict(collection)
             write_all(1, encode({"generation": args.generation, "sequence": sequence}, FRAME_BYTES))
             reply = validate_reply(read_frame(0), args.generation, sequence)
+            exchange.update(end_ns=time.time_ns(), end_monotonic_ns=time.monotonic_ns())
             resident, rss_window = probe(lambda: rss(args.beam_pid))
             temporary, tmp_window = probe(lambda: temporary_bytes(args.tmp, args.data))
             usage = resource.getrusage(resource.RUSAGE_SELF)
@@ -201,12 +204,24 @@ def sample(args):
             row = {"sampler_id": args.generation, "sequence": sequence,
                    "scheduled_monotonic_ns": deadline, "time": time.time_ns() // 1_000_000,
                    "collection": collection, "rss": resident, "temporary": temporary,
+                   "beam_exchange": exchange,
+                   "previous_export": previous_export,
                    "observer": observer_usage, **{key: reply[key] for key in BEAM_METRICS},
                    "probes": {**reply["probes"], "rss": rss_window, "temporary": tmp_window}}
-            encoded = encode(row, ROW_BYTES)
+            cpu_started = time.thread_time_ns()
+            encoded, encoding_window = probe(lambda: encode(row, ROW_BYTES))
+            encoding_window["cpu_ns"] = time.thread_time_ns() - cpu_started
             if output_bytes + len(encoded) > MAX_OUTPUT_BYTES:
                 raise RuntimeError("resource observer output limit exceeded")
-            write_all(output, encoded)
+            cpu_started = time.thread_time_ns()
+            _, write_window = probe(lambda: write_all(output, encoded))
+            write_window["cpu_ns"] = time.thread_time_ns() - cpu_started
+            # A row cannot describe its own completed output write. The next
+            # row attributes it by generation/sequence; the final export has no
+            # following row. These are diagnostics, never replacement samples.
+            previous_export = {"sampler_id": args.generation, "sequence": sequence,
+                               "encoded_bytes": len(encoded), "encoding": encoding_window,
+                               "write": write_window}
             output_bytes += len(encoded)
             sequence += 1
             now = time.monotonic_ns()

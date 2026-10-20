@@ -5,6 +5,20 @@ filesystem/free space, OTP/Elixir/client versions, configured concurrency, basel
 and actual measurements before claiming A28/A30. Mandatory sizes are67108864 and
 1073741824 bytes, each at concurrency1 and4; run every supported path below.
 
+Closeout instrumentation retains separate scheduled, probe-start, collection and
+per-metric monotonic windows. Each row also records its BEAM request/reply window
+and the preceding row's completed JSON encoding/output-write windows, byte count
+and thread CPU time. The first preceding export is null; the final export has no
+following row. These timings attribute observation gaps without interpolating
+missing samples or changing the100ms coverage criterion. The controlled blocked
+output regression proves that export delay remains a coverage failure.
+
+Case receipts compare exact `(path, size, concurrency)` identities with the
+current local/gateway and cluster manifests, rejecting missing, duplicate,
+unexpected and failed groups. A passing numeric envelope for a partial manifest
+does not establish A30. Record inherited SDK checksum settings with runner/client
+versions; default checksum behavior remains enabled.
+
 ## Streaming model
 
 The hosted decoded request reader pulls at most1MiB per read. LocalCAS writes each

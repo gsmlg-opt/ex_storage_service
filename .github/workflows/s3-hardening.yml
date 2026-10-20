@@ -1,4 +1,4 @@
-name: S3 daily-use verification
+name: S3 interoperability and full hardening acceptance
 
 on:
   push:
@@ -37,6 +37,8 @@ jobs:
       MIX_ENV: prod
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: '1.19'
@@ -82,6 +84,8 @@ jobs:
         profile: [correctness, standalone, gateway, cluster, index, resources, faults, crashes, resilience, restore, release]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: '1.19'
@@ -137,13 +141,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
           pattern: s3-hardening-extended-*
           path: docs/reports/s3-hardening
           merge-multiple: true
       - name: Fail on missing, blocked, stale, or unaudited acceptance evidence
+        env:
+          LANE_RESULT: ${{ needs.extended-lane.result }}
         run: |
+          test "$LANE_RESULT" = success
           python3 e2e/hardening_acceptance.py verify \
             --output 'docs/reports/s3-hardening/ci-${{ github.run_id }}-${{ github.run_attempt }}'
       - name: Retain aggregate report
@@ -152,4 +161,11 @@ jobs:
         with:
           name: s3-hardening-aggregate
           path: docs/reports/s3-hardening/ci-${{ github.run_id }}-${{ github.run_attempt }}/aggregate.json
+          if-no-files-found: error
+      - name: Retain complete evidence for candidate-specific publication validation
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s3-hardening-verification
+          path: docs/reports/s3-hardening/ci-${{ github.run_id }}-${{ github.run_attempt }}*
           if-no-files-found: error

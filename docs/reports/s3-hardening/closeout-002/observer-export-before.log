@@ -1,0 +1,15 @@
+test_blocked_export_is_attributed_by_the_next_row_without_hiding_coverage_failure (test_resource_observer.ObserverProtocolTest.test_blocked_export_is_attributed_by_the_next_row_without_hiding_coverage_failure) ... ERROR
+
+======================================================================
+ERROR: test_blocked_export_is_attributed_by_the_next_row_without_hiding_coverage_failure (test_resource_observer.ObserverProtocolTest.test_blocked_export_is_attributed_by_the_next_row_without_hiding_coverage_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_resource_observer.py", line 294, in test_blocked_export_is_attributed_by_the_next_row_without_hiding_coverage_failure
+    self.assertIsNone(rows[0]["previous_export"])
+                      ~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'previous_export'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.255s
+
+FAILED (errors=1)

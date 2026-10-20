@@ -1,0 +1,33 @@
+{
+  "identity": {
+    "generation": "1792515858306881231",
+    "beam": {
+      "pid": 381073,
+      "start_ticks": 9154111,
+      "state": "S"
+    },
+    "observer": {
+      "pid": 381104,
+      "start_ticks": 9154128,
+      "state": "R"
+    },
+    "namespaces": {
+      "pid": "pid:[4026531836]",
+      "mnt": "mnt:[4026533196]"
+    },
+    "python": "/run/current-system/sw/bin/python",
+    "tmp_device": 96
+  },
+  "shutdown": [
+    {
+      "identity_file": "/tmp/ess-observer-bwrap-_0q9rals/observer-1792515858306881231.json",
+      "expected": {
+        "pid": 381104,
+        "start_ticks": 9154128,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    }
+  ]
+}

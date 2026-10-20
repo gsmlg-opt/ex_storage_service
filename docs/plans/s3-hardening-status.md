@@ -1,3 +1,35 @@
+## Current closeout scope — ESS-S3-HARDENING-CLOSEOUT-002 (2026-10-21)
+
+The closeout restores the full A01–A38 acceptance gate. Its explicit authorization
+supersedes only the earlier daily-only delivery restriction: isolated scale,
+resource, concurrency, fault/crash, cluster and restore verification are in scope.
+Publication follows complete candidate acceptance and the established protected
+release workflow; production deployment and production-data access are excluded.
+
+The [current ledger](s3-hardening-results.json) separates pending current-candidate
+clauses from the [byte-identical reviewed historical ledger](../reports/s3-hardening/closeout-002/historical-results-b17282d.json).
+The historical v0.6.10 daily 14/14 result remains valid for its original narrower
+scope; neither that result nor the historical 35/38 certifies the repaired source.
+The A01–A27 and A29–A38 source maps are linked from the ledger. All 158 current
+clauses require compatible execution evidence; no current scenario is passed yet.
+
+A28 is blocked by reproduced Concord 3.1.4 defects
+[#101](https://github.com/gsmlg-dev/concord/issues/101) and
+[#102](https://github.com/gsmlg-dev/concord/issues/102). Its
+[bounded diagnosis](../reports/s3-hardening/closeout-002/a28-diagnostic-r1/README.md)
+is not 10k/100k acceptance. A38 also remains blocked on all required acceptance,
+actual aggregate exit zero, and authorized publication/artifact verification.
+Candidate fingerprint, lane counts/measurements, aggregate result and released
+artifacts remain pending and will be recorded from actual execution.
+
+The [existing concise verification report](../reports/s3-hardening-verification.md)
+is the closeout report. Preserve the original receipts and the dated historical
+record below with their original source identities, scopes and outcomes.
+
+---
+
+## Historical status record — preserved verbatim below
+
 ## Current delivery scope and verified result — 2026-10-20
 
 The user explicitly narrowed verification to normal daily use. The sequential

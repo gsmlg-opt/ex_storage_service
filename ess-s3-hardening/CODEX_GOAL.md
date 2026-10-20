@@ -1,5 +1,12 @@
 # Codex Goal: Complete All Three ESS S3 Hardening Phases
 
+> Delivery authorization for ESS-S3-HARDENING-CLOSEOUT-002 (2026-10-21)
+> supersedes this historical document's routine commit/push/release prohibition
+> and the later daily-only delivery restriction. Publication now requires full
+> current-candidate acceptance followed by the established root release workflow.
+> Production operations, destructive actions, protected-branch approvals and
+> immutable published tags retain their original safety boundaries.
+
 **Goal ID:** `ESS-S3-HARDENING-001`\
 **Repository:** `gsmlg-opt/ex_storage_service`\
 **Review reference:** `42a9fe2b41faa82cf10c3f07840b890be18b876d` / `v0.6.7`\
