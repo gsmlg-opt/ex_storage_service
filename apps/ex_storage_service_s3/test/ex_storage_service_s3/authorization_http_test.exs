@@ -34,6 +34,54 @@ defmodule ExStorageServiceS3.AuthorizationHTTPTest do
     %{user: user, credentials: key, bucket: bucket}
   end
 
+  test "independent raw signatures retain root SDK metadata and require listing permission", %{
+    user: user,
+    credentials: credentials,
+    bucket: bucket
+  } do
+    path = "/?x-id=ListBuckets"
+    headers = signed_headers(credentials, path)
+    assert raw_get(path, headers) =~ "HTTP/1.1 403"
+    grant(user.id, ["s3:ListAllMyBuckets"], ["*"])
+
+    # The independent signer takes canonical values; the socket retains equivalent wire escapes.
+    for {target, signing_target} <- [{"/", "/"}, {path, path}, {"/?x-id=List%42uckets", path}] do
+      wire = raw_get(target, signed_headers(credentials, signing_target))
+      assert wire =~ "HTTP/1.1 200"
+      assert wire =~ "<ListAllMyBucketsResult"
+      assert wire =~ "<Name>#{bucket}</Name>"
+    end
+
+    wire = raw_get("/?x-id=Changed", headers)
+    assert wire =~ "HTTP/1.1 403"
+    assert wire =~ "SignatureDoesNotMatch"
+
+    for target <- ["/?x-id=ListBuckets&x-id=ListBuckets", "/?x-id=ListBuckets&prefix=logs"] do
+      wire = raw_get(target, signed_headers(credentials, target))
+      assert wire =~ "HTTP/1.1 400"
+      refute wire =~ "<ListAllMyBucketsResult"
+    end
+  end
+
+  test "independent presigned root listing keeps x-id signed", %{
+    user: user,
+    credentials: credentials,
+    bucket: bucket
+  } do
+    url = presign(credentials, "/", query: [{"x-id", "ListBuckets"}])
+    assert {:ok, %{status: 403}} = Req.get(url, retry: false)
+    grant(user.id, ["s3:ListAllMyBuckets"], ["*"])
+
+    for target <- [presign(credentials, "/"), url] do
+      assert {:ok, %{status: 200, body: body}} = Req.get(target, retry: false)
+      assert body =~ "<Name>#{bucket}</Name>"
+    end
+
+    mutated = String.replace(url, "x-id=ListBuckets", "x-id=Changed")
+    assert {:ok, %{status: 403, body: body}} = Req.get(mutated, retry: false)
+    assert body =~ "SignatureDoesNotMatch"
+  end
+
   test "independently signed copy requires source read separately from destination write",
        context do
     %{user: user, credentials: credentials, bucket: bucket} = context
@@ -283,6 +331,48 @@ defmodule ExStorageServiceS3.AuthorizationHTTPTest do
       )
 
     assert {:ok, %{status: 403}} = Req.get(expired, retry: false)
+  end
+
+  # Req signs independently of ESS; the socket sends the exact signed request target.
+  defp signed_headers(credentials, path) do
+    Req.Utils.aws_sigv4_headers(
+      access_key_id: credentials.access_key_id,
+      secret_access_key: credentials.secret_access_key,
+      region: "us-east-1",
+      service: :s3,
+      datetime: DateTime.utc_now(),
+      method: :get,
+      url: @base <> path,
+      headers: [],
+      body: ""
+    )
+  end
+
+  defp raw_get(path, headers) do
+    {:ok, socket} = :gen_tcp.connect(~c"localhost", @port, [:binary, active: false], 2_000)
+
+    try do
+      :ok =
+        :gen_tcp.send(socket, [
+          "GET ",
+          path,
+          " HTTP/1.1\r\n",
+          Enum.map(headers, fn {name, value} -> [name, ": ", value, "\r\n"] end),
+          "Connection: close\r\n\r\n"
+        ])
+
+      receive_closed(socket, [])
+    after
+      :gen_tcp.close(socket)
+    end
+  end
+
+  defp receive_closed(socket, chunks) do
+    case :gen_tcp.recv(socket, 0, 5_000) do
+      {:ok, chunk} -> receive_closed(socket, [chunk | chunks])
+      {:error, :closed} -> chunks |> Enum.reverse() |> IO.iodata_to_binary()
+      {:error, reason} -> flunk("signed HTTP connection failed: #{inspect(reason)}")
+    end
   end
 
   defp signed(credentials, method, path, opts \\ []) do

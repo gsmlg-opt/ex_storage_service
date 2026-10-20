@@ -76,6 +76,20 @@ mutation; benign SDK `x-id` does not choose an operation. Canonical resources ar
 retain their operation scope; legacy HEAD-only grants do not become GET grants.
 Denies apply across aliases,and missing/malformed policy reads fail closed.
 
+Root GET supports the unpaginated ListBuckets operation with no query, optional
+`x-id` SDK metadata, and the existing SigV4 presigned authentication parameters
+`X-Amz-Algorithm`, `X-Amz-Credential`, `X-Amz-Date`, `X-Amz-Expires`,
+`X-Amz-SignedHeaders` and `X-Amz-Signature`. These can be combined; the `x-id`
+value does not select an operation. Every root query name may occur at most once,
+including names that become equal after percent decoding. Unknown parameters,
+root subresource selectors, and unimplemented ListBuckets filtering/pagination
+(`prefix`, `bucket-region`, `max-buckets`, `continuation-token`) reject rather
+than silently returning an unfiltered result. `s3:ListAllMyBuckets` on `*` remains
+required. Dispatch preserves the raw path, query and headers: `x-id` and every
+other query pair participate in signature verification, including presigned
+requests. `ListBucketsOperationTest` and the independent signer/raw HTTP fixtures
+in `AuthorizationHTTPTest` cover this boundary.
+
 In this table H means standalone hosted,C means hosted cluster,G means gateway
 object path. Metadata/configuration rows concern ESS-local bucket state. Actions
 have the `s3:` prefix. Common errors include AccessDenied,NoSuchBucket,

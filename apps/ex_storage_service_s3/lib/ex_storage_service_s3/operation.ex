@@ -8,6 +8,7 @@ defmodule ExStorageServiceS3.Operation do
   @selectors ~w(acl retention legal-hold tagging versions versioning lifecycle notification location cors policy website logging replication encryption object-lock ownershipControls publicAccessBlock accelerate analytics inventory metrics requestPayment torrent restore select attributes uploads uploadId partNumber versionId delete)
   @excluded ~w(acl retention legal-hold policy website logging replication encryption object-lock ownershipControls publicAccessBlock accelerate analytics inventory metrics requestPayment torrent restore select attributes)
   @unsupported_headers ~w(x-amz-acl x-amz-server-side-encryption x-amz-server-side-encryption-customer-algorithm x-amz-object-lock-mode x-amz-object-lock-retain-until-date x-amz-object-lock-legal-hold)
+  @root_parameters ~w(x-id X-Amz-Algorithm X-Amz-Credential X-Amz-Date X-Amz-Expires X-Amz-SignedHeaders X-Amz-Signature)
 
   def resolve(conn) do
     pairs = URI.query_decoder(conn.query_string) |> Enum.to_list()
@@ -17,6 +18,7 @@ defmodule ExStorageServiceS3.Operation do
 
     with :ok <- validate_target(bucket, key),
          :ok <- validate_selectors(selectors, params),
+         :ok <- validate_root_query(bucket, key, pairs),
          :ok <- validate_headers(conn.req_headers),
          {:ok, source} <- copy_source(conn),
          {:ok, name} <- identify(conn.method, bucket, key, params, source) do
@@ -93,6 +95,17 @@ defmodule ExStorageServiceS3.Operation do
     end
   end
 
+  defp validate_root_query(nil, nil, pairs) do
+    names = Enum.map(pairs, &elem(&1, 0))
+
+    if length(names) == length(Enum.uniq(names)) and
+         Enum.all?(names, &(&1 in @root_parameters)),
+       do: :ok,
+       else: invalid()
+  end
+
+  defp validate_root_query(_, _, _), do: :ok
+
   defp validate_headers(headers) do
     metadata_bytes =
       Enum.reduce(headers, 0, fn
@@ -142,7 +155,7 @@ defmodule ExStorageServiceS3.Operation do
     end
   end
 
-  defp identify("GET", nil, nil, params, nil) when map_size(params) == 0,
+  defp identify("GET", nil, nil, _params, nil),
     do: {:ok, :list_buckets}
 
   defp identify(method, bucket, nil, params, nil) when is_binary(bucket) do

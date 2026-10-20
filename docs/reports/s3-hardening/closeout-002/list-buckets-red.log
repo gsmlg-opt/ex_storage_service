@@ -1,0 +1,41 @@
+    warning: redefining module ExStorageServiceS3.Operation (current version loaded from _build/test/lib/ex_storage_service_s3/ebin/Elixir.ExStorageServiceS3.Operation.beam)
+    │
+  1 │ defmodule ExStorageServiceS3.Operation do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ apps/ex_storage_service_s3/lib/ex_storage_service_s3/operation.ex:1: ExStorageServiceS3.Operation (module)
+
+Running ExUnit with seed: 581416, max_cases: 4
+
+
+
+  1) test root listing accepts SDK metadata and preserves its query pairs (ExStorageServiceS3.ListBucketsOperationTest)
+     apps/ex_storage_service_s3/test/ex_storage_service_s3/list_buckets_operation_test.exs:6
+     match (=) failed
+     code:  assert {:ok, %{name: :list_buckets, query_pairs: pairs}} = Operation.resolve(conn)
+     left:  {:ok, %{name: :list_buckets, query_pairs: pairs}}
+     right: {:error, "InvalidArgument",
+             "The operation selectors or identifiers are invalid."}
+     stacktrace:
+       apps/ex_storage_service_s3/test/ex_storage_service_s3/list_buckets_operation_test.exs:9: anonymous fn/2 in ExStorageServiceS3.ListBucketsOperationTest."test root listing accepts SDK metadata and preserves its query pairs"/1
+       (elixir 1.18.5) lib/enum.ex:2546: Enum."-reduce/3-lists^foldl/2-0-"/3
+       apps/ex_storage_service_s3/test/ex_storage_service_s3/list_buckets_operation_test.exs:7: (test)
+
+
+
+  2) test presigned authentication combines with SDK metadata without choosing an operation (ExStorageServiceS3.ListBucketsOperationTest)
+     apps/ex_storage_service_s3/test/ex_storage_service_s3/list_buckets_operation_test.exs:15
+     match (=) failed
+     code:  assert {:ok, %{name: :list_buckets, query_pairs: pairs}} =
+              Operation.resolve(Plug.Test.conn(:get, "/?#{query}"))
+     left:  {:ok, %{name: :list_buckets, query_pairs: pairs}}
+     right: {:error, "InvalidArgument",
+             "The operation selectors or identifiers are invalid."}
+     stacktrace:
+       apps/ex_storage_service_s3/test/ex_storage_service_s3/list_buckets_operation_test.exs:22: anonymous fn/1 in ExStorageServiceS3.ListBucketsOperationTest."test presigned authentication combines with SDK metadata without choosing an operation"/1
+       (elixir 1.18.5) lib/enum.ex:1714: Enum."-map/2-lists^map/1-1-"/2
+       apps/ex_storage_service_s3/test/ex_storage_service_s3/list_buckets_operation_test.exs:21: (test)
+
+...
+Finished in 0.04 seconds (0.03s on load, 0.01s async, 0.00s sync)
+5 tests, 2 failures

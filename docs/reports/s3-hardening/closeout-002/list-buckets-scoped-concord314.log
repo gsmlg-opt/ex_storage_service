@@ -1,0 +1,21 @@
+==> ex_storage_service
+Compiling 1 file (.ex)
+Generated ex_storage_service app
+==> ex_storage_service_cluster
+Compiling 2 files (.ex)
+Generated ex_storage_service_cluster app
+==> ex_storage_service_cli
+Generated ex_storage_service_cli app
+==> ex_storage_service_s3
+Compiling 3 files (.ex)
+Generated ex_storage_service_s3 app
+==> ex_storage_service_web
+Compiling 1 file (.ex)
+Generated ex_storage_service_web app
+==> ex_storage_service_s3
+Running ExUnit with seed: 430552, max_cases: 1
+
+........................................................00:45:17.835 [warning] SigV4 auth failed: SignatureDoesNotMatch — GET /
+.....
+Finished in 7.1 seconds (0.2s async, 6.9s sync)
+61 tests, 0 failures
