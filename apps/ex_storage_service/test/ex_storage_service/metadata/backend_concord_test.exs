@@ -37,6 +37,31 @@ defmodule ExStorageService.Metadata.Backend.ConcordTest do
     def members(_opts), do: {:error, :not_ready}
   end
 
+  defmodule ViewChangeEngine do
+    @behaviour Concord.Engine
+
+    @impl true
+    def command(_command, _opts), do: {:error, :view_change}
+
+    @impl true
+    def query(_query, _opts), do: {:error, :view_change}
+
+    @impl true
+    def status(_opts), do: {:error, :view_change}
+
+    @impl true
+    def members(_opts), do: {:error, :view_change}
+  end
+
+  test "normalizes an interrupted view-change read or transaction as unavailable" do
+    opts = [engine: ViewChangeEngine]
+    spec = %{compare: [], success: [], failure: []}
+
+    assert {:error, :cluster_not_ready} = ConcordBackend.get("view-change", opts)
+    assert {:error, :cluster_not_ready} = ConcordBackend.transaction(spec, opts)
+    assert {:error, :cluster_not_ready} = ConcordBackend.resolve_transaction("view-change", opts)
+  end
+
   test "normalizes Concord 3 availability errors for metadata retry handling" do
     spec = %{compare: [], success: [], failure: []}
 

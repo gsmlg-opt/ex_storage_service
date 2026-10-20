@@ -1,0 +1,52 @@
+==> ex_storage_service
+Running ExUnit with seed: 644599, max_cases: 1
+Excluding tags: [cluster: true]
+
+.....
+
+  1) test a metadata view change preserves an unknown intent and recoverable bytes (ExStorageService.ObjectServiceTest)
+     apps/ex_storage_service/test/ex_storage_service/object_service_test.exs:402
+     Assertion failed, no matching message after 0ms
+     Showing 1 of 1 message in the mailbox
+     code: assert_received {:unknown_intent_transition, "view-change-operation", :unknown}
+     mailbox:
+       pattern: {:unknown_intent_transition, "view-change-operation", :unknown}
+       value:   {:unknown_intent_transition, "view-change-operation", :aborted}
+     stacktrace:
+       test/ex_storage_service/object_service_test.exs:424: (test)
+
+............
+
+  2) test normalizes an interrupted view-change read or transaction as unavailable (ExStorageService.Metadata.Backend.ConcordTest)
+     apps/ex_storage_service/test/ex_storage_service/metadata/backend_concord_test.exs:56
+     match (=) failed
+     code:  assert {:error, :cluster_not_ready} = ConcordBackend.get("view-change", opts)
+     left:  {:error, :cluster_not_ready}
+     right: {:error, :view_change}
+     stacktrace:
+       test/ex_storage_service/metadata/backend_concord_test.exs:60: (test)
+
+..
+Finished in 0.4 seconds (0.3s async, 0.07s sync)
+21 tests, 2 failures
+==> ex_storage_service_s3
+Running ExUnit with seed: 644599, max_cases: 1
+Excluding tags: [cluster: true]
+
+.
+
+  1) test storage_error_response/4 backend view changes produce retryable S3 responses and bodyless HEAD (ExStorageServiceS3.Handlers.SharedTest)
+     apps/ex_storage_service_s3/test/ex_storage_service_s3/handlers/shared_test.exs:165
+     Assertion with == failed
+     code:  assert response.status == 503
+     left:  500
+     right: 503
+     stacktrace:
+       test/ex_storage_service_s3/handlers/shared_test.exs:182: anonymous fn/2 in ExStorageServiceS3.Handlers.SharedTest."test storage_error_response/4 backend view changes produce retryable S3 responses and bodyless HEAD"/1
+       (elixir 1.18.5) lib/enum.ex:2546: Enum."-reduce/3-lists^foldl/2-0-"/3
+       test/ex_storage_service_s3/handlers/shared_test.exs:166: (test)
+
+03:52:51.227 request_id=request-phase7-incomplete [warning] blob response stream terminated
+....................
+Finished in 0.2 seconds (0.2s async, 0.00s sync)
+22 tests, 1 failure

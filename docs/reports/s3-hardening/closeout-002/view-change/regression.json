@@ -1,0 +1,27 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "baseline_sha": "be34dd6645478d4d759f7034df11479a62567302",
+  "kind": "tests-first-ESS-availability-normalization",
+  "scope": "Public backend read/transaction/resolution; conservative hosted unknown intent and recoverable CAS bytes; actual S3 Shared mapping and bodyless HEAD. No real-cluster-operation pass inferred.",
+  "production_change": "Normalize locked VSR pending-read view_change response to existing cluster_not_ready vocabulary at ESS backend boundary.",
+  "red": {
+    "exit_status": 2,
+    "executed_tests": 43,
+    "failures": 3,
+    "expected_failures": [
+      "raw view_change instead of cluster_not_ready",
+      "intent marked aborted instead of unknown",
+      "S3status500 instead of503"
+    ],
+    "path": "docs/reports/s3-hardening/closeout-002/view-change/red.log",
+    "sha256": "355e76368f202d0028060d3e8a8b522ca044645d852281dab5e0076d98f0933f"
+  },
+  "green": {
+    "exit_status": 0,
+    "executed_tests": 43,
+    "failures": 0,
+    "path": "docs/reports/s3-hardening/closeout-002/view-change/green.log",
+    "sha256": "7d4fa1abe2846b2dc90e8b2b94080e0538f7ba071b2df69ddd69d68400df97f5"
+  },
+  "provenance": "Assigned coherent_reads worker executed before/after same deterministic tests; actual stdout retained. Parent reviewed source diff. Full candidate verification follows separately."
+}

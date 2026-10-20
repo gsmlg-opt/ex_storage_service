@@ -115,5 +115,6 @@ defmodule ExStorageService.Metadata.Backend.Concord do
 
   defp normalize_availability_error({:error, :quorum_unavailable}), do: {:error, :timeout}
   defp normalize_availability_error({:error, :not_ready}), do: {:error, :cluster_not_ready}
+  defp normalize_availability_error({:error, :view_change}), do: {:error, :cluster_not_ready}
   defp normalize_availability_error(result), do: result
 end

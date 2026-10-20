@@ -64,6 +64,22 @@ defmodule ExStorageService.ObjectServiceTest do
     end
   end
 
+  defmodule ViewChangeEngine do
+    @behaviour Concord.Engine
+
+    @impl true
+    def command(_command, _opts), do: {:error, :view_change}
+
+    @impl true
+    def query(_query, _opts), do: {:error, :view_change}
+
+    @impl true
+    def status(_opts), do: {:error, :view_change}
+
+    @impl true
+    def members(_opts), do: {:error, :view_change}
+  end
+
   defmodule OperationIntentsFail do
     def open(_operation_id, _hash, _size, _node_id, _node_generation, _opts),
       do: {:error, :gc_lock_active}
@@ -380,6 +396,41 @@ defmodule ExStorageService.ObjectServiceTest do
       Path.wildcard(Path.join([opts[:blob_store_opts][:root], "objects", "sha256", "*", "*"]))
 
     assert File.read!(path) == "retained"
+  end
+
+  @tag :tmp_dir
+  test "a metadata view change preserves an unknown intent and recoverable bytes", %{
+    tmp_dir: tmp_dir
+  } do
+    capture_uncertainty()
+    engine = start_supervised!(VersioningStub)
+
+    opts =
+      service_opts(tmp_dir, engine,
+        operation_id: "view-change-operation",
+        operation_intents: UnknownIntents,
+        faults: [
+          metadata_commit: fn _ ->
+            ExStorageService.Metadata.Backend.Concord.transaction(
+              %{compare: [], success: [], failure: []},
+              engine: ViewChangeEngine
+            )
+          end
+        ]
+      )
+
+    result = ObjectService.put("bucket", "view-change", "recoverable", "text/plain", %{}, opts)
+
+    assert_received {:unknown_intent_transition, "view-change-operation", :unknown}
+    refute_received {:unknown_intent_transition, "view-change-operation", :aborted}
+    assert_received {:operation_uncertainty, %{source: :hosted, outcome: :unknown}}
+    assert {:error, :cluster_not_ready} = result
+    assert VersioningStub.calls(engine) == []
+
+    [path] =
+      Path.wildcard(Path.join([opts[:blob_store_opts][:root], "objects", "sha256", "*", "*"]))
+
+    assert File.read!(path) == "recoverable"
   end
 
   @tag :tmp_dir

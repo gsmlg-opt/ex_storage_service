@@ -11,6 +11,22 @@ defmodule ExStorageServiceS3.Handlers.SharedTest do
     def chunk(_payload, _body), do: {:error, :closed}
   end
 
+  defmodule ViewChangeEngine do
+    @behaviour Concord.Engine
+
+    @impl true
+    def command(_command, _opts), do: {:error, :view_change}
+
+    @impl true
+    def query(_query, _opts), do: {:error, :view_change}
+
+    @impl true
+    def status(_opts), do: {:error, :view_change}
+
+    @impl true
+    def members(_opts), do: {:error, :view_change}
+  end
+
   test "internal errors never expose adapter exception details and HEAD remains bodyless" do
     for method <- [:get, :head] do
       response =
@@ -146,6 +162,36 @@ defmodule ExStorageServiceS3.Handlers.SharedTest do
   end
 
   describe "storage_error_response/4" do
+    test "backend view changes produce retryable S3 responses and bodyless HEAD" do
+      for method <- [:get, :head, :put] do
+        {:error, reason} =
+          if method == :put do
+            ExStorageService.Metadata.Backend.Concord.transaction(
+              %{compare: [], success: [], failure: []},
+              engine: ViewChangeEngine
+            )
+          else
+            ExStorageService.Metadata.Backend.Concord.get("view-change", engine: ViewChangeEngine)
+          end
+
+        response =
+          method
+          |> conn("/bucket/key")
+          |> Shared.storage_error_response(reason, "/bucket/key", "view-change-request")
+
+        assert response.status == 503
+
+        assert Plug.Conn.get_resp_header(response, "x-amz-request-id") == ["view-change-request"]
+
+        if method == :head do
+          assert response.resp_body == ""
+        else
+          assert response.resp_body =~ "<Code>ServiceUnavailable</Code>"
+          refute response.resp_body =~ "view_change"
+        end
+      end
+    end
+
     test "maps cluster write availability failures to S3 ServiceUnavailable" do
       for reason <- [
             :blob_write_quorum_unavailable,

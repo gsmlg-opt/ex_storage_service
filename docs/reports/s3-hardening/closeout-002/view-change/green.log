@@ -1,0 +1,24 @@
+==> ex_storage_service
+Compiling 1 file (.ex)
+Generated ex_storage_service app
+==> ex_storage_service_cluster
+Compiling 2 files (.ex)
+Generated ex_storage_service_cluster app
+==> ex_storage_service_s3
+Compiling 3 files (.ex)
+Generated ex_storage_service_s3 app
+==> ex_storage_service
+Running ExUnit with seed: 998560, max_cases: 1
+Excluding tags: [cluster: true]
+
+.....................
+Finished in 0.5 seconds (0.4s async, 0.07s sync)
+21 tests, 0 failures
+==> ex_storage_service_s3
+Running ExUnit with seed: 998560, max_cases: 1
+Excluding tags: [cluster: true]
+
+03:53:08.639 request_id=request-phase7-incomplete [warning] blob response stream terminated
+......................
+Finished in 0.2 seconds (0.2s async, 0.00s sync)
+22 tests, 0 failures
