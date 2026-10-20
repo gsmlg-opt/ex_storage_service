@@ -1,0 +1,15 @@
+{
+  "kind": "test-prerequisite",
+  "candidate_sha": "374dfce25380087821b25471587077b66c05057e",
+  "source_sha256": "392ca36b9f8eafa77704b5ef5c97317fc833ad82193f3a1ccaa787373bbe49d1",
+  "command": [
+    "mix",
+    "compile",
+    "--force",
+    "--warnings-as-errors"
+  ],
+  "started_at": "2026-10-20T21:59:38.644340+00:00",
+  "exit_status": 0,
+  "duration_seconds": 7.451453727000626,
+  "source_after": "392ca36b9f8eafa77704b5ef5c97317fc833ad82193f3a1ccaa787373bbe49d1"
+}

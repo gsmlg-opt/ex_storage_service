@@ -1,0 +1,46 @@
+==> ex_storage_service_s3
+Running ExUnit with seed: 872140, max_cases: 1
+
+05:59:47.034 request_id=request-phase7-incomplete [warning] blob response stream terminated
+...........
+
+  1) test storage_error_response/4 logs one distinguishable storage error shape without changing GET or HEAD responses (ExStorageServiceS3.Handlers.SharedTest)
+     apps/ex_storage_service_s3/test/ex_storage_service_s3/handlers/shared_test.exs:240
+     Assertion with =~ failed
+     code:  assert log =~ "S3 storage operation failed: " <> shape
+     left:  ""
+     right: "S3 storage operation failed: {:verify, :eio}"
+     stacktrace:
+       test/ex_storage_service_s3/handlers/shared_test.exs:264: anonymous fn/4 in ExStorageServiceS3.Handlers.SharedTest."test storage_error_response/4 logs one distinguishable storage error shape without changing GET or HEAD responses"/1
+       (elixir 1.18.5) lib/enum.ex:2546: Enum."-reduce/3-lists^foldl/2-0-"/3
+       test/ex_storage_service_s3/handlers/shared_test.exs:241: (test)
+
+
+
+  2) test storage_error_response/4 storage error logs have fixed tuple depth, width and output bounds (ExStorageServiceS3.Handlers.SharedTest)
+     apps/ex_storage_service_s3/test/ex_storage_service_s3/handlers/shared_test.exs:316
+     Assertion with == failed
+     code:  assert log == "S3 storage operation failed: " <> shape <> "\n"
+     left:  ""
+     right: "S3 storage operation failed: {:verify, {:verify, :redacted}}\n"
+     stacktrace:
+       test/ex_storage_service_s3/handlers/shared_test.exs:335: anonymous fn/2 in ExStorageServiceS3.Handlers.SharedTest."test storage_error_response/4 storage error logs have fixed tuple depth, width and output bounds"/1
+       (elixir 1.18.5) lib/enum.ex:2546: Enum."-reduce/3-lists^foldl/2-0-"/3
+       test/ex_storage_service_s3/handlers/shared_test.exs:320: (test)
+
+..........
+
+  3) test storage_error_response/4 redacts payload values and unknown atoms from storage error logs (ExStorageServiceS3.Handlers.SharedTest)
+     apps/ex_storage_service_s3/test/ex_storage_service_s3/handlers/shared_test.exs:269
+     Assertion with =~ failed
+     code:  assert log =~ "S3 storage operation failed: {:verify, :redacted}"
+     left:  ""
+     right: "S3 storage operation failed: {:verify, :redacted}"
+     stacktrace:
+       test/ex_storage_service_s3/handlers/shared_test.exs:298: anonymous fn/1 in ExStorageServiceS3.Handlers.SharedTest."test storage_error_response/4 redacts payload values and unknown atoms from storage error logs"/1
+       (elixir 1.18.5) lib/enum.ex:1714: Enum."-map/2-lists^map/1-1-"/2
+       test/ex_storage_service_s3/handlers/shared_test.exs:272: (test)
+
+..
+Finished in 0.2 seconds (0.2s async, 0.00s sync)
+26 tests, 3 failures

@@ -1,0 +1,11 @@
+==> ex_storage_service_s3
+Compiling 2 files (.ex)
+Generated ex_storage_service_s3 app
+==> ex_storage_service_s3
+Running ExUnit with seed: 764667, max_cases: 1
+
+................06:01:32.013 request_id=request-phase7-incomplete [warning] blob response stream terminated
+......06:01:32.017 [error] S3 storage operation failed: :eio
+....
+Finished in 0.2 seconds (0.2s async, 0.00s sync)
+26 tests, 0 failures

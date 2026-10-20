@@ -1,0 +1,15 @@
+{
+  "kind": "scoped-log-observation-regression",
+  "candidate_sha": "374dfce25380087821b25471587077b66c05057e",
+  "source_sha256": "5ca7857b6bbcf12fe1a747f5771ca06353cb9259d7ab09ec7c8538059eb5255f",
+  "command": [
+    "mix",
+    "format",
+    "apps/ex_storage_service_s3/lib/ex_storage_service_s3/handlers/shared.ex",
+    "apps/ex_storage_service_s3/test/ex_storage_service_s3/handlers/shared_test.exs"
+  ],
+  "started_at": "2026-10-20T22:01:30.371938+00:00",
+  "exit_status": 0,
+  "duration_seconds": 0.4336323669995181,
+  "source_after": "5ca7857b6bbcf12fe1a747f5771ca06353cb9259d7ab09ec7c8538059eb5255f"
+}

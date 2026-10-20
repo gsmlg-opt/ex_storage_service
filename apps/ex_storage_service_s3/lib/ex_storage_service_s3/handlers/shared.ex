@@ -8,6 +8,16 @@ defmodule ExStorageServiceS3.Handlers.Shared do
   alias ExStorageService.Storage.Versioning
   alias ExStorageServiceS3.XML
 
+  @storage_error_atoms ~w(
+    stage staging_protection verify commit stat open read close sync rename directory_sync discard
+    metadata file_open file_read file_position invalid_file_offset invalid_hash invalid_staged_blob
+    existing_blob_mismatch checksum_mismatch source_checksum_mismatch unexpected_eof cross_device
+    operation_intent_conflict operation_intent_not_found operation_intent_before_blob_retirement
+    invalid_operation_intent stale_gc_lock
+    eacces eagain ebadf ebusy edquot eexist efbig eintr einval eio eisdir eloop emfile enfile enodev
+    enoent enomem enospc enosys enotdir enotempty enotsup enxio eperm erofs espipe estale exdev
+  )a
+
   def request_id(conn) do
     conn.assigns[:request_id] || :crypto.strong_rand_bytes(8) |> Base.encode16(case: :upper)
   end
@@ -97,6 +107,10 @@ defmodule ExStorageServiceS3.Handlers.Shared do
           error_response(conn, code, message, resource, request_id)
 
         nil ->
+          Logger.error(fn ->
+            "S3 storage operation failed: #{inspect(storage_error_shape(reason, 0))}"
+          end)
+
           error_response(
             conn,
             "InternalError",
@@ -107,6 +121,18 @@ defmodule ExStorageServiceS3.Handlers.Shared do
       end
     end
   end
+
+  defp storage_error_shape(reason, _depth) when reason in @storage_error_atoms, do: reason
+
+  defp storage_error_shape(reason, depth)
+       when is_tuple(reason) and tuple_size(reason) <= 3 and depth < 2 do
+    reason
+    |> Tuple.to_list()
+    |> Enum.map(&storage_error_shape(&1, depth + 1))
+    |> List.to_tuple()
+  end
+
+  defp storage_error_shape(_reason, _depth), do: :redacted
 
   @doc false
   def omit_object_checksum_headers(conn) do

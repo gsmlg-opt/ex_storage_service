@@ -1,6 +1,7 @@
 defmodule ExStorageServiceS3.Handlers.SharedTest do
   use ExUnit.Case, async: true
 
+  import ExUnit.CaptureLog
   import Plug.Test
 
   alias ExStorageService.BlobStore.Source
@@ -234,6 +235,134 @@ defmodule ExStorageServiceS3.Handlers.SharedTest do
 
       assert response.status == 500
       assert response.resp_body =~ "<Code>InternalError</Code>"
+    end
+
+    test "logs one distinguishable storage error shape without changing GET or HEAD responses" do
+      for {reason, shape} <- [
+            {{:verify, :eio}, "{:verify, :eio}"},
+            {{:commit, :existing_blob_mismatch}, "{:commit, :existing_blob_mismatch}"}
+          ],
+          method <- [:get, :head] do
+        log =
+          capture_log([format: "$message\n"], fn ->
+            response =
+              method
+              |> conn("/bucket/key")
+              |> Shared.storage_error_response(reason, "/bucket/key", "storage-failure")
+
+            assert response.status == 500
+
+            if method == :head do
+              assert response.resp_body == ""
+            else
+              assert response.resp_body =~ "<Code>InternalError</Code>"
+              assert response.resp_body =~ "An internal server error occurred."
+              refute response.resp_body =~ shape
+            end
+          end)
+
+        assert log =~ "S3 storage operation failed: " <> shape
+        assert [_entry] = Regex.scan(~r/S3 storage operation failed:/, log)
+      end
+    end
+
+    test "redacts payload values and unknown atoms from storage error logs" do
+      secret = "private-credential-value"
+
+      for payload <- [
+            secret,
+            %{authorization: secret},
+            [secret],
+            :private_payload_atom,
+            42,
+            3.5,
+            self(),
+            make_ref(),
+            fn -> secret end
+          ] do
+        log =
+          capture_log([format: "$message\n"], fn ->
+            response =
+              :get
+              |> conn("/private-resource/private-key")
+              |> Shared.storage_error_response(
+                {:verify, payload},
+                "/private-resource/private-key",
+                "private-request-id"
+              )
+
+            assert response.status == 500
+            refute response.resp_body =~ secret
+          end)
+
+        assert log =~ "S3 storage operation failed: {:verify, :redacted}"
+
+        for private <- [
+              secret,
+              "authorization",
+              "private_payload_atom",
+              "private-resource",
+              "private-key",
+              "private-request-id",
+              "#PID",
+              "#Reference",
+              "#Function"
+            ] do
+          refute log =~ private
+        end
+      end
+    end
+
+    test "storage error logs have fixed tuple depth, width and output bounds" do
+      deep = Enum.reduce(1..200, :eio, fn _, reason -> {:verify, reason} end)
+      widest = Tuple.duplicate(Tuple.duplicate(:existing_blob_mismatch, 3), 3)
+
+      for {reason, shape} <- [
+            {deep, "{:verify, {:verify, :redacted}}"},
+            {{:verify, :eio, :commit, "private-wide-tuple"}, ":redacted"},
+            {widest, inspect(widest)}
+          ] do
+        log =
+          capture_log([format: "$message\n"], fn ->
+            response =
+              :put
+              |> conn("/bucket/key")
+              |> Shared.storage_error_response(reason, "/bucket/key", "bounded-storage-failure")
+
+            assert response.status == 500
+          end)
+
+        assert log == "S3 storage operation failed: " <> shape <> "\n"
+        assert byte_size(log) <= 1024
+        refute log =~ "private-wide-tuple"
+      end
+    end
+
+    test "mapped availability and integrity errors do not emit unknown storage error logs" do
+      log =
+        capture_log([format: "$message\n"], fn ->
+          for {reason, status, code} <- [
+                {:timeout, 503, "ServiceUnavailable"},
+                {{:commit, :timeout}, 503, "ServiceUnavailable"},
+                {:bad_digest, 400, "BadDigest"},
+                {:payload_hash_mismatch, 400, "XAmzContentSHA256Mismatch"},
+                {:access_denied, 403, "AccessDenied"}
+              ],
+              method <- [:get, :head] do
+            response =
+              method
+              |> conn("/bucket/key")
+              |> Shared.storage_error_response(reason, "/bucket/key", "mapped-storage-failure")
+
+            assert response.status == status
+
+            if method == :head,
+              do: assert(response.resp_body == ""),
+              else: assert(response.resp_body =~ "<Code>#{code}</Code>")
+          end
+        end)
+
+      refute log =~ "S3 storage operation failed:"
     end
 
     test "gateway uncertainty preserves typed upstream status and reconciliation is unavailable" do

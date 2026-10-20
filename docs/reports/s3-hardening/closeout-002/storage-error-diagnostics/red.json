@@ -1,0 +1,17 @@
+{
+  "kind": "failing-before-log-observation-regression",
+  "candidate_sha": "374dfce25380087821b25471587077b66c05057e",
+  "source_sha256": "392ca36b9f8eafa77704b5ef5c97317fc833ad82193f3a1ccaa787373bbe49d1",
+  "command": [
+    "mix",
+    "test",
+    "apps/ex_storage_service_s3/test/ex_storage_service_s3/handlers/shared_test.exs",
+    "--max-cases",
+    "1",
+    "--no-color"
+  ],
+  "started_at": "2026-10-20T21:59:18.876108+00:00",
+  "exit_status": 1,
+  "duration_seconds": 0.5908617100067204,
+  "source_after": "392ca36b9f8eafa77704b5ef5c97317fc833ad82193f3a1ccaa787373bbe49d1"
+}
