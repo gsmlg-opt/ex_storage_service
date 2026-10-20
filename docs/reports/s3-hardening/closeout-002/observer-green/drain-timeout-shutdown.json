@@ -1,0 +1,17 @@
+{
+  "returncode": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 14, in <module>\n    o.main()\n    ~~~~~~^^\n  File \"/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts/resource_observer.py\", line 439, in main\n    sample(args)\n    ~~~~~~^^^^^^\n  File \"/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts/resource_observer.py\", line 328, in sample\n    writer.finish()\n    ~~~~~~~~~~~~~^^\n  File \"/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts/resource_observer.py\", line 261, in finish\n    raise RuntimeError(\"resource export drain deadline exceeded\")\nRuntimeError: resource export drain deadline exceeded\n",
+  "public_verify_returncode": 1,
+  "shutdown": [
+    {
+      "identity_file": "/tmp/ess-export-drain-r2nwaiyb/observer-drain-timeout.json",
+      "expected": {
+        "pid": 559981,
+        "start_ticks": 9622163,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    }
+  ]
+}

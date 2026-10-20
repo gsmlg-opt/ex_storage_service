@@ -1,0 +1,9 @@
+{
+  "process_groups": {
+    "beam": 560470,
+    "observer": 560518
+  },
+  "beam_returncode": 0,
+  "public_verify_returncode": 0,
+  "stderr": ""
+}

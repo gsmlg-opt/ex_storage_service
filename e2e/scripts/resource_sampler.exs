@@ -1,5 +1,5 @@
 # Acceptance-only telemetry. Python owns scheduling, filesystem probes and
-# synchronous export. BEAM probes preserve their native observation windows.
+# a bounded serial export queue. BEAM probes preserve native observation windows.
 root = System.fetch_env!("E2E_RESOURCE_ROOT")
 python = System.fetch_env!("E2E_RESOURCE_PYTHON")
 true = Path.type(python) == :absolute

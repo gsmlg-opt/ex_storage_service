@@ -1,0 +1,6 @@
+{
+  "capacity": 128,
+  "admitted": 129,
+  "persisted": 129,
+  "maximum_queued_rows": 128
+}

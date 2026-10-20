@@ -24,6 +24,16 @@ cleanup() {
     if [[ -d "$ESS_CLUSTER_E2E_ROOT/resource-samples/$id" ]]; then
       "$python" -B e2e/scripts/resource_observer.py verify-stopped \
         --root "$ESS_CLUSTER_E2E_ROOT/resource-samples/$id" || cleanup_failed=1
+      # The final export/cleanup receipts exist only after observers stop.
+      destination="$logs/$label/samples/$id"
+      mkdir -p "$destination" || cleanup_failed=1
+      for artifact in "$ESS_CLUSTER_E2E_ROOT/resource-samples/$id/samples.jsonl" \
+          "$ESS_CLUSTER_E2E_ROOT/resource-samples/$id"/observer-*.json \
+          "$ESS_CLUSTER_E2E_ROOT/resource-samples/$id"/resource-export-*.json; do
+        if [[ -f "$artifact" ]]; then
+          cp "$artifact" "$destination/" || cleanup_failed=1
+        fi
+      done
     fi
     if [[ -f "$ESS_CLUSTER_E2E_ROOT/logs/$id.log" ]]; then
       cp "$ESS_CLUSTER_E2E_ROOT/logs/$id.log" "$logs/$label-$id.log" || cleanup_failed=1

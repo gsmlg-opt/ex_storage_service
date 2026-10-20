@@ -49,6 +49,9 @@ esac
                 python = tools / "pinned-python-fixture"
                 executable(python, '''if [ "$1" = "-B" ]; then
   printf 'verified\\n' >> "$TEST_VERIFY_LOG"
+  printf '{"status":"terminal-export"}\\n' > "$5/resource-export-fixture.json"
+  printf '{"status":"checked"}\\n' > "$5/observer-stop-verification.json"
+  printf 'final-sample\\n' > "$5/samples.jsonl"
   exit "$TEST_VERIFIER_STATUS"
 fi
 exit "$TEST_OPERATION_STATUS"
@@ -61,6 +64,11 @@ exit "$TEST_OPERATION_STATUS"
                 self.assertEqual(expected, completed.returncode, completed.stdout + completed.stderr)
                 self.assertEqual(["verified"] * 3, (root / "verified.log").read_text().splitlines())
                 self.assertEqual(3, len(list((root / "docs/reports/s3-hardening").glob("*-*.log"))))
+                for node in ("meta", "data-a", "data-b"):
+                    retained = root / "docs/reports/s3-hardening/cleanup-regression/samples" / node
+                    self.assertEqual({"status": "terminal-export"},
+                                     json.loads((retained / "resource-export-fixture.json").read_text()))
+                    self.assertEqual("final-sample\n", (retained / "samples.jsonl").read_text())
                 outcomes.append({"operation": operation, "verifier": verifier, "stop": stop,
                                  "expected": expected, "actual": completed.returncode,
                                  "all_observers_checked": True, "all_logs_retained": True})

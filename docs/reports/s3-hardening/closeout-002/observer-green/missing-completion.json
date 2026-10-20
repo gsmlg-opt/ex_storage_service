@@ -1,0 +1,4 @@
+{
+  "returncode": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts/resource_observer.py\", line 443, in <module>\n    main()\n    ~~~~^^\n  File \"/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts/resource_observer.py\", line 433, in main\n    receipt = verify_exports(args.root, verify_stopped(args.root))\n  File \"/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts/resource_observer.py\", line 373, in verify_exports\n    with path.open(\"rb\") as source:\n         ~~~~~~~~~^^^^^^\n  File \"/run/current-system/sw/lib/python3.13/pathlib/_local.py\", line 537, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/tmp/ess-observer-no-completion-u_fz_b_z/resource-export-missing.json'\n"
+}

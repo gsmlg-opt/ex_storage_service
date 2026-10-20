@@ -1,0 +1,17 @@
+{
+  "returncode": 0,
+  "stderr": "",
+  "public_verify_returncode": 0,
+  "shutdown": [
+    {
+      "identity_file": "/tmp/ess-export-drain-usj0sl4n/observer-drain.json",
+      "expected": {
+        "pid": 559985,
+        "start_ticks": 9622185,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    }
+  ]
+}

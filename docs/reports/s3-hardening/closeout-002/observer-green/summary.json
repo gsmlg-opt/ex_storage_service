@@ -1,0 +1,111 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "scope": "Observer export repair and scoped regression verification only; no A30 full acceptance claim",
+  "baseline_sha": "753fb40e9142aac6d853664205a576a79713a48b",
+  "tested_worktree_head": "25dcba41c0cd841efc73806b4b67591854f012e6",
+  "uncommitted_task_files": {
+    "e2e/scripts/resource_observer.py": "9a09eaa09508535fe3e12934e8a846f1d851ac3934bbf9a6c541e3f97b0d5378",
+    "e2e/test_resource_observer.py": "704685511a58a1f8c329d9f0e303c6ef5e06bb8fa16e28267abf135c5ef242d3",
+    "e2e/scripts/resource_sampler.exs": "306407303867b029c832def64a635eabf37e5618a928791e78ed6321eaa18e90"
+  },
+  "root_cause": "Synchronous JSONL export blocked fresh sampling and skipped scheduled slots; C2 local and three-node receipts separate this from fresh-probe duration. Underlying filesystem cause remains unproven.",
+  "bounds": {
+    "queue_rows": 128,
+    "encoded_row_bytes": 16384,
+    "queued_encoded_bytes": 2097152,
+    "additional_in_flight_rows": 1,
+    "drain_seconds": 5,
+    "schedule_ns": 25000000,
+    "coverage_ns": 100000000,
+    "maximum_output_bytes": 1073741824,
+    "maximum_rows": 432000,
+    "maximum_duration_ns": 10800000000000
+  },
+  "red": {
+    "log": "docs/reports/s3-hardening/closeout-002/observer-red/tests.log",
+    "tests": 2,
+    "failures": 2,
+    "exit_status": 1,
+    "fresh_sequences_during_barrier": []
+  },
+  "green": {
+    "log": "docs/reports/s3-hardening/closeout-002/observer-green/scoped-tests-r1.log",
+    "tests": 55,
+    "failures": 0,
+    "exit_status": 0,
+    "duration_seconds": 18.867,
+    "fresh_sequences_during_barrier": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "coverage_failures": []
+  },
+  "initial_validation_failure": {
+    "log": "docs/reports/s3-hardening/closeout-002/observer-green/full-tests-r0.log",
+    "tests": 24,
+    "errors": 1,
+    "cause": "Expiry checked before wait_slot but not afterward, permitting a post-deadline fresh request. Reproducing clock-boundary fixture and post-wait check repaired it."
+  },
+  "strict_completion": "resource-export-<generation>.json is published only after contiguous admitted/persisted equality, bounded drain and FD close; public verify-stopped first proves OS death, then validates generation/PID-start, counts/bounds and exact contiguous file extents. Hashes are recorded incrementally for independent offline audit; cleanup does not rescan up to1GiB.",
+  "public_failure_receipt": "observer-stop-verification.json is replaced with bounded failed/error_type diagnostics; an earlier successful receipt cannot survive a failed recheck.",
+  "normal_shutdown": {
+    "process_groups": {
+      "beam": 560470,
+      "observer": 560518
+    },
+    "beam_returncode": 0,
+    "public_verify_returncode": 0,
+    "stderr": ""
+  },
+  "helper_sigkill": {
+    "identity": {
+      "generation": "1792520551845890447",
+      "beam": {
+        "pid": 560666,
+        "start_ticks": 9623464,
+        "state": "S"
+      },
+      "observer": {
+        "pid": 560713,
+        "start_ticks": 9623482,
+        "state": "R"
+      },
+      "namespaces": {
+        "pid": "pid:[4026531836]",
+        "mnt": "mnt:[4026531832]"
+      },
+      "python": "/tmp/ess-s3-hardening-python/bin/python",
+      "tmp_device": 66308
+    },
+    "shutdown": [
+      {
+        "identity_file": "/tmp/ess-observer-death-7eyplg32/observer-1792520551845890447.json",
+        "expected": {
+          "pid": 560713,
+          "start_ticks": 9623482,
+          "state": "R"
+        },
+        "observed": null,
+        "stopped": true
+      }
+    ],
+    "process_groups": {
+      "beam": 559978,
+      "observer": 560713
+    },
+    "public_verify_returncode": 1
+  },
+  "saturation": {
+    "capacity": 128,
+    "admitted": 129,
+    "persisted": 129,
+    "maximum_queued_rows": 128
+  },
+  "sol_repair_rounds": 1,
+  "commands_finished": true,
+  "remaining": "Parent-owned candidate freeze, full serial C3 acceptance, aggregate and release remain unexecuted for this repair."
+}

@@ -1,0 +1,44 @@
+test_drain_timeout_is_a_process_failure_without_detached_success (test_resource_observer.ExportBoundsTest.test_drain_timeout_is_a_process_failure_without_detached_success) ... ok
+test_eof_drains_every_admitted_row (test_resource_observer.ExportBoundsTest.test_eof_drains_every_admitted_row) ... ok
+test_export_errors_and_limits_fail_and_close_the_owned_writer (test_resource_observer.ExportBoundsTest.test_export_errors_and_limits_fail_and_close_the_owned_writer) ... ok
+test_main_limits_and_manifest_publication_fail_closed (test_resource_observer.ExportBoundsTest.test_main_limits_and_manifest_publication_fail_closed) ... 
+  test_main_limits_and_manifest_publication_fail_closed (test_resource_observer.ExportBoundsTest.test_main_limits_and_manifest_publication_fail_closed) (mode='lifetime') ... ERROR
+test_main_saturation_stops_before_requesting_an_unretainable_fresh_sample (test_resource_observer.ExportBoundsTest.test_main_saturation_stops_before_requesting_an_unretainable_fresh_sample) ... ok
+test_raw_partial_writes_complete_without_losing_bytes (test_resource_observer.ExportBoundsTest.test_raw_partial_writes_complete_without_losing_bytes) ... ok
+test_sustained_export_stall_fails_before_admitting_an_unretainable_sample (test_resource_observer.ExportBoundsTest.test_sustained_export_stall_fails_before_admitting_an_unretainable_sample) ... ok
+test_blocked_export_preserves_fresh_samples_and_original_coverage (test_resource_observer.ObserverProtocolTest.test_blocked_export_preserves_fresh_samples_and_original_coverage) ... ok
+test_cleanup_verification_rejects_a_live_os_identity (test_resource_observer.ObserverProtocolTest.test_cleanup_verification_rejects_a_live_os_identity) ... ok
+test_cleanup_verification_rejects_other_malformed_identity_files (test_resource_observer.ObserverProtocolTest.test_cleanup_verification_rejects_other_malformed_identity_files) ... ok
+test_delayed_ipc_fails_the_original_validator (test_resource_observer.ObserverProtocolTest.test_delayed_ipc_fails_the_original_validator) ... ok
+test_invalid_protocol_never_exports_a_sample (test_resource_observer.ObserverProtocolTest.test_invalid_protocol_never_exports_a_sample) ... ok
+test_malformed_stale_and_invalid_windows_are_rejected (test_resource_observer.ObserverProtocolTest.test_malformed_stale_and_invalid_windows_are_rejected) ... ok
+test_partial_oversized_multiple_and_malformed_frames_are_bounded (test_resource_observer.ObserverProtocolTest.test_partial_oversized_multiple_and_malformed_frames_are_bounded) ... ok
+test_public_cleanup_verification_can_repeat_with_a_new_observer (test_resource_observer.ObserverProtocolTest.test_public_cleanup_verification_can_repeat_with_a_new_observer) ... ok
+test_public_verification_rejects_a_dead_observer_without_export_completion (test_resource_observer.ObserverProtocolTest.test_public_verification_rejects_a_dead_observer_without_export_completion) ... ok
+test_public_verification_rejects_invalid_generation_completion (test_resource_observer.ObserverProtocolTest.test_public_verification_rejects_invalid_generation_completion) ... ok
+test_slow_scan_fails_the_original_validator (test_resource_observer.ObserverProtocolTest.test_slow_scan_fails_the_original_validator) ... ok
+test_transient_slow_export_preserves_the_original_coverage (test_resource_observer.ObserverProtocolTest.test_transient_slow_export_preserves_the_original_coverage) ... ok
+test_beam_rejects_malformed_stale_and_oversized_helper_requests (test_resource_observer.PortIsolationTest.test_beam_rejects_malformed_stale_and_oversized_helper_requests) ... ok
+test_fifo_contention_preserves_port_observer_coverage (test_resource_observer.PortIsolationTest.test_fifo_contention_preserves_port_observer_coverage) ... ok
+test_normal_owned_process_group_shutdown_finishes_export (test_resource_observer.PortIsolationTest.test_normal_owned_process_group_shutdown_finishes_export) ... ok
+test_owner_and_worker_death_stop_the_other_side (test_resource_observer.PortIsolationTest.test_owner_and_worker_death_stop_the_other_side) ... ok
+test_private_bwrap_tmpfs_is_observed_inside_beam_namespace (test_resource_observer.PortIsolationTest.test_private_bwrap_tmpfs_is_observed_inside_beam_namespace) ... ok
+
+======================================================================
+ERROR: test_main_limits_and_manifest_publication_fail_closed (test_resource_observer.ExportBoundsTest.test_main_limits_and_manifest_publication_fail_closed) (mode='lifetime')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_resource_observer.py", line 634, in test_main_limits_and_manifest_publication_fail_closed
+    process.wait(timeout=3)
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/subprocess.py", line 1280, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/subprocess.py", line 2077, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/tmp/ess-s3-hardening-python/bin/python', '-B', '-c', "import os,sys,time;sys.path.insert(0,'/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts')\nimport resource_observer as o\no.MAX_DURATION_NS = 1_000_000\no.main()\n", 'sample', '--root', '/tmp/ess-export-main-limit-ph7edmag', '--tmp', '/tmp/ess-export-main-limit-ph7edmag/tmp', '--data', '/tmp/ess-export-main-limit-ph7edmag/data', '--beam-pid', '559269', '--generation', 'lifetime']' timed out after 3 seconds
+
+----------------------------------------------------------------------
+Ran 24 tests in 17.120s
+
+FAILED (errors=1)

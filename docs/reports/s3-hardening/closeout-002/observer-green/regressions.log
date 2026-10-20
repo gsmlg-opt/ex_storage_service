@@ -1,0 +1,7 @@
+test_public_verification_rejects_a_dead_observer_without_export_completion (test_resource_observer.ObserverProtocolTest.test_public_verification_rejects_a_dead_observer_without_export_completion) ... ok
+test_blocked_export_preserves_fresh_samples_and_original_coverage (test_resource_observer.ObserverProtocolTest.test_blocked_export_preserves_fresh_samples_and_original_coverage) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.366s
+
+OK

@@ -1,0 +1,49 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "checked_at": "2026-10-20T18:18:37.782322+00:00",
+  "scope": "Read-only check after user reported an upstream repair; no newer released repair found. Continue independent work; A28 remains blocked.",
+  "current_locked_family": "3.1.4",
+  "upstream_head": "4b1c4fb7150d9d1e6473530f8a67144fe8c0552a",
+  "upstream_latest_github_hex": "3.1.4",
+  "issues": [
+    {
+      "closedAt": null,
+      "number": 101,
+      "state": "OPEN",
+      "title": "[internal] Singleton reads still traverse unrelated retained log history in 3.1.4",
+      "url": "https://github.com/gsmlg-dev/concord/issues/101"
+    },
+    {
+      "closedAt": null,
+      "number": 102,
+      "state": "OPEN",
+      "title": "[internal] Atomic transactions still trigger full-state materialization in 3.1.4",
+      "url": "https://github.com/gsmlg-dev/concord/issues/102"
+    }
+  ],
+  "source_findings": [
+    {
+      "issue": 101,
+      "source": "viewstamped_replication/protocol.ex:35-82,2121-2156",
+      "finding": "applied_requests_indexed? traverses every retained applied entry on read transition."
+    },
+    {
+      "issue": 102,
+      "source": "concord/state_machine/core.ex:140-166; state_machine.ex:162-199; observer.ex:53-54",
+      "finding": "txn is excluded from incremental_command? and reports changes=:all; full materialization and observer key union remain."
+    }
+  ],
+  "resolved_predecessors": [
+    "#99 direct-write-view fixes d6b043d/2c78419",
+    "#100 singleton-allocation fix228016d"
+  ],
+  "dependency_payload_verification": "Independent worker downloaded public3.1.4Concord/VSRtarballs,verified lockchecksums and byteequal relevant installed source. No deps changes.",
+  "required_unblock": [
+    "released coordinatedfix for distinct#101/#102",
+    "source/API review",
+    "fresh fixed-behavior minimalprobe preserving oldreproducer",
+    "serial bounded productionObjectCommitbefore/afterprobe",
+    "then admit verifiedrelease and execute10k/100kplusA29"
+  ],
+  "publication": "not_attempted"
+}

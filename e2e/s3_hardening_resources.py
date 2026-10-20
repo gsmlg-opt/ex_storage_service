@@ -300,19 +300,40 @@ def main():
         result["error_type"] = type(failure).__name__
         raise
     finally:
-        runtime.close()
-        result["ending_sha"] = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+        originally_passed = result["status"] == "passed"
+        cleanup_failures = []
+
+        def cleanup(name, action):
+            try:
+                action()
+            except BaseException as failure:
+                cleanup_failures.append(failure)
+                result.update(status="failed")
+                result.setdefault("cleanup_errors", []).append(
+                    {"component": name, "error_type": type(failure).__name__})
+
+        cleanup("runtime", runtime.close)
         if proxy:
-            proxy.close()
-        if samples_path.exists():
-            (evidence / "samples.jsonl").write_bytes(samples_path.read_bytes())
-        diagnostic = root / "resource-errors.jsonl"
-        if diagnostic.exists():
-            (evidence / diagnostic.name).write_bytes(diagnostic.read_bytes())
-        (evidence / "results.json").write_text(json.dumps(result, indent=2))
-        subprocess.run(["docker", "rm", "-f", container], stdout=subprocess.DEVNULL,
-                       stderr=subprocess.DEVNULL, timeout=30)
-        print(f"Disposable resource root retained: {root}", flush=True)
+            cleanup("proxy", proxy.close)
+        cleanup("ending_sha", lambda: result.update(ending_sha=subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True).strip()))
+        def retain_diagnostics():
+            if samples_path.exists():
+                cleanup("samples", lambda: (evidence / "samples.jsonl").write_bytes(samples_path.read_bytes()))
+            for pattern in ("observer-*.json", "resource-export-*.json"):
+                for diagnostic in root.glob(pattern):
+                    cleanup(diagnostic.name, lambda: (evidence / diagnostic.name).write_bytes(diagnostic.read_bytes()))
+            diagnostic = root / "resource-errors.jsonl"
+            if diagnostic.exists():
+                cleanup(diagnostic.name, lambda: (evidence / diagnostic.name).write_bytes(diagnostic.read_bytes()))
+
+        cleanup("diagnostic_discovery", retain_diagnostics)
+        cleanup("container", lambda: subprocess.run(["docker", "rm", "-f", container],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30, check=True))
+        cleanup("terminal_log", lambda: print(f"Disposable resource root retained: {root}", flush=True))
+        cleanup("results", lambda: (evidence / "results.json").write_text(json.dumps(result, indent=2)))
+        if cleanup_failures and originally_passed:
+            raise cleanup_failures[0]
 
 
 if __name__ == "__main__":

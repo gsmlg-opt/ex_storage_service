@@ -1,0 +1,17 @@
+{
+  "returncode": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 14, in <module>\n    o.main()\n    ~~~~~~^^\n  File \"/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts/resource_observer.py\", line 439, in main\n    sample(args)\n    ~~~~~~^^^^^^\n  File \"/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts/resource_observer.py\", line 303, in sample\n    writer.check_capacity()\n    ~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts/resource_observer.py\", line 210, in check_capacity\n    raise RuntimeError(\"resource export queue saturated\")\nRuntimeError: resource export queue saturated\n",
+  "public_verify_returncode": 1,
+  "shutdown": [
+    {
+      "identity_file": "/tmp/ess-export-drain-8qw91zig/observer-saturation.json",
+      "expected": {
+        "pid": 560003,
+        "start_ticks": 9622226,
+        "state": "R"
+      },
+      "observed": null,
+      "stopped": true
+    }
+  ]
+}

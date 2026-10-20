@@ -1,0 +1,188 @@
+{
+  "samples": 7,
+  "baseline": {
+    "binary": 1,
+    "total": 2,
+    "rss": 31682560,
+    "temporary": 0
+  },
+  "peak": {
+    "binary": 1,
+    "total": 2,
+    "rss": 31682560,
+    "queue_max": 0,
+    "queue_total": 0,
+    "temporary": 0
+  },
+  "delta": {
+    "binary": 0,
+    "total": 0,
+    "rss": 0,
+    "queue_max": 0,
+    "queue_total": 0,
+    "temporary": 0
+  },
+  "limits": {},
+  "post_idle": {
+    "sampler_id": "protocol-test",
+    "sequence": 6,
+    "scheduled_monotonic_ns": 96229154263817,
+    "time": 1792520546173,
+    "collection": {
+      "start_ns": 1792520546173222552,
+      "start_monotonic_ns": 96229154368604,
+      "end_ns": 1792520546173649888,
+      "end_monotonic_ns": 96229154795741
+    },
+    "rss": 31682560,
+    "temporary": 0,
+    "beam_exchange": {
+      "start_ns": 1792520546173222552,
+      "start_monotonic_ns": 96229154368604,
+      "end_ns": 1792520546173517941,
+      "end_monotonic_ns": 96229154663922
+    },
+    "observer": {
+      "rss": 20566016,
+      "user_seconds": 0.0344,
+      "system_seconds": 0.0032129999999999997,
+      "max_rss": 31391744
+    },
+    "binary": 1,
+    "total": 2,
+    "queue_max": 0,
+    "queue_total": 0,
+    "probes": {
+      "binary": {
+        "start_ns": 1792520546173388417,
+        "start_monotonic_ns": 96229154534576,
+        "end_ns": 1792520546173389409,
+        "end_monotonic_ns": 96229154535636
+      },
+      "total": {
+        "start_ns": 1792520546173388417,
+        "start_monotonic_ns": 96229154534576,
+        "end_ns": 1792520546173389409,
+        "end_monotonic_ns": 96229154535636
+      },
+      "queue_max": {
+        "start_ns": 1792520546173388417,
+        "start_monotonic_ns": 96229154534576,
+        "end_ns": 1792520546173389409,
+        "end_monotonic_ns": 96229154535636
+      },
+      "queue_total": {
+        "start_ns": 1792520546173388417,
+        "start_monotonic_ns": 96229154534576,
+        "end_ns": 1792520546173389409,
+        "end_monotonic_ns": 96229154535636
+      },
+      "rss": {
+        "start_ns": 1792520546173519638,
+        "start_monotonic_ns": 96229154665500,
+        "end_ns": 1792520546173595961,
+        "end_monotonic_ns": 96229154741850
+      },
+      "temporary": {
+        "start_ns": 1792520546173596964,
+        "start_monotonic_ns": 96229154742823,
+        "end_ns": 1792520546173621729,
+        "end_monotonic_ns": 96229154767589
+      }
+    },
+    "previous_export": {
+      "sampler_id": "protocol-test",
+      "sequence": 5,
+      "encoded_bytes": 1834,
+      "encoding": {
+        "start_ns": 1792520546825250701,
+        "start_monotonic_ns": 96229806396632,
+        "end_ns": 1792520546825287572,
+        "end_monotonic_ns": 96229806433443,
+        "cpu_ns": 38890
+      },
+      "write": {
+        "start_ns": 1792520546825290009,
+        "start_monotonic_ns": 96229806435870,
+        "end_ns": 1792520546985458968,
+        "end_monotonic_ns": 96229966605261,
+        "cpu_ns": 48501
+      }
+    }
+  },
+  "cadence": {
+    "binary": {
+      "samples": 7,
+      "max_interval_ns": 100000000,
+      "start_edge_ns": 57690,
+      "end_edge_ns": 261471,
+      "maximum_probe_ns": 1060,
+      "maximum_gap_ns": 25095873,
+      "intervals_over100ms": 0,
+      "sampler_ids": [
+        "protocol-test"
+      ]
+    },
+    "total": {
+      "samples": 7,
+      "max_interval_ns": 100000000,
+      "start_edge_ns": 57690,
+      "end_edge_ns": 261471,
+      "maximum_probe_ns": 1060,
+      "maximum_gap_ns": 25095873,
+      "intervals_over100ms": 0,
+      "sampler_ids": [
+        "protocol-test"
+      ]
+    },
+    "rss": {
+      "samples": 7,
+      "max_interval_ns": 100000000,
+      "start_edge_ns": 222047,
+      "end_edge_ns": 130250,
+      "maximum_probe_ns": 93054,
+      "maximum_gap_ns": 25191026,
+      "intervals_over100ms": 0,
+      "sampler_ids": [
+        "protocol-test"
+      ]
+    },
+    "queue_max": {
+      "samples": 7,
+      "max_interval_ns": 100000000,
+      "start_edge_ns": 57690,
+      "end_edge_ns": 261471,
+      "maximum_probe_ns": 1060,
+      "maximum_gap_ns": 25095873,
+      "intervals_over100ms": 0,
+      "sampler_ids": [
+        "protocol-test"
+      ]
+    },
+    "queue_total": {
+      "samples": 7,
+      "max_interval_ns": 100000000,
+      "start_edge_ns": 57690,
+      "end_edge_ns": 261471,
+      "maximum_probe_ns": 1060,
+      "maximum_gap_ns": 25095873,
+      "intervals_over100ms": 0,
+      "sampler_ids": [
+        "protocol-test"
+      ]
+    },
+    "temporary": {
+      "samples": 7,
+      "max_interval_ns": 100000000,
+      "start_edge_ns": 245835,
+      "end_edge_ns": 52924,
+      "maximum_probe_ns": 30865,
+      "maximum_gap_ns": 25134403,
+      "intervals_over100ms": 0,
+      "sampler_ids": [
+        "protocol-test"
+      ]
+    }
+  },
+  "failures": []
+}

@@ -1,0 +1,56 @@
+[
+  {
+    "operation": 0,
+    "verifier": 0,
+    "stop": 0,
+    "expected": 0,
+    "actual": 0,
+    "all_observers_checked": true,
+    "all_logs_retained": true
+  },
+  {
+    "operation": 0,
+    "verifier": 11,
+    "stop": 0,
+    "expected": 1,
+    "actual": 1,
+    "all_observers_checked": true,
+    "all_logs_retained": true
+  },
+  {
+    "operation": 7,
+    "verifier": 0,
+    "stop": 0,
+    "expected": 7,
+    "actual": 7,
+    "all_observers_checked": true,
+    "all_logs_retained": true
+  },
+  {
+    "operation": 7,
+    "verifier": 11,
+    "stop": 0,
+    "expected": 7,
+    "actual": 7,
+    "all_observers_checked": true,
+    "all_logs_retained": true
+  },
+  {
+    "operation": 0,
+    "verifier": 0,
+    "stop": 5,
+    "expected": 1,
+    "actual": 1,
+    "all_observers_checked": true,
+    "all_logs_retained": true
+  },
+  {
+    "operation": 7,
+    "verifier": 11,
+    "stop": 5,
+    "expected": 7,
+    "actual": 7,
+    "all_observers_checked": true,
+    "all_logs_retained": true
+  }
+]

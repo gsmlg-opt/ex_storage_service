@@ -391,16 +391,28 @@ including the private 8 MiB ENOSPC tmpfs, and reads RSS for the explicit
 
 Python owns the anchored 25 ms schedule. One generation/sequence request is in
 flight; BEAM returns fresh memory/queue values with their original native probe
-windows. Python performs fresh filesystem probes and synchronous JSONL export.
+windows. Python performs fresh filesystem probes and hands immutable encoded
+rows to one FIFO writer thread. The queue admits at most 128 rows of 16 KiB
+(2 MiB payload plus one in-flight row), independent of object size. Capacity is
+checked before requesting another fresh BEAM observation; saturation fails the
+observer instead of discarding samples. A transient output stall can therefore
+preserve fresh sampling while a sustained stall fails bounded admission.
 Collection windows use only Python clocks. Never compare BEAM and Python
-monotonic origins. Slow IPC, scanning, and export remain failures of the unchanged
-100 ms per-metric validator; missed slots are skipped without catch-up samples.
+monotonic origins. Slow IPC/scanning or actual scheduling gaps remain failures
+of the unchanged 100 ms per-metric validator; missed slots are skipped without
+catch-up samples. The writer attaches the previous completed export's diagnostics
+to the next persisted row; collection of that row may precede export completion.
 Protocol frames are capped at 4096 bytes before decoding, each JSONL row at
 16384 bytes, the sample file at 1 GiB, and a helper at 432000 rows/three hours.
-There is no exporter thread or mailbox. Owner EOF stops the helper; harness
-cleanup additionally verifies the recorded OS PID/start-time identity stopped
-and retains `observer-stop-verification.json` (including an observed zombie
-state when the external reaper has not yet removed an exited process).
+Owner EOF drains the writer within five seconds. Export, encoding, saturation or
+drain errors cannot produce a successful terminal export manifest. Harness
+cleanup verifies the recorded OS PID/start-time identity stopped and requires
+every generation's `resource-export-<generation>.json` to certify equal admitted
+and persisted rows and bounded output ranges. It retains those manifests,
+observer identities and `observer-stop-verification.json` even on failure
+(including an observed zombie state when the external reaper has not yet removed
+an exited process). A killed observer without a valid terminal manifest fails
+acceptance even if its OS identity is stopped.
 
 Focused observer checks run without starting ESS applications:
 

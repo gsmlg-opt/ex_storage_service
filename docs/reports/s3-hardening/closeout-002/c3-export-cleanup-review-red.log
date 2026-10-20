@@ -1,0 +1,30 @@
+...............FF.........
+======================================================================
+FAIL: test_local_retention_and_docker_errors_fail_but_do_not_skip_owned_cleanup (e2e.test_resource_cadence.DiagnosticRetentionTest.test_local_retention_and_docker_errors_fail_but_do_not_skip_owned_cleanup) (mode='retention')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_resource_cadence.py", line 318, in test_local_retention_and_docker_errors_fail_but_do_not_skip_owned_cleanup
+    self.assertEqual([["docker", "rm", "-f", "owned-fixture"]], docker)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [['docker', 'rm', '-f', 'owned-fixture']] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+['docker', 'rm', '-f', 'owned-fixture']
+
+- [['docker', 'rm', '-f', 'owned-fixture']]
++ []
+
+======================================================================
+FAIL: test_local_retention_and_docker_errors_fail_but_do_not_skip_owned_cleanup (e2e.test_resource_cadence.DiagnosticRetentionTest.test_local_retention_and_docker_errors_fail_but_do_not_skip_owned_cleanup) (mode='docker')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_resource_cadence.py", line 315, in test_local_retention_and_docker_errors_fail_but_do_not_skip_owned_cleanup
+    with redirect_stdout(io.StringIO()), self.assertRaises(RuntimeError) as caught:
+                                         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.343s
+
+FAILED (failures=2)

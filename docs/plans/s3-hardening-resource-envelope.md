@@ -7,11 +7,22 @@ and actual measurements before claiming A28/A30. Mandatory sizes are67108864 and
 
 Closeout instrumentation retains separate scheduled, probe-start, collection and
 per-metric monotonic windows. Each row also records its BEAM request/reply window
-and the preceding row's completed JSON encoding/output-write windows, byte count
-and thread CPU time. The first preceding export is null; the final export has no
-following row. These timings attribute observation gaps without interpolating
-missing samples or changing the100ms coverage criterion. The controlled blocked
-output regression proves that export delay remains a coverage failure.
+and the preceding persisted row's completed JSON encoding/output-write windows,
+byte count and thread CPU time. The first preceding export is null; the final
+export has no following row. Collection of a row may precede the prior export's
+completion. These timings attribute observation gaps without interpolating
+missing samples or changing the100ms coverage criterion.
+
+C2 proved that synchronous output stalls delayed fresh observations: the failed
+local/gateway and cluster receipts remain immutable. The repaired observer uses
+one writer thread and a fixed128-row FIFO, at most16KiB per encoded row (2MiB
+queued payload plus one in flight), predeclared before the fresh acceptance run.
+Capacity is checked before requesting another observation; no sample is silently
+discarded. A transient blocked export must preserve actual fresh observations;
+a sustained stall must fail bounded admission. EOF must drain within5seconds,
+and strict cleanup requires a generation-bound successful terminal manifest
+with admitted==persisted, contiguous sequences and bounded output. This observer
+buffer does not change the service memory envelopes or permit absent samples.
 
 Case receipts compare exact `(path, size, concurrency)` identities with the
 current local/gateway and cluster manifests, rejecting missing, duplicate,

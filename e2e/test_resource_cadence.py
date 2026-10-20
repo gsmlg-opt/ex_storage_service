@@ -280,6 +280,84 @@ class FaultLifecycleTest(unittest.TestCase):
 
 
 class DiagnosticRetentionTest(unittest.TestCase):
+    def test_local_retention_and_docker_errors_fail_but_do_not_skip_owned_cleanup(self):
+        source = ast.parse((Path(__file__).parent / "s3_hardening_resources.py").read_text())
+        main = next(node for node in source.body if isinstance(node, ast.FunctionDef) and node.name == "main")
+        finalizer = next(node.finalbody for node in main.body if isinstance(node, ast.Try) and node.finalbody)
+        for mode in ("retention", "discovery", "docker"):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as directory:
+                root, evidence = Path(directory) / "root", Path(directory) / "evidence"
+                root.mkdir()
+                evidence.mkdir()
+                (root / "samples.jsonl").write_text("sample\n")
+                error = RuntimeError(mode + " failed")
+                docker = []
+
+                def remove(argv, **kwargs):
+                    docker.append(argv)
+                    if mode == "docker":
+                        if kwargs.get("check"):
+                            raise error
+                        return SimpleNamespace(returncode=1)
+                    return SimpleNamespace(returncode=0)
+
+                def read_samples():
+                    raise error
+
+                def discover_samples():
+                    raise error
+
+                result = {"status": "passed"}
+                namespace = {"root": root, "evidence": evidence, "result": result,
+                             "runtime": SimpleNamespace(close=lambda: None), "proxy": None,
+                             "samples_path": (SimpleNamespace(exists=lambda: True, read_bytes=read_samples)
+                                              if mode == "retention" else
+                                              SimpleNamespace(exists=discover_samples)
+                                              if mode == "discovery" else root / "samples.jsonl"),
+                             "container": "owned-fixture", "json": json,
+                             "subprocess": SimpleNamespace(DEVNULL=-3,
+                                 check_output=lambda *_args, **_kwargs: "candidate\n", run=remove)}
+                with redirect_stdout(io.StringIO()), self.assertRaises(RuntimeError) as caught:
+                    exec(compile(ast.Module(body=finalizer, type_ignores=[]), "local-finalizer", "exec"), namespace)
+                self.assertIs(error, caught.exception)
+                self.assertEqual([["docker", "rm", "-f", "owned-fixture"]], docker)
+                self.assertEqual("failed", json.loads((evidence / "results.json").read_text())["status"])
+
+    def test_local_cleanup_failure_retains_terminal_observer_diagnostics_and_removes_container(self):
+        source = ast.parse((Path(__file__).parent / "s3_hardening_resources.py").read_text())
+        main = next(node for node in source.body if isinstance(node, ast.FunctionDef) and node.name == "main")
+        finalizer = next(node.finalbody for node in main.body if isinstance(node, ast.Try) and node.finalbody)
+        with tempfile.TemporaryDirectory() as directory:
+            root, evidence = Path(directory) / "root", Path(directory) / "evidence"
+            root.mkdir()
+            evidence.mkdir()
+            for name in ("observer-generation.json", "observer-stop-verification.json",
+                         "resource-export-generation.json"):
+                (root / name).write_text('{"status":"failed-export"}\n')
+            (root / "private-state.json").write_text("must-not-copy")
+            (root / "samples.jsonl").write_text("fresh-sample\n")
+            error = RuntimeError("export did not finish")
+
+            def stop():
+                raise error
+
+            docker = []
+            result = {"status": "passed"}
+            namespace = {"root": root, "evidence": evidence, "result": result,
+                         "runtime": SimpleNamespace(close=stop), "proxy": None,
+                         "samples_path": root / "samples.jsonl", "container": "owned-fixture",
+                         "json": json,
+                         "subprocess": SimpleNamespace(DEVNULL=-3, check_output=lambda *_args, **_kwargs: "candidate\n",
+                             run=lambda argv, **kwargs: docker.append(argv))}
+            with redirect_stdout(io.StringIO()), self.assertRaises(RuntimeError) as caught:
+                exec(compile(ast.Module(body=finalizer, type_ignores=[]), "local-finalizer", "exec"), namespace)
+            self.assertIs(error, caught.exception)
+            self.assertEqual("failed", json.loads((evidence / "results.json").read_text())["status"])
+            self.assertEqual("fresh-sample\n", (evidence / "samples.jsonl").read_text())
+            self.assertTrue((evidence / "resource-export-generation.json").exists())
+            self.assertFalse((evidence / "private-state.json").exists())
+            self.assertEqual([["docker", "rm", "-f", "owned-fixture"]], docker)
+
     def test_actual_cluster_finalizer_retains_only_explicit_trace_file_and_fails_caps(self):
         source = ast.parse((Path(__file__).parent / "s3_hardening_cluster_resources.py").read_text())
         main = next(node for node in source.body if isinstance(node, ast.FunctionDef) and node.name == "main")

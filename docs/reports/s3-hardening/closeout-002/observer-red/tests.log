@@ -1,0 +1,27 @@
+test_public_verification_rejects_a_dead_observer_without_export_completion (test_resource_observer.ObserverProtocolTest.test_public_verification_rejects_a_dead_observer_without_export_completion) ... FAIL
+test_blocked_export_preserves_fresh_samples_and_original_coverage (test_resource_observer.ObserverProtocolTest.test_blocked_export_preserves_fresh_samples_and_original_coverage) ... FAIL
+
+======================================================================
+FAIL: test_public_verification_rejects_a_dead_observer_without_export_completion (test_resource_observer.ObserverProtocolTest.test_public_verification_rejects_a_dead_observer_without_export_completion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_resource_observer.py", line 116, in test_public_verification_rejects_a_dead_observer_without_export_completion
+    self.assertNotEqual(0, result.returncode, "OS death alone certified an unexported generation")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : OS death alone certified an unexported generation
+
+======================================================================
+FAIL: test_blocked_export_preserves_fresh_samples_and_original_coverage (test_resource_observer.ObserverProtocolTest.test_blocked_export_preserves_fresh_samples_and_original_coverage)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_resource_observer.py", line 337, in test_blocked_export_preserves_fresh_samples_and_original_coverage
+    self.assertGreaterEqual(len(fresh_while_blocked), 4,
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "synchronous export prevented fresh BEAM requests")
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than or equal to 4 : synchronous export prevented fresh BEAM requests
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.498s
+
+FAILED (failures=2)
