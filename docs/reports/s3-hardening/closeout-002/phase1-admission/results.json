@@ -1,0 +1,79 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "scope": "Phase 1 fixture admission scheduling regression; lightweight Python verification only",
+  "observed_candidate": {
+    "name": "C6",
+    "sha": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+    "source_fingerprint": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+    "standalone_failure": {
+      "path": "../candidate-c6/cache-prerequisite-retry/standalone-1.log",
+      "sha256": "217435e20fe62ea79b5bdd158a4c03b5a8fbb60e04d49aa21d4d6043052288f2",
+      "error": "CreateMultipartUpload: SlowDown; total_max_attempts remains 1"
+    },
+    "separate_release_failure": {
+      "path": "../candidate-c6/cache-prerequisite-retry/release-0.log",
+      "sha256": "36d008ab8a585390fbfa7633222d8cc1d1f62ef096cdccfb3c23ee3b880332f8",
+      "error": "Buildx last-activity update failed on read-only /home/gao/.docker/buildx/activity"
+    },
+    "retry_invocation": {
+      "path": "../candidate-c6/cache-prerequisite-retry/invocation.json",
+      "sha256": "1d01d8331b4cdcd20fa36653e78f52c7cdfe54c25e6fbac92e685aab8b730a1b"
+    },
+    "frozen_receipts_modified": false
+  },
+  "diagnosis": "Unpaced signed setup calls and conditional races exceeded the unchanged production 100-token/20-per-second limiter. Router admission precedes operation authorization, so rejected signed requests also consume tokens. The deterministic model reproduces the observed CreateMultipartUpload SlowDown.",
+  "repair": {
+    "files": {
+      "e2e/s3_hardening_phase1.py": "a797405e8d35de8bb45f22ef0de0dd6ca8672ca6800b917bf8ba1e0c792144e9",
+      "e2e/test_phase1_admission.py": "3b52a86345bcc59b67392966f02d223c6ee715bc2622c97c90585e97c03cef95"
+    },
+    "fixture_tokens": 32,
+    "fixture_refill_per_second": 10,
+    "minimum_wait_seconds": 0.001,
+    "production_limiter_changed": false,
+    "sdk_retries_checksums_signing_concurrency_changed": false,
+    "burst_reservations": [32, 32],
+    "barriers_retained": true
+  },
+  "verification": {
+    "red": {
+      "command": "PAGER=cat PYTHONPATH=e2e /tmp/ess-s3-hardening-python/bin/python -m unittest -v test_phase1_admission",
+      "path": "red.log",
+      "sha256": "7e939c51d4eb7877474bb609b2450aa6eac5de761c719ea1f8e1592a0cc63bd8",
+      "exit_status": 1,
+      "tests": 1,
+      "failure": "Actual unpaced fixture main() receives CreateMultipartUpload SlowDown from an independent production limiter model"
+    },
+    "initial_implementation_failure": {
+      "path": "initial-virtual-clock-failure.log",
+      "sha256": "4d435cf91b43b30047c6ce1ed100e422073d698c11d1451c55b87639eddcec28",
+      "exit_status": 130,
+      "cause": "Sub-resolution floating-point wait did not advance virtual monotonic time",
+      "shutdown": "Only owned Python PID 782276 interrupted with SIGINT; session 66011 reaped",
+      "repair": "Minimum 1 ms admission wait; virtual clock rejects non-advancing waits"
+    },
+    "green": {
+      "command": "PAGER=cat PYTHONPATH=e2e /tmp/ess-s3-hardening-python/bin/python -m unittest -v test_phase1_admission",
+      "path": "green.log",
+      "sha256": "4ea477f5b07fb674d24134f85302c8c88e398b066b06baa905ec51c2b082976d",
+      "exit_status": 0,
+      "tests": 2,
+      "duration_seconds": 0.181,
+      "coverage": "Actual fixture main() completes all ten check groups for one and two endpoints under independent 100-token/20-per-second limiter contract; both races retain 32 workers and barriers; disabled admission reproduces SlowDown"
+    },
+    "harness": {
+      "command": "PAGER=cat PYTHONPATH=e2e /tmp/ess-s3-hardening-python/bin/python -m unittest discover -s e2e -p 'test_*.py'",
+      "path": "harness.log",
+      "sha256": "43263bec425cafde53bd916d1a21a7411923462c12be7de97c5cf18aa80d1c30",
+      "exit_status": 0,
+      "tests": 115,
+      "duration_seconds": 21.254,
+      "session": 84772,
+      "reaped": true
+    }
+  },
+  "sol_repair_rounds": 1,
+  "astra_repair_counter": null,
+  "owned_processes_remaining": false,
+  "limits": "Network delivery in the regression is replaced with an independent conditional-object/multipart model. No HTTP, BEAM, full acceptance, artifact publication or release claim is made. Parent must freeze and validate C7 with real-service all-profile acceptance."
+}

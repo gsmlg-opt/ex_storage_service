@@ -1,0 +1,86 @@
+test_actual_fixture_completes_under_production_limiter_with_32_way_bursts (test_phase1_admission.Phase1AdmissionTest.test_actual_fixture_completes_under_production_limiter_with_32_way_bursts) ... Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/run/current-system/sw/lib/python3.13/unittest/__main__.py", line 18, in <module>
+    main(module=None)
+    ~~~~^^^^^^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/unittest/main.py", line 104, in __init__
+    self.runTests()
+    ~~~~~~~~~~~~~^^
+  File "/run/current-system/sw/lib/python3.13/unittest/main.py", line 270, in runTests
+    self.result = testRunner.run(self.test)
+                  ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/unittest/runner.py", line 240, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/unittest/suite.py", line 122, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/unittest/suite.py", line 122, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/unittest/suite.py", line 122, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/unittest/case.py", line 707, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/unittest/case.py", line 651, in run
+    self._callTestMethod(testMethod)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/unittest/case.py", line 606, in _callTestMethod
+    if method() is not None:
+       ~~~~~~^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_phase1_admission.py", line 219, in test_actual_fixture_completes_under_production_limiter_with_32_way_bursts
+    clock, server, receipt = self.run_fixture()
+                             ~~~~~~~~~~~~~~~~^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_phase1_admission.py", line 215, in run_fixture
+    fixture.main()
+    ~~~~~~~~~~~~^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/s3_hardening_phase1.py", line 179, in main
+    check(status(lambda: clients[0].put_object(Bucket=bucket, Key="stale", Body=b"bad", IfMatch=old)) == 412, "stale conditional write")
+          ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/s3_hardening_phase1.py", line 66, in status
+    return operation()["ResponseMetadata"]["HTTPStatusCode"]
+           ~~~~~~~~~^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/s3_hardening_phase1.py", line 179, in <lambda>
+    check(status(lambda: clients[0].put_object(Bucket=bucket, Key="stale", Body=b"bad", IfMatch=old)) == 412, "stale conditional write")
+                         ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ess-s3-hardening-python/lib/python3.13/site-packages/botocore/client.py", line 606, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ess-s3-hardening-python/lib/python3.13/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "/tmp/ess-s3-hardening-python/lib/python3.13/site-packages/botocore/client.py", line 1061, in _make_api_call
+    handler, event_response = self.meta.events.emit_until_response(
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        f'before-call.{service_id}.{operation_name}',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        context=request_context,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/tmp/ess-s3-hardening-python/lib/python3.13/site-packages/botocore/hooks.py", line 416, in emit_until_response
+    return self._emitter.emit_until_response(aliased_event_name, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ess-s3-hardening-python/lib/python3.13/site-packages/botocore/hooks.py", line 271, in emit_until_response
+    responses = self._emit(event_name, kwargs, stop_on_response=True)
+  File "/tmp/ess-s3-hardening-python/lib/python3.13/site-packages/botocore/hooks.py", line 239, in _emit
+    response = handler(**kwargs)
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/s3_hardening_phase1.py", line 49, in acquire
+    time.sleep((count - self.tokens) / 10)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_phase1_admission.py", line 34, in sleep
+    with self.lock:
+         ^^^^^^^^^
+KeyboardInterrupt
