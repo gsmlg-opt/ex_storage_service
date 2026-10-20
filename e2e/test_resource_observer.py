@@ -85,6 +85,95 @@ def respond(process, generation, sequence):
     process.stdin.flush()
 
 
+class TemporaryDiskTest(unittest.TestCase):
+    def test_completed_cache_files_do_not_require_size_stats(self):
+        with tempfile.TemporaryDirectory(prefix="ess-observer-cache-scan-") as directory:
+            root = roots(directory)
+            (root / "tmp/upload").write_bytes(b"stage")
+            cache = root / "data/bucket/cache/ab"
+            nested = cache / "nested.tmp"
+            nested.mkdir(parents=True)
+            (cache / "active.tmp").write_bytes(b"cache-stage")
+            (nested / "active.tmp").write_bytes(b"nested")
+            completed = [cache / f"published-{index}" for index in range(128)]
+            for path in completed:
+                path.write_bytes(b"retained-cache")
+            (cache / ".hidden.tmp").write_bytes(b"excluded")
+            tracked = {}
+            scan = observer.entries
+
+            def counted_entries(path):
+                with scan(path) as children:
+                    wrapped = []
+                    for entry in children:
+                        item = mock.Mock(wraps=entry)
+                        item.name, item.path = entry.name, entry.path
+                        tracked[entry.path] = item
+                        wrapped.append(item)
+                listing = mock.MagicMock()
+                listing.__iter__.return_value = iter(wrapped)
+                return listing
+
+            with mock.patch.object(observer, "entries", side_effect=counted_entries):
+                total = observer.temporary_bytes(root / "tmp", root / "data")
+            visits = sum(tracked[str(path)].stat.call_count for path in completed)
+            retain("temporary-cache-stat-visits", {"completed_files": len(completed),
+                   "completed_file_stat_calls": visits, "temporary_bytes": total})
+            self.assertEqual(22, total)
+            self.assertEqual(0, visits)
+            for path in (root / "tmp/upload", cache / "active.tmp", nested / "active.tmp"):
+                self.assertEqual(1, tracked[str(path)].stat.call_count)
+
+    def test_cache_directory_and_file_symlinks_preserve_the_sum(self):
+        with tempfile.TemporaryDirectory(prefix="ess-observer-cache-links-") as directory:
+            root = roots(directory)
+            cache = root / "data/bucket/cache"
+            cache.mkdir(parents=True)
+            target = root / "target"
+            target.mkdir()
+            (target / "active.tmp").write_bytes(b"nested")
+            (target / "published").write_bytes(b"excluded")
+            (root / "source").write_bytes(b"linked")
+            (cache / "directory").symlink_to(target, target_is_directory=True)
+            (cache / "active.tmp").symlink_to(root / "source")
+            (cache / "published").symlink_to(root / "source")
+            (cache / "missing.tmp").symlink_to(root / "absent")
+            os.mkfifo(cache / "fifo.tmp")
+            self.assertEqual(12, observer.temporary_bytes(root / "tmp", root / "data"))
+
+    def test_cache_directory_cycles_remain_errors(self):
+        with tempfile.TemporaryDirectory(prefix="ess-observer-cache-cycle-") as directory:
+            root = roots(directory)
+            cache = root / "data/bucket/cache"
+            cache.mkdir(parents=True)
+            (cache / "cycle").symlink_to(cache, target_is_directory=True)
+            with self.assertRaisesRegex(RuntimeError, "cyclic resource observation directory"):
+                observer.temporary_bytes(root / "tmp", root / "data")
+
+    def test_disappearing_entries_do_not_hide_remaining_temporary_files(self):
+        with tempfile.TemporaryDirectory(prefix="ess-observer-cache-disappear-") as directory:
+            root = Path(directory)
+            (root / "active.tmp").write_bytes(b"remaining")
+            vanished = mock.Mock()
+            vanished.name, vanished.path = "vanished.tmp", str(root / "vanished.tmp")
+            vanished.is_dir.side_effect = FileNotFoundError
+            vanished.stat.side_effect = FileNotFoundError
+            after_type = mock.Mock()
+            after_type.name, after_type.path = "after-type.tmp", str(root / "after-type.tmp")
+            after_type.is_dir.return_value = False
+            after_type.stat.side_effect = FileNotFoundError
+            directory_entry = mock.Mock()
+            directory_entry.name, directory_entry.path = "gone-directory", str(root / "gone-directory")
+            directory_entry.is_dir.return_value = True
+            directory_entry.stat.side_effect = FileNotFoundError
+            with os.scandir(root) as children:
+                remaining = list(children)
+            listing = mock.MagicMock()
+            listing.__iter__.return_value = iter([vanished, after_type, directory_entry, *remaining])
+            with mock.patch.object(observer, "entries", return_value=listing):
+                self.assertEqual(9, observer.temporary_tree(root, tmp_only=True))
+
+
 class ObserverProtocolTest(unittest.TestCase):
     def test_malformed_stale_and_invalid_windows_are_rejected(self):
         request = {"generation": "generation", "sequence": 0}

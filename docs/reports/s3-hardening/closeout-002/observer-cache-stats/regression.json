@@ -1,0 +1,31 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "baseline_sha": "be34dd6645478d4d759f7034df11479a62567302",
+  "scope": "Temporary metric preservation and avoidable explicit stat visits; not a reproduction or causal repair of C4cadence failure. Directory enumeration remains necessary.",
+  "red": {
+    "exit_status": 1,
+    "tests": 4,
+    "failures": 1,
+    "path": "docs/reports/s3-hardening/closeout-002/observer-cache-stats/red.json"
+  },
+  "green": {
+    "exit_status": 0,
+    "tests": 4,
+    "failures": 0,
+    "path": "docs/reports/s3-hardening/closeout-002/observer-cache-stats/green.json"
+  },
+  "scoped_suite": {
+    "exit_status": 0,
+    "tests": 52,
+    "failures": 0,
+    "modules": [
+      "test_resource_observer",
+      "test_resource_cadence"
+    ]
+  },
+  "provenance": "Assigned list_buckets_dispatch worker actual deterministic red/green results; parent reviewed unchanged22byte total and explicit completed-file calls128to0. Full candidate correctness retains new stdout separately.",
+  "limitations": [
+    "No100ms threshold or workload modified.",
+    "No assertion that this optimization fixes C4gap or completes A30."
+  ]
+}

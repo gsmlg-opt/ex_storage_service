@@ -83,13 +83,14 @@ def temporary_tree(directory, tmp_only=False, ancestors=frozenset()):
             if entry.name.startswith("."):
                 continue
             try:
-                info = entry.stat(follow_symlinks=True)
+                if entry.is_dir(follow_symlinks=True):
+                    total += temporary_tree(entry.path, tmp_only, ancestors | {identity})
+                elif not tmp_only or entry.name.endswith(".tmp"):
+                    info = entry.stat(follow_symlinks=True)
+                    if stat.S_ISREG(info.st_mode):
+                        total += info.st_size
             except FileNotFoundError:
                 continue
-            if stat.S_ISDIR(info.st_mode):
-                total += temporary_tree(entry.path, tmp_only, ancestors | {identity})
-            elif stat.S_ISREG(info.st_mode) and (not tmp_only or entry.name.endswith(".tmp")):
-                total += info.st_size
     return total
 
 
