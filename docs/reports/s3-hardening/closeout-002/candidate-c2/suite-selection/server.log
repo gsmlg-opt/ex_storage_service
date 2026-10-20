@@ -1,0 +1,92 @@
+==> ex_storage_service
+Running ExUnit with seed: 708350, max_cases: 1
+Excluding tags: [cluster: true]
+
+..........................................01:31:26.783 [error] CloudCache DELETE failed remote/key: HTTP 403 — ""
+..01:31:26.800 [error] Replication DELETE failed for bucket/key to http://127.0.0.1:49871: HTTP 503 - ""
+........................................................................................................................................................................................................................................................................................................................................................01:31:39.831 [warning] CAS migration: content missing for mig-7650 hash f496e93797becd850b2ac3b0b59df837fa992dc41ee81160407ae497ac8994c1
+............01:32:02.655 [warning] ContentGC: metadata scan failed; sweep aborted: :metadata_unavailable
+...............01:32:05.210 [warning] CasGC: failed to delete f5b9a131829508768eb296cf237e5510aabbd1805e14cc89bc3d6c3c967bab57: :invalid_quarantine_path
+.......................................................................................................................................................................................
+Finished in 65.2 seconds (13.9s async, 51.3s sync)
+599 tests, 0 failures, 1 excluded
+==> ex_storage_service_cluster
+Running ExUnit with seed: 708350, max_cases: 1
+Excluding tags: [large_stream: true]
+
+...............................01:32:31.494 [error] GenServer #PID<0.5627.0> terminating
+** (Bandit.TransportError) Unable to obtain conn_data
+    (bandit 1.12.5) lib/bandit/socket_helpers.ex:72: Bandit.SocketHelpers.transport_error!/2
+    (bandit 1.12.5) lib/bandit/http1/handler.ex:9: Bandit.HTTP1.Handler.handle_connection/2
+    (bandit 1.12.5) lib/bandit/delegating_handler.ex:12: Bandit.DelegatingHandler.handle_connection/2
+    (bandit 1.12.5) lib/bandit/delegating_handler.ex:63: Bandit.DelegatingHandler.handle_bandit_continuation/2
+    (bandit 1.12.5) lib/bandit/delegating_handler.ex:8: Bandit.DelegatingHandler.handle_continue/2
+    (stdlib 7.3.0.1) gen_server.erl:2424: :gen_server.try_handle_continue/3
+    (stdlib 7.3.0.1) gen_server.erl:2291: :gen_server.loop/4
+    (stdlib 7.3.0.1) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+Process Label: {:thousand_island, :connection, {Bandit.DelegatingHandler, {{127, 0, 0, 1}, 40214}}}
+Last message: {:continue, :handle_connection}
+01:32:31.493 [error] GenServer #PID<0.5619.0> terminating
+** (Bandit.TransportError) Unable to obtain conn_data
+    (bandit 1.12.5) lib/bandit/socket_helpers.ex:72: Bandit.SocketHelpers.transport_error!/2
+    (bandit 1.12.5) lib/bandit/http1/handler.ex:9: Bandit.HTTP1.Handler.handle_connection/2
+    (bandit 1.12.5) lib/bandit/delegating_handler.ex:12: Bandit.DelegatingHandler.handle_connection/2
+    (bandit 1.12.5) lib/bandit/delegating_handler.ex:63: Bandit.DelegatingHandler.handle_bandit_continuation/2
+    (bandit 1.12.5) lib/bandit/delegating_handler.ex:8: Bandit.DelegatingHandler.handle_continue/2
+    (stdlib 7.3.0.1) gen_server.erl:2424: :gen_server.try_handle_continue/3
+    (stdlib 7.3.0.1) gen_server.erl:2291: :gen_server.loop/4
+    (stdlib 7.3.0.1) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+Process Label: {:thousand_island, :connection, {Bandit.DelegatingHandler, {{127, 0, 0, 1}, 40204}}}
+Last message: {:continue, :handle_connection}
+........
+Finished in 0.9 seconds (0.9s async, 0.00s sync)
+40 tests, 0 failures, 1 excluded
+==> ex_storage_service_cli
+Running ExUnit with seed: 708350, max_cases: 1
+Excluding tags: [large_stream: true]
+
+......................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................{"port":34463,"host":"127.0.0.1","method":"HEAD","event":"request","operation":"HeadObject","region":"us-east-1","attempt":1}
+{"status":200,"event":"response","operation":"HeadObject"}
+..........[31m✗ Error:[0m Download failed: Unsafe local download destination
+..........................................................................................................................................................................................................................................................ESS_RESOURCE_EVIDENCE {"small":{"size":1048576,"requests":{"active":0,"maximum":1,"bytes":0,"queued":0,"high_bytes":131072,"high_requests":1},"samples":7,"peak_total":186635000,"baseline_total":186142912,"peak_binary":22146512,"baseline_binary":21885528,"peak_processes":914,"baseline_processes":907,"peak_mailbox":0,"peak_staging":983040},"budget":1048576,"large":{"size":67108864,"requests":{"active":0,"maximum":1,"bytes":0,"queued":0,"high_bytes":131072,"high_requests":1},"samples":397,"peak_total":187161568,"baseline_total":186150704,"peak_binary":22522248,"baseline_binary":21861688,"peak_processes":918,"baseline_processes":908,"peak_mailbox":1,"peak_staging":67108864},"fixed_overhead":67108864}
+.........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+Finished in 429.1 seconds (175.7s async, 253.3s sync)
+3491 tests, 0 failures
+==> ex_storage_service_s3
+Running ExUnit with seed: 708350, max_cases: 1
+Excluding tags: [large_stream: true]
+
+....................generated XML corpus: 5402 rejected cases, max input 4096 bytes
+.......01:39:41.318 request_id=request-phase7-incomplete [warning] blob response stream terminated
+.........................................................................01:39:46.660 [warning] SigV4 auth failed: Missing Authorization header — POST /health/cloud_cache
+.....................................01:39:52.633 [warning] SigV4 auth failed: Missing Authorization header — HEAD /signature
+.01:39:52.639 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+..01:39:52.650 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+01:39:52.650 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+..01:39:53.022 [error] Replication PUT repl-10084/d.txt: content "34b79ebbbdd248cd400be53835923b81af125e4c4bc956444f3f0701751007e0" missing from storage
+.01:39:53.022 [error] Replication PUT failed for source/broken.bin to http://localhost:9001: {:request_failed, %ExStorageService.BlobStore.Source.RequestBodyError{reason: :upstream_closed}}
+.............................................................................................01:40:44.160 [error] 4234- fatal: :unexpected_end
+
+01:40:44.162 [error] 4234- fatal: :unexpected_end
+
+01:40:44.181 [error] 4234- fatal: :unexpected_end
+
+01:40:44.183 [error] 4234- fatal: :unexpected_end
+
+01:40:44.203 [error] 4234- fatal: :unexpected_end
+
+01:40:44.205 [error] 4234- fatal: :unexpected_end
+
+..................01:40:51.640 [warning] SigV4 auth failed: Missing Authorization header — OPTIONS /cors-http-19619/key
+01:40:51.643 [warning] SigV4 auth failed: Missing Authorization header — GET /cors-http-19619/key
+....................................................................01:41:07.738 [warning] SigV4 auth failed: SignatureDoesNotMatch — GET /
+...............................................
+Finished in 106.2 seconds (1.3s async, 104.9s sync)
+369 tests, 0 failures
+==> ex_storage_service_web
+Running ExUnit with seed: 708350, max_cases: 1
+Excluding tags: [large_stream: true]
+
+.....................
+Finished in 0.2 seconds (0.1s async, 0.1s sync)
+21 tests, 0 failures

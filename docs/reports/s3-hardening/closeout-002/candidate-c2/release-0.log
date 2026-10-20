@@ -1,0 +1,849 @@
+==> ex_storage_service
+Compiling 130 files (.ex)
+Generated ex_storage_service app
+==> ex_storage_service_cluster
+Compiling 7 files (.ex)
+Generated ex_storage_service_cluster app
+==> ex_storage_service_cli
+Compiling 1 file (.yrl)
+Compiling 1 file (.xrl)
+Compiling 22 files (.erl)
+Compiling 150 files (.ex)
+Generated ex_storage_service_cli app
+==> ex_storage_service_s3
+Compiling 33 files (.ex)
+Generated ex_storage_service_s3 app
+==> ex_storage_service_web
+Compiling 26 files (.ex)
+Generated ex_storage_service_web app
+==> ex_storage_service_web
+Bundling 40 @duskmoon-dev element(s)...
+Wrote /home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/assets/js/duskmoon_elements.js (689.2 KB, 40 element(s))
+Building Tailwind CSS...
+  app-87111d52.css  456.5 KB
+  manifest.json  1 entries
+Built Tailwind in 3704ms
+Building "/home/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/assets/js/app.js"...
+  app-d0ca62d7.js  768.6 KB (gzip: 148.8 KB)
+  manifest.json  1 entries
+Built in 520ms
+Check your digested files at "priv/static"
+* assembling ess-0.6.10 on MIX_ENV=prod
+* using config/runtime.exs to configure the release at runtime
+* skipping elixir.bat for windows (bin/elixir.bat not found in the Elixir installation)
+* skipping iex.bat for windows (bin/iex.bat not found in the Elixir installation)
+
+Release created at _build/prod/rel/ess
+
+    # To start your system
+    _build/prod/rel/ess/bin/ess start
+
+Once the release is running:
+
+    # To connect to it remotely
+    _build/prod/rel/ess/bin/ess remote
+
+    # To stop it gracefully (you may also send SIGINT/SIGTERM)
+    _build/prod/rel/ess/bin/ess stop
+
+To list all commands:
+
+    _build/prod/rel/ess/bin/ess
+
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 DONE 0.0s
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 3.41kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/elixir:1.19.5-otp-28-slim
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/debian:trixie-slim
+#3 DONE 0.0s
+
+#4 [internal] load metadata for docker.io/library/rust:1.91.1-slim-trixie
+#4 DONE 4.2s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 453B done
+#5 DONE 0.0s
+
+#6 [runtime 1/5] FROM docker.io/library/debian:trixie-slim
+#6 DONE 0.0s
+
+#7 [rust_toolchain 1/1] FROM docker.io/library/rust:1.91.1-slim-trixie@sha256:f75071363e7f4771769d4cf81b1b7b290e607f4d4459e8731f6abdcee9982dc8
+#7 DONE 0.0s
+
+#8 [builder  1/20] FROM docker.io/library/elixir:1.19.5-otp-28-slim
+#8 DONE 0.0s
+
+#9 [internal] load build context
+#9 transferring context: 33.27MB 0.1s done
+#9 DONE 0.1s
+
+#10 [builder  7/20] COPY mix.exs mix.lock ./
+#10 CACHED
+
+#11 [builder 11/20] COPY apps/ex_storage_service_s3/mix.exs ./apps/ex_storage_service_s3/mix.exs
+#11 CACHED
+
+#12 [builder  8/20] COPY apps/ex_storage_service/mix.exs ./apps/ex_storage_service/mix.exs
+#12 CACHED
+
+#13 [builder 10/20] COPY apps/ex_storage_service_cli/mix.exs ./apps/ex_storage_service_cli/mix.exs
+#13 CACHED
+
+#14 [builder  2/20] RUN apt-get update && apt-get install -y build-essential git curl openssl &&     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - &&     apt-get install -y nodejs &&     apt-get clean && rm -rf /var/lib/apt/lists/*
+#14 CACHED
+
+#15 [builder  4/20] COPY --from=rust_toolchain /usr/local/rustup /usr/local/rustup
+#15 CACHED
+
+#16 [builder 14/20] COPY package.json package-lock.json .npmrc ./
+#16 CACHED
+
+#17 [builder  6/20] RUN mix local.hex --force && mix local.rebar --force
+#17 CACHED
+
+#18 [builder 15/20] COPY apps/ex_storage_service_web/package.json ./apps/ex_storage_service_web/package.json
+#18 CACHED
+
+#19 [builder 16/20] RUN npm ci
+#19 CACHED
+
+#20 [builder 12/20] COPY apps/ex_storage_service_web/mix.exs ./apps/ex_storage_service_web/mix.exs
+#20 CACHED
+
+#21 [builder 13/20] RUN mix deps.get --only prod
+#21 CACHED
+
+#22 [builder  9/20] COPY apps/ex_storage_service_cluster/mix.exs ./apps/ex_storage_service_cluster/mix.exs
+#22 CACHED
+
+#23 [builder  3/20] COPY --from=rust_toolchain /usr/local/cargo /usr/local/cargo
+#23 CACHED
+
+#24 [builder  5/20] WORKDIR /app
+#24 CACHED
+
+#25 [builder 17/20] COPY config ./config
+#25 CACHED
+
+#26 [builder 18/20] COPY apps ./apps
+#26 DONE 0.2s
+
+#27 [builder 19/20] RUN ESS_MASTER_KEY=$(openssl rand -base64 32)     SECRET_KEY_BASE=$(openssl rand -base64 64)     ESS_S3_AUTH_ENABLED=true     ESS_ADMIN_PASSWORD_HASH=0000000000000000000000000000000000000000000000000000000000000000     mix assets.deploy
+#27 0.949 ==> ex_storage_service_web
+#27 0.949 ==> earmark_parser
+#27 0.950 Compiling 2 files (.xrl)
+#27 0.964 Compiling 1 file (.yrl)
+#27 0.982 Compiling 3 files (.erl)
+#27 1.075 Compiling 32 files (.ex)
+#27 1.393 Generated earmark_parser app
+#27 1.439 ==> file_system
+#27 1.439 Compiling 7 files (.ex)
+#27 1.514 Generated file_system app
+#27 1.533 ==> mime
+#27 1.533 Compiling 1 file (.ex)
+#27 1.590 Generated mime app
+#27 1.603 ==> nimble_options
+#27 1.603 Compiling 3 files (.ex)
+#27 1.790 Generated nimble_options app
+#27 1.802 ==> fine
+#27 1.802 Compiling 1 file (.ex)
+#27 1.809 Generated fine app
+#27 1.820 ==> duskmoon_hex_solver
+#27 1.820 Compiling 19 files (.ex)
+#27 2.141 Generated duskmoon_hex_solver app
+#27 2.164 ==> duskmoon_bundler_runtime
+#27 2.164 Compiling 9 files (.ex)
+#27 2.217 Generated duskmoon_bundler_runtime app
+#27 2.232 ==> jason
+#27 2.232 Compiling 10 files (.ex)
+#27 2.913 Generated jason app
+#27 2.924 ==> plug_crypto
+#27 2.924 Compiling 5 files (.ex)
+#27 2.982 Generated plug_crypto app
+#27 2.993 ==> hpax
+#27 2.993 Compiling 4 files (.ex)
+#27 3.203 Generated hpax app
+#27 3.215 ==> ex_ssl
+#27 3.215 Compiling 58 files (.ex)
+#27 3.916 Generated ex_ssl app
+#27 3.945 ==> rustler
+#27 3.945 Compiling 7 files (.ex)
+#27 4.058 Generated rustler app
+#27 4.072 ==> castore
+#27 4.072 Compiling 1 file (.ex)
+#27 4.078 Generated castore app
+#27 4.089 ==> mint
+#27 4.089 Compiling 1 file (.erl)
+#27 4.132 Compiling 21 files (.ex)
+#27 4.779 Generated mint app
+#27 4.793 ==> mint_web_socket
+#27 4.793 Compiling 7 files (.ex)
+#27 4.942 Generated mint_web_socket app
+#27 4.954 ==> elixir_make
+#27 4.954 Compiling 8 files (.ex)
+#27 5.009 Generated elixir_make app
+#27 5.019 ==> elixir_quic
+#27 5.019 Compiling 23 files (.ex)
+#27 5.816 Generated elixir_quic app
+#27 5.842 ==> json_spec
+#27 5.842 Compiling 2 files (.ex)
+#27 5.877 Generated json_spec app
+#27 5.889 ==> json_codec
+#27 5.889 Compiling 6 files (.ex)
+#27 6.022 Generated json_codec app
+#27 6.035 ==> http_core
+#27 6.035 Compiling 32 files (.ex)
+#27 6.375 Generated http_core app
+#27 6.401 ==> elixir_quic_http3
+#27 6.401 Compiling 13 files (.ex)
+#27 6.759 Generated elixir_quic_http3 app
+#27 6.778 ==> nimble_parsec
+#27 6.778 Compiling 4 files (.ex)
+#27 6.955 Generated nimble_parsec app
+#27 6.970 ==> makeup
+#27 6.970 Compiling 15 files (.ex)
+#27 7.193 Generated makeup app
+#27 7.210 ==> makeup_elixir
+#27 7.210 Compiling 6 files (.ex)
+#27 12.70 Generated makeup_elixir app
+#27 12.75 ==> makeup_erlang
+#27 12.75 Compiling 4 files (.ex)
+#27 18.99 Generated makeup_erlang app
+#27 19.05 ==> ex_doc
+#27 19.05 Compiling 30 files (.ex)
+#27 19.44 Generated ex_doc app
+#27 19.64 ==> ex_storage_service_web
+#27 19.64 ===> Analyzing applications...
+#27 19.66 ===> Compiling telemetry
+#27 19.80 ==> http_runtime
+#27 19.80 Compiling 22 files (.ex)
+#27 20.39 Generated http_runtime app
+#27 20.41 ==> http_fetch
+#27 20.41 Compiling 19 files (.ex)
+#27 21.04 Generated http_fetch app
+#27 21.05 ==> duskmoon_npm
+#27 21.05 Compiling 197 files (.ex)
+#27 22.42 Generated duskmoon_npm app
+#27 22.46 ==> http_web_socket
+#27 22.46 Compiling 10 files (.ex)
+#27 23.01 Generated http_web_socket app
+#27 23.02 ==> telemetry_metrics
+#27 23.02 Compiling 7 files (.ex)
+#27 23.09 Generated telemetry_metrics app
+#27 23.10 ==> thousand_island
+#27 23.10 Compiling 18 files (.ex)
+#27 23.20 Generated thousand_island app
+#27 23.40 ==> ex_storage_service_web
+#27 23.40 ===> Analyzing applications...
+#27 23.42 ===> Compiling telemetry_poller
+#27 23.57 ==> db_connection
+#27 23.57 Compiling 18 files (.ex)
+#27 23.90 Generated db_connection app
+#27 23.92 ==> viewstamped_replication
+#27 23.92 Compiling 26 files (.ex)
+#27 24.60 Generated viewstamped_replication app
+#27 24.63 ==> phoenix_html
+#27 24.63 Compiling 6 files (.ex)
+#27 24.76 Generated phoenix_html app
+#27 24.77 ==> phoenix_template
+#27 24.77 Compiling 4 files (.ex)
+#27 24.82 Generated phoenix_template app
+#27 24.84 ==> phoenix_pubsub
+#27 24.84 Compiling 13 files (.ex)
+#27 25.01 Generated phoenix_pubsub app
+#27 25.03 ==> rustler_precompiled
+#27 25.03 Compiling 4 files (.ex)
+#27 25.19 Generated rustler_precompiled app
+#27 25.20 ==> mdex_native
+#27 25.20 Compiling 9 files (.ex)
+#27 25.25 
+#27 25.25 18:00:02.347 [debug] Downloading NIF from https://github.com/leandrocp/mdex_native/releases/download/v0.2.11/libmdex_native_nif-v0.2.11-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz
+#27 31.23 
+#27 31.23 18:00:08.334 [debug] NIF cached at /root/.cache/rustler_precompiled/precompiled_nifs/libmdex_native_nif-v0.2.11-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz and extracted to /app/_build/prod/lib/mdex_native/priv/native/libmdex_native_nif-v0.2.11-nif-2.15-x86_64-unknown-linux-gnu.so
+#27 31.24 Generated mdex_native app
+#27 31.27 ==> duskmoon_oxc
+#27 31.27 Compiling 12 files (.ex)
+#27 31.31 
+#27 31.31 18:00:08.410 [debug] Downloading NIF from https://github.com/duskmoon-dev/phoenix-duskmoon-ui/releases/download/v9.16.16/liboxc_ex_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz
+#27 31.31 
+#27 31.31 18:00:08.410 [debug] Downloading NIF from https://github.com/duskmoon-dev/phoenix-duskmoon-ui/releases/download/v9.16.16/liboxc_lint_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz
+#27 31.31 
+#27 31.31 18:00:08.410 [debug] Downloading NIF from https://github.com/duskmoon-dev/phoenix-duskmoon-ui/releases/download/v9.16.16/liboxc_fmt_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz
+#27 34.12 
+#27 34.12 18:00:11.222 [debug] NIF cached at /root/.cache/rustler_precompiled/precompiled_nifs/liboxc_ex_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz and extracted to /app/_build/prod/lib/duskmoon_oxc/priv/native/liboxc_ex_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so
+#27 34.49 
+#27 34.49 18:00:11.595 [debug] NIF cached at /root/.cache/rustler_precompiled/precompiled_nifs/liboxc_fmt_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz and extracted to /app/_build/prod/lib/duskmoon_oxc/priv/native/liboxc_fmt_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so
+#27 35.28 
+#27 35.28 18:00:12.378 [debug] NIF cached at /root/.cache/rustler_precompiled/precompiled_nifs/liboxc_lint_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz and extracted to /app/_build/prod/lib/duskmoon_oxc/priv/native/liboxc_lint_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so
+#27 35.29 Generated duskmoon_oxc app
+#27 35.32 ==> duskmoon_oxide
+#27 35.32 Compiling 2 files (.ex)
+#27 35.33 
+#27 35.33 18:00:12.433 [debug] Downloading NIF from https://github.com/duskmoon-dev/phoenix-duskmoon-ui/releases/download/v9.16.16/liboxide_ex_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz
+#27 37.67 
+#27 37.67 18:00:14.773 [debug] NIF cached at /root/.cache/rustler_precompiled/precompiled_nifs/liboxide_ex_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz and extracted to /app/_build/prod/lib/duskmoon_oxide/priv/native/liboxide_ex_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so
+#27 37.68 Generated duskmoon_oxide app
+#27 37.70 ==> duskmoon_vize
+#27 37.70 Compiling 11 files (.ex)
+#27 37.72 
+#27 37.72 18:00:14.820 [debug] Downloading NIF from https://github.com/duskmoon-dev/phoenix-duskmoon-ui/releases/download/v9.16.16/libvize_ex_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz
+#27 40.66 
+#27 40.66 18:00:17.764 [debug] NIF cached at /root/.cache/rustler_precompiled/precompiled_nifs/libvize_ex_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz and extracted to /app/_build/prod/lib/duskmoon_vize/priv/native/libvize_ex_nif-v9.16.16-nif-2.15-x86_64-unknown-linux-gnu.so
+#27 40.68 Generated duskmoon_vize app
+#27 40.70 ==> ex_turso
+#27 40.70 Compiling 11 files (.ex)
+#27 40.93     Updating crates.io index
+#27 53.85  Downloading crates ...
+#27 55.03   Downloaded aead v0.5.2
+#27 55.53   Downloaded heck v0.5.0
+#27 55.54   Downloaded http-body v1.0.1
+#27 55.57   Downloaded funty v2.0.0
+#27 55.59   Downloaded android_system_properties v0.1.5
+#27 55.85   Downloaded cfg_block v0.1.1
+#27 55.85   Downloaded census v0.4.2
+#27 56.00   Downloaded crc32c v0.6.8
+#27 56.13   Downloaded hex v0.4.3
+#27 56.17   Downloaded cpufeatures v0.2.17
+#27 56.18   Downloaded home v0.5.12
+#27 56.19   Downloaded errno v0.3.14
+#27 56.23   Downloaded htmlescape v0.3.1
+#27 56.32   Downloaded futures-macro v0.3.31
+#27 56.38   Downloaded ghash v0.5.1
+#27 56.40   Downloaded aristo v0.4.1
+#27 56.43   Downloaded http-body-util v0.1.3
+#27 56.43   Downloaded crunchy v0.2.4
+#27 56.46   Downloaded futures-task v0.3.32
+#27 56.46   Downloaded httparse v1.10.1
+#27 56.48   Downloaded cfg-if v1.0.4
+#27 56.55   Downloaded darling_macro v0.23.0
+#27 56.57   Downloaded fastdivide v0.4.2
+#27 56.64   Downloaded num-conv v0.2.2
+#27 56.65   Downloaded itoa v1.0.18
+#27 56.69   Downloaded lazy_static v1.5.0
+#27 56.70   Downloaded levenshtein_automata v0.2.1
+#27 56.71   Downloaded mimalloc v0.1.52
+#27 56.72   Downloaded openssl-macros v0.1.1
+#27 56.80   Downloaded foreign-types v0.3.2
+#27 56.80   Downloaded pin-utils v0.1.0
+#27 56.80   Downloaded murmurhash32 v0.3.1
+#27 56.82   Downloaded generic-array v0.14.7
+#27 56.89   Downloaded matchers v0.2.0
+#27 56.91   Downloaded opaque-debug v0.3.1
+#27 56.92   Downloaded leb128fmt v0.1.0
+#27 56.94   Downloaded pack1 v1.1.0
+#27 56.94   Downloaded iana-time-zone-haiku v0.1.2
+#27 56.95   Downloaded inventory v0.3.24
+#27 56.97   Downloaded equivalent v1.0.2
+#27 56.97   Downloaded openssl-probe v0.2.1
+#27 56.99   Downloaded measure_time v0.9.0
+#27 56.99   Downloaded atomic-waker v1.1.2
+#27 57.01   Downloaded ownedbytes v0.9.0
+#27 57.02   Downloaded powerfmt v0.2.0
+#27 57.02   Downloaded potential_utf v0.1.6
+#27 57.03   Downloaded id-arena v2.3.0
+#27 57.04   Downloaded memoffset v0.9.1
+#27 57.04   Downloaded ident_case v1.0.1
+#27 57.06   Downloaded genawaiter-macro v0.99.1
+#27 57.06   Downloaded linkme-impl v0.3.36
+#27 57.12   Downloaded fnv v1.0.7
+#27 57.21   Downloaded foreign-types-shared v0.1.1
+#27 57.22   Downloaded rand_chacha v0.3.1
+#27 57.22   Downloaded rand_pcg v0.3.1
+#27 57.23   Downloaded rustc-hash v1.1.0
+#27 57.23   Downloaded icu_locale_fallback_data v2.3.0
+#27 57.23   Downloaded jobserver v0.1.34
+#27 57.24   Downloaded lazycell v1.3.0
+#27 57.24   Downloaded pin-project-lite v0.2.17
+#27 57.25   Downloaded nu-ansi-term v0.50.3
+#27 57.25   Downloaded lru v0.16.4
+#27 57.26   Downloaded miette-derive v7.6.0
+#27 57.26   Downloaded crypto-common v0.1.7
+#27 57.26   Downloaded pkg-config v0.3.32
+#27 57.27   Downloaded num-integer v0.1.46
+#27 57.27   Downloaded inout v0.1.4
+#27 57.30   Downloaded owo-colors v3.5.0
+#27 57.31   Downloaded rustc_version v0.4.1
+#27 57.31   Downloaded rustc_version_runtime v0.3.0
+#27 57.32   Downloaded prost-derive v0.14.3
+#27 57.32   Downloaded polyval v0.6.2
+#27 57.32   Downloaded linkme v0.3.36
+#27 57.32   Downloaded downcast-rs v2.0.2
+#27 57.33   Downloaded hyper-rustls v0.27.9
+#27 57.34   Downloaded libloading v0.8.9
+#27 57.39   Downloaded branches v0.4.4
+#27 57.42   Downloaded ppv-lite86 v0.2.21
+#27 57.43   Downloaded lock_api v0.4.14
+#27 57.43   Downloaded rand_core v0.6.4
+#27 57.44   Downloaded redox_syscall v0.5.18
+#27 57.44   Downloaded prost v0.14.3
+#27 57.45   Downloaded litemap v0.8.3
+#27 57.45   Downloaded pastey v0.2.3
+#27 57.45   Downloaded libloading v0.9.0
+#27 57.45   Downloaded assoc v0.1.3
+#27 57.45   Downloaded parking_lot_core v0.9.12
+#27 57.45   Downloaded oneshot v0.1.13
+#27 57.46   Downloaded icu_locale_fallback v2.3.0
+#27 57.46   Downloaded icu_locale v2.3.1
+#27 57.46   Downloaded iana-time-zone v0.1.65
+#27 57.46   Downloaded once_cell v1.21.4
+#27 57.47   Downloaded http v1.4.1
+#27 57.47   Downloaded rustc-hash v2.1.2
+#27 57.49   Downloaded ordered-float v5.3.0
+#27 57.50   Downloaded lz4_flex v0.13.1
+#27 57.50   Downloaded memmap2 v0.9.11
+#27 57.51   Downloaded rustler_codegen v0.38.0
+#27 57.51   Downloaded rustls-native-certs v0.8.4
+#27 57.51   Downloaded scopeguard v1.2.0
+#27 57.52   Downloaded icu_provider v2.3.1
+#27 57.52   Downloaded parking_lot v0.12.5
+#27 57.52   Downloaded num-traits v0.2.19
+#27 57.52   Downloaded log v0.4.30
+#27 57.53   Downloaded quote v1.0.45
+#27 57.53   Downloaded proc-macro2 v1.0.106
+#27 57.53   Downloaded rustversion v1.0.22
+#27 57.54   Downloaded futures-core v0.3.32
+#27 57.55   Downloaded polling v3.11.0
+#27 57.56   Downloaded intrusive-collections v0.9.7
+#27 57.56   Downloaded sha1_smol v1.0.1
+#27 57.57   Downloaded prettyplease v0.2.37
+#27 57.57   Downloaded icu_locale_core v2.3.0
+#27 57.58   Downloaded icu_normalizer_data v2.3.0
+#27 57.58   Downloaded rustls-pki-types v1.15.1
+#27 57.59   Downloaded loom v0.7.2
+#27 57.59   Downloaded schannel v0.1.29
+#27 57.59   Downloaded openssl-sys v0.9.112
+#27 57.69   Downloaded minimal-lexical v0.2.1
+#27 57.69   Downloaded icu_collections v2.3.0
+#27 57.69   Downloaded semver v1.0.28
+#27 57.69   Downloaded shlex v1.3.0
+#27 57.71   Downloaded rustler v0.38.0
+#27 57.71   Downloaded regex-lite v0.1.9
+#27 57.72   Downloaded serde_derive v1.0.228
+#27 57.72   Downloaded ryu v1.0.23
+#27 57.72   Downloaded siphasher v1.0.3
+#27 57.72   Downloaded serde_core v1.0.228
+#27 57.73   Downloaded miette v7.6.0
+#27 57.73   Downloaded nom v7.1.3
+#27 57.74   Downloaded simdutf8 v0.1.5
+#27 57.74   Downloaded softaes v0.1.3
+#27 57.74   Downloaded slab v0.4.12
+#27 57.74   Downloaded sketches-ddsketch v0.4.1
+#27 57.74   Downloaded signal-hook-registry v1.4.8
+#27 57.74   Downloaded hyper v1.8.1
+#27 57.74   Downloaded stable_deref_trait v1.2.1
+#27 57.74   Downloaded num-bigint v0.4.6
+#27 57.75   Downloaded indexmap v2.14.0
+#27 57.75   Downloaded strum v0.26.3
+#27 57.75   Downloaded mio v1.2.1
+#27 57.75   Downloaded js-sys v0.3.99
+#27 57.76   Downloaded io-uring v0.7.12
+#27 57.76   Downloaded memchr v2.8.1
+#27 57.76   Downloaded itertools v0.12.1
+#27 57.76   Downloaded icu_properties v2.3.0
+#27 57.77   Downloaded hyper-util v0.1.20
+#27 57.77   Downloaded subtle v2.6.1
+#27 57.77   Downloaded smallvec v1.15.1
+#27 57.77   Downloaded socket2 v0.6.4
+#27 57.77   Downloaded strum_macros v0.26.4
+#27 57.77   Downloaded libm v0.2.16
+#27 57.78   Downloaded symlink v0.1.0
+#27 57.79   Downloaded itertools v0.14.0
+#27 57.79   Downloaded icu_properties_data v2.3.0
+#27 57.79   Downloaded rustls-webpki v0.103.15
+#27 57.80   Downloaded tantivy-bitpacker v0.10.0
+#27 57.81   Downloaded synstructure v0.13.2
+#27 57.81   Downloaded tantivy-common v0.11.0
+#27 57.83   Downloaded tantivy-tokenizer-api v0.7.0
+#27 57.84   Downloaded tantivy-stacker v0.7.0
+#27 57.84   Downloaded tantivy-sstable v0.7.0
+#27 57.84   Downloaded tap v1.0.1
+#27 57.84   Downloaded antithesis_sdk v0.3.0
+#27 57.84   Downloaded openssl v0.10.76
+#27 57.85   Downloaded thiserror-impl v2.0.18
+#27 57.86   Downloaded tokio-macros v2.7.0
+#27 57.86   Downloaded tinystr v0.8.4
+#27 57.86   Downloaded time-macros v0.2.27
+#27 57.86   Downloaded time-core v0.1.8
+#27 57.87   Downloaded thread_local v1.1.9
+#27 57.87   Downloaded thiserror v2.0.18
+#27 57.87   Downloaded tempfile v3.27.0
+#27 57.87   Downloaded security-framework v3.7.0
+#27 57.95   Downloaded tokio-rustls v0.26.4
+#27 57.95   Downloaded tower-service v0.3.3
+#27 57.96   Downloaded serde v1.0.228
+#27 58.21   Downloaded cfg_aliases v0.2.2
+#27 58.23   Downloaded tracing-appender v0.2.5
+#27 58.23   Downloaded tracing-attributes v0.1.31
+#27 58.23   Downloaded rustix v0.38.44
+#27 58.25   Downloaded try-lock v0.2.5
+#27 58.26   Downloaded turso_sync_sdk_kit v0.8.2
+#27 58.26   Downloaded uncased v0.9.10
+#27 58.26   Downloaded wasm-bindgen-shared v0.2.122
+#27 58.26   Downloaded windows-interface v0.59.3
+#27 58.26   Downloaded windows-implement v0.60.2
+#27 58.26   Downloaded which v4.4.2
+#27 58.26   Downloaded wasm-metadata v0.244.0
+#27 58.27   Downloaded wasi v0.11.1+wasi-snapshot-preview1
+#27 58.27   Downloaded wasm-bindgen-macro v0.2.122
+#27 58.27   Downloaded want v0.3.1
+#27 58.27   Downloaded version_check v0.9.5
+#27 58.27   Downloaded valuable v0.1.1
+#27 58.27   Downloaded uuid v1.23.2
+#27 58.27   Downloaded utf8_iter v1.0.4
+#27 58.27   Downloaded utf8-ranges v1.0.5
+#27 58.27   Downloaded utf16_iter v1.0.5
+#27 58.27   Downloaded untrusted v0.9.0
+#27 58.27   Downloaded universal-hash v0.5.1
+#27 58.27   Downloaded unicode-xid v0.2.6
+#27 58.27   Downloaded unicode-ident v1.0.24
+#27 58.27   Downloaded simsimd v6.5.16
+#27 58.28   Downloaded typetag-impl v0.2.23
+#27 58.28   Downloaded typetag v0.2.23
+#27 58.28   Downloaded typeid v1.0.3
+#27 58.28   Downloaded twox-hash v2.1.2
+#27 58.28   Downloaded libc v0.2.186
+#27 58.30   Downloaded turso_sdk_kit_macros v0.8.2
+#27 58.30   Downloaded turso_macros v0.8.2
+#27 58.30   Downloaded turso_ext v0.8.2
+#27 58.30   Downloaded serde_json v1.0.150
+#27 58.30   Downloaded libmimalloc-sys v0.1.49
+#27 58.31   Downloaded icu_normalizer v2.3.0
+#27 58.32   Downloaded tracing-log v0.2.0
+#27 58.32   Downloaded tracing-core v0.1.36
+#27 58.32   Downloaded icu_collator_data v2.3.0
+#27 58.39   Downloaded windows-link v0.2.1
+#27 58.40   Downloaded windows-targets v0.52.6
+#27 58.40   Downloaded windows-strings v0.5.1
+#27 58.40   Downloaded windows-result v0.4.1
+#27 58.40   Downloaded windows-core v0.62.2
+#27 58.50   Downloaded fs_extra v1.3.0
+#27 58.50   Downloaded either v1.16.0
+#27 58.50   Downloaded crossbeam-deque v0.8.6
+#27 58.50   Downloaded core-foundation v0.10.1
+#27 58.50   Downloaded concurrent-queue v2.5.0
+#27 58.50   Downloaded cexpr v0.6.0
+#27 58.50   Downloaded bytemuck_derive v1.10.2
+#27 58.50   Downloaded async-trait v0.1.89
+#27 58.53   Downloaded fastrand v2.4.1
+#27 58.55   Downloaded wit-bindgen-rust-macro v0.51.0
+#27 58.55   Downloaded icu_collator v2.3.1
+#27 58.56   Downloaded wit-bindgen-core v0.51.0
+#27 58.57   Downloaded write16 v1.0.0
+#27 58.57   Downloaded yoke-derive v0.8.2
+#27 58.57   Downloaded cmake v0.1.58
+#27 58.58   Downloaded wyz v0.5.1
+#27 58.58   Downloaded writeable v0.6.4
+#27 58.58   Downloaded zerofrom v0.1.8
+#27 58.58   Downloaded yoke v0.8.3
+#27 58.59   Downloaded zerofrom-derive v0.1.7
+#27 58.59   Downloaded syn v2.0.117
+#27 58.60   Downloaded zeroize v1.9.0
+#27 58.60   Downloaded syn v3.0.3
+#27 58.62   Downloaded glob v0.3.3
+#27 58.63   Downloaded zmij v1.0.21
+#27 58.63   Downloaded zerovec-derive v0.11.6
+#27 58.63   Downloaded turso v0.8.2
+#27 58.65   Downloaded find-msvc-tools v0.1.9
+#27 58.65   Downloaded turso_sdk_kit v0.8.2
+#27 58.65   Downloaded turso_parser v0.8.2
+#27 58.66   Downloaded tracing-subscriber v0.3.23
+#27 58.70   Downloaded typenum v1.20.1
+#27 58.71   Downloaded icu_locale_data v2.3.0
+#27 58.72   Downloaded tracing v0.1.44
+#27 58.73   Downloaded fallible-iterator v0.3.0
+#27 58.81   Downloaded env_filter v1.0.1
+#27 58.84   Downloaded linux-raw-sys v0.4.15
+#27 58.87   Downloaded zstd-safe v7.2.4
+#27 58.87   Downloaded wasm-encoder v0.244.0
+#27 58.87   Downloaded tantivy v0.26.2
+#27 58.89   Downloaded env_logger v0.11.10
+#27 58.89   Downloaded wasip3 v0.4.0+wasi-0.3.0-rc-2026-01-06
+#27 58.89   Downloaded wasip2 v1.0.3+wasi-0.2.9
+#27 58.89   Downloaded unicode-width v0.1.14
+#27 58.90   Downloaded wasm-bindgen-macro-support v0.2.122
+#27 58.90   Downloaded zstd v0.13.3
+#27 58.90   Downloaded wasm-bindgen v0.2.122
+#27 58.90   Downloaded tokio v1.52.3
+#27 58.92   Downloaded wit-bindgen v0.57.1
+#27 58.92   Downloaded wit-bindgen v0.51.0
+#27 58.94   Downloaded vcpkg v0.2.15
+#27 58.96   Downloaded zerocopy-derive v0.8.50
+#27 58.96   Downloaded wasmparser v0.244.0
+#27 58.97   Downloaded rust-stemmers v1.2.0
+#27 58.99   Downloaded dunce v1.0.5
+#27 58.99   Downloaded deranged v0.5.8
+#27 58.99   Downloaded autocfg v1.5.1
+#27 59.00   Downloaded wit-parser v0.244.0
+#27 59.05   Downloaded fastbloom v0.14.1
+#27 59.07   Downloaded zerovec v0.11.8
+#27 59.09   Downloaded wit-component v0.244.0
+#27 59.13   Downloaded zerocopy v0.8.50
+#27 59.14   Downloaded scoped-tls v1.0.1
+#27 59.14   Downloaded windows_aarch64_gnullvm v0.52.6
+#27 59.16   Downloaded windows_x86_64_gnullvm v0.52.6
+#27 59.17   Downloaded windows_i686_gnullvm v0.52.6
+#27 59.20   Downloaded erased-serde v0.4.10
+#27 59.23   Downloaded displaydoc v0.2.7
+#27 59.25   Downloaded tantivy-fst v0.5.0
+#27 59.33   Downloaded byteorder v1.5.0
+#27 59.33   Downloaded linux-raw-sys v0.12.1
+#27 59.36   Downloaded windows_aarch64_msvc v0.52.6
+#27 59.37   Downloaded windows_x86_64_gnu v0.52.6
+#27 59.38   Downloaded windows_i686_gnu v0.52.6
+#27 59.39   Downloaded windows_x86_64_msvc v0.52.6
+#27 59.39   Downloaded genawaiter v0.99.1
+#27 59.40   Downloaded windows_i686_msvc v0.52.6
+#27 59.40   Downloaded ctr v0.9.2
+#27 59.45   Downloaded winapi v0.3.9
+#27 59.49   Downloaded zstd-sys v2.0.16+zstd.1.5.7
+#27 59.52   Downloaded strsim v0.11.1
+#27 59.64   Downloaded hermit-abi v0.5.2
+#27 59.69   Downloaded turso_core v0.8.2
+#27 59.72   Downloaded radium v0.7.0
+#27 59.73   Downloaded rand_core v0.9.5
+#27 59.73   Downloaded rand_chacha v0.9.0
+#27 59.75   Downloaded windows-sys v0.59.0
+#27 59.78   Downloaded windows-sys v0.61.2
+#27 59.81   Downloaded windows-sys v0.52.0
+#27 59.84   Downloaded winapi-x86_64-pc-windows-gnu v0.4.0
+#27 59.90   Downloaded winapi-i686-pc-windows-gnu v0.4.0
+#27 59.96   Downloaded openssl-src v300.6.1+3.6.3
+#27 60.06   Downloaded core-foundation-sys v0.8.7
+#27 60.18   Downloaded fs4 v0.13.1
+#27 60.21   Downloaded crc32fast v1.5.0
+#27 60.25   Downloaded getrandom v0.2.17
+#27 60.29   Downloaded generator v0.8.8
+#27 60.31   Downloaded cipher v0.4.4
+#27 60.33   Downloaded crossbeam-utils v0.8.21
+#27 60.40   Downloaded foldhash v0.2.0
+#27 60.42   Downloaded darling v0.23.0
+#27 60.55   Downloaded foldhash v0.1.5
+#27 60.69   Downloaded security-framework-sys v2.17.0
+#27 60.70 Compiling lib/turso/native.ex (it's taking more than 10s)
+#27 60.78   Downloaded anyhow v1.0.102
+#27 60.86   Downloaded shlex v2.0.1
+#27 60.89   Downloaded tantivy-query-grammar v0.26.0
+#27 61.24   Downloaded crossbeam-epoch v0.9.18
+#27 61.29   Downloaded futures-channel v0.3.32
+#27 61.39   Downloaded clang-sys v1.8.1
+#27 61.41   Downloaded bitpacking v0.9.3
+#27 61.44   Downloaded aristo-macros v0.4.1
+#27 61.46   Downloaded getrandom v0.3.4
+#27 61.49   Downloaded bytemuck v1.25.0
+#27 61.59   Downloaded bitflags v2.11.1
+#27 61.67   Downloaded allocator-api2 v0.4.0
+#27 61.69   Downloaded getrandom v0.4.2
+#27 61.91   Downloaded allocator-api2 v0.2.21
+#27 61.92   Downloaded r-efi v5.3.0
+#27 61.94   Downloaded r-efi v6.0.0
+#27 62.00   Downloaded rapidhash v4.4.1
+#27 62.33   Downloaded base64 v0.22.1
+#27 62.36   Downloaded darling_core v0.23.0
+#27 62.42   Downloaded bon v3.9.3
+#27 62.59   Downloaded bytes v1.11.1
+#27 62.95   Downloaded wit-bindgen-rust v0.51.0
+#27 62.99   Downloaded cc v1.2.63
+#27 63.24   Downloaded sharded-slab v0.1.7
+#27 63.39   Downloaded rand v0.8.6
+#27 63.44   Downloaded rayon-core v1.13.0
+#27 63.59   Downloaded crossbeam-channel v0.5.15
+#27 63.59   Downloaded bumpalo v3.20.3
+#27 63.69   Downloaded arc-swap v1.9.1
+#27 63.83   Downloaded bon-macros v3.9.3
+#27 63.91   Downloaded rand v0.9.4
+#27 64.10   Downloaded zerotrie v0.2.5
+#27 64.41   Downloaded aes-gcm v0.10.3
+#27 64.65   Downloaded aes v0.8.4
+#27 64.75   Downloaded roaring v0.11.4
+#27 64.78   Downloaded hashbrown v0.16.1
+#27 64.88   Downloaded hashbrown v0.15.5
+#27 64.88   Downloaded datasketches v0.2.0
+#27 64.89   Downloaded bigdecimal v0.4.10
+#27 65.20   Downloaded hashbrown v0.17.1
+#27 65.29   Downloaded tantivy-columnar v0.7.0
+#27 65.40   Downloaded turso_sync_engine v0.8.2
+#27 65.41   Downloaded regex v1.12.3
+#27 65.47   Downloaded futures-util v0.3.31
+#27 65.88   Downloaded aho-corasick v1.1.4
+#27 66.17   Downloaded rayon v1.12.0
+#27 66.24   Downloaded bindgen v0.69.5
+#27 66.61   Downloaded aws-lc-rs v1.18.0
+#27 66.70   Downloaded bitvec v1.0.1
+#27 66.76   Downloaded time v0.3.47
+#27 66.83   Downloaded chrono v0.4.44
+#27 66.91   Downloaded shuttle v0.8.1
+#27 67.69   Downloaded regex-syntax v0.8.10
+#27 67.89   Downloaded rustls v0.23.43
+#27 68.15   Downloaded rustix v1.1.4
+#27 68.86   Downloaded regex-automata v0.4.14
+#27 69.79   Downloaded aegis v0.9.8
+#27 70.51   Downloaded ring v0.17.14
+#27 74.14   Downloaded aws-lc-sys v0.44.0
+#27 74.37 Compiling crate ex_turso in release mode (native/ex_turso)
+#27 177.2 Copying /app/deps/ex_turso/native/ex_turso/target/release/deps/libturso_sdk_kit-0837032596e031bb.rlib to priv/native/turso_sdk_kit.so
+#27 177.2 Copying /app/deps/ex_turso/native/ex_turso/target/release/deps/libturso_sync_sdk_kit-4a0d54823cf017ae.rlib to priv/native/turso_sync_sdk_kit.so
+#27 177.2 Copying /app/deps/ex_turso/native/ex_turso/target/release/libex_turso.so to priv/native/ex_turso.so
+#27 177.4 Generated ex_turso app
+#27 177.4 ==> concord
+#27 177.4 Compiling 51 files (.ex)
+#27 178.2 Generated concord app
+#27 178.2 ==> dns_cluster
+#27 178.2 Compiling 2 files (.ex)
+#27 178.3 Generated dns_cluster app
+#27 178.3 ==> ex_storage_service
+#27 178.3 Compiling 130 files (.ex)
+#27 179.3 Generated ex_storage_service app
+#27 179.4 ==> http_event_source
+#27 179.4 Compiling 8 files (.ex)
+#27 179.8 Generated http_event_source app
+#27 179.8 ==> glob_ex
+#27 179.8 Compiling 4 files (.ex)
+#27 179.9 Generated glob_ex app
+#27 179.9 ==> plug
+#27 179.9 Compiling 1 file (.erl)
+#27 179.9 Compiling 42 files (.ex)
+#27 180.9 Generated plug app
+#27 181.0 ==> dotenvy
+#27 181.0 Compiling 3 files (.ex)
+#27 181.2 Generated dotenvy app
+#27 181.2 ==> nimble_pool
+#27 181.2 Compiling 2 files (.ex)
+#27 181.3 Generated nimble_pool app
+#27 181.3 ==> cc_precompiler
+#27 181.3 Compiling 3 files (.ex)
+#27 181.4 Generated cc_precompiler app
+#27 181.4 ==> lazy_html
+#27 181.4 Downloading precompiled NIF to /root/.cache/elixir_make/lazy_html-nif-2.16-x86_64-linux-gnu-0.1.13.tar.gz
+#27 186.4 Compiling 3 files (.ex)
+#27 186.5 Generated lazy_html app
+#27 186.5 ==> zigler_precompiled
+#27 186.5 Compiling 5 files (.ex)
+#27 186.6 Generated zigler_precompiled app
+#27 186.6 ==> duskmoon_quickbeam
+#27 186.6 Compiling 40 files (.ex)
+#27 186.8 
+#27 186.8 18:02:43.884 [debug] Downloading NIF from https://github.com/duskmoon-dev/phoenix-duskmoon-ui/releases/download/v9.16.16/Elixir.QuickBEAM.Native-v9.16.16-x86_64-linux-gnu.so.tar.gz
+#27 190.0 Generated duskmoon_quickbeam app
+#27 190.0 ==> websock
+#27 190.0 Compiling 1 file (.ex)
+#27 190.0 Generated websock app
+#27 190.0 ==> bandit
+#27 190.0 Compiling 54 files (.ex)
+#27 190.5 Generated bandit app
+#27 190.7 ==> ex_storage_service_s3
+#27 190.7 Compiling 33 files (.ex)
+#27 191.0 Generated ex_storage_service_s3 app
+#27 191.1 ==> websock_adapter
+#27 191.1 Compiling 4 files (.ex)
+#27 191.1 Generated websock_adapter app
+#27 191.1 ==> phoenix
+#27 191.1 Compiling 75 files (.ex)
+#27 191.7 Generated phoenix app
+#27 191.7 ==> phoenix_live_view
+#27 191.7 Compiling 55 files (.ex)
+#27 192.7 Generated phoenix_live_view app
+#27 192.8 ==> phoenix_live_dashboard
+#27 192.8 Compiling 36 files (.ex)
+#27 193.4 Generated phoenix_live_dashboard app
+#27 193.4 ==> mdex
+#27 193.4 Compiling 11 files (.ex)
+#27 195.6 Generated mdex app
+#27 195.7 ==> mdex_gfm
+#27 195.7 Compiling 1 file (.ex)
+#27 195.7 Generated mdex_gfm app
+#27 195.7 ==> mdex_mermaid
+#27 195.7 Compiling 1 file (.ex)
+#27 195.7 Generated mdex_mermaid app
+#27 195.8 ==> phoenix_duskmoon
+#27 195.8 Compiling 99 files (.ex)
+#27 199.3 Generated phoenix_duskmoon app
+#27 199.4 ==> duskmoon_bundler
+#27 199.4 Compiling 98 files (.ex)
+#27 200.0 Generated duskmoon_bundler app
+#27 200.1 ==> ex_storage_service_web
+#27 200.1 Compiling 26 files (.ex)
+#27 201.1 Generated ex_storage_service_web app
+#27 201.2 Bundling 40 @duskmoon-dev element(s)...
+#27 201.2 Wrote /app/apps/ex_storage_service_web/assets/js/duskmoon_elements.js (689.2 KB, 40 element(s))
+#27 201.3 Building Tailwind CSS...
+#27 210.3   app-87111d52.css  456.5 KB
+#27 210.3   manifest.json  1 entries
+#27 210.3 Built Tailwind in 9026ms
+#27 210.3 Building "/app/apps/ex_storage_service_web/assets/js/app.js"...
+#27 210.9   app-d0ca62d7.js  768.6 KB (gzip: 148.8 KB)
+#27 210.9   manifest.json  1 entries
+#27 210.9 Built in 534ms
+#27 211.0 Check your digested files at "priv/static"
+#27 DONE 211.2s
+
+#28 [builder 20/20] RUN ESS_MASTER_KEY=$(openssl rand -base64 32)     SECRET_KEY_BASE=$(openssl rand -base64 64)     ESS_S3_AUTH_ENABLED=true     ESS_ADMIN_PASSWORD_HASH=0000000000000000000000000000000000000000000000000000000000000000     mix release ess
+#28 0.619 ==> gsmlg_toml
+#28 0.620 Compiling 10 files (.ex)
+#28 0.886 Generated gsmlg_toml app
+#28 0.931 ==> ex_storage_service
+#28 0.931 Generated ex_storage_service app
+#28 1.040 ==> ex_storage_service_cluster
+#28 1.040 Compiling 7 files (.ex)
+#28 1.185 Generated ex_storage_service_cluster app
+#28 1.470 ==> ex_storage_service_cli
+#28 1.470 Compiling 22 files (.erl)
+#28 2.122 Compiling 150 files (.ex)
+#28 3.713 Generated ex_storage_service_cli app
+#28 3.740 ==> ex_storage_service_s3
+#28 3.740 Compiling 3 files (.ex)
+#28 3.941 Generated ex_storage_service_s3 app
+#28 3.968 ==> ex_storage_service_web
+#28 3.968 Compiling 3 files (.ex)
+#28 4.693 Generated ex_storage_service_web app
+#28 4.842 * assembling ess-0.6.10 on MIX_ENV=prod
+#28 4.843 * using config/runtime.exs to configure the release at runtime
+#28 5.105 * skipping elixir.bat for windows (bin/elixir.bat not found in the Elixir installation)
+#28 5.105 * skipping iex.bat for windows (bin/iex.bat not found in the Elixir installation)
+#28 5.536 
+#28 5.536 Release created at _build/prod/rel/ess
+#28 5.536 
+#28 5.536     # To start your system
+#28 5.536     _build/prod/rel/ess/bin/ess start
+#28 5.536 
+#28 5.536 Once the release is running:
+#28 5.536 
+#28 5.536     # To connect to it remotely
+#28 5.536     _build/prod/rel/ess/bin/ess remote
+#28 5.536 
+#28 5.536     # To stop it gracefully (you may also send SIGINT/SIGTERM)
+#28 5.536     _build/prod/rel/ess/bin/ess stop
+#28 5.536 
+#28 5.536 To list all commands:
+#28 5.536 
+#28 5.536     _build/prod/rel/ess/bin/ess
+#28 5.536 
+#28 DONE 5.6s
+
+#29 [runtime 3/5] WORKDIR /app
+#29 CACHED
+
+#30 [runtime 2/5] RUN apt-get update && apt-get install -y openssl libncurses6 wget && rm -rf /var/lib/apt/lists/*
+#30 CACHED
+
+#31 [runtime 4/5] RUN useradd -d /app appuser &&     mkdir -p /data /var/lib/ess &&     chown -R appuser:appuser /data /var/lib/ess
+#31 CACHED
+
+#32 [runtime 5/5] COPY --from=builder --chown=appuser:appuser /app/_build/prod/rel/ess ./
+#32 DONE 0.3s
+
+#33 exporting to image
+#33 exporting layers
+#33 exporting layers 0.5s done
+#33 writing image sha256:b0b099a43803ca34531ff03eb73fa9ab808b32498441d02ac40e758f9c6920c4 done
+#33 naming to docker.io/library/ess-hardening-local:closeout002-c2-release done
+#33 DONE 0.5s
+ad14b26a61b667e775c7b9c7d3a99ebaebdf24900828b69cce7a4b4d8db80f42
+ess-release-13f69633d04b434e87512c3ce8598707

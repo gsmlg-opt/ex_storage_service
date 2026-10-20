@@ -1,0 +1,13 @@
+{
+  "run_id": 39468556908,
+  "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39468556908",
+  "head_sha": "ffec95ec12acd1c2005b6b418a980a4d47353dc3",
+  "application_test_exit_status": 0,
+  "runner_status": "blocked",
+  "runner_errors": [
+    "ex_storage_service_cluster: missing/shrunken suite (minimum 40, got {'tests': 39, 'failures': 0, 'excluded': 0, 'skipped': 0, 'executed': 39})"
+  ],
+  "cause": "Elixir1.19 excludes parenthesized exclusions from its printed test count; parser recognized only1.18 comma format.39transporttests plus1excluded was normalized as39total with0excluded, incorrectly tripping40floor. Raw app suites have0failures; CLI and subsequent harness contracts not executed because the lane failed closed.",
+  "independent_formatter_source": "https://github.com/elixir-lang/elixir/blob/v1.19.4/lib/ex_unit/lib/ex_unit/cli_formatter.ex#L263-L268",
+  "repair": "pending; preserve suite floors and all skip/exclusion checks; support both actual formats with regression fixtures, then rerun CI."
+}

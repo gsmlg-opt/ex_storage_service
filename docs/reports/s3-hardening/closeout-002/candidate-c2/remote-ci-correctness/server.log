@@ -1,0 +1,72 @@
+==> ex_storage_service
+Running ExUnit with seed: 280920, max_cases: 1
+Excluding tags: [cluster: true]
+
+....................................................................................................................................................................................................................................................................................................................17:50:31.765 [error] Replication DELETE failed for bucket/key to http://127.0.0.1:37899: HTTP 503 - ""
+........17:50:31.838 [error] CloudCache DELETE failed remote/key: HTTP 403 — ""
+................................................................................................................................................................................................................17:51:02.514 [warning] ContentGC: metadata scan failed; sweep aborted: :metadata_unavailable
+.............................17:51:18.755 [warning] CAS migration: content missing for version-profile-12098 hash 67644b06ded5da793f0a1a77b9680c1c8a28bfa2745b70eb06bb6be03e520c4e
+17:51:18.756 [warning] CAS migration: content missing for version-profile-12178 hash c761debb560b6417604f80cee28ec6f96d428250bd7ca8bae5f1a42fcaf801ff
+17:51:18.758 [warning] CAS migration: content missing for version-profile-12066 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+17:51:18.770 [warning] CAS migration: content missing for mig-3715 hash 456dcf78885a41430c4793da8168513091e3eb9d33de4223ae701bb755d6a594
+.17:51:18.863 [warning] CAS migration: content missing for version-profile-12098 hash 67644b06ded5da793f0a1a77b9680c1c8a28bfa2745b70eb06bb6be03e520c4e
+17:51:18.864 [warning] CAS migration: content missing for version-profile-12178 hash c761debb560b6417604f80cee28ec6f96d428250bd7ca8bae5f1a42fcaf801ff
+17:51:18.865 [warning] CAS migration: content missing for version-profile-12066 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+17:51:18.885 [warning] CAS migration: content missing for mig-3715 hash 456dcf78885a41430c4793da8168513091e3eb9d33de4223ae701bb755d6a594
+.17:51:18.952 [warning] CAS migration: content missing for version-profile-12098 hash 67644b06ded5da793f0a1a77b9680c1c8a28bfa2745b70eb06bb6be03e520c4e
+17:51:18.953 [warning] CAS migration: content missing for version-profile-12178 hash c761debb560b6417604f80cee28ec6f96d428250bd7ca8bae5f1a42fcaf801ff
+17:51:18.954 [warning] CAS migration: content missing for version-profile-12066 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+17:51:18.972 [warning] CAS migration: content missing for mig-3715 hash 456dcf78885a41430c4793da8168513091e3eb9d33de4223ae701bb755d6a594
+17:51:18.975 [warning] CAS migration: content missing for version-profile-12098 hash 67644b06ded5da793f0a1a77b9680c1c8a28bfa2745b70eb06bb6be03e520c4e
+17:51:18.976 [warning] CAS migration: content missing for version-profile-12178 hash c761debb560b6417604f80cee28ec6f96d428250bd7ca8bae5f1a42fcaf801ff
+17:51:18.977 [warning] CAS migration: content missing for version-profile-12066 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+17:51:18.978 [warning] CAS migration: content missing for mig-3715 hash 456dcf78885a41430c4793da8168513091e3eb9d33de4223ae701bb755d6a594
+........17:51:23.834 [warning] CasGC: failed to delete cecbc8bbeef1d239c3c80e0d321d348ae810185638ab9e9a11349fcbc5492e05: :invalid_quarantine_path
+...................................
+Finished in 83.3 seconds (23.3s async, 60.0s sync)
+598 tests, 0 failures (1 excluded)
+==> ex_storage_service_cluster
+Running ExUnit with seed: 280920, max_cases: 1
+Excluding tags: [large_stream: true]
+
+.......................................
+Finished in 1.2 seconds (1.2s async, 0.00s sync)
+39 tests, 0 failures (1 excluded)
+==> ex_storage_service_s3
+Running ExUnit with seed: 280920, max_cases: 1
+Excluding tags: [large_stream: true]
+
+..........................................generated XML corpus: 5402 rejected cases, max input 4096 bytes
+.....................................17:51:36.885 request_id=request-phase7-incomplete [warning] blob response stream terminated
+...............................................................................................................17:52:15.508 [error] Replication PUT repl-15922/d.txt: content "34b79ebbbdd248cd400be53835923b81af125e4c4bc956444f3f0701751007e0" missing from storage
+...17:52:16.477 [error] Replication PUT failed for source/broken.bin to http://localhost:9001: {:request_failed, %ExStorageService.BlobStore.Source.RequestBodyError{reason: :upstream_closed}}
+..................17:52:25.105 [warning] SigV4 auth failed: Missing Authorization header — OPTIONS /cors-http-16354/key
+17:52:25.112 [warning] SigV4 auth failed: Missing Authorization header — GET /cors-http-16354/key
+........17:52:31.118 [warning] SigV4 auth failed: Missing Authorization header — POST /health/cloud_cache
+......................................................................................................17:53:50.926 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+17:53:50.926 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+.17:53:50.936 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+.17:53:50.946 [warning] SigV4 auth failed: Missing Authorization header — HEAD /signature
+.......................17:54:03.661 [error] 4234- fatal: :unexpected_end
+
+17:54:03.667 [error] 4234- fatal: :unexpected_end
+
+17:54:03.686 [error] 4234- fatal: :unexpected_end
+
+17:54:03.689 [error] 4234- fatal: :unexpected_end
+
+17:54:03.706 [error] 4234- fatal: :unexpected_end
+
+17:54:03.708 [error] 4234- fatal: :unexpected_end
+
+...........17:54:12.257 [warning] SigV4 auth failed: SignatureDoesNotMatch — GET /
+............
+Finished in 165.7 seconds (3.3s async, 162.3s sync)
+369 tests, 0 failures
+==> ex_storage_service_web
+Running ExUnit with seed: 280920, max_cases: 1
+Excluding tags: [large_stream: true]
+
+.....................
+Finished in 0.3 seconds (0.1s async, 0.1s sync)
+21 tests, 0 failures

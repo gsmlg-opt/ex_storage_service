@@ -1,0 +1,30 @@
+{
+  "captured_at": "2026-10-20T17:49:58.766580+00:00",
+  "authoritative_runners": [
+    {
+      "pid": 439585,
+      "executable": "/tmp/ess-s3-hardening-python/bin/python",
+      "checksum_environment": {
+        "AWS_REQUEST_CHECKSUM_CALCULATION": null,
+        "AWS_RESPONSE_CHECKSUM_VALIDATION": null
+      },
+      "start_ticks": "9316059"
+    }
+  ],
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "candidate_sha": "ffec95ec12acd1c2005b6b418a980a4d47353dc3",
+  "source_sha256": "bcf1a50fff1ebc45265436ca04e17b61df1710e31a5291ad6653c29f4c5798e1",
+  "effective_boto_configuration": {
+    "boto3": "1.43.114",
+    "botocore": "1.43.114",
+    "request_checksum_calculation": "when_supported",
+    "response_checksum_validation": "when_supported",
+    "signature_version": "s3v4"
+  },
+  "scope": "Supplemental runtime provenance only; no requests sent. Reads inherited environment of the still-running authoritative C2 process, creates a client with explicit disposable credentials and loopback endpoint using the workload Config without checksum overrides. Does not replace actual signed/checksum workload receipts.",
+  "selected_cli_config_isolation": {
+    "source": "e2e/s3_hardening_clients.py:23-26",
+    "behavior": "AWS CLI child receives fresh temporary AWS_CONFIG_FILE/AWS_SHARED_CREDENTIALS_FILE paths; checksum environment inherited unchanged."
+  },
+  "completed_at": "2026-10-20T17:50:53.387662+00:00"
+}

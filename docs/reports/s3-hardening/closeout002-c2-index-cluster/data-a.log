@@ -1,0 +1,29 @@
+
+===== start data-a bootstrap=true at 2026-10-20T17:46:43Z =====
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 498003)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 498003)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 498003)
+==> ex_storage_service_web
+[0mWaiting for lock on the build directory (held by process 498003)
+01:46:43.806 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+01:46:43.817 [info] Starting Concord TTL manager with cleanup interval: 300000s
+01:46:43.878 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-pCuAVFLr/data-a and blob root /tmp/ess-s3-hardening-cluster-pCuAVFLr/data-a/blob
+01:46:43.900 [info] Concord VSR metadata quorum ready
+01:46:43.927 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9101 (http)
+01:46:43.932 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9001 (http)
+01:46:46.568 [notice] Application ex_storage_service_s3 exited: :stopped
+01:46:46.571 [notice] Application ex_storage_service_web exited: :stopped
+01:46:46.572 [notice] Application ex_storage_service_cluster exited: :stopped
+01:46:46.778 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-pCuAVFLr/data-a and blob root /tmp/ess-s3-hardening-cluster-pCuAVFLr/data-a/blob
+01:46:46.782 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9101 (http)
+01:46:46.785 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9001 (http)
+01:46:47.786 [warning] Outbox materialization failed: :cluster_not_ready
+01:46:47.786 [warning] Durable job scan failed: :cluster_not_ready
+01:46:56.837 [notice] SIGTERM received - shutting down
+

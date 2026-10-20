@@ -42,20 +42,52 @@ of the historical 10,800-second timeout remains unproven. A28 is blocked on
 unchanged expensive replay. Full 10k/100k acceptance remains unexecuted.
 [Diagnostic receipt and measurements](s3-hardening/closeout-002/a28-diagnostic-r1/README.md).
 
-A30 instrumentation now separates scheduled collection, metric and BEAM exchange
-windows from the previous sample's completed JSON encoding/output write. A
-controlled 150ms blocked export still fails the original 100ms coverage rule and
-is correctly attributed. The observer's 14 tests pass, including isolated FIFO,
-private ENOSPC roots and process cleanup; full workload coverage remains pending.
-The case manifest checks actual path/size/concurrency identities, not totals.
+Candidate C2 is `ffec95ec12acd1c2005b6b418a980a4d47353dc3`, source
+fingerprint `bcf1a50fff1ebc45265436ca04e17b61df1710e31a5291ad6653c29f4c5798e1`.
+The authoritative all-profile command completed all eleven lanes serially and
+exited **1**. Correctness ran **4,518 application tests and 88 harness tests**
+with zero failures/skips; the two heavy tagged cases ran separately. Standalone,
+gateway (17 groups), strict RF2/W2 cluster, faults, crashes, resilience, restore
+and local release lanes passed. Independent A29 interruption/rejoin/cutover
+passed despite A28 blocking the complete index lane. The substantive clause
+audit and actual reconciled verifier yield **35 passed rows, A28 blocked,
+A30 failed/incomplete and A38 blocked**, aggregate exit **1**.
 
-Scoped red/green logs and diagnostic receipts are under
-[`closeout-002/`](s3-hardening/closeout-002/). Candidate SHA/fingerprint, complete
-lane counts, resource outcomes, aggregate exit and remote CI remain pending.
-No tag, release, Hex package or image has been published for this closeout.
+A30 retains the original 100 ms observation-coverage requirement. Local/gateway
+executed 35/56 groups (34 failure-free); the 1 GiB/c1 slow GET failed coverage
+at 100.175–100.582 ms after a synchronous output write took 74.644 ms wall but
+0.048 ms CPU. Cluster executed 13/20 groups (12 failure-free); 1 GiB/c1 fenced
+repair pull failed coverage at 1.827–1.856 seconds while all three observers
+spent 1.819–1.827 seconds in synchronous output. Actual metric collections were
+approximately 1–6 ms. This proves output coupling delayed fresh sampling;
+the filesystem/kernel stall cause remains unknown. Executed operations retained
+correct bytes and measured numeric envelopes, but unexecuted cases and missing
+observation intervals remain unpassed. These findings do not establish a service
+latency failure, leak or corruption. Raw failed samples and timing analyses are
+preserved. A bounded exporter repair and complete fresh rerun remain required.
+
+C2 remote compile/format and CLI compatibility workflows passed. Hosted Test run
+[39468556908](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39468556908)
+failed after all four server app suites passed: Elixir 1.19 prints excluded test
+counts in parentheses and the selection parser did not normalize that format.
+CLI/harness follow-up did not execute. Repair and exact-candidate CI rerun are
+required; count floors and heavyweight exclusions must stay intact.
+
+Evidence, freeze, semantic audits, cleanup and actual verifier output are under
+[`candidate-c2/`](s3-hardening/closeout-002/candidate-c2/). Local release smoke built
+image `sha256:b0b099a43803ca34531ff03eb73fa9ab808b32498441d02ac40e758f9c6920c4`
+with existing version 0.6.10 and C2 source, then checked /health, /health/ready
+and operator RPC identity. It did not perform signed CRUD inside the image.
+**No tag, release, Hex package or image has been published for this closeout.**
+Publication remains downstream of full acceptance; release-guard tests and a
+local image do not substitute for published-artifact verification.
+
 Existing command-format 0 databases remain unchanged. Empty recovery targets
 must explicitly use format 1 on every voter through quarantine, restart and
-activation; legacy records/backups and explicit backfill/cutover remain required.
+activation. C2 independently restored standalone and three-voter backups with
+originals unavailable, retained quarantined workers until validation/activation,
+and verified explicit legacy backfill/cutover. Rollback to older binaries after
+v2 writes requires the documented verified metadata/blob restore boundary.
 
 ## Historical daily-use verification — original 2026-10-20 scope
 

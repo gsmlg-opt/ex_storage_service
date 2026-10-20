@@ -1,0 +1,32 @@
+{"primary_stopped": "meta", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 200}
+{"primary_stopped": "data-a", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 503}
+{"primary_stopped": "data-b", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 503}
+................................From /tmp/ess-release-gate-gkkx8ln_/origin
+ * branch            main       -> FETCH_HEAD
+Previous HEAD position was 6697396 tested source
+HEAD is now at ba8c839 chore(release): v1.0.1
+Previous HEAD position was ba8c839 chore(release): v1.0.1
+HEAD is now at 6697396 tested source
+Previous HEAD position was 6697396 tested source
+HEAD is now at ba8c839 chore(release): v1.0.1
+From /tmp/ess-release-gate-gkkx8ln_/origin
+ * branch            main       -> FETCH_HEAD
+HEAD is now at ba8c839 chore(release): v1.0.1
+Previous HEAD position was ba8c839 chore(release): v1.0.1
+HEAD is now at 6697396 tested source
+Previous HEAD position was 6697396 tested source
+HEAD is now at ba8c839 chore(release): v1.0.1
+.HEAD is now at 6697396 tested source
+Previous HEAD position was 6697396 tested source
+HEAD is now at ba8c839 chore(release): v1.0.1
+.HEAD is now at 6697396 tested source
+Previous HEAD position was 6697396 tested source
+HEAD is now at ba8c839 chore(release): v1.0.1
+.HEAD is now at 6697396 tested source
+Previous HEAD position was 6697396 tested source
+HEAD is now at ba8c839 chore(release): v1.0.1
+.....................................................
+----------------------------------------------------------------------
+Ran 88 tests in 15.904s
+
+OK

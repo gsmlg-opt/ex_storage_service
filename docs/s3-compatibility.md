@@ -5,30 +5,34 @@ ESS-S3-HARDENING-001. Hosted standalone remains RF=1/W=1; cluster remains RF=2/W
 The operation matrix below describes implemented behavior and its named tests.
 It does not claim complete AWS parity or production validation.
 
-Concord, VSR and ExTurso are installed and locked at published 3.1.3, including
+Concord, VSR and ExTurso are installed and locked at published 3.1.4, including
 the upstream #94–#97 fixes. Backup validation supports the declared deterministic
 checksum scheme and legacy checks. Fresh restore targets require command version 1
 on every voter through quarantine, restarts and activation; existing databases
 retain compatibility default 0 and must never switch automatically.
 
-Latest completed full business verification: source `60ada0fa`, HEAD `3477bc5`,
-uncommitted main. Full correctness passed 4,496 reported tests with zero failures;
-original standalone, all 17 RustFS gateway groups and both public cluster endpoints
-passed, including real leader election/rejoin and strict RF=2/W=2 during a data
-outage. Process, listener and fixture-container cleanup was independently verified.
+Current closeout candidate is `ffec95ec12acd1c2005b6b418a980a4d47353dc3`, source
+fingerprint `bcf1a50fff1ebc45265436ca04e17b61df1710e31a5291ad6653c29f4c5798e1`.
+Its correctness lane passed 4,518 executed application tests and 88 Python harness
+tests with zero failures; two tagged cases require their dedicated heavy lanes.
+Standalone, all 17 RustFS gateway groups and both public cluster endpoints passed,
+including real leader election/rejoin and strict RF=2/W=2 during a data outage.
 Selected clients:
 Boto3/botocore 1.43.114, AWS CLI 2.34.24, mc RELEASE.2025-08-13T08-35-41Z,
-RustFS 1.0.1. Complete receipts retain exact original provenance under
-`docs/reports/s3-hardening/concord-refresh-20261020/`.
+RustFS 1.0.1. Current receipts retain exact provenance under
+`docs/reports/s3-hardening/closeout-002/candidate-c2/`; original daily and
+Concord 3.1.3 receipts retain their separate historical scope.
 
-The update changes only the Concord family lock entries; HTTP remains 0.21.13.
-Concord 3.1.3 packages the same runtime implementation as 3.1.2. The original
-100k fixture timeout and complete resource workloads remain unpassed. Current
-fault/crash/resilience and isolated standalone/cluster restore profiles, actual
-2 GiB transport, independent cluster index rebuild, local production assets,
-release/container smoke and default production rebuild have passed. All 38
+The dependency update changes only the Concord family lock entries; HTTP remains
+0.21.13. A smaller production-path diagnostic reproduced residual whole-history
+read validation and full-state transaction work in 3.1.4, tracked by
+[Concord #101](https://github.com/gsmlg-dev/concord/issues/101) and
+[#102](https://github.com/gsmlg-dev/concord/issues/102). Mandatory 10k/100k scale
+acceptance remains blocked. Current resource, fault, crash, resilience, restore
+and release lanes remain in progress; their historical passes do not certify this
+candidate. Independent cluster index migration/rejoin/cutover passed. All 38
 acceptance scenarios are not yet complete. See the
-[current resume record](reports/s3-hardening/concord-refresh-20261020/RESUME.md),
+[candidate freeze](reports/s3-hardening/closeout-002/candidate-freeze.json),
 [business feature record](plans/s3-feature-status.md) and
 [verification report](reports/s3-hardening-verification.md). Historical passes
 are not automatically relabeled as current-source executions.
@@ -153,9 +157,11 @@ transactional per-bucket index. New buckets publish ready descriptors; legacy
 buckets require explicit verified backfill/cutover and fail closed until ready.
 Offline capture still materializes one Concord export and is separately budgeted;
 it is never a request-path fallback. See [index operations](operations/listing-index.md).
-The locked Concord 3.1.3 includes the released #94–#97 fixes. The mandatory 10k/100k
-scale/backfill, resource and rejoin gates still need independent execution;
-implementation and scoped tests do not establish their acceptance. Hosted tokens
+The locked Concord 3.1.4 includes the released #94–#97 fixes, but its native read
+and transaction paths retain the scale blockers #101/#102. Mandatory 10k/100k
+scale acceptance remains unexecuted; the separate current cluster backfill,
+interruption, rejoin and cutover fixture passed. Implementation and scoped tests
+do not establish full acceptance. Hosted tokens
 are bound to bucket/prefix/delimiter and do not promise an immutable snapshot
 across concurrent writes. Full transfer resource acceptance remains in progress.
 
@@ -176,8 +182,9 @@ Follow the [recovery operations guide](operations/cluster-upgrade.md#independent
 
 ## Independent profiles and deliberate exclusions
 
-Current complete original profile receipts are under
-`docs/reports/s3-hardening/concord-refresh-20261020/` at source `60ada0fa`.
+Current complete business profile receipts are under
+`docs/reports/s3-hardening/closeout-002/candidate-c2/` at the candidate and
+fingerprint above. Adjacent `closeout002-c2-*` receipts retain profile details.
 Standalone covers signed/default-checksum clients, versions/listing, multipart
 races/restart, attributes, tags, CORS and retained SDK/admin/metrics/persistence.
 Cluster repeats the supported profile on both data endpoints, forces remote
@@ -188,7 +195,7 @@ reconciliation restarts and retained mc24/0 compatibility. AWS CLI and mc transf
 commands are retained in the profile logs and gateway JSON; these results do not
 claim every command/flag in those clients works.
 
-Current standalone/cluster restore evidence is
+Historical standalone/cluster restore evidence is
 `docs/reports/s3-hardening/concord313-refresh-original-r1-restore-standalone/` and
 `concord313-refresh-original-r1-restore-cluster/`. The original fixtures verify
 quiesced backup boundaries, inaccessible original roots, read-only backups,
@@ -198,8 +205,8 @@ attributes/checksums/tags, bucket configuration, IAM grants/denials, multipart
 parts/completion and versioned PUT after activation. Packed standalone data
 restores without a loose-source fallback. All eight destructive/outbound worker
 flags remain false, and the outbound DELETE canary stays zero after activation.
-Earlier evidence retains its own source in the verification history and is not
-used as a substitute for these current executions.
+That evidence retains its own source in the verification history and does not
+replace the pending current-candidate recovery executions.
 
 Full AWS IAM/STS,ACL ownership,Object Lock,SSE/KMS,website hosting,S3 Select,
 directory buckets,erasure coding and multi-range reads are outside this delivery.
@@ -207,4 +214,5 @@ Excluded selectors/headers fail deliberately instead of falling through to CRUD.
 No new public STS/IAM service,virtual-hosted addressing or AWS infrastructure
 notification/lifecycle parity is advertised. Mandatory scale/resource results
 and final aggregate acceptance remain required before ESS-S3-HARDENING-001 can
-be called complete. Local release/container smoke passed without publication.
+be called complete. Current release/container smoke remains pending; no closeout
+release, package or image has been published.

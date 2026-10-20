@@ -1,0 +1,3 @@
+PASS peer-outage-records-durable-backlog-and-age
+PASS whole-beam-restart-retries-fenced-jobs-without-stale-remote-overwrite
+Disposable replication backlog root retained: /tmp/ess-hardening-backlog-closeout002-c2-resilience-backlog

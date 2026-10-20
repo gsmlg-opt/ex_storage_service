@@ -602,10 +602,12 @@ only the VSR state under `ESS_METADATA_ROOT`.
 The core requires Concord `~> 3.1.4`; the lockfile selects matching Concord,
 Viewstamped Replication and ExTurso 3.1.4 packages. They retain the 3.1.2 fixes for
 committed-prefix transition validation, primary-discovery read deadlines, native
-range pagination and new-backup checksum portability. Version 3.1.4 makes ordinary
-VSR compatibility-view/observer updates incremental and bounds ready singleton
-read allocation. Reads still validate the retained log; version-one command
-admission still checks representations. New backups declare deterministic ETF checksums;
+range pagination and new-backup checksum portability. Version 3.1.4 makes supported
+direct put/delete compatibility-view and observer updates incremental and bounds
+ready singleton read allocation. Reads still validate the retained log; ESS atomic
+transactions still materialize full state. Those remaining scale blockers are
+tracked in Concord #101/#102. Version-one command admission still checks
+representations. New backups declare deterministic ETF checksums;
 verify restoration on the same OTP major before changing runtimes. Existing
 legacy backups retain their original checksum rules: an invalid checksum stays
 invalid, and affected backups must be recreated on their originating VM after
@@ -748,7 +750,8 @@ GitHub Actions workflows include:
 Dispatch `release.yml` with the next available shared `version`, `git_ref` (the
 full current `main` source SHA), and `acceptance_run_id` (a successful extended
 `s3-hardening.yml` run for that exact SHA). It downloads and revalidates all
-acceptance evidence before making the version commit. The workflow aligns all application versions,
+acceptance evidence after preparing the local version-only commit and before
+pushing it or publishing artifacts. The workflow aligns all application versions,
 validates the release, and publishes the GHCR image, both Hex packages and CLI
 assets under `v<version>`. Only this workflow updates the image's version and `latest`
 tags. Existing Hex versions are reused only when their verified payload exactly

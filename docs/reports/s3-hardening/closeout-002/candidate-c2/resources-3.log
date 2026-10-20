@@ -1,0 +1,11 @@
+==> ex_storage_service_cli
+Compiling 2 files (.erl)
+Generated ex_storage_service_cli app
+==> ex_storage_service_cluster
+Running ExUnit with seed: 904982, max_cases: 1
+Including tags: [:large_stream]
+
+2 GiB stream process memory bytes: sender=%{after: 8968, peak: 8968, before: 4016} receiver=%{after: 15704, peak: 21736, before: 13840}
+.
+Finished in 4.4 seconds (0.00s async, 4.4s sync)
+1 test, 0 failures

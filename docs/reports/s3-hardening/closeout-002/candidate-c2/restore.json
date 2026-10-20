@@ -1,0 +1,35 @@
+{
+  "profile": "restore",
+  "status": "passed",
+  "starting_sha": "ffec95ec12acd1c2005b6b418a980a4d47353dc3",
+  "ending_sha": "ffec95ec12acd1c2005b6b418a980a4d47353dc3",
+  "source_sha256": "bcf1a50fff1ebc45265436ca04e17b61df1710e31a5291ad6653c29f4c5798e1",
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 5.734,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c2/restore-0.log"
+    },
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_restore.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c2-restore",
+        "all"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 53.002,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c2/restore-1.log"
+    }
+  ],
+  "started_at": "2026-10-20T17:58:19.274064+00:00"
+}

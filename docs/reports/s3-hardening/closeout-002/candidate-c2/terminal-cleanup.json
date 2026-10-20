@@ -1,0 +1,118 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "candidate_sha": "ffec95ec12acd1c2005b6b418a980a4d47353dc3",
+  "source_sha256": "bcf1a50fff1ebc45265436ca04e17b61df1710e31a5291ad6653c29f4c5798e1",
+  "captured_at": "2026-10-20T18:04:56.580753+00:00",
+  "authoritative_session": 73803,
+  "authoritative_exit_status": 1,
+  "owned_root_identifiers": [
+    "/tmp/ess-hardening-backlog-closeout002-c2-resilience-backlog",
+    "/tmp/ess-hardening-crash-closeout002-c2-crashes",
+    "/tmp/ess-hardening-fault-closeout002-c2-faults",
+    "/tmp/ess-hardening-resource-closeout002-c2-resources",
+    "/tmp/ess-hardening-restore-CQynvEKq",
+    "/tmp/ess-hardening-restore-LoqQmR7M",
+    "/tmp/ess-s3-hardening-closeout002-c2-gateway",
+    "/tmp/ess-s3-hardening-cluster-JSxt83Bo",
+    "/tmp/ess-s3-hardening-cluster-KD25OiCZ",
+    "/tmp/ess-s3-hardening-cluster-MucZo0Cc",
+    "/tmp/ess-s3-hardening-cluster-lirRtZcJ",
+    "/tmp/ess-s3-hardening-cluster-pCuAVFLr"
+  ],
+  "remaining_matching_processes": [],
+  "resource_os_identity_checks": [
+    {
+      "record": "docs/reports/s3-hardening/closeout002-c2-resources-cluster/samples/data-b/observer-1792518741378356520.json",
+      "role": "beam",
+      "expected": {
+        "pid": 507291,
+        "start_ticks": 9442198,
+        "state": "S"
+      },
+      "actual": null,
+      "stopped": true
+    },
+    {
+      "record": "docs/reports/s3-hardening/closeout002-c2-resources-cluster/samples/data-b/observer-1792518741378356520.json",
+      "role": "observer",
+      "expected": {
+        "pid": 507551,
+        "start_ticks": 9442435,
+        "state": "R"
+      },
+      "actual": null,
+      "stopped": true
+    },
+    {
+      "record": "docs/reports/s3-hardening/closeout002-c2-resources-cluster/samples/data-a/observer-1792518741347375734.json",
+      "role": "beam",
+      "expected": {
+        "pid": 507283,
+        "start_ticks": 9442198,
+        "state": "S"
+      },
+      "actual": null,
+      "stopped": true
+    },
+    {
+      "record": "docs/reports/s3-hardening/closeout002-c2-resources-cluster/samples/data-a/observer-1792518741347375734.json",
+      "role": "observer",
+      "expected": {
+        "pid": 507550,
+        "start_ticks": 9442432,
+        "state": "R"
+      },
+      "actual": null,
+      "stopped": true
+    },
+    {
+      "record": "docs/reports/s3-hardening/closeout002-c2-resources-cluster/samples/meta/observer-1792518741310422405.json",
+      "role": "beam",
+      "expected": {
+        "pid": 507275,
+        "start_ticks": 9442198,
+        "state": "S"
+      },
+      "actual": null,
+      "stopped": true
+    },
+    {
+      "record": "docs/reports/s3-hardening/closeout002-c2-resources-cluster/samples/meta/observer-1792518741310422405.json",
+      "role": "observer",
+      "expected": {
+        "pid": 507549,
+        "start_ticks": 9442429,
+        "state": "R"
+      },
+      "actual": null,
+      "stopped": true
+    },
+    {
+      "record": "/tmp/ess-hardening-resource-closeout002-c2-resources/observer-1792518425958834289.json",
+      "role": "beam",
+      "expected": {
+        "pid": 499034,
+        "start_ticks": 9410869,
+        "state": "S"
+      },
+      "actual": null,
+      "stopped": true
+    },
+    {
+      "record": "/tmp/ess-hardening-resource-closeout002-c2-resources/observer-1792518425958834289.json",
+      "role": "observer",
+      "expected": {
+        "pid": 499080,
+        "start_ticks": 9410894,
+        "state": "R"
+      },
+      "actual": null,
+      "stopped": true
+    }
+  ],
+  "remaining_fixture_containers": [],
+  "remaining_fixed_cluster_node_names": [],
+  "remaining_fixed_cluster_listeners": [],
+  "status": "passed",
+  "scope": "Read-only terminal OS identity/root matching, disposable container prefixes and fixed isolated topology names/listeners. Does not claim instantaneous historic TCP connection counts or erase retained fixture data."
+}

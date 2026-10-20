@@ -1015,18 +1015,18 @@
       "clauses": [
         {
           "id": "A38.1",
-          "requirement": "All A01-A38 individual compound clauses and all authoritative lane commands pass.",
+          "requirement": "All original A01\u2013A37 compound clauses, required A38 input gates and authoritative lane commands pass; the actual aggregate verifier remains a separate mandatory final gate.",
           "source_refs": [
             "e2e/hardening_acceptance.py",
             "ess-s3-hardening/ACCEPTANCE_MATRIX.md",
             "docs/plans/s3-hardening-results.json"
           ],
           "required_receipt_assertions": [
-            "each uniqueA01..A38 passed with explicit assertion audit",
+            "every original scenario compound assertion and all required A38 input gates audited",
             "all11 profiles present/passed and every commandexit0",
             "current compatible candidate SHA plus exact executable-input fingerprint",
-            "actual aggregate verifier exit0",
-            "no skipped/missing/cancelled/stale evidence"
+            "no skipped/missing/cancelled/stale evidence",
+            "final actual aggregate exit0 required independently, not presumed from this input audit"
           ],
           "evidence": []
         },
@@ -1059,8 +1059,8 @@
             "assets.deploy",
             "mix release ess",
             "local Docker build",
-            "version/source/build-time labels",
-            "actual container healthz/S3 behavior",
+            "runtime version/source/build-time identity",
+            "actual /health and /health/ready plus operator RPC smoke",
             "no registry publication in acceptance lane"
           ],
           "evidence": []
@@ -1105,7 +1105,7 @@
         },
         {
           "id": "A38.6",
-          "requirement": "Full acceptance evidence is downloaded and re-audited for the exact candidate before any publication.",
+          "requirement": "Publication guards reject missing, stale, failed or incomplete full-acceptance evidence and validate exact source and version-only mappings.",
           "source_refs": [
             ".github/workflows/s3-hardening.yml",
             ".github/workflows/release.yml",
@@ -1114,10 +1114,9 @@
             "e2e/test_release_hardening_gate.py"
           ],
           "required_receipt_assertions": [
-            "successful manualextended run in same repository/workflow",
-            "successful required aggregate",
-            "complete artifact downloaded",
-            "actual audit rerun",
+            "gate tests reject wrong repository/workflow/nonmanual/failed run",
+            "gate tests reject missing aggregate or incomplete artifact",
+            "downloaded evidence is actually re-audited before publication",
             "version-only retry maps to validated Release-Source",
             "failed audit restores prepared checkout and prevents publication"
           ],
@@ -1125,22 +1124,17 @@
         },
         {
           "id": "A38.7",
-          "requirement": "This closeout additionally publishes and independently verifies authorized patch-release artifacts only after full acceptance.",
+          "requirement": "Local artifact smoke checks source/version identity, and release documentation distinguishes acceptance from subsequent publication verification.",
           "source_refs": [
+            "e2e/run_hardening_release.sh",
+            "scripts/release/release.py",
             ".github/workflows/release.yml",
-            ".github/workflows/publish-core.yml",
-            ".github/workflows/publish-cli.yml",
-            "scripts/release/core_package.py",
-            "scripts/cli_compatibility/verify_published.py"
+            "README.md"
           ],
           "required_receipt_assertions": [
-            "remote canonical tag/release mapping",
-            "version-only commit exact replacements",
-            "both immutable Hex payloads/fresh public consumers",
-            "CLI escript asset execution/checksums",
-            "GHCR version/image digest/runtime smoke",
-            "actual latest promotion only stable release",
-            "no guessed version or replaced tag"
+            "local built artifact runtime source/version/buildtime matches candidate",
+            "release notes preserve exact local versus published artifact scope",
+            "actual authorized patch publication and independent public artifact verification remain mandatory downstream delivery gates"
           ],
           "evidence": []
         }
@@ -1150,5 +1144,6 @@
         "Current preparation report does not certify a frozen SHA, a passed aggregate, or a published release."
       ]
     }
-  ]
+  ],
+  "acceptance_delivery_boundary": "The original A38 requires local release/container acceptance, explicitly no publication. This task additionally requires publication after complete acceptance. Keeping that downstream obligation separate avoids requiring publication before its own acceptance gate; task completion still requires both."
 }

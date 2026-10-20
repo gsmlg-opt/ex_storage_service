@@ -77,10 +77,12 @@ increasing unrelated bucket size does not increase visited records. Startup and
 resumable backfill are measured separately and cannot be hidden in each request.
 
 Current source uses the transactional radix index for public object/version/upload
-listing, with exact root revision barriers and guarded offline backfill. Concord3.1.2 removes the released#94 prerequisite. Native10k/100k execution
-with predeclared read/byte/heap gates and real full-scan instrumentation is still
-pending; source integration and focused contracts are not scale/rejoin acceptance
-evidence. Earlier blocker reports apply only to the documented older dependency.
+listing, with exact root revision barriers and guarded offline backfill. Concord
+3.1.4 retains native whole-history read validation and full-state atomic
+transaction work, reproduced in upstream #101/#102. Mandatory 10k/100k execution
+with the unchanged read/byte/heap gates remains blocked on validated released
+repairs. Current independent cluster backfill/interruption/rejoin/cutover passed;
+that fixture and smaller diagnostics do not certify the scale datasets.
 
 Before the upgraded scale run, the fixture must validate encoded keys<=160B,
 radix height<=16, serialized nodes<=2KiB and hydrated records<=4KiB; flat heap

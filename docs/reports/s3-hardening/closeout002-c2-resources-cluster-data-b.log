@@ -1,0 +1,29 @@
+
+===== start data-b bootstrap=true at 2026-10-20T17:52:19Z =====
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 507283)
+[0mWaiting for lock on the build directory (held by process 507275)
+[0mWaiting for lock on the build directory (held by process 507283)
+[0mWaiting for lock on the build directory (held by process 507275)
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 507275)
+[0mWaiting for lock on the build directory (held by process 507283)
+[0mWaiting for lock on the build directory (held by process 507275)
+[0mWaiting for lock on the build directory (held by process 507283)
+[0mWaiting for lock on the build directory (held by process 507275)
+[0mWaiting for lock on the build directory (held by process 507283)
+01:52:19.583 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+01:52:19.596 [info] Starting Concord TTL manager with cleanup interval: 300000s
+01:52:19.666 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-KD25OiCZ/data-b and blob root /tmp/ess-s3-hardening-cluster-KD25OiCZ/data-b/blob
+01:52:19.688 [info] Concord VSR metadata quorum ready
+01:52:19.708 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9102 (http)
+01:52:19.714 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9002 (http)
+01:52:52.043 [warning] 'global' at node :"ess_data_b@127.0.0.1" requested disconnect from node :"resource_ctl_305cbead07@127.0.0.1" in order to prevent overlapping partitions
+01:53:24.233 [warning] 'global' at node :"ess_data_b@127.0.0.1" requested disconnect from node :"resource_ctl_611a2a404e@127.0.0.1" in order to prevent overlapping partitions
+01:53:30.005 [warning] 'global' at node :"ess_data_b@127.0.0.1" requested disconnect from node :"resource_ctl_3288691176@127.0.0.1" in order to prevent overlapping partitions
+01:56:46.376 [warning] 'global' at node :"ess_data_b@127.0.0.1" requested disconnect from node :"resource_ctl_0678a8fef4@127.0.0.1" in order to prevent overlapping partitions
+01:56:50.228 [notice] SIGTERM received - shutting down
+

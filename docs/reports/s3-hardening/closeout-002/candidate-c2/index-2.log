@@ -1,0 +1,8 @@
+curl: (7) Failed to connect to 127.0.0.1:9001 after 0 ms: Could not connect to server
+{"scenario": "A29", "action": "seed", "result": "passed"}
+{"scenario": "A29", "action": "prepare", "result": "passed"}
+{"scenario": "A29", "action": "gated", "result": "passed"}
+{"scenario": "A29", "action": "gated", "result": "passed"}
+{"scenario": "A29", "action": "rejoin", "result": "passed"}
+{"scenario": "A29", "action": "finish", "result": "passed"}
+Disposable index roots retained: /tmp/ess-s3-hardening-cluster-pCuAVFLr; exit 0

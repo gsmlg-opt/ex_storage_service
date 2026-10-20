@@ -1,0 +1,15 @@
+01:42:33.360 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+01:42:33.410 [info] Starting Concord TTL manager with cleanup interval: 300000s
+01:42:33.709 [info] Concord VSR metadata store ready
+01:42:33.751 [info] Storage engine started with data root /tmp/ess-s3-hardening-closeout002-c2-gateway/data and blob root /tmp/ess-s3-hardening-closeout002-c2-gateway/data/blob
+01:42:33.856 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:19000 (http)
+01:42:35.524 [info] CloudCache LIST upstream-hardening: 5 keys, 0 prefixes, xml_bytes=1239
+01:42:38.398 [error] CloudCache DELETE failed upstream-hardening/protected: HTTP 403 — ""
+01:42:38.419 [error] CloudCache DELETE failed upstream-hardening/protected: HTTP 403 — ""
+01:42:39.879 [error] CloudCache DELETE failed upstream-hardening/failed-delete-503: HTTP 503 — ""
+01:42:41.305 [error] CloudCache DELETE failed upstream-hardening/failed-delete-429: HTTP 429 — ""
+01:42:42.087 [error] CloudCache DELETE failed upstream-hardening/batch-denied: HTTP 403 — ""
+01:44:43.782 [error] CloudCache DELETE failed upstream-hardening/timeout-delete: :read_idle_timeout

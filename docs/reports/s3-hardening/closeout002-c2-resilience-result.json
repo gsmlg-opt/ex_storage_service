@@ -1,0 +1,581 @@
+{
+  "boto3": "1.43.114",
+  "botocore": "1.43.114",
+  "groups": [
+    {
+      "action": "seed",
+      "evidence": {
+        "acknowledged_versions": 2,
+        "pending_multipart": true,
+        "shared_keys": 2
+      },
+      "status": "passed"
+    },
+    {
+      "action": "read-repair",
+      "evidence": {
+        "full_public_get": true,
+        "object_version_unchanged": true,
+        "range_did_not_publish": true,
+        "removal": {
+          "expected_size": 884736,
+          "peer_checksum_verified": true,
+          "removed_local_replica": true
+        },
+        "repair": {
+          "generations": [
+            1,
+            1
+          ],
+          "local_checksum_verified": true,
+          "local_exists": true,
+          "ready": true,
+          "ready_count": 2
+        }
+      },
+      "status": "passed"
+    },
+    {
+      "action": "maintenance",
+      "evidence": {
+        "attempts": 2,
+        "bounded_shard_plan": {
+          "actual_replicas": 1,
+          "blobs": 1,
+          "next_cursor": null,
+          "planned": 1,
+          "unavailable": 0,
+          "under_replicated": 1
+        },
+        "corruption_detected": true,
+        "duplicate_job_id": true,
+        "durable_scrub_completed": true,
+        "expired_lease_takeover": true,
+        "fencing_token": 2,
+        "gc": {
+          "active_reader_hash_verified": true,
+          "cluster_packer_disabled": true,
+          "local_sweeps": 3,
+          "peer": {
+            "all_fixture_checksums_verified": true,
+            "sweeps": 3
+          },
+          "shared_keys_versions_and_parts_retained": true,
+          "unknown_intent_blob_retained": true
+        },
+        "object_versions_unchanged": true,
+        "repair": {
+          "local_checksum_verified": true,
+          "ready": true,
+          "ready_count": 2,
+          "scrub_job_completed": true
+        },
+        "stale_renew_complete_and_mutation_rejected": true
+      },
+      "status": "passed"
+    },
+    {
+      "action": "outage",
+      "evidence": {
+        "failed_mutations_invisible": true,
+        "get_retained": true,
+        "new_overwrite_part_complete_rejected": true,
+        "original_part_retained": true
+      },
+      "status": "passed"
+    },
+    {
+      "action": "recovered",
+      "evidence": {
+        "locations": {
+          "local_cas": {
+            "actual_generation": 1,
+            "blob_root_verified": true,
+            "blobs": [
+              {
+                "checksum_verified": true,
+                "fixture": "current",
+                "hash": "57ac68b96b6304b66b68b159afda3256683a3c97bd0cb0a57bfc239c17a68594",
+                "size": 1204
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "old",
+                "hash": "3dd3d931228571cf42028af609c9f7f7f7a9d63792ae1dc50ffeb80b6fdd7133",
+                "size": 984
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "part",
+                "hash": "4f4719ab9066aa1a91d076c2b50d1e31e4e7a41c947932e9637c6843268989fc",
+                "size": 1593
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "reader",
+                "hash": "8c2729b0ca4b5a8d5002b1efa1ab438c241ac67bcfead82ef11474932ba3fd28",
+                "size": 884736
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "repair",
+                "hash": "8eda95cf4f55323a1016aad658a54693cbb69879b75a7adae11affc545ca5a38",
+                "size": 1325
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "shared",
+                "hash": "8572ef338977da43a7131444933d00d27a5f4ad5d3d0805d922321cb27e94a64",
+                "size": 1128
+              }
+            ],
+            "node_id": "data-a"
+          },
+          "locations": [
+            {
+              "hash": "57ac68b96b6304b66b68b159afda3256683a3c97bd0cb0a57bfc239c17a68594",
+              "ready_generations": [
+                1,
+                1
+              ]
+            },
+            {
+              "hash": "3dd3d931228571cf42028af609c9f7f7f7a9d63792ae1dc50ffeb80b6fdd7133",
+              "ready_generations": [
+                1,
+                1
+              ]
+            },
+            {
+              "hash": "4f4719ab9066aa1a91d076c2b50d1e31e4e7a41c947932e9637c6843268989fc",
+              "ready_generations": [
+                1,
+                1
+              ]
+            },
+            {
+              "hash": "8c2729b0ca4b5a8d5002b1efa1ab438c241ac67bcfead82ef11474932ba3fd28",
+              "ready_generations": [
+                1,
+                1
+              ]
+            },
+            {
+              "hash": "8eda95cf4f55323a1016aad658a54693cbb69879b75a7adae11affc545ca5a38",
+              "ready_generations": [
+                1,
+                1
+              ]
+            },
+            {
+              "hash": "8572ef338977da43a7131444933d00d27a5f4ad5d3d0805d922321cb27e94a64",
+              "ready_generations": [
+                1,
+                1
+              ]
+            }
+          ],
+          "peer_cas": {
+            "actual_generation": 1,
+            "blob_root_verified": true,
+            "blobs": [
+              {
+                "checksum_verified": true,
+                "fixture": "current",
+                "hash": "57ac68b96b6304b66b68b159afda3256683a3c97bd0cb0a57bfc239c17a68594",
+                "size": 1204
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "old",
+                "hash": "3dd3d931228571cf42028af609c9f7f7f7a9d63792ae1dc50ffeb80b6fdd7133",
+                "size": 984
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "part",
+                "hash": "4f4719ab9066aa1a91d076c2b50d1e31e4e7a41c947932e9637c6843268989fc",
+                "size": 1593
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "reader",
+                "hash": "8c2729b0ca4b5a8d5002b1efa1ab438c241ac67bcfead82ef11474932ba3fd28",
+                "size": 884736
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "repair",
+                "hash": "8eda95cf4f55323a1016aad658a54693cbb69879b75a7adae11affc545ca5a38",
+                "size": 1325
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "shared",
+                "hash": "8572ef338977da43a7131444933d00d27a5f4ad5d3d0805d922321cb27e94a64",
+                "size": 1128
+              }
+            ],
+            "node_id": "data-b"
+          },
+          "rf": 2,
+          "w": 2
+        },
+        "multipart_completed": true,
+        "topology": {
+          "commit": 63,
+          "primary": "meta",
+          "ready": true,
+          "statuses": [
+            {
+              "applied": 63,
+              "bootstrap": true,
+              "commit": 63,
+              "configuration": "<<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>",
+              "degraded": false,
+              "generation": 1,
+              "node_id": "meta",
+              "primary": "meta",
+              "rf": 2,
+              "status": "normal",
+              "view": 0,
+              "w": 2
+            },
+            {
+              "applied": 63,
+              "bootstrap": true,
+              "commit": 63,
+              "configuration": "<<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>",
+              "degraded": false,
+              "generation": 1,
+              "node_id": "data-a",
+              "primary": "meta",
+              "rf": 2,
+              "status": "normal",
+              "view": 0,
+              "w": 2
+            },
+            {
+              "applied": 63,
+              "bootstrap": false,
+              "commit": 63,
+              "configuration": "<<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>",
+              "degraded": false,
+              "generation": 1,
+              "node_id": "data-b",
+              "primary": "meta",
+              "rf": 2,
+              "status": "normal",
+              "view": 0,
+              "w": 2
+            }
+          ],
+          "view": 0
+        }
+      },
+      "status": "passed"
+    },
+    {
+      "action": "record-leader",
+      "evidence": {
+        "commit": 67,
+        "primary": "meta",
+        "ready": true,
+        "statuses": [
+          {
+            "applied": 67,
+            "bootstrap": true,
+            "commit": 67,
+            "configuration": "<<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>",
+            "degraded": false,
+            "generation": 1,
+            "node_id": "meta",
+            "primary": "meta",
+            "rf": 2,
+            "status": "normal",
+            "view": 0,
+            "w": 2
+          },
+          {
+            "applied": 67,
+            "bootstrap": true,
+            "commit": 67,
+            "configuration": "<<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>",
+            "degraded": false,
+            "generation": 1,
+            "node_id": "data-a",
+            "primary": "meta",
+            "rf": 2,
+            "status": "normal",
+            "view": 0,
+            "w": 2
+          },
+          {
+            "applied": 67,
+            "bootstrap": false,
+            "commit": 67,
+            "configuration": "<<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>",
+            "degraded": false,
+            "generation": 1,
+            "node_id": "data-b",
+            "primary": "meta",
+            "rf": 2,
+            "status": "normal",
+            "view": 0,
+            "w": 2
+          }
+        ],
+        "view": 0
+      },
+      "status": "passed"
+    },
+    {
+      "action": "elected",
+      "evidence": {
+        "primary_stopped": "meta",
+        "rf": 2,
+        "strict_write_status": 200,
+        "topology": {
+          "commit": 67,
+          "primary": "data-a",
+          "ready": true,
+          "statuses": [
+            {
+              "applied": 67,
+              "bootstrap": true,
+              "commit": 67,
+              "configuration": "<<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>",
+              "degraded": false,
+              "generation": 1,
+              "node_id": "data-a",
+              "primary": "data-a",
+              "rf": 2,
+              "status": "normal",
+              "view": 1,
+              "w": 2
+            },
+            {
+              "applied": 67,
+              "bootstrap": false,
+              "commit": 67,
+              "configuration": "<<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>",
+              "degraded": false,
+              "generation": 1,
+              "node_id": "data-b",
+              "primary": "data-a",
+              "rf": 2,
+              "status": "normal",
+              "view": 1,
+              "w": 2
+            }
+          ],
+          "view": 1
+        },
+        "w": 2
+      },
+      "status": "passed"
+    },
+    {
+      "action": "verify",
+      "evidence": {
+        "all_acknowledged_data_retained": true,
+        "locations": {
+          "local_cas": {
+            "actual_generation": 1,
+            "blob_root_verified": true,
+            "blobs": [
+              {
+                "checksum_verified": true,
+                "fixture": "current",
+                "hash": "57ac68b96b6304b66b68b159afda3256683a3c97bd0cb0a57bfc239c17a68594",
+                "size": 1204
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "old",
+                "hash": "3dd3d931228571cf42028af609c9f7f7f7a9d63792ae1dc50ffeb80b6fdd7133",
+                "size": 984
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "part",
+                "hash": "4f4719ab9066aa1a91d076c2b50d1e31e4e7a41c947932e9637c6843268989fc",
+                "size": 1593
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "reader",
+                "hash": "8c2729b0ca4b5a8d5002b1efa1ab438c241ac67bcfead82ef11474932ba3fd28",
+                "size": 884736
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "repair",
+                "hash": "8eda95cf4f55323a1016aad658a54693cbb69879b75a7adae11affc545ca5a38",
+                "size": 1325
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "shared",
+                "hash": "8572ef338977da43a7131444933d00d27a5f4ad5d3d0805d922321cb27e94a64",
+                "size": 1128
+              }
+            ],
+            "node_id": "data-a"
+          },
+          "locations": [
+            {
+              "hash": "57ac68b96b6304b66b68b159afda3256683a3c97bd0cb0a57bfc239c17a68594",
+              "ready_generations": [
+                1,
+                1
+              ]
+            },
+            {
+              "hash": "3dd3d931228571cf42028af609c9f7f7f7a9d63792ae1dc50ffeb80b6fdd7133",
+              "ready_generations": [
+                1,
+                1
+              ]
+            },
+            {
+              "hash": "4f4719ab9066aa1a91d076c2b50d1e31e4e7a41c947932e9637c6843268989fc",
+              "ready_generations": [
+                1,
+                1
+              ]
+            },
+            {
+              "hash": "8c2729b0ca4b5a8d5002b1efa1ab438c241ac67bcfead82ef11474932ba3fd28",
+              "ready_generations": [
+                1,
+                1
+              ]
+            },
+            {
+              "hash": "8eda95cf4f55323a1016aad658a54693cbb69879b75a7adae11affc545ca5a38",
+              "ready_generations": [
+                1,
+                1
+              ]
+            },
+            {
+              "hash": "8572ef338977da43a7131444933d00d27a5f4ad5d3d0805d922321cb27e94a64",
+              "ready_generations": [
+                1,
+                1
+              ]
+            }
+          ],
+          "peer_cas": {
+            "actual_generation": 1,
+            "blob_root_verified": true,
+            "blobs": [
+              {
+                "checksum_verified": true,
+                "fixture": "current",
+                "hash": "57ac68b96b6304b66b68b159afda3256683a3c97bd0cb0a57bfc239c17a68594",
+                "size": 1204
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "old",
+                "hash": "3dd3d931228571cf42028af609c9f7f7f7a9d63792ae1dc50ffeb80b6fdd7133",
+                "size": 984
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "part",
+                "hash": "4f4719ab9066aa1a91d076c2b50d1e31e4e7a41c947932e9637c6843268989fc",
+                "size": 1593
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "reader",
+                "hash": "8c2729b0ca4b5a8d5002b1efa1ab438c241ac67bcfead82ef11474932ba3fd28",
+                "size": 884736
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "repair",
+                "hash": "8eda95cf4f55323a1016aad658a54693cbb69879b75a7adae11affc545ca5a38",
+                "size": 1325
+              },
+              {
+                "checksum_verified": true,
+                "fixture": "shared",
+                "hash": "8572ef338977da43a7131444933d00d27a5f4ad5d3d0805d922321cb27e94a64",
+                "size": 1128
+              }
+            ],
+            "node_id": "data-b"
+          },
+          "rf": 2,
+          "w": 2
+        },
+        "stale_generation": {
+          "actual_process_generation": 1,
+          "registered_generation": 2,
+          "strict_rf": 2,
+          "strict_w": 2
+        },
+        "stale_replica_write_rejected": true,
+        "topology": {
+          "commit": 69,
+          "primary": "data-a",
+          "ready": true,
+          "statuses": [
+            {
+              "applied": 69,
+              "bootstrap": false,
+              "commit": 69,
+              "configuration": "<<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>",
+              "degraded": false,
+              "generation": 1,
+              "node_id": "meta",
+              "primary": "data-a",
+              "rf": 2,
+              "status": "normal",
+              "view": 1,
+              "w": 2
+            },
+            {
+              "applied": 69,
+              "bootstrap": true,
+              "commit": 69,
+              "configuration": "<<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>",
+              "degraded": false,
+              "generation": 1,
+              "node_id": "data-a",
+              "primary": "data-a",
+              "rf": 2,
+              "status": "normal",
+              "view": 1,
+              "w": 2
+            },
+            {
+              "applied": 69,
+              "bootstrap": false,
+              "commit": 69,
+              "configuration": "<<235, 158, 193, 81, 169, 224, 204, 213, 240, 191, 214, 36, 183, 27, 169, 85, 213, 157, 115, 188, 115, 225, 33, 162, 229, 178, 53, 84, 72, 207, 178, 7>>",
+              "degraded": false,
+              "generation": 1,
+              "node_id": "data-b",
+              "primary": "data-a",
+              "rf": 2,
+              "status": "normal",
+              "view": 1,
+              "w": 2
+            }
+          ],
+          "view": 1
+        }
+      },
+      "status": "passed"
+    }
+  ],
+  "schema": 1,
+  "source_sha": "ffec95ec12acd1c2005b6b418a980a4d47353dc3",
+  "status": "passed",
+  "working_tree": "uncommitted hardening implementation"
+}

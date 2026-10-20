@@ -1,0 +1,59 @@
+1449 1356 259:4 / / ro,nosuid,nodev,relatime master:1 - ext4 /dev/nvme0n1p2 rw
+1450 1449 0:26 / /run ro,nosuid,nodev master:2 - tmpfs tmpfs rw,size=16419188k,nr_inodes=819200,mode=755
+1451 1450 0:35 / /run/keys ro,nosuid,nodev,relatime master:4 - ramfs ramfs rw,mode=750
+1452 1450 0:36 / /run/secrets.d ro,nosuid,nodev,noexec,relatime master:5 - ramfs none rw,mode=751
+1453 1450 0:29 / /run/credentials/systemd-journald.service ro,nosuid,nodev,noexec,relatime master:3 - tmpfs none ro,size=1024k,nr_inodes=1024,mode=700,noswap
+1454 1450 0:46 / /run/wrappers ro,nosuid,nodev,relatime master:98 - tmpfs tmpfs rw,mode=755
+1455 1450 0:57 / /run/user/1000 ro,nosuid,nodev,relatime master:483 - tmpfs tmpfs rw,size=6567672k,nr_inodes=1641918,mode=700,uid=1000,gid=100
+1456 1455 0:101 / /run/user/1000/doc ro,nosuid,nodev,relatime master:1210 - fuse.portal portal rw,user_id=1000,group_id=100
+1457 1450 0:97 / /run/user/60578 ro,nosuid,nodev,relatime master:1048 - tmpfs tmpfs rw,size=6567672k,nr_inodes=1641918,mode=700,uid=60578,gid=132
+1458 1457 0:99 / /run/user/60578/doc rw,nosuid,nodev,relatime master:1131 - fuse.portal portal rw,user_id=60578,group_id=132
+1459 1449 0:6 / /dev ro,nosuid,nodev master:6 - devtmpfs devtmpfs rw,size=3283840k,nr_inodes=8168097,mode=755
+1460 1459 0:32 / /dev/pts ro,nosuid,nodev,noexec,relatime master:7 - devpts devpts rw,gid=3,mode=620,ptmxmode=666
+1461 1459 0:33 / /dev/shm ro,nosuid,nodev master:8 - tmpfs tmpfs rw
+1462 1459 0:20 / /dev/mqueue ro,nosuid,nodev,noexec,relatime master:18 - mqueue mqueue rw
+1463 1459 0:38 / /dev/hugepages ro,nosuid,nodev,relatime master:20 - hugetlbfs hugetlbfs rw,pagesize=2M
+1464 1449 0:34 / /proc ro,nosuid,nodev,noexec,relatime master:9 - proc proc rw
+1465 1449 0:23 / /sys ro,nosuid,nodev,noexec,relatime master:10 - sysfs sysfs rw
+1466 1465 0:7 / /sys/kernel/security ro,nosuid,nodev,noexec,relatime master:11 - securityfs securityfs rw
+1467 1465 0:22 / /sys/fs/cgroup ro,nosuid,nodev,noexec,relatime master:12 - cgroup2 cgroup2 rw,nsdelegate,memory_recursiveprot,memory_hugetlb_accounting
+1468 1465 0:24 / /sys/fs/pstore ro,nosuid,nodev,noexec,relatime master:13 - pstore none rw
+1469 1465 0:27 / /sys/firmware/efi/efivars ro,nosuid,nodev,noexec,relatime master:14 - efivarfs efivarfs rw
+1470 1465 0:28 / /sys/fs/bpf ro,nosuid,nodev,noexec,relatime master:15 - bpf bpf rw,mode=700
+1471 1465 0:8 / /sys/kernel/debug ro,nosuid,nodev,noexec,relatime master:19 - debugfs debugfs rw
+1472 1465 0:40 / /sys/kernel/config ro,nosuid,nodev,noexec,relatime master:21 - configfs configfs rw
+1473 1465 0:13 / /sys/kernel/tracing ro,nosuid,nodev,noexec,relatime master:22 - tracefs tracefs rw
+1474 1465 0:41 / /sys/fs/fuse/connections ro,nosuid,nodev,noexec,relatime master:23 - fusectl fusectl rw
+1475 1449 259:4 /nix/store /nix/store ro,nosuid,nodev,relatime master:16 - ext4 /dev/nvme0n1p2 rw
+1476 1449 259:3 / /boot ro,nosuid,nodev,relatime master:95 - vfat /dev/nvme0n1p1 rw,fmask=0077,dmask=0077,codepage=437,iocharset=iso8859-1,shortname=mixed,errors=remount-ro
+1477 1449 259:1 / /fast ro,nosuid,nodev,noatime master:92 - ext4 /dev/nvme1n1p1 rw
+1478 1477 259:1 /containers/storage/overlay /fast/containers/storage/overlay rw,noatime master:92 - ext4 /dev/nvme1n1p1 rw
+1479 1477 0:70 / /fast/containers/storage/overlay-containers/67919c6da46f59f15b16e4392fe61cd52cd9e33dd8521c1fe986ada2b65b9444/userdata/shm rw,nosuid,nodev,noexec,relatime master:759 - tmpfs shm rw,size=64000k
+1480 1477 0:30 / /fast/containers/storage/overlay-containers/f09d30a9a17f40049445a8bf5ad3f70ea8a1b7ad2d4303078dd0929c5eec0ab7/userdata/shm rw,nosuid,nodev,noexec,relatime master:645 - tmpfs shm rw,size=64000k
+1481 1477 0:59 / /fast/containers/storage/overlay-containers/e43f8a17d9a5b82843a0ce46881eb5f1d8b9b4ecb1721c019b8f32202dc59fd8/userdata/shm rw,nosuid,nodev,noexec,relatime master:496 - tmpfs shm rw,size=64000k
+1482 1449 259:1 /containers /var/lib/containers ro,nosuid,nodev,noatime master:92 - ext4 /dev/nvme1n1p1 rw
+1483 1482 259:1 /containers/storage/overlay /var/lib/containers/storage/overlay rw,noatime - ext4 /dev/nvme1n1p1 rw
+1484 1483 0:71 / /var/lib/containers/storage/overlay/bfc0f003d7a6ff0573099ede28b8fe8fd05e5e864330c30ae6e92c5686157534/merged rw,relatime - overlay overlay rw,lowerdir=/var/lib/containers/storage/overlay/l/AGBGLHDPYRCP3KPZWVIMFYMKCM:/var/lib/containers/storage/overlay/l/LKXPVNWVMP7O4MGVSKWT5EZSNK:/var/lib/containers/storage/overlay/l/C7N3AJZGUXAPSI53NPAILDCAVF:/var/lib/containers/storage/overlay/l/ENYDZDF3YTKNERCLUKDORJJAT3:/var/lib/containers/storage/overlay/l/OT5EBKKREPTB2A7DW2AXAPHFWA:/var/lib/containers/storage/overlay/l/XFSZF6O5TQI5P2KQWGEB5PVO4U:/var/lib/containers/storage/overlay/l/6EBBO37CX4H22BBDSEALMIHXWY:/var/lib/containers/storage/overlay/l/ZD5LDZYJJV3YW2SFODMA4FRRYW:/var/lib/containers/storage/overlay/l/S5E2AQSJFUK4UZ7CKEMNHLEV3L:/var/lib/containers/storage/overlay/l/A4VBQKJZMR2Y6T3YBEPPWIREZ5:/var/lib/containers/storage/overlay/l/OUK7HGBY2GFZF55WUXWYBE2ILK:/var/lib/containers/storage/overlay/l/OWEWQ5QEH4QJYBAL7EIJIQYGZF,upperdir=/var/lib/containers/storage/overlay/bfc0f003d7a6ff0573099ede28b8fe8fd05e5e864330c30ae6e92c5686157534/diff,workdir=/var/lib/containers/storage/overlay/bfc0f003d7a6ff0573099ede28b8fe8fd05e5e864330c30ae6e92c5686157534/work,uuid=on,fsync=volatile
+1485 1483 0:79 / /var/lib/containers/storage/overlay/687a36f84a01ad92f35eccf26b28aef0091988dc9b225e78b2a3bf25fe69303a/merged rw,relatime - overlay overlay rw,lowerdir=/var/lib/containers/storage/overlay/l/FWKI5P3XMHF7OLQ76DUR7OBM66:/var/lib/containers/storage/overlay/l/GHZUT3XYZPBEVLLHZRVVQFGFFT:/var/lib/containers/storage/overlay/l/NYCYK7UQIBJ6RT4YEVYDP3GTY6:/var/lib/containers/storage/overlay/l/GQUUBKYVXOK3QMRISARLJ64PZ3,upperdir=/var/lib/containers/storage/overlay/687a36f84a01ad92f35eccf26b28aef0091988dc9b225e78b2a3bf25fe69303a/diff,workdir=/var/lib/containers/storage/overlay/687a36f84a01ad92f35eccf26b28aef0091988dc9b225e78b2a3bf25fe69303a/work,uuid=on,fsync=volatile
+1486 1483 0:77 / /var/lib/containers/storage/overlay/bb1932eb831153558cf657f201081c202a15c356a717401436111b0c30cf34cf/merged rw,relatime - overlay overlay rw,lowerdir=/var/lib/containers/storage/overlay/l/7DQTXDQRU3EDPNAXC5HXGDFVEI:/var/lib/containers/storage/overlay/l/3D5VNEHXPLA7AYNJ77AJJNFYHN:/var/lib/containers/storage/overlay/l/YK5YP3O5NKP7WC54AFBGF2BWYT:/var/lib/containers/storage/overlay/l/QIJAWAE3OYDSPGXHYSTS2GF2BD:/var/lib/containers/storage/overlay/l/C7WWVGE3X4CEL6OO565OPDSRJ5:/var/lib/containers/storage/overlay/l/PXG4AWWEUTXTCYJKYGTV52VNLD:/var/lib/containers/storage/overlay/l/WBDWYT7OE4FYTVAMXSADGJLZ7V,upperdir=/var/lib/containers/storage/overlay/bb1932eb831153558cf657f201081c202a15c356a717401436111b0c30cf34cf/diff,workdir=/var/lib/containers/storage/overlay/bb1932eb831153558cf657f201081c202a15c356a717401436111b0c30cf34cf/work,uuid=on,fsync=volatile
+1487 1482 0:70 / /var/lib/containers/storage/overlay-containers/67919c6da46f59f15b16e4392fe61cd52cd9e33dd8521c1fe986ada2b65b9444/userdata/shm rw,nosuid,nodev,noexec,relatime master:759 - tmpfs shm rw,size=64000k
+1488 1482 0:30 / /var/lib/containers/storage/overlay-containers/f09d30a9a17f40049445a8bf5ad3f70ea8a1b7ad2d4303078dd0929c5eec0ab7/userdata/shm rw,nosuid,nodev,noexec,relatime master:645 - tmpfs shm rw,size=64000k
+1489 1482 0:59 / /var/lib/containers/storage/overlay-containers/e43f8a17d9a5b82843a0ce46881eb5f1d8b9b4ecb1721c019b8f32202dc59fd8/userdata/shm rw,nosuid,nodev,noexec,relatime master:496 - tmpfs shm rw,size=64000k
+1490 1449 259:1 /docker /var/lib/docker ro,nosuid,nodev,noatime master:92 - ext4 /dev/nvme1n1p1 rw
+1491 1449 259:1 /postgresql /var/lib/postgresql ro,nosuid,nodev,noatime master:92 - ext4 /dev/nvme1n1p1 rw
+1492 1449 254:0 / /data ro,nosuid,nodev,noatime master:17 - ext4 /dev/mapper/data--vg-data rw,stripe=384
+1493 1449 0:91 / /tmp rw,nosuid,nodev,relatime - tmpfs tmpfs rw,mode=755,uid=1000,gid=100
+1494 1464 0:95 / /proc rw,nosuid,nodev,noexec,relatime - proc proc rw
+1495 1459 0:96 / /dev rw,nosuid,nodev,relatime - tmpfs tmpfs rw,mode=755,uid=1000,gid=100
+1496 1495 0:6 /null /dev/null rw,nosuid master:6 - devtmpfs devtmpfs rw,size=3283840k,nr_inodes=8168097,mode=755
+1497 1495 0:6 /zero /dev/zero rw,nosuid master:6 - devtmpfs devtmpfs rw,size=3283840k,nr_inodes=8168097,mode=755
+1498 1495 0:6 /full /dev/full rw,nosuid master:6 - devtmpfs devtmpfs rw,size=3283840k,nr_inodes=8168097,mode=755
+1499 1495 0:6 /random /dev/random rw,nosuid master:6 - devtmpfs devtmpfs rw,size=3283840k,nr_inodes=8168097,mode=755
+1500 1495 0:6 /urandom /dev/urandom rw,nosuid master:6 - devtmpfs devtmpfs rw,size=3283840k,nr_inodes=8168097,mode=755
+1501 1495 0:6 /tty /dev/tty rw,nosuid master:6 - devtmpfs devtmpfs rw,size=3283840k,nr_inodes=8168097,mode=755
+1502 1495 0:98 / /dev/pts rw,nosuid,noexec,relatime - devpts devpts rw,mode=620,ptmxmode=666
+1503 1493 259:4 /tmp/ess-hardening-restore-CQynvEKq/recovery /tmp/recovery rw,nosuid,nodev,relatime master:1 - ext4 /dev/nvme0n1p2 rw
+1504 1493 259:4 /tmp/ess-hardening-restore-CQynvEKq/bundle /tmp/backup ro,nosuid,nodev,relatime master:1 - ext4 /dev/nvme0n1p2 rw
+1505 1493 259:4 /tmp/ess-hardening-restore-CQynvEKq/fixture /tmp/fixture ro,nosuid,nodev,relatime master:1 - ext4 /dev/nvme0n1p2 rw
+1506 1493 259:4 /home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c2-restore-standalone /tmp/evidence rw,nosuid,nodev,relatime master:1 - ext4 /dev/nvme0n1p2 rw
+1507 1493 259:4 /tmp/ess-s3-hardening-python /tmp/ess-s3-hardening-python ro,nosuid,nodev,relatime master:1 - ext4 /dev/nvme0n1p2 rw
