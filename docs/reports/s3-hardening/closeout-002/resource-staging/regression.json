@@ -1,0 +1,42 @@
+{
+  "status": "failed",
+  "exit_status": 1,
+  "duration_seconds": 21.04118153800664,
+  "command": [
+    "/tmp/ess-s3-hardening-python/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "e2e",
+    "-p",
+    "test_*.py"
+  ],
+  "red_exit_status": 1,
+  "red_scope": "3 tests failed with missing staging_snapshot; byte-only observer reports0 for two empty stages",
+  "green_exit_status": 0,
+  "green_tests": 3,
+  "scope": "Additional no-leak file inventory outside resource measurement windows. No cadence/metric/envelope/dataset/concurrency changes. Full original resource runs remain required for the next candidate.",
+  "files": {
+    "docs/reports/s3-hardening/closeout-002/resource-staging/red.log": {
+      "sha256": "5505941a19f2f9e2143f07a6e216f324e1caf37ce5b94a153cc4534b62400373",
+      "bytes": 2829
+    },
+    "docs/reports/s3-hardening/closeout-002/resource-staging/green.log": {
+      "sha256": "b2da34198869558513e28cfe475aef01fd599ce70fd9179352a3e0df6a0481b2",
+      "bytes": 625
+    },
+    "docs/reports/s3-hardening/closeout-002/resource-staging/harness.log": {
+      "sha256": "41cd698c98ba5c807d50f159446b8626953258ffb988be18ad8fcaed56678da5",
+      "bytes": 4008
+    },
+    "e2e/test_resource_staging.py": {
+      "sha256": "4ad606793723257dffe4a43bc04eec6a35d51f7891a084307b25e0b98f7af803",
+      "bytes": 2051
+    },
+    "e2e/s3_hardening_resources.py": {
+      "sha256": "2a78f5ce0b0939b2df4396c89c10afde54a1a64d12a769740834253dc0f1e769",
+      "bytes": 20107
+    }
+  }
+}

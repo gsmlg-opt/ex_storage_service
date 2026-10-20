@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import signal
 import socket
+import stat
 import subprocess
 import time
 import uuid
@@ -25,6 +26,33 @@ from hardening_acceptance import source_fingerprint
 from resource_cadence import execute_group, measure_samples
 
 MIB = 1024 * 1024
+
+
+def staging_snapshot(data):
+    """Count residual stages, including empty files, outside measured windows."""
+    result = {"files": 0, "bytes": 0}
+
+    def inspect(path, cache=False):
+        info = path.lstat()
+        assert not stat.S_ISLNK(info.st_mode), "unexpected staging inventory symlink"
+        if stat.S_ISDIR(info.st_mode):
+            for child in path.iterdir():
+                inspect(child, cache)
+        elif stat.S_ISREG(info.st_mode):
+            if not cache or path.name.endswith(".tmp"):
+                result["files"] += 1
+                result["bytes"] += info.st_size
+        else:
+            raise AssertionError("unexpected staging inventory file type")
+
+    inspect(data / "tmp")
+    for child in data.iterdir():
+        assert not child.is_symlink(), "unexpected staging inventory symlink"
+        if child.name.startswith(".cache-stage-"):
+            inspect(child)
+        elif child.is_dir() and ((child / "cache").exists() or (child / "cache").is_symlink()):
+            inspect(child / "cache", cache=True)
+    return result
 
 
 def port():
@@ -101,8 +129,11 @@ def main():
     def measured(name, size, concurrency, operation):
         time.sleep(1.2)
         baseline = samples()[-10:]
-        result["active_group"] = {"name": name, "size": size, "concurrency": concurrency}
+        staging_before = staging_snapshot(root / "data")
+        result["active_group"] = {"name": name, "size": size, "concurrency": concurrency,
+                                  "staging_before": staging_before}
         (evidence / "results.json").write_text(json.dumps(result, indent=2))
+        assert staging_before["files"] == 0, "preexisting fixture staging files"
         # Repeat fast operations through at least350ms of active sampling. A
         # transfer completing between samples is not measured evidence.
         window, operation_failure = execute_group(operation, concurrency, repeat_ms=350)
@@ -115,10 +146,14 @@ def main():
                   "temporary": 2 * size * concurrency + 64 * MIB}
         measurement = measure_samples(all_samples, baseline, window["start_ns"], window["end_ns"], limits)
         failures = measurement["failures"]
+        staging_after = staging_snapshot(root / "data")
+        if staging_after["files"] != 0:
+            failures.append("leaked_staging_files")
         if operation_failure is not None:
             failures.append("operation_failed")
         row = {"name": name, "size": size, "concurrency": concurrency,
-               **window, **measurement}
+               **window, **measurement, "staging_before": staging_before,
+               "staging_after": staging_after}
         result["groups"].append(row)
         (evidence / "results.json").write_text(json.dumps(result, indent=2))
         print(json.dumps(row), flush=True)
@@ -293,6 +328,8 @@ def main():
         if source_fingerprint() != result["source_sha256"]:
             raise AssertionError("source changed during resource profile")
         verify_coverage(result["groups"], result["required_cases"])
+        result["final_staging"] = staging_snapshot(root / "data")
+        assert result["final_staging"]["files"] == 0, "final leaked staging files"
         result["active_group"] = None
         result["status"] = "passed"
     except BaseException as failure:

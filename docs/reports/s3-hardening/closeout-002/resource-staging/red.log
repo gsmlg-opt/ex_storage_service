@@ -1,0 +1,35 @@
+test_hidden_cache_stage_and_nested_local_stage_are_counted (test_resource_staging.ResourceStagingTest.test_hidden_cache_stage_and_nested_local_stage_are_counted) ... ERROR
+test_inventory_rejects_symlinks_and_missing_local_stage_root (test_resource_staging.ResourceStagingTest.test_inventory_rejects_symlinks_and_missing_local_stage_root) ... ERROR
+test_zero_byte_stages_are_visible_without_counting_published_cache (test_resource_staging.ResourceStagingTest.test_zero_byte_stages_are_visible_without_counting_published_cache) ... ERROR
+
+======================================================================
+ERROR: test_hidden_cache_stage_and_nested_local_stage_are_counted (test_resource_staging.ResourceStagingTest.test_hidden_cache_stage_and_nested_local_stage_are_counted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_resource_staging.py", line 29, in test_hidden_cache_stage_and_nested_local_stage_are_counted
+    self.assertEqual({"files": 2, "bytes": 10}, resources.staging_snapshot(data))
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 's3_hardening_resources' has no attribute 'staging_snapshot'
+
+======================================================================
+ERROR: test_inventory_rejects_symlinks_and_missing_local_stage_root (test_resource_staging.ResourceStagingTest.test_inventory_rejects_symlinks_and_missing_local_stage_root)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_resource_staging.py", line 35, in test_inventory_rejects_symlinks_and_missing_local_stage_root
+    resources.staging_snapshot(data)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 's3_hardening_resources' has no attribute 'staging_snapshot'
+
+======================================================================
+ERROR: test_zero_byte_stages_are_visible_without_counting_published_cache (test_resource_staging.ResourceStagingTest.test_zero_byte_stages_are_visible_without_counting_published_cache)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_resource_staging.py", line 21, in test_zero_byte_stages_are_visible_without_counting_published_cache
+    self.assertEqual({"files": 2, "bytes": 0}, resources.staging_snapshot(data))
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 's3_hardening_resources' has no attribute 'staging_snapshot'
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.002s
+
+FAILED (errors=3)

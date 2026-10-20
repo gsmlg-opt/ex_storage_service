@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "exit_status": 0,
+  "tests": 122,
+  "duration_seconds": 21.161308811992058,
+  "command": [
+    "/tmp/ess-s3-hardening-python/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "e2e",
+    "-p",
+    "test_*.py"
+  ],
+  "source_sha256": "ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913",
+  "ending_source_sha256": "ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913",
+  "scope": "Pre-freeze whole Python suite; original resource workload still required. Initial118-test failure and previous RED/GREEN retained unchanged.",
+  "files": {
+    "docs/reports/s3-hardening/closeout-002/resource-staging/harness-final.log": {
+      "sha256": "bf4826f4c0b5035f6d7e1d57d8ab57f80487598e7372dc71447232db5dada30e",
+      "bytes": 1742
+    },
+    "e2e/test_resource_staging.py": {
+      "sha256": "ad0529bca43f7b94108e3674faa06c046965fb024f71beedc3fce6e89365ed01",
+      "bytes": 2312
+    },
+    "e2e/s3_hardening_resources.py": {
+      "sha256": "060c390b1f58d6084e580916c89a121f2e4be4f8d152af16f621a3d8beb9870b",
+      "bytes": 20143
+    },
+    "e2e/test_resource_cadence.py": {
+      "sha256": "d117a549113a9744af12596e3b149995f3e9b8fbd77b1d8522282616bf3dcba5",
+      "bytes": 22398
+    }
+  }
+}

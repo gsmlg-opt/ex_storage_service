@@ -1,0 +1,64 @@
+...isolation prerequisite failed: Command '['bwrap']' returned non-zero exit status 1.
+...{"primary_stopped": "meta", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 200}
+{"primary_stopped": "data-a", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 503}
+{"primary_stopped": "data-b", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 503}
+.....................................From /tmp/ess-release-gate-5fg84u72/origin
+ * branch            main       -> FETCH_HEAD
+Previous HEAD position was 7888e16 tested source
+HEAD is now at 9f43d87 chore(release): v1.0.1
+Previous HEAD position was 9f43d87 chore(release): v1.0.1
+HEAD is now at 7888e16 tested source
+Previous HEAD position was 7888e16 tested source
+HEAD is now at 9f43d87 chore(release): v1.0.1
+From /tmp/ess-release-gate-5fg84u72/origin
+ * branch            main       -> FETCH_HEAD
+HEAD is now at 9f43d87 chore(release): v1.0.1
+Previous HEAD position was 9f43d87 chore(release): v1.0.1
+HEAD is now at 7888e16 tested source
+Previous HEAD position was 7888e16 tested source
+HEAD is now at 9f43d87 chore(release): v1.0.1
+.HEAD is now at eb430cd tested source
+Previous HEAD position was eb430cd tested source
+HEAD is now at b8d747d chore(release): v1.0.1
+.HEAD is now at eb430cd tested source
+Previous HEAD position was eb430cd tested source
+HEAD is now at b8d747d chore(release): v1.0.1
+.HEAD is now at eb430cd tested source
+Previous HEAD position was eb430cd tested source
+HEAD is now at b8d747d chore(release): v1.0.1
+..............................E..................................E......
+======================================================================
+ERROR: test_both_actual_runners_save_failed_measurement_before_reraising (test_resource_cadence.OperationEvidenceTest.test_both_actual_runners_save_failed_measurement_before_reraising) (filename='s3_hardening_resources.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_resource_cadence.py", line 165, in test_both_actual_runners_save_failed_measurement_before_reraising
+    namespace["measured"]("failed", 67108864, 1, lambda _: None)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "s3_hardening_resources.py", line 132, in measured
+    staging_before = staging_snapshot(root / "data")
+                                      ^^^^
+NameError: name 'root' is not defined
+
+======================================================================
+ERROR: test_rss_targets_explicit_beam_pid_and_reports_helper_separately (test_resource_sampler.SamplerEmissionTest.test_rss_targets_explicit_beam_pid_and_reports_helper_separately)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_resource_sampler.py", line 146, in test_rss_targets_explicit_beam_pid_and_reports_helper_separately
+    receipt = verify_stopped(root)
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts/resource_observer.py", line 345, in verify_stopped
+    actual = process_identity(expected["pid"])
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts/resource_observer.py", line 41, in process_identity
+    fields = Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/run/current-system/sw/lib/python3.13/pathlib/_local.py", line 546, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/run/current-system/sw/lib/python3.13/pathlib/_abc.py", line 633, in read_text
+    return f.read()
+           ~~~~~~^^
+ProcessLookupError: [Errno 3] No such process
+
+----------------------------------------------------------------------
+Ran 118 tests in 20.871s
+
+FAILED (errors=2)

@@ -1,0 +1,8 @@
+test_hidden_cache_stage_and_nested_local_stage_are_counted (test_resource_staging.ResourceStagingTest.test_hidden_cache_stage_and_nested_local_stage_are_counted) ... ok
+test_inventory_rejects_symlinks_and_missing_local_stage_root (test_resource_staging.ResourceStagingTest.test_inventory_rejects_symlinks_and_missing_local_stage_root) ... ok
+test_zero_byte_stages_are_visible_without_counting_published_cache (test_resource_staging.ResourceStagingTest.test_zero_byte_stages_are_visible_without_counting_published_cache) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK

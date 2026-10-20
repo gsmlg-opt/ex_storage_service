@@ -1,0 +1,33 @@
+...isolation prerequisite failed: Command '['bwrap']' returned non-zero exit status 1.
+...{"primary_stopped": "meta", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 200}
+{"primary_stopped": "data-a", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 503}
+{"primary_stopped": "data-b", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 503}
+.....................................From /tmp/ess-release-gate-_4i65x36/origin
+ * branch            main       -> FETCH_HEAD
+Previous HEAD position was f75f086 tested source
+HEAD is now at 720534b chore(release): v1.0.1
+Previous HEAD position was 720534b chore(release): v1.0.1
+HEAD is now at f75f086 tested source
+Previous HEAD position was f75f086 tested source
+HEAD is now at 720534b chore(release): v1.0.1
+From /tmp/ess-release-gate-_4i65x36/origin
+ * branch            main       -> FETCH_HEAD
+HEAD is now at 720534b chore(release): v1.0.1
+Previous HEAD position was 720534b chore(release): v1.0.1
+HEAD is now at f75f086 tested source
+Previous HEAD position was f75f086 tested source
+HEAD is now at 720534b chore(release): v1.0.1
+.HEAD is now at f75f086 tested source
+Previous HEAD position was f75f086 tested source
+HEAD is now at 720534b chore(release): v1.0.1
+.HEAD is now at f75f086 tested source
+Previous HEAD position was f75f086 tested source
+HEAD is now at 720534b chore(release): v1.0.1
+.HEAD is now at f75f086 tested source
+Previous HEAD position was f75f086 tested source
+HEAD is now at 720534b chore(release): v1.0.1
+............................................................................
+----------------------------------------------------------------------
+Ran 122 tests in 20.990s
+
+OK

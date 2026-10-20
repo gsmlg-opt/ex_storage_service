@@ -153,12 +153,14 @@ class OperationEvidenceTest(unittest.TestCase):
                 namespace = {"time": SimpleNamespace(sleep=lambda _: None), "uuid": uuid, "json": json,
                              "result": result, "state": {}, "write_state": lambda: None,
                              "samples": lambda *_: [sample(i) for i in range(50, 326, 25)],
-                             "evidence": Path(directory), "MIB": 1048576,
+                             "evidence": Path(directory), "root": Path(directory), "MIB": 1048576,
                              "execute_group": lambda *_args, **_kwargs: (copy.deepcopy(window), error),
                              "measure_samples": measure_samples,
                              "page_cache": lambda: {}, "retained_disk": lambda: {},
-                             "staging_snapshot": lambda: {node: {"files": 0, "bytes": 0}
-                                                          for node in ["meta", "data-a", "data-b"]},
+                             "staging_snapshot": lambda *_: ({"files": 0, "bytes": 0}
+                                 if filename == "s3_hardening_resources.py" else
+                                 {node: {"files": 0, "bytes": 0}
+                                  for node in ["meta", "data-a", "data-b"]}),
                              "save": lambda: saved.append(copy.deepcopy(result))}
                 exec(compile(ast.Module(body=[function], type_ignores=[]), filename, "exec"), namespace)
                 with redirect_stdout(io.StringIO()), self.assertRaises(RuntimeError) as caught:
