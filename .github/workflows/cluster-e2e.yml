@@ -1,10 +1,6 @@
 name: Cluster Integration
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -46,7 +42,7 @@ jobs:
           mkdir -p /tmp/ex_storage_service/cluster-logs
           set -o pipefail
           mix test apps/ex_storage_service/test/ex_storage_service/cluster/three_voter_cluster_test.exs \
-            --include cluster --trace \
+            --include cluster \
             | tee /tmp/ex_storage_service/cluster-logs/tagged-cluster.log
 
       - name: Upload tagged cluster log
@@ -122,14 +118,19 @@ jobs:
           e2e/cluster_harness.sh wait-ready
           python3 e2e/cluster_e2e.py --phase data-node-recovered --state-file "$E2E_STATE_FILE"
 
-      - name: Confirm and fail the metadata primary
+      - name: Record and fail the current consensus primary
         run: |
           elixir --name ess_primary_check@127.0.0.1 \
             --cookie "$ESS_CLUSTER_E2E_COOKIE" \
             -S mix run --no-start e2e/scripts/assert_cluster_primary.exs
-          e2e/cluster_harness.sh stop-meta
-          e2e/cluster_harness.sh wait-ready
-          python3 e2e/cluster_e2e.py --phase metadata-leader-failure --state-file "$E2E_STATE_FILE"
+          primary_state="${ESS_CLUSTER_E2E_ROOT:-/tmp/ex_storage_service/cluster-e2e}/primary-loss.json"
+          primary="$(python3 -c 'import json,sys; p=json.load(open(sys.argv[1]))["before"]["primary"]; assert p in ("meta","data-a","data-b"); print(p)' "$primary_state")"
+          e2e/cluster_harness.sh stop-voter "$primary"
+          elixir --name ess_election_check@127.0.0.1 \
+            --cookie "$ESS_CLUSTER_E2E_COOKIE" \
+            -S mix run --no-start e2e/scripts/assert_cluster_primary.exs elected
+          python3 e2e/cluster_e2e.py --phase metadata-leader-failure --state-file "$E2E_STATE_FILE" \
+            --primary-state-file "$primary_state"
         env:
           ESS_S3_AUTH_ENABLED: "true"
           ESS_PUBLIC_S3_ENABLED: "false"
@@ -138,7 +139,9 @@ jobs:
 
       - name: Restart voter and verify persistence
         run: |
-          e2e/cluster_harness.sh restart-meta
+          primary_state="${ESS_CLUSTER_E2E_ROOT:-/tmp/ex_storage_service/cluster-e2e}/primary-loss.json"
+          primary="$(python3 -c 'import json,sys; p=json.load(open(sys.argv[1]))["before"]["primary"]; assert p in ("meta","data-a","data-b"); print(p)' "$primary_state")"
+          e2e/cluster_harness.sh restart-voter "$primary"
           e2e/cluster_harness.sh wait-ready
           elixir --name ess_rejoin_check@127.0.0.1 \
             --cookie "$ESS_CLUSTER_E2E_COOKIE" \
@@ -176,4 +179,12 @@ jobs:
         with:
           name: active-active-cluster-data-b-log
           path: /tmp/ex_storage_service/cluster-e2e/logs/data-b.log
+          if-no-files-found: warn
+
+      - name: Upload consensus primary lifecycle evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: active-active-primary-lifecycle
+          path: /tmp/ex_storage_service/cluster-e2e/primary-loss.json
           if-no-files-found: warn

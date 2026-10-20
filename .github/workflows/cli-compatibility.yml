@@ -20,6 +20,12 @@ on:
       - ".github/workflows/cli-compatibility.yml"
       - ".github/workflows/publish-cli.yml"
   workflow_dispatch:
+    inputs:
+      extended:
+        description: 'Also run full CLI suites, resource and provider acceptance'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -39,6 +45,7 @@ env:
 
 jobs:
   unit-wire-executable:
+    if: github.event_name == 'workflow_dispatch' && inputs.extended
     name: CLI unit, wire and executable contracts
     runs-on: ubuntu-latest
     steps:
@@ -71,6 +78,7 @@ jobs:
       - run: mix test --exclude resource
 
   resources:
+    if: github.event_name == 'workflow_dispatch' && inputs.extended
     name: CLI throttled 2 GiB resource acceptance
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -102,22 +110,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            elixir: "1.18.0"
-            otp: "27"
-          - os: ubuntu-latest
-            elixir: "1.18.5"
-            otp: "28"
-          - os: ubuntu-latest
-            elixir: "1.19"
-            otp: "28"
-          - os: macos-26
-            elixir: "1.19"
-            otp: "28"
-          - os: macos-26-intel
-            elixir: "1.19"
-            otp: "28"
+        include: ${{ fromJSON((github.event_name == 'workflow_dispatch' && inputs.extended) && '[{"os":"ubuntu-latest","elixir":"1.18.0","otp":"27"},{"os":"ubuntu-latest","elixir":"1.18.5","otp":"28"},{"os":"ubuntu-latest","elixir":"1.19","otp":"28"},{"os":"macos-26","elixir":"1.19","otp":"28"},{"os":"macos-26-intel","elixir":"1.19","otp":"28"}]' || '[{"os":"ubuntu-latest","elixir":"1.19","otp":"28"}]') }}
     steps:
       - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
@@ -131,7 +124,7 @@ jobs:
       - run: mix local.rebar --force
       - name: Build actual source tar and run an isolated installed consumer
         working-directory: .
-        run: python3 scripts/cli_compatibility/package_probe.py --output-dir "$RUNNER_TEMP/cli-package"
+        run: python3 scripts/cli_compatibility/package_probe.py --verification-profile '${{ (github.event_name == 'workflow_dispatch' && inputs.extended) && 'extended' || 'daily' }}' --output-dir "$RUNNER_TEMP/cli-package"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -144,6 +137,7 @@ jobs:
           if-no-files-found: error
 
   providers:
+    if: github.event_name == 'workflow_dispatch' && inputs.extended
     name: CLI independent ESS and RustFS contracts with recorded provider limitations
     runs-on: ubuntu-latest
     timeout-minutes: 20

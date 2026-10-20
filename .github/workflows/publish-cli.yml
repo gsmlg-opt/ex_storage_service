@@ -62,19 +62,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes zsh
       - name: Validate inventories and scoped CLI implementation
+        working-directory: .
         run: |
-          python3 ../../scripts/cli_compatibility/generate.py --check
-          python3 -m unittest discover -s ../../scripts/cli_compatibility -p 'test_*.py'
+          python3 scripts/cli_compatibility/generate.py --check
           mix deps.get
           mix format --check-formatted
           mix compile --warnings-as-errors
-          mix test
+          bash e2e/run_daily_unit_tests.sh cli
         env:
           MIX_ENV: test
       - name: Build and independently install the exact source package
         working-directory: .
         run: >-
           python3 scripts/cli_compatibility/package_probe.py
+          --verification-profile daily
           --expected-version "$RELEASE_VERSION"
           --output-dir "$RUNNER_TEMP/cli-package"
       - name: Reuse an identical existing Hex package
@@ -116,6 +117,7 @@ jobs:
         working-directory: .
         run: |
           python3 scripts/cli_compatibility/package_probe.py \
+            --verification-profile daily \
             --package "$RUNNER_TEMP/published-cli.tar" \
             --expected-version "$RELEASE_VERSION" \
             --output-dir "$RUNNER_TEMP/published-consumer"

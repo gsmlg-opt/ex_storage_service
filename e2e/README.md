@@ -1,5 +1,118 @@
 # End-to-End Tests
 
+## Current daily-use profile — 2026-10-20
+
+The current user-authorized gate is a sequential standalone Boto3 exercise of
+normal bucket/object CRUD, listing/COPY, attributes/tags, versions,
+CORS/location, multipart and presigned operations. It uses disposable roots,
+authenticated real HTTP, small payloads and default SDK checksums:
+
+```bash
+PAGER=cat bash e2e/run_hardening_daily.sh /absolute/venv/bin/python unique-run
+```
+
+Install the pinned clients from `e2e/hardening-requirements.txt` into the private
+virtual environment first. Pass its absolute Python path and a unique run label.
+The runner writes `docs/reports/s3-hardening/daily-unique-run/daily.json` and
+retained logs, and shuts down its own server. No new production setting is added.
+
+Do not run scale, stress, high-concurrency, extreme/fault/crash or multi-GiB
+profiles for the current delivery. The full suites below remain available as
+historical extended verification; their assertions are preserved. A daily pass
+does not promote unexecuted original A01–A38 clauses. The historical matrix
+remains 35/38, with A28/A30/A38 unpassed, and is no longer this delivery's gate.
+
+## Earlier feature profiles — 2026-10-19
+
+The 2026-10-19 execution priority is normal business flow first, followed by
+stress, failure recovery, scale and backup/restore hardening. Run the existing
+profiles with an explicit `features` scope after strict production compilation:
+
+```bash
+PAGER=cat MIX_ENV=prod mix compile --warnings-as-errors
+PAGER=cat bash e2e/run_hardening_phase2_standalone.sh /absolute/venv/bin/python unique-standalone features
+PAGER=cat bash e2e/run_hardening_phase1_cluster.sh /absolute/venv/bin/python unique-cluster features
+PAGER=cat /absolute/venv/bin/python e2e/gateway_hardening.py \
+  --root /tmp/ess-s3-hardening-unique-gateway --mc /absolute/verified/mc --scope features
+```
+
+Hosted feature scope runs versions/listings, tags/CORS/location, multipart and
+selected AWS CLI/Boto3/mc checks. The healthy cluster uses both data endpoints
+and retains RF2/W2 plus ordinary policy, suspension and revocation checks. It
+does not remove replicas, corrupt metadata, run concurrency races or restart
+nodes. Gateway feature scope verifies authenticated CRUD, listing/COPY,
+attributes/checksums, raw gzip/ranges/freshness, mode guards and retained mc
+compatibility, without injected upstream failures or restart reconciliation.
+
+Omitting the scope keeps the original full hardening behavior. Feature results
+are recorded separately and do not mark unexecuted A01–A38 assertions passed.
+Known Concord issues remain follow-up work; they do not block unrelated normal
+feature delivery. See [feature progress](../docs/plans/s3-feature-status.md).
+
+## Original extended S3 hardening acceptance
+
+Install the exact client versions in `e2e/hardening-requirements.txt` into a
+private virtual environment. The full local entry point is:
+
+```bash
+/absolute/venv/bin/python e2e/hardening_acceptance.py run --profile all \
+  --python /absolute/venv/bin/python --mc /absolute/checksum-verified/mc \
+  --label unique-run --output docs/reports/s3-hardening/unique-run
+```
+
+The independent lanes are `correctness`, `standalone`, `gateway`, `cluster`,
+`index`, `resources`, `faults`, `crashes`, `resilience`, `restore`, and `release`.
+`--profile NAME` runs only one
+lane; it does not certify the whole goal. Each command has a deadline, a retained
+log, source revision/content fingerprint, and a non-success result on failure.
+Roots, containers, processes and credentials belong to disposable harnesses.
+The gateway lane requires Docker and the verified `mc` binary; isolated restore
+requires working bubblewrap user/PID/mount namespaces. Prerequisite failure is
+blocked evidence, never a successful skip. Production data/endpoints are outside
+these runners. The release lane builds and executes only local artifacts.
+The faults lane also requires bubblewrap: its real ENOSPC test mounts only the
+disposable CAS/staging roots on a private8MiB tmpfs. It never fills a host disk.
+The crashes lane stops only its own disposable BEAM at injected storage commit
+boundaries, then runs a separate three-voter case that stops the origin after a
+real authenticated RF/W peer acknowledgement. The latter verifies uncertain
+operation isolation, retained-root rejoin and strict RF=2/W=2 internal recovery.
+Neither case certifies external cross-cluster disaster-recovery crash behavior.
+The separate resilience lane runs a small fresh three-voter workload with
+maintenance, a data-node outage/recovery, and actual-primary election/rejoin.
+It complements the existing cluster lane and retains independent lifecycle logs.
+
+The aggregate verifier additionally requires every A01–A38 row in
+`docs/plans/s3-hardening-results.json` to be passed with a complete assertion
+audit, command, exit status, mode, toolchain, starting/ending SHA and retained
+evidence. Partial logs do not automatically promote a scenario. Recheck retained
+records with:
+
+```bash
+python3 e2e/hardening_acceptance.py verify \
+  --output docs/reports/s3-hardening/unique-run
+```
+
+`.github/workflows/s3-hardening.yml` now defaults to the daily-use profile on
+relevant pushes, PRs and manual runs. Extended acceptance requires an explicit
+manual selection; no scheduled full-suite execution is part of the daily gate.
+Extended lanes retain their original assertions and separate evidence. The
+workflow has read-only repository permissions and publishes no package or image.
+
+Bucket index readiness is a separate bounded operator check:
+
+```bash
+/app/bin/ess rpc 'IO.inspect(ExStorageService.Operations.ListingIndex.status("bucket"))'
+/app/bin/ess rpc 'IO.inspect(ExStorageService.Operations.ListingIndex.readiness("bucket"))'
+```
+
+Each checks the bucket and its active index descriptor with two exact reads.
+It does not scan every bucket on `/health/ready`. Node liveness, metadata/data
+readiness and a particular bucket's index migration readiness are distinct.
+Listing duration/page counters use finite `kind`/`result` labels.
+`listing_index_checks_total{state=...}` counts operator observations rather than
+claiming a global bucket inventory; no bucket names, object keys or tokens are
+metric labels.
+
 This directory contains black-box S3 compatibility checks for ExStorageService.
 The tests use Boto3 against the running HTTP API, with path-style addressing and
 AWS Signature V4 enabled, so they exercise the same client surface used by S3
@@ -198,11 +311,16 @@ elixir --name ess_primary_check@127.0.0.1 \
   --cookie "$ESS_CLUSTER_E2E_COOKIE" \
   -S mix run --no-start e2e/scripts/assert_cluster_primary.exs
 
-e2e/cluster_harness.sh stop-meta
-e2e/cluster_harness.sh wait-ready
-python3 e2e/cluster_e2e.py --phase metadata-leader-failure --state-file "$E2E_STATE_FILE"
+primary_state="${ESS_CLUSTER_E2E_ROOT:-/tmp/ex_storage_service/cluster-e2e}/primary-loss.json"
+primary="$(python3 -c 'import json,sys; p=json.load(open(sys.argv[1]))["before"]["primary"]; assert p in ("meta","data-a","data-b"); print(p)' "$primary_state")"
+e2e/cluster_harness.sh stop-voter "$primary"
+ESS_PUBLIC_S3_ENABLED=false ESS_WEB_ENABLED=false ESS_MASTER_KEY="$ESS_CLUSTER_E2E_MASTER_KEY" \
+  elixir --name ess_election_check@127.0.0.1 --cookie "$ESS_CLUSTER_E2E_COOKIE" \
+  -S mix run --no-start e2e/scripts/assert_cluster_primary.exs elected
+python3 e2e/cluster_e2e.py --phase metadata-leader-failure --state-file "$E2E_STATE_FILE" \
+  --primary-state-file "$primary_state"
 
-e2e/cluster_harness.sh restart-meta
+e2e/cluster_harness.sh restart-voter "$primary"
 e2e/cluster_harness.sh wait-ready
 ESS_S3_AUTH_ENABLED=true \
 ESS_PUBLIC_S3_ENABLED=false \
@@ -218,3 +336,41 @@ python3 e2e/cluster_e2e.py --phase verify-persistence --state-file "$E2E_STATE_F
 The harness removes its root only on `start`; every restart uses the same
 node-local state with `ESS_CLUSTER_BOOTSTRAP=false`. Per-node lifecycle logs
 append under `/tmp/ex_storage_service/cluster-e2e/logs/`.
+
+The primary-loss sequence records the actual converged consensus primary rather
+than assuming the metadata-only voter still leads after unrelated restarts. It
+requires two surviving voters to agree on a new primary, a higher view, unchanged
+configuration and nondecreasing applied commit, with the stopped voter unreachable.
+A metadata-only primary outage retains both data replicas and strict writes;
+a data-primary outage retains surviving reads but requires HTTP 503 for strict
+W=2 writes. Restarting the same voter uses retained roots and bootstrap=false;
+all three voters must converge before both data endpoints prove persistence and
+restored strict writes. `primary-loss.json` retains pre-loss, election and all-voter
+rejoin evidence. The historical Python phase name `metadata-leader-failure` now
+performs this role-aware actual-primary check.
+
+Resource acceptance uses a detached BEAM Port owner and a stdlib Python observer.
+The runner pins `E2E_RESOURCE_PYTHON` to its absolute interpreter path; this is
+acceptance-only configuration. The helper inherits the BEAM PID/mount namespaces,
+including the private 8 MiB ENOSPC tmpfs, and reads RSS for the explicit
+`System.pid()` target. Its own RSS and CPU usage are reported separately.
+
+Python owns the anchored 25 ms schedule. One generation/sequence request is in
+flight; BEAM returns fresh memory/queue values with their original native probe
+windows. Python performs fresh filesystem probes and synchronous JSONL export.
+Collection windows use only Python clocks. Never compare BEAM and Python
+monotonic origins. Slow IPC, scanning, and export remain failures of the unchanged
+100 ms per-metric validator; missed slots are skipped without catch-up samples.
+Protocol frames are capped at 4096 bytes before decoding, each JSONL row at
+16384 bytes, the sample file at 1 GiB, and a helper at 432000 rows/three hours.
+There is no exporter thread or mailbox. Owner EOF stops the helper; harness
+cleanup additionally verifies the recorded OS PID/start-time identity stopped
+and retains `observer-stop-verification.json` (including an observed zombie
+state when the external reaper has not yet removed an exited process).
+
+Focused observer checks run without starting ESS applications:
+
+```bash
+PAGER=cat /absolute/pinned/python -B -m unittest discover -s e2e -p 'test_resource_sampler.py' -v
+PAGER=cat /absolute/pinned/python -B -m unittest discover -s e2e -p 'test_resource_observer.py' -v
+```

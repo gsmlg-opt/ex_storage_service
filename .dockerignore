@@ -19,3 +19,5 @@ e2e/
 # Logs and temp files
 *.log
 /tmp/
+# ExUnit temporary fixtures include intentionally non-UTF-8 file names.
+**/tmp/

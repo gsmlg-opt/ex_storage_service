@@ -5,6 +5,9 @@ deps/
 *.beam
 *.pyc
 __pycache__/
+# Raw local acceptance runs include large samples and disposable metadata files.
+# Compact reviewed evidence is added explicitly when it belongs in a release.
+/docs/reports/s3-hardening/
 /tmp/
 /apps/*/tmp/
 erl_crash.dump

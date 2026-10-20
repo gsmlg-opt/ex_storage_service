@@ -1,0 +1,155 @@
+name: S3 daily-use verification
+
+on:
+  push:
+    branches: [main]
+    paths: ['apps/**', 'config/**', 'mix.*', 'e2e/**', 'Dockerfile', '.dockerignore', 'scripts/release/**', '.github/workflows/s3-hardening.yml']
+  pull_request:
+    paths: ['apps/**', 'config/**', 'mix.*', 'e2e/**', 'Dockerfile', '.dockerignore', 'scripts/release/**', '.github/workflows/s3-hardening.yml']
+  workflow_dispatch:
+    inputs:
+      extended:
+        description: 'Also run the extended scale, resource, fault, recovery, and release audit'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: s3-hardening-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PAGER: cat
+  ERL_FLAGS: '+S 4:4 +SDcpu 2 +SDio 2'
+  ESS_MASTER_KEY: disposable-hardening-ci-master-key
+  ESS_ADMIN_PASSWORD_HASH: c89aca9f1fbfa8dc9383ff1f97a9c0f64a9bb6c1f456f00f2888c2e2fb733d14
+  SECRET_KEY_BASE: disposable-hardening-ci-secret-key-base-must-have-sixty-four-bytes-12345
+
+jobs:
+  daily:
+    name: Sequential daily-use S3 checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      MIX_ENV: prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: '1.19'
+          otp-version: '28'
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: '1.91.1'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-hardening-daily-prod-${{ hashFiles('mix.lock') }}
+      - name: Install daily harness prerequisites
+        run: |
+          python3 -m venv "$RUNNER_TEMP/hardening-venv"
+          "$RUNNER_TEMP/hardening-venv/bin/pip" install -r e2e/hardening-requirements.txt
+          mix deps.get --only prod
+      - name: Run small sequential authenticated business checks
+        run: |
+          bash e2e/run_hardening_daily.sh "$RUNNER_TEMP/hardening-venv/bin/python" \
+            'ci-${{ github.run_id }}-${{ github.run_attempt }}'
+      - name: Retain daily receipt and server logs on success or failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s3-hardening-daily
+          path: docs/reports/s3-hardening/daily-ci-${{ github.run_id }}-${{ github.run_attempt }}/
+          if-no-files-found: error
+          retention-days: 14
+
+  extended-lane:
+    name: Extended audit / ${{ matrix.profile }}
+    if: github.event_name == 'workflow_dispatch' && inputs.extended
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [correctness, standalone, gateway, cluster, index, resources, faults, crashes, resilience, restore, release]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: '1.19'
+          otp-version: '28'
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: '1.91.1'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-hardening-${{ matrix.profile }}-${{ hashFiles('mix.lock') }}
+      - name: Install harness prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes zsh bubblewrap
+          python3 -m venv "$RUNNER_TEMP/hardening-venv"
+          "$RUNNER_TEMP/hardening-venv/bin/pip" install -r e2e/hardening-requirements.txt
+          python3 scripts/release/reserve_journal_ports.py
+          mix deps.get
+          npm ci
+      - name: Install checksum-verified independent mc client
+        run: |
+          curl -fsSL --retry 3 https://github.com/minio/mc/releases/download/RELEASE.2025-08-13T08-35-41Z/mc.linux-amd64.RELEASE.2025-08-13T08-35-41Z -o "$RUNNER_TEMP/mc"
+          printf '01f866e9c5f9b87c2b09116fa5d7c06695b106242d829a8bb32990c00312e891  %s\n' "$RUNNER_TEMP/mc" | sha256sum --check
+          chmod 755 "$RUNNER_TEMP/mc"
+      - name: Run the selected extended lane
+        run: |
+          "$RUNNER_TEMP/hardening-venv/bin/python" e2e/hardening_acceptance.py run \
+            --profile '${{ matrix.profile }}' --python "$RUNNER_TEMP/hardening-venv/bin/python" \
+            --mc "$RUNNER_TEMP/mc" --label 'ci-${{ github.run_id }}-${{ github.run_attempt }}' \
+            --output 'docs/reports/s3-hardening/ci-${{ github.run_id }}-${{ github.run_attempt }}'
+      - name: Retain lane evidence on success or failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s3-hardening-extended-${{ matrix.profile }}
+          path: docs/reports/s3-hardening/ci-${{ github.run_id }}-${{ github.run_attempt }}*
+          if-no-files-found: error
+          retention-days: 14
+
+  full-acceptance:
+    name: Extended audit of all 38 scenarios and every lane
+    if: always() && github.event_name == 'workflow_dispatch' && inputs.extended
+    needs: extended-lane
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: s3-hardening-extended-*
+          path: docs/reports/s3-hardening
+          merge-multiple: true
+      - name: Fail on missing, blocked, stale, or unaudited acceptance evidence
+        run: |
+          python3 e2e/hardening_acceptance.py verify \
+            --output 'docs/reports/s3-hardening/ci-${{ github.run_id }}-${{ github.run_attempt }}'
+      - name: Retain aggregate report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s3-hardening-aggregate
+          path: docs/reports/s3-hardening/ci-${{ github.run_id }}-${{ github.run_attempt }}/aggregate.json
+          if-no-files-found: error

@@ -145,11 +145,16 @@ sys.stdout.buffer.write(data)
         raise RuntimeError("Installed pager left native extraction or spool files")
 
 
-def check_installed_credential_process(installed, cwd, env, logs):
-    stdout = run([
+def check_installed_credential_process(installed, cwd, env, logs, verification_profile="extended"):
+    if verification_profile not in ("daily", "extended"):
+        raise ValueError("Unknown verification profile")
+    argv = [
         "elixir", str(ROOT / "scripts/cli_compatibility/credential_process_probe.exs"),
         str(installed), str(CLI / "test/ex_storage_service_cli/credentials/process_test.exs"),
-    ], cwd, env, logs, timeout=120)
+    ]
+    if verification_profile == "daily":
+        argv.append("daily")
+    stdout = run(argv, cwd, env, logs, timeout=120)
     prefix = "ESS_CREDENTIAL_PROCESS_PROBE="
     records = [line[len(prefix):] for line in stdout.decode().splitlines() if line.startswith(prefix)]
     if len(records) != 1:
@@ -158,9 +163,15 @@ def check_installed_credential_process(installed, cwd, env, logs):
     required = {"literal-argv", "stderr-discard", "bounded-output", "child-group-isolation",
                 "timeout-descendant-cleanup", "owner-death-descendant-cleanup",
                 "overflow-descendant-cleanup", "prelaunch-owner-monitor"}
+    minimum_total = 11
+    if verification_profile == "daily":
+        required = {"literal-argv", "typed-credentials", "stderr-discard", "record-redaction"}
+        minimum_total = 1
+        if evidence.get("verification_profile") != "daily" or evidence.get("total") != 1:
+            raise RuntimeError("Installed credential process daily scope differs")
     if (evidence.get("module_source") != "installed-escript" or
             evidence.get("os") != platform.system().lower() or
-            evidence.get("total", 0) < 11 or evidence.get("failures") != 0 or
+            evidence.get("total", 0) < minimum_total or evidence.get("failures") != 0 or
             evidence.get("skipped") != 0 or evidence.get("excluded") != 0 or
             set(evidence.get("checks", [])) != required):
         raise RuntimeError("Installed credential process checks did not all pass")
@@ -256,6 +267,8 @@ def main():
     parser.add_argument("--package", type=Path, help="Use a previously built/downloaded Hex tar")
     parser.add_argument("--package-url", help="Verify the actual public release tar instead")
     parser.add_argument("--expected-version")
+    parser.add_argument("--verification-profile", choices=("daily", "extended"), default="extended",
+                        help="Daily uses one successful credential helper; extended retains fault and concurrency checks")
     args = parser.parse_args()
     if args.package and args.package_url:
         parser.error("Choose --package or --package-url")
@@ -321,7 +334,8 @@ def main():
         if not {"Bucket", "Key"} <= json.loads(skeleton).keys():
             raise RuntimeError("Installed model skeleton is incomplete")
 
-        credential_process = check_installed_credential_process(installed, unrelated, env, logs)
+        credential_process = check_installed_credential_process(
+            installed, unrelated, env, logs, args.verification_profile)
 
         server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), WireFixture)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -348,6 +362,7 @@ def main():
 
         manifest = {
             "version": version,
+            "verification_profile": args.verification_profile,
             "source_sha": source_sha if not args.package and not args.package_url else None,
             "source_dirty": source_dirty,
             "probe_source_sha": source_sha,

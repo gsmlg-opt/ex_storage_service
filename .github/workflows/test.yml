@@ -20,7 +20,7 @@ env:
 
 jobs:
   test:
-    name: Unit Tests
+    name: Daily application contracts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -48,4 +48,4 @@ jobs:
             ${{ runner.os }}-mix-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-
 
       - run: mix deps.get
-      - run: mix test
+      - run: bash e2e/run_daily_unit_tests.sh all

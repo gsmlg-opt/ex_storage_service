@@ -219,6 +219,36 @@ def recovered(path, key):
     clients[0].put_object(Bucket=state["bucket"], Key=key, Body=b"quorum restored")
 
 
+def primary_failure(path, primary_path):
+    state = load(path)
+    topology = load(primary_path)
+    primary = topology["before"]["primary"]
+    assert primary in ("meta", "data-a", "data-b")
+    assert topology["elected"]["view"] > topology["before"]["view"]
+    clients = [client(endpoint) for endpoint in endpoints()]
+    survivors = clients if primary == "meta" else [clients[1 if primary == "data-a" else 0]]
+    for s3 in survivors:
+        persistent = body(s3.get_object(Bucket=state["bucket"], Key=state["persistent_key"]))
+        assert hashlib.sha256(persistent).hexdigest() == state["persistent_sha256"]
+    key = "recovery/metadata-leader.bin"
+    if primary == "meta":
+        survivors[0].put_object(Bucket=state["bucket"], Key=key, Body=b"quorum restored")
+        for s3 in survivors:
+            assert_get(s3, state["bucket"], key, b"quorum restored")
+    else:
+        try:
+            survivors[0].put_object(Bucket=state["bucket"], Key=key, Body=b"must fail")
+        except ClientError as error:
+            assert error.response["ResponseMetadata"]["HTTPStatusCode"] == 503
+        else:
+            raise AssertionError("strict W=2 write succeeded with a data primary down")
+    state["primary_loss"] = topology
+    save(path, state)
+    print(json.dumps({"primary_stopped": primary, "view_before": topology["before"]["view"],
+        "view_elected": topology["elected"]["view"], "rf": 2, "w": 2,
+        "expected_write_status": 200 if primary == "meta" else 503}), flush=True)
+
+
 def verify_persistence(path):
     state = load(path)
     clients = [client(endpoint) for endpoint in endpoints()]
@@ -245,6 +275,21 @@ def verify_persistence(path):
             version_id,
         )
 
+    if "primary_loss" in state:
+        if state["primary_loss"]["before"]["primary"] != "meta":
+            for s3 in clients:
+                try:
+                    s3.head_object(Bucket=state["bucket"], Key="recovery/metadata-leader.bin")
+                except ClientError as error:
+                    assert error.response["ResponseMetadata"]["HTTPStatusCode"] == 404
+                else:
+                    raise AssertionError("failed strict write became visible after primary rejoin")
+        for index, s3 in enumerate(clients):
+            key = f"recovery/primary-rejoined-{index}.bin"
+            s3.put_object(Bucket=state["bucket"], Key=key, Body=b"strict quorum restored")
+            for peer in clients:
+                assert_get(peer, state["bucket"], key, b"strict quorum restored")
+
     assert_version_head(
         clients[1],
         state["bucket"],
@@ -267,6 +312,7 @@ def main():
         ],
     )
     parser.add_argument("--state-file", required=True)
+    parser.add_argument("--primary-state-file")
     args = parser.parse_args()
 
     if args.phase == "exercise":
@@ -276,7 +322,9 @@ def main():
     elif args.phase == "data-node-recovered":
         recovered(args.state_file, "recovery/data-node.bin")
     elif args.phase == "metadata-leader-failure":
-        recovered(args.state_file, "recovery/metadata-leader.bin")
+        if not args.primary_state_file:
+            parser.error("primary failure requires --primary-state-file")
+        primary_failure(args.state_file, args.primary_state_file)
     else:
         verify_persistence(args.state_file)
 

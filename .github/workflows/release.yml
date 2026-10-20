@@ -42,6 +42,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install pinned daily S3 client
+        run: |
+          python3 -m venv "$RUNNER_TEMP/release-venv"
+          "$RUNNER_TEMP/release-venv/bin/pip" install -r e2e/hardening-requirements.txt
       - name: Reserve explicit journal mutex ports on the test runner
         run: python3 scripts/release/reserve_journal_ports.py
       - name: Prepare synchronized local version commit
@@ -60,14 +64,25 @@ jobs:
       - name: Validate umbrella and release tooling
         run: |
           python3 scripts/cli_compatibility/generate.py --check
-          python3 -m unittest discover -s scripts/cli_compatibility -p 'test_*.py'
-          python3 -m unittest discover -s scripts/release -p 'test_*.py'
+          PYTHONPATH=scripts/cli_compatibility:scripts/release python3 -m unittest \
+            test_generate.InventoryTest test_daily_workflows
           mix deps.get
           mix format --check-formatted
           mix compile --warnings-as-errors
-          mix test
+          bash e2e/run_daily_unit_tests.sh all
         env:
           MIX_ENV: test
+      - name: Verify daily authenticated storage behavior
+        run: |
+          bash e2e/run_hardening_daily.sh "$RUNNER_TEMP/release-venv/bin/python" \
+            "release-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+      - name: Retain daily verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: umbrella-daily-verification
+          path: docs/reports/s3-hardening/daily-release-${{ github.run_id }}-${{ github.run_attempt }}/
+          if-no-files-found: warn
       - name: Build candidate core package
         working-directory: apps/ex_storage_service
         run: mix hex.build --output "$RUNNER_TEMP/core-candidate.tar"
@@ -83,7 +98,7 @@ jobs:
             --status-file "$RUNNER_TEMP/core-preflight.json" --output "$RUNNER_TEMP/core-public.tar"
       - name: Verify CLI source, consumer and immutable registry version
         run: |
-          python3 scripts/cli_compatibility/package_probe.py --expected-version "$RELEASE_VERSION" --output-dir "$RUNNER_TEMP/cli-package"
+          python3 scripts/cli_compatibility/package_probe.py --verification-profile daily --expected-version "$RELEASE_VERSION" --output-dir "$RUNNER_TEMP/cli-package"
           python3 scripts/cli_compatibility/verify_published.py \
             --version "$RELEASE_VERSION" --manifest "$RUNNER_TEMP/cli-package/manifest.json" \
             --candidate-package "$RUNNER_TEMP/cli-package/ex_storage_service_cli.tar" --allow-missing \

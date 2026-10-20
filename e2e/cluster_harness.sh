@@ -116,6 +116,22 @@ stop_node() {
   fi
 }
 
+crash_node() {
+  local id="$1"
+  local pid
+  local args
+  [[ "$root" =~ ^/tmp/ess-s3-hardening-cluster-[a-zA-Z0-9]{8}$ ]] || return 64
+  [[ -d "$root/$id/metadata" && -f "$root/pids/$id" ]] || return 1
+  pid="$(<"$root/pids/$id")"
+  [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" || return 1
+  args="$(ps -p "$pid" -o args=)"
+  [[ "$args" == *beam* && "$args" == *"$(node_name "$id")"* ]] || return 1
+  printf 'crash %s SIGKILL at %s\n' "$id" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    >>"$root/logs/$id.log"
+  kill -9 "$pid"
+  rm "$root/pids/$id"
+}
+
 wait_http() {
   local url="$1"
   local expected="${2:-200}"
@@ -141,6 +157,19 @@ case "${1:-}" in
     wait_http http://127.0.0.1:9001/health
     wait_http http://127.0.0.1:9002/health
     ;;
+  stop-voter|crash-voter|restart-voter)
+    id="${2:?voter ID required}"
+    case "$id" in meta|data-a|data-b) ;; *) exit 64 ;; esac
+    case "$1" in
+      stop-voter) stop_node "$id" ;;
+      crash-voter) crash_node "$id" ;;
+      restart-voter)
+        stop_node "$id"
+        start_node "$id" false
+        if [[ "$id" != meta ]]; then wait_http "http://127.0.0.1:$(s3_port "$id")/health"; fi
+        ;;
+    esac
+    ;;
   stop-all)
     stop_node data-b
     stop_node data-a
@@ -148,6 +177,12 @@ case "${1:-}" in
     ;;
   stop-data-b)
     stop_node data-b
+    ;;
+  crash-data-b)
+    crash_node data-b
+    ;;
+  crash-meta)
+    crash_node meta
     ;;
   restart-data-b)
     stop_node data-b
@@ -166,7 +201,7 @@ case "${1:-}" in
     wait_http http://127.0.0.1:9002/health/ready
     ;;
   *)
-    echo "usage: $0 {start|stop-all|stop-data-b|restart-data-b|stop-meta|restart-meta|wait-ready}" >&2
+    echo "usage: $0 {start|stop-all|stop-data-b|crash-data-b|restart-data-b|stop-meta|crash-meta|restart-meta|wait-ready|stop-voter ID|crash-voter ID|restart-voter ID}" >&2
     exit 64
     ;;
 esac

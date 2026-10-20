@@ -76,6 +76,57 @@ class InstalledCredentialProcessProbeTest(unittest.TestCase):
                     self.assertRaisesRegex(RuntimeError, "did not all pass"):
                 check_installed_credential_process(Path("ess"), Path.cwd(), {}, [{"stderr": ""}])
 
+    def daily_evidence(self):
+        return dict(self.evidence(), verification_profile="daily", total=1,
+                    checks=["literal-argv", "typed-credentials", "stderr-discard", "record-redaction"])
+
+    def test_daily_selects_normal_installed_helper_and_records_its_actual_scope(self):
+        evidence = self.daily_evidence()
+        installed = Path("/fixture space/installed ess")
+        with patch("package_probe.run", return_value=self.output(evidence)) as runner:
+            self.assertEqual(evidence, check_installed_credential_process(
+                installed, Path("/unrelated"), {}, [{"stderr": ""}], "daily"))
+        argv = runner.call_args.args[0]
+        self.assertEqual("elixir", argv[0])
+        self.assertTrue(argv[1].endswith("/credential_process_probe.exs"))
+        self.assertEqual(str(installed), argv[2])
+        self.assertEqual("daily", argv[-1])
+
+    def test_daily_rejects_extended_receipts_and_wrong_normal_scope(self):
+        cases = [self.evidence(), dict(self.daily_evidence(), verification_profile="extended"),
+                 dict(self.daily_evidence(), total=11), dict(self.daily_evidence(), total=0)]
+        for evidence in cases:
+            with self.subTest(evidence=evidence), \
+                    patch("package_probe.run", return_value=self.output(evidence)), \
+                    self.assertRaisesRegex(RuntimeError, "daily scope differs"):
+                check_installed_credential_process(Path("ess"), Path.cwd(), {}, [{"stderr": ""}], "daily")
+
+    def test_daily_requires_every_normal_check_and_no_failed_or_unexecuted_checks(self):
+        for change in ({"failures": 1}, {"skipped": 1}, {"excluded": 1},
+                       {"checks": ["literal-argv"]}, {"module_source": "checkout"},
+                       {"os": "unverified"}):
+            evidence = dict(self.daily_evidence(), **change)
+            with self.subTest(change=change), patch("package_probe.run", return_value=self.output(evidence)), \
+                    self.assertRaisesRegex(RuntimeError, "did not all pass"):
+                check_installed_credential_process(Path("ess"), Path.cwd(), {}, [{"stderr": ""}], "daily")
+
+    def test_daily_fixture_stderr_must_still_be_discarded(self):
+        evidence = self.daily_evidence()
+        with patch("package_probe.run", return_value=self.output(evidence)), \
+                self.assertRaisesRegex(RuntimeError, "leaked fixture diagnostics"):
+            check_installed_credential_process(Path("ess"), Path.cwd(), {},
+                                               [{"stderr": "stderr-secret"}], "daily")
+
+    def test_extended_cannot_accept_daily_receipt(self):
+        with patch("package_probe.run", return_value=self.output(self.daily_evidence())), \
+                self.assertRaisesRegex(RuntimeError, "did not all pass"):
+            check_installed_credential_process(Path("ess"), Path.cwd(), {}, [{"stderr": ""}])
+
+    def test_unknown_profile_cannot_launch_the_artifact(self):
+        with patch("package_probe.run") as runner, self.assertRaisesRegex(ValueError, "Unknown"):
+            check_installed_credential_process(Path("ess"), Path.cwd(), {}, [], "invalid")
+        runner.assert_not_called()
+
 
 class EscriptApplicationBoundaryTest(unittest.TestCase):
     def archive(self, extra, exclude=(), license_bytes=ESS_LICENSE):

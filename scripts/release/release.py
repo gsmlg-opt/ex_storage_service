@@ -211,6 +211,25 @@ def smoke(image, version, source, path):
             raise RuntimeError("Image build identity differs from the validated source")
         if not re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ", build["build_time"]):
             raise RuntimeError("Image has no UTC build-start timestamp")
+        # Exercise supported read-only operator RPCs in the actual runtime image.
+        expression = (
+            'capacity = ExStorageService.Operations.Capacity.snapshot(); '
+            'true = capacity.complete; '
+            'for source <- [:hosted, :gateway_write, :gateway_delete] do '
+            '{:ok, nil} = ExStorageService.Operations.OperationStatus.get(source, "release-smoke-absent") end; '
+            '{:error, :not_found} = ExStorageService.Metadata.JobStore.get("release-smoke-absent"); '
+            '{:error, :bucket_not_found} = ExStorageService.Operations.ListingIndex.status("release-smoke-absent"); '
+            '{:ok, context} = ExStorageService.Context.default(); '
+            '{:ok, recovery} = ExStorageService.Storage.StagingRecovery.new('
+            'ExStorageService.Context.blob_store_options(context)); '
+            '%{port: nil, candidate: nil} = ExStorageService.Storage.StagingRecovery.close(recovery); '
+            'IO.puts("ESS_OPERATOR_DIAGNOSTICS:" <> JSON.encode!(%{capacity: capacity, '
+            'operation_namespaces: 3, missing_job: :not_found, missing_index: :bucket_not_found, '
+            'staging_cursor: :opened_and_closed}))')
+        result = subprocess.check_output(["docker", "exec", name, "/app/bin/ess", "rpc",
+                                          expression], text=True)
+        line = next(line for line in result.splitlines() if line.startswith("ESS_OPERATOR_DIAGNOSTICS:"))
+        metadata["operator_diagnostics"] = json.loads(line.removeprefix("ESS_OPERATOR_DIAGNOSTICS:"))
         path.write_text(json.dumps(metadata, indent=2) + "\n")
     finally:
         subprocess.run(["docker", "rm", "--force", "--volumes", name], check=True)
