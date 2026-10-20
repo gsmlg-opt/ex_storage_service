@@ -1,0 +1,701 @@
+{
+  "version": "0.6.10",
+  "status": "passed",
+  "profile": "daily",
+  "checked_at": "2026-10-20T06:40:09.976252+00:00",
+  "release_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.10",
+  "published_at": "2026-10-20T06:36:33Z",
+  "workflow": {
+    "conclusion": "success",
+    "jobs": [
+      {
+        "conclusion": "success",
+        "name": "Validate all candidates before publication",
+        "status": "completed",
+        "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39376926215/job/118477048615"
+      },
+      {
+        "conclusion": "success",
+        "name": "publish-core / publish",
+        "status": "completed",
+        "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39376926215/job/118484218578"
+      },
+      {
+        "conclusion": "success",
+        "name": "publish-cli / Publish ess v0.6.10",
+        "status": "completed",
+        "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39376926215/job/118484218682"
+      },
+      {
+        "conclusion": "success",
+        "name": "Finalize canonical release after both public consumers pass",
+        "status": "completed",
+        "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39376926215/job/118490901307"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39376926215"
+  },
+  "source_identity": {
+    "status": "passed",
+    "source_sha": "4077715a93d9a3c58893110d7e8522e80810587a",
+    "release_sha": "9fcf1988b15d83461a99f65be4521e6f5b1bb63a",
+    "canonical_tag": "v0.6.10",
+    "version_only_paths": [
+      "apps/ex_storage_service/mix.exs",
+      "apps/ex_storage_service_cli/mix.exs",
+      "apps/ex_storage_service_cluster/mix.exs",
+      "apps/ex_storage_service_s3/mix.exs",
+      "apps/ex_storage_service_web/mix.exs",
+      "mix.exs"
+    ],
+    "component_versions": {
+      "mix.exs": "0.6.10",
+      "apps/ex_storage_service/mix.exs": "0.6.10",
+      "apps/ex_storage_service_cluster/mix.exs": "0.6.10",
+      "apps/ex_storage_service_cli/mix.exs": "0.6.10",
+      "apps/ex_storage_service_s3/mix.exs": "0.6.10",
+      "apps/ex_storage_service_web/mix.exs": "0.6.10"
+    }
+  },
+  "daily_receipt": "s3-release-0.6.10-daily.json",
+  "github_assets": {
+    "status": "passed",
+    "release_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.10",
+    "tag": "v0.6.10",
+    "latest_stable": true,
+    "published_at": "2026-10-20T06:36:33Z",
+    "anonymous": true,
+    "asset_count": 21,
+    "checksum_payload_count": 20,
+    "assets": [
+      {
+        "name": "build-manifest.json",
+        "bytes": 1475,
+        "sha256": "30227df7b81ca93abb37af493d4483bd82d0e260b98a733513586249fb17b218",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/build-manifest.json"
+      },
+      {
+        "name": "cli-preflight.json",
+        "bytes": 132,
+        "sha256": "e623c83946c5598b88b8fa4b0e02ca75eb4b090277cb5c3f5d8edecfb71037ae",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/cli-preflight.json"
+      },
+      {
+        "name": "cli-source.json",
+        "bytes": 87,
+        "sha256": "06ea2658b30676b9ef01ed52a8c93970ebfa58274af93afc4b5ceffa27ab109f",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/cli-source.json"
+      },
+      {
+        "name": "core-manifest.json",
+        "bytes": 298,
+        "sha256": "fa6790c99834362bbc5dcf3b9b3480c3ef2035048bbd02b0a7b48a196f3f9673",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/core-manifest.json"
+      },
+      {
+        "name": "core-preflight.json",
+        "bytes": 128,
+        "sha256": "827343e25e58a58b2bc5209008717decf55820beeacbb4bc4699a5a3315634ac",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/core-preflight.json"
+      },
+      {
+        "name": "core-public-consumer.json",
+        "bytes": 135,
+        "sha256": "2faf1c3fa4c276a829ec95cd5899e68bab172ddeccf53398f71f6fbc858f3782",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/core-public-consumer.json"
+      },
+      {
+        "name": "core-registry.json",
+        "bytes": 222,
+        "sha256": "27b7e9f0c7dbe03176a42ab9a79c692d6d82663ab7c390518c074a18827bbcce",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/core-registry.json"
+      },
+      {
+        "name": "core-source.json",
+        "bytes": 87,
+        "sha256": "06ea2658b30676b9ef01ed52a8c93970ebfa58274af93afc4b5ceffa27ab109f",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/core-source.json"
+      },
+      {
+        "name": "coverage.md",
+        "bytes": 2384,
+        "sha256": "82fd5fb22d2c5aca4123f3d0ec388a3815b8c93dd1c588126527ceeeaad353ee",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/coverage.md"
+      },
+      {
+        "name": "ess-linux-x86_64-otp28",
+        "bytes": 5744512,
+        "sha256": "28d3bc8439fa6823c51da933581e32944fd34e746f32d7b96212f1dc47415446",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/ess-linux-x86_64-otp28"
+      },
+      {
+        "name": "image-smoke.json",
+        "bytes": 1188,
+        "sha256": "8044fd41daad0df3c2461998e9e3f584ce5a9b80f8597beb159a7d25f94ad849",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/image-smoke.json"
+      },
+      {
+        "name": "LICENSE",
+        "bytes": 1062,
+        "sha256": "3606f558b2fc73212f135f28a5aee912e041210de168b7fe5f11a1c0613c54bb",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/LICENSE"
+      },
+      {
+        "name": "milestone-acceptance-status.md",
+        "bytes": 16710,
+        "sha256": "f7c2d80525531f6f10d5136c406d0f6822f7f6821600681abaf80191206c444b",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/milestone-acceptance-status.md"
+      },
+      {
+        "name": "published-consumer.json",
+        "bytes": 1461,
+        "sha256": "57264a175de12d28ade424c4140976cd56535a563ab7bc7fe4c4d60f5f9f5709",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/published-consumer.json"
+      },
+      {
+        "name": "published-image.json",
+        "bytes": 112,
+        "sha256": "f13983ed93e426692d67aa68d6568922c649c8f8c55dead3199548011e28104b",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/published-image.json"
+      },
+      {
+        "name": "README.md",
+        "bytes": 16353,
+        "sha256": "87da053723026666d59c7063925bda964158d9a640c3552d7f2e718fbcc8bacf",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/README.md"
+      },
+      {
+        "name": "reference-lock.json",
+        "bytes": 96034,
+        "sha256": "539328ea207f7129d9490948639139469e28d56120f836b095b9aef66d637ffd",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/reference-lock.json"
+      },
+      {
+        "name": "registry-verification.json",
+        "bytes": 226,
+        "sha256": "fc7cf2fe22132e386666f678ed16709bfe6a2ca52fb68d81c3d989d75aaf557a",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/registry-verification.json"
+      },
+      {
+        "name": "release-notes.md",
+        "bytes": 10653,
+        "sha256": "54d68efb74042d1da0ec7d873f81ab77036a431af7ac78ec998766c26b17a519",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/release-notes.md"
+      },
+      {
+        "name": "release-provenance.json",
+        "bytes": 485,
+        "sha256": "990a31abf485a6d8611a9b1b2ab44a8e1dd2a39211dc026fa7506d53000c60d2",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/release-provenance.json"
+      },
+      {
+        "name": "SHA256SUMS",
+        "bytes": 1710,
+        "sha256": "b186b85585db03a1c04a551acd5de40b18f252e68b00e1e662100672cac0c575",
+        "anonymous_url": "https://github.com/gsmlg-opt/ex_storage_service/releases/download/v0.6.10/SHA256SUMS"
+      }
+    ]
+  },
+  "core": {
+    "audit": {
+      "checked_at": "2026-10-20T06:37:31.476973+00:00",
+      "status": "passed",
+      "public_core_source": {
+        "status": "passed",
+        "canonical_source": "9fcf1988b15d83461a99f65be4521e6f5b1bb63a",
+        "source_files_compared": 133,
+        "outer_sha256": "09ac9e772b3de97da4ccfc3be1b47d671811034b43b163ede71ff98012e97320",
+        "hex_inner_checksum": "992fa316d78f61c945a8835bf04e3ff19ff2ea56295e803d252f2125434dc6a8",
+        "hex_api_outer_checksum_match": true,
+        "candidate_manifest_binding": "passed"
+      },
+      "fresh_core_consumer": {
+        "status": "passed",
+        "commands": 3,
+        "strict_compile": true,
+        "engine_loaded": true,
+        "web_server_dependency_absent": true,
+        "version": "0.6.10",
+        "path": "/tmp/ess-v0610-public-core-audit/public-consumer"
+      },
+      "hex_surfaces": {
+        "status": "passed",
+        "checks": 8,
+        "both_latest_fields": "0.6.10"
+      },
+      "owned_processes": [],
+      "repository_edits": "none",
+      "producer_candidate_manifest": "passed",
+      "producer_binding_receipt": "/tmp/ess-v0610-public-core-audit/producer-binding.json"
+    },
+    "producer_binding": {
+      "status": "passed",
+      "checked_at": "2026-10-20T06:37:31.476973+00:00",
+      "producer_manifest_path": "/tmp/ess-v0610-core-workflow-assets/core-manifest.json",
+      "comparisons": {
+        "version": {
+          "producer": "0.6.10",
+          "independent": "0.6.10",
+          "match": true
+        },
+        "source_sha": {
+          "producer": "9fcf1988b15d83461a99f65be4521e6f5b1bb63a",
+          "independent": "9fcf1988b15d83461a99f65be4521e6f5b1bb63a",
+          "match": true
+        },
+        "hex_inner_checksum": {
+          "producer": "992fa316d78f61c945a8835bf04e3ff19ff2ea56295e803d252f2125434dc6a8",
+          "independent": "992fa316d78f61c945a8835bf04e3ff19ff2ea56295e803d252f2125434dc6a8",
+          "match": true
+        },
+        "package_sha256": {
+          "producer": "09ac9e772b3de97da4ccfc3be1b47d671811034b43b163ede71ff98012e97320",
+          "independent": "09ac9e772b3de97da4ccfc3be1b47d671811034b43b163ede71ff98012e97320",
+          "match": true
+        },
+        "source_files_compared": {
+          "producer": 133,
+          "independent": 133,
+          "match": true
+        }
+      }
+    },
+    "candidate_manifest": {
+      "version": "0.6.10",
+      "source_sha": "9fcf1988b15d83461a99f65be4521e6f5b1bb63a",
+      "hex_inner_checksum": "992fa316d78f61c945a8835bf04e3ff19ff2ea56295e803d252f2125434dc6a8",
+      "package_sha256": "09ac9e772b3de97da4ccfc3be1b47d671811034b43b163ede71ff98012e97320",
+      "source_files_compared": 133
+    },
+    "public_consumer": {
+      "version": "0.6.10",
+      "hex_inner_checksum": "992fa316d78f61c945a8835bf04e3ff19ff2ea56295e803d252f2125434dc6a8",
+      "commands": 3
+    },
+    "public_consumer_dependencies": {
+      "context": "fresh published core consumer independent resolution",
+      "umbrella_http_fetch": "0.21.13",
+      "resolved": {
+        "concord": "3.1.3",
+        "viewstamped_replication": "3.1.3",
+        "ex_turso": "3.1.3",
+        "http_fetch": "0.21.14",
+        "http_core": "0.21.14",
+        "http_runtime": "0.21.14",
+        "elixir_quic": "0.21.14",
+        "elixir_quic_http3": "0.21.14",
+        "ex_ssl": "0.21.14"
+      }
+    }
+  },
+  "cli": {
+    "candidate": {
+      "version": "0.6.10",
+      "verification_profile": "daily",
+      "source_sha": "9fcf1988b15d83461a99f65be4521e6f5b1bb63a",
+      "source_dirty": false,
+      "probe_source_sha": "9fcf1988b15d83461a99f65be4521e6f5b1bb63a",
+      "package_sha256": "101f2f3541ecfa6af2e0e387def41dfa1e6c5cae7fa2aa49c71c02460ef1b2e3",
+      "hex_inner_checksum": "1eaba75b0910826e793c4930d62798f37e87616706788cef42e0e3626bd20a90",
+      "escript_sha256": "28d3bc8439fa6823c51da933581e32944fd34e746f32d7b96212f1dc47415446",
+      "escript_entries": 1354,
+      "os": "Linux",
+      "architecture": "x86_64",
+      "runtime": "Erlang/OTP 28 [erts-16.4.0.7] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]\n\nElixir 1.19.6 (compiled with Erlang/OTP 28)",
+      "package_source": "local-source-tar",
+      "credential_process": {
+        "total": 1,
+        "os": "linux",
+        "otp": "28",
+        "verification_profile": "daily",
+        "module_source": "installed-escript",
+        "architecture": "x86_64-pc-linux-gnu",
+        "failures": 0,
+        "skipped": 0,
+        "excluded": 0,
+        "checks": [
+          "literal-argv",
+          "typed-credentials",
+          "stderr-discard",
+          "record-redaction"
+        ]
+      },
+      "checks": [
+        "source-assets",
+        "published-dependencies",
+        "strict-compile",
+        "escript-assets",
+        "local-install",
+        "source-independent-runtime",
+        "model-skeleton",
+        "actual-http-unicode",
+        "actual-http-binary-stdout",
+        "hex-payload-integrity",
+        "installed-credential-process",
+        "installed-pager-pty"
+      ]
+    },
+    "independent_public_package_consumer": {
+      "status": "passed",
+      "exit_status": 0,
+      "manifest": {
+        "version": "0.6.10",
+        "verification_profile": "daily",
+        "source_sha": null,
+        "source_dirty": true,
+        "probe_source_sha": "9fcf1988b15d83461a99f65be4521e6f5b1bb63a",
+        "package_sha256": "101f2f3541ecfa6af2e0e387def41dfa1e6c5cae7fa2aa49c71c02460ef1b2e3",
+        "hex_inner_checksum": "1eaba75b0910826e793c4930d62798f37e87616706788cef42e0e3626bd20a90",
+        "escript_sha256": "daea70c0e63cf64fe522649107b5c5700c0823ae6d8692245ad0919c55aacd26",
+        "escript_entries": 1355,
+        "os": "Linux",
+        "architecture": "x86_64",
+        "runtime": "Erlang/OTP 28 [erts-16.4.0.5] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.18.5 (compiled with Erlang/OTP 28)",
+        "package_source": "https://repo.hex.pm/tarballs/ex_storage_service_cli-0.6.10.tar",
+        "credential_process": {
+          "total": 1,
+          "os": "linux",
+          "otp": "28",
+          "verification_profile": "daily",
+          "module_source": "installed-escript",
+          "architecture": "x86_64-pc-linux-gnu",
+          "failures": 0,
+          "skipped": 0,
+          "excluded": 0,
+          "checks": [
+            "literal-argv",
+            "typed-credentials",
+            "stderr-discard",
+            "record-redaction"
+          ]
+        },
+        "checks": [
+          "source-assets",
+          "published-dependencies",
+          "strict-compile",
+          "escript-assets",
+          "local-install",
+          "source-independent-runtime",
+          "model-skeleton",
+          "actual-http-unicode",
+          "actual-http-binary-stdout",
+          "hex-payload-integrity",
+          "installed-credential-process",
+          "installed-pager-pty"
+        ]
+      }
+    },
+    "download_candidate_binding": {
+      "status": "passed",
+      "asset": "/tmp/ess-v0610-public-assets/ess-linux-x86_64-otp28",
+      "bytes": 5744512,
+      "sha256": "28d3bc8439fa6823c51da933581e32944fd34e746f32d7b96212f1dc47415446",
+      "candidate_and_api_digest_match": true
+    },
+    "download_runtime": {
+      "asset": "/tmp/ess-v0610-public-assets/ess-linux-x86_64-otp28",
+      "sha256": "28d3bc8439fa6823c51da933581e32944fd34e746f32d7b96212f1dc47415446",
+      "version": "0.6.10",
+      "profile": "daily",
+      "checks": [
+        "embedded-assets-and-application-boundary",
+        "downloaded-version",
+        "model-help-and-skeleton",
+        "daily-installed-credential-process",
+        "small-real-http-unicode",
+        "small-real-http-binary",
+        "normal-installed-pager-pty"
+      ],
+      "status": "passed",
+      "escript_entries": 1354,
+      "credential_process": {
+        "total": 1,
+        "os": "linux",
+        "otp": "28",
+        "verification_profile": "daily",
+        "module_source": "installed-escript",
+        "architecture": "x86_64-pc-linux-gnu",
+        "failures": 0,
+        "skipped": 0,
+        "excluded": 0,
+        "checks": [
+          "literal-argv",
+          "typed-credentials",
+          "stderr-discard",
+          "record-redaction"
+        ]
+      },
+      "http_fixture_stopped": true,
+      "runtime": "Erlang/OTP 28 [erts-16.4.0.5] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.18.5 (compiled with Erlang/OTP 28)"
+    },
+    "fresh_public_consumer_http_fetch": "0.21.14"
+  },
+  "public_hex_surfaces": {
+    "checked_at": "2026-10-20T06:30:04.260297+00:00",
+    "results": [
+      {
+        "package": "ex_storage_service",
+        "kind": "index",
+        "url": "https://hex.pm/api/packages/ex_storage_service",
+        "attempts": [
+          {
+            "attempt": 1,
+            "http_status": 200
+          }
+        ],
+        "status": "passed",
+        "http_status": 200,
+        "final_url": "https://hex.pm/api/packages/ex_storage_service?ess_audit=1792477796",
+        "bytes": 2437,
+        "version_present": true
+      },
+      {
+        "package": "ex_storage_service",
+        "kind": "release",
+        "url": "https://hex.pm/api/packages/ex_storage_service/releases/0.6.10",
+        "attempts": [
+          {
+            "attempt": 1,
+            "http_status": 200
+          }
+        ],
+        "status": "passed",
+        "http_status": 200,
+        "final_url": "https://hex.pm/api/packages/ex_storage_service/releases/0.6.10?ess_audit=1792477796",
+        "bytes": 1404,
+        "version": "0.6.10",
+        "checksum": "09ac9e772b3de97da4ccfc3be1b47d671811034b43b163ede71ff98012e97320",
+        "docs": true
+      },
+      {
+        "package": "ex_storage_service",
+        "kind": "docs",
+        "url": "https://hexdocs.pm/ex_storage_service/0.6.10/index.html",
+        "attempts": [
+          {
+            "attempt": 1,
+            "http_status": 200
+          }
+        ],
+        "status": "passed",
+        "http_status": 200,
+        "final_url": "https://ex-storage-service.hexdocs.pm/0.6.10/index.html?ess_audit=1792477796",
+        "bytes": 577,
+        "title": "ex_storage_service v0.6.10 — Documentation",
+        "version_present": true
+      },
+      {
+        "package": "ex_storage_service",
+        "kind": "docs-api",
+        "url": "https://hexdocs.pm/ex_storage_service/0.6.10/api-reference.html",
+        "attempts": [
+          {
+            "attempt": 1,
+            "http_status": 200
+          }
+        ],
+        "status": "passed",
+        "http_status": 200,
+        "final_url": "https://ex-storage-service.hexdocs.pm/0.6.10/api-reference.html?ess_audit=1792477796",
+        "bytes": 46332,
+        "title": "API Reference — ex_storage_service v0.6.10",
+        "version_present": true
+      },
+      {
+        "package": "ex_storage_service_cli",
+        "kind": "index",
+        "url": "https://hex.pm/api/packages/ex_storage_service_cli",
+        "attempts": [
+          {
+            "attempt": 1,
+            "http_status": 200
+          }
+        ],
+        "status": "passed",
+        "http_status": 200,
+        "final_url": "https://hex.pm/api/packages/ex_storage_service_cli?ess_audit=1792477796",
+        "bytes": 5118,
+        "version_present": true
+      },
+      {
+        "package": "ex_storage_service_cli",
+        "kind": "release",
+        "url": "https://hex.pm/api/packages/ex_storage_service_cli/releases/0.6.10",
+        "attempts": [
+          {
+            "attempt": 1,
+            "http_status": 200
+          }
+        ],
+        "status": "passed",
+        "http_status": 200,
+        "final_url": "https://hex.pm/api/packages/ex_storage_service_cli/releases/0.6.10?ess_audit=1792477796",
+        "bytes": 1146,
+        "version": "0.6.10",
+        "checksum": "101f2f3541ecfa6af2e0e387def41dfa1e6c5cae7fa2aa49c71c02460ef1b2e3",
+        "docs": true
+      },
+      {
+        "package": "ex_storage_service_cli",
+        "kind": "docs",
+        "url": "https://hexdocs.pm/ex_storage_service_cli/0.6.10/index.html",
+        "attempts": [
+          {
+            "attempt": 1,
+            "http_status": 200
+          }
+        ],
+        "status": "passed",
+        "http_status": 200,
+        "final_url": "https://ex-storage-service-cli.hexdocs.pm/0.6.10/index.html?ess_audit=1792477796",
+        "bytes": 581,
+        "title": "ex_storage_service_cli v0.6.10 — Documentation",
+        "version_present": true
+      },
+      {
+        "package": "ex_storage_service_cli",
+        "kind": "docs-api",
+        "url": "https://hexdocs.pm/ex_storage_service_cli/0.6.10/api-reference.html",
+        "attempts": [
+          {
+            "attempt": 1,
+            "http_status": 200
+          }
+        ],
+        "status": "passed",
+        "http_status": 200,
+        "final_url": "https://ex-storage-service-cli.hexdocs.pm/0.6.10/api-reference.html?ess_audit=1792477796",
+        "bytes": 51064,
+        "title": "API Reference — ex_storage_service_cli v0.6.10",
+        "version_present": true
+      }
+    ]
+  },
+  "hex_latest_versions": {
+    "status": "passed",
+    "versions": {
+      "ex_storage_service": {
+        "latest_version": "0.6.10",
+        "latest_stable_version": "0.6.10"
+      },
+      "ex_storage_service_cli": {
+        "latest_version": "0.6.10",
+        "latest_stable_version": "0.6.10"
+      }
+    }
+  },
+  "runtime": {
+    "summary": {
+      "status": "passed",
+      "release": "https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.10",
+      "image": "ghcr.io/gsmlg-dev/ess@sha256:c5a4596ca71fd13ed8d6912f203694b074bd9c769adde60ce0b3ab2a1ead9c09",
+      "image_version_and_latest_equal": true,
+      "image_receipt": "/tmp/ess-v0610-public-runtime-audit/image-public-runtime.json",
+      "cli_receipt": "/tmp/ess-v0610-public-runtime-audit/cli-runtime.json",
+      "cli_sha256": "28d3bc8439fa6823c51da933581e32944fd34e746f32d7b96212f1dc47415446",
+      "cli_check_groups": 7,
+      "credential_helper_profile": "daily",
+      "owned_http_fixture_stopped": true,
+      "native_and_pager_temporary_files_clean": true,
+      "owned_image_container_removed": true,
+      "builds_or_installations_executed": false
+    },
+    "image": {
+      "status": "passed",
+      "image": "ghcr.io/gsmlg-dev/ess@sha256:c5a4596ca71fd13ed8d6912f203694b074bd9c769adde60ce0b3ab2a1ead9c09",
+      "version_digest": "sha256:c5a4596ca71fd13ed8d6912f203694b074bd9c769adde60ce0b3ab2a1ead9c09",
+      "labels": {
+        "org.opencontainers.image.created": "2026-10-20T06:02:49Z",
+        "org.opencontainers.image.revision": "4077715a93d9a3c58893110d7e8522e80810587a",
+        "org.opencontainers.image.source": "https://github.com/gsmlg-opt/ex_storage_service",
+        "org.opencontainers.image.version": "0.6.10"
+      },
+      "runtime_receipt": "/tmp/ess-v0610-public-runtime-audit/image-smoke.json",
+      "owned_container_id": "a03dc1653f43cb889fa667c3bf66d2952c13e5eb7b337c4b4d694838a7a44e86",
+      "owned_container_removed": true,
+      "container_network": "none",
+      "host_port_bindings": false,
+      "host_bind_mounts": false,
+      "latest_status": "passed",
+      "latest_digest": "sha256:c5a4596ca71fd13ed8d6912f203694b074bd9c769adde60ce0b3ab2a1ead9c09",
+      "final_registry_checks": "anonymous-public-pull-token"
+    },
+    "image_smoke": {
+      "build": {
+        "version": "0.6.10",
+        "environment": "prod",
+        "git_ref": "v0.6.10",
+        "git_sha": "4077715a93d9a3c58893110d7e8522e80810587a",
+        "build_time": "2026-10-20T06:02:49Z"
+      },
+      "versions": {
+        "ex_storage_service": "0.6.10",
+        "ex_storage_service_cluster": "0.6.10",
+        "ex_storage_service_s3": "0.6.10",
+        "ex_storage_service_web": "0.6.10"
+      },
+      "operator_diagnostics": {
+        "capacity": {
+          "complete": true,
+          "roots": {
+            "metadata": {
+              "complete": true,
+              "total_bytes": 983349346304,
+              "available_bytes": 461745418240
+            },
+            "blob": {
+              "complete": true,
+              "total_bytes": 983349346304,
+              "available_bytes": 461745418240
+            },
+            "tmp": {
+              "complete": true,
+              "total_bytes": 983349346304,
+              "available_bytes": 461745418240
+            }
+          },
+          "staging": {
+            "limit": 1024,
+            "tracked_bytes": 0,
+            "tracked_files": 0,
+            "complete_since_setup": true
+          }
+        },
+        "operation_namespaces": 3,
+        "missing_job": "not_found",
+        "missing_index": "bucket_not_found",
+        "staging_cursor": "opened_and_closed"
+      }
+    },
+    "version_registry": {
+      "status": "reused",
+      "digest": "sha256:c5a4596ca71fd13ed8d6912f203694b074bd9c769adde60ce0b3ab2a1ead9c09"
+    },
+    "latest_registry": {
+      "status": "reused",
+      "digest": "sha256:c5a4596ca71fd13ed8d6912f203694b074bd9c769adde60ce0b3ab2a1ead9c09"
+    }
+  },
+  "scope": {
+    "extended_profiles_executed": false,
+    "historical_passed_scenarios": 35,
+    "historical_total_scenarios": 38,
+    "historical_unpassed_scenarios": [
+      "A28",
+      "A30",
+      "A38"
+    ],
+    "historical_matrix_certifies_current_source": false,
+    "production_deployment": false,
+    "production_data_operations": false
+  },
+  "release_notes": {
+    "status": "passed",
+    "url": "https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.10",
+    "body_sha256": "9912228238833eb343b7d7579f3baae01fde78fa2b045055700bee811850f163",
+    "checked_at": "2026-10-20T06:42:48.075750+00:00",
+    "exact_content_match_ignoring_crlf_and_terminal_whitespace": true,
+    "documents_daily_scope_and_historical_unpassed_scenarios": true
+  }
+}

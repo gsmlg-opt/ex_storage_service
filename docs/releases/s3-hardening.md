@@ -1,9 +1,12 @@
 # v0.6.10 — S3 compatibility and daily-use hardening
 
-Publication is pending completion of the canonical GitHub `release.yml` workflow
-and verification of its published artifacts. This patch follows v0.6.9 and
-includes the ESS-S3-HARDENING-001 implementation under the user-authorized
-daily-use verification scope.
+Published [v0.6.10](https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.10)
+on 2026-10-20 through the canonical GitHub `release.yml` workflow. Both Hex
+packages, all 21 GitHub assets and the server image passed independent public
+verification. This patch follows v0.6.9 and includes the ESS-S3-HARDENING-001
+implementation under the user-authorized daily-use verification scope. See the
+[release verification report](../reports/s3-release-0.6.10.md) for source identity,
+checksums, actual artifact execution and cleanup.
 
 ## Changes
 
@@ -35,7 +38,8 @@ The sequential standalone Boto3 profile passed **14 of 14 groups** with small
 fixtures, real SigV4 authentication and default SDK request/response checksums.
 It covers bucket/object operations, metadata and tags, ranges, listings, copy,
 presigned requests, CORS, multipart and versions. The largest multipart part is
-5 MiB. See the [daily verification record](../reports/s3-hardening/daily-20261020-normal-r3/SUMMARY.md)
+5 MiB. The canonical release also passes 40 daily application tests. See the
+[release daily verification record](../reports/s3-release-0.6.10-daily.json)
 for the exact source fingerprint, command, results and cleanup evidence.
 
 Scale, stress, high concurrency, extreme/fault/crash and multi-GiB profiles are

@@ -744,7 +744,12 @@ assets under `v0.6.10`. Only this workflow updates the image's version and `late
 tags. Existing Hex versions are reused only when their verified payload exactly
 matches the candidate. The earlier `cli-v0.6.8` release remains available for
 historical download links; future releases use only `v<version>`.
-[Verified v0.6.9](https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.9)
+[Verified v0.6.10](https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.10)
+includes the S3 daily-use hardening, both Hex packages, server image and CLI
+assets. Daily tests, public package installation, downloaded CLI execution and
+image verification are recorded in the
+[v0.6.10 release report](docs/reports/s3-release-0.6.10.md).
+[Historical v0.6.9](https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.9)
 includes both Hex packages, the server image and CLI assets; exact source,
 checksums and public runtime evidence are in the
 [release verification report](docs/cli/compatibility/release-verification.md).
