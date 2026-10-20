@@ -20,6 +20,18 @@ the same runner with `--extended` for the entire CLI suite; existing cluster and
 large-stream tags remain in dedicated heavy lanes. Publication requires a
 successful extended workflow for the exact candidate through `acceptance_run_id`.
 
+Hosted correctness and extended lanes use Ubuntu 24.04 and the shared
+`e2e/scripts/ci_isolation.py` prerequisite. It installs `apparmor-profiles` and
+loads Ubuntu's packaged `bwrap-userns-restrict` profile; global user-namespace
+restrictions remain unchanged. Only package installation and profile loading use
+privilege to configure the runner; system diagnostics are read-only. The profile
+must match the reviewed Noble ABI4 checksum. A normal runner process must prove a private 8 MiB tmpfs, mount/device
+separation, correct private bytes and unchanged host contents before workloads
+start. Package/profile identities, existing namespace policy and failure
+diagnostics are retained as artifacts. The subsequent BEAM/Port namespace test
+remains required. Local runners must already support these namespaces; the
+privileged setup refuses non-hosted machines and other distributions.
+
 ## Retained daily-use profile
 
 The lightweight daily profile is a sequential standalone Boto3 exercise of

@@ -1,0 +1,6 @@
+...isolation prerequisite failed: Command '['bwrap']' returned non-zero exit status 1.
+...
+----------------------------------------------------------------------
+Ran 6 tests in 0.006s
+
+OK

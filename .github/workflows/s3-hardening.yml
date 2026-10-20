@@ -76,7 +76,7 @@ jobs:
   extended-lane:
     name: Extended audit / ${{ matrix.profile }}
     if: github.event_name == 'workflow_dispatch' && inputs.extended
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 240
     strategy:
       fail-fast: false
@@ -107,8 +107,7 @@ jobs:
           key: ${{ runner.os }}-hardening-${{ matrix.profile }}-${{ hashFiles('mix.lock') }}
       - name: Install harness prerequisites
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes zsh bubblewrap
+          python3 e2e/scripts/ci_isolation.py --output 'docs/reports/s3-hardening/ci-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.profile }}-isolation'
           python3 -m venv "$RUNNER_TEMP/hardening-venv"
           "$RUNNER_TEMP/hardening-venv/bin/pip" install -r e2e/hardening-requirements.txt
           python3 scripts/release/reserve_journal_ports.py

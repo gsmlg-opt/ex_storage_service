@@ -1,0 +1,32 @@
+{
+  "uid": 1000,
+  "namespace": "mnt:[4026533196]",
+  "device": 96,
+  "capacity": 8388608,
+  "bytes": 1048576,
+  "sha256": "8f990ba0b577b51cf009ea049368c16bbda1b21e1b93be07a824758bb253c39b",
+  "host": {
+    "uid": 1000,
+    "namespace": "mnt:[4026531832]",
+    "device": 66308
+  },
+  "command": [
+    "bwrap",
+    "--die-with-parent",
+    "--ro-bind",
+    "/",
+    "/",
+    "--dev",
+    "/dev",
+    "--proc",
+    "/proc",
+    "--bind",
+    "/tmp/ess-ci-isolation-smoke-sqwai5k9",
+    "/tmp/ess-ci-isolation-smoke-sqwai5k9",
+    "--size",
+    "8388608",
+    "--tmpfs",
+    "/tmp/ess-ci-isolation-smoke-sqwai5k9/tmp",
+    "/tmp/ess-s3-hardening-python/bin/python"
+  ]
+}

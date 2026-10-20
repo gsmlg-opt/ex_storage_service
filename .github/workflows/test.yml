@@ -22,7 +22,7 @@ env:
 jobs:
   test:
     name: Core, S3, transport and web correctness
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -36,9 +36,7 @@ jobs:
         run: python3 scripts/release/reserve_journal_ports.py
 
       - name: Install CLI contract shell and isolated observer prerequisites
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes zsh bubblewrap
+        run: python3 e2e/scripts/ci_isolation.py --output docs/reports/s3-hardening/isolation-ci-${{ github.run_id }}-${{ github.run_attempt }}
 
       - uses: erlef/setup-beam@v1
         with:
@@ -66,4 +64,11 @@ jobs:
         with:
           name: correctness-selection-and-results
           path: docs/reports/s3-hardening/correctness-ci-${{ github.run_id }}-${{ github.run_attempt }}/
+          if-no-files-found: error
+      - name: Retain namespace prerequisite diagnostics even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: correctness-isolation-prerequisite
+          path: docs/reports/s3-hardening/isolation-ci-${{ github.run_id }}-${{ github.run_attempt }}/
           if-no-files-found: error

@@ -1,0 +1,45 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "checked_at": "2026-10-20T18:43:06.577097+00:00",
+  "scope": "CI-only ephemeral Ubuntu24.04 namespace prerequisite; no host policy mutation",
+  "profile": {
+    "owner": "apparmor-profiles",
+    "version_reviewed": "4.0.1really4.0.1-0ubuntu0.24.04.9",
+    "installed_path": "/usr/share/apparmor/extra-profiles/bwrap-userns-restrict",
+    "sha256": "11d39094f044f0cda0febb3ad517b830301da6b2ce929664af09ee9e4dd264f9",
+    "official_source": "https://git.launchpad.net/ubuntu/+source/apparmor/plain/profiles/apparmor/profiles/extras/bwrap-userns-restrict?h=ubuntu/noble-updates",
+    "official_package": "https://archive.ubuntu.com/ubuntu/pool/main/a/apparmor/apparmor-profiles_4.0.1really4.0.1-0ubuntu0.24.04.9_all.deb",
+    "package_sha256": "90b02aa006eea7702cd4e851343e469e41365dda42145a3cb035de1d6c773b8c",
+    "contract": "bwrap receives namespace setup rights; executed child remains stacked with capabilities denied; no sysctl changes"
+  },
+  "implementation": {
+    "path": "e2e/scripts/ci_isolation.py",
+    "sha256": "44082abf777ca953c1398987dcfc749da4c1ab0d9b29881eb29ee2a2caa3a4f7"
+  },
+  "verification": {
+    "namespace_prerequisite_before": "candidate-c3/remote-ci-failed.log",
+    "new_script_red": "ci-isolation-red.log",
+    "initial_diagnostic_failure": "ci-isolation-green-r0.log",
+    "scoped_green": "ci-isolation-green.log",
+    "local_real_probe": "ci-isolation-local-smoke.json",
+    "harness_tests": {
+      "path": "c4-harness-tests.log",
+      "tests": 109,
+      "failures": 0
+    },
+    "release_contracts": {
+      "path": "c4-release-contracts.log",
+      "tests": 30,
+      "failures": 0
+    },
+    "hosted_repair": "pending"
+  },
+  "upstream_recheck": {
+    "checked_at": "2026-10-20T18:39:04Z",
+    "concord_main_and_v3_1_4": "4b1c4fb7150d9d1e6473530f8a67144fe8c0552a",
+    "latest_three_hex_packages": "3.1.4",
+    "issues_101_102": "open",
+    "a28": "blocked; no unchanged full-scale replay"
+  },
+  "publication": "not_attempted"
+}

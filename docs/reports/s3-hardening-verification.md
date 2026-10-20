@@ -49,6 +49,11 @@ failed because `bwrap` could not set up its UID map. The serial local run was
 interrupted before heavy profiles to repair this CI prerequisite and freeze a
 new candidate: actual run exit130, actual interrupted aggregate exit1. Its
 partial evidence is retained; no C3 complete-row or full-acceptance pass exists.
+The next candidate adds a shared Ubuntu 24.04 prerequisite: the reviewed,
+distro-packaged restrictive AppArmor profile plus a non-root private 8 MiB
+tmpfs probe. Local real namespace smoke and six focused contracts pass; the
+complete harness passed 109 tests and release contracts passed 30. Hosted
+verification of the new prerequisite and a fresh full run remain pending.
 
 Candidate C2 is `ffec95ec12acd1c2005b6b418a980a4d47353dc3`, source
 fingerprint `bcf1a50fff1ebc45265436ca04e17b61df1710e31a5291ad6653c29f4c5798e1`.
@@ -72,14 +77,16 @@ the filesystem/kernel stall cause remains unknown. Executed operations retained
 correct bytes and measured numeric envelopes, but unexecuted cases and missing
 observation intervals remain unpassed. These findings do not establish a service
 latency failure, leak or corruption. Raw failed samples and timing analyses are
-preserved. A bounded exporter repair and complete fresh rerun remain required.
+preserved. The bounded exporter repair is implemented and regression-tested;
+a complete fresh resource rerun remains required.
 
 C2 remote compile/format and CLI compatibility workflows passed. Hosted Test run
 [39468556908](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39468556908)
 failed after all four server app suites passed: Elixir 1.19 prints excluded test
 counts in parentheses and the selection parser did not normalize that format.
-CLI/harness follow-up did not execute. Repair and exact-candidate CI rerun are
-required; count floors and heavyweight exclusions must stay intact.
+CLI/harness follow-up did not execute. The parser repair preserved count floors
+and heavyweight exclusions, and C3's actual hosted app/CLI output verifies it.
+The required harness namespace failure above still prevents a hosted pass.
 
 Evidence, freeze, semantic audits, cleanup and actual verifier output are under
 [`candidate-c2/`](s3-hardening/closeout-002/candidate-c2/). Local release smoke built

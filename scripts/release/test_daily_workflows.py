@@ -26,6 +26,18 @@ class DailyWorkflowTest(unittest.TestCase):
                 if consumer:
                     self.assertLess(compile_at, text.index(consumer))
 
+    def test_required_hosted_namespace_setup_retains_each_lane_diagnostics(self):
+        correctness = self.workflow("test.yml")
+        self.assertIn("runs-on: ubuntu-24.04", correctness)
+        self.assertLess(correctness.index("ci_isolation.py --output"),
+                        correctness.index("python3 -m unittest discover"))
+        self.assertIn("name: correctness-isolation-prerequisite", correctness)
+        extended = self.workflow("s3-hardening.yml").split("  extended-lane:\n", 1)[1]
+        self.assertIn("runs-on: ubuntu-24.04", extended)
+        self.assertIn("${{ matrix.profile }}-isolation'", extended)
+        self.assertLess(extended.index("ci_isolation.py --output"),
+                        extended.index("--profile '${{ matrix.profile }}'"))
+
     def test_release_retains_daily_business_and_independent_artifact_gates(self):
         text = self.workflow("release.yml")
         for command in ("run_daily_unit_tests.sh all", "run_hardening_daily.sh",
