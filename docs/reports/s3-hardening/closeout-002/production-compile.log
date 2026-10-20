@@ -1,0 +1,31 @@
+==> viewstamped_replication
+Compiling 26 files (.ex)
+Generated viewstamped_replication app
+==> ex_turso
+Compiling 11 files (.ex)
+Compiling crate ex_turso in release mode (native/ex_turso)
+Copying /home/gao/Workspace/gsmlg-opt/ex_storage_service/deps/ex_turso/native/ex_turso/target/release/deps/libturso_sdk_kit-e87eaff76146f406.rlib to priv/native/turso_sdk_kit.so
+Copying /home/gao/Workspace/gsmlg-opt/ex_storage_service/deps/ex_turso/native/ex_turso/target/release/deps/libturso_sync_sdk_kit-60b2b69c16e8c28d.rlib to priv/native/turso_sync_sdk_kit.so
+Copying /home/gao/Workspace/gsmlg-opt/ex_storage_service/deps/ex_turso/native/ex_turso/target/release/libex_turso.so to priv/native/ex_turso.so
+Generated ex_turso app
+==> concord
+Compiling 51 files (.ex)
+Generated concord app
+==> ex_storage_service
+Compiling 130 files (.ex)
+Generated ex_storage_service app
+==> ex_storage_service_cluster
+Compiling 7 files (.ex)
+Generated ex_storage_service_cluster app
+==> ex_storage_service_cli
+Compiling 1 file (.yrl)
+Compiling 1 file (.xrl)
+Compiling 22 files (.erl)
+Compiling 150 files (.ex)
+Generated ex_storage_service_cli app
+==> ex_storage_service_s3
+Compiling 33 files (.ex)
+Generated ex_storage_service_s3 app
+==> ex_storage_service_web
+Compiling 26 files (.ex)
+Generated ex_storage_service_web app

@@ -1,4 +1,5 @@
 Code.require_file("index_acceptance_bounds.exs", __DIR__)
+Code.require_file("index_setup_diagnostics.exs", __DIR__)
 
 # Actual native Concord exact-read instrumentation, after transactional publication.
 defmodule ESSIndexAcceptance.Backend do
@@ -38,41 +39,60 @@ defmodule ESSIndexAcceptance do
         :ok = Metadata.create_bucket(bucket)
         :ok = Metadata.create_bucket(unrelated)
 
-        # TODO(upstream): gsmlg-dev/concord#99 bound full-state per-write work.
         # Keep the real ObjectCommit fixture and original workload/deadline here.
-        {build_us, _} =
-          :timer.tc(fn ->
-            for number <- 1..count do
-              key = "group/" <> String.pad_leading(Integer.to_string(number), 8, "0")
-              {:ok, _} = ObjectCommit.put(bucket, key, metadata, bucket_versioning: true)
-            end
+        {build_us, setup} =
+          ESSIndexSetup.observe("#{bucket}:build", fn ->
+            primary =
+              ESSIndexSetup.phase("#{bucket}:primary", count, fn number ->
+                key = "group/" <> String.pad_leading(Integer.to_string(number), 8, "0")
 
-            for key <- ["outside", "space plus+%/雪", "deep/a/b/c"] do
-              {:ok, _} = ObjectCommit.put(bucket, key, metadata, bucket_versioning: true)
-            end
+                ObjectCommit.put(bucket, key, metadata,
+                  bucket_versioning: true,
+                  backend: ESSIndexSetup.Backend
+                )
+              end)
 
-            :ok = ExStorageService.Storage.Versioning.set_versioning(bucket, :enabled)
+            ESSIndexSetup.observe("#{bucket}:special-versions-and-deletion", fn ->
+              for key <- ["outside", "space plus+%/雪", "deep/a/b/c"] do
+                {:ok, _} = ObjectCommit.put(bucket, key, metadata, bucket_versioning: true)
+              end
 
-            for _ <- 1..3,
-                do:
-                  {:ok, _} =
-                    ObjectCommit.put(bucket, "versions", metadata, bucket_versioning: true)
+              :ok = ExStorageService.Storage.Versioning.set_versioning(bucket, :enabled)
 
-            {:ok, _} = ObjectCommit.delete_marker(bucket, "deleted", bucket_versioning: true)
+              for _ <- 1..3,
+                  do:
+                    {:ok, _} =
+                      ObjectCommit.put(bucket, "versions", metadata, bucket_versioning: true)
+
+              {:ok, _} = ObjectCommit.delete_marker(bucket, "deleted", bucket_versioning: true)
+            end)
+
+            primary
           end)
 
-        initial_inventory = offline_inventory(bucket)
-        baseline = quiescent_measurements(bucket)
+        {_, initial_inventory} =
+          ESSIndexSetup.observe("#{bucket}:inventory-before", fn -> offline_inventory(bucket) end)
 
-        for number <- 1..count do
-          {:ok, _} =
+        {_, baseline} =
+          ESSIndexSetup.observe("#{bucket}:listing-before", fn ->
+            quiescent_measurements(bucket)
+          end)
+
+        unrelated_setup =
+          ESSIndexSetup.phase("#{bucket}:unrelated", count, fn number ->
             ObjectCommit.put(unrelated, Integer.to_string(number), metadata,
-              bucket_versioning: true
+              bucket_versioning: true,
+              backend: ESSIndexSetup.Backend
             )
-        end
+          end)
 
-        final_inventory = offline_inventory(bucket)
-        expanded = quiescent_measurements(bucket)
+        {_, final_inventory} =
+          ESSIndexSetup.observe("#{bucket}:inventory-after", fn -> offline_inventory(bucket) end)
+
+        {_, expanded} =
+          ESSIndexSetup.observe("#{bucket}:listing-after", fn ->
+            quiescent_measurements(bucket)
+          end)
 
         unless Enum.map(baseline, & &1.reads) == Enum.map(expanded, & &1.reads),
           do: raise("unrelated metadata changed exact listing work")
@@ -80,6 +100,8 @@ defmodule ESSIndexAcceptance do
         %{
           keys: count,
           build_microseconds: build_us,
+          setup_observations: setup,
+          unrelated_setup_observations: unrelated_setup,
           before_unrelated: baseline,
           after_unrelated: expanded,
           before_inventory: initial_inventory,
@@ -191,30 +213,5 @@ end
 
 # This disposable fixture starts core explicitly, so all background blob workers
 # are disabled before supervision starts. Normal production configuration is untouched.
-workers =
-  Map.new(
-    [
-      :multipart_gc,
-      :content_gc,
-      :cas_gc,
-      :packer,
-      :lifecycle,
-      :cross_cluster_replication,
-      :repair,
-      :scrub
-    ],
-    &{&1, false}
-  )
-
-configured = Application.get_env(:ex_storage_service, :instance_config, [])
-
-Application.put_env(
-  :ex_storage_service,
-  :instance_config,
-  Keyword.put(configured, :workers, workers)
-)
-
-{:ok, config} = ExStorageService.InstanceConfig.from_application_env()
-true = Enum.all?(config.workers, fn {_worker, enabled} -> enabled == false end)
-{:ok, _} = Application.ensure_all_started(:ex_storage_service)
+ESSIndexSetup.start_core!()
 ESSIndexAcceptance.run()

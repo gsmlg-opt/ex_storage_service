@@ -1,0 +1,54 @@
+{
+  "status": "completed",
+  "diagnostic_only": true,
+  "acceptance_promotion": false,
+  "source_sha256": "20351587f71da6b8ba72d53bf9e46af149a33c4c767049c06e03a765b2104350",
+  "head": "b17282d96a58eff962a35d807c9e7adb39af4774",
+  "root": "/tmp/ess-closeout002-index-diag-yqxmb0w8",
+  "argv": [
+    "/run/current-system/sw/bin/mix",
+    "run",
+    "--no-compile",
+    "--no-start",
+    "e2e/scripts/index_setup_probe.exs",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout-002/a28-diagnostic-r1/probe.json",
+    "100,500,1000"
+  ],
+  "timeout_seconds": 300,
+  "runner": {
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "cgroup": {
+      "cpu.max": null,
+      "memory.max": null,
+      "memory.current": null
+    },
+    "loadavg": [
+      0.5009765625,
+      0.94775390625,
+      1.0185546875
+    ],
+    "filesystem_block_size": 4096,
+    "filesystem_available_bytes": 84279410688
+  },
+  "exit_status": 0,
+  "elapsed_seconds": 64.02963689700118,
+  "source_after_sha256": "20351587f71da6b8ba72d53bf9e46af149a33c4c767049c06e03a765b2104350",
+  "reaped": true
+}

@@ -1,0 +1,14 @@
+{
+  "diagnostic_only": true,
+  "acceptance_promotion": false,
+  "argv": [
+    "bash",
+    "e2e/run_hardening_index.sh",
+    "/run/current-system/sw/bin/python3",
+    "closeout002-preflight-only"
+  ],
+  "exit_status": 1,
+  "stdout": "",
+  "stderr": "BLOCKED A28: gsmlg-dev/concord#101 (singleton read history traversal) and #102 (atomic transaction full-state materialization), reproduced on coordinated 3.1.4. No 10k/100k acceptance run is valid yet.\n",
+  "result": "blocked_before_fixture_creation"
+}

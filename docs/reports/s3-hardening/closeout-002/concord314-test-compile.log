@@ -1,0 +1,14 @@
+==> viewstamped_replication
+Compiling 26 files (.ex)
+Generated viewstamped_replication app
+==> ex_turso
+Compiling 11 files (.ex)
+Compiling crate ex_turso in release mode (native/ex_turso)
+Compiling lib/turso/native.ex (it's taking more than 10s)
+Copying /home/gao/Workspace/gsmlg-opt/ex_storage_service/deps/ex_turso/native/ex_turso/target/release/deps/libturso_sdk_kit-e87eaff76146f406.rlib to priv/native/turso_sdk_kit.so
+Copying /home/gao/Workspace/gsmlg-opt/ex_storage_service/deps/ex_turso/native/ex_turso/target/release/deps/libturso_sync_sdk_kit-60b2b69c16e8c28d.rlib to priv/native/turso_sync_sdk_kit.so
+Copying /home/gao/Workspace/gsmlg-opt/ex_storage_service/deps/ex_turso/native/ex_turso/target/release/libex_turso.so to priv/native/ex_turso.so
+Generated ex_turso app
+==> concord
+Compiling 51 files (.ex)
+Generated concord app

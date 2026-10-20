@@ -6,6 +6,10 @@ export ERL_FLAGS="${ERL_FLAGS:-+S 4:4}"
 python="${1:?pinned python required}"
 label="${2:?unique evidence label required}"
 [[ "$python" == /* && "$label" =~ ^[A-Za-z0-9_-]+$ ]] || exit 64
+# 3.1.4 fixed bounded allocation for ordinary reads and direct-write views,
+# but the production-path diagnostic reproduced two distinct residual blockers.
+# This version gate requires explicit source/API and probe validation to change.
+"$python" e2e/scripts/index_dependency_preflight.py
 # The documented blocker must be fixed in a released dependency before this
 # mandatory expensive lane resumes. Never patch or disable protocol assertions.
 protocol_source=deps/viewstamped_replication/lib/viewstamped_replication/protocol.ex

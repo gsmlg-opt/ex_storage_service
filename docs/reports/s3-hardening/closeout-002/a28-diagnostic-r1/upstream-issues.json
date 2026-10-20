@@ -1,0 +1,25 @@
+{
+  "requesting_repo": "gsmlg-opt/ex_storage_service",
+  "branch": "main",
+  "locked_coordinated_version": "3.1.4",
+  "issues": [
+    {
+      "number": 101,
+      "url": "https://github.com/gsmlg-dev/concord/issues/101",
+      "type": "Bug",
+      "label": "internal request",
+      "severity": "blocker",
+      "status": "OPEN",
+      "body": "upstream-read-request.md"
+    },
+    {
+      "number": 102,
+      "url": "https://github.com/gsmlg-dev/concord/issues/102",
+      "type": "Bug",
+      "label": "internal request",
+      "severity": "blocker",
+      "status": "OPEN",
+      "body": "upstream-transaction-request.md"
+    }
+  ]
+}

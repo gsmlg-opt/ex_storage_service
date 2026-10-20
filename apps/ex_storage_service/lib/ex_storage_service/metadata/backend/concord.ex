@@ -14,7 +14,7 @@ defmodule ExStorageService.Metadata.Backend.Concord do
 
   @impl true
   def get(key, opts \\ []) do
-    # TODO(upstream): gsmlg-dev/concord#100 bound ordinary VSR read allocation.
+    # TODO(upstream): gsmlg-dev/concord#101 bound retained-log traversal on reads.
     Concord.KV.get(key, Keyword.put(opts, :metadata, true))
     |> case do
       {:ok, %Record{value: value, mod_revision: revision}} ->
@@ -91,6 +91,7 @@ defmodule ExStorageService.Metadata.Backend.Concord do
 
   @impl true
   def transaction(spec, opts \\ []) do
+    # TODO(upstream): gsmlg-dev/concord#102 avoid full materialization for atomic transactions.
     Concord.Txn.commit(spec, opts)
     |> normalize_availability_error()
   end
