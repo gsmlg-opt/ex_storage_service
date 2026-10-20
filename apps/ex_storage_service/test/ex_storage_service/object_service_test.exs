@@ -55,9 +55,27 @@ defmodule ExStorageService.ObjectServiceTest do
       do: {:ok, %{operation_id: operation_id, state: state}}
   end
 
+  defmodule UnknownIntents do
+    defdelegate open(id, hash, size, node_id, generation, opts), to: OperationIntentsStub
+
+    def transition(id, state, _) do
+      send(self(), {:unknown_intent_transition, id, state})
+      {:error, :timeout}
+    end
+  end
+
   defmodule OperationIntentsFail do
     def open(_operation_id, _hash, _size, _node_id, _node_generation, _opts),
       do: {:error, :gc_lock_active}
+  end
+
+  defmodule ProtectedUnknownIntents do
+    def open(_id, _hash, _size, _node, _generation, _opts) do
+      [name] = File.ls!(Process.get(:protected_test_directory))
+      true = String.starts_with?(name, "ess1-h-")
+      Process.put(:intent_saw_protected_stage, name)
+      {:error, :unknown_transaction_outcome}
+    end
   end
 
   defmodule VanishingBlobStore do
@@ -337,6 +355,34 @@ defmodule ExStorageService.ObjectServiceTest do
   end
 
   @tag :tmp_dir
+  test "ambiguous publication is observed even when persisting unknown state also fails", %{
+    tmp_dir: tmp_dir
+  } do
+    capture_uncertainty()
+    engine = start_supervised!(VersioningStub)
+
+    opts =
+      service_opts(tmp_dir, engine,
+        operation_id: "private-unknown-operation",
+        operation_intents: UnknownIntents,
+        faults: [metadata_commit: fn _ -> {:error, :timeout} end]
+      )
+
+    assert {:error, :timeout} =
+             ObjectService.put("bucket", "unknown", "retained", "text/plain", %{}, opts)
+
+    assert_received {:unknown_intent_transition, "private-unknown-operation", :unknown}
+    assert_received {:operation_uncertainty, %{source: :hosted, outcome: :unknown} = metadata}
+    assert map_size(metadata) == 2
+    assert VersioningStub.calls(engine) == []
+
+    [path] =
+      Path.wildcard(Path.join([opts[:blob_store_opts][:root], "objects", "sha256", "*", "*"]))
+
+    assert File.read!(path) == "retained"
+  end
+
+  @tag :tmp_dir
   test "metadata failure leaves one recoverable orphan and no visible object", %{tmp_dir: tmp_dir} do
     engine = start_supervised!(VersioningStub)
     parent = self()
@@ -574,6 +620,80 @@ defmodule ExStorageService.ObjectServiceTest do
              ObjectService.get("destination", "copy", nil, opts)
   end
 
+  @tag :tmp_dir
+  test "failed protection data sync submits no hosted intent or object metadata", %{tmp_dir: root} do
+    versioning = start_supervised!(VersioningStub)
+
+    opts =
+      service_opts(root, versioning,
+        operation_id: "failed-protection-data-sync",
+        operation_intents: ProtectedUnknownIntents
+      )
+      |> Keyword.update!(:blob_store_opts, fn blob_opts ->
+        Keyword.put(blob_opts, :faults, %{protection_data_sync: :injected_data_sync})
+      end)
+
+    uploads = opts[:blob_store_opts][:tmp_dir]
+    Process.put(:protected_test_directory, uploads)
+
+    assert {:error, {:staging_protection, :injected_data_sync}} =
+             ObjectService.put(
+               "bucket",
+               "key",
+               "retained anonymous bytes",
+               "text/plain",
+               %{},
+               opts
+             )
+
+    refute Process.get(:intent_saw_protected_stage)
+    [name] = File.ls!(uploads)
+    assert String.starts_with?(name, "ess1-a-")
+    assert File.read!(Path.join(uploads, name)) == "retained anonymous bytes"
+
+    refute File.exists?(
+             LocalCAS.blob_path(sha256("retained anonymous bytes"), opts[:blob_store_opts])
+           )
+  end
+
+  @tag :tmp_dir
+  test "unknown intent submission retains the protected path; failed protection submits nothing",
+       %{tmp_dir: root} do
+    versioning = start_supervised!(VersioningStub)
+
+    opts =
+      service_opts(root, versioning,
+        operation_id: "late-intent",
+        operation_intents: ProtectedUnknownIntents
+      )
+
+    uploads = opts[:blob_store_opts][:tmp_dir]
+    Process.put(:protected_test_directory, uploads)
+
+    assert {:error, :unknown_transaction_outcome} =
+             ObjectService.put("bucket", "key", "recoverable", "text/plain", %{}, opts)
+
+    name = Process.get(:intent_saw_protected_stage)
+    assert File.read!(Path.join(uploads, name)) == "recoverable"
+    File.rm!(Path.join(uploads, name))
+    Process.delete(:intent_saw_protected_stage)
+
+    failed =
+      Keyword.update!(
+        opts,
+        :blob_store_opts,
+        &Keyword.put(&1, :faults, %{protection_directory_sync: :injected})
+      )
+
+    assert {:error, {:staging_protection, :injected}} =
+             ObjectService.put("bucket", "key", "retained", "text/plain", %{}, failed)
+
+    refute Process.get(:intent_saw_protected_stage)
+    [name] = File.ls!(uploads)
+    assert String.starts_with?(name, "ess1-h-")
+    assert File.read!(Path.join(uploads, name)) == "retained"
+  end
+
   defp service_opts(tmp_dir, engine, extra \\ []) do
     root = Path.join(tmp_dir, "cas")
 
@@ -606,4 +726,21 @@ defmodule ExStorageService.ObjectServiceTest do
 
   defp md5(data),
     do: :md5 |> :crypto.hash(data) |> Base.encode16(case: :lower)
+
+  defp capture_uncertainty do
+    handler = {__MODULE__, :uncertainty, make_ref()}
+    owner = self()
+
+    :ok =
+      :telemetry.attach(
+        handler,
+        [:ex_storage_service, :operation, :uncertain],
+        fn _, _, metadata, owner ->
+          if self() == owner, do: send(owner, {:operation_uncertainty, metadata})
+        end,
+        owner
+      )
+
+    on_exit(fn -> :telemetry.detach(handler) end)
+  end
 end

@@ -12,6 +12,7 @@ x-ess-common: &ess-common
     ESS_CLUSTER_MEMBERS: data-a=ess_data_a@data-a,data-b=ess_data_b@data-b,metadata-c=ess_metadata_c@metadata-c
     ESS_CLUSTER_BOOTSTRAP: ${ESS_CLUSTER_BOOTSTRAP:-true}
     ESS_METADATA_SCHEMA: v2
+    ESS_CONCORD_COMMAND_VERSION: ${ESS_CONCORD_COMMAND_VERSION:-0}
     ESS_REPLICATION_FACTOR: "2"
     ESS_WRITE_QUORUM: "2"
     ESS_ALLOW_DEGRADED_WRITES: "false"

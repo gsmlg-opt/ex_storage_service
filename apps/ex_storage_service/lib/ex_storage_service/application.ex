@@ -10,6 +10,11 @@ defmodule ExStorageService.Application do
   def start(_type, _args) do
     config = instance_config!()
 
+    case ExStorageService.Operations.Backup.startup_guard(config) do
+      :ok -> :ok
+      {:error, _reason} -> raise ArgumentError, "storage recovery requires quarantined startup"
+    end
+
     if config.mode == :standalone, do: wait_for_concord()
 
     # Initialize metrics collection

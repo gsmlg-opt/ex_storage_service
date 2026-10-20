@@ -9,9 +9,14 @@ defmodule ExStorageService.Metrics do
   @counters_table :ex_storage_service_metrics_counters
   @histograms_table :ex_storage_service_metrics_histograms
   @gauges_table :ex_storage_service_metrics_gauges
+  @stages_table :ex_storage_service_metrics_stages
+  @stage_limit 1024
+  @request_operations [:get_object, :head_object, :put_object, :delete_object]
   @handler_ids [
     "ex-storage-metrics-request",
-    "ex-storage-metrics-cluster"
+    "ex-storage-metrics-cluster",
+    "ex-storage-metrics-listing",
+    "ex-storage-metrics-operations"
   ]
 
   @doc """
@@ -24,6 +29,11 @@ defmodule ExStorageService.Metrics do
   end
 
   defp ensure_tables do
+    if :ets.info(@stages_table) == :undefined do
+      :ets.new(@stages_table, [:named_table, :public, :set, write_concurrency: true])
+      :ets.insert(@stages_table, [{:slots, 0}, {:complete, true}])
+    end
+
     case :ets.info(@counters_table) do
       :undefined ->
         :ets.new(@counters_table, [
@@ -81,21 +91,77 @@ defmodule ExStorageService.Metrics do
         nil
       )
 
+    :ok =
+      :telemetry.attach_many(
+        "ex-storage-metrics-cluster",
+        [
+          [:ex_storage_service, :cluster, :quorum, :stop],
+          [:ex_storage_service, :cluster, :blob_transport, :stop],
+          [:ex_storage_service, :cluster, :blob_transport, :checksum_failure],
+          [:ex_storage_service, :cluster, :scrub, :stop],
+          [:ex_storage_service, :cluster, :repair, :backlog],
+          [:ex_storage_service, :replication, :backlog],
+          [:ex_storage_service, :cluster, :lease, :contention],
+          [:ex_storage_service, :storage, :gc, :stop]
+        ],
+        &__MODULE__.handle_cluster/4,
+        nil
+      )
+
+    :ok =
+      :telemetry.attach_many(
+        "ex-storage-metrics-listing",
+        [
+          [:ex_storage_service, :listing, :page, :stop],
+          [:ex_storage_service, :listing, :index, :status]
+        ],
+        &__MODULE__.handle_listing/4,
+        nil
+      )
+
     :telemetry.attach_many(
-      "ex-storage-metrics-cluster",
+      "ex-storage-metrics-operations",
       [
-        [:ex_storage_service, :cluster, :quorum, :stop],
-        [:ex_storage_service, :cluster, :blob_transport, :stop],
-        [:ex_storage_service, :cluster, :blob_transport, :checksum_failure],
-        [:ex_storage_service, :cluster, :scrub, :stop],
-        [:ex_storage_service, :cluster, :repair, :backlog],
-        [:ex_storage_service, :cluster, :lease, :contention],
-        [:ex_storage_service, :storage, :gc, :stop]
+        [:ex_storage_service, :transfer, :start],
+        [:ex_storage_service, :transfer, :stop],
+        [:ex_storage_service, :transfer, :delivery],
+        [:ex_storage_service, :storage, :stage, :start],
+        [:ex_storage_service, :storage, :stage, :write],
+        [:ex_storage_service, :storage, :stage, :observe],
+        [:ex_storage_service, :s3, :error],
+        [:ex_storage_service, :gateway, :upstream, :stop],
+        [:ex_storage_service, :gateway, :cache, :stop],
+        [:ex_storage_service, :job, :transition],
+        [:ex_storage_service, :capacity, :observe],
+        [:ex_storage_service, :operation_status, :read],
+        [:ex_storage_service, :operation, :uncertain]
       ],
-      &__MODULE__.handle_cluster/4,
+      &__MODULE__.handle_operations/4,
       nil
     )
   end
+
+  @doc false
+  def handle_listing([:ex_storage_service, :listing, :page, :stop], measurements, metadata, _) do
+    labels = %{
+      kind: bounded_label(metadata[:kind], [:current, :versions, :uploads]),
+      result: bounded_label(metadata[:result], [:ok, :error])
+    }
+
+    duration = System.convert_time_unit(measurements.duration, :native, :millisecond)
+    increment_counter("listing_pages_total", labels)
+    record_histogram("listing_duration_milliseconds", labels, duration)
+  end
+
+  def handle_listing([:ex_storage_service, :listing, :index, :status], _, metadata, _) do
+    # Counts observations, not buckets. No per-bucket labels or stale global
+    # readiness gauge can accidentally claim that every bucket is indexed.
+    state = bounded_label(metadata[:state], [:ready, :migration_required, :building, :validating])
+    increment_counter("listing_index_checks_total", %{state: state})
+  end
+
+  defp bounded_label(value, allowed),
+    do: if(value in allowed, do: Atom.to_string(value), else: "other")
 
   @doc false
   def handle_request([:ex_storage_service, :s3, :request, :stop], measurements, metadata, config),
@@ -111,10 +177,11 @@ defmodule ExStorageService.Metrics do
 
   @doc false
   def handle_request_stop(_event, measurements, metadata, _config) do
-    operation = Map.get(metadata, :operation, "unknown")
+    operation = bounded_label(metadata[:operation], @request_operations)
     duration_ms = System.convert_time_unit(measurements.duration, :native, :millisecond)
 
-    increment_counter("s3_requests_total", %{operation: operation, status: "ok"})
+    result = if metadata[:result] == :error, do: "error", else: "ok"
+    increment_counter("s3_requests_total", %{operation: operation, status: result})
     record_histogram("s3_request_duration_milliseconds", %{operation: operation}, duration_ms)
 
     if size = Map.get(metadata, :size) do
@@ -124,11 +191,232 @@ defmodule ExStorageService.Metrics do
 
   @doc false
   def handle_request_exception(_event, measurements, metadata, _config) do
-    operation = Map.get(metadata, :operation, "unknown")
+    operation = bounded_label(metadata[:operation], @request_operations)
     duration_ms = System.convert_time_unit(measurements.duration, :native, :millisecond)
 
     increment_counter("s3_requests_total", %{operation: operation, status: "error"})
     record_histogram("s3_request_duration_milliseconds", %{operation: operation}, duration_ms)
+  end
+
+  @doc false
+  def handle_operations([:ex_storage_service, :transfer, :start], _, metadata, _) do
+    kind = bounded_label(metadata[:kind], [:stage, :upstream, :s3_read, :s3_write, :s3_other])
+    adjust_gauge("transfer_active", %{kind: kind}, 1)
+  end
+
+  def handle_operations([:ex_storage_service, :transfer, :stop], measurements, metadata, _) do
+    kind = bounded_label(metadata[:kind], [:stage, :upstream, :s3_read, :s3_write, :s3_other])
+    result = bounded_label(metadata[:result], [:ok, :error, :exception, :owner_exit])
+    adjust_gauge("transfer_active", %{kind: kind}, -1)
+    increment_counter("transfers_total", %{kind: kind, result: result})
+
+    record_histogram(
+      "transfer_duration_milliseconds",
+      %{kind: kind, result: result},
+      System.convert_time_unit(measurements.duration, :native, :millisecond)
+    )
+
+    if kind == "stage" and result == "owner_exit", do: incomplete_stages()
+  end
+
+  def handle_operations([:ex_storage_service, :transfer, :delivery], measurements, metadata, _) do
+    source = bounded_label(metadata[:source], [:file, :stream])
+    increment_counter("s3_response_bytes_total", %{source: source}, max(measurements[:bytes], 0))
+
+    if metadata[:result] != :ok do
+      increment_counter("s3_response_delivery_errors_total", %{
+        source: source,
+        result: bounded_label(metadata[:result], [:closed, :error])
+      })
+    end
+  end
+
+  def handle_operations([:ex_storage_service, :storage, :stage, :start], _, metadata, _) do
+    if is_binary(metadata[:path]) do
+      slots = :ets.update_counter(@stages_table, :slots, {2, 1}, {:slots, 0})
+
+      if slots <= @stage_limit do
+        unless :ets.insert_new(@stages_table, {{:stage, metadata.path}, 0}),
+          do: :ets.update_counter(@stages_table, :slots, {2, -1})
+      else
+        :ets.update_counter(@stages_table, :slots, {2, -1})
+        incomplete_stages()
+      end
+    end
+  end
+
+  def handle_operations(
+        [:ex_storage_service, :storage, :stage, :write],
+        measurements,
+        metadata,
+        _
+      ) do
+    bytes = max(Map.get(measurements, :bytes, 0), 0)
+    increment_counter("storage_staging_bytes_written_total", %{}, bytes)
+    key = {:stage, metadata[:path]}
+
+    try do
+      :ets.update_counter(@stages_table, key, {2, bytes})
+    rescue
+      ArgumentError -> :ok
+    end
+  end
+
+  def handle_operations(
+        [:ex_storage_service, :storage, :stage, :observe],
+        measurements,
+        metadata,
+        _
+      ) do
+    key = {:stage, metadata[:path]}
+
+    cond do
+      measurements[:complete] == false ->
+        incomplete_stages()
+
+      measurements[:present] == false ->
+        if :ets.take(@stages_table, key) != [],
+          do: :ets.update_counter(@stages_table, :slots, {2, -1})
+
+      measurements[:present] == true ->
+        # Never create an unbounded record from a standalone observation.
+        :ets.update_element(@stages_table, key, {2, max(measurements[:bytes], 0)})
+
+      true ->
+        :ok
+    end
+  end
+
+  def handle_operations([:ex_storage_service, :s3, :error], _, metadata, _) do
+    category =
+      bounded_label(metadata[:category], [:integrity, :precondition, :unsupported, :other])
+
+    increment_counter("s3_errors_total", %{category: category})
+  end
+
+  def handle_operations(
+        [:ex_storage_service, :gateway, :upstream, :stop],
+        measurements,
+        metadata,
+        _
+      ) do
+    labels = %{
+      operation: bounded_label(metadata[:operation], [:put, :get, :head, :delete, :list, :probe]),
+      result:
+        bounded_label(metadata[:result], [
+          :ok,
+          :not_found,
+          :denied,
+          :precondition,
+          :unavailable,
+          :http_error,
+          :integrity,
+          :transport_error
+        ])
+    }
+
+    increment_counter("gateway_upstream_requests_total", labels)
+
+    record_histogram(
+      "gateway_upstream_duration_milliseconds",
+      labels,
+      System.convert_time_unit(measurements.duration, :native, :millisecond)
+    )
+  end
+
+  def handle_operations([:ex_storage_service, :gateway, :cache, :stop], _, metadata, _) do
+    increment_counter("gateway_cache_operations_total", %{
+      operation: bounded_label(metadata[:operation], [:read, :publish]),
+      result: bounded_label(metadata[:result], [:hit, :miss, :ok, :busy, :error])
+    })
+  end
+
+  def handle_operations([:ex_storage_service, :job, :transition], _, metadata, _) do
+    increment_counter("durable_job_transitions_total", %{
+      kind:
+        bounded_label(metadata[:kind], [
+          :cross_cluster_put,
+          :cross_cluster_delete,
+          :repair_blob,
+          :scrub,
+          :cleanup
+        ]),
+      execution: bounded_label(metadata[:execution], [:ok, :error]),
+      transition: bounded_label(metadata[:transition], [:ok, :error, :stale])
+    })
+  end
+
+  def handle_operations([:ex_storage_service, :operation_status, :read], _, metadata, _) do
+    increment_counter("operation_status_reads_total", %{
+      source: bounded_label(metadata[:source], [:hosted, :gateway_write, :gateway_delete]),
+      result: bounded_label(metadata[:result], [:ok, :error]),
+      state:
+        bounded_label(metadata[:state], [
+          :pending,
+          :unknown,
+          :committed,
+          :aborted,
+          :prepared,
+          :local_committed,
+          :absent
+        ])
+    })
+  end
+
+  def handle_operations([:ex_storage_service, :operation, :uncertain], _, metadata, _) do
+    increment_counter("uncertain_operation_outcomes_total", %{
+      source: bounded_label(metadata[:source], [:hosted, :gateway_write, :gateway_delete]),
+      outcome: bounded_label(metadata[:outcome], [:unknown, :reconciliation_required])
+    })
+  end
+
+  def handle_operations([:ex_storage_service, :capacity, :observe], measurements, metadata, _) do
+    labels = %{root: bounded_label(metadata[:root], [:blob, :tmp, :metadata])}
+    complete = metadata[:complete] == true
+    set_gauge("storage_capacity_observation_complete", labels, if(complete, do: 1, else: 0))
+
+    if complete do
+      set_gauge("storage_filesystem_total_bytes", labels, measurements.total_bytes)
+      set_gauge("storage_filesystem_available_bytes", labels, measurements.available_bytes)
+    end
+  end
+
+  defp adjust_gauge(name, labels, amount),
+    do: :ets.update_counter(@gauges_table, {name, labels}, {2, amount}, {{name, labels}, 0})
+
+  defp incomplete_stages, do: :ets.insert(@stages_table, {:complete, false})
+
+  @doc """
+  Returns a bounded observation of staging paths created since metrics setup.
+
+  At most 1024 paths are retained. This is not a filesystem inventory: owner
+  death or overflow marks coverage incomplete, retains known bytes, and never
+  deletes a file. Startup leftovers and out-of-band file operations are outside
+  this observation. No disk traversal is performed by metrics scrapes.
+  """
+  def staging_snapshot do
+    if :ets.info(@stages_table) == :undefined do
+      %{tracked_bytes: 0, tracked_files: 0, complete_since_setup: false, limit: @stage_limit}
+    else
+      {bytes, files} =
+        :ets.foldl(
+          fn
+            {{:stage, _path}, size}, {bytes, files} -> {bytes + size, files + 1}
+            _, acc -> acc
+          end,
+          {0, 0},
+          @stages_table
+        )
+
+      complete = :ets.lookup(@stages_table, :complete) == [{:complete, true}]
+
+      %{
+        tracked_bytes: bytes,
+        tracked_files: files,
+        complete_since_setup: complete,
+        limit: @stage_limit
+      }
+    end
   end
 
   @doc false
@@ -142,7 +430,7 @@ defmodule ExStorageService.Metrics do
 
     record_histogram(
       "cluster_quorum_duration_milliseconds",
-      %{result: stable_value(Map.get(metadata, :result, :unknown))},
+      %{result: bounded_label(metadata[:result], [:ok, :error, :degraded])},
       duration_ms
     )
   end
@@ -154,8 +442,8 @@ defmodule ExStorageService.Metrics do
         _config
       ) do
     bytes = max(Map.get(measurements, :bytes, 0), 0)
-    direction = stable_value(Map.get(metadata, :direction, :unknown))
-    operation = stable_value(Map.get(metadata, :operation, :unknown))
+    direction = bounded_label(metadata[:direction], [:client, :server])
+    operation = bounded_label(metadata[:operation], [:put_blob, :open_blob])
 
     if operation == "put_blob" do
       increment_counter("cluster_replica_bytes_total", %{direction: direction}, bytes)
@@ -211,6 +499,32 @@ defmodule ExStorageService.Metrics do
   end
 
   def handle_cluster(
+        [:ex_storage_service, :replication, :backlog],
+        measurements,
+        metadata,
+        _config
+      ) do
+    complete = Map.get(metadata, :complete) == true
+    set_gauge("replication_backlog_scan_complete", %{}, if(complete, do: 1, else: 0))
+
+    if complete do
+      Enum.each([:pending, :running, :failed], fn state ->
+        set_gauge(
+          "replication_backlog",
+          %{state: Atom.to_string(state)},
+          max(Map.get(measurements, state, 0), 0)
+        )
+      end)
+
+      set_gauge(
+        "replication_oldest_job_age_seconds",
+        %{},
+        max(Map.get(measurements, :oldest_age_ms, 0), 0) / 1000
+      )
+    end
+  end
+
+  def handle_cluster(
         [:ex_storage_service, :cluster, :lease, :contention],
         measurements,
         metadata,
@@ -219,8 +533,23 @@ defmodule ExStorageService.Metrics do
     increment_counter(
       "cluster_lease_contention_total",
       %{
-        kind: stable_value(Map.get(metadata, :kind, :unknown)),
-        reason: stable_value(Map.get(metadata, :reason, :unknown))
+        kind:
+          bounded_label(metadata[:kind], [
+            :repair_blob,
+            :scrub,
+            :cleanup,
+            :cross_cluster_put,
+            :cross_cluster_delete
+          ]),
+        reason:
+          bounded_label(metadata[:reason], [
+            :owned,
+            :stale,
+            :stale_lease,
+            :busy,
+            :not_claimable,
+            :leased_by_other_owner
+          ])
       },
       max(Map.get(measurements, :count, 1), 0)
     )
@@ -398,6 +727,18 @@ defmodule ExStorageService.Metrics do
   Format all collected metrics in Prometheus text exposition format.
   """
   def format_metrics do
+    if :ets.info(@gauges_table) != :undefined do
+      stages = staging_snapshot()
+      set_gauge("storage_staging_tracked_bytes", %{}, stages.tracked_bytes)
+      set_gauge("storage_staging_tracked_files", %{}, stages.tracked_files)
+
+      set_gauge(
+        "storage_staging_tracking_complete_since_setup",
+        %{},
+        if(stages.complete_since_setup, do: 1, else: 0)
+      )
+    end
+
     counters = format_counters()
     histograms = format_histograms()
     gauges = format_gauges()
@@ -438,14 +779,15 @@ defmodule ExStorageService.Metrics do
   @doc false
   def reset do
     ensure_tables()
-    Enum.each([@counters_table, @histograms_table, @gauges_table], &:ets.delete_all_objects/1)
+
+    Enum.each(
+      [@counters_table, @histograms_table, @gauges_table, @stages_table],
+      &:ets.delete_all_objects/1
+    )
+
+    :ets.insert(@stages_table, [{:slots, 0}, {:complete, true}])
     :ok
   end
-
-  defp stable_value(value) when is_atom(value), do: Atom.to_string(value)
-  defp stable_value(value) when is_integer(value), do: Integer.to_string(value)
-  defp stable_value(value) when is_binary(value), do: value
-  defp stable_value(_value), do: "other"
 
   defp checksum_failure?(:checksum_mismatch), do: true
   defp checksum_failure?({:size_mismatch, _expected, _actual}), do: true

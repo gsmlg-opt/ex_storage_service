@@ -14,16 +14,31 @@ defmodule ExStorageServiceS3.Router do
   use Plug.Router
   use Plug.ErrorHandler
 
-  alias ExStorageServiceS3.Handlers.{Bucket, Health, Lifecycle, Notification, Object, Versioning}
+  alias ExStorageServiceS3.Handlers.{
+    Bucket,
+    Cors,
+    Health,
+    Lifecycle,
+    Location,
+    Notification,
+    Object,
+    Tagging,
+    Versioning
+  }
+
   alias ExStorageServiceS3.MultipartHandlers
   alias ExStorageServiceS3.Presigned
 
   plug :assign_request_id
   plug :fetch_query
+  plug ExStorageServiceS3.Plugs.Cors
   plug :check_presigned_auth
   plug ExStorageServiceS3.Auth.SigV4
   plug ExStorageServiceS3.Plugs.RateLimiter
+  plug :resolve_operation
   plug ExStorageServiceS3.Plugs.Authorize
+  plug ExStorageServiceS3.Plugs.ModeGuard
+  plug ExStorageServiceS3.Plugs.ReadResponse
   plug :match
   plug :dispatch
 
@@ -68,208 +83,143 @@ defmodule ExStorageServiceS3.Router do
     end
   end
 
-  # GET / - ListBuckets
-  get "/" do
-    Bucket.list_buckets(conn)
-  end
-
-  # PUT /:bucket - CreateBucket, or bucket config operations
-  put "/:bucket" do
-    params = conn.query_params
-
-    cond do
-      Map.has_key?(params, "versioning") ->
-        Versioning.put_bucket_versioning(conn, bucket)
-
-      Map.has_key?(params, "lifecycle") ->
-        Lifecycle.put_bucket_lifecycle(conn, bucket)
-
-      Map.has_key?(params, "notification") ->
-        Notification.put_bucket_notification(conn, bucket)
-
-      true ->
-        Bucket.create_bucket(conn, bucket)
-    end
-  end
-
-  # DELETE /:bucket - DeleteBucket, DeleteObjects, or config deletions
-  delete "/:bucket" do
-    params = conn.query_params
-
-    cond do
-      Map.has_key?(params, "lifecycle") ->
-        Lifecycle.delete_bucket_lifecycle(conn, bucket)
-
-      Map.has_key?(params, "notification") ->
-        Notification.delete_bucket_notification(conn, bucket)
-
-      true ->
-        Bucket.delete_bucket(conn, bucket)
-    end
-  end
-
-  # HEAD /:bucket - HeadBucket
-  head "/:bucket" do
-    Bucket.head_bucket(conn, bucket)
-  end
-
-  # GET /:bucket - ListObjectsV2, or GET /:bucket/*key - GetObject / ListParts
-  # We use a forward match for the bucket, then check for key segments.
-  get "/:bucket/*key" do
-    params = conn.query_params
-
-    case key do
-      [] ->
-        cond do
-          Map.has_key?(params, "versioning") ->
-            Versioning.get_bucket_versioning(conn, bucket)
-
-          Map.has_key?(params, "lifecycle") ->
-            Lifecycle.get_bucket_lifecycle(conn, bucket)
-
-          Map.has_key?(params, "notification") ->
-            Notification.get_bucket_notification(conn, bucket)
-
-          true ->
-            Object.list_objects(conn, bucket)
-        end
-
-      key_parts ->
-        object_key = Enum.join(key_parts, "/")
-
-        cond do
-          Map.has_key?(params, "uploadId") ->
-            MultipartHandlers.list_parts(conn, bucket, object_key)
-
-          Map.has_key?(params, "versionId") ->
-            Object.get_object_version(conn, bucket, object_key, params["versionId"])
-
-          true ->
-            Object.get_object(conn, bucket, object_key)
-        end
-    end
-  end
-
-  # HEAD /:bucket/*key - HeadObject
-  head "/:bucket/*key" do
-    case key do
-      [] ->
-        Bucket.head_bucket(conn, bucket)
-
-      key_parts ->
-        object_key = Enum.join(key_parts, "/")
-        Object.head_object(conn, bucket, object_key)
-    end
-  end
-
-  # PUT /:bucket/*key - PutObject, CopyObject, or UploadPart
-  put "/:bucket/*key" do
-    object_key = Enum.join(key, "/")
-    params = conn.query_params
-
-    cond do
-      Map.has_key?(params, "partNumber") and Map.has_key?(params, "uploadId") ->
-        MultipartHandlers.upload_part(conn, bucket, object_key)
-
-      Plug.Conn.get_req_header(conn, "x-amz-copy-source") != [] ->
-        Object.copy_object(conn, bucket, object_key)
-
-      true ->
-        Object.put_object(conn, bucket, object_key)
-    end
-  end
-
-  # DELETE /:bucket/*key - DeleteObject or AbortMultipartUpload
-  delete "/:bucket/*key" do
-    object_key = Enum.join(key, "/")
-    params = conn.query_params
-
-    if Map.has_key?(params, "uploadId") do
-      MultipartHandlers.abort_multipart_upload(conn, bucket, object_key)
-    else
-      Object.delete_object(conn, bucket, object_key)
-    end
-  end
-
-  # POST /:bucket/*key - CreateMultipartUpload (?uploads) or CompleteMultipartUpload (?uploadId=X)
-  # POST /:bucket?delete - DeleteObjects (multi-delete)
-  post "/:bucket/*key" do
-    params = conn.query_params
-
-    case key do
-      [] ->
-        # No key segments — bucket-level POST
-        if Map.has_key?(params, "delete") do
-          Object.delete_objects(conn, bucket)
-        else
-          request_id = conn.assigns[:request_id] || generate_request_id()
-
-          body =
-            ExStorageServiceS3.XML.error_response(
-              "InvalidArgument",
-              "Unsupported POST operation.",
-              "/#{bucket}",
-              request_id
-            )
-
-          conn
-          |> put_resp_header("content-type", "application/xml")
-          |> put_resp_header("x-amz-request-id", request_id)
-          |> put_resp_header("x-amz-id-2", request_id)
-          |> put_resp_header("server", "ExStorageService")
-          |> send_resp(400, body)
-        end
-
-      key_parts ->
-        object_key = Enum.join(key_parts, "/")
-
-        cond do
-          Map.has_key?(params, "uploads") ->
-            MultipartHandlers.create_multipart_upload(conn, bucket, object_key)
-
-          Map.has_key?(params, "uploadId") ->
-            MultipartHandlers.complete_multipart_upload(conn, bucket, object_key)
-
-          true ->
-            request_id = conn.assigns[:request_id] || generate_request_id()
-
-            body =
-              ExStorageServiceS3.XML.error_response(
-                "InvalidArgument",
-                "Unsupported POST operation.",
-                "/#{bucket}/#{object_key}",
-                request_id
-              )
-
-            conn
-            |> put_resp_header("content-type", "application/xml")
-            |> put_resp_header("x-amz-request-id", request_id)
-            |> put_resp_header("x-amz-id-2", request_id)
-            |> put_resp_header("server", "ExStorageService")
-            |> send_resp(400, body)
-        end
-    end
-  end
-
-  # Catch-all for unmatched routes
+  # Authorization and dispatch consume the same validated operation identity.
   match _ do
-    request_id = conn.assigns[:request_id] || generate_request_id()
-
-    body =
-      ExStorageServiceS3.XML.error_response(
-        "MethodNotAllowed",
-        "The specified method is not allowed against this resource.",
-        conn.request_path,
-        request_id
-      )
-
-    conn
-    |> put_resp_header("content-type", "application/xml")
-    |> put_resp_header("x-amz-request-id", request_id)
-    |> put_resp_header("x-amz-id-2", request_id)
-    |> put_resp_header("server", "ExStorageService")
-    |> send_resp(405, body)
+    dispatch_operation(conn, conn.assigns.s3_operation)
   end
+
+  defp resolve_operation(%{request_path: path} = conn, _opts)
+       when path in ["/health", "/health/ready", "/health/status", "/health/cloud_cache"],
+       do: conn
+
+  defp resolve_operation(conn, _opts) do
+    case ExStorageServiceS3.Operation.resolve(conn) do
+      {:ok, operation} ->
+        assign(conn, :s3_operation, operation)
+
+      {:error, code, message} ->
+        conn
+        |> ExStorageServiceS3.Handlers.Shared.error_response(
+          code,
+          message,
+          conn.request_path,
+          conn.assigns.request_id
+        )
+        |> halt()
+    end
+  end
+
+  defp dispatch_operation(conn, %{name: :list_buckets}), do: Bucket.list_buckets(conn)
+
+  defp dispatch_operation(conn, %{name: :create_bucket, bucket: bucket}),
+    do: Bucket.create_bucket(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :delete_bucket, bucket: bucket}),
+    do: Bucket.delete_bucket(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :head_bucket, bucket: bucket}),
+    do: Bucket.head_bucket(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :list_objects, bucket: bucket}),
+    do: Object.list_objects(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :list_object_versions, bucket: bucket}),
+    do: ExStorageServiceS3.Handlers.Versions.list_object_versions(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :list_multipart_uploads, bucket: bucket}),
+    do: MultipartHandlers.list_multipart_uploads(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :get_bucket_location, bucket: bucket}),
+    do: Location.get_bucket_location(conn, bucket)
+
+  for {name, handler, function} <- [
+        {:get_bucket_cors, Cors, :get_bucket_cors},
+        {:put_bucket_cors, Cors, :put_bucket_cors},
+        {:delete_bucket_cors, Cors, :delete_bucket_cors},
+        {:get_bucket_tagging, Tagging, :get_bucket_tagging},
+        {:put_bucket_tagging, Tagging, :put_bucket_tagging},
+        {:delete_bucket_tagging, Tagging, :delete_bucket_tagging}
+      ] do
+    defp dispatch_operation(conn, %{name: unquote(name), bucket: bucket}),
+      do: unquote(handler).unquote(function)(conn, bucket)
+  end
+
+  for {name, function} <- [
+        {:get_object_tagging, :get_object_tagging},
+        {:put_object_tagging, :put_object_tagging},
+        {:delete_object_tagging, :delete_object_tagging}
+      ] do
+    defp dispatch_operation(conn, %{name: unquote(name), bucket: bucket, key: key}),
+      do: Tagging.unquote(function)(conn, bucket, key)
+  end
+
+  defp dispatch_operation(conn, %{name: :delete_objects, bucket: bucket}),
+    do: Object.delete_objects(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :get_bucket_versioning, bucket: bucket}),
+    do: Versioning.get_bucket_versioning(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :put_bucket_versioning, bucket: bucket}),
+    do: Versioning.put_bucket_versioning(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :get_bucket_lifecycle, bucket: bucket}),
+    do: Lifecycle.get_bucket_lifecycle(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :put_bucket_lifecycle, bucket: bucket}),
+    do: Lifecycle.put_bucket_lifecycle(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :delete_bucket_lifecycle, bucket: bucket}),
+    do: Lifecycle.delete_bucket_lifecycle(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :get_bucket_notification, bucket: bucket}),
+    do: Notification.get_bucket_notification(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :put_bucket_notification, bucket: bucket}),
+    do: Notification.put_bucket_notification(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :delete_bucket_notification, bucket: bucket}),
+    do: Notification.delete_bucket_notification(conn, bucket)
+
+  defp dispatch_operation(conn, %{name: :get_object, bucket: bucket, key: key}),
+    do: Object.get_object(conn, bucket, key)
+
+  defp dispatch_operation(conn, %{name: :head_object, bucket: bucket, key: key}),
+    do: Object.head_object(conn, bucket, key)
+
+  defp dispatch_operation(conn, %{name: :put_object, bucket: bucket, key: key}),
+    do: Object.put_object(conn, bucket, key)
+
+  defp dispatch_operation(conn, %{name: :copy_object, bucket: bucket, key: key}),
+    do: Object.copy_object(conn, bucket, key)
+
+  defp dispatch_operation(conn, %{name: :delete_object, bucket: bucket, key: key}),
+    do: Object.delete_object(conn, bucket, key)
+
+  defp dispatch_operation(conn, %{name: :create_multipart_upload, bucket: bucket, key: key}),
+    do: MultipartHandlers.create_multipart_upload(conn, bucket, key)
+
+  defp dispatch_operation(conn, %{name: :upload_part, bucket: bucket, key: key}),
+    do: MultipartHandlers.upload_part(conn, bucket, key)
+
+  defp dispatch_operation(conn, %{name: :upload_part_copy, bucket: bucket, key: key}),
+    do: MultipartHandlers.upload_part_copy(conn, bucket, key)
+
+  defp dispatch_operation(conn, %{name: :complete_multipart_upload, bucket: bucket, key: key}),
+    do: MultipartHandlers.complete_multipart_upload(conn, bucket, key)
+
+  defp dispatch_operation(conn, %{name: :abort_multipart_upload, bucket: bucket, key: key}),
+    do: MultipartHandlers.abort_multipart_upload(conn, bucket, key)
+
+  defp dispatch_operation(conn, %{name: :list_parts, bucket: bucket, key: key}),
+    do: MultipartHandlers.list_parts(conn, bucket, key)
+
+  defp dispatch_operation(conn, %{
+         name: :get_object_version,
+         bucket: bucket,
+         key: key,
+         version_id: version
+       }),
+       do: Object.get_object_version(conn, bucket, key, version)
 
   # Plug that assigns a unique request ID to the connection
   defp assign_request_id(conn, _opts) do
@@ -357,18 +307,13 @@ defmodule ExStorageServiceS3.Router do
   defp presigned_error(conn, reason) do
     request_id = conn.assigns[:request_id] || generate_request_id()
 
-    body =
-      ExStorageServiceS3.XML.error_response(
-        "AccessDenied",
-        reason,
-        conn.request_path,
-        request_id
-      )
-
     conn
-    |> Plug.Conn.put_resp_header("content-type", "application/xml")
-    |> Plug.Conn.put_resp_header("x-amz-request-id", request_id)
-    |> Plug.Conn.send_resp(403, body)
+    |> ExStorageServiceS3.Handlers.Shared.error_response(
+      "AccessDenied",
+      reason,
+      conn.request_path,
+      request_id
+    )
     |> Plug.Conn.halt()
   end
 
@@ -377,21 +322,15 @@ defmodule ExStorageServiceS3.Router do
   end
 
   @impl Plug.ErrorHandler
-  def handle_errors(conn, %{kind: _kind, reason: reason, stack: _stack}) do
+  def handle_errors(conn, %{kind: _kind, reason: _reason, stack: _stack}) do
     request_id = conn.assigns[:request_id] || generate_request_id()
 
-    body =
-      ExStorageServiceS3.XML.error_response(
-        "InternalError",
-        "Internal server error: #{inspect(reason)}",
-        conn.request_path,
-        request_id
-      )
-
-    conn
-    |> Plug.Conn.put_resp_header("content-type", "application/xml")
-    |> Plug.Conn.put_resp_header("x-amz-request-id", request_id)
-    |> Plug.Conn.put_resp_header("server", "ExStorageService")
-    |> Plug.Conn.send_resp(500, body)
+    ExStorageServiceS3.Handlers.Shared.error_response(
+      conn,
+      "InternalError",
+      "An internal server error occurred.",
+      conn.request_path,
+      request_id
+    )
   end
 end

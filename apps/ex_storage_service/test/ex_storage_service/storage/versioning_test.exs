@@ -4,7 +4,11 @@ defmodule ExStorageService.Storage.VersioningTest do
   alias ExStorageService.Metadata
   alias ExStorageService.Storage.Versioning
 
-  defp unique_bucket, do: "ver-#{:erlang.unique_integer([:positive])}"
+  defp unique_bucket do
+    bucket = "ver-#{:erlang.unique_integer([:positive])}"
+    :ok = Metadata.create_bucket(bucket)
+    bucket
+  end
 
   defp meta_for(hash) do
     %{

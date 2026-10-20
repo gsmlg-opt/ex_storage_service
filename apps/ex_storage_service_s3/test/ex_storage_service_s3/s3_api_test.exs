@@ -18,10 +18,23 @@ defmodule ExStorageServiceS3.ApiTest do
       send_resp(conn, 200, "")
     end
 
-    def call(%{method: "GET"} = conn, agent) do
+    def call(%{method: method} = conn, agent) when method in ["GET", "HEAD"] do
       case Agent.get(agent, &Map.fetch(&1, conn.request_path)) do
-        {:ok, body} -> send_resp(conn, 200, body)
-        :error -> send_resp(conn, 404, "")
+        {:ok, body} ->
+          etag = "\"" <> Base.encode16(:crypto.hash(:md5, body), case: :lower) <> "\""
+
+          conn =
+            conn
+            |> put_resp_header("etag", etag)
+            |> put_resp_header("content-length", Integer.to_string(byte_size(body)))
+            |> put_resp_header("last-modified", "Sun, 18 Oct 2026 00:00:00 GMT")
+
+          if get_req_header(conn, "if-match") not in [[], [etag]],
+            do: send_resp(conn, 412, ""),
+            else: send_resp(conn, 200, if(method == "HEAD", do: "", else: body))
+
+        :error ->
+          send_resp(conn, 404, "")
       end
     end
   end
@@ -315,8 +328,6 @@ defmodule ExStorageServiceS3.ApiTest do
       key = "marker-shadow.txt"
       upstream_body = "upstream content must stay hidden"
 
-      enable_cloud_cache(bucket, remote_bucket)
-
       versioning_xml = """
       <?xml version="1.0" encoding="UTF-8"?>
       <VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Enabled</Status></VersioningConfiguration>
@@ -330,6 +341,10 @@ defmodule ExStorageServiceS3.ApiTest do
       assert delete_resp.status == 204
       assert Req.Response.get_header(delete_resp, "x-amz-delete-marker") == ["true"]
       assert [marker_id] = Req.Response.get_header(delete_resp, "x-amz-version-id")
+
+      # A pre-existing hosted delete marker must remain authoritative when a bucket
+      # is later configured as a gateway; new gateway version mutations are guarded.
+      enable_cloud_cache(bucket, remote_bucket)
 
       {:ok, %{status: 200}} =
         Req.put("#{@base_url}/#{remote_bucket}/#{key}", body: upstream_body)
@@ -370,8 +385,8 @@ defmodule ExStorageServiceS3.ApiTest do
           headers: [{"x-amz-copy-source", "/#{source_bucket}/source.txt"}]
         )
 
-      assert resp.status == 500
-      assert String.contains?(resp.body, "InternalError")
+      assert resp.status == 404
+      assert String.contains?(resp.body, "NoSuchKey")
 
       {:ok, resp} = Req.get("#{@base_url}/#{dest_bucket}/dest.txt")
       assert resp.status == 404
@@ -476,16 +491,16 @@ defmodule ExStorageServiceS3.ApiTest do
       bucket = create_bucket(unique_bucket())
 
       encoded_body =
-        "5;chunk-signature=abc\r\nhello\r\n" <>
-          "6;chunk-signature=def\r\n world\r\n" <>
-          "0;chunk-signature=ghi\r\n\r\n"
+        "b\r\nhello world\r\n0\r\nx-amz-checksum-crc32: DUoRhQ==\r\n\r\n"
 
       {:ok, put_response} =
         Req.put("#{@base_url}/#{bucket}/streamed-chunked.txt",
           body: encoded_body,
           headers: [
             {"content-encoding", "aws-chunked"},
-            {"x-amz-content-sha256", "STREAMING-AWS4-HMAC-SHA256-PAYLOAD"}
+            {"x-amz-content-sha256", "STREAMING-UNSIGNED-PAYLOAD-TRAILER"},
+            {"x-amz-trailer", "x-amz-checksum-crc32"},
+            {"x-amz-decoded-content-length", "11"}
           ]
         )
 
@@ -514,7 +529,10 @@ defmodule ExStorageServiceS3.ApiTest do
       {:ok, resp} =
         Req.post("#{@base_url}/#{bucket}?delete",
           body: delete_xml,
-          headers: [{"content-type", "application/xml"}]
+          headers: [
+            {"content-type", "application/xml"},
+            {"content-md5", :crypto.hash(:md5, delete_xml) |> Base.encode64()}
+          ]
         )
 
       assert resp.status == 200

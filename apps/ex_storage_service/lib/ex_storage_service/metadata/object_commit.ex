@@ -8,6 +8,7 @@ defmodule ExStorageService.Metadata.ObjectCommit do
   """
 
   alias ExStorageService.Metadata.Backend.Concord, as: ConcordBackend
+  alias ExStorageService.Metadata.BucketLifecycle
   alias ExStorageService.Metadata.Keys
   alias ExStorageService.Metadata.OperationIntents
 
@@ -22,7 +23,8 @@ defmodule ExStorageService.Metadata.ObjectCommit do
   @spec put(String.t(), String.t(), map(), keyword()) ::
           {:ok, commit_result()} | {:error, term()}
   def put(bucket, key, metadata, opts \\ []) do
-    with :ok <- ensure_v2_writes(opts) do
+    with :ok <- ensure_v2_writes(opts),
+         :ok <- ExStorageService.Metadata.LegacyObject.prepare(backend(opts), bucket, key, opts) do
       operation_id = Keyword.get_lazy(opts, :operation_id, &generate_operation_id/0)
       version_id = Keyword.get_lazy(opts, :version_id, &generate_version_id/0)
 
@@ -41,7 +43,8 @@ defmodule ExStorageService.Metadata.ObjectCommit do
   @spec delete_marker(String.t(), String.t(), keyword()) ::
           {:ok, commit_result()} | {:error, term()}
   def delete_marker(bucket, key, opts \\ []) do
-    with :ok <- ensure_v2_writes(opts) do
+    with :ok <- ensure_v2_writes(opts),
+         :ok <- ExStorageService.Metadata.LegacyObject.prepare(backend(opts), bucket, key, opts) do
       operation_id = Keyword.get_lazy(opts, :operation_id, &generate_operation_id/0)
       version_id = Keyword.get_lazy(opts, :version_id, &generate_version_id/0)
       now = Keyword.get_lazy(opts, :timestamp, &timestamp/0)
@@ -74,7 +77,8 @@ defmodule ExStorageService.Metadata.ObjectCommit do
   @spec delete_version(String.t(), String.t(), String.t(), keyword()) ::
           {:ok, commit_result()} | {:error, term()}
   def delete_version(bucket, key, version_id, opts \\ []) do
-    with :ok <- ensure_v2_writes(opts) do
+    with :ok <- ensure_v2_writes(opts),
+         :ok <- ExStorageService.Metadata.LegacyObject.prepare(backend(opts), bucket, key, opts) do
       operation_id = Keyword.get_lazy(opts, :operation_id, &generate_operation_id/0)
       backend = backend(opts)
       operation_key = Keys.outbox(operation_id)
@@ -110,12 +114,23 @@ defmodule ExStorageService.Metadata.ObjectCommit do
   def get_head(bucket, key, opts \\ []) do
     backend = backend(opts)
 
-    with {:ok, %{value: head}} <- backend.get(Keys.object_head(bucket, key), read_opts(opts)),
+    with {:ok, %{value: %{version_id: version_id}}} when is_binary(version_id) <-
+           backend.get(Keys.object_head(bucket, key), read_opts(opts)),
          {:ok, %{value: version}} <-
-           backend.get(Keys.object_version(bucket, key, head.version_id), read_opts(opts)) do
+           backend.get(Keys.object_version(bucket, key, version_id), read_opts(opts)) do
       {:ok, version_to_public(version)}
     else
       {:ok, nil} -> {:error, :not_found}
+      {:ok, %{value: %{version_id: nil}}} -> {:error, :not_found}
+      error -> error
+    end
+  end
+
+  @doc false
+  def has_state(bucket, key, opts \\ []) do
+    case backend(opts).get(Keys.object_head(bucket, key), read_opts(opts)) do
+      {:ok, nil} -> ExStorageService.Metadata.ListIndex.authoritative?(bucket, opts)
+      {:ok, _} -> {:ok, true}
       error -> error
     end
   end
@@ -145,6 +160,134 @@ defmodule ExStorageService.Metadata.ObjectCommit do
         )
 
       {:ok, versions}
+    end
+  end
+
+  @doc "Reads tags from the selected current or explicit object version."
+  def get_tags(bucket, key, version_id, opts \\ []) do
+    with {:ok, selected} <- tag_record(backend(opts), bucket, key, version_id, opts),
+         :ok <- taggable(selected.record.value) do
+      {:ok, %{tags: Map.get(selected.record.value, :tags, %{}), version_id: selected.version_id}}
+    end
+  end
+
+  @doc "Changes only tags, fenced by the bucket, version and selected current head."
+  def set_tags(bucket, key, version_id, tags, opts \\ []) do
+    with :ok <- ensure_v2_writes(opts),
+         {:ok, tags} <- ExStorageService.Storage.Tags.validate(tags) do
+      update_tags(backend(opts), bucket, key, version_id, tags, opts, max_attempts(opts))
+    end
+  end
+
+  defp update_tags(_backend, _bucket, _key, _version, _tags, _opts, 0),
+    do: {:error, :compare_retry_exhausted}
+
+  defp update_tags(backend, bucket, key, version_id, tags, opts, attempts) do
+    with {:ok, guard} <- BucketLifecycle.guard(backend, bucket, opts),
+         {:ok, selected} <- tag_record(backend, bucket, key, version_id, opts),
+         :ok <- taggable(selected.record.value) do
+      spec = %{
+        compare:
+          guard.compare ++
+            selected.compare ++
+            [revision_compare(selected.key, selected.record)],
+        success:
+          guard.success ++
+            [{:put, selected.key, Map.put(selected.record.value, :tags, tags), %{}}],
+        failure: []
+      }
+
+      with {:ok, spec} <- ExStorageService.Metadata.ListIndex.augment(backend, bucket, spec, opts) do
+        case backend.transaction(spec, Keyword.take(opts, [:engine, :timeout])) do
+          {:ok, %{succeeded: true}} ->
+            {:ok, %{version_id: selected.version_id}}
+
+          {:ok, %{succeeded: false}} ->
+            update_tags(backend, bucket, key, version_id, tags, opts, attempts - 1)
+
+          {:error, _} = error ->
+            error
+        end
+      else
+        {:error, :conflict} ->
+          update_tags(backend, bucket, key, version_id, tags, opts, attempts - 1)
+
+        {:error, _} = error ->
+          error
+      end
+    end
+  end
+
+  defp taggable(version) do
+    if Map.get(version, :delete_marker, Map.get(version, :is_delete_marker, false)),
+      do: {:error, :delete_marker},
+      else: :ok
+  end
+
+  defp tag_record(backend, bucket, key, version_id, opts) do
+    head_key = Keys.object_head(bucket, key)
+
+    with {:ok, head} <- backend.get(head_key, read_opts(opts)) do
+      selected_id = version_id || value_field(head, :version_id)
+      selected_key = if selected_id, do: Keys.object_version(bucket, key, selected_id)
+
+      with {:ok, record} <-
+             if(selected_key, do: backend.get(selected_key, read_opts(opts)), else: {:ok, nil}) do
+        cond do
+          record != nil ->
+            {:ok,
+             %{
+               key: selected_key,
+               record: record,
+               version_id: selected_id,
+               compare: if(is_nil(version_id), do: [head_compare(head_key, head)], else: [])
+             }}
+
+          head == nil ->
+            legacy_tag_record(backend, bucket, key, version_id, opts)
+
+          true ->
+            {:error, if(is_nil(version_id), do: :object_not_found, else: :version_not_found)}
+        end
+      end
+    end
+  end
+
+  defp legacy_tag_record(backend, bucket, key, version_id, opts) do
+    list_key = "obj_ver_list:#{bucket}:#{key}"
+
+    with {:ok, list} <- backend.get(list_key, read_opts(opts)) do
+      id =
+        version_id ||
+          case list do
+            %{value: [latest | _]} -> latest
+            _ -> "null"
+          end
+
+      record_key =
+        if id == "null",
+          do: "obj:#{bucket}:#{key}",
+          else: "obj_ver:#{bucket}:#{key}:#{id}"
+
+      case backend.get(record_key, read_opts(opts)) do
+        {:ok, nil} ->
+          {:error, if(is_nil(version_id), do: :object_not_found, else: :version_not_found)}
+
+        {:ok, record} ->
+          {:ok,
+           %{
+             key: record_key,
+             record: record,
+             version_id: id,
+             compare: [
+               head_compare(Keys.object_head(bucket, key), nil),
+               revision_compare(list_key, list)
+             ]
+           }}
+
+        error ->
+          error
+      end
     end
   end
 
@@ -207,7 +350,7 @@ defmodule ExStorageService.Metadata.ObjectCommit do
          metadata,
          operation_id,
          operation_key,
-         version_id,
+         candidate_version_id,
          kind,
          request_fingerprint,
          opts,
@@ -215,7 +358,13 @@ defmodule ExStorageService.Metadata.ObjectCommit do
        ) do
     head_key = Keys.object_head(bucket, key)
 
-    with {:ok, observed_head} <- backend.get(head_key, read_opts(opts)),
+    with {:ok, bucket_guard} <- BucketLifecycle.guard(backend, bucket, opts),
+         {:ok, policy} <- version_policy(backend, bucket, candidate_version_id, kind, opts),
+         version_id = policy.version_id,
+         version_key = Keys.object_version(bucket, key, version_id),
+         {:ok, previous_version} <- backend.get(version_key, read_opts(opts)),
+         {:ok, observed_head} <- backend.get(head_key, read_opts(opts)),
+         :ok <- check_preconditions(backend, bucket, key, observed_head, opts),
          {:ok, parent_version_id} <-
            observed_parent_version_id(backend, bucket, key, observed_head, opts),
          {:ok, cluster_metadata} <-
@@ -232,7 +381,13 @@ defmodule ExStorageService.Metadata.ObjectCommit do
         |> Map.put(:bucket, bucket)
         |> Map.put(:key, key)
         |> Map.put(:version_id, version_id)
-        |> Map.put(:parent_version_id, parent_version_id)
+        |> Map.put(
+          :parent_version_id,
+          if(parent_version_id == version_id,
+            do: value_field(previous_version, :parent_version_id),
+            else: parent_version_id
+          )
+        )
         |> Map.put(:delete_marker, delete_marker?)
         |> Map.put(:is_delete_marker, delete_marker?)
         |> Map.put_new(:object_type, :blob)
@@ -243,8 +398,9 @@ defmodule ExStorageService.Metadata.ObjectCommit do
         schema: 2,
         bucket: bucket,
         key: key,
-        version_id: version_id,
+        version_id: if(policy.remove?, do: nil, else: version_id),
         delete_marker: delete_marker?,
+        deleted: policy.remove?,
         etag: Map.get(version, :etag),
         updated_at: Map.get(metadata, :updated_at, now)
       }
@@ -252,8 +408,13 @@ defmodule ExStorageService.Metadata.ObjectCommit do
       result = %{
         operation_id: operation_id,
         version_id: version_id,
-        kind: kind
+        kind: if(policy.remove?, do: :deleted, else: kind)
       }
+
+      result =
+        if Map.has_key?(policy, :state),
+          do: Map.put(result, :versioning_state, policy.state),
+          else: result
 
       operation = %{
         schema: 2,
@@ -264,37 +425,106 @@ defmodule ExStorageService.Metadata.ObjectCommit do
         committed_at: now
       }
 
-      spec = %{
-        compare:
-          [
-            head_compare(head_key, observed_head),
-            {:exists, operation_key, :==, false},
-            {:exists, Keys.object_version(bucket, key, version_id), :==, false}
-          ] ++ cluster_metadata.compare ++ intent.compare,
-        success:
-          [
-            {:put, Keys.object_version(bucket, key, version_id), version, %{}},
-            {:put, head_key, head, %{}}
-          ] ++
-            blob_operations(version, now, cluster_metadata) ++
-            cluster_metadata.success ++
-            intent.success ++ [{:put, operation_key, operation, %{}}],
-        failure: []
-      }
+      with {:ok, completion} <-
+             ExStorageService.Metadata.MultipartCommit.completion_operations(
+               backend,
+               bucket,
+               key,
+               result,
+               opts
+             ) do
+        spec = %{
+          compare:
+            [
+              head_compare(head_key, observed_head),
+              {:exists, operation_key, :==, false},
+              if(policy.null?,
+                do: revision_compare(version_key, previous_version),
+                else: {:exists, version_key, :==, false}
+              )
+            ] ++
+              policy.compare ++
+              bucket_guard.compare ++
+              cluster_metadata.compare ++ intent.compare ++ completion.compare,
+          success:
+            [
+              if(policy.remove?,
+                do: {:delete, {:key, version_key}, %{}},
+                else: {:put, version_key, version, %{}}
+              ),
+              {:put, head_key, head, %{}}
+            ] ++
+              bucket_guard.success ++
+              blob_operations(version, now, cluster_metadata) ++
+              cluster_metadata.success ++
+              intent.success ++ completion.success ++ [{:put, operation_key, operation, %{}}],
+          failure: []
+        }
 
-      attempt_key = attempt_key(operation_id, spec)
+        with {:ok, spec} <-
+               ExStorageService.Metadata.ListIndex.augment(backend, bucket, spec, opts) do
+          attempt_key = attempt_key(operation_id, spec)
 
-      case backend.transaction(spec, transaction_opts(opts, attempt_key)) do
-        {:ok, %{succeeded: true}} ->
-          {:ok, result}
+          case backend.transaction(spec, transaction_opts(opts, attempt_key)) do
+            {:ok, %{succeeded: true}} ->
+              {:ok, result}
 
-        {:ok, %{succeeded: false}} ->
-          retry_or_resolve(
-            backend,
-            operation_key,
-            request_fingerprint,
-            opts,
-            fn ->
+            {:ok, %{succeeded: false}} ->
+              retry_or_resolve(
+                backend,
+                operation_key,
+                request_fingerprint,
+                opts,
+                fn ->
+                  do_commit_new_version(
+                    backend,
+                    bucket,
+                    key,
+                    metadata,
+                    operation_id,
+                    operation_key,
+                    candidate_version_id,
+                    kind,
+                    request_fingerprint,
+                    opts,
+                    attempts_left - 1
+                  )
+                end
+              )
+
+            {:error, reason}
+            when reason in [:timeout, :unknown, :cluster_not_ready, :no_leader] ->
+              resolve_ambiguous(
+                backend,
+                attempt_key,
+                operation_key,
+                request_fingerprint,
+                result,
+                spec,
+                opts,
+                fn ->
+                  do_commit_new_version(
+                    backend,
+                    bucket,
+                    key,
+                    metadata,
+                    operation_id,
+                    operation_key,
+                    candidate_version_id,
+                    kind,
+                    request_fingerprint,
+                    opts,
+                    attempts_left - 1
+                  )
+                end
+              )
+
+            {:error, reason} ->
+              {:error, reason}
+          end
+        else
+          {:error, :conflict} ->
+            retry_or_resolve(backend, operation_key, request_fingerprint, opts, fn ->
               do_commit_new_version(
                 backend,
                 bucket,
@@ -302,43 +532,17 @@ defmodule ExStorageService.Metadata.ObjectCommit do
                 metadata,
                 operation_id,
                 operation_key,
-                version_id,
+                candidate_version_id,
                 kind,
                 request_fingerprint,
                 opts,
                 attempts_left - 1
               )
-            end
-          )
+            end)
 
-        {:error, reason} when reason in [:timeout, :unknown, :cluster_not_ready, :no_leader] ->
-          resolve_ambiguous(
-            backend,
-            attempt_key,
-            operation_key,
-            request_fingerprint,
-            result,
-            spec,
-            opts,
-            fn ->
-              do_commit_new_version(
-                backend,
-                bucket,
-                key,
-                metadata,
-                operation_id,
-                operation_key,
-                version_id,
-                kind,
-                request_fingerprint,
-                opts,
-                attempts_left - 1
-              )
-            end
-          )
-
-        {:error, reason} ->
-          {:error, reason}
+          {:error, _} = error ->
+            error
+        end
       end
     end
   end
@@ -370,20 +574,17 @@ defmodule ExStorageService.Metadata.ObjectCommit do
     head_key = Keys.object_head(bucket, key)
     version_key = Keys.object_version(bucket, key, version_id)
 
-    with {:ok, observed_head} <- backend.get(head_key, read_opts(opts)),
+    with {:ok, bucket_guard} <- BucketLifecycle.guard(backend, bucket, opts),
+         {:ok, observed_head} <- backend.get(head_key, read_opts(opts)),
          {:ok, observed_version} <- backend.get(version_key, read_opts(opts)),
-         {:ok, versions} <- list_versions(bucket, key, Keyword.put(opts, :backend, backend)),
+         {:ok, selected} <-
+           replacement_version(backend, bucket, key, observed_head, observed_version, opts),
          {:ok, events} <- operation_events([], opts) do
       if observed_version == nil do
         {:ok, %{operation_id: operation_id, version_id: version_id, kind: :deleted}}
       else
-        remaining = Enum.reject(versions, &(&1.version_id == version_id))
         deleting_head? = value_field(observed_head, :version_id) == version_id
-
-        replacement =
-          if deleting_head?,
-            do: replacement_version(observed_version, remaining),
-            else: nil
+        replacement = selected.version
 
         result = %{operation_id: operation_id, version_id: version_id, kind: :deleted}
 
@@ -409,20 +610,68 @@ defmodule ExStorageService.Metadata.ObjectCommit do
               head_compare(head_key, observed_head),
               {:mod_revision, version_key, :==, observed_version.mod_revision},
               {:exists, operation_key, :==, false}
-            ] ++ replacement_compare(bucket, key, replacement),
+            ] ++
+              bucket_guard.compare ++
+              selected.compare ++ replacement_compare(bucket, key, replacement),
           success:
             [{:delete, {:key, version_key}, %{}}] ++
-              head_ops ++ [{:put, operation_key, operation, %{}}],
+              head_ops ++ bucket_guard.success ++ [{:put, operation_key, operation, %{}}],
           failure: []
         }
 
-        attempt_key = attempt_key(operation_id, spec)
+        with {:ok, spec} <-
+               ExStorageService.Metadata.ListIndex.augment(backend, bucket, spec, opts) do
+          attempt_key = attempt_key(operation_id, spec)
 
-        case backend.transaction(spec, transaction_opts(opts, attempt_key)) do
-          {:ok, %{succeeded: true}} ->
-            {:ok, result}
+          case backend.transaction(spec, transaction_opts(opts, attempt_key)) do
+            {:ok, %{succeeded: true}} ->
+              {:ok, result}
 
-          {:ok, %{succeeded: false}} ->
+            {:ok, %{succeeded: false}} ->
+              retry_or_resolve(backend, operation_key, request_fingerprint, opts, fn ->
+                do_delete_version(
+                  backend,
+                  bucket,
+                  key,
+                  version_id,
+                  operation_id,
+                  operation_key,
+                  request_fingerprint,
+                  opts,
+                  attempts_left - 1
+                )
+              end)
+
+            {:error, reason}
+            when reason in [:timeout, :unknown, :cluster_not_ready, :no_leader] ->
+              resolve_ambiguous(
+                backend,
+                attempt_key,
+                operation_key,
+                request_fingerprint,
+                result,
+                spec,
+                opts,
+                fn ->
+                  do_delete_version(
+                    backend,
+                    bucket,
+                    key,
+                    version_id,
+                    operation_id,
+                    operation_key,
+                    request_fingerprint,
+                    opts,
+                    attempts_left - 1
+                  )
+                end
+              )
+
+            {:error, reason} ->
+              {:error, reason}
+          end
+        else
+          {:error, :conflict} ->
             retry_or_resolve(backend, operation_key, request_fingerprint, opts, fn ->
               do_delete_version(
                 backend,
@@ -437,39 +686,26 @@ defmodule ExStorageService.Metadata.ObjectCommit do
               )
             end)
 
-          {:error, reason} when reason in [:timeout, :unknown, :cluster_not_ready, :no_leader] ->
-            resolve_ambiguous(
-              backend,
-              attempt_key,
-              operation_key,
-              request_fingerprint,
-              result,
-              spec,
-              opts,
-              fn ->
-                do_delete_version(
-                  backend,
-                  bucket,
-                  key,
-                  version_id,
-                  operation_id,
-                  operation_key,
-                  request_fingerprint,
-                  opts,
-                  attempts_left - 1
-                )
-              end
-            )
-
-          {:error, reason} ->
-            {:error, reason}
+          {:error, _} = error ->
+            error
         end
       end
     end
   end
 
-  defp replacement_head_operation(head_key, _bucket, _key, nil),
-    do: [{:delete, {:key, head_key}, %{}}]
+  defp replacement_head_operation(head_key, bucket, key, nil),
+    do: [
+      {:put, head_key,
+       %{
+         schema: 2,
+         bucket: bucket,
+         key: key,
+         version_id: nil,
+         delete_marker: true,
+         deleted: true,
+         updated_at: timestamp()
+       }, %{}}
+    ]
 
   defp replacement_head_operation(head_key, bucket, key, version) do
     head = %{
@@ -490,9 +726,90 @@ defmodule ExStorageService.Metadata.ObjectCommit do
   defp replacement_compare(bucket, key, version),
     do: [{:exists, Keys.object_version(bucket, key, version.version_id), :==, true}]
 
-  defp replacement_version(observed_version, remaining) do
-    parent_version_id = value_field(observed_version, :parent_version_id)
-    Enum.find(remaining, &(&1.version_id == parent_version_id)) || List.first(remaining)
+  defp replacement_version(_backend, _bucket, _key, _head, nil, _opts),
+    do: {:ok, %{version: nil, compare: []}}
+
+  defp replacement_version(backend, bucket, key, head, observed, opts) do
+    if value_field(head, :version_id) == value_field(observed, :version_id) do
+      parent = value_field(observed, :parent_version_id)
+
+      if is_binary(parent) and parent != value_field(observed, :version_id) do
+        parent_key = Keys.object_version(bucket, key, parent)
+
+        case backend.get(parent_key, Keyword.put(read_opts(opts), :consistency, :linearizable)) do
+          {:ok, nil} ->
+            indexed_replacement(backend, bucket, key, opts, [{:exists, parent_key, :==, false}])
+
+          {:ok, %{value: version, mod_revision: revision}} ->
+            {:ok,
+             %{
+               version: version_to_public(version),
+               compare: [{:mod_revision, parent_key, :==, revision}]
+             }}
+
+          error ->
+            error
+        end
+      else
+        indexed_replacement(backend, bucket, key, opts, [])
+      end
+    else
+      {:ok, %{version: nil, compare: []}}
+    end
+  end
+
+  defp indexed_replacement(backend, bucket, key, opts, compare) do
+    alias ExStorageService.Metadata.ListIndex
+    alias ExStorageService.Metadata.ListIndex.Codec
+
+    select = fn encoded, summary ->
+      case Codec.decode_version(encoded) do
+        {:ok, %{key: ^key, version_id: id, is_latest: false}} ->
+          version_key = Keys.object_version(bucket, key, id)
+
+          if Map.get(summary, :version_id) == id and Map.get(summary, :key) == key do
+            case backend.get(
+                   version_key,
+                   Keyword.put(read_opts(opts), :consistency, :linearizable)
+                 ) do
+              {:ok, %{value: value, mod_revision: revision}} ->
+                {:emit, encoded,
+                 %{
+                   version: version_to_public(value),
+                   compare: [{:mod_revision, version_key, :==, revision}]
+                 }}
+
+              {:ok, nil} ->
+                {:error, :listing_index_corrupt}
+
+              error ->
+                error
+            end
+          else
+            {:error, :listing_index_corrupt}
+          end
+
+        {:ok, %{key: other}} when other != key ->
+          :stop
+
+        _ ->
+          {:error, :listing_index_corrupt}
+      end
+    end
+
+    page_opts =
+      opts
+      |> Keyword.put(:backend, backend)
+      |> Keyword.put(:limit, 1)
+      |> Keyword.put(:select, select)
+
+    with {:ok, page} <-
+           ListIndex.page(bucket, :versions, Codec.version_prefix(key) <> <<1>>, page_opts) do
+      case page.entries do
+        [] -> {:ok, %{version: nil, compare: compare}}
+        [{_, selected} | _] -> {:ok, %{selected | compare: compare ++ selected.compare}}
+      end
+    end
   end
 
   defp blob_operations(_version, _now, %{descriptor: descriptor})
@@ -868,6 +1185,77 @@ defmodule ExStorageService.Metadata.ObjectCommit do
   defp revision_compare(key, nil), do: {:mod_revision, key, :==, 0}
   defp revision_compare(key, %{mod_revision: revision}), do: {:mod_revision, key, :==, revision}
 
+  defp version_policy(backend, bucket, version_id, kind, opts) do
+    if Keyword.get(opts, :bucket_versioning, false) do
+      config_key = "bucket_versioning:#{bucket}"
+
+      with {:ok, record} <- backend.get(config_key, read_opts(opts)),
+           {:ok, state} <- versioning_state(record) do
+        {:ok,
+         %{
+           state: state,
+           version_id: if(state == :enabled, do: version_id, else: "null"),
+           null?: state != :enabled,
+           remove?: state == :disabled and kind == :delete_marker,
+           compare: [revision_compare(config_key, record)]
+         }}
+      end
+    else
+      {:ok, %{version_id: version_id, null?: false, remove?: false, compare: []}}
+    end
+  end
+
+  defp versioning_state(nil), do: {:ok, :disabled}
+
+  defp versioning_state(%{value: state}) when state in [:enabled, "enabled", "Enabled"],
+    do: {:ok, :enabled}
+
+  defp versioning_state(%{value: state}) when state in [:suspended, "suspended", "Suspended"],
+    do: {:ok, :suspended}
+
+  defp versioning_state(_record), do: {:error, :invalid_versioning_state}
+
+  # Preconditions are evaluated against the same revision compared by commit.
+  # A failed compare retries this evaluation, so two create-only writers cannot
+  # both succeed and a stale ETag cannot overwrite a concurrent replacement.
+  defp check_preconditions(backend, bucket, key, nil, opts) do
+    if opts[:if_match] || opts[:if_none_match] do
+      with {:ok, legacy} <- backend.get("obj:#{bucket}:#{key}", read_opts(opts)) do
+        check_conditions(legacy, opts)
+      end
+    else
+      :ok
+    end
+  end
+
+  defp check_preconditions(_backend, _bucket, _key, head, opts),
+    do: check_conditions(head, opts)
+
+  defp check_conditions(record, opts) do
+    current = if record, do: record.value, else: %{}
+    exists = record != nil and not Map.get(current, :delete_marker, false)
+    etag = Map.get(current, :etag)
+
+    matches = fn value ->
+      is_binary(value) and is_binary(etag) and
+        String.trim(value, "\"") == String.trim(etag, "\"")
+    end
+
+    cond do
+      opts[:if_none_match] == "*" and exists ->
+        {:error, :precondition_failed}
+
+      opts[:if_none_match] not in [nil, "*"] ->
+        {:error, :invalid_precondition}
+
+      opts[:if_match] && (not exists or not matches.(opts[:if_match])) ->
+        {:error, :precondition_failed}
+
+      true ->
+        :ok
+    end
+  end
+
   defp head_compare(head_key, nil), do: {:mod_revision, head_key, :==, 0}
 
   defp head_compare(head_key, %{mod_revision: revision}),
@@ -1019,7 +1407,10 @@ defmodule ExStorageService.Metadata.ObjectCommit do
     stable_metadata =
       Map.drop(metadata, [:created_at, :updated_at, :version_id, :parent_version_id])
 
-    fingerprint({bucket, key, kind, stable_metadata, durability_fingerprint(opts[:durability])})
+    fingerprint(
+      {bucket, key, kind, stable_metadata, durability_fingerprint(opts[:durability]),
+       Keyword.take(opts, [:if_match, :if_none_match, :bucket_versioning])}
+    )
   end
 
   defp durability_fingerprint(nil), do: nil

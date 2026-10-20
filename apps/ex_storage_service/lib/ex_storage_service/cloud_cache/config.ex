@@ -21,6 +21,9 @@ defmodule ExStorageService.CloudCache.Config do
   | `:s3_compat` | Required: provider endpoint URL      | Generic S3-compatible backend    |
   """
 
+  alias ExStorageService.Metadata.{BucketConfig, BucketLifecycle}
+  alias ExStorageService.Metadata.Backend.Concord, as: Backend
+
   @type provider :: :aws | :r2 | :minio | :s3_compat
 
   @type t :: %__MODULE__{
@@ -66,7 +69,22 @@ defmodule ExStorageService.CloudCache.Config do
   If `secret_access_key` is provided in plaintext, it will be encrypted.
   """
   @spec set_config(String.t(), map() | keyword()) :: :ok | {:error, term()}
-  def set_config(bucket, params) do
+  def set_config(bucket, params, opts \\ []) do
+    backend = Keyword.get(opts, :backend, Backend)
+
+    with {:ok, record} <- backend.get("bucket:#{bucket}", consistency: :linearizable) do
+      case record do
+        nil ->
+          {:error, :bucket_not_found}
+
+        %{value: metadata} ->
+          opts = Keyword.put_new(opts, :bucket_generation, BucketLifecycle.generation(metadata))
+          set_fenced_config(bucket, params, opts)
+      end
+    end
+  end
+
+  defp set_fenced_config(bucket, params, opts) do
     params = normalize(params)
 
     # Encrypt the secret if given as plaintext
@@ -103,24 +121,14 @@ defmodule ExStorageService.CloudCache.Config do
       }
       |> Map.put(secret_field, encrypted)
 
-    case Concord.put("cloud_cache:#{bucket}", stored) do
-      :ok -> :ok
-      {:ok, _} -> :ok
-      error -> error
-    end
+    BucketConfig.put(bucket, "cloud_cache", stored, opts)
   end
 
   @doc """
   Delete cloud cache config for a bucket.
   """
   @spec delete_config(String.t()) :: :ok | {:error, term()}
-  def delete_config(bucket) do
-    case Concord.delete("cloud_cache:#{bucket}") do
-      :ok -> :ok
-      {:ok, _} -> :ok
-      error -> error
-    end
-  end
+  def delete_config(bucket, opts \\ []), do: BucketConfig.delete(bucket, "cloud_cache", opts)
 
   @doc """
   Check if cloud cache is enabled for a bucket.

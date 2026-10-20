@@ -80,7 +80,8 @@ defmodule ExStorageService.Context do
     [
       root: context.blob_root,
       tmp_dir: Path.join(context.tmp_root, "uploads"),
-      data_root: context.data_root
+      data_root: context.data_root,
+      managed_staging: [instance: context.instance, node_id: context.config.node_id]
     ]
   end
 
@@ -94,7 +95,10 @@ defmodule ExStorageService.Context do
   """
   @spec direct_blob_store_options(t()) :: keyword()
   def direct_blob_store_options(%__MODULE__{} = context) do
-    Keyword.put(blob_store_options(context), :pack_module, nil)
+    context
+    |> blob_store_options()
+    |> Keyword.delete(:managed_staging)
+    |> Keyword.put(:pack_module, nil)
   end
 
   @spec validate_shared_metadata_roots(t()) :: :ok | {:error, String.t()}

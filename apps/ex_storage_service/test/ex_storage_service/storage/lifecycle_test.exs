@@ -20,6 +20,7 @@ defmodule ExStorageService.Storage.LifecycleTest do
 
   test "transition rules pack old matching objects without deleting metadata" do
     bucket = "lifecycle-transition-#{:erlang.unique_integer([:positive])}"
+    :ok = Metadata.create_bucket(bucket)
     key = "archive/report.txt"
     data = "transition-me-#{System.unique_integer()}"
 

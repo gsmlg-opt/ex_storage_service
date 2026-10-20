@@ -241,7 +241,7 @@ defmodule ExStorageServiceS3.MultipartEdgeTest do
   end
 
   describe "complete multipart with invalid parts XML" do
-    test "empty parts list completes with zero-byte object" do
+    test "empty parts list is rejected without creating an object" do
       with_bucket_and_upload(fn bucket, key ->
         upload_id = initiate_upload(bucket, key)
 
@@ -257,12 +257,11 @@ defmodule ExStorageServiceS3.MultipartEdgeTest do
             headers: [{"content-type", "application/xml"}]
           )
 
-        # Implementation accepts empty parts and creates a zero-byte object
-        assert resp.status == 200
+        assert resp.status == 400
+        assert resp.body =~ "InvalidPart"
 
         {:ok, get_resp} = Req.get("#{@base_url}/#{bucket}/#{key}")
-        assert get_resp.status == 200
-        assert get_resp.body == "" or byte_size(get_resp.body) == 0
+        assert get_resp.status == 404
       end)
     end
 
@@ -545,15 +544,10 @@ defmodule ExStorageServiceS3.MultipartEdgeTest do
         {:ok, resp} =
           complete_upload(bucket, key, upload_id, [{2, etag2}, {1, etag1}])
 
-        # S3 spec requires InvalidPartOrder, but implementation may reorder silently
-        # Either way, the object data must be correct if 200
-        if resp.status == 200 do
-          {:ok, get_resp} = Req.get("#{@base_url}/#{bucket}/#{key}")
-          assert get_resp.body == "part-one" <> "part-two"
-        else
-          assert resp.status == 400
-          assert String.contains?(resp.body, "InvalidPartOrder")
-        end
+        assert resp.status == 400
+        assert resp.body =~ "InvalidPartOrder"
+        {:ok, get_response} = Req.get("#{@base_url}/#{bucket}/#{key}")
+        assert get_response.status == 404
       end)
     end
   end

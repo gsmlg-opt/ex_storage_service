@@ -6,14 +6,18 @@ defmodule ExStorageService.Storage.PackerTest do
 
   defp put_and_reference(data) do
     bucket = "packer-#{:erlang.unique_integer([:positive])}"
+    assert :ok = Metadata.create_bucket(bucket)
     {:ok, {hash, etag, size}} = Engine.put_object(bucket, "k", data)
 
-    Metadata.put_object_meta(bucket, "k", %{
-      content_hash: hash,
-      size: size,
-      etag: etag,
-      created_at: DateTime.utc_now() |> DateTime.to_iso8601()
-    })
+    assert :ok =
+             Metadata.put_object_meta(bucket, "k", %{
+               content_hash: hash,
+               size: size,
+               etag: etag,
+               created_at: DateTime.utc_now() |> DateTime.to_iso8601()
+             })
+
+    assert {:ok, %{content_hash: ^hash}} = Metadata.get_object_meta(bucket, "k")
 
     # backdate the loose file so it is "cold"
     File.touch!(CAS.blob_path(hash), System.os_time(:second) - 90 * 86_400)
@@ -65,6 +69,32 @@ defmodule ExStorageService.Storage.PackerTest do
       etag: etag,
       uploaded_at: DateTime.utc_now() |> DateTime.to_iso8601()
     })
+
+    on_exit(fn -> Concord.delete(part_key) end)
+
+    assert {:ok, _report} = Packer.pack_now(cold_after: 0, min_blobs: 1)
+    assert File.exists?(CAS.blob_path(hash))
+    assert {:ok, %{state: :active}} = Metadata.get_blob_meta(hash)
+    assert {:error, :not_found} = Pack.locate(hash)
+  end
+
+  test "does not pack active v2 multipart part blobs" do
+    bucket = "packer-v2-mpu-#{:erlang.unique_integer([:positive])}"
+    upload_id = "upload-#{:erlang.unique_integer([:positive])}"
+    part_key = ExStorageService.Metadata.Keys.multipart_part(upload_id, 1)
+    data = "active-v2-part-#{System.unique_integer()}"
+    {:ok, {hash, etag, size}} = Engine.put_object(bucket, "mpu-part", data)
+    File.touch!(CAS.blob_path(hash), System.os_time(:second) - 90 * 86_400)
+
+    assert :ok =
+             Concord.put(part_key, %{
+               schema: 2,
+               part_number: 1,
+               hash: hash,
+               size: size,
+               etag: etag,
+               uploaded_at: DateTime.utc_now() |> DateTime.to_iso8601()
+             })
 
     on_exit(fn -> Concord.delete(part_key) end)
 

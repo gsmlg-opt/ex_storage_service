@@ -2,14 +2,206 @@ defmodule ExStorageService.Metadata.MultipartCommitTest do
   use ExUnit.Case, async: false
 
   alias ExStorageService.Cluster.{BlobDescriptor, Node, ReplicaAck}
+  alias ExStorageService.Metadata
   alias ExStorageService.Metadata.Backend.Concord, as: Backend
-  alias ExStorageService.Metadata.{Keys, MultipartCommit, OperationIntents}
+
+  alias ExStorageService.Metadata.{
+    BucketLifecycle,
+    Keys,
+    ListIndex,
+    MultipartCommit,
+    OperationIntents
+  }
+
+  defmodule InterleavingBackend do
+    def get(key, opts) do
+      if String.contains?(key, ":uploads:node:") and opts[:engine] do
+        interleaving =
+          Agent.get_and_update(opts[:engine], fn state ->
+            {state, %{state | remaining: max(state.remaining - 1, 0)}}
+          end)
+
+        if interleaving.remaining > 0 do
+          part = %{
+            hash: "interleaved-#{interleaving.remaining}",
+            etag: "interleaved-#{interleaving.remaining}",
+            size: 1,
+            part_number: 1
+          }
+
+          {:ok, _} =
+            MultipartCommit.put_local_part(
+              interleaving.bucket,
+              interleaving.upload_id,
+              1,
+              part
+            )
+
+          # A real part commit replaces the single upload's membership-tree node.
+          {:ok, nil} = Backend.get(key)
+        end
+      end
+
+      Backend.get(key, Keyword.delete(opts, :engine))
+    end
+
+    def transaction(spec, opts), do: Backend.transaction(spec, Keyword.delete(opts, :engine))
+
+    def resolve_transaction(key, opts),
+      do: Backend.resolve_transaction(key, Keyword.delete(opts, :engine))
+  end
+
+  test "standalone part planning conflicts use the remaining publication retry budget" do
+    {bucket, upload_id} = upload_fixture()
+
+    {:ok, engine} =
+      Agent.start_link(fn -> %{bucket: bucket, upload_id: upload_id, remaining: 16} end)
+
+    part = %{hash: "target-hash", etag: "target-etag", size: 1, part_number: 2}
+
+    assert {:ok, "target-etag"} =
+             MultipartCommit.put_local_part(bucket, upload_id, 2, part,
+               backend: InterleavingBackend,
+               engine: engine
+             )
+
+    assert Agent.get(engine, & &1.remaining) == 0
+
+    assert {:ok, %{value: %{etag: "target-etag"}}} =
+             Backend.get(Keys.multipart_part(upload_id, 2))
+  end
+
+  test "shared indexed transaction reports a planning conflict as an unsuccessful compare" do
+    {bucket, upload_id} = upload_fixture()
+
+    {:ok, engine} =
+      Agent.start_link(fn -> %{bucket: bucket, upload_id: upload_id, remaining: 16} end)
+
+    upload_key = Keys.multipart_upload(upload_id)
+    assert {:ok, record} = Backend.get(upload_key, consistency: :linearizable)
+
+    spec = %{
+      compare: [{:mod_revision, upload_key, :==, record.mod_revision}],
+      success: [{:put, upload_key, Map.put(record.value, :target_marker, true), %{}}],
+      failure: []
+    }
+
+    assert {:ok, %{succeeded: false}} =
+             ListIndex.transaction(InterleavingBackend, bucket, spec, engine: engine)
+
+    assert Agent.get(engine, & &1.remaining) == 0
+    assert {:ok, %{value: current}} = Backend.get(upload_key, consistency: :linearizable)
+    refute Map.has_key?(current, :target_marker)
+  end
+
+  test "quorum part planning conflicts use the remaining publication retry budget" do
+    {bucket, upload_id} = upload_fixture()
+
+    {:ok, engine} =
+      Agent.start_link(fn -> %{bucket: bucket, upload_id: upload_id, remaining: 16} end)
+
+    operation_id = "index-part-#{upload_id}"
+    hash = :crypto.hash(:sha256, "target") |> Base.encode16(case: :lower)
+    timestamp = "2026-10-18T00:00:00Z"
+    node_a = node("node-a", 7, timestamp)
+    node_b = node("node-b", 9, timestamp)
+    :ok = put(Keys.cluster_node("node-a"), Map.from_struct(node_a))
+    :ok = put(Keys.cluster_node("node-b"), Map.from_struct(node_b))
+    {:ok, %{mod_revision: revision_a}} = Backend.get(Keys.cluster_node("node-a"))
+    {:ok, %{mod_revision: revision_b}} = Backend.get(Keys.cluster_node("node-b"))
+
+    durability = %{
+      descriptor: %BlobDescriptor{
+        schema: 2,
+        hash: hash,
+        algorithm: :sha256,
+        size: 6,
+        desired_replication_factor: 2,
+        created_at: timestamp
+      },
+      placement: [
+        %{node: node_a, mod_revision: revision_a},
+        %{node: node_b, mod_revision: revision_b}
+      ],
+      acknowledgements: [
+        ack("node-a", 7, hash, 6, operation_id),
+        ack("node-b", 9, hash, 6, operation_id)
+      ],
+      missing_node_ids: [],
+      configured_write_quorum: 2,
+      required_write_quorum: 2,
+      achieved_replica_count: 2,
+      durability: :strict
+    }
+
+    part = %{hash: hash, etag: "target-etag", size: 6, part_number: 2}
+
+    assert {:ok, %{etag: "target-etag", part_number: 2}} =
+             MultipartCommit.put_part(bucket, upload_id, 2, part, durability,
+               backend: InterleavingBackend,
+               engine: engine,
+               operation_id: operation_id
+             )
+
+    assert Agent.get(engine, & &1.remaining) == 0
+    assert {:ok, %{value: %{hash: ^hash}}} = Backend.get(Keys.multipart_part(upload_id, 2))
+    assert {:ok, %{value: %{result: %{hash: ^hash}}}} = Backend.get(Keys.outbox(operation_id))
+  end
+
+  test "exhausted standalone part planning conflicts leave the target part unpublished" do
+    {bucket, upload_id} = upload_fixture()
+
+    {:ok, engine} =
+      Agent.start_link(fn -> %{bucket: bucket, upload_id: upload_id, remaining: 128} end)
+
+    part = %{hash: "target-hash", etag: "target-etag", size: 1, part_number: 2}
+
+    assert {:error, :metadata_quorum_unavailable} =
+             MultipartCommit.put_local_part(bucket, upload_id, 2, part,
+               backend: InterleavingBackend,
+               engine: engine
+             )
+
+    assert Agent.get(engine, & &1.remaining) == 0
+    assert {:ok, nil} = Backend.get(Keys.multipart_part(upload_id, 2))
+    assert {:ok, %{value: %{parts_count: 1}}} = Backend.get(Keys.multipart_upload(upload_id))
+  end
+
+  test "stable upload index corruption is preserved by part and shared transaction boundaries" do
+    {bucket, upload_id} = upload_fixture()
+    {:ok, %{value: bucket_metadata}} = Backend.get("bucket:#{bucket}", consistency: :linearizable)
+    root_key = ListIndex.root_key(bucket, BucketLifecycle.generation(bucket_metadata))
+    {:ok, %{value: root}} = Backend.get(root_key, consistency: :linearizable)
+
+    node_key =
+      ListIndex.namespace(bucket, root, :uploads) <>
+        Base.url_encode64(root.uploads_root, padding: false)
+
+    :ok = put(node_key, %{invalid: true})
+    part = %{hash: "target-hash", etag: "target-etag", size: 1, part_number: 2}
+
+    assert {:error, :corrupt_index} =
+             MultipartCommit.put_local_part(bucket, upload_id, 2, part)
+
+    upload_key = Keys.multipart_upload(upload_id)
+    assert {:ok, %{value: upload}} = Backend.get(upload_key, consistency: :linearizable)
+
+    assert {:error, :corrupt_index} =
+             ListIndex.transaction(Backend, bucket, %{
+               compare: [],
+               success: [{:put, upload_key, Map.put(upload, :target_marker, true), %{}}],
+               failure: []
+             })
+
+    assert {:ok, nil} = Backend.get(Keys.multipart_part(upload_id, 2))
+    assert {:ok, %{value: ^upload}} = Backend.get(upload_key, consistency: :linearizable)
+  end
 
   test "part record, descriptor, locations, and operation outcome commit atomically" do
     suffix = System.unique_integer([:positive, :monotonic])
     upload_id = "upload-#{suffix}"
     operation_id = "part-operation-#{suffix}"
-    bucket = "bucket"
+    bucket = "multipart-commit-#{suffix}"
     hash = :crypto.hash(:sha256, "multipart-part") |> Base.encode16(case: :lower)
     timestamp = "2026-07-27T00:00:00Z"
 
@@ -31,24 +223,34 @@ defmodule ExStorageService.Metadata.MultipartCommitTest do
       Keys.outbox("#{operation_id}-fresh"),
       Keys.operation_intent("#{operation_id}-stale"),
       Keys.operation_intent("#{operation_id}-fresh"),
-      Keys.gc_guard(hash)
+      Keys.gc_guard(hash),
+      "bucket:#{bucket}"
     ]
 
     on_exit(fn -> cleanup(cleanup_keys) end)
 
-    :ok =
-      put(
-        upload_key,
-        %{
-          schema: 2,
-          bucket: bucket,
-          key: "object",
-          upload_id: upload_id,
-          status: :initiated,
-          created_at: timestamp,
-          updated_at: timestamp
-        }
-      )
+    :ok = Metadata.create_bucket(bucket)
+    {:ok, %{value: bucket_metadata}} = Backend.get("bucket:#{bucket}", consistency: :linearizable)
+
+    upload = %{
+      schema: 2,
+      bucket: bucket,
+      key: "object",
+      bucket_generation: BucketLifecycle.generation(bucket_metadata),
+      upload_id: upload_id,
+      status: :initiated,
+      created_at: timestamp,
+      updated_at: timestamp
+    }
+
+    {:ok, upload_spec} =
+      ListIndex.augment(Backend, bucket, %{
+        compare: [{:exists, upload_key, :==, false}],
+        success: [{:put, upload_key, upload, %{}}],
+        failure: []
+      })
+
+    {:ok, %{succeeded: true}} = Backend.transaction(upload_spec)
 
     node_a = node("node-a", 7, timestamp)
     node_b = node("node-b", 9, timestamp)
@@ -175,6 +377,34 @@ defmodule ExStorageService.Metadata.MultipartCommitTest do
              )
 
     assert {:ok, %{state: :ready}} = Concord.get(Keys.blob_location(hash, "node-a"))
+  end
+
+  defp upload_fixture do
+    suffix = System.unique_integer([:positive, :monotonic])
+    bucket = "multipart-index-conflict-#{suffix}"
+    upload_id = "index-upload-#{suffix}"
+    :ok = Metadata.create_bucket(bucket)
+    {:ok, %{value: bucket_metadata}} = Backend.get("bucket:#{bucket}", consistency: :linearizable)
+
+    upload = %{
+      bucket: bucket,
+      key: "object",
+      upload_id: upload_id,
+      bucket_generation: BucketLifecycle.generation(bucket_metadata),
+      status: :initiated,
+      created_at: "2026-10-18T00:00:00Z",
+      updated_at: "2026-10-18T00:00:00Z"
+    }
+
+    {:ok, spec} =
+      ListIndex.augment(Backend, bucket, %{
+        compare: [],
+        success: [{:put, Keys.multipart_upload(upload_id), upload, %{}}],
+        failure: []
+      })
+
+    {:ok, %{succeeded: true}} = Backend.transaction(spec)
+    {bucket, upload_id}
   end
 
   defp node(id, generation, timestamp) do

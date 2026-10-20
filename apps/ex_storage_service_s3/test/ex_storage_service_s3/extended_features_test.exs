@@ -241,7 +241,8 @@ defmodule ExStorageServiceS3.ExtendedFeaturesTest do
     end
 
     test "enable and suspend versioning" do
-      bucket = unique_bucket()
+      bucket = create_bucket(unique_bucket())
+      on_exit(fn -> ExStorageService.Metadata.delete_bucket(bucket) end)
 
       assert :ok = Versioning.set_versioning(bucket, :enabled)
       assert Versioning.get_versioning(bucket) == :enabled
@@ -258,7 +259,7 @@ defmodule ExStorageServiceS3.ExtendedFeaturesTest do
     end
 
     test "put_version creates versions when versioning is enabled" do
-      bucket = unique_bucket()
+      bucket = create_bucket(unique_bucket())
       Versioning.set_versioning(bucket, :enabled)
 
       meta1 = %{
@@ -304,7 +305,7 @@ defmodule ExStorageServiceS3.ExtendedFeaturesTest do
     end
 
     test "delete with versioning creates delete marker" do
-      bucket = unique_bucket()
+      bucket = create_bucket(unique_bucket())
       Versioning.set_versioning(bucket, :enabled)
 
       meta = %{
@@ -336,7 +337,7 @@ defmodule ExStorageServiceS3.ExtendedFeaturesTest do
     end
 
     test "suspended versioning uses null version id" do
-      bucket = unique_bucket()
+      bucket = create_bucket(unique_bucket())
       Versioning.set_versioning(bucket, :suspended)
 
       meta = %{
@@ -415,7 +416,8 @@ defmodule ExStorageServiceS3.ExtendedFeaturesTest do
 
   describe "lifecycle policies" do
     test "put and get lifecycle rules" do
-      bucket = unique_bucket()
+      bucket = create_bucket(unique_bucket())
+      on_exit(fn -> ExStorageService.Metadata.delete_bucket(bucket) end)
 
       rules = [
         %{
@@ -443,13 +445,15 @@ defmodule ExStorageServiceS3.ExtendedFeaturesTest do
     end
 
     test "delete lifecycle rules" do
-      bucket = unique_bucket()
+      bucket = create_bucket(unique_bucket())
+      on_exit(fn -> ExStorageService.Metadata.delete_bucket(bucket) end)
 
-      Lifecycle.put_rules(bucket, [
-        %{id: "test", prefix: "", status: "Enabled", expiration_days: 7}
-      ])
+      assert :ok =
+               Lifecycle.put_rules(bucket, [
+                 %{id: "test", prefix: "", status: "Enabled", expiration_days: 7}
+               ])
 
-      Lifecycle.delete_rules(bucket)
+      assert :ok = Lifecycle.delete_rules(bucket)
       assert {:error, :not_found} = Lifecycle.get_rules(bucket)
     end
 
@@ -597,7 +601,8 @@ defmodule ExStorageServiceS3.ExtendedFeaturesTest do
 
   describe "bucket notifications" do
     test "put and get notification config" do
-      bucket = unique_bucket()
+      bucket = create_bucket(unique_bucket())
+      on_exit(fn -> ExStorageService.Metadata.delete_bucket(bucket) end)
 
       configs = [
         %{
@@ -619,13 +624,15 @@ defmodule ExStorageServiceS3.ExtendedFeaturesTest do
     end
 
     test "delete notification config" do
-      bucket = unique_bucket()
+      bucket = create_bucket(unique_bucket())
+      on_exit(fn -> ExStorageService.Metadata.delete_bucket(bucket) end)
 
-      Notifications.put_config(bucket, [
-        %{id: "test", events: [], endpoint: "http://x", enabled: true}
-      ])
+      assert :ok =
+               Notifications.put_config(bucket, [
+                 %{id: "test", events: [], endpoint: "http://x", enabled: true}
+               ])
 
-      Notifications.delete_config(bucket)
+      assert :ok = Notifications.delete_config(bucket)
       assert {:error, :not_found} = Notifications.get_config(bucket)
     end
 

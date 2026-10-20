@@ -22,6 +22,8 @@ defmodule ExStorageService.Metadata.V1CompatibilityTest do
       created_at: "2026-07-18T00:00:00Z"
     }
 
+    assert :ok = Concord.put("bucket:#{bucket}", %{name: bucket, generation: "legacy"})
+    on_exit(fn -> Concord.delete("bucket:#{bucket}") end)
     assert :ok = Concord.put(version_key, metadata)
     assert :ok = Concord.put(list_key, [version_id])
 

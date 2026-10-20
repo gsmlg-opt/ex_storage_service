@@ -349,7 +349,10 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
   defp request(node, path, opts, init) do
     with {:ok, response} <-
            HTTPClient.fetch(node_url(node) <> path, request_options(opts) ++ init) do
-      {:ok, Response.with_buffered_body(response, Response.read_all(response))}
+      # Replica acknowledgements are entirely in authenticated response headers.
+      # Untrusted success/error documents must not determine request memory.
+      if stream = Response.stream_pid(response), do: HTTP.Stream.stop(stream, :normal)
+      {:ok, Response.with_buffered_body(response, "")}
     end
   rescue
     exception in RuntimeError -> {:error, exception}

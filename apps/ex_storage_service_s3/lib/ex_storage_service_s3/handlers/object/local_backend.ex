@@ -11,33 +11,25 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
 
   @impl true
   def list_objects(conn, bucket, opts, request_id) do
-    case Metadata.list_objects(bucket, opts) do
-      {:ok, result} ->
-        objects =
-          Enum.map(result.keys, fn {key, meta} ->
-            %{
-              key: key,
-              last_modified: Map.get(meta, :updated_at, Map.get(meta, :created_at, "")),
-              etag: "\"#{Map.get(meta, :etag, "")}\"",
-              size: Map.get(meta, :size, 0),
-              storage_class: "STANDARD"
-            }
-          end)
+    with {:ok, local_opts} <- ExStorageServiceS3.Listing.local_options(bucket, opts),
+         {:ok, result} <- Metadata.list_objects(bucket, local_opts) do
+      objects =
+        Enum.map(result.keys, fn {key, meta} ->
+          %{
+            key: key,
+            last_modified: Map.get(meta, :updated_at, Map.get(meta, :created_at, "")),
+            etag: "\"#{Map.get(meta, :etag, "")}\"",
+            size: Map.get(meta, :size, 0),
+            storage_class: "STANDARD"
+          }
+        end)
 
-        response_opts = %{
-          prefix: Keyword.get(opts, :prefix, ""),
-          delimiter: Keyword.get(opts, :delimiter) || "",
-          max_keys: Keyword.get(opts, :max_keys, 1000),
-          is_truncated: result.is_truncated,
-          key_count: length(objects),
-          continuation_token: Keyword.get(opts, :continuation_token),
-          next_continuation_token: result.next_continuation_token,
-          common_prefixes: result.common_prefixes
-        }
+      token = ExStorageServiceS3.Listing.next_token(bucket, result.next_continuation_token, opts)
+      response_opts = ExStorageServiceS3.Listing.response_options(opts, result, token)
 
-        body = XML.list_objects_response(bucket, objects, response_opts)
-        xml_response(conn, 200, body, request_id)
-
+      body = XML.list_objects_response(bucket, objects, response_opts)
+      xml_response(conn, 200, body, request_id)
+    else
       {:error, reason} ->
         storage_error_response(conn, reason, "/#{bucket}", request_id)
     end
@@ -54,6 +46,7 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
         |> send_resp(404, "")
 
       {:ok, %{metadata: meta}} ->
+        conn = put_object_version_header(conn, meta)
         content_type = Map.get(meta, :content_type, "application/octet-stream")
         etag = Map.get(meta, :etag, "")
         quoted_etag = "\"#{etag}\""
@@ -61,60 +54,66 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
         last_modified_raw = Map.get(meta, :updated_at, Map.get(meta, :created_at))
         last_modified = format_http_date(last_modified_raw)
 
-        if conditional_not_modified?(conn, quoted_etag, last_modified_raw) do
-          conn
-          |> put_s3_headers(request_id)
-          |> put_resp_header("etag", quoted_etag)
-          |> put_resp_header("last-modified", last_modified)
-          |> send_resp(304, "")
-        else
-          case get_req_header(conn, "range") do
-            [range_header | _] ->
-              case parse_range(range_header, size) do
-                {:ok, offset, length} ->
-                  content_range = "bytes #{offset}-#{offset + length - 1}/#{size}"
+        case ExStorageServiceS3.Plugs.ReadResponse.condition(conn, quoted_etag, last_modified_raw) do
+          :failed ->
+            storage_error_response(conn, :precondition_failed, "/#{bucket}/#{key}", request_id)
 
-                  case open_source(meta, bucket, {offset, length}, request_id) do
-                    {:ok, source} ->
-                      conn
-                      |> put_s3_headers(request_id)
-                      |> put_resp_header("content-type", content_type)
-                      |> put_resp_header("etag", quoted_etag)
-                      |> put_resp_header("last-modified", last_modified)
-                      |> put_resp_header("content-length", to_string(length))
-                      |> put_resp_header("content-range", content_range)
-                      |> put_resp_header("accept-ranges", "bytes")
-                      |> put_custom_metadata_headers(meta)
-                      |> send_blob_source(206, source, request_id: request_id)
+          :not_modified ->
+            conn
+            |> put_s3_headers(request_id)
+            |> put_resp_header("etag", quoted_etag)
+            |> put_resp_header("last-modified", last_modified)
+            |> send_resp(304, "")
 
-                    {:error, reason} ->
-                      read_error_response(conn, reason, bucket, key, request_id)
-                  end
+          :ok ->
+            case get_req_header(conn, "range") do
+              [range_header | _] ->
+                case parse_range(range_header, size) do
+                  {:ok, offset, length} ->
+                    content_range = "bytes #{offset}-#{offset + length - 1}/#{size}"
 
-                {:error, :invalid_range} ->
-                  conn
-                  |> put_s3_headers(request_id)
-                  |> put_resp_header("content-range", "bytes */#{size}")
-                  |> send_resp(416, "")
-              end
+                    case open_source(meta, bucket, {offset, length}, request_id) do
+                      {:ok, source} ->
+                        conn
+                        |> put_s3_headers(request_id)
+                        |> put_resp_header("content-type", content_type)
+                        |> put_resp_header("etag", quoted_etag)
+                        |> put_resp_header("last-modified", last_modified)
+                        |> put_resp_header("content-length", to_string(length))
+                        |> put_resp_header("content-range", content_range)
+                        |> put_resp_header("accept-ranges", "bytes")
+                        |> put_custom_metadata_headers(meta)
+                        |> omit_object_checksum_headers()
+                        |> send_blob_source(206, source, request_id: request_id)
 
-            [] ->
-              case open_source(meta, bucket, nil, request_id) do
-                {:ok, source} ->
-                  conn
-                  |> put_s3_headers(request_id)
-                  |> put_resp_header("content-type", content_type)
-                  |> put_resp_header("etag", quoted_etag)
-                  |> put_resp_header("last-modified", last_modified)
-                  |> put_resp_header("content-length", to_string(size))
-                  |> put_resp_header("accept-ranges", "bytes")
-                  |> put_custom_metadata_headers(meta)
-                  |> send_blob_source(200, source, request_id: request_id)
+                      {:error, reason} ->
+                        read_error_response(conn, reason, bucket, key, request_id)
+                    end
 
-                {:error, reason} ->
-                  read_error_response(conn, reason, bucket, key, request_id)
-              end
-          end
+                  {:error, :invalid_range} ->
+                    conn
+                    |> put_s3_headers(request_id)
+                    |> put_resp_header("content-range", "bytes */#{size}")
+                    |> send_resp(416, "")
+                end
+
+              [] ->
+                case open_source(meta, bucket, nil, request_id) do
+                  {:ok, source} ->
+                    conn
+                    |> put_s3_headers(request_id)
+                    |> put_resp_header("content-type", content_type)
+                    |> put_resp_header("etag", quoted_etag)
+                    |> put_resp_header("last-modified", last_modified)
+                    |> put_resp_header("content-length", to_string(size))
+                    |> put_resp_header("accept-ranges", "bytes")
+                    |> put_custom_metadata_headers(meta)
+                    |> send_blob_source(200, source, request_id: request_id)
+
+                  {:error, reason} ->
+                    read_error_response(conn, reason, bucket, key, request_id)
+                end
+            end
         end
 
       {:error, :bucket_not_found} ->
@@ -142,36 +141,21 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
 
   @impl true
   def put_object(conn, bucket, key, request_id) do
-    content_type =
-      case get_req_header(conn, "content-type") do
-        [ct | _] -> ct
-        [] -> "application/octet-stream"
-      end
-
-    custom_metadata = extract_custom_metadata(conn)
-
-    {reader, reader_state} = decoded_body_reader(conn)
-
-    put_object_from_reader(
-      conn,
-      bucket,
-      key,
-      reader,
-      reader_state,
-      content_type,
-      custom_metadata,
-      request_id
-    )
+    with {:ok, attributes} <- object_attributes(conn) do
+      {reader, reader_state} = decoded_body_reader(conn)
+      put_object_from_reader(conn, bucket, key, reader, reader_state, attributes, request_id)
+    else
+      {:error, reason} -> storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
+    end
   end
 
   defp put_object_from_reader(
-         _conn,
+         conn,
          bucket,
          key,
          reader,
          reader_state,
-         content_type,
-         custom_metadata,
+         attributes,
          request_id
        ) do
     case ObjectService.put_from_reader(
@@ -179,16 +163,23 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
            key,
            reader,
            reader_state,
-           content_type,
-           custom_metadata,
-           metadata_opts: [operation_id: request_id]
+           attributes.content_type,
+           attributes.metadata,
+           attributes: attributes,
+           reader_attributes: fn final -> %{checksums: final.checksums} end,
+           metadata_opts: [
+             operation_id: request_id,
+             if_match: List.first(get_req_header(conn, "if-match")),
+             if_none_match: List.first(get_req_header(conn, "if-none-match"))
+           ]
          ) do
-      {:ok, %{version_id: version_id, metadata: %{etag: etag}}, final_state} ->
+      {:ok, %{metadata: %{etag: etag}} = publication, final_state} ->
         final_state
         |> decoded_body_reader_conn()
         |> put_s3_headers(request_id)
         |> put_resp_header("etag", "\"#{etag}\"")
-        |> maybe_put_version_header(version_id)
+        |> ExStorageServiceS3.MultipartChecksums.response_headers(final_state.checksums)
+        |> put_write_version_header(publication)
         |> send_resp(200, "")
 
       {:error, {:stage, :entity_too_large}, final_state} ->
@@ -223,7 +214,6 @@ defmodule ExStorageServiceS3.Handlers.Object.LocalBackend do
     )
   end
 
-  defp maybe_put_version_header(conn, "null"), do: conn
   defp maybe_put_version_header(conn, nil), do: conn
 
   defp maybe_put_version_header(conn, version_id),

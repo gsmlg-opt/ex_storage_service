@@ -376,11 +376,45 @@ defmodule ExStorageService.Cluster.WriteCoordinator do
       Keyword.get(opts, :task_supervisor, context.replica_task_supervisor)
 
     if process_alive?(supervisor) do
-      Task.Supervisor.async_stream_nolink(supervisor, records, fun, stream_opts)
+      # Admission belongs to the shared supervisor, not to each request's
+      # async_stream. Waiting workers count against the request deadline; only
+      # admitted transfers consume the configured replica task slots.
+      Task.async_stream(records, &run_admitted(supervisor, fun, &1), stream_opts)
       |> Enum.to_list()
     else
       Task.async_stream(records, fun, stream_opts)
       |> Enum.to_list()
+    end
+  end
+
+  defp run_admitted(supervisor, fun, record) do
+    owner = self()
+    ref = make_ref()
+
+    case Task.Supervisor.start_child(supervisor, fn ->
+           # A killed/timed-out stream worker must cancel its transfer too.
+           # Linking inside the child also closes the owner-died-before-start race.
+           Process.link(owner)
+           send(owner, {ref, fun.(record)})
+         end) do
+      {:ok, pid} ->
+        monitor = Process.monitor(pid)
+
+        receive do
+          {^ref, result} ->
+            Process.demonitor(monitor, [:flush])
+            result
+
+          {:DOWN, ^monitor, :process, ^pid, reason} ->
+            exit(reason)
+        end
+
+      {:error, :max_children} ->
+        Process.sleep(5)
+        run_admitted(supervisor, fun, record)
+
+      {:error, reason} ->
+        exit({:replica_task_start_failed, reason})
     end
   end
 
@@ -417,6 +451,8 @@ defmodule ExStorageService.Cluster.WriteCoordinator do
   defp blob_opts(context, opts),
     do:
       Keyword.merge(Context.blob_store_options(context), Keyword.get(opts, :blob_store_opts, []))
+
+  defp process_alive?(pid) when is_pid(pid), do: Process.alive?(pid)
 
   defp process_alive?(name) when is_atom(name), do: Process.whereis(name) != nil
 

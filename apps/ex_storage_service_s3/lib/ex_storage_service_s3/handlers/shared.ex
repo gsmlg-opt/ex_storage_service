@@ -16,6 +16,7 @@ defmodule ExStorageServiceS3.Handlers.Shared do
     conn
     |> put_resp_header("x-amz-request-id", request_id)
     |> put_resp_header("x-amz-id-2", request_id)
+    |> put_resp_header("x-amz-bucket-region", ExStorageServiceS3.Handlers.Location.region())
     |> put_resp_header("server", "ExStorageService")
   end
 
@@ -26,14 +27,59 @@ defmodule ExStorageServiceS3.Handlers.Shared do
     |> send_resp(status, body)
   end
 
+  # The caller may reject a request before reading any body (including before
+  # an Expect/continue client sends it). Draining then can consume the next
+  # request on a reused connection. Closing is bounded even for huge bodies.
+  defp close_error_body_connection(conn) do
+    body_declared? =
+      get_req_header(conn, "transfer-encoding") != [] or
+        Enum.any?(get_req_header(conn, "content-length"), &(&1 != "0"))
+
+    if body_declared? and get_http_protocol(conn) in [:"HTTP/1.0", :"HTTP/1.1"] do
+      put_resp_header(conn, "connection", "close")
+    else
+      conn
+    end
+  end
+
   def error_response(conn, code, message, resource, request_id) do
+    ExStorageService.Telemetry.s3_error(code)
     status = XML.error_status_code(code)
-    body = XML.error_response(code, message, resource, request_id)
+    message = if code == "InternalError", do: "An internal server error occurred.", else: message
+
+    body =
+      if conn.method == "HEAD",
+        do: "",
+        else: XML.error_response(code, message, resource, request_id)
 
     conn
+    |> omit_object_payload_headers()
     |> put_s3_headers(request_id)
     |> put_resp_header("content-type", "application/xml")
+    |> close_error_body_connection()
     |> send_resp(status, body)
+  end
+
+  # A failed read may already carry headers from an object HEAD. They describe
+  # object bytes, not the XML error document. Retain version/delete-marker and
+  # request diagnostics, including Last-Modified on explicit marker errors.
+  defp omit_object_payload_headers(conn) do
+    Enum.reduce(conn.resp_headers, conn, fn {name, _value}, current ->
+      if name in [
+           "content-length",
+           "content-encoding",
+           "content-range",
+           "content-disposition",
+           "content-language",
+           "cache-control",
+           "expires",
+           "etag"
+         ] or String.starts_with?(name, ["x-amz-checksum-", "x-amz-meta-"]) do
+        delete_resp_header(current, name)
+      else
+        current
+      end
+    end)
   end
 
   def storage_error_response(conn, reason, resource, request_id) do
@@ -41,21 +87,45 @@ defmodule ExStorageServiceS3.Handlers.Shared do
       error_response(
         conn,
         "ServiceUnavailable",
-        "The storage service cannot currently satisfy the requested quorum.",
+        "The storage service is temporarily unavailable.",
         resource,
         request_id
       )
     else
-      error_response(conn, "InternalError", inspect(reason), resource, request_id)
+      case integrity_error(reason) do
+        {code, message} ->
+          error_response(conn, code, message, resource, request_id)
+
+        nil ->
+          error_response(
+            conn,
+            "InternalError",
+            "An internal storage error occurred.",
+            resource,
+            request_id
+          )
+      end
     end
+  end
+
+  @doc false
+  def omit_object_checksum_headers(conn) do
+    Enum.reduce(conn.resp_headers, conn, fn {name, _}, current ->
+      if String.starts_with?(name, "x-amz-checksum-"),
+        do: delete_resp_header(current, name),
+        else: current
+    end)
   end
 
   @doc false
   def send_blob_source(conn, status, {:file, _path, _offset, 0}, _opts),
     do: send_resp(conn, status, "")
 
-  def send_blob_source(conn, status, {:file, path, offset, length}, _opts),
-    do: send_file(conn, status, path, offset, length)
+  def send_blob_source(conn, status, {:file, path, offset, length}, _opts) do
+    result = send_file(conn, status, path, offset, length)
+    ExStorageService.Telemetry.response_delivery(:file, length, :ok)
+    result
+  end
 
   def send_blob_source(conn, status, {:stream, _producer, 0}, _opts),
     do: send_resp(conn, status, "")
@@ -68,20 +138,28 @@ defmodule ExStorageServiceS3.Handlers.Shared do
 
     case Source.reduce(source, conn, fn data, current_conn ->
            case chunk(current_conn, data) do
-             {:ok, next_conn} -> {:cont, next_conn}
-             {:error, reason} -> {:halt, reason, current_conn}
+             {:ok, next_conn} ->
+               ExStorageService.Telemetry.response_delivery(:stream, IO.iodata_length(data), :ok)
+               {:cont, next_conn}
+
+             {:error, reason} ->
+               {:halt, reason, current_conn}
            end
          end) do
       {:ok, final_conn} ->
         final_conn
 
       {:error, :closed, final_conn} ->
-        final_conn
+        ExStorageService.Telemetry.response_delivery(:stream, 0, :closed)
+        put_private(final_conn, :ess_transfer_result, :error)
 
       {:error, {:sink, :closed}, final_conn} ->
-        final_conn
+        ExStorageService.Telemetry.response_delivery(:stream, 0, :closed)
+        put_private(final_conn, :ess_transfer_result, :error)
 
       {:error, reason, _final_conn} ->
+        ExStorageService.Telemetry.response_delivery(:stream, 0, :error)
+
         Logger.warning("blob response stream terminated",
           request_id: Keyword.get(opts, :request_id),
           reason: inspect(reason)
@@ -94,16 +172,38 @@ defmodule ExStorageServiceS3.Handlers.Shared do
   defp availability_error?(reason)
        when reason in [
               :blob_write_quorum_unavailable,
+              :invalid_replica_ack,
               :metadata_quorum_unavailable,
+              :listing_index_migration_required,
+              :listing_index_unavailable,
+              :listing_index_changed,
+              :listing_index_corrupt,
+              :corrupt_index,
               :insufficient_eligible_nodes,
               :cluster_data_plane_disabled,
               :no_leader,
               :cluster_not_ready,
               :all_blob_replicas_unavailable,
               :timeout,
-              :unknown
+              :compare_retry_exhausted,
+              :operation_intent_compare_failed,
+              :unknown,
+              :read_idle_timeout,
+              :write_idle_timeout,
+              :request_timeout,
+              :connect_timeout,
+              :econnrefused,
+              :nxdomain,
+              :closed,
+              :enetunreach,
+              :ehostunreach,
+              :upstream_changed,
+              :invalid_upstream_metadata,
+              :upstream_length_mismatch
             ],
        do: true
+
+  defp availability_error?({:local_reconciliation_required, _reason}), do: true
 
   defp availability_error?(reason) when is_tuple(reason) do
     reason
@@ -112,6 +212,124 @@ defmodule ExStorageServiceS3.Handlers.Shared do
   end
 
   defp availability_error?(_reason), do: false
+
+  defp integrity_error({:http_error, status}) when status in [401, 403],
+    do: {"AccessDenied", "The upstream storage service denied the request."}
+
+  defp integrity_error({:http_error, 404}),
+    do: {"NoSuchKey", "The specified upstream key does not exist."}
+
+  defp integrity_error({:http_error, status}) when status >= 500,
+    do: {"ServiceUnavailable", "The upstream storage service is unavailable."}
+
+  defp integrity_error({:http_error, 429}),
+    do: {"SlowDown", "The upstream storage service is throttling requests."}
+
+  defp integrity_error({:stage, reason}), do: integrity_error(reason)
+  defp integrity_error({:metadata, reason}), do: integrity_error(reason)
+  defp integrity_error({:upstream_unknown, reason}), do: integrity_error(reason)
+
+  defp integrity_error(:access_denied), do: {"AccessDenied", "Access Denied"}
+
+  defp integrity_error(:legacy_object_migration_required),
+    do:
+      {"InvalidRequest",
+       "This legacy object requires the verified operator migration before mutation."}
+
+  defp integrity_error(:invalid_tag), do: {"InvalidTag", "The tag set is invalid."}
+  defp integrity_error(:invalid_request), do: {"InvalidRequest", "The request is invalid."}
+
+  defp integrity_error(:bucket_not_found),
+    do: {"NoSuchBucket", "The specified bucket does not exist."}
+
+  defp integrity_error(:bucket_generation_changed),
+    do: {"ConditionalRequestConflict", "The bucket identity changed during this operation."}
+
+  defp integrity_error(reason)
+       when reason in [:unsupported_gateway_version, :gateway_hosted_history_unsupported],
+       do: {"NotImplemented", "The requested operation is unavailable for this gateway bucket."}
+
+  defp integrity_error(:precondition_failed),
+    do: {"PreconditionFailed", "At least one precondition failed."}
+
+  defp integrity_error(:invalid_precondition),
+    do: {"InvalidArgument", "The request precondition is invalid."}
+
+  defp integrity_error(:invalid_pagination),
+    do: {"InvalidArgument", "The pagination parameters are invalid."}
+
+  defp integrity_error(:invalid_part),
+    do: {"InvalidPart", "A requested part is missing or does not match its checksum."}
+
+  defp integrity_error(:invalid_part_order),
+    do: {"InvalidPartOrder", "Parts must be in ascending order."}
+
+  defp integrity_error(:multipart_completion_conflict),
+    do: {"ConditionalRequestConflict", "The multipart upload changed during completion."}
+
+  defp integrity_error(:payload_hash_mismatch),
+    do:
+      {"XAmzContentSHA256Mismatch", "The provided payload hash does not match the received body."}
+
+  defp integrity_error(:bad_digest),
+    do: {"BadDigest", "The provided checksum does not match the received body."}
+
+  defp integrity_error(:invalid_digest),
+    do: {"InvalidDigest", "The checksum is malformed or missing."}
+
+  defp integrity_error(:entity_too_large),
+    do: {"EntityTooLarge", "The request body exceeds the allowed size."}
+
+  defp integrity_error(:chunk_signature_mismatch),
+    do: {"SignatureDoesNotMatch", "The chunk signature does not match."}
+
+  defp integrity_error(reason)
+       when reason in [
+              :unsupported_payload_mode,
+              :unsupported_checksum,
+              :unsupported_checksum_type,
+              :invalid_content_length,
+              :malformed_chunked
+            ],
+       do:
+         {"InvalidRequest",
+          "The upload integrity or framing declaration is invalid or unsupported."}
+
+  defp integrity_error(_reason), do: nil
+
+  def put_object_version_header(conn, metadata) do
+    case Map.get(metadata, :version_id) do
+      id when is_binary(id) -> put_resp_header(conn, "x-amz-version-id", id)
+      _ -> conn
+    end
+  end
+
+  # The versioning policy is part of the committed outcome, including replay.
+  # A later bucket-policy read could describe a different write than this one.
+  def put_write_version_header(conn, %{version_id: "null", versioning_state: :disabled}),
+    do: conn
+
+  def put_write_version_header(conn, publication),
+    do: put_object_version_header(conn, publication)
+
+  def delete_marker_response(conn, %{metadata: metadata, version_id: version_id}, request_id) do
+    explicit? = is_binary(conn.query_params["versionId"])
+
+    conn =
+      conn
+      |> put_s3_headers(request_id)
+      |> put_resp_header("x-amz-delete-marker", "true")
+      |> put_resp_header("x-amz-version-id", version_id)
+
+    conn =
+      if explicit? do
+        put_resp_header(conn, "last-modified", format_http_date(Map.get(metadata, :created_at)))
+      else
+        conn
+      end
+
+    send_resp(conn, if(explicit?, do: 405, else: 404), "")
+  end
 
   def delete_marker_response(conn, version_id, request_id) do
     conn
@@ -155,40 +373,22 @@ defmodule ExStorageServiceS3.Handlers.Shared do
     end
   end
 
-  # Reads the entire request body into memory, enforcing a maximum size.
-  # `max_size` defaults to the configured max_object_size; callers that buffer
-  # smaller payloads (e.g. XML request bodies, multipart parts) should pass a
-  # tighter cap to bound memory use. Returns {:error, :entity_too_large} when
-  # the body exceeds the cap.
-  def read_full_body(conn, max_size \\ nil) do
-    max =
-      max_size ||
-        Application.get_env(:ex_storage_service, :max_object_size, 5 * 1024 * 1024 * 1024)
-
-    do_read_full_body(conn, max, <<>>)
+  # Control requests are bounded independently of the object upload limit.
+  def read_full_body(conn, max_size \\ 1_048_576, opts \\ []) do
+    {reader, state} = decoded_body_reader(conn, max_size || 1_048_576, opts)
+    collect_body(reader, state, [])
   end
 
-  defp do_read_full_body(conn, max_size, acc) do
-    case Plug.Conn.read_body(conn) do
-      {:ok, body, conn} ->
-        result = acc <> body
+  defp collect_body(reader, state, chunks) do
+    case reader.(state) do
+      {:more, chunk, state} ->
+        collect_body(reader, state, [chunk | chunks])
 
-        if byte_size(result) > max_size do
-          {:error, :entity_too_large}
-        else
-          {:ok, result, conn}
-        end
+      {:ok, chunk, state} ->
+        {:ok, IO.iodata_to_binary(Enum.reverse([chunk | chunks])),
+         decoded_body_reader_conn(state)}
 
-      {:more, partial, conn} ->
-        result = acc <> partial
-
-        if byte_size(result) > max_size do
-          {:error, :entity_too_large}
-        else
-          do_read_full_body(conn, max_size, result)
-        end
-
-      {:error, reason} ->
+      {:error, reason, _state} ->
         {:error, reason}
     end
   end
@@ -249,75 +449,84 @@ defmodule ExStorageServiceS3.Handlers.Shared do
 
   @doc false
   def decoded_body_stream(conn, max_size \\ nil) do
-    max =
-      max_size ||
-        Application.get_env(:ex_storage_service, :max_object_size, 5 * 1024 * 1024 * 1024)
+    {reader, initial} = decoded_body_reader(conn, max_size)
 
-    if aws_chunked?(conn) do
-      conn
-      |> body_stream(:infinity)
-      |> decode_aws_chunked_stream(max)
-    else
-      body_stream(conn, max)
-    end
+    Stream.resource(
+      fn -> initial end,
+      fn
+        :done ->
+          {:halt, :done}
+
+        state ->
+          case reader.(state) do
+            {:more, bytes, next} -> {[bytes], next}
+            {:ok, bytes, _next} -> {[bytes], :done}
+            {:error, reason, _next} -> throw({:error, reason})
+          end
+      end,
+      fn _ -> :ok end
+    )
   end
 
   @doc false
-  def decoded_body_reader(conn, max_size \\ nil) do
+  def decoded_body_reader(conn, max_size \\ nil, opts \\ []) do
     max =
       max_size ||
         Application.get_env(:ex_storage_service, :max_object_size, 5 * 1024 * 1024 * 1024)
 
-    decoder =
-      if aws_chunked?(conn) do
-        %{mode: :header, buffer: <<>>, decoded_size: 0, max_size: max}
-      end
-
-    {&read_decoded_body/1, %{conn: conn, decoder: decoder}}
+    with {:ok, integrity} <- ExStorageServiceS3.Integrity.new(conn, max, opts),
+         {:ok, decoder} <- request_decoder(conn) do
+      {&read_decoded_body/1,
+       %{conn: conn, decoder: decoder, integrity: integrity, checksums: %{}}}
+    else
+      {:error, reason} -> {&read_decoded_body/1, %{conn: conn, error: reason}}
+    end
   end
 
   @doc false
   def decoded_body_reader_conn(%{conn: %Plug.Conn{} = conn}), do: conn
 
-  defp read_decoded_body(%{conn: conn, decoder: nil} = state) do
-    case Plug.Conn.read_body(conn, body_read_opts()) do
-      {:more, chunk, next_conn} ->
-        {:more, chunk, %{state | conn: next_conn}}
+  defp request_decoder(conn) do
+    if aws_chunked?(conn), do: ExStorageServiceS3.AwsChunked.new(conn), else: {:ok, nil}
+  end
 
-      {:ok, chunk, final_conn} ->
-        {:ok, chunk, %{state | conn: final_conn}}
+  defp read_decoded_body(%{error: reason} = state), do: {:error, reason, state}
+
+  defp read_decoded_body(state) do
+    case Plug.Conn.read_body(state.conn, body_read_opts()) do
+      {disposition, bytes, conn} when disposition in [:ok, :more] ->
+        state = %{state | conn: conn}
+
+        with {:ok, decoded, decoder} <- decode_request_input(bytes, state.decoder),
+             {:ok, integrity} <- ExStorageServiceS3.Integrity.update(state.integrity, decoded) do
+          state = %{state | decoder: decoder, integrity: integrity}
+          finalize_read(disposition, decoded, state)
+        else
+          {:error, reason} -> {:error, reason, state}
+        end
 
       {:error, reason} ->
         {:error, reason, state}
     end
   end
 
-  defp read_decoded_body(%{conn: conn, decoder: decoder} = state) do
-    case Plug.Conn.read_body(conn, body_read_opts()) do
-      {:more, encoded, next_conn} ->
-        decode_reader_input(encoded, %{state | conn: next_conn}, decoder, :more)
+  defp decode_request_input(bytes, nil), do: {:ok, bytes, nil}
 
-      {:ok, encoded, final_conn} ->
-        decode_reader_input(encoded, %{state | conn: final_conn}, decoder, :ok)
+  defp decode_request_input(bytes, decoder),
+    do: ExStorageServiceS3.AwsChunked.feed(bytes, decoder)
 
-      {:error, reason} ->
-        {:error, reason, state}
-    end
-  end
+  defp finalize_read(:more, bytes, state), do: {:more, bytes, state}
 
-  defp decode_reader_input(encoded, state, decoder, disposition) do
-    try do
-      {output, next_decoder} = decode_aws_input(encoded, decoder, [])
-      next_state = %{state | decoder: next_decoder}
-      decoded = IO.iodata_to_binary(output)
+  defp finalize_read(:ok, bytes, state) do
+    if state.decoder != nil and not ExStorageServiceS3.AwsChunked.finished?(state.decoder) do
+      {:error, :malformed_chunked, state}
+    else
+      trailers = if state.decoder, do: state.decoder.trailers, else: %{}
 
-      case {disposition, next_decoder.mode} do
-        {:ok, :done} -> {:ok, decoded, next_state}
-        {:ok, _incomplete} -> {:error, :malformed_chunked, next_state}
-        {:more, _mode} -> {:more, decoded, next_state}
+      case ExStorageServiceS3.Integrity.finish(state.integrity, trailers) do
+        {:ok, checksums} -> {:ok, bytes, %{state | checksums: checksums}}
+        {:error, reason} -> {:error, reason, state}
       end
-    catch
-      {:error, reason} -> {:error, reason, state}
     end
   end
 
@@ -342,34 +551,24 @@ defmodule ExStorageServiceS3.Handlers.Shared do
       String.contains?(content_encoding, "aws-chunked")
   end
 
-  # Detects whether the body uses S3 aws-chunked content encoding
-  # (STREAMING-AWS4-HMAC-SHA256-PAYLOAD) and decodes it if so.
-  #
-  # Returns the decoded payload, or {:error, :malformed_chunked} if the framing
-  # is invalid. Note: the per-chunk signature chain is NOT verified here, so the
-  # body of an aws-chunked upload is not authenticated end-to-end even when the
-  # request's Authorization header passes SigV4. Verifying the rolling
-  # chunk-signature chain is tracked as a follow-up; until then this only
-  # guarantees the framing is well-formed so signature/length bytes are never
-  # written into stored object content.
+  # Buffered compatibility entry point using the same integrity checks as the reader.
   def maybe_decode_aws_chunked(conn, body) do
-    payload_hash =
-      case get_req_header(conn, "x-amz-content-sha256") do
-        [h | _] -> h
-        [] -> ""
-      end
+    max = Application.get_env(:ex_storage_service, :max_object_size, 5 * 1024 * 1024 * 1024)
 
-    content_encoding =
-      case get_req_header(conn, "content-encoding") do
-        [ce | _] -> ce
-        [] -> ""
-      end
-
-    if String.contains?(payload_hash, "STREAMING") or
-         String.contains?(content_encoding, "aws-chunked") do
-      decode_aws_chunked(body)
+    with {:ok, integrity} <- ExStorageServiceS3.Integrity.new(conn, max),
+         {:ok, decoder} <- request_decoder(conn),
+         {:ok, decoded, decoder} <- decode_request_input(body, decoder),
+         true <- decoder == nil or ExStorageServiceS3.AwsChunked.finished?(decoder),
+         {:ok, integrity} <- ExStorageServiceS3.Integrity.update(integrity, decoded),
+         {:ok, _checksums} <-
+           ExStorageServiceS3.Integrity.finish(
+             integrity,
+             if(decoder, do: decoder.trailers, else: %{})
+           ) do
+      decoded
     else
-      body
+      false -> {:error, :malformed_chunked}
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -400,8 +599,11 @@ defmodule ExStorageServiceS3.Handlers.Shared do
       chunks,
       fn -> initial end,
       fn
+        "", %{mode: :done} = state ->
+          {[], state}
+
         _chunk, %{mode: :done} = state ->
-          {:halt, state}
+          {:halt, %{state | mode: {:error, :malformed_chunked}}}
 
         chunk, state when is_binary(chunk) ->
           try do
@@ -483,8 +685,11 @@ defmodule ExStorageServiceS3.Handlers.Shared do
     end
   end
 
-  defp decode_aws_input(_data, %{mode: :done} = state, output),
+  defp decode_aws_input("", %{mode: :done} = state, output),
     do: {Enum.reverse(output), state}
+
+  defp decode_aws_input(_data, %{mode: :done}, _output),
+    do: throw({:error, :malformed_chunked})
 
   defp aws_chunk_size(header) do
     size = header |> :binary.split(";") |> hd()
@@ -498,6 +703,30 @@ defmodule ExStorageServiceS3.Handlers.Shared do
   defp exceeds_limit?(_size, :infinity), do: false
   defp exceeds_limit?(size, limit), do: size > limit
 
+  def object_attributes(conn) do
+    system = ~w(content-encoding cache-control content-disposition content-language expires)
+
+    with {:ok, tags} <- request_tags(conn) do
+      {:ok,
+       %{
+         content_type:
+           List.first(get_req_header(conn, "content-type")) || "application/octet-stream",
+         metadata: extract_custom_metadata(conn),
+         user_metadata: extract_custom_metadata(conn),
+         system_headers: Enum.filter(conn.req_headers, fn {name, _} -> name in system end),
+         tags: tags
+       }}
+    end
+  end
+
+  defp request_tags(conn) do
+    case get_req_header(conn, "x-amz-tagging") do
+      [] -> {:ok, %{}}
+      [value] -> ExStorageService.Storage.Tags.from_header(value)
+      _ -> {:error, :invalid_tag}
+    end
+  end
+
   def extract_custom_metadata(conn) do
     conn.req_headers
     |> Enum.filter(fn {key, _} -> String.starts_with?(key, "x-amz-meta-") end)
@@ -505,10 +734,73 @@ defmodule ExStorageServiceS3.Handlers.Shared do
     |> Map.new()
   end
 
-  def put_custom_metadata_headers(conn, meta) do
-    custom = Map.get(meta, :metadata, %{})
+  defp tag_count_allowed?(%{assigns: %{s3_operation: operation}} = conn) do
+    action =
+      if operation.version_id, do: "s3:GetObjectVersionTagging", else: "s3:GetObjectTagging"
 
-    Enum.reduce(custom, conn, fn {name, value}, acc ->
+    ExStorageServiceS3.Plugs.Authorize.allowed?(
+      conn,
+      action,
+      ExStorageServiceS3.Plugs.Authorize.resource_arn(operation.bucket, operation.key),
+      "s3:Unknown"
+    )
+  end
+
+  defp tag_count_allowed?(_conn), do: false
+
+  def put_custom_metadata_headers(conn, meta) do
+    conn =
+      case Map.get(meta, :tags, %{}) do
+        tags when is_map(tags) and map_size(tags) > 0 ->
+          if tag_count_allowed?(conn),
+            do: put_resp_header(conn, "x-amz-tagging-count", to_string(map_size(tags))),
+            else: conn
+
+        _ ->
+          conn
+      end
+
+    system_names = ~w(content-encoding cache-control content-disposition content-language expires)
+    checksum_names = ~w(crc32 crc32c crc64nvme sha1 sha256)
+
+    allowed =
+      system_names ++
+        Enum.map(checksum_names, &("x-amz-checksum-" <> &1)) ++ ["x-amz-checksum-type"]
+
+    conn =
+      Enum.reduce(Map.get(meta, :system_headers, []), conn, fn {name, value}, acc ->
+        if name in allowed and is_binary(value), do: put_resp_header(acc, name, value), else: acc
+      end)
+
+    conn =
+      Enum.reduce(
+        [
+          {:content_encoding, "content-encoding"},
+          {:cache_control, "cache-control"},
+          {:content_disposition, "content-disposition"},
+          {:content_language, "content-language"},
+          {:expires, "expires"},
+          {:checksum_type, "x-amz-checksum-type"}
+        ],
+        conn,
+        fn {field, header}, acc ->
+          case Map.get(meta, field) do
+            value when is_binary(value) -> put_resp_header(acc, header, value)
+            _ -> acc
+          end
+        end
+      )
+
+    conn =
+      Enum.reduce(Map.get(meta, :checksums, %{}), conn, fn {name, value}, acc ->
+        name = to_string(name)
+
+        if name in checksum_names and is_binary(value),
+          do: put_resp_header(acc, "x-amz-checksum-" <> name, value),
+          else: acc
+      end)
+
+    Enum.reduce(Map.get(meta, :metadata, %{}), conn, fn {name, value}, acc ->
       put_resp_header(acc, "x-amz-meta-#{name}", value)
     end)
   end
@@ -604,21 +896,15 @@ defmodule ExStorageServiceS3.Handlers.Shared do
     }
 
     case Regex.run(
-           ~r/\w+,\s+(\d{2})\s+(\w{3})\s+(\d{4})\s+(\d{2}):(\d{2}):(\d{2})\s+GMT/,
+           ~r/\A(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), (\d{2}) ([A-Z][a-z]{2}) (\d{4}) (\d{2}):(\d{2}):(\d{2}) GMT\z/,
            date_str
          ) do
       [_, day, month_str, year, hour, min, sec] ->
         with month when month != nil <- Map.get(months, month_str),
-             {:ok, dt} <-
-               DateTime.new(
-                 Date.new!(String.to_integer(year), month, String.to_integer(day)),
-                 Time.new!(
-                   String.to_integer(hour),
-                   String.to_integer(min),
-                   String.to_integer(sec)
-                 ),
-                 "Etc/UTC"
-               ) do
+             {:ok, date} <- Date.new(String.to_integer(year), month, String.to_integer(day)),
+             {:ok, time} <-
+               Time.new(String.to_integer(hour), String.to_integer(min), String.to_integer(sec)),
+             {:ok, dt} <- DateTime.new(date, time, "Etc/UTC") do
           {:ok, dt}
         else
           _ -> {:error, :invalid_date}

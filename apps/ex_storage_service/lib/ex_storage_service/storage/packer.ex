@@ -149,6 +149,12 @@ defmodule ExStorageService.Storage.Packer do
           _ -> acc
         end
 
+      {"ess:v2:multipart_part:" <> _, meta}, acc ->
+        case get_field(meta, :hash) do
+          hash when is_binary(hash) -> [hash | acc]
+          _ -> acc
+        end
+
       _, acc ->
         acc
     end)

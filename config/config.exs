@@ -33,6 +33,7 @@ config :ex_storage_service_web, ExStorageServiceWeb.Endpoint,
   live_view: [signing_salt: "ess_live_view"]
 
 config :ex_storage_service, :json_library, Jason
+config :ex_storage_service, :s3_region, "us-east-1"
 
 # Always expose download bodies as streams; callers decide whether to buffer them.
 config :http_fetch, streaming_threshold: 0

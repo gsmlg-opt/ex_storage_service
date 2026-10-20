@@ -43,7 +43,7 @@ defmodule ExStorageService.IAM.User do
   """
   @spec get_user(String.t()) :: {:ok, t()} | {:error, :not_found | term()}
   def get_user(user_id) do
-    case Concord.get("user:#{user_id}") do
+    case Concord.get("user:#{user_id}", consistency: :linearizable) do
       {:ok, nil} -> {:error, :not_found}
       {:ok, user} -> {:ok, user}
       error -> error

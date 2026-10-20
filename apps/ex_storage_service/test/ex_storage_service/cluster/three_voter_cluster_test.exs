@@ -109,9 +109,48 @@ defmodule ExStorageService.Cluster.ThreeVoterClusterTest do
       Map.merge(restarted_c, %{id: node_c.id, role: node_c.role, root: node_c.root})
 
     prepare_peer!(restarted_c)
+
+    retained_storage = durable_storage(restarted_c)
+    refute retained_storage == %{}
+
+    # Recovery happens after application startup. Isolate this replica so a
+    # forwarded client command cannot be committed by the healthy majority.
+    suspend_discovery([node_a, node_b])
+    isolate(restarted_c, [node_a, node_b])
+    await_partition!(restarted_c, [node_a, node_b])
+    assert {:ok, _started} = configure_and_start(restarted_c, members, true)
+
+    assert {:error, _reason} =
+             call(restarted_c, ExStorageService.Cluster.Readiness, :check, [[timeout: 500]])
+
+    assert {:error, :not_found} =
+             call(restarted_c, ViewstampedReplication, :status, ["phase4-cluster", restarted_c.id])
+
+    rejected_key = "phase4:invalid-bootstrap:#{suffix}"
+
+    assert {:error, write_failure} =
+             call(restarted_c, Concord, :put, [rejected_key, "rejected", [timeout: 500]])
+
+    assert write_failure in [:cluster_not_ready, :quorum_unavailable]
+
+    Enum.each([:ex_storage_service, :concord], fn app ->
+      assert call(restarted_c, Application, :stop, [app]) in [:ok, {:error, {:not_started, app}}]
+    end)
+
+    assert durable_storage(restarted_c) == retained_storage
+
+    heal(restarted_c, [node_a, node_b])
+    resume_discovery([node_a, node_b])
     configure_and_start!(restarted_c, members, false)
     await_ready!(restarted_c, 20_000)
+    await_value!(restarted_c, key, "written-on-a", 10_000)
     await_value!(restarted_c, survivor_key, "two-voter-majority", 10_000)
+
+    assert {:error, :not_found} =
+             call(restarted_c, Concord, :get, [
+               rejected_key,
+               [consistency: :strong, timeout: 2_000]
+             ])
   end
 
   defp start_peer!(name) do
@@ -144,6 +183,12 @@ defmodule ExStorageService.Cluster.ThreeVoterClusterTest do
   end
 
   defp configure_and_start!(peer, members, bootstrap?) do
+    assert {:ok, started} = configure_and_start(peer, members, bootstrap?)
+    assert :concord in started or :concord in started_applications(peer)
+    assert :ex_storage_service in started or :ex_storage_service in started_applications(peer)
+  end
+
+  defp configure_and_start(peer, members, bootstrap?) do
     :ok = put_env(peer, :concord, :cluster_enabled, true)
     :ok = put_env(peer, :concord, :data_dir, peer.root)
 
@@ -188,9 +233,7 @@ defmodule ExStorageService.Cluster.ThreeVoterClusterTest do
     :ok = put_env(peer, :ex_storage_service_s3, :enabled, false)
     :ok = put_env(peer, :ex_storage_service_web, :enabled, false)
 
-    assert {:ok, started} = call(peer, Application, :ensure_all_started, [:ex_storage_service])
-    assert :concord in started or :concord in started_applications(peer)
-    assert :ex_storage_service in started or :ex_storage_service in started_applications(peer)
+    call(peer, Application, :ensure_all_started, [:ex_storage_service])
   end
 
   defp put_env(peer, app, key, value),
@@ -274,6 +317,18 @@ defmodule ExStorageService.Cluster.ThreeVoterClusterTest do
     peer
     |> call(Application, :started_applications, [])
     |> Enum.map(&elem(&1, 0))
+  end
+
+  defp durable_storage(peer) do
+    storage_root = Path.join(peer.root, "vsr")
+
+    storage_root
+    |> Path.join("**/*")
+    |> Path.wildcard()
+    |> Enum.filter(&File.regular?/1)
+    |> Map.new(fn path ->
+      {Path.relative_to(path, storage_root), :crypto.hash(:sha256, File.read!(path))}
+    end)
   end
 
   defp call(peer, module, function, args, timeout \\ 30_000) do

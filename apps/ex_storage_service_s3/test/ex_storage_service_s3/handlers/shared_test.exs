@@ -11,6 +11,25 @@ defmodule ExStorageServiceS3.Handlers.SharedTest do
     def chunk(_payload, _body), do: {:error, :closed}
   end
 
+  test "internal errors never expose adapter exception details and HEAD remains bodyless" do
+    for method <- [:get, :head] do
+      response =
+        Shared.error_response(
+          conn(method, "/bucket/key"),
+          "InternalError",
+          "secret-key=private-value /tmp/private-path {:unexpected, :failure}",
+          "/bucket/key",
+          "request"
+        )
+
+      assert response.status == 500
+      refute response.resp_body =~ "private-value"
+      refute response.resp_body =~ "private-path"
+      refute response.resp_body =~ "unexpected"
+      if method == :head, do: assert(response.resp_body == "")
+    end
+  end
+
   describe "decode_aws_chunked/1" do
     test "decodes well-formed aws-chunked framing" do
       body =
@@ -73,22 +92,39 @@ defmodule ExStorageServiceS3.Handlers.SharedTest do
       assert {:ok, "", _conn} = Plug.Conn.read_body(final_conn)
     end
 
-    test "decodes aws-chunked framing while preserving the final connection" do
-      encoded =
-        "5;chunk-signature=abc\r\nhello\r\n" <>
-          "6;chunk-signature=def\r\n world\r\n" <>
-          "0;chunk-signature=ghi\r\n\r\n"
+    test "decodes validated aws-chunked framing while preserving the final connection" do
+      encoded = "b\r\nhello world\r\n0\r\nx-amz-checksum-crc32: DUoRhQ==\r\n\r\n"
 
       {reader, state} =
         :put
         |> conn("/bucket/key", encoded)
         |> Plug.Conn.put_req_header("content-encoding", "aws-chunked")
+        |> Plug.Conn.put_req_header("x-amz-content-sha256", "STREAMING-UNSIGNED-PAYLOAD-TRAILER")
+        |> Plug.Conn.put_req_header("x-amz-trailer", "x-amz-checksum-crc32")
+        |> Plug.Conn.put_req_header("x-amz-decoded-content-length", "11")
         |> Shared.decoded_body_reader(11)
 
       assert {"hello world", final_state} = drain_reader(reader, state)
 
       final_conn = Shared.decoded_body_reader_conn(final_state)
       assert {:ok, "", _conn} = Plug.Conn.read_body(final_conn)
+    end
+  end
+
+  describe "parse_http_date/1" do
+    test "invalid calendar dates, hours and trailing data fail safely" do
+      for value <- [
+            "Thu, 31 Feb 2026 00:00:00 GMT",
+            "Thu, 01 Jan 2026 24:00:00 GMT",
+            "Thu, 01 Jan 2026 00:00:99 GMT",
+            "prefix Thu, 01 Jan 2026 00:00:00 GMT",
+            "Thu, 01 Jan 2026 00:00:00 GMT suffix"
+          ] do
+        assert {:error, :invalid_date} = Shared.parse_http_date(value)
+      end
+
+      assert {:ok, ~U[2026-01-01 00:00:00Z]} =
+               Shared.parse_http_date("Thu, 01 Jan 2026 00:00:00 GMT")
     end
   end
 
@@ -120,6 +156,15 @@ defmodule ExStorageServiceS3.Handlers.SharedTest do
             :no_leader,
             :cluster_not_ready,
             :timeout,
+            :read_idle_timeout,
+            :write_idle_timeout,
+            :request_timeout,
+            :connect_timeout,
+            :econnrefused,
+            :nxdomain,
+            :closed,
+            :enetunreach,
+            :ehostunreach,
             :unknown,
             {:commit, :timeout}
           ] do
@@ -143,6 +188,26 @@ defmodule ExStorageServiceS3.Handlers.SharedTest do
 
       assert response.status == 500
       assert response.resp_body =~ "<Code>InternalError</Code>"
+    end
+
+    test "gateway uncertainty preserves typed upstream status and reconciliation is unavailable" do
+      for {reason, status, code} <- [
+            {{:upstream_unknown, {:http_error, 503}}, 503, "ServiceUnavailable"},
+            {{:upstream_unknown, {:http_error, 429}}, 503, "SlowDown"},
+            {{:upstream_unknown, :read_idle_timeout}, 503, "ServiceUnavailable"},
+            {{:http_error, 403}, 403, "AccessDenied"},
+            {{:local_reconciliation_required, :eio}, 503, "ServiceUnavailable"}
+          ] do
+        response =
+          :put
+          |> conn("/bucket/key")
+          |> Shared.storage_error_response(reason, "/bucket/key", "gateway-reconciliation")
+
+        assert response.status == status, inspect(reason)
+        assert response.resp_body =~ "<Code>#{code}</Code>"
+        refute response.resp_body =~ "upstream_unknown"
+        refute response.resp_body =~ "eio"
+      end
     end
   end
 

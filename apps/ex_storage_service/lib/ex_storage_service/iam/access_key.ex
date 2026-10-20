@@ -105,7 +105,7 @@ defmodule ExStorageService.IAM.AccessKey do
   """
   @spec get_access_key(String.t()) :: {:ok, t()} | {:error, :not_found | term()}
   def get_access_key(access_key_id) do
-    case Concord.get("access_key:#{access_key_id}") do
+    case Concord.get("access_key:#{access_key_id}", consistency: :linearizable) do
       {:ok, nil} ->
         {:error, :not_found}
 
@@ -176,7 +176,7 @@ defmodule ExStorageService.IAM.AccessKey do
   """
   @spec delete_key(String.t()) :: :ok | {:error, :not_found | term()}
   def delete_key(access_key_id) do
-    case Concord.get("access_key:#{access_key_id}") do
+    case Concord.get("access_key:#{access_key_id}", consistency: :linearizable) do
       {:ok, nil} -> {:error, :not_found}
       {:ok, _} -> Concord.delete("access_key:#{access_key_id}")
       error -> error
@@ -195,7 +195,7 @@ defmodule ExStorageService.IAM.AccessKey do
   # Private helpers
 
   defp update_key_status(access_key_id, new_status) do
-    case Concord.get("access_key:#{access_key_id}") do
+    case Concord.get("access_key:#{access_key_id}", consistency: :linearizable) do
       {:ok, nil} ->
         {:error, :not_found}
 

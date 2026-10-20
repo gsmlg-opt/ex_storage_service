@@ -15,7 +15,7 @@ defmodule ExStorageService.Storage.MigrationTest do
 
     now = DateTime.utc_now() |> DateTime.to_iso8601()
 
-    Metadata.put_object_meta(bucket, key, %{
+    Concord.put("obj:#{bucket}:#{key}", %{
       content_hash: hash,
       size: byte_size(data),
       etag: Base.encode16(:crypto.hash(:md5, data), case: :lower),
@@ -63,7 +63,7 @@ defmodule ExStorageService.Storage.MigrationTest do
 
     now = DateTime.utc_now() |> DateTime.to_iso8601()
 
-    Metadata.put_object_meta(bucket, "ghost.bin", %{
+    Concord.put("obj:#{bucket}:ghost.bin", %{
       content_hash: ghost_hash,
       size: 5,
       etag: "0",

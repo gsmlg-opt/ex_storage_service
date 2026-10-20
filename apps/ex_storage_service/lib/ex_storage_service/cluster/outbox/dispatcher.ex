@@ -220,7 +220,7 @@ defmodule ExStorageService.Cluster.Outbox.Dispatcher do
   end
 
   defp finish_job(state, job, :ok) do
-    _ =
+    transition =
       state.job_store.complete(
         job.job_id,
         state.owner_node,
@@ -229,11 +229,12 @@ defmodule ExStorageService.Cluster.Outbox.Dispatcher do
         metadata_opts(state)
       )
 
+    ExStorageService.Telemetry.job_transition(job.kind, :ok, transition)
     :ok
   end
 
   defp finish_job(state, job, {:error, reason}) do
-    _ =
+    transition =
       state.job_store.fail(
         job.job_id,
         state.owner_node,
@@ -243,6 +244,7 @@ defmodule ExStorageService.Cluster.Outbox.Dispatcher do
         metadata_opts(state)
       )
 
+    ExStorageService.Telemetry.job_transition(job.kind, :error, transition)
     :ok
   end
 

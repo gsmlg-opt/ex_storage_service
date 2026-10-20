@@ -55,18 +55,13 @@ defmodule ExStorageServiceS3.Auth.SigV4 do
 
             request_id = generate_request_id()
 
-            body =
-              ExStorageServiceS3.XML.error_response(
-                "AccessDenied",
-                reason,
-                conn.request_path,
-                request_id
-              )
-
             conn
-            |> put_resp_header("content-type", "application/xml")
-            |> put_resp_header("x-amz-request-id", request_id)
-            |> send_resp(403, body)
+            |> ExStorageServiceS3.Handlers.Shared.error_response(
+              "AccessDenied",
+              reason,
+              conn.request_path,
+              request_id
+            )
             |> halt()
         end
 
@@ -90,6 +85,7 @@ defmodule ExStorageServiceS3.Auth.SigV4 do
   def verify_request(conn, get_secret_fn) do
     with {:ok, auth_header} <- get_authorization_header(conn),
          {:ok, parsed} <- parse_authorization(auth_header),
+         :ok <- validate_signing_scope(conn, parsed),
          secret when not is_nil(secret) <- get_secret_fn.(parsed.credential.access_key_id) do
       # Extract components for verification
       %{
@@ -128,7 +124,13 @@ defmodule ExStorageServiceS3.Auth.SigV4 do
           expected_signature = compute_signature(key, sts)
 
           if secure_compare(expected_signature, claimed_signature) do
-            {:ok, conn}
+            {:ok,
+             assign(conn, :sigv4_streaming, %{
+               key: key,
+               datetime: datetime,
+               scope: scope,
+               signature: claimed_signature
+             })}
           else
             {:error, "SignatureDoesNotMatch"}
           end
@@ -154,7 +156,7 @@ defmodule ExStorageServiceS3.Auth.SigV4 do
   """
   def parse_authorization(header) do
     case Regex.run(
-           ~r/AWS4-HMAC-SHA256\s+Credential=([^,]+),\s*SignedHeaders=([^,]+),\s*Signature=(\S+)/,
+           ~r/\AAWS4-HMAC-SHA256\s+Credential=([^,]+),\s*SignedHeaders=([^,]+),\s*Signature=(\S+)\z/,
            header
          ) do
       [_, credential_str, signed_headers_str, signature] ->
@@ -193,9 +195,11 @@ defmodule ExStorageServiceS3.Auth.SigV4 do
       |> Enum.map(fn name ->
         value =
           headers
-          |> Enum.find_value("", fn {k, v} ->
-            if String.downcase(k) == name, do: String.trim(v)
+          |> Enum.filter(fn {key, _} -> String.downcase(key) == name end)
+          |> Enum.map(fn {_key, value} ->
+            value |> String.trim() |> String.replace(~r/[\t ]+/, " ")
           end)
+          |> Enum.join(",")
 
         "#{name}:#{value}\n"
       end)
@@ -387,25 +391,61 @@ defmodule ExStorageServiceS3.Auth.SigV4 do
     end
   end
 
-  defp uri_encode_path(path) do
+  @doc false
+  def uri_encode_path(path) do
     path
     |> String.split("/")
-    |> Enum.map(&URI.decode/1)
-    |> Enum.map(&URI.encode_www_form/1)
-    |> Enum.map(&String.replace(&1, "+", "%20"))
+    |> Enum.map(&(URI.decode(&1) |> uri_encode()))
     |> Enum.join("/")
   end
 
-  defp canonical_query_string(""), do: ""
+  @doc false
+  def canonical_query_string(""), do: ""
 
-  defp canonical_query_string(query_string) do
+  def canonical_query_string(query_string) do
     query_string
-    |> URI.decode_query()
-    |> Enum.sort()
-    |> Enum.map(fn {k, v} ->
-      URI.encode_www_form(k) <> "=" <> URI.encode_www_form(v)
+    |> String.split("&")
+    |> Enum.map(fn pair ->
+      case String.split(pair, "=", parts: 2) do
+        [key, value] -> {uri_encode(URI.decode(key)), uri_encode(URI.decode(value))}
+        [key] -> {uri_encode(URI.decode(key)), ""}
+      end
     end)
-    |> Enum.join("&")
+    |> Enum.sort()
+    |> Enum.map_join("&", fn {key, value} -> key <> "=" <> value end)
+  end
+
+  @doc false
+  def uri_encode(value), do: URI.encode(value, &URI.char_unreserved?/1)
+
+  defp validate_signing_scope(conn, parsed) do
+    credential = parsed.credential
+    datetime = get_amz_date(conn)
+    names = parsed.signed_headers
+
+    cond do
+      credential.service != "s3" or credential.region == "" ->
+        {:error, "Invalid credential scope"}
+
+      not Regex.match?(~r/\A[0-9]{8}\z/, credential.date) or
+          not String.starts_with?(datetime, credential.date <> "T") ->
+        {:error, "Invalid credential scope date"}
+
+      names == [] or names != Enum.sort(Enum.uniq(names)) or "host" not in names ->
+        {:error, "Invalid SignedHeaders"}
+
+      not Enum.all?(names, fn name ->
+        Regex.match?(~r/\A[a-z0-9-]+\z/, name) and
+            Enum.any?(conn.req_headers, fn {key, _} -> key == name end)
+      end) ->
+        {:error, "Invalid SignedHeaders"}
+
+      not Regex.match?(~r/\A[0-9a-f]{64}\z/, parsed.signature) ->
+        {:error, "Invalid signature"}
+
+      true ->
+        :ok
+    end
   end
 
   defp sha256_hex(data) do

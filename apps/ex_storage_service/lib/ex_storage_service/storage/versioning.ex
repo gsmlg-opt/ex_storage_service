@@ -14,21 +14,34 @@ defmodule ExStorageService.Storage.Versioning do
 
   @spec get_versioning(String.t()) :: versioning_state()
   def get_versioning(bucket) do
-    case Concord.get("bucket_versioning:#{bucket}") do
-      {:ok, nil} -> :disabled
-      {:ok, state} when state in [:enabled, :suspended] -> state
-      {:ok, state} when state in ["enabled", "Enabled"] -> :enabled
-      {:ok, state} when state in ["suspended", "Suspended"] -> :suspended
+    case fetch_versioning(bucket) do
+      {:ok, state} -> state
       _ -> :disabled
     end
   end
 
-  @spec set_versioning(String.t(), versioning_state()) :: :ok | {:error, term()}
-  def set_versioning(bucket, state) when state in [:enabled, :suspended] do
-    Concord.put("bucket_versioning:#{bucket}", state)
+  @doc "Reads bucket versioning without treating an unavailable metadata read as disabled."
+  @spec fetch_versioning(String.t()) :: {:ok, versioning_state()} | {:error, term()}
+  def fetch_versioning(bucket) do
+    case Concord.get("bucket_versioning:#{bucket}", consistency: :linearizable) do
+      {:ok, nil} -> {:ok, :disabled}
+      {:error, :not_found} -> {:ok, :disabled}
+      {:ok, state} when state in [:enabled, :suspended] -> {:ok, state}
+      {:ok, state} when state in ["enabled", "Enabled"] -> {:ok, :enabled}
+      {:ok, state} when state in ["suspended", "Suspended"] -> {:ok, :suspended}
+      {:ok, _} -> {:error, :invalid_versioning_state}
+      {:error, _} = error -> error
+    end
   end
 
-  def set_versioning(_bucket, :disabled), do: {:error, :invalid_state_transition}
+  @spec set_versioning(String.t(), versioning_state()) :: :ok | {:error, term()}
+  def set_versioning(bucket, state, opts \\ [])
+
+  def set_versioning(bucket, state, opts) when state in [:enabled, :suspended] do
+    ExStorageService.Metadata.BucketConfig.put(bucket, "bucket_versioning", state, opts)
+  end
+
+  def set_versioning(_bucket, :disabled, _opts), do: {:error, :invalid_state_transition}
 
   @spec put_version(String.t(), String.t(), map()) :: {:ok, String.t()} | {:error, term()}
   def put_version(bucket, key, metadata), do: put_version(bucket, key, metadata, [])
@@ -37,32 +50,55 @@ defmodule ExStorageService.Storage.Versioning do
   @spec put_version(String.t(), String.t(), map(), keyword()) ::
           {:ok, String.t()} | {:error, term()}
   def put_version(bucket, key, metadata, opts) do
-    case ObjectCommit.put(bucket, key, metadata, opts) do
+    case put_version_result(bucket, key, metadata, opts) do
       {:ok, %{version_id: version_id}} ->
-        if get_versioning(bucket) == :enabled,
-          do: {:ok, version_id},
-          else: {:ok, "null"}
+        {:ok, version_id}
 
       {:error, reason} ->
         {:error, reason}
     end
   end
 
+  @doc false
+  def put_version_result(bucket, key, metadata, opts) do
+    ObjectCommit.put(bucket, key, metadata, Keyword.put(opts, :bucket_versioning, true))
+  end
+
   @spec get_version(String.t(), String.t(), String.t() | nil) ::
           {:ok, map()} | {:error, :not_found | term()}
   def get_version(bucket, key, nil) do
     case ObjectCommit.get_head(bucket, key) do
-      {:ok, version} -> {:ok, version}
-      {:error, :not_found} -> get_v1_latest(bucket, key)
-      error -> error
+      {:ok, version} ->
+        {:ok, version}
+
+      {:error, :not_found} ->
+        with {:ok, false} <- ObjectCommit.has_state(bucket, key) do
+          get_v1_latest(bucket, key)
+        else
+          {:ok, true} -> {:error, :not_found}
+          error -> error
+        end
+
+      error ->
+        error
     end
   end
 
   def get_version(bucket, key, version_id) do
     case ObjectCommit.get_version(bucket, key, version_id) do
-      {:ok, version} -> {:ok, version}
-      {:error, :not_found} -> get_v1_version(bucket, key, version_id)
-      error -> error
+      {:ok, version} ->
+        {:ok, version}
+
+      {:error, :not_found} ->
+        with {:ok, false} <- ObjectCommit.has_state(bucket, key) do
+          get_v1_version(bucket, key, version_id)
+        else
+          {:ok, true} -> {:error, :not_found}
+          error -> error
+        end
+
+      error ->
+        error
     end
   end
 
@@ -75,17 +111,9 @@ defmodule ExStorageService.Storage.Versioning do
   @spec delete_version(String.t(), String.t(), String.t() | nil, keyword()) ::
           {:ok, String.t(), :delete_marker | :deleted} | {:error, term()}
   def delete_version(bucket, key, nil, opts) do
-    state = get_versioning(bucket)
-
-    case ObjectCommit.delete_marker(bucket, key, opts) do
-      {:ok, %{version_id: version_id}} when state == :enabled ->
-        {:ok, version_id, :delete_marker}
-
-      {:ok, _result} when state == :suspended ->
-        {:ok, "null", :delete_marker}
-
-      {:ok, _result} ->
-        {:ok, "null", :deleted}
+    case ObjectCommit.delete_marker(bucket, key, Keyword.put(opts, :bucket_versioning, true)) do
+      {:ok, %{version_id: version_id, kind: kind}} ->
+        {:ok, version_id, kind}
 
       {:error, reason} ->
         {:error, reason}
@@ -93,7 +121,12 @@ defmodule ExStorageService.Storage.Versioning do
   end
 
   def delete_version(bucket, key, version_id, opts) do
-    case ObjectCommit.delete_version(bucket, key, version_id, opts) do
+    case ObjectCommit.delete_version(
+           bucket,
+           key,
+           version_id,
+           Keyword.put(opts, :bucket_versioning, true)
+         ) do
       {:ok, _result} -> {:ok, version_id, :deleted}
       {:error, reason} -> {:error, reason}
     end
@@ -103,8 +136,16 @@ defmodule ExStorageService.Storage.Versioning do
   def list_versions(bucket, key) do
     with {:ok, v2_versions} <- ObjectCommit.list_versions(bucket, key) do
       case v2_versions do
-        [] -> list_v1_versions(bucket, key)
-        versions -> {:ok, versions}
+        [] ->
+          with {:ok, false} <- ObjectCommit.has_state(bucket, key) do
+            list_v1_versions(bucket, key)
+          else
+            {:ok, true} -> {:ok, []}
+            error -> error
+          end
+
+        versions ->
+          {:ok, versions}
       end
     end
   end
@@ -113,6 +154,18 @@ defmodule ExStorageService.Storage.Versioning do
     case get_v1_version_list(bucket, key) do
       [latest_id | _] -> get_v1_version(bucket, key, latest_id)
       [] -> Metadata.get_v1_object_meta(bucket, key)
+    end
+  end
+
+  defp get_v1_version(bucket, key, "null") do
+    case Metadata.get_v1_object_meta(bucket, key) do
+      {:ok, metadata} ->
+        if Map.get(metadata, :version_id, "null") == "null",
+          do: {:ok, Map.put(metadata, :version_id, "null")},
+          else: {:error, :not_found}
+
+      error ->
+        error
     end
   end
 

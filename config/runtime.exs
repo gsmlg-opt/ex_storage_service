@@ -66,6 +66,13 @@ ra_root = System.get_env("ESS_RA_ROOT", Path.join(data_root, "ra"))
 metadata_root = System.get_env("ESS_METADATA_ROOT", Path.join(data_root, "concord"))
 web_enabled? = parse_boolean.("ESS_WEB_ENABLED", "true")
 
+concord_command_version =
+  case System.get_env("ESS_CONCORD_COMMAND_VERSION", "0") do
+    "0" -> 0
+    "1" -> 1
+    value -> raise "ESS_CONCORD_COMMAND_VERSION must be 0 or 1, got: #{inspect(value)}"
+  end
+
 mode =
   case System.get_env("ESS_MODE", "standalone") |> String.downcase() do
     "standalone" -> :standalone
@@ -256,6 +263,7 @@ concord_vsr =
         replica_id: node(),
         members: [%{id: node(), endpoint: node()}],
         storage: :file,
+        command_version: concord_command_version,
         bootstrap: false
       ]
 
@@ -267,6 +275,7 @@ concord_vsr =
         transport: :distribution,
         storage: :file,
         storage_path: Path.join(metadata_root, "vsr"),
+        command_version: concord_command_version,
         bootstrap: cluster_bootstrap?
       ]
   end
@@ -292,6 +301,7 @@ config :ex_storage_service,
       System.get_env("ESS_ADMIN_PORT", if(config_env() == :test, do: "4002", else: "4900"))
     ),
   s3_auth_enabled: s3_auth_enabled?,
+  s3_region: System.get_env("ESS_S3_REGION", "us-east-1"),
   root_admin_user: System.get_env("ESS_ADMIN_USER", "admin"),
   root_admin_password_hash: System.get_env("ESS_ADMIN_PASSWORD_HASH", default_admin_hash),
   master_key:
@@ -331,7 +341,11 @@ config :ex_storage_service_cluster,
   tls: internal_tls,
   node_id: node_id,
   node_generation: node_generation,
-  blob_store_opts: [root: blob_root, tmp_dir: Path.join(tmp_root, "uploads")],
+  blob_store_opts: [
+    root: blob_root,
+    tmp_dir: Path.join(tmp_root, "uploads"),
+    managed_staging: [instance: instance, node_id: node_id]
+  ],
   max_blob_size: max_object_size
 
 if config_env() == :prod do

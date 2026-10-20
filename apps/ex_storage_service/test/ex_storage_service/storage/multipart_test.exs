@@ -9,6 +9,7 @@ defmodule ExStorageService.Storage.MultipartTest do
 
   setup do
     bucket = "multipart-core-#{:erlang.unique_integer([:positive])}"
+    :ok = Metadata.create_bucket(bucket)
     {:ok, upload_id} = Multipart.init_upload(bucket, "streamed.bin")
 
     on_exit(fn ->
@@ -214,7 +215,11 @@ defmodule ExStorageService.Storage.MultipartTest do
              )
 
     assert File.exists?(CAS.blob_path(prepared.content_hash))
-    assert {:ok, %{status: :initiated}} = Multipart.get_upload(bucket, upload_id)
+    assert {:ok, %{status: :completing}} = Multipart.get_upload(bucket, upload_id)
+    assert {:ok, resumed} = Multipart.prepare_complete_upload(bucket, upload_id, [{1, etag}])
+    assert resumed.content_hash == prepared.content_hash
+    assert resumed.multipart_completion.token == prepared.multipart_completion.token
+    assert {:error, :not_found} = Multipart.store_part(bucket, upload_id, 1, "late-overwrite")
     assert {:ok, [%{part_number: 1, etag: ^etag}]} = Multipart.list_parts(bucket, upload_id)
     assert {:error, :object_not_found} = ObjectService.head(bucket, "streamed.bin")
   end

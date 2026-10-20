@@ -89,6 +89,55 @@ defmodule ExStorageService.Storage.PackTest do
     assert {:ok, ^data} = Pack.read(hash)
   end
 
+  test "an open loose reader survives packing and physical loose-file cleanup" do
+    data = :binary.copy("reader-#{System.unique_integer([:positive])}-", 80_000)
+    hash = seed_loose_blob(data)
+    path = CAS.blob_path(hash)
+    source = ExStorageService.BlobStore.Source.file(path, 0, byte_size(data))
+    owner = self()
+
+    reader =
+      Task.async(fn ->
+        ExStorageService.BlobStore.Source.reduce(
+          source,
+          {:crypto.hash_init(:sha256), 0},
+          fn chunk, {digest, bytes} ->
+            if bytes == 0 do
+              send(owner, {:loose_reader_open, self()})
+
+              receive do
+                :resume_reader -> :ok
+              after
+                10_000 -> raise "packed reader resume timed out"
+              end
+            end
+
+            {:cont, {:crypto.hash_update(digest, chunk), bytes + byte_size(chunk)}}
+          end
+        )
+      end)
+
+    assert_receive {:loose_reader_open, reader_pid}, 5_000
+    assert reader_pid == reader.pid
+
+    try do
+      assert {:ok, %{packed: 1}} = Pack.pack_blobs([hash])
+      assert File.exists?(path)
+
+      assert {:ok, _report} =
+               Packer.pack_now(cold_after: 0, min_blobs: 1_000_000, cleanup_after: 0)
+
+      refute File.exists?(path)
+      assert {:ok, ^data} = Pack.read(hash)
+    after
+      send(reader.pid, :resume_reader)
+    end
+
+    assert {:ok, {digest, bytes}} = Task.await(reader, 5_000)
+    assert bytes == byte_size(data)
+    assert Base.encode16(:crypto.hash_final(digest), case: :lower) == hash
+  end
+
   test "cleanup retains the loose fallback when the pack is truncated" do
     data = "truncated-pack-fallback-#{System.unique_integer()}"
     hash = seed_loose_blob(data)

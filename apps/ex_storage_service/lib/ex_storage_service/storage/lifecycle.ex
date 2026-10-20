@@ -38,7 +38,7 @@ defmodule ExStorageService.Storage.Lifecycle do
   Set lifecycle rules for a bucket.
   """
   @spec put_rules(String.t(), [map()]) :: :ok | {:error, term()}
-  def put_rules(bucket, rules) when is_list(rules) do
+  def put_rules(bucket, rules, opts \\ []) when is_list(rules) do
     validated =
       Enum.map(rules, fn rule ->
         %{
@@ -56,7 +56,7 @@ defmodule ExStorageService.Storage.Lifecycle do
         }
       end)
 
-    Concord.put("lifecycle:#{bucket}", validated)
+    ExStorageService.Metadata.BucketConfig.put(bucket, "lifecycle", validated, opts)
   end
 
   @doc """
@@ -74,9 +74,9 @@ defmodule ExStorageService.Storage.Lifecycle do
   @doc """
   Delete lifecycle rules for a bucket.
   """
-  @spec delete_rules(String.t()) :: :ok
-  def delete_rules(bucket) do
-    Concord.delete("lifecycle:#{bucket}")
+  @spec delete_rules(String.t()) :: :ok | {:error, term()}
+  def delete_rules(bucket, opts \\ []) do
+    ExStorageService.Metadata.BucketConfig.delete(bucket, "lifecycle", opts)
   end
 
   @doc """

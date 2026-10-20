@@ -378,4 +378,74 @@ defmodule ExStorageServiceS3.Auth.SigV4Test do
       assert {:error, "InvalidAccessKeyId"} = verify_request(conn, get_secret)
     end
   end
+
+  describe "independent canonical request edge fixtures" do
+    test "query encoding preserves duplicate pairs, literal plus and empty values" do
+      canonical =
+        canonical_request(
+          "GET",
+          "/bucket/a//./../sp ace+%252F/%E9%9B%AA",
+          "z=&a=two+words&a=two%20words&a=&a=two%2Bwords&empty",
+          [{"host", "example.com"}],
+          ["host"],
+          "UNSIGNED-PAYLOAD"
+        )
+
+      assert [
+               "GET",
+               "/bucket/a//./../sp%20ace%2B%252F/%E9%9B%AA",
+               "a=&a=two%20words&a=two%2Bwords&a=two%2Bwords&empty=&z=" | _
+             ] = String.split(canonical, "\n")
+    end
+
+    test "signed duplicate headers combine in wire order and trim sequential whitespace" do
+      canonical =
+        canonical_request(
+          "GET",
+          "/",
+          "",
+          [
+            {"host", "example.com"},
+            {"x-amz-meta-value", "  first  value \t"},
+            {"x-amz-meta-value", "second\t value"}
+          ],
+          ["host", "x-amz-meta-value"],
+          "UNSIGNED-PAYLOAD"
+        )
+
+      assert canonical =~ "x-amz-meta-value:first value,second value\n"
+    end
+
+    test "independent AWS S3 GET range fixture matches the documented canonical hash and signature" do
+      payload = sha256_hex("")
+
+      canonical =
+        canonical_request(
+          "GET",
+          "/test.txt",
+          "",
+          [
+            {"host", "examplebucket.s3.amazonaws.com"},
+            {"range", "bytes=0-9"},
+            {"x-amz-content-sha256", payload},
+            {"x-amz-date", @datetime}
+          ],
+          ["host", "range", "x-amz-content-sha256", "x-amz-date"],
+          payload
+        )
+
+      assert sha256_hex(canonical) ==
+               "7344ae5b7ee6c3e7e6b0fe0640412a37625d1fbfff95c48bbb2dc43964946972"
+
+      assert compute_signature(
+               signing_key("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", @date, @region, @service),
+               string_to_sign(@datetime, @scope, canonical)
+             ) == "f0e8bdb87c964420e857bd35b5d6ed310bd44f0170aba48dd91039c6036bdb41"
+    end
+
+    test "a matching cryptographic signature cannot use a different service" do
+      conn = signed_conn(service: "sts")
+      assert {:error, "Invalid credential scope"} = verify_request(conn, fn _ -> @secret end)
+    end
+  end
 end

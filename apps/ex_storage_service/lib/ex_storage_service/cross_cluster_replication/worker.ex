@@ -143,7 +143,15 @@ defmodule ExStorageService.CrossClusterReplication.Worker do
       ],
       body: Source.request_body(source),
       http_version: :http1,
-      redirect: :manual
+      redirect: :manual,
+      # Object length must not impose a total transfer deadline. Network stalls
+      # remain bounded independently, as on the gateway streaming path.
+      timeout: :infinity,
+      connect_timeout: 30_000,
+      read_idle_timeout: 60_000,
+      write_idle_timeout: 60_000,
+      response_stream_idle_timeout: :infinity,
+      response_stream_ack_timeout: :infinity
     ]
 
     case request(request_opts, opts) do
@@ -207,7 +215,12 @@ defmodule ExStorageService.CrossClusterReplication.Worker do
 
   defp http_request(request_opts) do
     {url, options} = Keyword.pop!(request_opts, :url)
-    ExStorageService.HTTPClient.request(url, options)
+    # Mutation status and HEAD validators are the complete response contract.
+    # Never buffer arbitrary success/error bodies from an external replica.
+    with {:ok, response} <- ExStorageService.HTTPClient.fetch(url, options) do
+      if stream = HTTP.Response.stream_pid(response), do: HTTP.Stream.stop(stream, :normal)
+      {:ok, %{status: response.status, headers: response.headers.headers, body: ""}}
+    end
   end
 
   defp response_header(%{headers: headers}, name) do

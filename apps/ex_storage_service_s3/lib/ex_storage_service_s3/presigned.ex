@@ -41,29 +41,44 @@ defmodule ExStorageServiceS3.Presigned do
     credential = "#{access_key_id}/#{date_stamp}/#{region}/s3/aws4_request"
     scope = "#{date_stamp}/#{region}/s3/aws4_request"
 
-    path = "/#{bucket}/#{key}"
+    path =
+      "/" <>
+        SigV4.uri_encode(bucket) <>
+        "/" <> (key |> String.split("/") |> Enum.map_join("/", &SigV4.uri_encode/1))
+
+    headers = [
+      {"host", host}
+      | Enum.map(Keyword.get(opts, :headers, %{}), fn {name, value} ->
+          {String.downcase(name), value}
+        end)
+    ]
+
+    signed_headers = headers |> Enum.map(&elem(&1, 0)) |> Enum.uniq() |> Enum.sort()
 
     query_params = [
       {"X-Amz-Algorithm", @algorithm},
       {"X-Amz-Credential", credential},
       {"X-Amz-Date", amz_date},
       {"X-Amz-Expires", to_string(expires)},
-      {"X-Amz-SignedHeaders", "host"}
+      {"X-Amz-SignedHeaders", Enum.join(signed_headers, ";")}
     ]
 
     canonical_query =
       query_params
-      |> Enum.sort()
-      |> Enum.map(fn {k, v} -> "#{URI.encode_www_form(k)}=#{URI.encode_www_form(v)}" end)
-      |> Enum.join("&")
-
-    canonical_headers = "host:#{host}\n"
-    signed_headers = "host"
-    payload_hash = "UNSIGNED-PAYLOAD"
+      |> Enum.map_join("&", fn {key, value} ->
+        SigV4.uri_encode(key) <> "=" <> SigV4.uri_encode(value)
+      end)
+      |> SigV4.canonical_query_string()
 
     canonical_request =
-      [method, path, canonical_query, canonical_headers, signed_headers, payload_hash]
-      |> Enum.join("\n")
+      SigV4.canonical_request(
+        method,
+        path,
+        canonical_query,
+        headers,
+        signed_headers,
+        "UNSIGNED-PAYLOAD"
+      )
 
     string_to_sign = SigV4.string_to_sign(amz_date, scope, canonical_request)
     signing_key = SigV4.signing_key(secret_access_key, date_stamp, region, "s3")
@@ -82,72 +97,114 @@ defmodule ExStorageServiceS3.Presigned do
   `get_secret_fn` takes an access key ID and returns the secret access key or nil.
   """
   def validate_presigned(conn, get_secret_fn) do
-    params = conn.query_params
-
-    with {:ok, algorithm} <- fetch_param(params, "X-Amz-Algorithm"),
+    with {:ok, pairs} <- query_pairs(conn.query_string),
+         params = Map.new(pairs),
+         {:ok, algorithm} <- fetch_param(params, "X-Amz-Algorithm"),
          true <- algorithm == @algorithm,
          {:ok, credential_str} <- fetch_param(params, "X-Amz-Credential"),
          {:ok, credential} <- parse_credential(credential_str),
          {:ok, amz_date} <- fetch_param(params, "X-Amz-Date"),
+         :ok <- validate_scope(credential, amz_date),
          {:ok, expires_str} <- fetch_param(params, "X-Amz-Expires"),
-         {:ok, _signed_headers} <- fetch_param(params, "X-Amz-SignedHeaders"),
-         {:ok, claimed_signature} <- fetch_param(params, "X-Amz-Signature"),
-         secret when not is_nil(secret) <- get_secret_fn.(credential.access_key_id) do
-      # Check expiration
-      expires = String.to_integer(expires_str)
+         {:ok, expires} <- parse_expires(expires_str),
+         :ok <- check_expiration(amz_date, expires),
+         {:ok, headers_str} <- fetch_param(params, "X-Amz-SignedHeaders"),
+         {:ok, names, headers} <- signed_request_headers(conn, headers_str),
+         {:ok, signature} <- fetch_param(params, "X-Amz-Signature"),
+         true <- Regex.match?(~r/\A[0-9a-f]{64}\z/, signature),
+         secret when is_binary(secret) <- get_secret_fn.(credential.access_key_id) do
+      scope = "#{credential.date}/#{credential.region}/s3/aws4_request"
 
-      case check_expiration(amz_date, expires) do
-        :ok ->
-          # Rebuild and verify signature
-          scope = "#{credential.date}/#{credential.region}/#{credential.service}/aws4_request"
+      query =
+        pairs
+        |> Enum.reject(fn {key, _} -> key == "X-Amz-Signature" end)
+        |> Enum.map_join("&", fn {key, value} ->
+          SigV4.uri_encode(key) <> "=" <> SigV4.uri_encode(value)
+        end)
 
-          # Rebuild canonical query without X-Amz-Signature
-          query_params =
-            params
-            |> Map.delete("X-Amz-Signature")
-            |> Enum.sort()
-            |> Enum.map(fn {k, v} ->
-              "#{URI.encode_www_form(k)}=#{URI.encode_www_form(v)}"
-            end)
-            |> Enum.join("&")
+      payload_hash =
+        case Plug.Conn.get_req_header(conn, "x-amz-content-sha256") do
+          [hash] -> hash
+          _ -> "UNSIGNED-PAYLOAD"
+        end
 
-          host = get_host(conn)
-          canonical_headers = "host:#{host}\n"
-          signed_headers = "host"
-          payload_hash = "UNSIGNED-PAYLOAD"
+      canonical =
+        SigV4.canonical_request(
+          conn.method,
+          conn.request_path,
+          query,
+          headers,
+          names,
+          payload_hash
+        )
 
-          canonical_request =
-            [
-              conn.method,
-              conn.request_path,
-              query_params,
-              canonical_headers,
-              signed_headers,
-              payload_hash
-            ]
-            |> Enum.join("\n")
+      expected =
+        SigV4.compute_signature(
+          SigV4.signing_key(secret, credential.date, credential.region, "s3"),
+          SigV4.string_to_sign(amz_date, scope, canonical)
+        )
 
-          string_to_sign = SigV4.string_to_sign(amz_date, scope, canonical_request)
-
-          signing_key =
-            SigV4.signing_key(secret, credential.date, credential.region, credential.service)
-
-          expected_signature = SigV4.compute_signature(signing_key, string_to_sign)
-
-          if secure_compare(expected_signature, claimed_signature) do
-            {:ok, conn}
-          else
-            {:error, "SignatureDoesNotMatch"}
-          end
-
-        {:error, reason} ->
-          {:error, reason}
-      end
+      if secure_compare(expected, signature),
+        do: {:ok, conn},
+        else: {:error, "SignatureDoesNotMatch"}
     else
-      false -> {:error, "Invalid algorithm"}
+      false -> {:error, "Invalid presigned authentication parameters"}
       nil -> {:error, "InvalidAccessKeyId"}
       {:error, reason} -> {:error, reason}
     end
+  end
+
+  defp query_pairs(query) do
+    pairs =
+      query
+      |> String.split("&", trim: true)
+      |> Enum.map(fn pair ->
+        case String.split(pair, "=", parts: 2) do
+          [key, value] -> {URI.decode(key), URI.decode(value)}
+          [key] -> {URI.decode(key), ""}
+        end
+      end)
+
+    auth =
+      pairs
+      |> Enum.filter(fn {name, _} -> String.starts_with?(name, "X-Amz-") end)
+      |> Enum.map(&elem(&1, 0))
+
+    if length(auth) == length(Enum.uniq(auth)),
+      do: {:ok, pairs},
+      else: {:error, "Duplicate presigned authentication parameter"}
+  end
+
+  defp parse_expires(value) do
+    case Integer.parse(value) do
+      {expires, ""} when expires in 1..@max_expires -> {:ok, expires}
+      _ -> {:error, "Invalid X-Amz-Expires"}
+    end
+  end
+
+  defp validate_scope(credential, date) do
+    if credential.service == "s3" and credential.region != "" and credential.access_key_id != "" and
+         Regex.match?(~r/\A[0-9]{8}\z/, credential.date) and
+         String.starts_with?(date, credential.date <> "T"),
+       do: :ok,
+       else: {:error, "Invalid credential scope"}
+  end
+
+  defp signed_request_headers(conn, value) do
+    names = String.split(value, ";")
+
+    headers =
+      if Enum.any?(conn.req_headers, fn {name, _} -> name == "host" end),
+        do: conn.req_headers,
+        else: [{"host", get_host(conn)} | conn.req_headers]
+
+    if "host" in names and names == Enum.sort(Enum.uniq(names)) and
+         Enum.all?(names, fn name ->
+           Regex.match?(~r/\A[a-z0-9-]+\z/, name) and
+             Enum.any?(headers, fn {key, _} -> key == name end)
+         end),
+       do: {:ok, names, headers},
+       else: {:error, "Invalid SignedHeaders"}
   end
 
   defp clamp_expires(expires) when expires > @max_expires, do: @max_expires
@@ -177,10 +234,10 @@ defmodule ExStorageServiceS3.Presigned do
         expiry_time = DateTime.add(request_time, expires_seconds, :second)
         now = DateTime.utc_now()
 
-        if DateTime.compare(now, expiry_time) == :lt do
-          :ok
-        else
-          {:error, "Request has expired"}
+        cond do
+          DateTime.diff(request_time, now, :second) > 900 -> {:error, "RequestTimeTooSkewed"}
+          DateTime.compare(now, expiry_time) != :lt -> {:error, "Request has expired"}
+          true -> :ok
         end
 
       {:error, _} = err ->

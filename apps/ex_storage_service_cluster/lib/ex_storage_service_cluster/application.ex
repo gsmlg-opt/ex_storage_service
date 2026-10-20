@@ -15,7 +15,7 @@ defmodule ExStorageServiceCluster.Application do
 
   @doc false
   def children(opts \\ Application.get_all_env(:ex_storage_service_cluster)) do
-    if Keyword.get(opts, :enabled, false) do
+    if Keyword.get(opts, :enabled, false) and not recovery_quarantined?() do
       replay_table = Keyword.get(opts, :replay_table, InternalAuth.ReplayTable)
       skew_seconds = Keyword.get(opts, :auth_skew_seconds, 60)
 
@@ -37,6 +37,13 @@ defmodule ExStorageServiceCluster.Application do
       ]
     else
       []
+    end
+  end
+
+  defp recovery_quarantined? do
+    case ExStorageService.InstanceConfig.from_application_env() do
+      {:ok, config} -> ExStorageService.Operations.Backup.quarantined?(config)
+      {:error, _} -> true
     end
   end
 

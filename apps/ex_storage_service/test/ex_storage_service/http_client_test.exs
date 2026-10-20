@@ -70,6 +70,71 @@ defmodule ExStorageService.HTTPClientTest do
     assert body == :binary.copy(item, 3)
   end
 
+  @tag :tmp_dir
+  test "cloud staged files stream explicit lengths and signed raw attributes", %{
+    tmp_dir: directory
+  } do
+    url = serve(200, [], "")
+    bytes = :zlib.gzip(:binary.copy("raw-object-bytes", 16_384))
+    path = Path.join(directory, "encoded-object")
+    File.write!(path, bytes)
+    hash = Base.encode16(:crypto.hash(:sha256, bytes), case: :lower)
+
+    config = %Config{
+      provider: :s3_compat,
+      endpoint: url,
+      bucket: "upstream",
+      access_key_id: "test-access"
+    }
+
+    assert :ok =
+             Client.put_file(
+               config,
+               "space + %/雪",
+               path,
+               "application/octet-stream",
+               %{"custom" => "value"},
+               size: byte_size(bytes),
+               sha256: hash,
+               headers: [{"content-encoding", "gzip"}]
+             )
+
+    assert_receive {:request, "PUT", "/upstream/space%20%2B%20%25/%E9%9B%AA", headers, ^bytes}
+    assert headers["content-length"] == Integer.to_string(byte_size(bytes))
+    assert headers["content-encoding"] == "gzip"
+    assert headers["x-amz-content-sha256"] == hash
+    assert headers["x-amz-meta-custom"] == "value"
+
+    assert headers["authorization"] =~
+             "content-encoding;content-length;content-type;host;x-amz-content-sha256;x-amz-date;x-amz-meta-custom"
+
+    refute Map.has_key?(headers, "transfer-encoding")
+  end
+
+  test "socket read inactivity exposes the transport timeout reason before response headers" do
+    {:ok, listener} = :gen_tcp.listen(0, [:binary, active: false, ip: {127, 0, 0, 1}])
+    {:ok, {_, port}} = :inet.sockname(listener)
+
+    server =
+      spawn_link(fn ->
+        {:ok, socket} = :gen_tcp.accept(listener, 5_000)
+        {:ok, _request} = :gen_tcp.recv(socket, 0, 5_000)
+        Process.sleep(200)
+        :gen_tcp.close(socket)
+      end)
+
+    on_exit(fn ->
+      Process.exit(server, :kill)
+      :gen_tcp.close(listener)
+    end)
+
+    assert {:error, :read_idle_timeout} =
+             HTTPClient.fetch("http://127.0.0.1:#{port}/idle",
+               timeout: 1_000,
+               read_idle_timeout: 25
+             )
+  end
+
   test "consumes chunked responses and reports interrupted streams as errors" do
     url =
       serve_raw(
@@ -281,6 +346,105 @@ defmodule ExStorageService.HTTPClientTest do
            }
   end
 
+  @tag :tmp_dir
+  test "cloud file download pins the validator and stages large raw bytes", %{tmp_dir: directory} do
+    bytes = :binary.copy(<<0, 255, 128, 1>>, 1_572_864)
+
+    config =
+      cloud_config(
+        serve(
+          200,
+          [
+            {"ETag", "\"remote-id\""},
+            {"Content-Encoding", "gzip"},
+            {"Cache-Control", "private"},
+            {"X-Amz-Meta-Custom", "value"}
+          ],
+          bytes
+        )
+      )
+
+    assert {:ok, staged, meta} =
+             Client.get_file(config, "large", if_match: "\"remote-id\"", tmp_dir: directory)
+
+    assert staged.size == byte_size(bytes)
+    assert staged.hash == Base.encode16(:crypto.hash(:sha256, bytes), case: :lower)
+    assert File.read!(staged.path) == bytes
+    assert meta.etag == "remote-id"
+    assert meta.metadata == %{"custom" => "value"}
+    assert {"content-encoding", "gzip"} in meta.headers
+    assert {"cache-control", "private"} in meta.headers
+    assert_receive {:request, "GET", "/remote/large", headers, ""}
+    assert headers["if-match"] == "\"remote-id\""
+    assert headers["authorization"] =~ "if-match"
+    ExStorageService.BlobStore.LocalCAS.discard(staged)
+  end
+
+  @tag :tmp_dir
+  test "cloud download failure and size limits remove partial staging", %{tmp_dir: directory} do
+    config =
+      cloud_config(
+        serve_raw(
+          "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nETag: \"id\"\r\nConnection: close\r\n\r\n8\r\npartial"
+        )
+      )
+
+    assert {:error, _} = Client.get_file(config, "broken", tmp_dir: directory)
+    assert Path.wildcard(Path.join(directory, "**/*")) == []
+    config = cloud_config(serve(200, [{"ETag", "\"id\""}], "too much"))
+
+    assert {:error, :entity_too_large} =
+             Client.get_file(config, "large", tmp_dir: directory, max_size: 2)
+
+    assert Path.wildcard(Path.join(directory, "**/*")) == []
+
+    assert {:error, {:http_error, 403}} =
+             Client.get_file(cloud_config(serve(403, [], "")), "denied", tmp_dir: directory)
+  end
+
+  @tag :tmp_dir
+  test "cloud staged mutations never consume an arbitrary upstream response document", %{
+    tmp_dir: directory
+  } do
+    path = Path.join(directory, "upload")
+    File.write!(path, "payload")
+
+    config =
+      cloud_config(
+        serve_raw("HTTP/1.1 200 OK\r\nContent-Length: 1073741824\r\nConnection: close\r\n\r\n")
+      )
+
+    assert :ok =
+             Client.put_file(config, "key", path, "text/plain", %{},
+               size: 7,
+               sha256: Base.encode16(:crypto.hash(:sha256, "payload"), case: :lower)
+             )
+
+    denied =
+      cloud_config(
+        serve_raw(
+          "HTTP/1.1 403 Denied\r\nContent-Length: 1073741824\r\nConnection: close\r\n\r\n"
+        )
+      )
+
+    assert {:error, {:http_error, 403}} = Client.delete_object(denied, "key")
+  end
+
+  test "external replication does not consume arbitrary mutation response documents" do
+    alias ExStorageService.CrossClusterReplication.Worker
+
+    for status <- [200, 503] do
+      endpoint =
+        serve_raw(
+          "HTTP/1.1 #{status} Response\r\nContent-Length: 1073741824\r\nConnection: close\r\n\r\n"
+        )
+
+      result = Worker.replicate_delete("bucket", "key", %{endpoint: endpoint})
+      expected = if status == 200, do: :ok, else: {:error, {:http_error, 503}}
+      assert result == expected
+    end
+  end
+
   test "cloud deletion remains idempotent and connectivity reports forbidden credentials" do
     assert :ok = Client.delete_object(cloud_config(serve(404, [], "")), "missing")
     assert {:error, :forbidden} = Client.test_connection(cloud_config(serve(403, [], "")))
@@ -289,6 +453,7 @@ defmodule ExStorageService.HTTPClientTest do
   test "notification API delivers the object event as JSON to the webhook" do
     endpoint = serve(204, [], "") <> "/webhook"
     bucket = "http-webhook-#{System.unique_integer([:positive])}"
+    :ok = ExStorageService.Metadata.create_bucket(bucket)
 
     assert :ok =
              Notifications.put_config(bucket, [

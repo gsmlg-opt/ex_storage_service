@@ -14,6 +14,13 @@ defmodule ExStorageService.Cluster.WriteCoordinatorTest do
         {:head, node.node_id, hash, Keyword.fetch!(opts, :request_id)}
       )
 
+      if Keyword.get(opts, :block, false) do
+        send(Keyword.fetch!(opts, :test_pid), {:blocked_transfer, self()})
+        receive do: (:release -> :ok)
+      end
+
+      Process.sleep(Keyword.get(opts, :delay_ms, 0))
+
       case Keyword.get(opts, :head_result, :missing) do
         :missing ->
           {:error, :not_found}
@@ -230,6 +237,59 @@ defmodule ExStorageService.Cluster.WriteCoordinatorTest do
                  put_result: :wrong_generation
                ]
              )
+  end
+
+  @tag :tmp_dir
+  test "concurrent writers wait for bounded replica supervisor capacity", %{tmp_dir: tmp_dir} do
+    supervisor = start_supervised!({Task.Supervisor, max_children: 2})
+    context = %{context(tmp_dir) | replica_task_supervisor: supervisor}
+    parent = self()
+
+    results =
+      1..32
+      |> Task.async_stream(
+        fn n ->
+          {:ok, staged} = LocalCAS.stage("writer-#{n}", Context.blob_store_options(context))
+
+          WriteCoordinator.ensure_blob(context, staged,
+            placement_records: records(),
+            transport: Transport,
+            operation_id: "bounded-writer-#{n}",
+            transport_opts: [test_pid: parent, size: staged.size, delay_ms: 10]
+          )
+        end,
+        max_concurrency: 32,
+        timeout: 10_000
+      )
+      |> Enum.to_list()
+
+    assert length(results) == 32
+    assert Enum.all?(results, &match?({:ok, {:ok, %{achieved_replica_count: 2}}}, &1))
+    assert Task.Supervisor.children(supervisor) == []
+  end
+
+  @tag :tmp_dir
+  test "cancelled writer terminates its admitted transfer", %{tmp_dir: tmp_dir} do
+    supervisor = start_supervised!({Task.Supervisor, max_children: 1})
+    context = %{context(tmp_dir) | replica_task_supervisor: supervisor}
+    {:ok, staged} = LocalCAS.stage("cancelled", Context.blob_store_options(context))
+    parent = self()
+
+    writer =
+      Task.async(fn ->
+        WriteCoordinator.ensure_blob(context, staged,
+          placement_records: records(),
+          transport: Transport,
+          operation_id: "cancelled-op",
+          transport_opts: [test_pid: parent, size: staged.size, block: true]
+        )
+      end)
+
+    assert_receive {:blocked_transfer, transfer}, 1_000
+    monitor = Process.monitor(transfer)
+    Task.shutdown(writer, :brutal_kill)
+    assert_receive {:DOWN, ^monitor, :process, ^transfer, :killed}, 1_000
+    refute Process.alive?(transfer)
   end
 
   defp context(tmp_dir, allow_degraded \\ false) do

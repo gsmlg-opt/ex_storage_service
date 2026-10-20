@@ -55,4 +55,106 @@ defmodule ExStorageService.MetricsTest do
     assert :ok = Metrics.setup()
     assert :ok = Metrics.setup()
   end
+
+  test "listing metrics have finite labels and omit object, bucket and arbitrary values" do
+    for value <- [:current, "secret-object-key", {:private, "credential"}] do
+      :telemetry.execute(
+        [:ex_storage_service, :listing, :page, :stop],
+        %{duration: 100},
+        %{kind: value, result: :ok, bucket: "secret-bucket", key: "secret-object-key"}
+      )
+
+      :telemetry.execute(
+        [:ex_storage_service, :listing, :index, :status],
+        %{count: 1},
+        %{state: value, bucket: "secret-bucket"}
+      )
+    end
+
+    output = Metrics.format_metrics()
+    assert output =~ ~s(listing_pages_total{kind="current",result="ok"} 1)
+    assert output =~ ~s(listing_pages_total{kind="other",result="ok"} 2)
+    assert output =~ ~s(listing_index_checks_total{state="other"} 3)
+    assert output =~ "listing_duration_milliseconds_count"
+    refute output =~ "secret-"
+    refute output =~ "credential"
+  end
+
+  test "ordinary returned HTTP failures are errors and do not change span results" do
+    for status <- [200, 204, 304, 400, 404, 412, 503] do
+      result = %{status: status}
+      assert ^result = Telemetry.span(:get_object, %{key: "private-key"}, fn -> result end)
+    end
+
+    assert_raise RuntimeError, "private failure", fn ->
+      Telemetry.span(:put_object, %{}, fn -> raise "private failure" end)
+    end
+
+    output = Metrics.format_metrics()
+    assert output =~ ~s(s3_requests_total{operation="get_object",status="ok"} 3)
+    assert output =~ ~s(s3_requests_total{operation="get_object",status="error"} 4)
+    assert output =~ ~s(s3_requests_total{operation="put_object",status="error"} 1)
+    refute output =~ "private"
+  end
+
+  test "operational labels collapse arbitrary values without leaking metadata" do
+    for value <- ["secret-key", {:credential, "secret-value"}, 9_999] do
+      :telemetry.execute([:ex_storage_service, :s3, :request, :stop], %{duration: 1}, %{
+        operation: value,
+        result: :error
+      })
+
+      :telemetry.execute([:ex_storage_service, :gateway, :upstream, :stop], %{duration: 1}, %{
+        operation: value,
+        result: value,
+        endpoint: "secret-endpoint"
+      })
+
+      :telemetry.execute([:ex_storage_service, :gateway, :cache, :stop], %{}, %{
+        operation: value,
+        result: value
+      })
+
+      :telemetry.execute([:ex_storage_service, :job, :transition], %{}, %{
+        kind: value,
+        execution: value,
+        transition: value,
+        job_id: "secret-job"
+      })
+
+      :telemetry.execute([:ex_storage_service, :cluster, :quorum, :stop], %{duration: 1}, %{
+        result: value
+      })
+
+      :telemetry.execute([:ex_storage_service, :cluster, :lease, :contention], %{}, %{
+        kind: value,
+        reason: value
+      })
+    end
+
+    output = Metrics.format_metrics()
+    assert output =~ ~s(gateway_upstream_requests_total{operation="other",result="other"} 3)
+
+    assert output =~
+             ~s(durable_job_transitions_total{execution="other",kind="other",transition="other"} 3)
+
+    assert output =~ ~s(s3_requests_total{operation="other",status="error"} 3)
+    refute output =~ "secret"
+    refute output =~ "9999"
+    refute output =~ "credential"
+  end
+
+  test "staging observation is bounded and never pretends overflow is complete" do
+    limit = Metrics.staging_snapshot().limit
+
+    for index <- 1..(limit + 1) do
+      :telemetry.execute([:ex_storage_service, :storage, :stage, :start], %{}, %{
+        path: "secret-path-#{index}"
+      })
+    end
+
+    assert %{tracked_files: ^limit, complete_since_setup: false} = Metrics.staging_snapshot()
+    assert Metrics.format_metrics() =~ "storage_staging_tracking_complete_since_setup 0"
+    refute Metrics.format_metrics() =~ "secret-path"
+  end
 end

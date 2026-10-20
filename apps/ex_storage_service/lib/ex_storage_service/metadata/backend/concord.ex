@@ -14,6 +14,7 @@ defmodule ExStorageService.Metadata.Backend.Concord do
 
   @impl true
   def get(key, opts \\ []) do
+    # TODO(upstream): gsmlg-dev/concord#100 bound ordinary VSR read allocation.
     Concord.KV.get(key, Keyword.put(opts, :metadata, true))
     |> case do
       {:ok, %Record{value: value, mod_revision: revision}} ->

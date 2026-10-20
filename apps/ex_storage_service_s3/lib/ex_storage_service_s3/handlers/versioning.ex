@@ -5,12 +5,15 @@ defmodule ExStorageServiceS3.Handlers.Versioning do
   require Logger
   import ExStorageServiceS3.Handlers.Shared
   alias ExStorageService.Metadata
+  alias ExStorageService.Metadata.BucketLifecycle
   alias ExStorageService.Storage.Versioning
+
+  @max_configuration_bytes 1_048_576
 
   def put_bucket_versioning(conn, bucket) do
     request_id = request_id(conn)
 
-    case Metadata.head_bucket(bucket) do
+    case Metadata.get_bucket(bucket) do
       {:error, :not_found} ->
         error_response(
           conn,
@@ -20,17 +23,22 @@ defmodule ExStorageServiceS3.Handlers.Versioning do
           request_id
         )
 
-      :ok ->
-        case read_full_body(conn) do
-          {:ok, body, _conn} ->
+      {:ok, bucket_meta} ->
+        case read_full_body(conn, @max_configuration_bytes) do
+          {:ok, body, conn} ->
             case parse_versioning_xml(body) do
               {:ok, status} ->
                 state = if status == "Enabled", do: :enabled, else: :suspended
-                Versioning.set_versioning(bucket, state)
 
-                conn
-                |> put_s3_headers(request_id)
-                |> send_resp(200, "")
+                case Versioning.set_versioning(bucket, state,
+                       bucket_generation: BucketLifecycle.generation(bucket_meta)
+                     ) do
+                  :ok ->
+                    conn |> put_s3_headers(request_id) |> send_resp(200, "")
+
+                  {:error, reason} ->
+                    storage_error_response(conn, reason, "/#{bucket}?versioning", request_id)
+                end
 
               {:error, _} ->
                 error_response(
@@ -43,17 +51,11 @@ defmodule ExStorageServiceS3.Handlers.Versioning do
             end
 
           {:error, reason} ->
-            error_response(
-              conn,
-              "InternalError",
-              inspect(reason),
-              "/#{bucket}?versioning",
-              request_id
-            )
+            storage_error_response(conn, reason, "/#{bucket}?versioning", request_id)
         end
 
       {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
+        storage_error_response(conn, reason, "/#{bucket}", request_id)
     end
   end
 
@@ -71,24 +73,28 @@ defmodule ExStorageServiceS3.Handlers.Versioning do
         )
 
       :ok ->
-        state = Versioning.get_versioning(bucket)
+        case Versioning.fetch_versioning(bucket) do
+          {:ok, state} ->
+            status_element =
+              case state do
+                :disabled -> ""
+                :enabled -> "<Status>Enabled</Status>"
+                :suspended -> "<Status>Suspended</Status>"
+              end
 
-        status_element =
-          case state do
-            :disabled -> ""
-            :enabled -> "<Status>Enabled</Status>"
-            :suspended -> "<Status>Suspended</Status>"
-          end
+            body = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">#{status_element}</VersioningConfiguration>
+            """
 
-        body = """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">#{status_element}</VersioningConfiguration>
-        """
+            xml_response(conn, 200, String.trim(body), request_id)
 
-        xml_response(conn, 200, String.trim(body), request_id)
+          {:error, reason} ->
+            storage_error_response(conn, reason, "/#{bucket}?versioning", request_id)
+        end
 
       {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
+        storage_error_response(conn, reason, "/#{bucket}", request_id)
     end
   end
 

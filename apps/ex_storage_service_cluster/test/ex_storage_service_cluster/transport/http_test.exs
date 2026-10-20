@@ -96,6 +96,66 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
     end
   end
 
+  test "replica acknowledgement does not buffer an arbitrary response document" do
+    {:ok, listener} = :gen_tcp.listen(0, [:binary, active: false, ip: {127, 0, 0, 1}])
+    {:ok, {_, port}} = :inet.sockname(listener)
+    hash = sha256("x")
+
+    server =
+      spawn_link(fn ->
+        {:ok, socket} = :gen_tcp.accept(listener, 5_000)
+
+        read_head = fn recurse, bytes ->
+          if String.contains?(bytes, "\r\n\r\n"),
+            do: bytes,
+            else:
+              with(
+                {:ok, chunk} <- :gen_tcp.recv(socket, 0, 5_000),
+                do: recurse.(recurse, bytes <> chunk)
+              )
+        end
+
+        request = read_head.(read_head, "")
+        [_, request_id] = Regex.run(~r/x-ess-request-id: ([^\r]+)\r/i, request)
+
+        headers = [
+          {"content-length", "1073741824"},
+          {"connection", "close"},
+          {"x-ess-node-id", "peer"},
+          {"x-ess-node-generation", "1"},
+          {"x-ess-blob-sha256", hash},
+          {"x-ess-blob-size", "1"},
+          {"x-ess-verified-at", "1"},
+          {"x-ess-request-id", request_id}
+        ]
+
+        :ok =
+          :gen_tcp.send(socket, [
+            "HTTP/1.1 200 OK\r\n",
+            Enum.map(headers, fn {k, v} -> [k, ": ", v, "\r\n"] end),
+            "\r\n"
+          ])
+
+        :gen_tcp.close(socket)
+      end)
+
+    on_exit(fn ->
+      Process.exit(server, :kill)
+      :gen_tcp.close(listener)
+    end)
+
+    {:ok, config} = InstanceConfig.new(internal_secret: @secret)
+
+    assert {:ok, %ReplicaAck{node_id: "peer", hash: ^hash}} =
+             HTTP.put_blob(
+               Context.new(config),
+               "http://127.0.0.1:#{port}",
+               Source.stream(["x"], 1),
+               descriptor(hash, 1),
+               secret: @secret
+             )
+  end
+
   @tag :tmp_dir
   test "HTTP adapter streams PUT, HEAD, full GET, and Range GET", %{tmp_dir: tmp_dir} do
     %{url: url, context: context} = start_transport(tmp_dir)

@@ -57,10 +57,14 @@ defmodule ExStorageServiceS3.Handlers.Bucket do
     end
   end
 
-  def delete_bucket(conn, bucket) do
+  def delete_bucket(conn, bucket, opts \\ []) do
     request_id = request_id(conn)
+    delete = Keyword.get(opts, :delete_bucket, &Metadata.delete_bucket/1)
 
-    case Metadata.head_bucket(bucket) do
+    case delete.(bucket) do
+      :ok ->
+        conn |> put_s3_headers(request_id) |> send_resp(204, "")
+
       {:error, :not_found} ->
         error_response(
           conn,
@@ -70,30 +74,17 @@ defmodule ExStorageServiceS3.Handlers.Bucket do
           request_id
         )
 
+      {:error, :bucket_not_empty} ->
+        error_response(
+          conn,
+          "BucketNotEmpty",
+          "Remove all objects, versions, delete markers and incomplete uploads before deleting this bucket.",
+          "/#{bucket}",
+          request_id
+        )
+
       {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
-
-      :ok ->
-        case Metadata.list_objects(bucket, max_keys: 1) do
-          {:ok, %{keys: []}} ->
-            Metadata.delete_bucket(bucket)
-
-            conn
-            |> put_s3_headers(request_id)
-            |> send_resp(204, "")
-
-          {:ok, _} ->
-            error_response(
-              conn,
-              "BucketNotEmpty",
-              "The bucket you tried to delete is not empty.",
-              "/#{bucket}",
-              request_id
-            )
-
-          {:error, reason} ->
-            error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
-        end
+        storage_error_response(conn, reason, "/#{bucket}", request_id)
     end
   end
 

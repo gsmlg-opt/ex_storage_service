@@ -64,6 +64,7 @@ defmodule ExStorageService.InstanceSupervisor do
            data_root: context.data_root,
            blob_root: context.blob_root,
            tmp_root: context.tmp_root,
+           recovery_context: context,
            name: name(context, :engine, Engine)
          ]}
       ] ++

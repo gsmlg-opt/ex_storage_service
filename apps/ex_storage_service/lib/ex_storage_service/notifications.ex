@@ -24,7 +24,7 @@ defmodule ExStorageService.Notifications do
   Configure notifications for a bucket.
   """
   @spec put_config(String.t(), [map()]) :: :ok | {:error, term()}
-  def put_config(bucket, configs) when is_list(configs) do
+  def put_config(bucket, configs, opts \\ []) when is_list(configs) do
     validated =
       Enum.map(configs, fn config ->
         %{
@@ -35,7 +35,7 @@ defmodule ExStorageService.Notifications do
         }
       end)
 
-    Concord.put("notification:#{bucket}", validated)
+    ExStorageService.Metadata.BucketConfig.put(bucket, "notification", validated, opts)
   end
 
   @doc """
@@ -53,9 +53,9 @@ defmodule ExStorageService.Notifications do
   @doc """
   Delete notification configuration for a bucket.
   """
-  @spec delete_config(String.t()) :: :ok
-  def delete_config(bucket) do
-    Concord.delete("notification:#{bucket}")
+  @spec delete_config(String.t()) :: :ok | {:error, term()}
+  def delete_config(bucket, opts \\ []) do
+    ExStorageService.Metadata.BucketConfig.delete(bucket, "notification", opts)
   end
 
   @doc """

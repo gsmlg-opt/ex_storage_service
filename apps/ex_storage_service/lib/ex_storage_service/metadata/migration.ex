@@ -22,6 +22,135 @@ defmodule ExStorageService.Metadata.Migration do
   @default_max_attempts 8
   @ambiguous_errors [:timeout, :unknown, :cluster_not_ready, :no_leader]
 
+  @doc """
+  Plans one offline index-build version's verified blob metadata, without committing.
+
+  The caller must include these comparisons and operations in its existing
+  gated version/checkpoint transaction. Actual source contexts are probed for
+  checksum-verified local CAS evidence; fewer than the target RF fails closed.
+  The existing test-only `local_blob_probe` injection remains available.
+  """
+  def prepare_index_version(version, opts) do
+    with {:ok, target} <- target_replication_factor(opts) do
+      if field(version, :delete_marker, false) do
+        {:ok, %{compare: [], success: []}}
+      else
+        with {:ok, {hash, size}} <- blob_identity(version),
+             opts = index_probe_options(opts),
+             {:ok, blob} <- prepare_blob(hash, size, field(version, :created_at), opts),
+             {:ok, locations} <- index_locations(blob, hash, size, opts),
+             true <- length(locations) >= target,
+             :ok <- index_existing(blob, locations, target, opts) do
+          descriptor =
+            if blob.descriptor_record,
+              do:
+                put_descriptor_replication_factor(
+                  blob.descriptor_record.value,
+                  max(target, field(blob.descriptor_record.value, :desired_replication_factor))
+                ),
+              else: blob.descriptor
+
+          compare = [revision_compare(blob.descriptor_key, blob.descriptor_record)]
+          success = [{:put, blob.descriptor_key, descriptor, %{}}]
+
+          {compare, success} =
+            Enum.reduce(locations, {compare, success}, fn {location, observed},
+                                                          {compare, success} ->
+              key = Keys.blob_location(hash, location.node_id)
+
+              {[revision_compare(key, observed) | compare],
+               [{:put, key, Map.from_struct(location), %{}} | success]}
+            end)
+
+          {:ok, %{compare: Enum.reverse(compare), success: Enum.reverse(success)}}
+        else
+          false ->
+            {:error, {:insufficient_verified_blob_sources, field(version, :content_hash), target}}
+
+          error ->
+            error
+        end
+      end
+    end
+  end
+
+  @doc "Checks actual local CAS bytes for an operator's cross-node migration probe."
+  def index_blob_evidence(%Context{} = context, hash, size),
+    do: default_local_location(hash, size, context: context)
+
+  defp index_existing(blob, locations, target, opts) do
+    if Keyword.get(opts, :index_validate, false) do
+      valid =
+        blob.descriptor_record != nil and
+          field(blob.descriptor_record.value, :desired_replication_factor) >= target and
+          Enum.all?(locations, fn {_location, observed} ->
+            observed != nil and field(observed.value, :state) == :ready
+          end)
+
+      if valid, do: :ok, else: {:error, {:missing_verified_blob_metadata, blob.hash}}
+    else
+      :ok
+    end
+  end
+
+  defp index_probe_options(opts) do
+    if Keyword.has_key?(opts, :local_blob_probe) do
+      opts
+    else
+      case Enum.find(Keyword.get(opts, :sources, []), fn
+             %Context{config: %{node_role: :data}} -> true
+             _ -> false
+           end) do
+        nil -> opts
+        context -> Keyword.put(opts, :context, context)
+      end
+    end
+  end
+
+  defp index_locations(blob, hash, size, opts) do
+    initial = if blob.location, do: [{blob.location, blob.location_record}], else: []
+
+    sources =
+      if Keyword.has_key?(opts, :local_blob_probe), do: [], else: Keyword.get(opts, :sources, [])
+
+    Enum.reduce_while(sources, {:ok, initial}, fn source, {:ok, locations} ->
+      if Enum.any?(locations, fn {location, _} -> location.node_id == source.config.node_id end) do
+        {:cont, {:ok, locations}}
+      else
+        result =
+          if source.config.erlang_node == node(),
+            do: index_blob_evidence(source, hash, size),
+            else:
+              :rpc.call(
+                source.config.erlang_node,
+                __MODULE__,
+                :index_blob_evidence,
+                [source, hash, size],
+                30_000
+              )
+
+        case result do
+          {:ok, nil} ->
+            {:cont, {:ok, locations}}
+
+          {:ok, %BlobLocation{} = location} ->
+            with {:ok, observed} <- read_location(location, opts),
+                 :ok <- validate_location(observed, location, hash, size) do
+              {:cont, {:ok, [{location, observed} | locations]}}
+            else
+              error -> {:halt, error}
+            end
+
+          {:error, _} = error ->
+            {:halt, error}
+
+          _ ->
+            {:halt, {:error, :source_blob_probe_unavailable}}
+        end
+      end
+    end)
+  end
+
   @type report :: %{
           objects_scanned: non_neg_integer(),
           objects_migrated: non_neg_integer(),

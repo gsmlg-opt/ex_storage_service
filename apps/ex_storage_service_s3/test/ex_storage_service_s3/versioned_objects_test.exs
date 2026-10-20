@@ -82,6 +82,34 @@ defmodule ExStorageServiceS3.VersionedObjectsTest do
     assert Req.Response.get_header(resp, "x-amz-version-id") == []
   end
 
+  test "multipart writes distinguish never-enabled and suspended null versions" do
+    bucket = unique_bucket()
+    assert {:ok, %{status: 201}} = Req.put("#{@base_url}/#{bucket}", body: "")
+
+    for {state, expected} <- [{:disabled, []}, {:suspended, ["null"]}] do
+      if state == :suspended do
+        assert :ok = ExStorageService.Storage.Versioning.set_versioning(bucket, :enabled)
+        assert :ok = ExStorageService.Storage.Versioning.set_versioning(bucket, :suspended)
+      end
+
+      url = "#{@base_url}/#{bucket}/multipart-#{state}"
+      assert {:ok, %{status: 200, body: initiation}} = Req.post(url <> "?uploads", body: "")
+      [_, upload_id] = Regex.run(~r/<UploadId>([^<]+)<\/UploadId>/, initiation)
+      query = URI.encode_query(%{"uploadId" => upload_id})
+
+      assert {:ok, part} = Req.put(url <> "?#{query}&partNumber=1", body: "part")
+      assert part.status == 200
+      [etag] = Req.Response.get_header(part, "etag")
+
+      body =
+        "<CompleteMultipartUpload><Part><PartNumber>1</PartNumber><ETag>#{etag}</ETag></Part></CompleteMultipartUpload>"
+
+      assert {:ok, completed} = Req.post(url <> "?#{query}", body: body)
+      assert completed.status == 200
+      assert Req.Response.get_header(completed, "x-amz-version-id") == expected
+    end
+  end
+
   test "versions of identical content share one CAS blob" do
     bucket = create_versioned_bucket()
     data = "same-content-#{System.unique_integer()}"
@@ -181,7 +209,7 @@ defmodule ExStorageServiceS3.VersionedObjectsTest do
 
     # GET of the marker version 404s and flags the marker
     {:ok, marker_get} = Req.get("#{@base_url}/#{bucket}/life.txt?versionId=#{marker_id}")
-    assert marker_get.status == 404
+    assert marker_get.status == 405
     assert Req.Response.get_header(marker_get, "x-amz-delete-marker") == ["true"]
 
     # PUT after marker restores visibility
@@ -200,7 +228,7 @@ defmodule ExStorageServiceS3.VersionedObjectsTest do
     {:ok, %{status: 200, body: "v-two"}} = Req.get("#{@base_url}/#{bucket}/life.txt")
   end
 
-  test "a deleted marker-only bucket takes precedence over its stale marker metadata" do
+  test "historical versions block deletion and a missing bucket takes precedence over stale markers" do
     bucket = create_versioned_bucket()
     key = "stale-marker.txt"
 
@@ -210,7 +238,9 @@ defmodule ExStorageServiceS3.VersionedObjectsTest do
     assert Req.Response.get_header(delete_resp, "x-amz-delete-marker") == ["true"]
     assert [_marker_id] = Req.Response.get_header(delete_resp, "x-amz-version-id")
 
-    {:ok, %{status: 204}} = Req.delete("#{@base_url}/#{bucket}")
+    {:ok, %{status: 409}} = Req.delete("#{@base_url}/#{bucket}")
+    # Fault injection: missing bucket record with stale retained versions.
+    :ok = Concord.delete("bucket:#{bucket}")
 
     {:ok, get_resp} = Req.get("#{@base_url}/#{bucket}/#{key}")
     assert get_resp.status == 404
@@ -235,7 +265,11 @@ defmodule ExStorageServiceS3.VersionedObjectsTest do
     <Delete><Object><Key>batch.txt</Key></Object></Delete>
     """
 
-    {:ok, %{status: 200}} = Req.post("#{@base_url}/#{bucket}?delete", body: delete_xml)
+    {:ok, %{status: 200}} =
+      Req.post("#{@base_url}/#{bucket}?delete",
+        body: delete_xml,
+        headers: [{"content-md5", :crypto.hash(:md5, delete_xml) |> Base.encode64()}]
+      )
 
     {:ok, %{status: 404}} = Req.get("#{@base_url}/#{bucket}/batch.txt")
 

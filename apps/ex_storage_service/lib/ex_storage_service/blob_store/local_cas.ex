@@ -37,7 +37,7 @@ defmodule ExStorageService.BlobStore.LocalCAS do
 
     def mkdir_p(path), do: File.mkdir_p(path)
     def open(path, modes), do: File.open(path, modes)
-    def write(io, data), do: IO.binwrite(io, data)
+    def write(io, data), do: :file.write(io, data)
     def sync(io), do: :file.sync(io)
     def close(io), do: File.close(io)
     def rename(source, destination), do: File.rename(source, destination)
@@ -55,11 +55,17 @@ defmodule ExStorageService.BlobStore.LocalCAS do
   def stage(data, opts \\ []) do
     fs = fs(opts)
     path = staging_path(opts)
+    ExStorageService.Telemetry.stage_span(path, fs, fn -> do_stage(data, opts, fs, path) end)
+  end
 
-    with :ok <- phase(:stage, opts),
+  defp do_stage(data, opts, fs, path) do
+    max_size = Keyword.get(opts, :max_size, configured_max_size())
+
+    with :ok <- validate_max_size(max_size),
+         :ok <- phase(:stage, opts),
          :ok <- tagged(:stage, fs.mkdir_p(Path.dirname(path))),
-         {:ok, io} <- tagged(:stage, fs.open(path, [:write, :raw, :binary])) do
-      result = write_staged(io, data, fs)
+         {:ok, io} <- tagged(:stage, fs.open(path, [:write, :raw, :binary, :exclusive])) do
+      result = write_staged(io, data, fs, max_size)
       close_result = tagged(:stage, fs.close(io))
 
       case {result, close_result} do
@@ -76,7 +82,6 @@ defmodule ExStorageService.BlobStore.LocalCAS do
       end
     else
       {:error, _} = error ->
-        _ = fs.rm(path)
         error
     end
   end
@@ -98,18 +103,24 @@ defmodule ExStorageService.BlobStore.LocalCAS do
   def stage_from_reader(reader, initial_state, opts \\ []) when is_function(reader, 1) do
     fs = fs(opts)
     path = staging_path(opts)
+
+    ExStorageService.Telemetry.stage_span(path, fs, fn ->
+      do_stage_from_reader(reader, initial_state, opts, fs, path)
+    end)
+  end
+
+  defp do_stage_from_reader(reader, initial_state, opts, fs, path) do
     max_size = Keyword.get(opts, :max_size, configured_max_size())
 
     with :ok <- validate_max_size(max_size),
          :ok <- phase(:stage, opts),
          :ok <- tagged(:stage, fs.mkdir_p(Path.dirname(path))),
-         {:ok, io} <- tagged(:stage, fs.open(path, [:write, :raw, :binary])) do
+         {:ok, io} <- tagged(:stage, fs.open(path, [:write, :raw, :binary, :exclusive])) do
       result = read_staged(io, reader, initial_state, initial_digests(), max_size, fs)
       close_result = tagged(:stage, fs.close(io))
       finish_reader_stage(result, close_result, path, fs)
     else
       {:error, reason} ->
-        _ = fs.rm(path)
         {:error, reason, initial_state}
     end
   end
@@ -223,11 +234,15 @@ defmodule ExStorageService.BlobStore.LocalCAS do
 
   @impl true
   def discard(%StagedBlob{path: path}, opts \\ []) do
-    case fs(opts).rm(path) do
-      :ok -> :ok
-      {:error, :enoent} -> :ok
-      {:error, reason} -> {:error, {:discard, reason}}
-    end
+    result =
+      case fs(opts).rm(path) do
+        :ok -> :ok
+        {:error, :enoent} -> :ok
+        {:error, reason} -> {:error, {:discard, reason}}
+      end
+
+    ExStorageService.Telemetry.observe_stage(path, fs(opts))
+    result
   end
 
   @impl true
@@ -314,7 +329,23 @@ defmodule ExStorageService.BlobStore.LocalCAS do
         Path.join(tmp_root, "uploads")
       end)
 
-    Path.join(directory, "upload-#{System.unique_integer([:positive, :monotonic])}")
+    Path.join(
+      directory,
+      ExStorageService.Storage.StagingRecovery.staging_name(
+        Keyword.put(opts, :tmp_dir, directory)
+      )
+    )
+  end
+
+  @doc false
+  def protect(staged, kind, opts \\ []),
+    do: ExStorageService.Storage.StagingRecovery.protect(staged, kind, opts)
+
+  @doc false
+  def discard_unprotected(staged, opts \\ []) do
+    if ExStorageService.Storage.StagingRecovery.protected?(staged.path),
+      do: :ok,
+      else: discard(staged, opts)
   end
 
   defp publish(staged, destination, opts) do
@@ -324,6 +355,7 @@ defmodule ExStorageService.BlobStore.LocalCAS do
          :ok <- sync_and_close(io, fs, opts),
          :ok <- phase(:rename, opts),
          :ok <- rename(fs, staged.path, destination),
+         :ok <- observe_published_stage(staged.path, fs),
          :ok <-
            sync_directories(
              fs,
@@ -336,6 +368,11 @@ defmodule ExStorageService.BlobStore.LocalCAS do
            ) do
       {:ok, ready(staged, destination)}
     end
+  end
+
+  defp observe_published_stage(path, fs) do
+    ExStorageService.Telemetry.observe_stage(path, fs)
+    :ok
   end
 
   defp promote_legacy(hash, opts) do
@@ -401,31 +438,27 @@ defmodule ExStorageService.BlobStore.LocalCAS do
     end
   end
 
-  defp write_staged(io, data, fs) when is_binary(data) do
+  defp write_staged(_io, data, _fs, max_size) when is_binary(data) and byte_size(data) > max_size,
+    do: {:error, {:stage, :entity_too_large}}
+
+  defp write_staged(io, data, fs, _max_size) when is_binary(data) do
     with :ok <- tagged(:stage, fs.write(io, data)) do
+      ExStorageService.Telemetry.staged_bytes(byte_size(data))
       {:ok, digest_result(:crypto.hash(:sha256, data), :crypto.hash(:md5, data), byte_size(data))}
     end
   end
 
-  defp write_staged(io, enumerable, fs) do
+  defp write_staged(io, enumerable, fs, max_size) do
     try do
       enumerable
       |> Enum.reduce_while(
         {:crypto.hash_init(:sha256), :crypto.hash_init(:md5), 0},
-        fn
-          chunk, {sha, md5, size} when is_binary(chunk) ->
-            case fs.write(io, chunk) do
-              :ok ->
-                {:cont,
-                 {:crypto.hash_update(sha, chunk), :crypto.hash_update(md5, chunk),
-                  size + byte_size(chunk)}}
-
-              {:error, reason} ->
-                {:halt, {:error, {:stage, reason}}}
-            end
-
-          _chunk, _acc ->
-            {:halt, {:error, {:stage, :invalid_chunk}}}
+        fn chunk, digests ->
+          case write_reader_chunk(io, chunk, digests, max_size, fs) do
+            {:ok, next} -> {:cont, next}
+            {:error, :entity_too_large} -> {:halt, {:error, {:stage, :entity_too_large}}}
+            {:error, _} = error -> {:halt, error}
+          end
         end
       )
       |> case do
@@ -491,6 +524,7 @@ defmodule ExStorageService.BlobStore.LocalCAS do
       true ->
         case fs.write(io, chunk) do
           :ok ->
+            ExStorageService.Telemetry.staged_bytes(byte_size(chunk))
             {:ok, {:crypto.hash_update(sha, chunk), :crypto.hash_update(md5, chunk), next_size}}
 
           {:error, reason} ->

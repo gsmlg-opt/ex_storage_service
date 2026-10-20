@@ -26,13 +26,17 @@ defmodule ExStorageService.Storage.CasGCTest do
   defp reference(hash) do
     bucket = "gcref-#{:erlang.unique_integer([:positive])}"
     key = "k"
+    assert :ok = Metadata.create_bucket(bucket)
 
-    Metadata.put_object_meta(bucket, key, %{
-      content_hash: hash,
-      size: 1,
-      etag: "e",
-      created_at: DateTime.utc_now() |> DateTime.to_iso8601()
-    })
+    assert :ok =
+             Metadata.put_object_meta(bucket, key, %{
+               content_hash: hash,
+               size: 1,
+               etag: "e",
+               created_at: DateTime.utc_now() |> DateTime.to_iso8601()
+             })
+
+    assert {:ok, %{content_hash: ^hash}} = Metadata.get_object_meta(bucket, key)
 
     {bucket, key}
   end
@@ -64,6 +68,8 @@ defmodule ExStorageService.Storage.CasGCTest do
   test "referenced blobs are never selected" do
     hash = seed_blob("gc-referenced-#{System.unique_integer()}")
     reference(hash)
+    assert {:ok, versions} = Concord.prefix_scan("ess:v2:object_version:")
+    assert Enum.any?(versions, fn {_key, value} -> Map.get(value, :content_hash) == hash end)
 
     {:ok, _} = CasGC.run_now(@instant)
     {:ok, _} = CasGC.run_now(@instant)

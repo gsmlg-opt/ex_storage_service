@@ -10,8 +10,180 @@ defmodule ExStorageService.Metadata.MultipartCommit do
   alias ExStorageService.Metadata.Backend.Concord, as: ConcordBackend
   alias ExStorageService.Metadata.Keys
   alias ExStorageService.Metadata.OperationIntents
+  alias ExStorageService.Metadata.BucketLifecycle
+  alias ExStorageService.Metadata.ListIndex
 
   @max_attempts 8
+
+  @doc "Atomically marks a writable upload aborted before storage cleanup."
+  def abort_upload(bucket, upload_id, opts \\ []),
+    do: abort_upload(backend(opts), bucket, upload_id, opts, @max_attempts)
+
+  defp abort_upload(backend, bucket, upload_id, opts, attempts) do
+    with {:ok, record_key, %{value: %{bucket: ^bucket, upload_id: ^upload_id}} = record} <-
+           upload_record(backend, bucket, upload_id, opts),
+         true <- record.value.status == :initiated,
+         {:ok, guard} <-
+           BucketLifecycle.guard(
+             backend,
+             bucket,
+             Keyword.put(opts, :bucket_generation, Map.get(record.value, :bucket_generation))
+           ) do
+      if attempts == 0 do
+        {:error, :metadata_quorum_unavailable}
+      else
+        case ListIndex.transaction(
+               backend,
+               bucket,
+               %{
+                 compare:
+                   guard.compare ++ [{:mod_revision, record_key, :==, record.mod_revision}],
+                 success:
+                   guard.success ++
+                     [{:put, record_key, Map.put(record.value, :status, :aborted), %{}}],
+                 failure: []
+               },
+               opts
+             ) do
+          {:ok, %{succeeded: true}} ->
+            :ok
+
+          {:ok, %{succeeded: false}} ->
+            # The shared listing root may change without this upload changing.
+            # Re-read its status and bucket generation before another attempt.
+            Process.sleep(1 + :erlang.phash2({self(), attempts}, 8))
+            abort_upload(backend, bucket, upload_id, opts, attempts - 1)
+
+          error ->
+            error
+        end
+      end
+    else
+      false -> {:error, :multipart_completion_conflict}
+      {:ok, _key, _record} -> {:error, :not_found}
+      error -> error
+    end
+  end
+
+  @doc "Returns the upload fence and completion write for the object transaction."
+  def completion_operations(backend, bucket, key, result, opts) do
+    case Keyword.get(opts, :multipart_completion) do
+      nil ->
+        {:ok, %{compare: [], success: []}}
+
+      completion ->
+        with {:ok, %{value: upload, mod_revision: revision}} <-
+               backend.get(completion.upload_key, read_opts(opts)),
+             true <-
+               upload.bucket == bucket and upload.key == key and
+                 upload.upload_id == completion.upload_id and upload.status == :completing and
+                 upload.bucket_generation == completion.bucket_generation and
+                 revision == completion.revision and
+                 upload.completion.token == completion.token and
+                 upload.completion.hash == completion.hash and
+                 upload.completion.size == completion.size and
+                 upload.completion.etag == completion.etag and
+                 upload.completion.manifest_hash == completion.manifest_hash do
+          completed =
+            Map.merge(upload, %{
+              status: :completed,
+              content_hash: completion.hash,
+              etag: completion.etag,
+              size: completion.size,
+              manifest_hash: completion.manifest_hash,
+              completion_result: Map.merge(result, %{etag: completion.etag}),
+              updated_at: timestamp()
+            })
+
+          {:ok,
+           %{
+             compare: [{:mod_revision, completion.upload_key, :==, revision}],
+             success: [{:put, completion.upload_key, completed, %{}}]
+           }}
+        else
+          {:error, _} = error -> error
+          _ -> {:error, :multipart_completion_conflict}
+        end
+    end
+  end
+
+  @doc "Atomically publishes a standalone part while the upload is writable."
+  def put_local_part(bucket, upload_id, part_number, part, opts \\ []) do
+    put_local_part(backend(opts), bucket, upload_id, part_number, part, opts, @max_attempts)
+  end
+
+  defp put_local_part(_backend, _bucket, _upload_id, _number, _part, _opts, 0),
+    do: {:error, :metadata_quorum_unavailable}
+
+  defp put_local_part(backend, bucket, upload_id, part_number, part, opts, attempts) do
+    with {:ok, upload_key, upload} <- upload_record(backend, bucket, upload_id, opts),
+         :ok <- validate_upload(upload, bucket, upload_id),
+         {:ok, guard} <-
+           BucketLifecycle.guard(backend, bucket,
+             bucket_generation: Map.get(upload.value, :bucket_generation)
+           ) do
+      part_key =
+        if String.starts_with?(upload_key, "mpu:"),
+          do: "mpu_part:#{bucket}:#{upload_id}:#{part_number}",
+          else: Keys.multipart_part(upload_id, part_number)
+
+      now = timestamp()
+
+      updated =
+        upload.value |> Map.update(:parts_revision, 1, &(&1 + 1)) |> Map.put(:updated_at, now)
+
+      spec = %{
+        compare: guard.compare ++ [revision_compare(upload_key, upload)],
+        success:
+          guard.success ++
+            [
+              {:put, upload_key, updated, %{}},
+              {:put, part_key, Map.put(part, :uploaded_at, now), %{}}
+            ],
+        failure: []
+      }
+
+      with {:ok, spec} <- ListIndex.augment(backend, bucket, spec, opts) do
+        case backend.transaction(spec, []) do
+          {:ok, %{succeeded: true}} ->
+            {:ok, part.etag}
+
+          {:ok, %{succeeded: false}} ->
+            put_local_part(backend, bucket, upload_id, part_number, part, opts, attempts - 1)
+
+          {:error, _} = error ->
+            error
+        end
+      else
+        {:error, :conflict} ->
+          put_local_part(backend, bucket, upload_id, part_number, part, opts, attempts - 1)
+
+        {:error, _} = error ->
+          error
+      end
+    end
+  end
+
+  defp upload_record(backend, bucket, upload_id, opts) do
+    key = Keys.multipart_upload(upload_id)
+
+    case backend.get(key, read_opts(opts)) do
+      {:ok, nil} ->
+        legacy = "mpu:#{bucket}:#{upload_id}"
+
+        case backend.get(legacy, read_opts(opts)) do
+          {:ok, nil} -> {:error, :not_found}
+          {:ok, record} -> {:ok, legacy, record}
+          error -> error
+        end
+
+      {:ok, record} ->
+        {:ok, key, record}
+
+      error ->
+        error
+    end
+  end
 
   @spec put_part(String.t(), String.t(), pos_integer(), map(), map(), keyword()) ::
           {:ok, map()} | {:error, term()}
@@ -32,6 +204,7 @@ defmodule ExStorageService.Metadata.MultipartCommit do
           part.hash,
           part.size,
           part.etag,
+          Map.get(part, :checksums, %{}),
           durability.descriptor.desired_replication_factor,
           durability.configured_write_quorum
         })
@@ -84,6 +257,10 @@ defmodule ExStorageService.Metadata.MultipartCommit do
          upload_key = Keys.multipart_upload(upload_id),
          {:ok, upload} <- backend.get(upload_key, read_opts(opts)),
          :ok <- validate_upload(upload, bucket, upload_id),
+         {:ok, guard} <-
+           BucketLifecycle.guard(backend, bucket,
+             bucket_generation: Map.get(upload.value, :bucket_generation)
+           ),
          part_key = Keys.multipart_part(upload_id, part_number),
          {:ok, observed_part} <- backend.get(part_key, read_opts(opts)),
          descriptor_key = Keys.blob(part.hash),
@@ -126,25 +303,81 @@ defmodule ExStorageService.Metadata.MultipartCommit do
             revision_compare(descriptor_key, observed_descriptor),
             {:exists, operation_key, :==, false}
           ] ++
-            location_compares(observed_locations) ++ node_compares(durability) ++ intent.compare,
+            location_compares(observed_locations) ++
+            node_compares(durability) ++ intent.compare ++ guard.compare,
         success:
           [
+            {:put, upload_key,
+             upload.value
+             |> Map.update(:parts_revision, 1, &(&1 + 1))
+             |> Map.put(:updated_at, now), %{}},
             {:put, part_key, part_record, %{}},
             {:put, descriptor_key, merged_descriptor(observed_descriptor, durability.descriptor),
              %{}}
           ] ++
             location_operations(durability) ++
-            intent.success ++ [{:put, operation_key, operation, %{}}],
+            intent.success ++ guard.success ++ [{:put, operation_key, operation, %{}}],
         failure: []
       }
 
-      attempt_key = attempt_key(operation_id, spec)
+      with {:ok, spec} <- ListIndex.augment(backend, bucket, spec, opts) do
+        attempt_key = attempt_key(operation_id, spec)
 
-      case backend.transaction(spec, transaction_opts(opts, attempt_key)) do
-        {:ok, %{succeeded: true}} ->
-          {:ok, result}
+        case backend.transaction(spec, transaction_opts(opts, attempt_key)) do
+          {:ok, %{succeeded: true}} ->
+            {:ok, result}
 
-        {:ok, %{succeeded: false}} ->
+          {:ok, %{succeeded: false}} ->
+            retry(
+              backend,
+              operation_key,
+              fingerprint,
+              fn ->
+                do_put_part(
+                  backend,
+                  bucket,
+                  upload_id,
+                  part_number,
+                  part,
+                  durability,
+                  operation_id,
+                  fingerprint,
+                  opts,
+                  attempts_left - 1
+                )
+              end,
+              opts
+            )
+
+          {:error, reason} when reason in [:timeout, :unknown, :cluster_not_ready, :no_leader] ->
+            resolve_ambiguous(
+              backend,
+              attempt_key,
+              operation_key,
+              fingerprint,
+              spec,
+              opts,
+              fn ->
+                do_put_part(
+                  backend,
+                  bucket,
+                  upload_id,
+                  part_number,
+                  part,
+                  durability,
+                  operation_id,
+                  fingerprint,
+                  opts,
+                  attempts_left - 1
+                )
+              end
+            )
+
+          {:error, reason} ->
+            {:error, reason}
+        end
+      else
+        {:error, :conflict} ->
           retry(
             backend,
             operation_key,
@@ -166,32 +399,8 @@ defmodule ExStorageService.Metadata.MultipartCommit do
             opts
           )
 
-        {:error, reason} when reason in [:timeout, :unknown, :cluster_not_ready, :no_leader] ->
-          resolve_ambiguous(
-            backend,
-            attempt_key,
-            operation_key,
-            fingerprint,
-            spec,
-            opts,
-            fn ->
-              do_put_part(
-                backend,
-                bucket,
-                upload_id,
-                part_number,
-                part,
-                durability,
-                operation_id,
-                fingerprint,
-                opts,
-                attempts_left - 1
-              )
-            end
-          )
-
-        {:error, reason} ->
-          {:error, reason}
+        {:error, _} = error ->
+          error
       end
     else
       {:return, result} -> {:ok, result}

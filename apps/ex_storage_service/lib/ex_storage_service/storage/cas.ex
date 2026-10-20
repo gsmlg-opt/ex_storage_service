@@ -45,7 +45,7 @@ defmodule ExStorageService.Storage.CAS do
   def tmp_upload_path do
     dir = Path.join(tmp_root(), "uploads")
     File.mkdir_p!(dir)
-    Path.join(dir, "upload-#{:erlang.unique_integer([:positive])}")
+    LocalCAS.staging_path(tmp_dir: dir)
   end
 
   @doc """

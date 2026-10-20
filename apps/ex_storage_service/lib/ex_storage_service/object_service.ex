@@ -35,13 +35,16 @@ defmodule ExStorageService.ObjectService do
   def put(bucket, key, data, content_type, user_metadata, opts \\ []) do
     opts = ensure_operation_id(opts)
 
-    with :ok <- ensure_bucket(bucket, opts),
+    with {:ok, opts} <- pin_bucket_generation(bucket, opts),
+         :ok <- ensure_bucket(bucket, opts),
          :ok <- ensure_cluster_write_enabled(opts) do
-      attributes = %{
-        content_type: content_type,
-        metadata: user_metadata,
-        user_metadata: user_metadata
-      }
+      attributes =
+        %{
+          content_type: content_type,
+          metadata: user_metadata,
+          user_metadata: user_metadata
+        }
+        |> Map.merge(attributes_option(opts))
 
       if cluster_write?(opts) do
         put_cluster(bucket, key, data, attributes, opts)
@@ -79,15 +82,19 @@ defmodule ExStorageService.ObjectService do
       ) do
     opts = ensure_operation_id(opts)
 
-    with :ok <- ensure_bucket(bucket, opts),
+    with {:ok, opts} <- pin_bucket_generation(bucket, opts),
+         :ok <- ensure_bucket(bucket, opts),
          :ok <- ensure_cluster_write_enabled(opts),
          {:ok, staged, final_state} <-
            stage_blob_from_reader(reader, initial_state, opts) do
-      attributes = %{
-        content_type: content_type,
-        metadata: user_metadata,
-        user_metadata: user_metadata
-      }
+      attributes =
+        %{
+          content_type: content_type,
+          metadata: user_metadata,
+          user_metadata: user_metadata
+        }
+        |> Map.merge(attributes_option(opts))
+        |> Map.merge(reader_attributes(opts, final_state))
 
       result =
         if cluster_write?(opts) do
@@ -196,7 +203,8 @@ defmodule ExStorageService.ObjectService do
   def delete(bucket, key, version_id, opts \\ []) do
     opts = ensure_operation_id(opts)
 
-    with :ok <- ensure_bucket(bucket, opts),
+    with {:ok, opts} <- pin_bucket_generation(bucket, opts),
+         :ok <- ensure_bucket(bucket, opts),
          :ok <- ensure_cluster_write_enabled(opts),
          {:ok, opts} <- attach_cross_cluster_events(:delete, bucket, key, nil, opts),
          {:ok, deleted_version_id, kind} <-
@@ -218,10 +226,12 @@ defmodule ExStorageService.ObjectService do
     opts = ensure_operation_id(opts)
     source_version_id = Keyword.get(opts, :source_version_id)
 
-    with :ok <- ensure_bucket(source_bucket, opts),
+    with {:ok, opts} <- pin_bucket_generation(destination_bucket, opts),
+         :ok <- ensure_bucket(source_bucket, opts),
          :ok <- ensure_bucket(destination_bucket, opts),
          :ok <- ensure_cluster_write_enabled(opts),
-         {:ok, source} <- head(source_bucket, source_key, source_version_id, opts),
+         {:ok, source} <-
+           copy_source_snapshot(source_bucket, source_key, source_version_id, opts),
          false <- source.delete_marker,
          hash when is_binary(hash) <- Map.get(source.metadata, :content_hash),
          :ok <- ensure_copy_ready(hash, source_bucket, opts),
@@ -275,7 +285,8 @@ defmodule ExStorageService.ObjectService do
   def commit_existing_blob(bucket, key, ready, attributes, opts \\ []) do
     blob_bucket = Keyword.get(opts, :blob_bucket, bucket)
 
-    with :ok <- ensure_bucket(bucket, opts),
+    with {:ok, opts} <- pin_bucket_generation(bucket, opts),
+         :ok <- ensure_bucket(bucket, opts),
          :ok <- ensure_cluster_write_enabled(opts),
          {:ok, %{content_hash: hash}} <- blob_identity(ready),
          :ok <- ensure_copy_ready(hash, blob_bucket, opts),
@@ -301,7 +312,8 @@ defmodule ExStorageService.ObjectService do
   end
 
   defp put_cluster_staged(bucket, key, staged, attributes, opts) do
-    with {:ok, context} <- context(opts) do
+    with {:ok, context} <- context(opts),
+         {:ok, staged} <- protect_staged(staged, context, opts) do
       case open_operation_intent(staged, context, opts) do
         {:ok, opts} ->
           result =
@@ -330,7 +342,8 @@ defmodule ExStorageService.ObjectService do
   end
 
   defp put_standalone_staged(bucket, key, staged, attributes, opts) do
-    with {:ok, context} <- context(opts) do
+    with {:ok, context} <- context(opts),
+         {:ok, staged} <- protect_staged(staged, context, opts) do
       case open_operation_intent(staged, context, opts) do
         {:ok, opts} ->
           result =
@@ -345,6 +358,20 @@ defmodule ExStorageService.ObjectService do
           _ = discard_staged(blob_store(opts), staged, blob_opts(opts))
           error
       end
+    end
+  end
+
+  defp protect_staged(staged, context, opts) do
+    if blob_store(opts) == LocalCAS do
+      operation_id = Keyword.fetch!(metadata_opts(opts), :operation_id)
+
+      LocalCAS.protect(
+        staged,
+        {:hosted, operation_id},
+        Keyword.merge(Context.blob_store_options(context), blob_opts(opts))
+      )
+    else
+      {:ok, staged}
     end
   end
 
@@ -386,6 +413,7 @@ defmodule ExStorageService.ObjectService do
          do: :unknown,
          else: :aborted
 
+    if state == :unknown, do: ExStorageService.Telemetry.uncertain_operation(:hosted, :unknown)
     operation_id = Keyword.fetch!(metadata_opts(opts), :operation_id)
     _ = operation_intents(opts).transition(operation_id, state, operation_intent_opts(nil, opts))
     error
@@ -542,15 +570,19 @@ defmodule ExStorageService.ObjectService do
              operation_id: Keyword.get(metadata_opts(opts), :operation_id)
            }),
          {:ok, opts} <- attach_cross_cluster_events(:put, bucket, key, metadata, opts),
-         {:ok, version_id} <- put_version(bucket, key, metadata, opts) do
+         {:ok, %{version_id: version_id} = publication} <-
+           put_version(bucket, key, metadata, opts) do
       run_side_effects(:put, bucket, key, opts)
 
       {:ok,
-       %{
-         version_id: version_id,
-         metadata: public_metadata(metadata, version_id),
-         ready_blob: ready
-       }}
+       Map.merge(
+         %{
+           version_id: version_id,
+           metadata: public_metadata(metadata, version_id),
+           ready_blob: ready
+         },
+         Map.take(publication, [:versioning_state])
+       )}
     end
   end
 
@@ -577,13 +609,18 @@ defmodule ExStorageService.ObjectService do
            }),
          opts <- put_durability(opts, evidence),
          {:ok, opts} <- attach_cross_cluster_events(:put, bucket, key, metadata, opts),
-         {:ok, version_id} <- put_version(bucket, key, metadata, opts) do
+         {:ok, %{version_id: version_id} = publication} <-
+           put_version(bucket, key, metadata, opts) do
       run_side_effects(:put, bucket, key, opts)
 
-      result = %{
-        version_id: version_id,
-        metadata: public_metadata(metadata, version_id)
-      }
+      result =
+        Map.merge(
+          %{
+            version_id: version_id,
+            metadata: public_metadata(metadata, version_id)
+          },
+          Map.take(publication, [:versioning_state])
+        )
 
       {:ok,
        if(evidence.ready_blob,
@@ -624,6 +661,16 @@ defmodule ExStorageService.ObjectService do
   defp public_metadata(metadata, "null"), do: Map.delete(metadata, :version_id)
   defp public_metadata(metadata, version_id), do: Map.put(metadata, :version_id, version_id)
 
+  defp copy_source_snapshot(bucket, key, version_id, opts) do
+    case Keyword.fetch(opts, :source_metadata) do
+      {:ok, metadata} when is_map(metadata) ->
+        {:ok, %{metadata: metadata, delete_marker: Map.get(metadata, :is_delete_marker, false)}}
+
+      :error ->
+        head(bucket, key, version_id, opts)
+    end
+  end
+
   defp verify_copy_blob(hash, bucket, opts) do
     if Keyword.get(opts, :verify_copy, true) do
       case blob_store(opts).verify(hash, blob_opts(opts, bucket: bucket)) do
@@ -658,7 +705,7 @@ defmodule ExStorageService.ObjectService do
     versioning = versioning(opts)
     metadata_opts = metadata_opts(opts)
 
-    if function_exported?(versioning, :get_version, 4) do
+    if Code.ensure_loaded?(versioning) and function_exported?(versioning, :get_version, 4) do
       versioning.get_version(bucket, key, version_id, metadata_opts)
     else
       versioning.get_version(bucket, key, version_id)
@@ -669,21 +716,57 @@ defmodule ExStorageService.ObjectService do
     versioning = versioning(opts)
     metadata_opts = metadata_opts(opts)
 
-    if function_exported?(versioning, :put_version, 4) do
-      versioning.put_version(bucket, key, metadata, metadata_opts)
-    else
-      versioning.put_version(bucket, key, metadata)
+    cond do
+      Code.ensure_loaded?(versioning) and function_exported?(versioning, :put_version_result, 4) ->
+        versioning.put_version_result(bucket, key, metadata, metadata_opts)
+
+      Code.ensure_loaded?(versioning) and function_exported?(versioning, :put_version, 4) ->
+        normalize_publication(versioning.put_version(bucket, key, metadata, metadata_opts))
+
+      true ->
+        normalize_publication(versioning.put_version(bucket, key, metadata))
     end
   end
+
+  defp normalize_publication({:ok, version_id}), do: {:ok, %{version_id: version_id}}
+  defp normalize_publication(error), do: error
 
   defp delete_version(bucket, key, version_id, opts) do
     versioning = versioning(opts)
     metadata_opts = metadata_opts(opts)
 
-    if function_exported?(versioning, :delete_version, 4) do
+    if Code.ensure_loaded?(versioning) and function_exported?(versioning, :delete_version, 4) do
       versioning.delete_version(bucket, key, version_id, metadata_opts)
     else
       versioning.delete_version(bucket, key, version_id)
+    end
+  end
+
+  defp pin_bucket_generation(bucket, opts) do
+    module = metadata(opts)
+
+    if Code.ensure_loaded?(module) and function_exported?(module, :get_bucket, 1) do
+      case module.get_bucket(bucket) do
+        {:ok, value} ->
+          generation = ExStorageService.Metadata.BucketLifecycle.generation(value)
+          metadata_opts = Keyword.put_new(metadata_opts(opts), :bucket_generation, generation)
+
+          ready =
+            if function_exported?(module, :check_object_mutation, 2),
+              do: module.check_object_mutation(bucket, metadata_opts),
+              else: :ok
+
+          with :ok <- ready, do: {:ok, Keyword.put(opts, :metadata_opts, metadata_opts)}
+
+        {:error, :not_found} ->
+          {:error, :bucket_not_found}
+
+        error ->
+          error
+      end
+    else
+      # Injected metadata adapters may define their own lifecycle contract.
+      {:ok, opts}
     end
   end
 
@@ -769,6 +852,7 @@ defmodule ExStorageService.ObjectService do
 
   defp discard_staged(store, staged, opts) do
     cond do
+      store == LocalCAS -> LocalCAS.discard_unprotected(staged, opts)
       function_exported?(store, :discard, 2) -> store.discard(staged, opts)
       function_exported?(store, :discard, 1) -> store.discard(staged)
       true -> :ok
@@ -777,6 +861,13 @@ defmodule ExStorageService.ObjectService do
 
   defp to_plain_map(%_{} = struct), do: Map.from_struct(struct)
   defp to_plain_map(map) when is_map(map), do: map
+
+  defp reader_attributes(opts, final_state) do
+    case Keyword.get(opts, :reader_attributes) do
+      nil -> %{}
+      finalize when is_function(finalize, 1) -> finalize.(final_state)
+    end
+  end
 
   defp attributes_option(opts), do: opts |> Keyword.get(:attributes, %{}) |> Map.new()
   defp metadata_opts(opts), do: Keyword.get(opts, :metadata_opts, [])
@@ -947,8 +1038,14 @@ defmodule ExStorageService.ObjectService do
   defp blob_opts(opts, extra \\ []) do
     context_opts =
       case Keyword.get(opts, :context) do
-        %Context{} = context -> Context.blob_store_options(context)
-        _ -> []
+        %Context{} = context ->
+          Context.blob_store_options(context)
+
+        _ ->
+          case Context.default() do
+            {:ok, context} -> Context.blob_store_options(context)
+            {:error, _} -> []
+          end
       end
 
     context_opts

@@ -49,19 +49,14 @@ defmodule ExStorageServiceS3.Plugs.RateLimiter do
             conn.assigns[:request_id] ||
               :crypto.strong_rand_bytes(8) |> Base.encode16(case: :upper)
 
-          body =
-            ExStorageServiceS3.XML.error_response(
-              "SlowDown",
-              "Please reduce your request rate.",
-              conn.request_path,
-              request_id
-            )
-
           conn
-          |> put_resp_header("content-type", "application/xml")
-          |> put_resp_header("x-amz-request-id", request_id)
           |> put_resp_header("retry-after", "1")
-          |> send_resp(429, body)
+          |> ExStorageServiceS3.Handlers.Shared.error_response(
+            "SlowDown",
+            "Please reduce your request rate.",
+            conn.request_path,
+            request_id
+          )
           |> halt()
       end
     else

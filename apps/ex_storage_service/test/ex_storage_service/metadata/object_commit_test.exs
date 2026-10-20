@@ -10,7 +10,16 @@ defmodule ExStorageService.Metadata.ObjectCommitTest do
     def start_link(opts \\ []) do
       Agent.start_link(fn ->
         %{
-          records: %{},
+          records: %{
+            ExStorageService.Metadata.ListIndex.root_key("bucket", "test-generation") => %{
+              value: ExStorageService.Metadata.ListIndex.empty("test-generation"),
+              mod_revision: 0
+            },
+            "bucket:bucket" => %{
+              value: %{name: "bucket", generation: "test-generation"},
+              mod_revision: 0
+            }
+          },
           revision: 0,
           compare_failures: Keyword.get(opts, :compare_failures, 0),
           timeout_after_commit: Keyword.get(opts, :timeout_after_commit, 0),
@@ -262,6 +271,183 @@ defmodule ExStorageService.Metadata.ObjectCommitTest do
 
     @impl true
     defdelegate resolve_operation(key, opts), to: TestBackend
+  end
+
+  defmodule InterleavingBackend do
+    @behaviour ExStorageService.Metadata.Backend
+
+    @impl true
+    def get(key, opts) do
+      if String.contains?(key, ":current:node:") do
+        engine = Keyword.fetch!(opts, :engine)
+
+        remaining =
+          Agent.get_and_update(engine, fn state ->
+            remaining = Map.get(state, :index_interleavings_remaining, 0)
+            {remaining, Map.put(state, :index_interleavings_remaining, max(remaining - 1, 0))}
+          end)
+
+        if remaining > 0 do
+          {:ok, _} =
+            ObjectCommit.put(
+              "bucket",
+              "key",
+              %{
+                content_hash: "interleaved-#{remaining}",
+                size: 10,
+                etag: "interleaved-#{remaining}"
+              },
+              backend: TestBackend,
+              engine: engine,
+              operation_id: "interleaved-#{remaining}",
+              version_id: "interleaved-#{remaining}"
+            )
+
+          # The real competing commit removes the current-tree node this plan observed.
+          {:ok, nil} = TestBackend.get(key, opts)
+        end
+      end
+
+      TestBackend.get(key, opts)
+    end
+
+    @impl true
+    defdelegate get_all(opts), to: TestBackend
+    @impl true
+    defdelegate put(key, value, opts), to: TestBackend
+    @impl true
+    defdelegate delete(key, opts), to: TestBackend
+    @impl true
+    defdelegate scan(prefix, opts), to: TestBackend
+    @impl true
+    defdelegate prefix_scan(prefix, opts), to: TestBackend
+    @impl true
+    defdelegate transaction(spec, opts), to: TestBackend
+    @impl true
+    defdelegate resolve_transaction(idempotency_key, opts), to: TestBackend
+    @impl true
+    defdelegate resolve_operation(key, opts), to: TestBackend
+  end
+
+  test "index planning conflicts use the remaining object commit retry budget" do
+    {:ok, backend} = TestBackend.start_link()
+    assert {:ok, _} = put(backend, "initial", "initial")
+    Agent.update(backend, &Map.put(&1, :index_interleavings_remaining, 16))
+
+    assert {:ok, %{version_id: "target"}} =
+             ObjectCommit.put("bucket", "key", metadata("target"),
+               backend: InterleavingBackend,
+               engine: backend,
+               operation_id: "target",
+               version_id: "target",
+               max_attempts: 2
+             )
+
+    assert Agent.get(backend, & &1.index_interleavings_remaining) == 0
+    assert {:ok, versions} = list(backend)
+    assert length(versions) == 18
+
+    assert {:ok, %{version_id: "target"}} =
+             ObjectCommit.get_head("bucket", "key", backend: TestBackend, engine: backend)
+  end
+
+  test "index planning conflicts use the remaining explicit-version tag retry budget" do
+    {:ok, backend} = TestBackend.start_link()
+    assert {:ok, _} = put(backend, "initial", "initial")
+    Agent.update(backend, &Map.put(&1, :index_interleavings_remaining, 16))
+
+    assert {:ok, %{version_id: "initial"}} =
+             ObjectCommit.set_tags("bucket", "key", "initial", %{"checked" => "yes"},
+               backend: InterleavingBackend,
+               engine: backend,
+               max_attempts: 2
+             )
+
+    assert Agent.get(backend, & &1.index_interleavings_remaining) == 0
+
+    assert {:ok, %{tags: %{"checked" => "yes"}}} =
+             ObjectCommit.get_version("bucket", "key", "initial",
+               backend: TestBackend,
+               engine: backend
+             )
+
+    assert {:ok, versions} = list(backend)
+    assert length(versions) == 17
+  end
+
+  test "index planning conflicts use the remaining explicit-version delete retry budget" do
+    {:ok, backend} = TestBackend.start_link()
+    assert {:ok, _} = put(backend, "initial", "initial")
+    Agent.update(backend, &Map.put(&1, :index_interleavings_remaining, 16))
+
+    assert {:ok, %{version_id: "initial", kind: :deleted}} =
+             ObjectCommit.delete_version("bucket", "key", "initial",
+               backend: InterleavingBackend,
+               engine: backend,
+               operation_id: "delete-initial",
+               max_attempts: 2
+             )
+
+    assert Agent.get(backend, & &1.index_interleavings_remaining) == 0
+    assert {:ok, versions} = list(backend)
+    assert length(versions) == 16
+    refute Enum.any?(versions, &(&1.version_id == "initial"))
+
+    assert {:ok, %{version_id: "interleaved-1"}} =
+             ObjectCommit.get_head("bucket", "key", backend: TestBackend, engine: backend)
+  end
+
+  test "exhausted index conflicts do not publish the attempted object or operation" do
+    {:ok, backend} = TestBackend.start_link()
+    assert {:ok, _} = put(backend, "initial", "initial")
+    Agent.update(backend, &Map.put(&1, :index_interleavings_remaining, 16))
+
+    assert {:error, :compare_retry_exhausted} =
+             ObjectCommit.put("bucket", "key", metadata("target"),
+               backend: InterleavingBackend,
+               engine: backend,
+               operation_id: "target",
+               version_id: "target",
+               max_attempts: 1
+             )
+
+    assert Agent.get(backend, & &1.index_interleavings_remaining) == 0
+
+    assert {:ok, nil} =
+             TestBackend.get(Keys.object_version("bucket", "key", "target"), engine: backend)
+
+    assert {:ok, nil} = TestBackend.get(Keys.outbox("target"), engine: backend)
+    assert {:ok, versions} = list(backend)
+    assert length(versions) == 17
+  end
+
+  test "stable index corruption is returned without retrying or publishing an object" do
+    {:ok, backend} = TestBackend.start_link()
+    assert {:ok, _} = put(backend, "initial", "initial")
+    root_key = ExStorageService.Metadata.ListIndex.root_key("bucket", "test-generation")
+    assert {:ok, %{value: root}} = TestBackend.get(root_key, engine: backend)
+
+    node_key =
+      ExStorageService.Metadata.ListIndex.namespace("bucket", root, :current) <>
+        Base.url_encode64(root.current_root, padding: false)
+
+    TestBackend.seed(backend, node_key, %{invalid: true})
+
+    assert {:error, :corrupt_index} =
+             ObjectCommit.put("bucket", "key", metadata("target"),
+               backend: TestBackend,
+               engine: backend,
+               operation_id: "target",
+               version_id: "target",
+               max_attempts: 2
+             )
+
+    assert [_initial_transaction] = TestBackend.transactions(backend)
+
+    assert {:ok, nil} =
+             TestBackend.get(Keys.object_version("bucket", "key", "target"), engine: backend)
+
+    assert {:ok, nil} = TestBackend.get(Keys.outbox("target"), engine: backend)
   end
 
   test "commits an immutable version, head, blob, and operation atomically" do
@@ -619,6 +805,96 @@ defmodule ExStorageService.Metadata.ObjectCommitTest do
     assert Enum.map(versions, & &1.version_id) == ["v1"]
   end
 
+  test "ambiguous multipart publication atomically retains its completion result on retry" do
+    for misses <- [0, 1] do
+      {:ok, backend} =
+        TestBackend.start_link(
+          timeout_after_commit: 1,
+          operation_resolution_misses_after_commit: misses
+        )
+
+      upload_key = Keys.multipart_upload("uncertain-upload")
+      object_metadata = metadata("multipart")
+
+      completion = %{
+        token: "frozen-token",
+        hash: object_metadata.content_hash,
+        size: object_metadata.size,
+        etag: object_metadata.etag,
+        manifest_hash: "frozen-manifest",
+        parts: [{1, "part-etag"}]
+      }
+
+      upload = %{
+        bucket: "bucket",
+        key: "key",
+        upload_id: "uncertain-upload",
+        bucket_generation: "test-generation",
+        status: :completing,
+        completion: completion
+      }
+
+      {:ok, indexed} =
+        ExStorageService.Metadata.ListIndex.augment(
+          TestBackend,
+          "bucket",
+          %{
+            compare: [],
+            success: [{:put, upload_key, upload, %{}}],
+            failure: []
+          },
+          engine: backend
+        )
+
+      for {:put, key, value, _} <- indexed.success, do: TestBackend.seed(backend, key, value)
+
+      assert {:ok, %{mod_revision: revision}} = TestBackend.get(upload_key, engine: backend)
+
+      frozen =
+        Map.merge(completion, %{
+          upload_key: upload_key,
+          upload_id: "uncertain-upload",
+          revision: revision,
+          bucket_generation: "test-generation"
+        })
+
+      opts =
+        commit_opts(backend, "multipart-complete:uncertain-upload", "multipart-v1") ++
+          [multipart_completion: frozen]
+
+      assert {:ok, %{version_id: "multipart-v1"} = result} =
+               ObjectCommit.put("bucket", "key", object_metadata, opts)
+
+      assert Agent.get(backend, & &1.timeout_after_commit) == 0
+
+      assert {:ok, %{value: completed, mod_revision: completed_revision}} =
+               TestBackend.get(upload_key, engine: backend)
+
+      assert completed.status == :completed
+      assert completed.content_hash == object_metadata.content_hash
+      assert completed.completion_result == Map.put(result, :etag, completion.etag)
+      assert completed.completion.token == completion.token
+
+      assert {:ok, %{version_id: "multipart-v1"}} =
+               ObjectCommit.get_head("bucket", "key", backend: TestBackend, engine: backend)
+
+      assert {:ok, [%{version_id: "multipart-v1"}]} = list(backend)
+      [transaction] = TestBackend.transactions(backend)
+      success_keys = Enum.map(transaction.success, &operation_key/1)
+      assert upload_key in success_keys
+      assert Keys.object_version("bucket", "key", "multipart-v1") in success_keys
+      assert Keys.object_head("bucket", "key") in success_keys
+
+      assert {:ok, ^result} = ObjectCommit.put("bucket", "key", object_metadata, opts)
+      assert [_one_transaction] = TestBackend.transactions(backend)
+      assert [_one_attempt] = backend |> TestBackend.transaction_results() |> Map.keys()
+      assert {:ok, [%{version_id: "multipart-v1"}]} = list(backend)
+
+      assert {:ok, %{value: ^completed, mod_revision: ^completed_revision}} =
+               TestBackend.get(upload_key, engine: backend)
+    end
+  end
+
   test "rejects reusing an operation id for a different logical request" do
     {:ok, backend} = TestBackend.start_link()
     assert {:ok, %{version_id: "v1"}} = put(backend, "op1", "v1")
@@ -669,7 +945,9 @@ defmodule ExStorageService.Metadata.ObjectCommitTest do
       )
       |> Enum.to_list()
 
-    assert Enum.all?(results, &match?({:ok, {:ok, _}}, &1))
+    assert Enum.all?(results, &match?({:ok, {:ok, _}}, &1)),
+           inspect(Enum.reject(results, &match?({:ok, {:ok, _}}, &1)), limit: :infinity)
+
     assert {:ok, versions} = list(backend)
     assert length(versions) == 100
     assert 100 == versions |> Enum.map(& &1.version_id) |> Enum.uniq() |> length()

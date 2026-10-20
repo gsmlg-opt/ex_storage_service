@@ -11,7 +11,9 @@ defmodule ExStorageService.Metadata.OperationIntents do
   alias ExStorageService.Metadata.Keys
   alias ExStorageService.Metadata.Models.OperationIntent
 
-  @max_attempts 4
+  # Independent writers of shared content may all extend the same hash fence.
+  # Bound retry work while allowing the supported 32-writer burst to make progress.
+  @max_attempts 32
   @ambiguous_errors [:timeout, :unknown, :cluster_not_ready, :no_leader]
 
   @spec open(binary(), binary(), non_neg_integer(), binary(), pos_integer(), keyword()) ::
@@ -125,18 +127,25 @@ defmodule ExStorageService.Metadata.OperationIntents do
         updated_at_ms: now_ms(opts)
       }
 
+      {guard_compare, guard_writes} =
+        if guard_deadline(observed_guard) >= intent.protected_until_ms do
+          # Shared immutable bytes need independent intents, but an already
+          # sufficient protection deadline need not be rewritten by every writer.
+          # Keep the deadline and inverse collector-lock checks in the transaction.
+          {{:field, guard_key, [:protected_until_ms], :>=, intent.protected_until_ms}, []}
+        else
+          {revision_compare(guard_key, observed_guard), [{:put, guard_key, guard, %{}}]}
+        end
+
       spec = %{
         compare: [
           revision_compare(intent_key, observed_intent),
-          revision_compare(guard_key, observed_guard),
+          guard_compare,
           revision_compare(lock_key, observed_lock)
         ],
         success:
           expired_lock_delete(lock_key, observed_lock) ++
-            [
-              {:put, intent_key, OperationIntent.to_map(intent), %{}},
-              {:put, guard_key, guard, %{}}
-            ],
+            [{:put, intent_key, OperationIntent.to_map(intent), %{}}] ++ guard_writes,
         failure: []
       }
 
@@ -147,6 +156,8 @@ defmodule ExStorageService.Metadata.OperationIntents do
           {:ok, intent}
 
         {:ok, %{succeeded: false}} ->
+          # Spread contenders before rereading the monotone protection deadline.
+          Process.sleep(:rand.uniform(5))
           persist_open(intent, opts, attempts_left - 1)
 
         {:error, reason} when reason in @ambiguous_errors ->

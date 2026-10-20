@@ -6,12 +6,15 @@ defmodule ExStorageServiceS3.Handlers.Lifecycle do
   import ExStorageServiceS3.Handlers.Shared
   alias ExStorageServiceS3.XML
   alias ExStorageService.Metadata
+  alias ExStorageService.Metadata.BucketLifecycle
   alias ExStorageService.Storage.Lifecycle
+
+  @max_configuration_bytes 1_048_576
 
   def put_bucket_lifecycle(conn, bucket) do
     request_id = request_id(conn)
 
-    case Metadata.head_bucket(bucket) do
+    case Metadata.get_bucket(bucket) do
       {:error, :not_found} ->
         error_response(
           conn,
@@ -21,16 +24,20 @@ defmodule ExStorageServiceS3.Handlers.Lifecycle do
           request_id
         )
 
-      :ok ->
-        case read_full_body(conn) do
-          {:ok, body, _conn} ->
+      {:ok, bucket_meta} ->
+        case read_full_body(conn, @max_configuration_bytes) do
+          {:ok, body, conn} ->
             case parse_lifecycle_xml(body) do
               {:ok, rules} ->
-                Lifecycle.put_rules(bucket, rules)
+                case Lifecycle.put_rules(bucket, rules,
+                       bucket_generation: BucketLifecycle.generation(bucket_meta)
+                     ) do
+                  :ok ->
+                    conn |> put_s3_headers(request_id) |> send_resp(200, "")
 
-                conn
-                |> put_s3_headers(request_id)
-                |> send_resp(200, "")
+                  {:error, reason} ->
+                    storage_error_response(conn, reason, "/#{bucket}?lifecycle", request_id)
+                end
 
               {:error, _} ->
                 error_response(
@@ -43,17 +50,11 @@ defmodule ExStorageServiceS3.Handlers.Lifecycle do
             end
 
           {:error, reason} ->
-            error_response(
-              conn,
-              "InternalError",
-              inspect(reason),
-              "/#{bucket}?lifecycle",
-              request_id
-            )
+            storage_error_response(conn, reason, "/#{bucket}?lifecycle", request_id)
         end
 
       {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
+        storage_error_response(conn, reason, "/#{bucket}", request_id)
     end
   end
 
@@ -84,20 +85,23 @@ defmodule ExStorageServiceS3.Handlers.Lifecycle do
               "/#{bucket}?lifecycle",
               request_id
             )
+
+          {:error, reason} ->
+            storage_error_response(conn, reason, "/#{bucket}?lifecycle", request_id)
         end
 
       {:error, reason} ->
-        error_response(conn, "InternalError", inspect(reason), "/#{bucket}", request_id)
+        storage_error_response(conn, reason, "/#{bucket}", request_id)
     end
   end
 
   def delete_bucket_lifecycle(conn, bucket) do
     request_id = request_id(conn)
-    Lifecycle.delete_rules(bucket)
 
-    conn
-    |> put_s3_headers(request_id)
-    |> send_resp(204, "")
+    case Lifecycle.delete_rules(bucket) do
+      :ok -> conn |> put_s3_headers(request_id) |> send_resp(204, "")
+      {:error, reason} -> storage_error_response(conn, reason, "/#{bucket}?lifecycle", request_id)
+    end
   end
 
   ## Notification handlers

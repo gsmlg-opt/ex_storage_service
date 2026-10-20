@@ -201,4 +201,37 @@ defmodule ExStorageService.Metadata.OperationIntentsTest do
       )
     end)
   end
+
+  test "32 writers sharing immutable bytes can open independent protected intents", context do
+    parent = self()
+    ids = for n <- 1..32, do: "#{context.operation_id}-shared-#{n}"
+    on_exit(fn -> Enum.each(ids, &Concord.delete(Keys.operation_intent(&1))) end)
+
+    tasks =
+      for id <- ids do
+        Task.async(fn ->
+          send(parent, {:ready, self()})
+
+          receive do
+            :go -> :ok
+          end
+
+          OperationIntents.open(id, context.hash, 4, "data-a", 1,
+            now_ms: 10_000,
+            protection_ms: 1_000
+          )
+        end)
+      end
+
+    pids =
+      for _ <- ids do
+        assert_receive {:ready, pid}, 5_000
+        pid
+      end
+
+    Enum.each(pids, &send(&1, :go))
+    results = Enum.map(tasks, &Task.await(&1, 30_000))
+    assert Enum.all?(results, &match?({:ok, %OperationIntent{}}, &1)), inspect(results)
+    assert {:error, :blob_protected} = GCGuard.claim(context.hash, "data-a", 1, 10_001, 100)
+  end
 end

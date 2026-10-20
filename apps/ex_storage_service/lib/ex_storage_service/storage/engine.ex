@@ -10,8 +10,8 @@ defmodule ExStorageService.Storage.Engine do
   for content written before the global-CAS migration
   (see `ExStorageService.Storage.Migration`).
 
-  The GenServer exists only to create the storage directories at boot;
-  every read/write operation is a plain function.
+  The GenServer initializes directories and drives bounded anonymous-staging
+  recovery; every read/write operation is a plain function.
   """
 
   use GenServer
@@ -22,6 +22,7 @@ defmodule ExStorageService.Storage.Engine do
   alias ExStorageService.Metadata
   alias ExStorageService.Storage.CAS
   alias ExStorageService.Storage.Pack
+  alias ExStorageService.Storage.StagingRecovery
 
   ## Client API
 
@@ -33,7 +34,12 @@ defmodule ExStorageService.Storage.Engine do
 
     GenServer.start_link(
       __MODULE__,
-      %{data_root: data_root, blob_root: blob_root, tmp_root: tmp_root},
+      %{
+        data_root: data_root,
+        blob_root: blob_root,
+        tmp_root: tmp_root,
+        recovery_context: Keyword.get(opts, :recovery_context)
+      },
       name: name
     )
   end
@@ -179,8 +185,12 @@ defmodule ExStorageService.Storage.Engine do
 
   @impl true
   def init(settings) do
+    Process.flag(:trap_exit, true)
+
     settings =
-      Map.new(settings, fn {key, root} -> {key, Path.expand(root)} end)
+      Enum.reduce([:data_root, :blob_root, :tmp_root], settings, fn key, acc ->
+        Map.update!(acc, key, &Path.expand/1)
+      end)
 
     ready_dir = Path.join([settings.blob_root, "objects", "sha256"])
     staging_dir = Path.join(settings.tmp_root, "uploads")
@@ -193,17 +203,80 @@ defmodule ExStorageService.Storage.Engine do
         "Storage engine started with data root #{settings.data_root} and blob root #{settings.blob_root}"
       )
 
-      {:ok, settings}
+      send(self(), :staging_recovery_start)
+      {:ok, Map.put(settings, :staging_recovery, nil)}
     else
       {:error, reason} -> {:stop, {:storage_root_unavailable, reason}}
     end
+  end
+
+  @impl true
+  def handle_info(:staging_recovery_start, %{staging_recovery: recovery} = state)
+      when recovery != nil,
+      do: {:noreply, state}
+
+  def handle_info(:staging_recovery_start, state) do
+    context = state.recovery_context
+
+    if context != nil and context.config.node_role != :metadata and
+         ExStorageService.InstanceConfig.worker_enabled?(context.config, :cas_gc) and
+         not ExStorageService.Operations.Backup.quarantined?(context.config) do
+      case StagingRecovery.new(ExStorageService.Context.blob_store_options(context)) do
+        {:ok, recovery} ->
+          {:noreply, %{state | staging_recovery: recovery}}
+
+        {:disabled, reason} ->
+          Logger.warning("Anonymous staging recovery disabled: #{reason}")
+          {:noreply, state}
+      end
+    else
+      {:noreply, state}
+    end
+  end
+
+  def handle_info(:staging_recovery_step, %{staging_recovery: recovery} = state)
+      when recovery != nil do
+    recovery = StagingRecovery.step(recovery)
+    if recovery.candidate != nil, do: send(self(), :staging_recovery_step)
+    {:noreply, %{state | staging_recovery: recovery}}
+  end
+
+  def handle_info(message, %{staging_recovery: recovery} = state) when recovery != nil do
+    case StagingRecovery.message(recovery, message) do
+      {:ok, recovery} ->
+        if recovery.candidate != nil, do: send(self(), :staging_recovery_step)
+        {:noreply, %{state | staging_recovery: recovery}}
+
+      {:ignore, _} ->
+        {:noreply, state}
+
+      {:done, _recovery} ->
+        Process.send_after(self(), :staging_recovery_start, 60_000)
+        {:noreply, %{state | staging_recovery: nil}}
+
+      {:error, reason, _recovery} ->
+        Logger.warning("Anonymous staging recovery stopped: #{reason}")
+        Process.send_after(self(), :staging_recovery_start, 60_000)
+        {:noreply, %{state | staging_recovery: nil}}
+    end
+  end
+
+  def handle_info(_message, state), do: {:noreply, state}
+
+  @impl true
+  def terminate(_reason, %{staging_recovery: recovery}) do
+    if recovery != nil, do: StagingRecovery.close(recovery)
+    :ok
   end
 
   ## Private
 
   defp blob_store_opts(extra \\ []) do
     Keyword.merge(
-      [root: CAS.blob_root(), tmp_dir: Path.join(CAS.tmp_root(), "uploads")],
+      case ExStorageService.Context.default() do
+        {:ok, context} -> ExStorageService.Context.blob_store_options(context)
+        {:error, _} -> [root: CAS.blob_root(), tmp_dir: Path.join(CAS.tmp_root(), "uploads")]
+      end,
       extra
     )
   end
