@@ -79,9 +79,16 @@ defmodule ExStorageServiceCli.Credentials.Browser do
 
     if result != :opened and Port.info(port) != nil, do: stop(kill, pid)
     send(cleanup, :finished)
-    if Port.info(port) != nil, do: Port.close(port)
+    close_port(port)
     drain(port)
     result
+  end
+
+  defp close_port(port) do
+    Port.close(port)
+  rescue
+    # The launcher may exit while its port is being closed after a timeout.
+    ArgumentError -> :ok
   end
 
   defp watch_owner(owner, pid, kill) do

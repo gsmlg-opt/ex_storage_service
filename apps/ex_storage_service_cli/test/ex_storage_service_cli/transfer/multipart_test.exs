@@ -144,7 +144,10 @@ defmodule ExStorageServiceCli.Transfer.MultipartTest do
       opts = [state_root: data.journal_root <> "-#{attempt}", keep_incomplete: true]
 
       case Multipart.upload(context, "bucket", "key", data.source, data.plan, opts) do
-        {:error, %Error{code: :journal_busy, details: details}} when map_size(details) == 0 ->
+        {:error, %Error{code: :journal_busy, details: details}}
+        when map_size(details) == 0 or
+               (map_size(details) == 2 and is_map_key(details, :mutex_port) and
+                  is_map_key(details, :socket_reason)) ->
           # Initial acquisition can collide with host listeners or TCP TIME_WAIT.
           # Never retry a transfer that reached the wire or acquired upload state.
           refute_receive {:wire_request, _}, 0

@@ -6,6 +6,7 @@ defmodule ExStorageServiceCli.Transfer.CopyTest do
   alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
   alias ExStorageServiceCli.Transfer.{Copy, Journal}
   @moduletag :tmp_dir
+  @fixture_attempts 4
   @copied "<CopyObjectResult><ETag>&quot;destination&quot;</ETag></CopyObjectResult>"
   @head [{"ETag", "\"source\""}, {"Content-Length", "10"}]
   @limits %{
@@ -161,28 +162,21 @@ defmodule ExStorageServiceCli.Transfer.CopyTest do
     complete =
       "<CompleteMultipartUploadResult><ETag>&quot;destination&quot;</ETag></CompleteMultipartUploadResult>"
 
-    {endpoint, _} =
-      WireServer.fixture([
-        {200, @head, ""},
-        {200, @head, ""},
-        {200, [], create},
-        {200, @head, ""},
-        {200, [], part.("p1")},
-        {200, @head, ""},
-        {200, [], part.("p2")},
-        {200, @head, ""},
-        {200, [], complete},
-        {200, [{"ETag", "\"destination\""}, {"Content-Length", "10"}], ""}
-      ])
+    responses = [
+      {200, @head, ""},
+      {200, @head, ""},
+      {200, [], create},
+      {200, @head, ""},
+      {200, [], part.("p1")},
+      {200, @head, ""},
+      {200, [], part.("p2")},
+      {200, @head, ""},
+      {200, [], complete},
+      {200, [{"ETag", "\"destination\""}, {"Content-Length", "10"}], ""}
+    ]
 
-    context = %Context{endpoint: endpoint, unsigned: true}
-
-    assert {:ok, %{journal_id: id, bytes: 10}} =
-             Copy.remote(context, target("source", "key"), context, target("destination", "key"),
-               copy_props: "none",
-               state_root: root,
-               limits: @limits
-             )
+    {result, root} = multipart_copy(root, responses, copy_props: "none", limits: @limits)
+    assert {:ok, %{journal_id: id, bytes: 10}} = result
 
     assert {:ok, %{"phase" => "completed", "source" => %{"kind" => "remote"}}} =
              Journal.get(root, id)
@@ -215,6 +209,57 @@ defmodule ExStorageServiceCli.Transfer.CopyTest do
     refute_receive {:wire_request, %{method: "GET"}}
   end
 
+  test "occupied initial mutex retries only HEAD setup using a fresh wire fixture", %{
+    tmp_dir: tmp_dir
+  } do
+    {base, blocked_root, listener} =
+      Enum.find_value(1..10, fn attempt ->
+        base = Path.join(tmp_dir, "occupied-#{attempt}")
+        blocked_root = Path.join(base, "journal-attempt-0")
+        File.mkdir_p!(blocked_root)
+        File.chmod!(blocked_root, 0o700)
+        {:ok, port} = Journal.lock_port(blocked_root, "index")
+
+        case :gen_tcp.listen(port, [:binary, active: false, ip: {127, 0, 0, 1}]) do
+          {:ok, listener} -> {base, blocked_root, listener}
+          {:error, :eaddrinuse} -> nil
+        end
+      end) || flunk("Could not reserve the initial copy fixture mutex")
+
+    responses = [
+      {200, @head, ""},
+      {200, @head, ""},
+      {200, [],
+       "<InitiateMultipartUploadResult><UploadId>owned</UploadId></InitiateMultipartUploadResult>"},
+      {200, @head, ""},
+      {200, [], "<CopyPartResult><ETag>part1</ETag></CopyPartResult>"},
+      {200, @head, ""},
+      {200, [], "<CopyPartResult><ETag>part2</ETag></CopyPartResult>"},
+      {200, @head, ""},
+      {200, [],
+       "<CompleteMultipartUploadResult><ETag>destination</ETag></CompleteMultipartUploadResult>"},
+      {200, [{"ETag", "destination"}, {"Content-Length", "10"}], ""}
+    ]
+
+    try do
+      {result, root} = multipart_copy(base, responses, copy_props: "none", limits: @limits)
+      assert {:ok, %{journal_id: id}} = result
+      assert root != blocked_root
+      refute File.exists?(Path.join(blocked_root, "index.jsonl"))
+      assert {:ok, %{"phase" => "completed"}} = Journal.get(root, id)
+
+      assert Enum.frequencies_by(take_requests([]), & &1.method) == %{
+               "HEAD" => 6,
+               "POST" => 2,
+               "PUT" => 2
+             }
+
+      assert {:ok, _} = :inet.sockname(listener)
+    after
+      :gen_tcp.close(listener)
+    end
+  end
+
   test "explicit multipart copy retains the selected returned checksums without source GET", %{
     tmp_dir: root
   } do
@@ -223,31 +268,29 @@ defmodule ExStorageServiceCli.Transfer.CopyTest do
     part =
       "<CopyPartResult><ETag>part</ETag><ChecksumSHA256>#{sha}</ChecksumSHA256><ChecksumCRC32>AAAAAA==</ChecksumCRC32></CopyPartResult>"
 
-    {endpoint, _} =
-      WireServer.fixture([
-        {200, @head, ""},
-        {200, @head, ""},
-        {200, [],
-         "<InitiateMultipartUploadResult><UploadId>owned</UploadId></InitiateMultipartUploadResult>"},
-        {200, @head, ""},
-        {200, [], part},
-        {200, @head, ""},
-        {200, [], part},
-        {200, @head, ""},
-        {200, [],
-         "<CompleteMultipartUploadResult><ETag>destination</ETag></CompleteMultipartUploadResult>"},
-        {200, [{"ETag", "destination"}, {"Content-Length", "10"}], ""}
-      ])
+    responses = [
+      {200, @head, ""},
+      {200, @head, ""},
+      {200, [],
+       "<InitiateMultipartUploadResult><UploadId>owned</UploadId></InitiateMultipartUploadResult>"},
+      {200, @head, ""},
+      {200, [], part},
+      {200, @head, ""},
+      {200, [], part},
+      {200, @head, ""},
+      {200, [],
+       "<CompleteMultipartUploadResult><ETag>destination</ETag></CompleteMultipartUploadResult>"},
+      {200, [{"ETag", "destination"}, {"Content-Length", "10"}], ""}
+    ]
 
-    context = %Context{endpoint: endpoint, unsigned: true}
+    {result, root} =
+      multipart_copy(root, responses,
+        copy_props: "none",
+        input: %{"ChecksumAlgorithm" => "SHA256"},
+        limits: @limits
+      )
 
-    assert {:ok, %{journal_id: id}} =
-             Copy.remote(context, target("source", "key"), context, target("destination", "key"),
-               copy_props: "none",
-               input: %{"ChecksumAlgorithm" => "SHA256"},
-               state_root: root,
-               limits: @limits
-             )
+    assert {:ok, %{journal_id: id}} = result
 
     assert {:ok, record} = Journal.get(root, id)
     assert Enum.all?(record["parts"], &(&1["checksums"] == %{"SHA256" => sha}))
@@ -264,26 +307,24 @@ defmodule ExStorageServiceCli.Transfer.CopyTest do
   test "multipart copy aborts its owned upload when the selected part checksum is missing", %{
     tmp_dir: root
   } do
-    {endpoint, _} =
-      WireServer.fixture([
-        {200, @head, ""},
-        {200, @head, ""},
-        {200, [],
-         "<InitiateMultipartUploadResult><UploadId>owned</UploadId></InitiateMultipartUploadResult>"},
-        {200, @head, ""},
-        {200, [], "<CopyPartResult><ETag>part</ETag></CopyPartResult>"},
-        {204, [], ""}
-      ])
+    responses = [
+      {200, @head, ""},
+      {200, @head, ""},
+      {200, [],
+       "<InitiateMultipartUploadResult><UploadId>owned</UploadId></InitiateMultipartUploadResult>"},
+      {200, @head, ""},
+      {200, [], "<CopyPartResult><ETag>part</ETag></CopyPartResult>"},
+      {204, [], ""}
+    ]
 
-    context = %Context{endpoint: endpoint, unsigned: true}
+    {result, _selected_root} =
+      multipart_copy(root, responses,
+        copy_props: "none",
+        input: %{"ChecksumAlgorithm" => "SHA256"},
+        limits: @limits
+      )
 
-    assert {:error, %Error{code: :missing_copy_checksum, details: %{cleanup: "aborted"}}} =
-             Copy.remote(context, target("source", "key"), context, target("destination", "key"),
-               copy_props: "none",
-               input: %{"ChecksumAlgorithm" => "SHA256"},
-               state_root: root,
-               limits: @limits
-             )
+    assert {:error, %Error{code: :missing_copy_checksum, details: %{cleanup: "aborted"}}} = result
 
     assert_receive {:wire_request, %{method: "DELETE", target: "/destination/key?uploadId=owned"}}
     refute_receive {:wire_request, %{method: "GET"}}
@@ -369,32 +410,30 @@ defmodule ExStorageServiceCli.Transfer.CopyTest do
       }
     end
 
-    {endpoint, _} =
-      WireServer.fixture([
-        {200, @head, ""},
-        {200, @head, ""},
-        {200, [],
-         "<InitiateMultipartUploadResult><UploadId>owned</UploadId></InitiateMultipartUploadResult>"},
-        {200, @head, ""},
-        {200, [], "<CopyPartResult><ETag>p1</ETag></CopyPartResult>"},
-        {200, @head, ""},
-        {200, [], "<CopyPartResult><ETag>p2</ETag></CopyPartResult>"},
-        {200, @head, ""},
-        {200, [],
-         "<CompleteMultipartUploadResult><ETag>destination</ETag></CompleteMultipartUploadResult>"},
-        {200, [{"ETag", "destination"}, {"Content-Length", "10"}], ""}
-      ])
+    responses = [
+      {200, @head, ""},
+      {200, @head, ""},
+      {200, [],
+       "<InitiateMultipartUploadResult><UploadId>owned</UploadId></InitiateMultipartUploadResult>"},
+      {200, @head, ""},
+      {200, [], "<CopyPartResult><ETag>p1</ETag></CopyPartResult>"},
+      {200, @head, ""},
+      {200, [], "<CopyPartResult><ETag>p2</ETag></CopyPartResult>"},
+      {200, @head, ""},
+      {200, [],
+       "<CompleteMultipartUploadResult><ETag>destination</ETag></CompleteMultipartUploadResult>"},
+      {200, [{"ETag", "destination"}, {"Content-Length", "10"}], ""}
+    ]
 
-    context = %Context{endpoint: endpoint, unsigned: true}
+    {result, root} =
+      multipart_copy(root, responses,
+        copy_props: "none",
+        source_input: customer.(source_key),
+        input: customer.(destination_key),
+        limits: @limits
+      )
 
-    assert {:ok, %{journal_id: id}} =
-             Copy.remote(context, target("source", "key"), context, target("destination", "key"),
-               copy_props: "none",
-               source_input: customer.(source_key),
-               input: customer.(destination_key),
-               state_root: root,
-               limits: @limits
-             )
+    assert {:ok, %{journal_id: id}} = result
 
     assert {:ok, record} = Journal.get(root, id)
     serialized = JSON.encode!(record)
@@ -432,6 +471,63 @@ defmodule ExStorageServiceCli.Transfer.CopyTest do
       {:debug_line, line} -> debug_output(acc <> line)
     after
       0 -> acc
+    end
+  end
+
+  defp multipart_copy(base, responses, opts, attempt \\ 0) do
+    {endpoint, server} =
+      WireServer.start(fn listener, owner ->
+        send(owner, {:copy_fixture_listener, self(), listener})
+
+        Enum.each(responses, fn {status, headers, body} ->
+          {:ok, socket} = :gen_tcp.accept(listener, 15_000)
+          send(owner, {:wire_request, WireServer.request(socket)})
+          WireServer.response(socket, status, headers, body)
+          :gen_tcp.close(socket)
+        end)
+      end)
+
+    assert_receive {:copy_fixture_listener, ^server, listener}
+    context = %Context{endpoint: endpoint, unsigned: true}
+    root = Path.join(base, "journal-attempt-#{attempt}")
+
+    result =
+      Copy.remote(
+        context,
+        target("source", "key"),
+        context,
+        target("destination", "key"),
+        Keyword.put(opts, :state_root, root)
+      )
+
+    case result do
+      {:error,
+       %Error{
+         code: :journal_busy,
+         details: %{mutex_port: _, socket_reason: :eaddrinuse} = details
+       }}
+      when map_size(details) == 2 and attempt + 1 < @fixture_attempts ->
+        # Copy captures and validates its source before acquiring the journal.
+        # Retry only read-only setup, never a request that began an owned upload.
+        requests = take_requests([])
+        assert requests != []
+        assert Enum.all?(requests, &(&1.method == "HEAD")), inspect(requests)
+        monitor = Process.monitor(server)
+        if Process.alive?(server), do: Process.exit(server, :kill)
+        assert_receive {:DOWN, ^monitor, :process, ^server, _}
+        :gen_tcp.close(listener)
+        multipart_copy(base, responses, opts, attempt + 1)
+
+      _ ->
+        {result, root}
+    end
+  end
+
+  defp take_requests(requests) do
+    receive do
+      {:wire_request, request} -> take_requests([request | requests])
+    after
+      0 -> Enum.reverse(requests)
     end
   end
 end

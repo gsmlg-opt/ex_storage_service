@@ -260,10 +260,17 @@ defmodule ExStorageServiceCli.Credentials.AssumeRoleTest do
           "[base]\naws_access_key_id=source-a\naws_secret_access_key=source-s\n"
         )
         |> Keyword.put(:provider_ca_bundle, ca)
+        |> Keyword.put(:metadata_transport_errors, true)
 
-      assert {:ok, %Record{provenance: %{provider: ^provider}},
-              %{endpoint_url: "https://data.invalid"}} =
-               Provider.resolve(%{profile: "role", endpoint_url: "https://data.invalid"}, opts)
+      result = Provider.resolve(%{profile: "role", endpoint_url: "https://data.invalid"}, opts)
+      stages = tls_stages()
+
+      assert match?(
+               {:ok, %Record{provenance: %{provider: ^provider}},
+                %{endpoint_url: "https://data.invalid"}},
+               result
+             ),
+             "STS TLS provider failed; fixture stages: #{inspect(stages)}; result: #{inspect(result)}"
 
       assert_receive {:sts_tls_request, request}
       assert request =~ "Action=#{action}"
@@ -549,18 +556,22 @@ defmodule ExStorageServiceCli.Credentials.AssumeRoleTest do
     peer =
       spawn(fn ->
         try do
-          {:ok, socket} = :ssl.transport_accept(listener, 5000)
-          {:ok, socket} = :ssl.handshake(socket, 5000)
+          {:ok, socket} =
+            tls_step(owner, :accept, fn -> :ssl.transport_accept(listener, 5000) end)
+
+          {:ok, socket} = tls_step(owner, :handshake, fn -> :ssl.handshake(socket, 5000) end)
 
           try do
-            request = tls_request(socket, "")
+            request = tls_step(owner, :request, fn -> tls_request(socket, "") end)
             send(owner, {:sts_tls_request, request})
 
             :ok =
-              :ssl.send(
-                socket,
-                "HTTP/1.1 200 OK\r\nContent-Length: #{byte_size(body)}\r\nConnection: close\r\n\r\n#{body}"
-              )
+              tls_step(owner, :response, fn ->
+                :ssl.send(
+                  socket,
+                  "HTTP/1.1 200 OK\r\nContent-Length: #{byte_size(body)}\r\nConnection: close\r\n\r\n#{body}"
+                )
+              end)
           after
             :ssl.close(socket)
           end
@@ -575,6 +586,29 @@ defmodule ExStorageServiceCli.Credentials.AssumeRoleTest do
     end)
 
     "https://127.0.0.1:#{port}"
+  end
+
+  defp tls_step(owner, stage, action) do
+    started = System.monotonic_time(:millisecond)
+    send(owner, {:sts_tls_stage, stage, :started})
+    result = action.()
+
+    outcome =
+      case result do
+        {:error, reason} -> {:error, reason}
+        _ -> :ok
+      end
+
+    send(owner, {:sts_tls_stage, stage, {outcome, System.monotonic_time(:millisecond) - started}})
+    result
+  end
+
+  defp tls_stages(stages \\ []) do
+    receive do
+      {:sts_tls_stage, stage, result} -> tls_stages([{stage, result} | stages])
+    after
+      0 -> Enum.reverse(stages)
+    end
   end
 
   defp tls_request(socket, data) do

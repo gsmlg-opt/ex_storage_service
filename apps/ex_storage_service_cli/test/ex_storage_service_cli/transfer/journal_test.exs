@@ -4,6 +4,7 @@ defmodule ExStorageServiceCli.Transfer.JournalTest do
   use ExUnit.Case, async: false
   alias ExStorageServiceCli.{Error, Transfer.Journal, Transfer.Source}
   @moduletag :tmp_dir
+  @fixture_attempts 4
 
   setup %{tmp_dir: root} do
     path = Path.join(root, "source")
@@ -38,7 +39,8 @@ defmodule ExStorageServiceCli.Transfer.JournalTest do
       "cleanup" => "none"
     }
 
-    %{record: record, root: Path.join(root, "journals")}
+    {journal_root, id} = fixture(Path.join(root, "journals"), record)
+    %{record: record, root: journal_root, id: id}
   end
 
   test "strict versioned schema refuses secret-bearing or arbitrary fields", %{record: record} do
@@ -57,6 +59,35 @@ defmodule ExStorageServiceCli.Transfer.JournalTest do
         ] do
       assert {:error, %Error{code: :journal_schema} = error} = Journal.validate(invalid)
       refute inspect(error) =~ "private"
+    end
+  end
+
+  test "fixture selection advances past occupied initial mutex without stealing it", %{
+    tmp_dir: tmp_dir,
+    record: record
+  } do
+    {base, blocked_root, listener} =
+      Enum.find_value(1..10, fn attempt ->
+        base = Path.join(tmp_dir, "occupied-#{attempt}")
+        blocked_root = base <> "-0"
+        File.mkdir_p!(blocked_root)
+        File.chmod!(blocked_root, 0o700)
+        {:ok, port} = Journal.lock_port(blocked_root, "index")
+
+        case :gen_tcp.listen(port, [:binary, active: false, ip: {127, 0, 0, 1}]) do
+          {:ok, listener} -> {base, blocked_root, listener}
+          {:error, :eaddrinuse} -> nil
+        end
+      end) || flunk("Could not reserve the initial journal fixture mutex")
+
+    try do
+      {root, id} = fixture(base, record)
+      assert root != blocked_root
+      refute File.exists?(Path.join(blocked_root, "index.jsonl"))
+      assert :ok = Journal.with_claim(root, id, fn _ -> :ok end)
+      assert {:ok, _} = :inet.sockname(listener)
+    after
+      :gen_tcp.close(listener)
     end
   end
 
@@ -121,13 +152,16 @@ defmodule ExStorageServiceCli.Transfer.JournalTest do
 
   test "private atomic checkpoints are revision fenced and indexed with bounded event pages", %{
     root: root,
-    record: record
+    record: record,
+    id: first_id
   } do
-    ids =
-      for _ <- 1..3 do
+    additional_ids =
+      for _ <- 1..2 do
         assert {:ok, id} = Journal.create(root, record)
         id
       end
+
+    ids = [first_id | additional_ids]
 
     [id | _] = ids
     assert {:ok, current} = Journal.get(root, id)
@@ -158,9 +192,8 @@ defmodule ExStorageServiceCli.Transfer.JournalTest do
 
   test "cross-process ownership and equivalent paths exclude simultaneous resumers", %{
     root: root,
-    record: record
+    id: id
   } do
-    {:ok, id} = Journal.create(root, record)
     {:ok, claim} = Journal.claim(root, id)
     alternative = Path.join(root, "../" <> Path.basename(root))
     result = Task.async(fn -> Journal.claim(alternative, id) end) |> Task.await()
@@ -175,9 +208,9 @@ defmodule ExStorageServiceCli.Transfer.JournalTest do
 
   test "abrupt owner death releases the kernel mutex and fences the old claim", %{
     root: root,
-    record: record
+    record: record,
+    id: id
   } do
-    {:ok, id} = Journal.create(root, record)
     {:ok, claim} = Journal.claim(root, id)
     monitor = Process.monitor(claim.owner)
     Process.exit(claim.owner, :kill)
@@ -191,9 +224,8 @@ defmodule ExStorageServiceCli.Transfer.JournalTest do
 
   test "claimant death closes the dedicated socket owner and releases ownership", %{
     root: root,
-    record: record
+    id: id
   } do
-    {:ok, id} = Journal.create(root, record)
     parent = self()
 
     holder =
@@ -215,16 +247,20 @@ defmodule ExStorageServiceCli.Transfer.JournalTest do
 
   test "unrelated listeners return busy without stealing or closing their sockets", %{
     root: root,
-    record: record
+    id: id
   } do
-    {:ok, id} = Journal.create(root, record)
     {:ok, port} = Journal.lock_port(root, id)
 
     {:ok, socket} =
       :gen_tcp.listen(port, [:binary, active: false, reuseaddr: false, ip: {127, 0, 0, 1}])
 
     try do
-      assert {:error, %Error{code: :journal_busy}} = Journal.claim(root, id)
+      assert {:error,
+              %Error{
+                code: :journal_busy,
+                details: %{mutex_port: ^port, socket_reason: :eaddrinuse}
+              }} = Journal.claim(root, id)
+
       assert {:ok, {{127, 0, 0, 1}, ^port}} = :inet.sockname(socket)
     after
       :gen_tcp.close(socket)
@@ -235,10 +271,8 @@ defmodule ExStorageServiceCli.Transfer.JournalTest do
 
   test "a separate VM excludes resumers and abrupt VM halt permits crash resume", %{
     root: root,
-    record: record
+    id: id
   } do
-    {:ok, id} = Journal.create(root, record)
-
     paths =
       :code.get_path()
       |> Enum.map(&List.to_string/1)
@@ -273,9 +307,7 @@ defmodule ExStorageServiceCli.Transfer.JournalTest do
   end
 
   test "exception cleanup, corrupt/oversized records, symlinks, and malformed inventory fail safely",
-       %{root: root, record: record, tmp_dir: tmp_dir} do
-    {:ok, id} = Journal.create(root, record)
-
+       %{root: root, id: id, tmp_dir: tmp_dir} do
     assert_raise RuntimeError, "callback", fn ->
       Journal.with_claim(root, id, fn _ -> raise "callback" end)
     end
@@ -294,6 +326,29 @@ defmodule ExStorageServiceCli.Transfer.JournalTest do
     assert {:error, %Error{code: :journal_read}} = Journal.get(root, id)
     assert {:error, %Error{code: :journal_id}} = Journal.get(root, "../escape")
     assert {:error, %Error{code: :journal_page}} = Journal.events(root, id, limit: 101)
+  end
+
+  defp fixture(base, record) do
+    Enum.find_value(0..(@fixture_attempts - 1), fn attempt ->
+      root = base <> "-#{attempt}"
+
+      with {:ok, id} <- Journal.create(root, record),
+           {:ok, claim} <- Journal.claim(root, id) do
+        assert :ok = Journal.release(claim)
+        {root, id}
+      else
+        {:error,
+         %Error{
+           code: :journal_busy,
+           details: %{mutex_port: _, socket_reason: :eaddrinuse} = details
+         }}
+        when map_size(details) == 2 ->
+          nil
+
+        unexpected ->
+          flunk("Unexpected journal fixture setup result: #{inspect(unexpected)}")
+      end
+    end) || flunk("No free initial journal fixture mutex after #{@fixture_attempts} attempts")
   end
 
   defp receive_marker(port, accumulated, marker) do

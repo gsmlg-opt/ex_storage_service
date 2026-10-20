@@ -7,6 +7,7 @@ defmodule ExStorageServiceCli.CLI.NativePutParallelTest do
   alias ExStorageServiceCli.Transfer.{Coordinator, Journal}
   alias ExStorageServiceCli.{S3.Request, Transport.HTTPFetch}
   @moduletag :tmp_dir
+  @fixture_attempts 4
   @limits %{
     max_single_put_bytes: 100,
     min_nonfinal_part_bytes: 5,
@@ -24,9 +25,14 @@ defmodule ExStorageServiceCli.CLI.NativePutParallelTest do
       options: Map.merge(%{part_size: "5B", progress: false}, options)
     }
 
-  defp run(root, endpoint, coordinator, data, flags, opts) do
+  defp run(root, endpoint, coordinator, data, flags, opts),
+    do: run(root, endpoint, coordinator, data, flags, opts, 0)
+
+  defp run(root, endpoint, coordinator, data, flags, opts, attempt) do
     path = Path.join(root, "source")
     File.write!(path, data)
+    state_root = Path.join(root, "journals-#{attempt}")
+    File.write!(Path.join(root, "selected-journal-root"), state_root)
 
     context = %Context{
       endpoint: endpoint,
@@ -35,20 +41,36 @@ defmodule ExStorageServiceCli.CLI.NativePutParallelTest do
       options: %{request_checksum_calculation: "when_required"}
     }
 
-    HighLevel.run(
-      invocation(flags),
-      [%Target{kind: :local, path: path}, %Target{kind: :remote, bucket: "bucket", key: "key"}],
-      [nil, context],
-      Keyword.merge(
-        [
-          limits: @limits,
-          state_root: Path.join(root, "journals"),
-          max_attempts: 1,
-          emit: fn _ -> :ok end
-        ],
-        opts
+    result =
+      HighLevel.run(
+        invocation(flags),
+        [%Target{kind: :local, path: path}, %Target{kind: :remote, bucket: "bucket", key: "key"}],
+        [nil, context],
+        Keyword.merge(
+          [
+            limits: @limits,
+            state_root: state_root,
+            max_attempts: 1,
+            emit: fn _ -> :ok end
+          ],
+          opts
+        )
       )
-    )
+
+    case result do
+      {:error,
+       %Error{
+         code: :journal_busy,
+         details: %{mutex_port: _, socket_reason: :eaddrinuse} = details
+       }}
+      when map_size(details) == 2 and attempt + 1 < @fixture_attempts ->
+        # This local source path acquires its initial journal before HTTP. Errors
+        # after acquisition carry journal_id/cleanup and must never be retried.
+        run(root, endpoint, coordinator, data, flags, opts, attempt + 1)
+
+      _ ->
+        result
+    end
   end
 
   defp async_run(root, endpoint, coordinator, data, flags, opts \\ []) do
@@ -64,10 +86,12 @@ defmodule ExStorageServiceCli.CLI.NativePutParallelTest do
   end
 
   defp journal(root) do
-    {:ok, %{entries: [entry]}} = Journal.list(Path.join(root, "journals"))
-    {:ok, record} = Journal.get(Path.join(root, "journals"), entry["id"])
+    {:ok, %{entries: [entry]}} = Journal.list(journal_root(root))
+    {:ok, record} = Journal.get(journal_root(root), entry["id"])
     record
   end
+
+  defp journal_root(root), do: File.read!(Path.join(root, "selected-journal-root"))
 
   defp reply(peer, number, status \\ 200) do
     headers = if status == 200, do: [{"ETag", "\"part#{number}\""}], else: []
@@ -200,6 +224,44 @@ defmodule ExStorageServiceCli.CLI.NativePutParallelTest do
                [nil, %Context{}],
                limits: @limits
              )
+  end
+
+  test "initial occupied journal mutex retries setup before the first upload request", %{
+    tmp_dir: root
+  } do
+    {fixture_root, blocked_root, listener} =
+      Enum.find_value(1..10, fn attempt ->
+        fixture_root = Path.join(root, "occupied-#{attempt}")
+        blocked_root = Path.join(fixture_root, "journals-0")
+        File.mkdir_p!(blocked_root)
+        File.chmod!(blocked_root, 0o700)
+        {:ok, port} = Journal.lock_port(blocked_root, "index")
+
+        case :gen_tcp.listen(port, [:binary, active: false, ip: {127, 0, 0, 1}]) do
+          {:ok, listener} -> {fixture_root, blocked_root, listener}
+          {:error, :eaddrinuse} -> nil
+        end
+      end) || flunk("Could not reserve the initial journal fixture mutex")
+
+    try do
+      pool = start_supervised!(Coordinator)
+      {endpoint, _} = peer(10)
+      async_run(fixture_root, endpoint, pool, "abcdefghij", %{parallel: 2})
+      assert_receive {:create, _}, 1000
+      assert journal_root(fixture_root) != blocked_root
+      refute File.exists?(Path.join(blocked_root, "index.jsonl"))
+
+      for _ <- 1..2 do
+        assert_receive {:part, number, part, _}, 1000
+        reply(part, number)
+      end
+
+      assert_receive {:upload_result, :ok}, 1000
+      refute_receive {:create, _}
+      assert {:ok, _} = :inet.sockname(listener)
+    after
+      :gen_tcp.close(listener)
+    end
   end
 
   test "two actual concurrent parts finish out of order with fenced checkpoints and ordered completion",
@@ -353,7 +415,7 @@ defmodule ExStorageServiceCli.CLI.NativePutParallelTest do
     eventually(fn -> Coordinator.stats(pool).active == 0 end)
     record = journal(root)
     assert record["phase"] == "transferring"
-    assert {:ok, claim} = Journal.claim(Path.join(root, "journals"), record["id"])
+    assert {:ok, claim} = Journal.claim(journal_root(root), record["id"])
     Journal.release(claim)
     refute_receive {:complete, _}
     refute_receive {:abort, _, _}

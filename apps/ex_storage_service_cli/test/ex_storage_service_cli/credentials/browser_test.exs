@@ -113,6 +113,18 @@ defmodule ExStorageServiceCli.Credentials.BrowserTest do
     for file <- files, do: assert(stopped?(File.read!(file)))
   end
 
+  test "short launcher timeouts preserve their result during process cleanup", %{tmp_dir: root} do
+    executable = helper(root, "exec '#{System.find_executable("sleep")}' 60")
+
+    for _ <- 1..32 do
+      assert :timeout =
+               Browser.launch("https://verify.example/",
+                 browser_executable: executable,
+                 browser_timeout: 1
+               )
+    end
+  end
+
   test "unsafe complete verification URLs are never passed to a browser" do
     for url <- ["file:///private", "javascript:alert(1)", "https://user:password@verify.example/"] do
       assert :ok =

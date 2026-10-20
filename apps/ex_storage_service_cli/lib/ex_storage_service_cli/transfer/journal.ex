@@ -152,8 +152,8 @@ defmodule ExStorageServiceCli.Transfer.Journal do
               :gen_tcp.close(socket)
             end
 
-          {:error, _reason} ->
-            send(holder, {:journal_busy, token})
+          {:error, reason} ->
+            send(holder, {:journal_busy, token, reason})
         end
       end)
 
@@ -171,13 +171,16 @@ defmodule ExStorageServiceCli.Transfer.Journal do
            identity: identity
          }}
 
-      {:journal_busy, ^token} ->
+      {:journal_busy, ^token, reason} ->
         Process.demonitor(monitor, [:flush])
 
-        failure(
-          :journal_busy,
-          "Transfer journal ownership is busy or its loopback mutex is unavailable"
-        )
+        {:error,
+         Error.new(
+           :client,
+           "Transfer journal ownership is busy or its loopback mutex is unavailable",
+           code: :journal_busy,
+           details: %{mutex_port: port, socket_reason: reason}
+         )}
 
       {:DOWN, ^monitor, :process, ^owner, _} ->
         failure(:journal_owner, "Transfer journal owner could not start")

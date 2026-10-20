@@ -37,7 +37,10 @@ defmodule ExStorageServiceCli.CLI.TransferCommandsTest do
              state_root: state_root,
              keep_incomplete: true
            ) do
-        {:error, %Error{code: :journal_busy, details: details}} when map_size(details) == 0 ->
+        {:error, %Error{code: :journal_busy, details: details}}
+        when map_size(details) == 0 or
+               (map_size(details) == 2 and is_map_key(details, :mutex_port) and
+                  is_map_key(details, :socket_reason)) ->
           # Initial acquisition can collide with host listeners or TCP TIME_WAIT.
           # Never retry a transfer that reached the wire or acquired upload state.
           refute_receive {:wire_request, _}, 0

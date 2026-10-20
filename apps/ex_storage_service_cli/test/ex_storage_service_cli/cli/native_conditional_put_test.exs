@@ -6,6 +6,7 @@ defmodule ExStorageServiceCli.CLI.NativeConditionalPutTest do
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation, Parser}
   alias ExStorageServiceCli.Transfer.{Journal, Multipart, Planner, Source}
   @moduletag :tmp_dir
+  @fixture_attempts 4
   @limits %{
     max_single_put_bytes: 5,
     min_nonfinal_part_bytes: 5,
@@ -45,12 +46,57 @@ defmodule ExStorageServiceCli.CLI.NativeConditionalPutTest do
     path = Path.join(root, "source")
     File.write!(path, data)
 
-    HighLevel.run(
-      invocation(),
-      [%Target{kind: :local, path: path}, remote()],
-      [nil, context(endpoint)],
-      Keyword.merge(options(root), opts)
-    )
+    with_journal_root(root, fn state_root ->
+      HighLevel.run(
+        invocation(),
+        [%Target{kind: :local, path: path}, remote()],
+        [nil, context(endpoint)],
+        options(root) |> Keyword.merge(opts) |> Keyword.put(:state_root, state_root)
+      )
+    end)
+  end
+
+  test "initial occupied journal mutex retries setup before the first upload request", %{
+    tmp_dir: root
+  } do
+    {fixture_root, blocked_root, listener} =
+      Enum.find_value(1..10, fn attempt ->
+        fixture_root = Path.join(root, "occupied-#{attempt}")
+        blocked_root = Path.join(fixture_root, "journals")
+        File.mkdir_p!(blocked_root)
+        File.chmod!(blocked_root, 0o700)
+        {:ok, port} = Journal.lock_port(blocked_root, "index")
+
+        case :gen_tcp.listen(port, [:binary, active: false, ip: {127, 0, 0, 1}]) do
+          {:ok, listener} -> {fixture_root, blocked_root, listener}
+          {:error, :eaddrinuse} -> nil
+        end
+      end) || flunk("Could not reserve the initial journal fixture mutex")
+
+    try do
+      {endpoint, _} =
+        multipart_peer([
+          {200, [{"x-amz-version-id", "created-version"}], @complete},
+          {200,
+           [
+             {"ETag", "\"created\""},
+             {"Content-Length", "10"},
+             {"x-amz-version-id", "created-version"}
+           ], ""}
+        ])
+
+      assert :ok = put(fixture_root, endpoint, "abcdefghij", limits: @limits)
+      refute File.exists?(Path.join(blocked_root, "index.jsonl"))
+      assert {:ok, _} = :inet.sockname(listener)
+
+      for method <- ["POST", "PUT", "PUT", "POST", "HEAD"] do
+        assert_receive {:wire_request, %{method: ^method}}
+      end
+
+      refute_receive {:wire_request, _}
+    after
+      :gen_tcp.close(listener)
+    end
   end
 
   test "only native put accepts the conditional creation flag" do
@@ -191,7 +237,7 @@ defmodule ExStorageServiceCli.CLI.NativeConditionalPutTest do
       refute_receive {:wire_request, _}
 
       assert {:ok, %{"phase" => "failed", "completion" => completion}} =
-               Journal.get(Path.join(root, "journals"), id)
+               Journal.get(journal_root(root), id)
 
       assert completion["version_id"] == "created-version"
     end
@@ -216,7 +262,7 @@ defmodule ExStorageServiceCli.CLI.NativeConditionalPutTest do
     refute_receive {:wire_request, _}
 
     assert {:ok, %{"cleanup" => "aborted", "phase" => "failed"}} =
-             Journal.get(Path.join(root, "journals"), id)
+             Journal.get(journal_root(root), id)
   end
 
   test "retained multipart journal rejects a resume that drops its write condition", %{
@@ -235,17 +281,30 @@ defmodule ExStorageServiceCli.CLI.NativeConditionalPutTest do
     opts = Keyword.merge(options(root), keep_incomplete: true, input: %{"IfNoneMatch" => "*"})
 
     assert {:error, %Error{details: %{journal_id: id, cleanup: "retained"}}} =
-             Multipart.upload(context(endpoint), "bucket", "key", source, plan, opts)
+             with_journal_root(root, fn state_root ->
+               Multipart.upload(
+                 context(endpoint),
+                 "bucket",
+                 "key",
+                 source,
+                 plan,
+                 Keyword.put(opts, :state_root, state_root)
+               )
+             end)
 
     for _ <- 1..2, do: assert_receive({:wire_request, _})
 
     assert {:error, %Error{code: :resume_conflict}} =
-             Multipart.resume(context(endpoint), id, Keyword.put(opts, :input, %{}))
+             Multipart.resume(
+               context(endpoint),
+               id,
+               opts |> Keyword.put(:state_root, journal_root(root)) |> Keyword.put(:input, %{})
+             )
 
     refute_receive {:wire_request, _}
 
     assert {:ok, %{"cleanup" => "retained", "options" => recorded}} =
-             Journal.get(Path.join(root, "journals"), id)
+             Journal.get(journal_root(root), id)
 
     assert recorded["input_digest"] ==
              Base.encode16(
@@ -270,14 +329,18 @@ defmodule ExStorageServiceCli.CLI.NativeConditionalPutTest do
     {:ok, plan} = Planner.plan(10, @limits)
 
     assert {:ok, _} =
-             Multipart.upload(
-               context(endpoint),
-               "bucket",
-               "key",
-               source,
-               plan,
-               Keyword.put(options(root), :input, %{"IfNoneMatch" => "*"})
-             )
+             with_journal_root(root, fn state_root ->
+               Multipart.upload(
+                 context(endpoint),
+                 "bucket",
+                 "key",
+                 source,
+                 plan,
+                 options(root)
+                 |> Keyword.put(:state_root, state_root)
+                 |> Keyword.put(:input, %{"IfNoneMatch" => "*"})
+               )
+             end)
 
     for _ <- 1..4, do: assert_receive({:wire_request, _})
     assert_receive {:wire_request, %{method: "HEAD", headers: headers}}
@@ -293,5 +356,29 @@ defmodule ExStorageServiceCli.CLI.NativeConditionalPutTest do
     ])
   end
 
-  defp journal_inventory(root), do: Journal.list(Path.join(root, "journals"))
+  defp with_journal_root(root, function, attempt \\ 0) do
+    name = if attempt == 0, do: "journals", else: "journals-#{attempt}"
+    state_root = Path.join(root, name)
+    File.write!(Path.join(root, "selected-journal-root"), state_root)
+
+    case function.(state_root) do
+      {:error,
+       %Error{
+         code: :journal_busy,
+         details: %{mutex_port: _, socket_reason: :eaddrinuse} = details
+       }}
+      when map_size(details) == 2 and attempt + 1 < @fixture_attempts ->
+        # Retry only initial fixture acquisition, before any owned upload exists.
+        # Later errors carry journal_id/cleanup and must retain their outcome.
+        refute_receive {:wire_request, _}, 0
+        with_journal_root(root, function, attempt + 1)
+
+      result ->
+        result
+    end
+  end
+
+  defp journal_root(root), do: File.read!(Path.join(root, "selected-journal-root"))
+
+  defp journal_inventory(root), do: Journal.list(journal_root(root))
 end
