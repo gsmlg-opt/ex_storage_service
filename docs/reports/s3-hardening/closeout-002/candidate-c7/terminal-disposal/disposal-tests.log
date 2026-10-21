@@ -1,0 +1,21 @@
+test_archive_cap_failure_never_deletes (__main__.DisposalTest.test_archive_cap_failure_never_deletes) ... ok
+test_archive_hash_and_size_corruption_are_rejected (__main__.DisposalTest.test_archive_hash_and_size_corruption_are_rejected) ... ok
+test_archive_verification_failure_never_deletes (__main__.DisposalTest.test_archive_verification_failure_never_deletes) ... ok
+test_changed_frozen_input_after_archive_blocks_all_deletes (__main__.DisposalTest.test_changed_frozen_input_after_archive_blocks_all_deletes) ... ok
+test_explicit_execute_required_before_outputs_or_probes (__main__.DisposalTest.test_explicit_execute_required_before_outputs_or_probes) ... ok
+test_failed_fresh_probe_preserves_every_root_and_records_failure (__main__.DisposalTest.test_failed_fresh_probe_preserves_every_root_and_records_failure) ... ok
+test_mount_appearing_after_archive_blocks_all_deletes (__main__.DisposalTest.test_mount_appearing_after_archive_blocks_all_deletes) ... ok
+test_mount_at_root_or_nested_mount_blocks_before_delete (__main__.DisposalTest.test_mount_at_root_or_nested_mount_blocks_before_delete) ... ok
+test_no_overwrite_and_insecure_parent_refused (__main__.DisposalTest.test_no_overwrite_and_insecure_parent_refused) ... ok
+test_partial_deletion_failure_records_actual_outcomes_without_retry (__main__.DisposalTest.test_partial_deletion_failure_records_actual_outcomes_without_retry) ... ok
+test_success_archives_only_metadata_verifies_private_modes_and_exact_roots (__main__.DisposalTest.test_success_archives_only_metadata_verifies_private_modes_and_exact_roots) ... ok
+test_symlink_root_and_symlink_parent_are_refused (__main__.DisposalTest.test_symlink_root_and_symlink_parent_are_refused) ... ok
+test_wrong_inode_fails_all_roots_before_delete (__main__.DisposalTest.test_wrong_inode_fails_all_roots_before_delete) ... ok
+test_wrong_root_and_old_candidate_root_are_refused (__main__.DisposalTest.test_wrong_root_and_old_candidate_root_are_refused) ... ok
+test_proc_mount_probe_uses_numeric_pid_and_decodes_escaped_paths (__main__.FreshProbeTest.test_proc_mount_probe_uses_numeric_pid_and_decodes_escaped_paths) ... ok
+test_reused_pid_is_allowed_but_original_identity_or_zombie_blocks (__main__.FreshProbeTest.test_reused_pid_is_allowed_but_original_identity_or_zombie_blocks) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.077s
+
+OK

@@ -1,0 +1,65 @@
+{
+  "status": "passed",
+  "exit_status": 0,
+  "acceptance": false,
+  "purpose": "Buildx client-state namespace prerequisite only",
+  "private_buildx": "/fast/build/ess-closeout-c7-acceptance/tmp/ess-buildx-probe-closeout002-c7",
+  "operations": [
+    {
+      "argv": [
+        "docker",
+        "context",
+        "show"
+      ],
+      "exit_status": 0,
+      "stdout": "default",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "version"
+      ],
+      "exit_status": 0,
+      "stdout": "github.com/docker/buildx v0.31.1",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "default"
+      ],
+      "exit_status": 0,
+      "stdout": "default docker",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "-c",
+        "import os;from pathlib import Path;p=Path(os.environ['BUILDX_CONFIG'])/'activity';p.mkdir(exist_ok=True);source=p/'.tmp-owned-write-probe';source.write_text('private fixture probe');os.replace(source,p/'owned-write-probe');print('private activity atomic write passed')"
+      ],
+      "exit_status": 0,
+      "stdout": "private activity atomic write passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "docker_context": "default",
+  "namespace_input_sha256": "8276616d56483aaba50d80defc08818f49713b07ea72b4597ffd87c8b4aa4c8a",
+  "runner_sha256": "bc4647ba8db94632a281cd8bbb6f102d93f857a5b22314ae198ecb0c4bda6df1",
+  "docker_configuration": "original read-only config/context/socket/environment retained",
+  "wrapper_opened_or_copied_credential_contents": false,
+  "credential_contents_printed_or_copied": false,
+  "docker_cli_reads_original_configuration_normally": true,
+  "builder_created_or_bootstrapped": false,
+  "daemon_build_or_publication_attempted": false,
+  "private_files_retained": true,
+  "limits": "Inspect validates the selected existing Docker driver and writable private local store, not a build or acceptance"
+}

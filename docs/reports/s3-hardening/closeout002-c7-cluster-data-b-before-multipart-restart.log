@@ -1,0 +1,23 @@
+
+===== start data-b bootstrap=true at 2026-10-20T23:39:55Z =====
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 813860)
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 813860)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 813860)
+[0mWaiting for lock on the build directory (held by process 813860)
+[0mWaiting for lock on the build directory (held by process 813860)
+07:39:56.071 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+07:39:56.086 [info] Starting Concord TTL manager with cleanup interval: 300000s
+07:39:56.152 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-YdJzKXun/data-b and blob root /tmp/ess-s3-hardening-cluster-YdJzKXun/data-b/blob
+07:39:56.163 [info] Concord VSR metadata quorum ready
+07:39:56.183 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9102 (http)
+07:39:56.186 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9002 (http)
+07:40:01.209 [warning] SigV4 auth failed: Invalid credential scope — PUT /hardening-p1-4d4f646bd0d940c683/bad-scope
+07:40:20.602 [warning] SigV4 auth failed: User account is suspended — GET /hardening-iam-2fb80996df7a4080/probe
+07:40:21.641 [warning] SigV4 auth failed: InvalidAccessKeyId — GET /hardening-iam-2fb80996df7a4080/probe
+07:40:25.371 [warning] SigV4 auth failed: Missing Authorization header — GET /hardening-tags-7c8ff4fd4d39456dbd/multipart

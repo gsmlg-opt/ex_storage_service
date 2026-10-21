@@ -1,0 +1,46 @@
+{
+  "profile": "standalone",
+  "status": "passed",
+  "starting_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd",
+  "ending_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd",
+  "source_sha256": "ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913",
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 7.133,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c7/standalone-0.log"
+    },
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_phase2_standalone.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c7-standalone"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 26.698,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c7/standalone-1.log"
+    },
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_retained_standalone.sh",
+        "/tmp/ess-s3-hardening-python/bin/python",
+        "closeout002-c7-standalone-retained"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 10.192,
+      "log": "docs/reports/s3-hardening/closeout-002/candidate-c7/standalone-2.log"
+    }
+  ],
+  "started_at": "2026-10-20T23:36:22.447377+00:00"
+}

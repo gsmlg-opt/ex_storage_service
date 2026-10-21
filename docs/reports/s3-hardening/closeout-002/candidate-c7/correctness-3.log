@@ -1,0 +1,33 @@
+...isolation prerequisite failed: Command '['bwrap']' returned non-zero exit status 1.
+...{"primary_stopped": "meta", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 200}
+{"primary_stopped": "data-a", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 503}
+{"primary_stopped": "data-b", "view_before": 1, "view_elected": 2, "rf": 2, "w": 2, "expected_write_status": 503}
+.....................................From /tmp/ess-release-gate-33yah9e7/origin
+ * branch            main       -> FETCH_HEAD
+Previous HEAD position was 3b52762 tested source
+HEAD is now at 579e496 chore(release): v1.0.1
+Previous HEAD position was 579e496 chore(release): v1.0.1
+HEAD is now at 3b52762 tested source
+Previous HEAD position was 3b52762 tested source
+HEAD is now at 579e496 chore(release): v1.0.1
+From /tmp/ess-release-gate-33yah9e7/origin
+ * branch            main       -> FETCH_HEAD
+HEAD is now at 579e496 chore(release): v1.0.1
+Previous HEAD position was 579e496 chore(release): v1.0.1
+HEAD is now at 3b52762 tested source
+Previous HEAD position was 3b52762 tested source
+HEAD is now at 579e496 chore(release): v1.0.1
+.HEAD is now at 49bd6df tested source
+Previous HEAD position was 49bd6df tested source
+HEAD is now at 96c43cf chore(release): v1.0.1
+.HEAD is now at 49bd6df tested source
+Previous HEAD position was 49bd6df tested source
+HEAD is now at 96c43cf chore(release): v1.0.1
+.HEAD is now at 49bd6df tested source
+Previous HEAD position was 49bd6df tested source
+HEAD is now at 96c43cf chore(release): v1.0.1
+............................................................................
+----------------------------------------------------------------------
+Ran 122 tests in 20.875s
+
+OK

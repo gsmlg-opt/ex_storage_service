@@ -1,0 +1,362 @@
+{
+  "schema": "ess.s3-hardening.a30-review.v1",
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "role": "external_read_only_clause_review",
+  "recorded_at_utc": "2026-10-20T23:22:52.849918+00:00",
+  "candidate_sha": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+  "source_sha256": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+  "publication_commit": "03412039107963d2d97198de22251117d1603983",
+  "acceptance": false,
+  "conclusion": {
+    "original_A30_streaming_resource_contract": "verified_for_C6",
+    "exact_expanded_A30_7_proof_method": "incomplete_historical_local_per_case_file_counts",
+    "resource_lane": "passed",
+    "full_acceptance": "not_passed",
+    "authoritative_driver_exit_status": 1,
+    "retry_driver_exit_status": 1,
+    "release": "not_authorized_by_these_results",
+    "new_C7_source": "requires_compatible_new_candidate_evidence"
+  },
+  "scope": {
+    "original_A30": "64MiB/1GiB c1/c4 local+gateway streaming, slow peers, predeclared memory/queue envelopes and raw bytes intact.",
+    "A31_distinction": "Disconnect/cancel/interruption/disk-full/restart, partial publication, task/mailbox/staging semantics are separate A31 contracts and also required by this closeout.",
+    "proof_method_distinction": "The internal clause map requests before/after/final file inventories. Original A30 does not prescribe that exact method. Terminal inventory cannot recreate absent historical per-case counts.",
+    "method": "Reviewed retained receipts and immutable C6 source; independent bounded sample/export analyzer was executed by parent. No claim of a second raw-sample reread. This worker did not traverse actual fixture roots or execute workloads.",
+    "source_provenance": {
+      "e2e/gateway_hardening.py": "4597482ec736d4a19ac75881907c2ebecd07c538ae9a940990935ca1d4c8e37a",
+      "e2e/s3_hardening_resources.py": "295e3bf45d3c3ba548f35566b1fd1589996746b4eae704e33e11e094438430f7",
+      "e2e/scripts/resource_sampler.exs": "306407303867b029c832def64a635eabf37e5618a928791e78ed6321eaa18e90",
+      "apps/ex_storage_service/lib/ex_storage_service/cloud_cache/local_store.ex": "29987fc645687926250e7f0e7bf4c3a595a3199a21e39fcff49b012aa1d555a7"
+    },
+    "frozen_manifest": "No committed C6 receipt/manifest modified; later terminal facts remain external supplemental evidence."
+  },
+  "clauses": [
+    {
+      "id": "A30.1",
+      "status": "verified",
+      "evidence": [
+        "resources",
+        "local_results",
+        "cluster_results",
+        "observation_analysis"
+      ],
+      "facts": {
+        "local_groups": 56,
+        "cluster_groups": 20,
+        "sizes_bytes": [
+          67108864,
+          1073741824
+        ],
+        "concurrencies": [
+          1,
+          4
+        ],
+        "manifest_identity": "Exact Counter equality, not numeric totals alone; no duplicates/missing/unexpected cases; all failure/audit arrays empty."
+      }
+    },
+    {
+      "id": "A30.2",
+      "status": "verified",
+      "evidence": [
+        "resources",
+        "local_results"
+      ],
+      "facts": {
+        "operation_names": [
+          "local-put",
+          "local-get",
+          "local-copy",
+          "local-multipart",
+          "local-upload-part-copy",
+          "local-slow-put",
+          "local-slow-get",
+          "gateway-put",
+          "gateway-cold-get",
+          "gateway-copy-to-local",
+          "gateway-hit-slow-get",
+          "gateway-slow-put",
+          "gateway-paced-upstream-put",
+          "gateway-paced-upstream-cold-get"
+        ],
+        "bytes": "Passing production-path executors assert bounded streaming length/SHA256 and metadata identity. Local details fields are null; do not invent retained per-operation hash rows.",
+        "independent_upstream_readbacks": 12,
+        "readback_scope": "Three gateway write variants times four size/concurrency combinations, direct RustFS streaming256KiB, outside measured PUT windows."
+      }
+    },
+    {
+      "id": "A30.3",
+      "status": "verified",
+      "evidence": [
+        "cluster_results",
+        "resources"
+      ],
+      "facts": {
+        "operation_names": [
+          "strict-quorum-replica-put",
+          "authenticated-peer-get",
+          "fenced-repair-pull",
+          "fenced-repair-push",
+          "cross-cluster-worker-paced-sink"
+        ],
+        "strict_durability": "RF2/W2 retained, two ready replicas; external replication never contributes to RF/W.",
+        "identity": "Retained independent node/sink hashes, authenticated transfers, completed fenced jobs and paced sinks."
+      }
+    },
+    {
+      "id": "A30.4",
+      "status": "verified",
+      "evidence": [
+        "observation_analysis",
+        "local_results",
+        "cluster_results"
+      ],
+      "facts": {
+        "metric_names": [
+          "binary",
+          "total",
+          "rss",
+          "queue_max",
+          "queue_total",
+          "temporary"
+        ],
+        "active_metric_windows": 696,
+        "export_rows": {
+          "local": 42689,
+          "meta": 25367,
+          "data_a": 25317,
+          "data_b": 25267,
+          "total": 118640
+        },
+        "max_gap_ms": {
+          "local": 57.978251,
+          "cluster": 32.659479
+        },
+        "max_probe_ms": {
+          "local": 33.117212,
+          "cluster": 7.679276
+        },
+        "coverage": "Actual monotonic probes/durations/gaps and wall edges <=100ms, one sampler generation/window; no interpolation. Completed preceding export attribution verified.",
+        "meaning": "100ms observation coverage requirement; not an S3 request-latency SLA."
+      }
+    },
+    {
+      "id": "A30.5",
+      "status": "verified",
+      "evidence": [
+        "local_results",
+        "cluster_results",
+        "observation_analysis"
+      ],
+      "facts": {
+        "limits": {
+          "binary": "(64+32*c)MiB",
+          "total": "(128+48*c)MiB",
+          "rss": "(256+64*c)MiB",
+          "queue_max": 128,
+          "queue_total": 2048,
+          "temporary": "2*size*c+64MiB"
+        },
+        "limits_policy": "Predeclared identical limits across sizes at fixed concurrency; not post-hoc envelopes.",
+        "local_peaks": {
+          "binary": 20960920,
+          "total": 98290184,
+          "rss": 176627712,
+          "active_queue_max": 5,
+          "active_queue_total": 7,
+          "temporary": 8589934592
+        },
+        "cluster_peaks": {
+          "binary": 21360088,
+          "total": 90742952,
+          "rss": 174161920,
+          "active_queue_max": 13,
+          "active_queue_total": 15,
+          "temporary": 4294967296
+        },
+        "local_max_deltas": {
+          "binary": 19420952,
+          "total": 24828904,
+          "rss": 37871616
+        },
+        "cluster_max_deltas": {
+          "binary": 20754360,
+          "total": 21116712,
+          "rss": 39317504
+        },
+        "baseline_and_idle": "Per-group baseline/peak/delta/post-idle/throughput retained. All post-idle temporary byte samples0.",
+        "queue_scope": "Local whole-export queue peak80 is outside active groups; do not substitute it for active5/7."
+      }
+    },
+    {
+      "id": "A30.6",
+      "status": "verified",
+      "evidence": [
+        "resources",
+        "local_results",
+        "cluster_results"
+      ],
+      "facts": {
+        "runner": "ms04 Linux6.18.48 x86_64;16CPUs affinity0-15, cgroup cpu max100000 (unlimited), memory max, no imposed IO max; +S4:4 +SDcpu2 +SDio2.",
+        "disk": "Private /tmp on NVMe ext4 device66305; initial available bytes local372252213248/cluster341765435392.",
+        "toolchain": "Elixir1.18.5 OTP28; Python3.13.15; boto3/botocore1.43.114; Concord/VSR/ExTurso3.1.4; http_fetch0.21.13.",
+        "measurement": "Load roughly1-2 on16CPUs; pressure/cgroups/meminfo retained; observer RSS roughly22MB separately recorded; OS page cache distinguished.",
+        "isolation": "Parent freeze policy and serial driver commands retain no overlapping task-owned heavy workload during measured resources.",
+        "checksums": "AWS request/response checksum override environment variables unset."
+      }
+    },
+    {
+      "id": "A30.7",
+      "status": "verified_terminal_semantics_with_explicit_proof_limits",
+      "evidence": [
+        "local_results",
+        "cluster_results",
+        "terminal_cleanup",
+        "c6-local-terminal-staging.json"
+      ],
+      "facts": {
+        "readbacks": "12/12 independent direct RustFS readbacks.",
+        "local_post_idle": "56/56 temporary byte totals0; historical observer excludes hidden names and counts size, so this is not a historical exact zero-file proof.",
+        "cluster_inventory": "Real before/after/final file+byte inventories0 for meta/data-a/data-b.",
+        "local_terminal_inventory": {
+          "files": 0,
+          "bytes": 0,
+          "zero_byte_files": 0,
+          "root_device": 66305,
+          "root_inode": 18875837,
+          "scopes": [
+            "data/tmp/** including hidden names",
+            "data/resource-gateway/cache/**/*.tmp",
+            "direct data/.cache-stage-*"
+          ],
+          "observed_at_utc": "2026-10-20T23:20:39.886332+00:00",
+          "source": "Parent-executed metadata-only utility; source pinned to Git C6; no fixture content opened; acceptance:false."
+        },
+        "processes": "Exact local resource BEAM763986/start11099111 and observer764022/start11099134 absent; resource analyzer independently retains observer-stop proof.",
+        "known_terminal_cleanup": "22 known PID/start identities, recorded Erlang names/ports, four fixture container namespaces absent.",
+        "unproved": [
+          "Historical local per-case before/after/final exact stage file counts.",
+          "Arbitrary/reparented descendants/native helpers/unrecorded dynamic names, universal connection ownership, nested restore PID namespaces or unreferenced roots."
+        ],
+        "interpretation": "Terminal empty stage inventory supports no persistent leak in those exact retained scopes. It neither demonstrates a service leak nor reconstructs intermediate inventories. Expanded internal audit assertion remains partially unproved."
+      }
+    },
+    {
+      "id": "A30.8",
+      "status": "verified_separate_tagged_contract",
+      "evidence": [
+        "resources",
+        "resource_2gib_log"
+      ],
+      "facts": {
+        "selected_tests": 1,
+        "failures": 0,
+        "actual_bytes": 2147483648,
+        "sender_process_peak_bytes": 8968,
+        "receiver_process_peak_bytes": 21736,
+        "fixed_process_limit_bytes": 67108864,
+        "scope": "Actual authenticated HTTP2GiB upload and SHA assertion. These are process peaks, not whole-BEAM or100ms matrix proof."
+      }
+    }
+  ],
+  "related_fault_evidence": {
+    "evidence": [
+      "faults",
+      "crashes",
+      "resilience",
+      "restore"
+    ],
+    "facts": [
+      "Eight fault checks passed: signed local/gateway upload disconnect, upstream interruption, local/gateway reader cancellation, restart, isolated realENOSPC and continuous mailbox.",
+      "Fault continuous window330samples, queue peak23/26, final staging_files0. ENOSPC fills isolated fixture before PUT; not identical to post-protection sync injection.",
+      "Eleven actual SIGKILL crash boundaries/newBEAM and three replication crash/rejoin strict-quorum checks passed; unknown/pending protected stages intentionally retained.",
+      "Resilience and standalone/cluster restore receipts pass for C6, existingcommand0 versus emptyrestore1 preserved."
+    ],
+    "supplemental_mechanics": "Real-Concord stage-r2 injections prove revision-fenced aborted/unknown state and normal-exit persistence only; not crash durability, restart sweeping, generic unlink-failure cleanup, originalC5 COPY cause or fullA30 acceptance."
+  },
+  "utility_validation": {
+    "command": "PAGER=cat python /fast/build/ess-closeout-c6-acceptance/test_inventory_c6_local_stages.py",
+    "tests": 19,
+    "failures": 0,
+    "errors": 0,
+    "exit_status": 0,
+    "duration_seconds": 0.007,
+    "ast": "Both utility/test parsed",
+    "fixture_scope": "Synthetic directories only. Actual inventory subsequently executed by parent."
+  },
+  "non_inferences": [
+    "C6 original/retry aggregate exits remain1; A28 upstream blockers are separate and unresolved.",
+    "No A38/full acceptance/release pass follows from this A30 review.",
+    "C7 executable/harness changes require new compatible candidate evidence; do not recertify them from C6.",
+    "Historical daily results and failed receipts keep their original scope."
+  ],
+  "evidence": {
+    "resources": {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c6/resources.json",
+      "sha256": "2b9a493ba3ce027698404d3e4ad7e3f4d8be704d24b931ec08fee0469b1ab061"
+    },
+    "observation_analysis": {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c6/resource-observation-analysis.json",
+      "sha256": "b5762cc141e850bc10ed2f5fca93d101e46d7245b3f2d4d8d49ff2c5002c9775"
+    },
+    "local_results": {
+      "path": "docs/reports/s3-hardening/closeout002-c6-resources/results.json",
+      "sha256": "2422284678b9d5927cbd136115856f16d6e9f77b943a195bace31a4fbe133fcd"
+    },
+    "cluster_results": {
+      "path": "docs/reports/s3-hardening/closeout002-c6-resources-cluster/results.json",
+      "sha256": "3f873ed87c57f40609cb6e9bf789d844811bd4c24e5e15fdae7110a6bacd9d9a"
+    },
+    "faults": {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c6/faults.json",
+      "sha256": "360c67a4409510ba0572adf74901045ef9bf21dfd962a3cc21df3a2a454df62e"
+    },
+    "crashes": {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c6/crashes.json",
+      "sha256": "017209194444117842186813a7c0ff589d0daf21ea9c25395b13499b9e549aee"
+    },
+    "resilience": {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c6/resilience.json",
+      "sha256": "247fff0da96e7b7dd0a8ba3381dfd42c47d7a34fadc9f04171b3ae8c75c563a0"
+    },
+    "restore": {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c6/restore.json",
+      "sha256": "8e6c3d8e5f3568b92bfbc0bf92c3cccaa46f13a24798acdabb1d20131076afd3"
+    },
+    "terminal_cleanup": {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c6/terminal-cleanup.json",
+      "sha256": "5e4e0c48437d8f6fcbe0805cf193310a86e16578f21deaa083054ce05370fb57"
+    },
+    "authoritative_driver": {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c6/invocation.json",
+      "sha256": "e60eafe64831ef309bb679df2e2ee13d756aac18178e97c47bc9e51813c97d5b"
+    },
+    "retry_driver": {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c6/cache-prerequisite-retry/invocation.json",
+      "sha256": "1d01d8331b4cdcd20fa36653e78f52c7cdfe54c25e6fbac92e685aab8b730a1b"
+    },
+    "resource_2gib_log": {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c6/resources-3.log",
+      "sha256": "fef8429cfb3d2fd50ec916d9c4b57011bdb29e8bcb7686dc5924278aabc63a41"
+    },
+    "original_acceptance": {
+      "path": "docs/plans/s3-hardening-acceptance.md",
+      "sha256": "363ada2570bb320613e00cbed6c30f0073d0b644df493a44046ebeb64e85096c"
+    },
+    "internal_clause_map": {
+      "path": "docs/reports/s3-hardening/closeout-002/clause-map-a29-a38.json",
+      "sha256": "30c1a5dbdf66850a9c309a6917d3d612fe105466586da591188a0d010d2d2e71"
+    },
+    "c6-local-terminal-staging.json": {
+      "path": "/fast/build/ess-closeout-c6-acceptance/c6-local-terminal-staging.json",
+      "sha256": "4588ec4118e58fb1312a62f513491f327db96303665090e4f79e5fa977877649"
+    },
+    "inventory_c6_local_stages.py": {
+      "path": "/fast/build/ess-closeout-c6-acceptance/inventory_c6_local_stages.py",
+      "sha256": "8c77c373dc00379a1ed0390edf1fee2b2d9257778887d90ef0e544a384fb0cbf"
+    },
+    "test_inventory_c6_local_stages.py": {
+      "path": "/fast/build/ess-closeout-c6-acceptance/test_inventory_c6_local_stages.py",
+      "sha256": "5b6989586a40e7b437e8ea64728dec9ff28d6b370b16c8c9ebdbc7ef2ac3817d"
+    }
+  }
+}

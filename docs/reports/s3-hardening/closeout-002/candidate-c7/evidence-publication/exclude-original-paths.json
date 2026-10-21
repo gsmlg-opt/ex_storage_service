@@ -1,0 +1,12 @@
+[
+  "docs/reports/s3-hardening/closeout002-c7-faults/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c7-resources-cluster/samples/data-a/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c7-resources-cluster/samples/data-b/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c7-resources-cluster/samples/meta/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c7-resources/samples.jsonl",
+  "docs/reports/s3-hardening/closeout002-c7-restore-cluster/recovered-data-a-active.log",
+  "docs/reports/s3-hardening/closeout002-c7-restore-cluster/recovered-data-b-active.log",
+  "docs/reports/s3-hardening/closeout002-c7-restore-cluster/source-data-a-source.log",
+  "docs/reports/s3-hardening/closeout002-c7-restore-standalone/recovered-data-a-active.log",
+  "docs/reports/s3-hardening/closeout002-c7-restore-standalone/source-data-a-source.log"
+]

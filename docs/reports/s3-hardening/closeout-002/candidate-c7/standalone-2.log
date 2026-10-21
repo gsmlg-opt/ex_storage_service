@@ -1,0 +1,4 @@
+e2e exercise passed; persistence object left at s3://e2e-1792539423-b402d04cd3/persist/restart-check.txt
+e2e persistence passed; cleaned up s3://e2e-1792539423-b402d04cd3
+{"boto3": "1.43.114", "botocore": "1.43.114", "checks": ["unchanged-s3-compat-exercise", "admin-and-metrics", "retained-root-sigkill-restart", "unchanged-s3-compat-persistence-and-cleanup"], "complete": true, "persistence_sha256": "c423834d9b9c9bc8a1351dce4c015af8bc3dc2336fb80b18149c0c6ec4442663", "profile": "retained-standalone-sdk-admin-persistence", "source_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd"}
+Retained standalone root /tmp/ess-hardening-retained-7gePoRIW; private runtime logs retained; exit 0

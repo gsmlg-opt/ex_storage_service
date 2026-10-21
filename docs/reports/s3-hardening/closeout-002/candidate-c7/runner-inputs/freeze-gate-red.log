@@ -1,0 +1,102 @@
+test_child_failure_is_preserved (__main__.FreezeGateTest.test_child_failure_is_preserved) ... ERROR
+test_drift_does_not_replace_an_existing_child_failure (__main__.FreezeGateTest.test_drift_does_not_replace_an_existing_child_failure) ... ERROR
+test_each_frozen_input_drift_fails_a_successful_child (__main__.FreezeGateTest.test_each_frozen_input_drift_fails_a_successful_child) ... 
+  test_each_frozen_input_drift_fails_a_successful_child (__main__.FreezeGateTest.test_each_frozen_input_drift_fails_a_successful_child) (changed='sha') ... FAIL
+  test_each_frozen_input_drift_fails_a_successful_child (__main__.FreezeGateTest.test_each_frozen_input_drift_fails_a_successful_child) (changed='source') ... FAIL
+  test_each_frozen_input_drift_fails_a_successful_child (__main__.FreezeGateTest.test_each_frozen_input_drift_fails_a_successful_child) (changed='envelope') ... FAIL
+  test_each_frozen_input_drift_fails_a_successful_child (__main__.FreezeGateTest.test_each_frozen_input_drift_fails_a_successful_child) (changed='runner') ... FAIL
+test_regression_is_archived_with_driver_inputs (__main__.FreezeGateTest.test_regression_is_archived_with_driver_inputs) ... FAIL
+test_unchanged_success_preserves_child_outcome (__main__.FreezeGateTest.test_unchanged_success_preserves_child_outcome) ... ERROR
+
+======================================================================
+ERROR: test_child_failure_is_preserved (__main__.FreezeGateTest.test_child_failure_is_preserved)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/fast/build/ess-closeout-c7-acceptance/test_runner_freeze_gate.py", line 73, in test_child_failure_is_preserved
+    self.assertEqual(124, result["child_exit_status"])
+                          ~~~~~~^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'child_exit_status'
+
+======================================================================
+ERROR: test_drift_does_not_replace_an_existing_child_failure (__main__.FreezeGateTest.test_drift_does_not_replace_an_existing_child_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/fast/build/ess-closeout-c7-acceptance/test_runner_freeze_gate.py", line 80, in test_drift_does_not_replace_an_existing_child_failure
+    self.assertEqual(7, result["child_exit_status"])
+                        ~~~~~~^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'child_exit_status'
+
+======================================================================
+ERROR: test_unchanged_success_preserves_child_outcome (__main__.FreezeGateTest.test_unchanged_success_preserves_child_outcome)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/fast/build/ess-closeout-c7-acceptance/test_runner_freeze_gate.py", line 57, in test_unchanged_success_preserves_child_outcome
+    self.assertEqual(0, result["child_exit_status"])
+                        ~~~~~~^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'child_exit_status'
+
+======================================================================
+FAIL: test_each_frozen_input_drift_fails_a_successful_child (__main__.FreezeGateTest.test_each_frozen_input_drift_fails_a_successful_child) (changed='sha')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/fast/build/ess-closeout-c7-acceptance/test_runner_freeze_gate.py", line 64, in test_each_frozen_input_drift_fails_a_successful_child
+    self.assertEqual("failed", result["status"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'failed' != 'passed'
+- failed
++ passed
+
+
+======================================================================
+FAIL: test_each_frozen_input_drift_fails_a_successful_child (__main__.FreezeGateTest.test_each_frozen_input_drift_fails_a_successful_child) (changed='source')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/fast/build/ess-closeout-c7-acceptance/test_runner_freeze_gate.py", line 64, in test_each_frozen_input_drift_fails_a_successful_child
+    self.assertEqual("failed", result["status"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'failed' != 'passed'
+- failed
++ passed
+
+
+======================================================================
+FAIL: test_each_frozen_input_drift_fails_a_successful_child (__main__.FreezeGateTest.test_each_frozen_input_drift_fails_a_successful_child) (changed='envelope')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/fast/build/ess-closeout-c7-acceptance/test_runner_freeze_gate.py", line 64, in test_each_frozen_input_drift_fails_a_successful_child
+    self.assertEqual("failed", result["status"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'failed' != 'passed'
+- failed
++ passed
+
+
+======================================================================
+FAIL: test_each_frozen_input_drift_fails_a_successful_child (__main__.FreezeGateTest.test_each_frozen_input_drift_fails_a_successful_child) (changed='runner')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/fast/build/ess-closeout-c7-acceptance/test_runner_freeze_gate.py", line 64, in test_each_frozen_input_drift_fails_a_successful_child
+    self.assertEqual("failed", result["status"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'failed' != 'passed'
+- failed
++ passed
+
+
+======================================================================
+FAIL: test_regression_is_archived_with_driver_inputs (__main__.FreezeGateTest.test_regression_is_archived_with_driver_inputs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/fast/build/ess-closeout-c7-acceptance/test_runner_freeze_gate.py", line 84, in test_regression_is_archived_with_driver_inputs
+    self.assertIn(DRIVER.with_name("test_runner_freeze_gate.py").name,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  [node.value for node in ast.walk(ast.parse(DRIVER.read_text()))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   if isinstance(node, ast.Constant) and isinstance(node.value, str)])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'test_runner_freeze_gate.py' not found in ['/tmp/ess-s3-hardening-python/bin/python', '/tmp/ess-s3-hardening-tools/mc', "import sys,json,pathlib,subprocess;sys.path.insert(0,'e2e');from resource_cases import runner_details;v=runner_details('/tmp');v['disk_identity']=subprocess.check_output(['lsblk','-o','NAME,TYPE,FSTYPE,SIZE,ROTA,MOUNTPOINTS'],text=True);v['process_load']=subprocess.check_output(['ps','-eo','pid,comm,pcpu,rss','--sort=-pcpu'],text=True).splitlines()[:25];print(json.dumps(v,indent=2))", '/home/gao/Workspace/gsmlg-opt/ex_storage_service', 'docs/reports/s3-hardening/closeout-002/candidate-c7', 'default', 'instances', 'defaults', 'ess-closeout-c7-buildx-config', 'AWS_REQUEST_CHECKSUM_CALCULATION', 'AWS_RESPONSE_CHECKSUM_VALIDATION', 'runner-inputs', 'e2e/hardening_acceptance.py', 'run', '--profile', 'all', '--python', '--mc', '--label', 'closeout002-c7', '--output', 'freeze.json', 'runner-before.json', 'invocation.json', 'invocation.json', 'BUILDX_CONFIG', 'unexpected inherited Buildx configuration', 'unvalidated Docker context', 'tmp', 'cat', '+S 4:4 +SDcpu 2 +SDio 2', 'uncommitted executable input before candidate freeze', 'refusing to replace candidate evidence', 'namespace-command.json', 'prerequisite.json', 'prerequisite-r2.json', 'buildx-prerequisite.json', 'probe_private_buildx.py', 'sha', 'source_fingerprint', 'ESS-S3-HARDENING-CLOSEOUT-002', 'b17282d96a58eff962a35d807c9e7adb39af4774', 'all executable inputs committed; report-only writes permitted', 'e2e/hardening_acceptance.py:executable_input/source_fingerprint; sorted cached and nonignored untracked names; name NUL contents NUL; apps/config/e2e/scripts/.github, Mix/npm manifests/locks, Docker inputs, formatter and docs/cli/compatibility JSON included; other reports/docs excluded. Runner invocation inputs separately archived and hashed below; installed dependency versions constrained by mix.lock.', 'Phase1 fixture admission charges all setup requests and reserves each complete 32-thread race before releasing its barrier, retaining production100/20 limiter and one-attempt signing/checksums/concurrency. Resource stage-file inventories include empty and hidden stages outside measured windows; observer PID reads treat kernel ESRCH as disappeared identity while preserving permission/I/O/parse errors. Private writable NPM cache and supported BUILDX_CONFIG client metadata repair read-only runner prerequisites. No dependency/service-runtime/domain change, no auth/checksum/RF/W/dataset/profile/cadence/envelope change.', 'not_attempted; full acceptance prerequisite', 'namespace changed Docker connection context', 'in_progress', 'xb', 'BUILDX_BUILDER', '', 'default', '/home/gao/.docker/buildx', 'unvalidated custom Buildx builder state', '/tmp/', 'checksum override must remain unset', 'e2e/hardening_acceptance.py', '\n', '--', '-c', 'passed', 'failed', 'namespace-command.json', 'docker', 'context', 'show', 'git', 'diff', '--name-only', 'HEAD', 'git', 'ls-files', '--others', '--exclude-standard', 'executable_input', 'source_fingerprint', 'mix.lock', 'docs/plans/s3-hardening-resource-envelope.md', '69371bc0c2d00f63fd8f3ff0edc751c28a02d441', '97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb', 'docs/reports/s3-hardening/closeout-002/candidate-c6', 'cat', 'unset', 'serial', 'private /tmp mapped to /fast/build/ess-closeout-c7-acceptance/tmp (NVMe ext4); host PID namespace retained for observer identity; nested restore namespaces permitted by disposable proc mount', '0 unchanged', '1 through every restart/activation', 'original 100 ms coverage and predeclared envelopes unchanged', 'absent', 'original default Docker context/config/socket retained read-only; private Buildx client activity state only', 'independent writable copy of previously verified task-owned NPM cache; original host cache untouched', 'authoritative-run.log', 'sha', 'source_fingerprint', 'resource_envelope_sha256', 'ERL_FLAGS', 'BUILDX_CONFIG', '--', 'docker', 'context', 'show', '--', '--', 'docs/plans/s3-hardening-resource-envelope.md', '-m', 'pip', 'freeze']
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.012s
+
+FAILED (failures=5, errors=3)

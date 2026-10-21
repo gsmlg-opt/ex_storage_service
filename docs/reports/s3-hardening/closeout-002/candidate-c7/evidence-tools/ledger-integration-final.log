@@ -1,0 +1,22 @@
+{
+  "rows": {
+    "passed": 36,
+    "blocked": 2
+  },
+  "clauses": {
+    "passed": 149,
+    "blocked": 9
+  },
+  "passed_profiles": [
+    "correctness",
+    "standalone",
+    "gateway",
+    "cluster",
+    "resources",
+    "faults",
+    "crashes",
+    "resilience",
+    "restore",
+    "release"
+  ]
+}

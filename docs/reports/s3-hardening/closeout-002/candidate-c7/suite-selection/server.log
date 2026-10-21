@@ -1,0 +1,83 @@
+==> ex_storage_service
+Running ExUnit with seed: 435420, max_cases: 1
+Excluding tags: [cluster: true]
+
+............................................................................................................................................................................................................................................................................07:27:00.130 [error] Replication DELETE failed for bucket/key to http://127.0.0.1:59107: HTTP 503 - ""
+.....07:27:00.186 [error] CloudCache DELETE failed remote/key: HTTP 403 — ""
+..........................................................................................................................................................................................................................................................................................07:27:26.829 [warning] CAS migration: content missing for version-profile-7010 hash d0086d15ee65fd44ccaca558301cf2a226e253fdc2384aa5befcfcbea079f2f7
+07:27:26.829 [warning] CAS migration: content missing for version-profile-6962 hash 2d00952c2753996ffe88156196e285a6196e2f1d19e7c3585c083efe47bbc178
+07:27:26.841 [warning] CAS migration: content missing for version-profile-6930 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+.07:27:26.869 [warning] CAS migration: content missing for version-profile-7010 hash d0086d15ee65fd44ccaca558301cf2a226e253fdc2384aa5befcfcbea079f2f7
+07:27:26.869 [warning] CAS migration: content missing for version-profile-6962 hash 2d00952c2753996ffe88156196e285a6196e2f1d19e7c3585c083efe47bbc178
+07:27:26.870 [warning] CAS migration: content missing for version-profile-6930 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+.07:27:26.871 [warning] CAS migration: content missing for mig-4499 hash 955c4d36b1437242c773a613764914d55d856762d3580efe95673fddb3bedfa9
+07:27:26.910 [warning] CAS migration: content missing for version-profile-7010 hash d0086d15ee65fd44ccaca558301cf2a226e253fdc2384aa5befcfcbea079f2f7
+07:27:26.910 [warning] CAS migration: content missing for version-profile-6962 hash 2d00952c2753996ffe88156196e285a6196e2f1d19e7c3585c083efe47bbc178
+07:27:26.911 [warning] CAS migration: content missing for version-profile-6930 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+07:27:26.911 [warning] CAS migration: content missing for mig-4499 hash 955c4d36b1437242c773a613764914d55d856762d3580efe95673fddb3bedfa9
+07:27:26.913 [warning] CAS migration: content missing for version-profile-7010 hash d0086d15ee65fd44ccaca558301cf2a226e253fdc2384aa5befcfcbea079f2f7
+07:27:26.913 [warning] CAS migration: content missing for version-profile-6962 hash 2d00952c2753996ffe88156196e285a6196e2f1d19e7c3585c083efe47bbc178
+07:27:26.914 [warning] CAS migration: content missing for version-profile-6930 hash c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84
+07:27:26.914 [warning] CAS migration: content missing for mig-4499 hash 955c4d36b1437242c773a613764914d55d856762d3580efe95673fddb3bedfa9
+.....07:27:29.518 [warning] CasGC: failed to delete e4d9de99c0b598a38dde241025b3e6117969b0739a5c16df0c378783f3467327: :invalid_quarantine_path
+.............07:27:30.858 [warning] ContentGC: metadata scan failed; sweep aborted: :metadata_unavailable
+...............................
+Finished in 43.7 seconds (12.8s async, 30.8s sync)
+607 tests, 0 failures, 1 excluded
+==> ex_storage_service_cluster
+Running ExUnit with seed: 435420, max_cases: 1
+Excluding tags: [large_stream: true]
+
+.......................................
+Finished in 0.8 seconds (0.8s async, 0.00s sync)
+40 tests, 0 failures, 1 excluded
+==> ex_storage_service_cli
+Running ExUnit with seed: 435420, max_cases: 1
+Excluding tags: [large_stream: true]
+
+...................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................[31m✗ Error:[0m Download failed: Unsafe local download destination
+......................................{"port":39691,"host":"127.0.0.1","method":"HEAD","event":"request","operation":"HeadObject","attempt":1,"region":"us-east-1"}
+{"status":200,"event":"response","operation":"HeadObject"}
+......................................ESS_RESOURCE_EVIDENCE {"small":{"size":1048576,"requests":{"active":0,"maximum":1,"bytes":0,"queued":0,"high_bytes":131072,"high_requests":1},"samples":7,"peak_total":185348864,"baseline_total":184725312,"peak_binary":21775760,"baseline_binary":21453824,"peak_processes":914,"baseline_processes":907,"peak_mailbox":0,"peak_staging":917504},"budget":1048576,"large":{"size":67108864,"requests":{"active":0,"maximum":1,"bytes":0,"queued":0,"high_bytes":131072,"high_requests":1},"samples":403,"peak_total":186263648,"baseline_total":184683688,"peak_binary":22604808,"baseline_binary":21384208,"peak_processes":918,"baseline_processes":908,"peak_mailbox":2,"peak_staging":67108864},"fixed_overhead":67108864}
+....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+Finished in 415.5 seconds (174.6s async, 240.8s sync)
+3491 tests, 0 failures
+==> ex_storage_service_s3
+Running ExUnit with seed: 435420, max_cases: 1
+Excluding tags: [large_stream: true]
+
+............generated XML corpus: 5402 rejected cases, max input 4096 bytes
+..........................07:34:32.317 request_id=request-phase7-incomplete [warning] blob response stream terminated
+...07:34:32.327 [error] S3 storage operation failed: :eio
+.....................................................07:34:32.883 [warning] SigV4 auth failed: Missing Authorization header — POST /health/cloud_cache
+..........07:34:35.584 [error] Replication PUT failed for source/broken.bin to http://localhost:9001: {:request_failed, %ExStorageService.BlobStore.Source.RequestBodyError{reason: :upstream_closed}}
+...07:34:35.941 [error] Replication PUT repl-24706/d.txt: content "34b79ebbbdd248cd400be53835923b81af125e4c4bc956444f3f0701751007e0" missing from storage
+............................................................07:34:49.506 [warning] SigV4 auth failed: SignatureDoesNotMatch — GET /
+.....................................07:34:52.548 [warning] SigV4 auth failed: Missing Authorization header — HEAD /signature
+.07:34:52.552 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+07:34:52.552 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+.07:34:52.557 [warning] SigV4 auth failed: Missing Authorization header — PUT /signature
+.............................07:35:09.545 [error] 4234- fatal: :unexpected_end
+
+07:35:09.551 [error] 4234- fatal: :unexpected_end
+
+07:35:09.563 [error] 4234- fatal: :unexpected_end
+
+07:35:09.564 [error] 4234- fatal: :unexpected_end
+
+07:35:09.576 [error] 4234- fatal: :unexpected_end
+
+07:35:09.577 [error] 4234- fatal: :unexpected_end
+
+......................................................................................................07:35:52.438 [warning] SigV4 auth failed: Missing Authorization header — OPTIONS /cors-http-27490/key
+07:35:52.442 [warning] SigV4 auth failed: Missing Authorization header — GET /cors-http-27490/key
+.....................................
+Finished in 89.4 seconds (1.2s async, 88.1s sync)
+374 tests, 0 failures
+==> ex_storage_service_web
+Running ExUnit with seed: 435420, max_cases: 1
+Excluding tags: [large_stream: true]
+
+.....................
+Finished in 0.2 seconds (0.1s async, 0.1s sync)
+21 tests, 0 failures

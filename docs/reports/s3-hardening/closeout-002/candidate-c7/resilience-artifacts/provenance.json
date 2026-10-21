@@ -1,0 +1,9 @@
+{
+  "kind": "byte_identical_terminal_receipt_copy",
+  "candidate_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd",
+  "source_sha256": "ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913",
+  "source": "docs/reports/s3-hardening/closeout002-c7-resilience-result.json",
+  "copy": "docs/reports/s3-hardening/closeout-002/candidate-c7/resilience-artifacts/resilience-result.json",
+  "bytes": 18744,
+  "sha256": "f41c311dde5487824bfe33ab0083186beb7bed9705a1e3225fb80cba75e7e501"
+}

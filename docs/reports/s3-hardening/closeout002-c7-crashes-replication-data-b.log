@@ -1,0 +1,38 @@
+
+===== start data-b bootstrap=true at 2026-10-21T00:10:59Z =====
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 826073)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 826065)
+[0mWaiting for lock on the build directory (held by process 826065)
+[0mWaiting for lock on the build directory (held by process 826065)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 826065)
+[0mWaiting for lock on the build directory (held by process 826073)
+[0mWaiting for lock on the build directory (held by process 826065)
+[0mWaiting for lock on the build directory (held by process 826073)
+==> ex_storage_service_web
+[0mWaiting for lock on the build directory (held by process 826073)
+08:11:00.062 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+08:11:00.074 [info] Starting Concord TTL manager with cleanup interval: 300000s
+08:11:00.133 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-MQ8AmX6A/data-b and blob root /tmp/ess-s3-hardening-cluster-MQ8AmX6A/data-b/blob
+08:11:00.145 [info] Concord VSR metadata quorum ready
+08:11:00.168 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9102 (http)
+08:11:00.172 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9002 (http)
+
+===== start data-b bootstrap=false at 2026-10-21T00:11:02Z =====
+08:11:02.772 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+08:11:02.782 [info] Starting Concord TTL manager with cleanup interval: 300000s
+08:11:02.830 [info] Storage engine started with data root /tmp/ess-s3-hardening-cluster-MQ8AmX6A/data-b and blob root /tmp/ess-s3-hardening-cluster-MQ8AmX6A/data-b/blob
+08:11:02.837 [info] Concord VSR metadata quorum ready
+08:11:02.859 [info] Running ExStorageServiceCluster.Router with Bandit 1.12.5 at 127.0.0.1:9102 (http)
+08:11:02.863 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:9002 (http)
+08:11:03.821 [warning] 'global' at node :"ess_data_b@127.0.0.1" requested disconnect from node :"replication_ctl_667876312e@127.0.0.1" in order to prevent overlapping partitions
+08:11:05.546 [notice] SIGTERM received - shutting down
+

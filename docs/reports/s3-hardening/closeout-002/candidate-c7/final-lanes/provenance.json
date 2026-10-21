@@ -1,0 +1,453 @@
+{
+  "schema": 1,
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "candidate_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd",
+  "source_sha256": "ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913",
+  "policy": "All selected lane bytes are validated snapshots of the single actual terminal C7 authoritative run. Passed lanes require the complete producer command inventory and zero exits; blocked prefixes and their unexecuted commands remain explicit negative evidence. This selection does not certify semantic clauses or aggregate acceptance.",
+  "terminal_invocations": [
+    {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/invocation.json",
+      "bytes": 1700,
+      "sha256": "8ee26c6f1e89c64b121380c5409f3a6ae584211feabb5db27a45f875e6161e7c",
+      "status": "failed",
+      "exit_status": 1
+    }
+  ],
+  "selections": [
+    {
+      "profile": "correctness",
+      "original": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/correctness.json",
+        "bytes": 1728,
+        "sha256": "f7bf88cf16b1a8e3f0b9803cd34ef5bb5e460eae86dc8270a64b8a98e0e0cf00"
+      },
+      "original_status": "passed",
+      "selected_source": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/correctness.json",
+        "bytes": 1728,
+        "sha256": "f7bf88cf16b1a8e3f0b9803cd34ef5bb5e460eae86dc8270a64b8a98e0e0cf00"
+      },
+      "selected": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/final-lanes/correctness.json",
+        "bytes": 1728,
+        "sha256": "f7bf88cf16b1a8e3f0b9803cd34ef5bb5e460eae86dc8270a64b8a98e0e0cf00"
+      },
+      "selected_status": "passed",
+      "actual_command_exit_statuses": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "validation": {
+        "profile": "correctness",
+        "status": "passed",
+        "complete": true,
+        "expected_command_count": 4,
+        "executed_command_count": 4,
+        "successful_command_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "failed_command_indices": [],
+        "unexecuted_command_indices": []
+      },
+      "used_retry": false
+    },
+    {
+      "profile": "standalone",
+      "original": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/standalone.json",
+        "bytes": 1348,
+        "sha256": "a48e84e228b4c2aaad6dc91722c550b419a3d4e8045e0eb794f7166a3efe350a"
+      },
+      "original_status": "passed",
+      "selected_source": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/standalone.json",
+        "bytes": 1348,
+        "sha256": "a48e84e228b4c2aaad6dc91722c550b419a3d4e8045e0eb794f7166a3efe350a"
+      },
+      "selected": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/final-lanes/standalone.json",
+        "bytes": 1348,
+        "sha256": "a48e84e228b4c2aaad6dc91722c550b419a3d4e8045e0eb794f7166a3efe350a"
+      },
+      "selected_status": "passed",
+      "actual_command_exit_statuses": [
+        0,
+        0,
+        0
+      ],
+      "validation": {
+        "profile": "standalone",
+        "status": "passed",
+        "complete": true,
+        "expected_command_count": 3,
+        "executed_command_count": 3,
+        "successful_command_indices": [
+          0,
+          1,
+          2
+        ],
+        "failed_command_indices": [],
+        "unexecuted_command_indices": []
+      },
+      "used_retry": false
+    },
+    {
+      "profile": "gateway",
+      "original": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/gateway.json",
+        "bytes": 1036,
+        "sha256": "d4a5c72a5cd722b1deaca946871f6203088751081e23b38f2d52e217e5fa026c"
+      },
+      "original_status": "passed",
+      "selected_source": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/gateway.json",
+        "bytes": 1036,
+        "sha256": "d4a5c72a5cd722b1deaca946871f6203088751081e23b38f2d52e217e5fa026c"
+      },
+      "selected": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/final-lanes/gateway.json",
+        "bytes": 1036,
+        "sha256": "d4a5c72a5cd722b1deaca946871f6203088751081e23b38f2d52e217e5fa026c"
+      },
+      "selected_status": "passed",
+      "actual_command_exit_statuses": [
+        0,
+        0
+      ],
+      "validation": {
+        "profile": "gateway",
+        "status": "passed",
+        "complete": true,
+        "expected_command_count": 2,
+        "executed_command_count": 2,
+        "successful_command_indices": [
+          0,
+          1
+        ],
+        "failed_command_indices": [],
+        "unexecuted_command_indices": []
+      },
+      "used_retry": false
+    },
+    {
+      "profile": "cluster",
+      "original": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/cluster.json",
+        "bytes": 1331,
+        "sha256": "fda447fa28003f47e3373d2f01a4bc79e84067000da999af9a05464fdcdd45ce"
+      },
+      "original_status": "passed",
+      "selected_source": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/cluster.json",
+        "bytes": 1331,
+        "sha256": "fda447fa28003f47e3373d2f01a4bc79e84067000da999af9a05464fdcdd45ce"
+      },
+      "selected": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/final-lanes/cluster.json",
+        "bytes": 1331,
+        "sha256": "fda447fa28003f47e3373d2f01a4bc79e84067000da999af9a05464fdcdd45ce"
+      },
+      "selected_status": "passed",
+      "actual_command_exit_statuses": [
+        0,
+        0,
+        0
+      ],
+      "validation": {
+        "profile": "cluster",
+        "status": "passed",
+        "complete": true,
+        "expected_command_count": 3,
+        "executed_command_count": 3,
+        "successful_command_indices": [
+          0,
+          1,
+          2
+        ],
+        "failed_command_indices": [],
+        "unexecuted_command_indices": []
+      },
+      "used_retry": false
+    },
+    {
+      "profile": "index",
+      "original": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/index.json",
+        "bytes": 1353,
+        "sha256": "d372bffec5b1c1f33ffbebfb54885359b11ad835e8d07e0f031246c1f66d3b7f"
+      },
+      "original_status": "blocked",
+      "selected_source": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/index.json",
+        "bytes": 1353,
+        "sha256": "d372bffec5b1c1f33ffbebfb54885359b11ad835e8d07e0f031246c1f66d3b7f"
+      },
+      "selected": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/final-lanes/index.json",
+        "bytes": 1353,
+        "sha256": "d372bffec5b1c1f33ffbebfb54885359b11ad835e8d07e0f031246c1f66d3b7f"
+      },
+      "selected_status": "blocked",
+      "actual_command_exit_statuses": [
+        0,
+        1,
+        0
+      ],
+      "validation": {
+        "profile": "index",
+        "status": "blocked",
+        "complete": true,
+        "expected_command_count": 3,
+        "executed_command_count": 3,
+        "successful_command_indices": [
+          0,
+          2
+        ],
+        "failed_command_indices": [
+          1
+        ],
+        "unexecuted_command_indices": []
+      },
+      "used_retry": false
+    },
+    {
+      "profile": "resources",
+      "original": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/resources.json",
+        "bytes": 1767,
+        "sha256": "3f2884401788c9e39663ca78bda17ea44928c06220dfec46787c41abedc6701b"
+      },
+      "original_status": "passed",
+      "selected_source": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/resources.json",
+        "bytes": 1767,
+        "sha256": "3f2884401788c9e39663ca78bda17ea44928c06220dfec46787c41abedc6701b"
+      },
+      "selected": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/final-lanes/resources.json",
+        "bytes": 1767,
+        "sha256": "3f2884401788c9e39663ca78bda17ea44928c06220dfec46787c41abedc6701b"
+      },
+      "selected_status": "passed",
+      "actual_command_exit_statuses": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "validation": {
+        "profile": "resources",
+        "status": "passed",
+        "complete": true,
+        "expected_command_count": 4,
+        "executed_command_count": 4,
+        "successful_command_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "failed_command_indices": [],
+        "unexecuted_command_indices": []
+      },
+      "used_retry": false
+    },
+    {
+      "profile": "faults",
+      "original": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/faults.json",
+        "bytes": 952,
+        "sha256": "96c4a1107ff8e178b528b18b920518b1b09800199523c28764679d86f73b71f9"
+      },
+      "original_status": "passed",
+      "selected_source": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/faults.json",
+        "bytes": 952,
+        "sha256": "96c4a1107ff8e178b528b18b920518b1b09800199523c28764679d86f73b71f9"
+      },
+      "selected": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/final-lanes/faults.json",
+        "bytes": 952,
+        "sha256": "96c4a1107ff8e178b528b18b920518b1b09800199523c28764679d86f73b71f9"
+      },
+      "selected_status": "passed",
+      "actual_command_exit_statuses": [
+        0,
+        0
+      ],
+      "validation": {
+        "profile": "faults",
+        "status": "passed",
+        "complete": true,
+        "expected_command_count": 2,
+        "executed_command_count": 2,
+        "successful_command_indices": [
+          0,
+          1
+        ],
+        "failed_command_indices": [],
+        "unexecuted_command_indices": []
+      },
+      "used_retry": false
+    },
+    {
+      "profile": "crashes",
+      "original": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/crashes.json",
+        "bytes": 1320,
+        "sha256": "dbef3f918bbe5ed4bbd2d111e44b1e43e5278f3803ea60c2dd8781ebff12bbc5"
+      },
+      "original_status": "passed",
+      "selected_source": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/crashes.json",
+        "bytes": 1320,
+        "sha256": "dbef3f918bbe5ed4bbd2d111e44b1e43e5278f3803ea60c2dd8781ebff12bbc5"
+      },
+      "selected": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/final-lanes/crashes.json",
+        "bytes": 1320,
+        "sha256": "dbef3f918bbe5ed4bbd2d111e44b1e43e5278f3803ea60c2dd8781ebff12bbc5"
+      },
+      "selected_status": "passed",
+      "actual_command_exit_statuses": [
+        0,
+        0,
+        0
+      ],
+      "validation": {
+        "profile": "crashes",
+        "status": "passed",
+        "complete": true,
+        "expected_command_count": 3,
+        "executed_command_count": 3,
+        "successful_command_indices": [
+          0,
+          1,
+          2
+        ],
+        "failed_command_indices": [],
+        "unexecuted_command_indices": []
+      },
+      "used_retry": false
+    },
+    {
+      "profile": "resilience",
+      "original": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/resilience.json",
+        "bytes": 1338,
+        "sha256": "590aad22cea07c36e84438798c18ccf6ef8e01eda3407abb3fa8b30649c3364c"
+      },
+      "original_status": "passed",
+      "selected_source": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/resilience.json",
+        "bytes": 1338,
+        "sha256": "590aad22cea07c36e84438798c18ccf6ef8e01eda3407abb3fa8b30649c3364c"
+      },
+      "selected": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/final-lanes/resilience.json",
+        "bytes": 1338,
+        "sha256": "590aad22cea07c36e84438798c18ccf6ef8e01eda3407abb3fa8b30649c3364c"
+      },
+      "selected_status": "passed",
+      "actual_command_exit_statuses": [
+        0,
+        0,
+        0
+      ],
+      "validation": {
+        "profile": "resilience",
+        "status": "passed",
+        "complete": true,
+        "expected_command_count": 3,
+        "executed_command_count": 3,
+        "successful_command_indices": [
+          0,
+          1,
+          2
+        ],
+        "failed_command_indices": [],
+        "unexecuted_command_indices": []
+      },
+      "used_retry": false
+    },
+    {
+      "profile": "restore",
+      "original": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/restore.json",
+        "bytes": 972,
+        "sha256": "ef615a218b9ccf7651f1349365124aaa48e4191c0ebc8ebbe025ebb6467243dc"
+      },
+      "original_status": "passed",
+      "selected_source": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/restore.json",
+        "bytes": 972,
+        "sha256": "ef615a218b9ccf7651f1349365124aaa48e4191c0ebc8ebbe025ebb6467243dc"
+      },
+      "selected": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/final-lanes/restore.json",
+        "bytes": 972,
+        "sha256": "ef615a218b9ccf7651f1349365124aaa48e4191c0ebc8ebbe025ebb6467243dc"
+      },
+      "selected_status": "passed",
+      "actual_command_exit_statuses": [
+        0,
+        0
+      ],
+      "validation": {
+        "profile": "restore",
+        "status": "passed",
+        "complete": true,
+        "expected_command_count": 2,
+        "executed_command_count": 2,
+        "successful_command_indices": [
+          0,
+          1
+        ],
+        "failed_command_indices": [],
+        "unexecuted_command_indices": []
+      },
+      "used_retry": false
+    },
+    {
+      "profile": "release",
+      "original": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/release.json",
+        "bytes": 673,
+        "sha256": "d97384eaececc8b57fd0806f2cf7f8c081ea6ba5e7ba1e138922462290a777c3"
+      },
+      "original_status": "passed",
+      "selected_source": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/release.json",
+        "bytes": 673,
+        "sha256": "d97384eaececc8b57fd0806f2cf7f8c081ea6ba5e7ba1e138922462290a777c3"
+      },
+      "selected": {
+        "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/final-lanes/release.json",
+        "bytes": 673,
+        "sha256": "d97384eaececc8b57fd0806f2cf7f8c081ea6ba5e7ba1e138922462290a777c3"
+      },
+      "selected_status": "passed",
+      "actual_command_exit_statuses": [
+        0
+      ],
+      "validation": {
+        "profile": "release",
+        "status": "passed",
+        "complete": true,
+        "expected_command_count": 1,
+        "executed_command_count": 1,
+        "successful_command_indices": [
+          0
+        ],
+        "failed_command_indices": [],
+        "unexecuted_command_indices": []
+      },
+      "used_retry": false
+    }
+  ]
+}

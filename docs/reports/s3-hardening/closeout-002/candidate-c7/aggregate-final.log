@@ -1,0 +1,52 @@
+A28: blocked; every mandatory row must pass
+A38: blocked; every mandatory row must pass
+index: blocked or incomplete execution
+A01: passed
+A02: passed
+A03: passed
+A04: passed
+A05: passed
+A06: passed
+A07: passed
+A08: passed
+A09: passed
+A10: passed
+A11: passed
+A12: passed
+A13: passed
+A14: passed
+A15: passed
+A16: passed
+A17: passed
+A18: passed
+A19: passed
+A20: passed
+A21: passed
+A22: passed
+A23: passed
+A24: passed
+A25: passed
+A26: passed
+A27: passed
+A28: blocked
+A29: passed
+A30: passed
+A31: passed
+A32: passed
+A33: passed
+A34: passed
+A35: passed
+A36: passed
+A37: passed
+A38: blocked
+profile correctness: passed
+profile standalone: passed
+profile gateway: passed
+profile cluster: passed
+profile index: blocked
+profile resources: passed
+profile faults: passed
+profile crashes: passed
+profile resilience: passed
+profile restore: passed
+profile release: passed

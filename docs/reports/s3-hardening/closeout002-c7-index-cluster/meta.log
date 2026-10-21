@@ -1,0 +1,34 @@
+
+===== start meta bootstrap=true at 2026-10-20T23:41:23Z =====
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 815471)
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 815471)
+[0mWaiting for lock on the build directory (held by process 815463)
+[0mWaiting for lock on the build directory (held by process 815471)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 815471)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 815471)
+==> ex_storage_service_web
+[0mWaiting for lock on the build directory (held by process 815463)
+07:41:24.176 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+07:41:24.189 [info] Starting Concord TTL manager with cleanup interval: 300000s
+07:41:24.233 [info] Concord VSR metadata quorum ready
+07:41:26.451 [notice] Application ex_storage_service_s3 exited: :stopped
+07:41:26.455 [notice] Application ex_storage_service_web exited: :stopped
+07:41:26.456 [notice] Application ex_storage_service_cluster exited: :stopped
+crash meta SIGKILL at 2026-10-20T23:41:27Z
+
+===== start meta bootstrap=false at 2026-10-20T23:41:28Z =====
+07:41:29.116 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+07:41:29.126 [info] Starting Concord TTL manager with cleanup interval: 300000s
+07:41:29.424 [info] Concord VSR metadata quorum pending: :quorum_unavailable
+07:41:36.122 [notice] SIGTERM received - shutting down
+

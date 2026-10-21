@@ -1,0 +1,103 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "candidate_sha": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+  "source_sha256": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+  "acceptance": false,
+  "purpose": "supplemental read-only terminal facts for the original C6 resource root",
+  "recorded_at_utc": "2026-10-20T23:20:39.886332+00:00",
+  "virtual_root": "/tmp/ess-hardening-resource-closeout002-c6-resources",
+  "physical_root": "/fast/build/ess-closeout-c6-acceptance/tmp/ess-hardening-resource-closeout002-c6-resources",
+  "provenance": {
+    "docs/reports/s3-hardening/closeout-002/candidate-c6/resources.json": "2b9a493ba3ce027698404d3e4ad7e3f4d8be704d24b931ec08fee0469b1ab061",
+    "docs/reports/s3-hardening/closeout-002/candidate-c6/resource-observation-analysis.json": "b5762cc141e850bc10ed2f5fca93d101e46d7245b3f2d4d8d49ff2c5002c9775",
+    "docs/reports/s3-hardening/closeout-002/candidate-c6/terminal-cleanup.json": "5e4e0c48437d8f6fcbe0805cf193310a86e16578f21deaa083054ce05370fb57",
+    "docs/reports/s3-hardening/closeout-002/candidate-c6/invocation.json": "e60eafe64831ef309bb679df2e2ee13d756aac18178e97c47bc9e51813c97d5b",
+    "docs/reports/s3-hardening/closeout-002/candidate-c6/cache-prerequisite-retry/invocation.json": "1d01d8331b4cdcd20fa36653e78f52c7cdfe54c25e6fbac92e685aab8b730a1b",
+    "docs/reports/s3-hardening/closeout002-c6-resources/results.json": "2422284678b9d5927cbd136115856f16d6e9f77b943a195bace31a4fbe133fcd",
+    "e2e/gateway_hardening.py": "4597482ec736d4a19ac75881907c2ebecd07c538ae9a940990935ca1d4c8e37a",
+    "e2e/s3_hardening_resources.py": "295e3bf45d3c3ba548f35566b1fd1589996746b4eae704e33e11e094438430f7",
+    "e2e/scripts/resource_sampler.exs": "306407303867b029c832def64a635eabf37e5618a928791e78ed6321eaa18e90",
+    "apps/ex_storage_service/lib/ex_storage_service/cloud_cache/local_store.ex": "29987fc645687926250e7f0e7bf4c3a595a3199a21e39fcff49b012aa1d555a7"
+  },
+  "source_provenance": {
+    "method": "git show candidate:path; current source never used",
+    "commit": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+    "paths": [
+      "apps/ex_storage_service/lib/ex_storage_service/cloud_cache/local_store.ex",
+      "e2e/gateway_hardening.py",
+      "e2e/s3_hardening_resources.py",
+      "e2e/scripts/resource_sampler.exs"
+    ]
+  },
+  "limits": [
+    "No regular fixture files or credentials read; metadata only.",
+    "Exact original BEAM/observer identities only; no other descendants verified.",
+    "No per-case historical file counts reconstructed; original post-idle byte samples remain separate.",
+    "Cache final objects excluded; only owned tmp, cache .tmp and .cache-stage- stages counted.",
+    "No resources workload, A30/full aggregate or release pass is inferred.",
+    "No fixtures, containers, connections or processes changed or removed."
+  ],
+  "status": "passed",
+  "root_device": 66305,
+  "root_inode": 18875837,
+  "identity_checks": [
+    {
+      "role": "observer",
+      "expected": {
+        "pid": 764022,
+        "start_ticks": 11099134,
+        "state": "R"
+      },
+      "observed": null,
+      "original_identity_absent": true
+    },
+    {
+      "role": "beam",
+      "expected": {
+        "pid": 763986,
+        "start_ticks": 11099111,
+        "state": "S"
+      },
+      "observed": null,
+      "original_identity_absent": true
+    }
+  ],
+  "inventories": [
+    {
+      "scope": "all_owned_tmp_files",
+      "relative_root": "data/tmp",
+      "state": "observed",
+      "files": 0,
+      "bytes": 0,
+      "zero_byte_files": 0,
+      "directories_visited": 2,
+      "entries_visited": 1,
+      "files_metadata": []
+    },
+    {
+      "scope": "gateway_cache_tmp_suffix",
+      "relative_root": "data/resource-gateway/cache",
+      "state": "observed",
+      "files": 0,
+      "bytes": 0,
+      "zero_byte_files": 0,
+      "directories_visited": 4,
+      "entries_visited": 4,
+      "files_metadata": []
+    },
+    {
+      "scope": "inline_cache_stage_prefix",
+      "relative_root": "data",
+      "state": "observed",
+      "files": 0,
+      "bytes": 0,
+      "zero_byte_files": 0,
+      "directories_visited": 1,
+      "entries_visited": 4,
+      "files_metadata": []
+    }
+  ],
+  "terminal_stage_files": 0,
+  "terminal_stage_bytes": 0,
+  "exit_status": 0
+}

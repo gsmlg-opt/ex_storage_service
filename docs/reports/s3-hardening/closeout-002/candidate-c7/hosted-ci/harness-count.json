@@ -1,0 +1,15 @@
+{
+  "run_id": 39514915408,
+  "run_url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39514915408",
+  "head_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd",
+  "raw_log_sha256": "0279796d61d82568e4a5904c98a3ce2dc1f6912b4dd27c9e3a40fd16d285ef02",
+  "count_lines": [
+    "Core, S3, transport and web correctness\tVerify acceptance harness and release gate contracts\t2026-10-20T23:30:44.2337775Z Ran 122 tests in 24.699s"
+  ],
+  "command_lines": [
+    "Core, S3, transport and web correctness\tVerify acceptance harness and release gate contracts\t\ufeff2026-10-20T23:30:18.8550879Z ##[group]Run python3 -m unittest discover -s e2e -p 'test_*.py'",
+    "Core, S3, transport and web correctness\tVerify acceptance harness and release gate contracts\t2026-10-20T23:30:18.8551383Z ^[[36;1mpython3 -m unittest discover -s e2e -p 'test_*.py'^[[0m"
+  ],
+  "tests": 122,
+  "scope": "Count extracted from successful hosted harness step; job/step outcomes retained separately."
+}

@@ -1,0 +1,28 @@
+{
+  "candidate_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd",
+  "source_sha256": "ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913",
+  "scope": "Automatic push and PR correctness plus strict CI; not heavy/all38 acceptance.",
+  "push_test_run": 39514908019,
+  "pr_test_run": 39514915408,
+  "push_compile_run": 39514907872,
+  "pr_compile_run": 39514915073,
+  "server_tests": 1040,
+  "cli_contract_tests": 11,
+  "python_harness_tests": 122,
+  "application_test_count_sources": "Independent downloaded push and PR suite-selection receipts agree exactly.",
+  "python_count_source": "harness-count.json from PR job; push job harness step also successful.",
+  "status": "passed",
+  "evidence_hashes": {
+    "39514915408.json": "25e0575563200e3e908b68116ca29ab12087d8e064df31f9be5ef62268b63d8e",
+    "harness-count.json": "c7b6950a63e0bab5b61c966a6977040a21d7f52d3a8043ef33461c2ed34e5f3e",
+    "39514908019.json": "17b771d50f070b29e4810b7c8ea60a0ebe7e0c5d724b50a45742a6acb0c66589",
+    "39514907872.json": "bb402858ea8d929f56848ca43b25c6cb90ce1879b42a25122df72bdb1010a675",
+    "39514915073.json": "7797352d35d99fe2bae28a55b9e5f8b6213ae1f572ea6430b8840db2ab2fd573",
+    "suite-selection/correctness.json": "8e4011487dc069066379a9e14b5e97dfe094acbf34e2da0e723eae34a8b67d87",
+    "suite-selection/cli.log": "a274ae9984ed171cdefbadf8a72a3892f0a2f61d8ef4601a10ded891951ff555",
+    "suite-selection/server.log": "fba7f975db3f843aadd3fa1d30ff221fde918f7e6ea0fb27e7606b06a9285358",
+    "push-suite-selection/correctness.json": "8e4011487dc069066379a9e14b5e97dfe094acbf34e2da0e723eae34a8b67d87",
+    "push-suite-selection/cli.log": "feda529311060829e2ad0442ce8192be88a1e3f8c79db5ed8c32db5f9fd6624e",
+    "push-suite-selection/server.log": "f8f4b634bf6a6edb150a1ceb00fd5127f50f41d6b8d6361acdb32fe10760d92d"
+  }
+}

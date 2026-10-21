@@ -1,0 +1,93 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "checked_at": "2026-10-20T23:27:35.151Z",
+  "candidate_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd",
+  "source_sha256": "ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913",
+  "status": "blocked",
+  "acceptance": false,
+  "scope": "Read-only live upstream status, not a workload or dependency fix certification.",
+  "observations": [
+    {
+      "name": "main",
+      "exit_status": 0,
+      "record": {
+        "date": "2026-10-20T15:23:58Z",
+        "message": "chore(release): prepare 3.1.4",
+        "sha": "4b1c4fb7150d9d1e6473530f8a67144fe8c0552a"
+      }
+    },
+    {
+      "name": "release",
+      "exit_status": 0,
+      "record": {
+        "published_at": "2026-10-20T15:38:25Z",
+        "tag": "v3.1.4",
+        "url": "https://github.com/gsmlg-dev/concord/releases/tag/v3.1.4"
+      }
+    },
+    {
+      "name": "issue101",
+      "exit_status": 0,
+      "record": {
+        "closedAt": null,
+        "comments": [],
+        "number": 101,
+        "state": "OPEN",
+        "title": "[internal] Singleton reads still traverse unrelated retained log history in 3.1.4",
+        "url": "https://github.com/gsmlg-dev/concord/issues/101"
+      }
+    },
+    {
+      "name": "issue102",
+      "exit_status": 0,
+      "record": {
+        "closedAt": null,
+        "comments": [],
+        "number": 102,
+        "state": "OPEN",
+        "title": "[internal] Atomic transactions still trigger full-state materialization in 3.1.4",
+        "url": "https://github.com/gsmlg-dev/concord/issues/102"
+      }
+    },
+    {
+      "name": "issue99",
+      "exit_status": 0,
+      "record": {
+        "closedAt": "2026-10-20T15:24:07Z",
+        "number": 99,
+        "state": "CLOSED",
+        "title": "[internal] Ordinary VSR writes rebuild all ETS views and diff all keys",
+        "url": "https://github.com/gsmlg-dev/concord/issues/99"
+      }
+    },
+    {
+      "name": "issue100",
+      "exit_status": 0,
+      "record": {
+        "closedAt": "2026-10-20T15:24:08Z",
+        "number": 100,
+        "state": "CLOSED",
+        "title": "[internal] Bound VSR singleton-read invariant allocation as retained log grows",
+        "url": "https://github.com/gsmlg-dev/concord/issues/100"
+      }
+    }
+  ],
+  "locked_versions": {
+    "concord": "3.1.4",
+    "viewstamped_replication": "3.1.4",
+    "ex_turso": "3.1.4",
+    "http_fetch": "0.21.13"
+  },
+  "diagnosed_remaining_issues": [
+    "https://github.com/gsmlg-dev/concord/issues/101",
+    "https://github.com/gsmlg-dev/concord/issues/102"
+  ],
+  "already_adopted_repairs": [
+    "https://github.com/gsmlg-dev/concord/issues/99",
+    "https://github.com/gsmlg-dev/concord/issues/100"
+  ],
+  "dependency_provenance": "docs/reports/s3-hardening/closeout-002/candidate-c6/upstream-resume-check.json",
+  "remaining": "No newer released or main commit has been identified. Current A28 preflight must retain the refusal; mandatory10k/100k remains unexecuted until validated upstream repairs are available. Awaiting the user's fixed version/commit/PR clarification; continue unblocked lanes.",
+  "dependency_patch": false,
+  "release_attempted": false
+}

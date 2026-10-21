@@ -1,0 +1,14 @@
+{
+  "profile": "retained-standalone-sdk-admin-persistence",
+  "complete": true,
+  "checks": [
+    "unchanged-s3-compat-exercise",
+    "admin-and-metrics",
+    "retained-root-sigkill-restart",
+    "unchanged-s3-compat-persistence-and-cleanup"
+  ],
+  "boto3": "1.43.114",
+  "botocore": "1.43.114",
+  "source_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd",
+  "persistence_sha256": "c423834d9b9c9bc8a1351dce4c015af8bc3dc2336fb80b18149c0c6ec4442663"
+}

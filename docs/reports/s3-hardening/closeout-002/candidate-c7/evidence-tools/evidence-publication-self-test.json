@@ -1,0 +1,66 @@
+{
+  "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+  "candidate_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd",
+  "source_sha256": "ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913",
+  "kind": "external-synthetic-publication-tool-validation",
+  "recorded_at_utc": "2026-10-20T23:32:12.494897+00:00",
+  "command": [
+    "/run/current-system/sw/bin/python",
+    "/fast/build/ess-closeout-c7-acceptance/evidence_publication.py",
+    "--self-test"
+  ],
+  "exit_status": 0,
+  "stdout": "{\"status\": \"passed\", \"synthetic_checks\": 22, \"real_evidence_scanned\": false, \"real_archives_created\": false}\n",
+  "stderr": "",
+  "utility_sha256": "ecd8a0a2672168b8ab6ad0bcc574f711f4bf3e9c79e9ed6f45593ec8d618bb66",
+  "ast": "passed",
+  "earlier_validation": {
+    "task": "ESS-S3-HARDENING-CLOSEOUT-002",
+    "candidate_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd",
+    "source_sha256": "ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913",
+    "kind": "external-synthetic-publication-tool-validation",
+    "recorded_at_utc": "2026-10-20T23:30:46.783152+00:00",
+    "command": [
+      "/run/current-system/sw/bin/python",
+      "/fast/build/ess-closeout-c7-acceptance/evidence_publication.py",
+      "--self-test"
+    ],
+    "exit_status": 0,
+    "stdout": "{\"status\": \"passed\", \"synthetic_checks\": 16, \"real_evidence_scanned\": false, \"real_archives_created\": false}\n",
+    "stderr": "",
+    "utility_sha256": "c99ba172de6dbfd72be80248929bddd9ac7179ae43bfefc79fd597991673ac6e",
+    "ast": "passed",
+    "actual_evidence_review_executed": false,
+    "real_credentials_read": false,
+    "real_archives_created": false,
+    "synthetic_result": {
+      "status": "passed",
+      "synthetic_checks": 16,
+      "real_evidence_scanned": false,
+      "real_archives_created": false
+    }
+  },
+  "actual_evidence_review_executed": false,
+  "real_credentials_read": false,
+  "real_archives_created": false,
+  "future_invocation_recipe_python": "# Execute only after root explicitly confirms every serial lane is terminal.\n# This script resolves two exact paths from PUBLIC restore isolation receipts.\n# It does not search private roots or inspect credential files itself.\nimport json\nfrom pathlib import Path\nimport re\nimport subprocess\nimport sys\nrepo = Path('/home/gao/Workspace/gsmlg-opt/ex_storage_service')\nbase = repo / 'docs/reports/s3-hardening/closeout-002/candidate-c7'\nfreeze = json.loads((base / 'freeze.json').read_text())\nassert freeze['candidate_sha'] == 'fcc02e148ae31f00022d563ebce2b039be5d32dd'\nassert freeze['source_sha256'] == 'ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913'\nfor profile in ('correctness','standalone','gateway','cluster','index','resources','faults','crashes','resilience','restore','release'):\n    lane = json.loads((base / (profile + '.json')).read_text())\n    assert lane['status'] in ('passed','blocked','failed')\n    assert lane['ending_sha'] == freeze['candidate_sha']\n    assert lane['source_sha256'] == freeze['source_sha256']\nrestore = json.loads((base / 'restore.json').read_text())\nassert restore['status'] == 'passed' and all(c['exit_status'] == 0 for c in restore['commands'])\nphysical_tmp = Path('/fast/build/ess-closeout-c7-acceptance/tmp')\nargv = [sys.executable, '/fast/build/ess-closeout-c7-acceptance/evidence_publication.py',\n        '--execute-review', '--terminal-lanes-confirmed', '--repo', str(repo),\n        '--candidate-sha', freeze['candidate_sha'], '--source-fingerprint', freeze['source_sha256'],\n        '--create-archives']\nseen = set()\nfor mode in ('standalone','cluster'):\n    public = repo / ('docs/reports/s3-hardening/closeout002-c7-restore-' + mode) / 'original-root-isolation.json'\n    isolation = json.loads(public.read_text())\n    assert isolation['all_inaccessible'] and isolation['backup_read_only'] and isolation['pid_namespace']\n    assert len(isolation['source_roots']) == 1\n    virtual_source = Path(isolation['source_roots'][0])\n    assert re.fullmatch(r'/tmp/ess-hardening-restore-[A-Za-z0-9]{8}/source', str(virtual_source))\n    physical_root = physical_tmp / virtual_source.parent.relative_to('/tmp')\n    assert physical_root not in seen\n    seen.add(physical_root)\n    argv += ['--allow-private-root', str(physical_root),\n             '--credential-fixture', str(physical_root / 'fixture/credentials.json')]\nsubprocess.run(argv, cwd=repo, check=True)\n",
+  "recipe_status": "prepared_not_executed; parent confirmation required; actual random mktemp suffixes come from public current restore receipts, never guessed",
+  "authoritative_path_derivation": {
+    "e2e/hardening_acceptance.py": "restore runner receives label closeout002-c7-restore, mode all",
+    "e2e/run_hardening_restore.sh": "each mode mktemp-d /tmp/ess-hardening-restore-XXXXXXXX",
+    "e2e/s3_hardening_restore.py": "source_phase root/fixture/credentials.json; source_roots=[root/source] in original-root-isolation.json",
+    "candidate-c7/freeze.json": "namespace --bind /fast/build/ess-closeout-c7-acceptance/tmp /tmp maps virtual root to physical private root"
+  },
+  "source_hashes": {
+    "e2e/hardening_acceptance.py": "b6ad57727bd364668d37dd4c9beac72fdb2de61375f137191ab4747da4250272",
+    "e2e/run_hardening_restore.sh": "52841982c30555f80da19222f06ad8523d41e8dddde379f810fd0f95c1595002",
+    "e2e/s3_hardening_restore.py": "3d5fc458b5e5f8836b0eee81fa81c8bb4d4ca8aa466ef704027f7da5c39198c0",
+    "docs/reports/s3-hardening/closeout-002/candidate-c7/freeze.json": "73a17cdb6c3f13058b5e4c0a54c54918e678571110e01d4d20118cdcd8e2bcae"
+  },
+  "synthetic_result": {
+    "status": "passed",
+    "synthetic_checks": 22,
+    "real_evidence_scanned": false,
+    "real_archives_created": false
+  }
+}

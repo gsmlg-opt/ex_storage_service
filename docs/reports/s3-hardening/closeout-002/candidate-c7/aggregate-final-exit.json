@@ -1,0 +1,18 @@
+{
+  "candidate_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd",
+  "source_sha256": "ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913",
+  "command": [
+    "python3",
+    "e2e/hardening_acceptance.py",
+    "verify",
+    "--output",
+    "docs/reports/s3-hardening/closeout-002/candidate-c7/final-lanes"
+  ],
+  "started_at": "2026-10-21T00:25:08.686626+00:00",
+  "ended_at": "2026-10-21T00:25:08.851906+00:00",
+  "duration_seconds": 0.16528553298849147,
+  "exit_status": 1,
+  "log": "docs/reports/s3-hardening/closeout-002/candidate-c7/aggregate-final.log",
+  "aggregate": "docs/reports/s3-hardening/closeout-002/candidate-c7/final-lanes/aggregate.json",
+  "scope": "Actual authoritative aggregate invocation after semantic clause reconciliation. A nonzero result remains incomplete acceptance."
+}

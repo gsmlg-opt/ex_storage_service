@@ -1,180 +1,222 @@
 ## ESS-S3-HARDENING-CLOSEOUT-002 — current closeout
 
-Full acceptance is **incomplete; nothing has been published**. Starting checkout
-was clean `main@b17282d96a58eff962a35d807c9e7adb39af4774`. Tested runtime candidate C5 is
-`83ddc379be879b947e19aecda45e615f4f45b530`, source SHA256
-`64d21d0863ca538bef84ac297733ef2f5dd97746b4f1bd818ade52f0931e6288`.
-The [freeze](s3-hardening/closeout-002/candidate-c5/freeze.json) includes runtime,
-tests, harness, dependencies, CI and configuration. Its explicit fingerprint
-rules exclude evidence reports; subsequent evidence-only commits do not require
-a report to contain its own future commit hash. Concord/VSR/ExTurso are locked
-to 3.1.4, HTTP to 0.21.13; Python3.13.15, Boto3/botocore1.43.114, Elixir1.18.5,
-OTP28/ERTS16.4.0.5 and independent-client versions are recorded with the runs.
-The delivery ref is `codex/ess-s3-hardening-closeout-002`; no protected branch was
-merged. Released SHA/artifacts remain **none** for this closeout.
+Implemented and verified portions are pushed for review; **full acceptance and
+release remain incomplete**. Starting checkout was clean
+`main@b17282d96a58eff962a35d807c9e7adb39af4774`. Tested candidate C7 is
+`fcc02e148ae31f00022d563ebce2b039be5d32dd`, source SHA256
+`ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913`.
+The [freeze](s3-hardening/closeout-002/candidate-c7/freeze.json) covers runtime,
+tests, harness, dependencies, CI and configuration. Fingerprinting hashes sorted
+cached/nonignored input names, NUL, contents, NUL; it includes apps/config/e2e,
+scripts/.github, manifests/locks, Docker/formatter inputs and CLI compatibility
+JSON. Other documentation/reports are explicitly excluded. Separately hashed
+runner inputs are archived. Report-only commits do not require a report to name
+its own future SHA. All executable inputs stayed frozen through the run.
 
-Implemented and independently regressed:
+Delivery uses [draft PR23](https://github.com/gsmlg-opt/ex_storage_service/pull/23)
+and remote ref `codex/ess-s3-hardening-closeout-002`; no protected merge occurred.
+**Released SHA and closeout release artifacts: none.** Canonical patch publication,
+remote tag/release, both Hex packages, CLI assets and versioned/latest image
+verification remain downstream of full acceptance. Automatic CI edge images are
+separate. The existing published v0.6.10 daily-use result remains valid for its
+original scope.
 
-- `Metadata.ObjectCommit`, `Storage.Versioning` and `ObjectService` previously
-  read head/version separately and converted a disappearing selected version to
-  absence. They now share bounded linearizable head/version/head selection,
-  compare the complete head revision/identity and fence bucket generations.
-  Stable missing references are integrity failures; backend failures and retry
-  exhaustion retain availability semantics. Explicit versions never fall back.
-  Predecessor restoration, concurrent PUT/null ABA, marker creation/removal,
-  delete/recreate, corruption, failures/exhaustion and explicit deletion are
-  covered. Deterministic domain and signed GET/HEAD/COPY races pass, including
-  isolated cluster reads, with matching body/metadata/version identity.
-  [Original red](s3-hardening/closeout-002/coherent-reads-before.log),
-  [COPY red](s3-hardening/closeout-002/coherent-copy-before.log),
-  [domain green](s3-hardening/closeout-002/coherent-reads-final.log),
-  [HTTP green](s3-hardening/closeout-002/coherent-reads-http.log).
-  This adds bounded metadata selection work, without object-body or bucket
-  materialization; the separate native traversal limitation remains under A28.
-- S3 `Operation` previously required an empty root query, rejecting SDK
-  `x-id=ListBuckets`. Root GET now deliberately permits `x-id` plus the six
-  supported presign parameters, rejects unsupported selectors/features and
-  decoded duplicate names, and preserves raw signing input. Independent
-  signer/raw HTTP regressions cover valid signatures, permissions, signed-value
-  mutation and unsupported subresources. Generic canonicalization is unchanged.
-  [Baseline 2/5 failures](s3-hardening/closeout-002/list-buckets-red.log),
-  [resolution 5/5 green](s3-hardening/closeout-002/list-buckets-source-green.log),
-  [authorization/operation 61/61 green](s3-hardening/closeout-002/list-buckets-scoped-concord314.log).
-- `Metadata.Backend.Concord` normalizes `view_change` to existing retryable
-  `cluster_not_ready`, preserving uncertain intents/recoverable bytes and bodyless
- 503 responses. The same43 tests fail3 before and pass after the repair
-  ([red/green](s3-hardening/closeout-002/view-change/regression.json)).
-  The resource observer skips size stats for completed cache files while retaining
-  traversal and exact temporary bytes:128→0 explicit stats,22 bytes unchanged;
- 52 observer/cadence tests pass
-  ([regression](s3-hardening/closeout-002/observer-cache-stats/regression.json)).
-  This optimization does not identify the cause of all historical sampling gaps.
+The two reviewed defects have tests-first evidence:
 
-Automatic PR/push correctness runs the complete core, S3, transport and web
-suites plus CLI contracts, with selected-file inventories and count guards.
-The authoritative extended correctness run executed **4,521 application tests**
-(core600, transport39, CLI3491, S3370, web21), zero failures/skips, plus **113
-Python harness tests**. Two tagged heavy cases executed in their separate lanes.
-Exact-C5 hosted [Test39487875049](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39487875049)
-and [CI39487875115](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39487875115)
-passed; hosted selection recorded1030 server tests,11 CLI contracts and113
-Python tests. Required namespace isolation uses the restrictive packaged AppArmor
-profile with global restrictions retained. Local/CI heavy commands stay aligned;
-missing, skipped, cancelled, timed-out or failed prerequisites block the aggregate.
-Root release orchestration requires the exact candidate's successful full
-acceptance run and audits downloaded evidence before publication.
+- `Metadata.ObjectCommit` read head then version independently, turning a deleted
+  selected version into false absence. The exact barrier-controlled predecessor
+  restoration test failed before the fix with `{:error, :not_found}`. Shared
+  bounded head/version/head selection now compares complete revision/identity
+  and fences bucket generation across retries. Stable missing references are
+  integrity errors; unstable exhaustion and backend failures remain availability
+  errors. Explicit versions never fall back. `Storage.Versioning`, `ObjectService`
+  and latest tagging/COPY use this boundary; COPY source/destination generations
+  remain independent. Domain tests cover PUT/null ABA, markers, delete/recreate,
+  corruption, failures/exhaustion and explicit deletion. Signed GET/HEAD/COPY and
+  real isolated cluster races return matching body, ETag, length, attributes and
+  version identity. This adds bounded metadata reads without body/bucket
+  allocation; native history traversal remains the separate A28 limitation.
+  [Exact original RED](s3-hardening/closeout-002/coherent-reads-before.log),
+  [COPY RED](s3-hardening/closeout-002/coherent-copy-before.log),
+  [domain GREEN](s3-hardening/closeout-002/coherent-reads-final.log),
+  [HTTP GREEN](s3-hardening/closeout-002/coherent-reads-http.log).
+- S3 `Operation` required an empty root query, rejecting `x-id=ListBuckets`.
+  Root GET now deliberately permits SDK `x-id` and the six existing presign
+  fields, while rejecting unsupported features/selectors and decoded duplicate
+  names. Raw query/path/headers remain signed. Independent signer/raw HTTP
+  fixtures test valid requests, missing grants, signed-value mutation and
+  unsupported-subresource rejection. Generic canonicalization is unchanged.
+  [RED: 2 failures/5 tests](s3-hardening/closeout-002/list-buckets-red.log),
+  [resolution GREEN: 5/5](s3-hardening/closeout-002/list-buckets-source-green.log),
+  [authorization/operation GREEN: 61/61](s3-hardening/closeout-002/list-buckets-scoped-concord314.log).
 
-The original C5 all-profile run actually exited **1**. **Nine lanes passed**:
-correctness, standalone, gateway, strict RF2/W2 cluster/election/rejoin, faults,
-crashes, resilience, standalone/cluster restore and local release/container.
-Index and resources remain blocked. All17 RustFS gateway groups and independent
-mc24/0 checks passed. A01–A27's90 compound clauses and A29/A31–A37 have fresh C5
-semantic audits. After terminal reconciliation, the actual verifier again exited
-**1**, with **35/38 rows and142/158 clauses passed**; A28/A30/A38 remain unpassed.
-[Actual final exit](s3-hardening/closeout-002/candidate-c5/aggregate-final-exit.json),
-[aggregate](s3-hardening/closeout-002/candidate-c5/aggregate.json),
-[final ledger](s3-hardening/closeout-002/candidate-c5/ledger-final.json) and the
-[current machine ledger](../plans/s3-hardening-results.json) retain the failed
-commands. No ledger edit produced a passing gate.
+Additional evidence-backed repairs are scoped to `Metadata.Backend.Concord`,
+`ObjectService`, S3 `Handlers.Shared`, the resource observer/sampler and acceptance
+harness. View-change failures map to existing retryable availability vocabulary
+([43 tests: 3 failures before, 0 after](s3-hardening/closeout-002/view-change/regression.json)).
+Owned stages are reclaimed only after a matching positively confirmed abort;
+uncertain outcomes retain protection
+([23 tests: 3 failures before, 0 after](s3-hardening/closeout-002/protected-stage-cleanup/regression.json)).
+The original C5 COPY error remains unclassified; this cleanup repair is not a
+claim to have proved that original error's cause. C7 fixture admission reserves
+all 32 contenders before barriers, retaining the production 100-token/20-refill
+limiter, one-attempt SDK policy, signing and checksums. Stage inventories include
+hidden/empty/nested files outside measured windows; observer ESRCH means exited
+identity while permission/I/O/parse errors still fail.
 
-A28 remains blocked on [Concord#101](https://github.com/gsmlg-dev/concord/issues/101)
-and [#102](https://github.com/gsmlg-dev/concord/issues/102). The
-[live upstream refresh](s3-hardening/closeout-002/candidate-c5/upstream-refresh.json)
-and [resume check](s3-hardening/closeout-002/candidate-c5/upstream-resume-check.json)
-confirm both open and latest release3.1.4; remote main remains
-`4b1c4fb7150d9d1e6473530f8a67144fe8c0552a`. Prior#99/#100 fixes are already adopted.
-With1,000 normal target ObjectCommits and1,000 added unrelated commits, ESS page
-reads/bytes stay100/26,620 while native validation visits grow **100,400→200,400**.
-Atomic transactions still materialize full state. Zero conflicts and no
-checkpoints do not establish root-revision contention. This isolates residual
-backend work; it does not prove the complete cause of the historical10,800-second
-timeout. **Mandatory10k/100k datasets, their p50/p95 and allocation measurements
-remain unexecuted**; preflight prevents unchanged expensive retries. No dependency
-source was patched. [Diagnosis](s3-hardening/closeout-002/a28-diagnostic-r1/README.md).
-Current A29 migration/interruption/rejoin/checkpoint/cutover passed independently
-in16.253 seconds, preserving old v1/v2 data and generation fencing.
+Automatic PR/push correctness now runs complete core/S3/transport/web suites and
+CLI contracts, with discovered-file inventories and count floors. Current local
+extended correctness executed **4,531 application tests**, zero failures/skips:
+core606, transport39, CLI3491, S3374, web21; **122 Python tests** also passed.
+The excluded core cluster and transport large-stream cases ran separately.
+Exact-C7 hosted push/PR Test runs
+[39514908019](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39514908019)/
+[39514915408](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39514915408)
+and strict CI runs
+[39514907872](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39514907872)/
+[39514915073](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39514915073)
+passed. Downloaded inventories agree on 1,040 server tests, 11 CLI contracts and
+122 harness tests ([hashed CI receipts](s3-hardening/closeout-002/candidate-c7/hosted-ci/summary.json)).
+Heavy jobs remain separate and serial. Local and CI commands align; missing,
+skipped, cancelled, timed-out or failed required evidence blocks the aggregate.
+Release orchestration re-audits the candidate's downloaded full-acceptance
+artifacts before publication; its failure and version-only mapping tests pass.
 
-A30 remains **failed/incomplete**. Original results and a separate controlled
-NVMe resource run are preserved independently:
+The authoritative `run --profile all` actually exited **1** in 2,975.240 seconds;
+its final freeze check found no changed inputs. Ten lanes passed: correctness,
+standalone, gateway (17 groups), strict RF2/W2 cluster/election/rejoin, resources,
+faults, crashes, resilience, restore and local release/container. Index is blocked:
+compile0, A28 preflight1, independent A29 fixture0. Byte-identical final-lane
+selection retains those original outcomes. The separately executed actual
+`hardening_acceptance.py verify --output .../candidate-c7/final-lanes` exited
+**1** after clause reconciliation, with only A28, A38 and index blocking:
 
-| Run | Local/gateway | Cluster | Actual resource entry exit |
-| --- | --- | --- | --- |
-| Original C5 |47/56 executed,46 failure-free|16/20 executed,15 failure-free|1|
-| Separate NVMe C5 |52/56 executed,51 failure-free|20/20 passed|1|
+| Acceptance rows | Current outcome |
+| --- | --- |
+| A01–A27 | Passed: all 90 original compound clauses and required modes |
+| A28 | Blocked: all 8 scale clauses remain unaccepted |
+| A29 | Passed: 5 migration/interruption/rejoin/cutover clauses |
+| A30 | Passed: all 8 resource clauses, full manifests independently audited |
+| A31–A37 | Passed: all 40 fault/crash/resilience/restore clauses |
+| A38 | 6 clauses passed; A38.1 full-acceptance input clause blocked |
 
-Original local1GiB/c4 UploadPartCopy completed all four operations with numeric
-envelopes passing but had a124.508ms temporary probe and151.460ms observation gap.
-Original cluster1GiB/c4 strict-quorum PUT failed during post-upload metadata
-verification with `BlobLocations.list(hash)` timeout; independent actual CAS
-hash/size verification had passed. The separate actual2GiB transport check passed.
-These are coverage/verification failures, not a request-latency SLA conclusion.
+That is **36/38 rows, 149/158 clauses passed**, not full acceptance.
+[Actual exit](s3-hardening/closeout-002/candidate-c7/aggregate-final-exit.json),
+[aggregate](s3-hardening/closeout-002/candidate-c7/final-lanes/aggregate.json),
+[final ledger](s3-hardening/closeout-002/candidate-c7/ledger-final.json) and
+[current ledger](../plans/s3-hardening-results.json) retain failed parent commands.
+Previously absent A29–A38 mode declarations are explicitly mapped against the
+unchanged baseline ledger; existing mode sets and compound requirements remain
+intact. Passing compile steps cannot substitute for selected successful runtime
+commands or their substantive output assertions.
 
-The supplemental run retained all sizes, concurrency, pacing, auth, checksums,
-RF/W,25ms schedule,100ms coverage and predeclared envelopes. Its only runner
-change mapped private `/tmp` to isolated nvme1/ext4 instead of system nvme0/ext4.
-NixOS ms04 had16 CPUs in affinity, no cgroup CPU/memory caps, approximately62GiB
-RAM, BEAM4 schedulers and2/2 dirty schedulers; baseline load was0.63/0.85/1.39.
-Runner/disk/toolchain and all per-case throughput/resource data are retained in
-[resource analysis](s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/resource-observation-analysis.json).
-Largest observed1GiB/c4 deltas, over the executed groups:
+A28 remains blocked by [Concord#101](https://github.com/gsmlg-dev/concord/issues/101)
+and [#102](https://github.com/gsmlg-dev/concord/issues/102). Published 3.1.4 already
+contains #99/#100; current upstream main remains
+`4b1c4fb7150d9d1e6473530f8a67144fe8c0552a`, with no adoptable #101/#102 repair
+([checked inputs](s3-hardening/closeout-002/candidate-c7/upstream-inputs.json)).
+The earlier production-path diagnostic used 1,000 normal target ObjectCommits
+and 1,000 unrelated commits. ESS page calls/returned bytes remained 100/26,620;
+native retained-log validation visits increased **100,400→200,400**. Atomic
+transactions still materialize full state. Zero conflicts and no checkpoints did
+not establish root-revision contention; this is not a complete explanation of
+the historical 10,800-second timeout. **Mandatory 10k/100k datasets, listing
+p50/p95, native byte/allocation and unrelated-growth acceptance remain unexecuted.**
+No dependency patch or unchanged multi-hour rerun was used.
+[Diagnosis](s3-hardening/closeout-002/a28-diagnostic-r1/README.md).
+Independent current A29 passed in **13.752 seconds**, preserving v1/v2 records,
+rollback epochs, generation fencing and checkpoint identity through interruption,
+retained-root rejoin and atomic cutover.
 
-| Matrix | Binary bytes | BEAM total bytes | RSS bytes | Max queue / total | Temporary bytes | Largest gap |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Local/gateway,10/14 groups |20,632,936|23,954,036|39,055,360|5/6|8,589,934,592|51.469ms|
-| Cluster,5/5 groups |20,774,176|21,229,836|42,229,760|11/13|4,294,967,296|34.672ms|
+A30 now has complete current-candidate evidence. The observer's synchronous
+sample-file export could delay collection. A deterministic 150 ms export barrier
+reproduced no fresh rows and a 175.147 ms observation gap before repair; bounded
+queued export retained fresh sequences 2–7 and a 25.234 ms gap afterward
+([RED](s3-hardening/closeout-002/observer-red/blocked-export-barrier.json),
+[GREEN](s3-hardening/closeout-002/observer-green/blocked-export-barrier.json)).
+This proves that mechanism without attributing every historical gap to it.
+Completed-cache stat elimination preserves exact temporary-byte measurement.
+No tracing ran in acceptance, and the 100 ms coverage criterion remains an
+observation requirement rather than an S3 latency SLA.
 
-NVMe local group52 (`gateway-copy-to-local`,1GiB/c4) returned four CopyObject
-InternalErrors and retained four hosted-protected stages totaling4GiB after idle;
-its cadence and numeric envelopes passed. Four1GiB/c4 groups remain unexecuted:
-gateway hit slow GET, slow PUT, paced-upstream PUT and paced-upstream cold GET.
-Read-only [WAL forensics](s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/copy-retained-wal.json)
-validated1,420 CRC-protected frames: all four intents opened successfully then
-became aborted, with no object publication in that window. Independent bounded
-[byte verification](s3-hardening/closeout-002/candidate-c5/nvme-resources-r2/copy-retained-bytes.json)
-hashed the existing CAS plus all four stages (5GiB), all matching their named
-SHA256. This narrows the original failure to standalone CAS commit, but the exact
-original error remains unknown. It does not prove permanent leakage or corruption.
+All **56/56 local/gateway** and **20/20 cluster** groups passed at 64 MiB/1 GiB,
+concurrency 1/4; the independent actual 2 GiB authenticated transfer also passed.
+Independent analysis checked manifest identity, streaming length/hash/metadata,
+all six native metric windows, 118,606 exact sample rows (42,766 local; 75,840
+cluster), export hashes/extents/sequences and before/after/final staging inventories.
+All intervals meet the original bound, no interpolation, and final stages are
+zero files/bytes. Independent direct RustFS readbacks cover all 12 upload groups.
+Local/gateway took **1,070.615 s**, cluster **635.985 s**, and 2 GiB **5.329 s**.
 
-Three isolated COPY diagnostics passed, including an unchanged52-group preceding
-history with bounded return tracing:490 returns, four completed target copies,
-no error events and empty terminal staging. [R3 analysis and exact inputs](s3-hardening/closeout002-c5-copy-diag-r3/analysis.json)
-are explicitly **nonacceptance**; tracing and omission of four later cases prevent
-promotion. A separate two-group intrusive observer diagnostic also passed without
-reproducing the original124ms gap;603 monitor rows and1,049 contiguous exports
-were independently checked ([analysis](s3-hardening/closeout002-c5-observer-diag-baseline-r2/analysis.json)).
-No service repair is inferred from either diagnostic pass. Full A30 still needs
-a diagnosed repair/prerequisite resolution and complete untraced execution.
+| Matrix, all executed cases | Peak binary bytes | Peak BEAM total | Peak RSS | Max queue/total | Peak temporary | Largest gap/probe |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Local/gateway,56/56 |22,108,056|99,462,024|175,116,288|3/8|8,589,934,592|50.782/25.520 ms|
+| Cluster,20/20 |21,324,776|89,623,688|181,166,080|11/13|4,294,967,296|32.970/7.974 ms|
 
-Original four exports (85,600 rows) and supplemental four exports (108,592 rows)
-were independently verified for generation, exact sequence/count, extent and
-SHA256. Fourteen raw sample files, including diagnostics, are available as
-[lossless archives](s3-hardening/closeout-002/candidate-c5/observation-archives/manifest.json)
-with verified decompression hashes. This preserves observations; it never fills
-missing intervals or certifies missing cases. After forensics,26 recorded process
-identities were checked stopped and10 exact disposable roots removed
-([cleanup](s3-hardening/closeout-002/candidate-c5/fixture-cleanup.json)). Two small
-raw forensic inputs remain private locally; credentials/control logs are excluded
-from public evidence. Five restore logs are published only as
-[credential-redacted copies](s3-hardening/closeout-002/candidate-c5/evidence-publication/manifest.json),
-with original and derivative hashes retained. Explicit fixture disposal does not repair the failed
-post-idle retention result.
+At 1 GiB/c4, maximum binary/total/RSS deltas were 20,842,104/26,206,076/35,037,184
+bytes locally and 20,740,256/21,215,000/48,787,456 in cluster. The predeclared
+size-independent memory limits remain binary64MiB+32MiB*c, total128MiB+48MiB*c,
+RSS256MiB+64MiB*c, queues128/2048; disk remains 2*size*c+64MiB. Every case passed
+its own limits. Per-size/concurrency baselines/peaks/post-idle/throughput are in
+[resource analysis](s3-hardening/closeout-002/candidate-c7/resource-observation-analysis.json).
+Logical operation throughput ranged 9.91–5,233.65 MiB/s locally and
+9.40–122.53 MiB/s in cluster; these mixed-path/page-cache observations are not a
+production capacity claim. Observer RSS peaked at 22,061,056 bytes, separately
+from BEAM RSS. OS page cache and memory-pressure observations remain in runner
+provenance, without treating page cache as BEAM allocation.
 
-Existing command-format0 databases remain unchanged. Empty restore targets retain
-format1 on every voter through quarantine, restarts and activation; destructive
-and outbound workers remain disabled until validation. Current standalone/cluster
-restore passed; old-binary rollback after v2 writes requires verified metadata
-and blob restoration. C5's local0.6.10 image is
-`sha256:98e04d393d30e5e08bcdfde17a09d12b073dba470957c3265508e6f568e267fe`;
-health/readiness/operator RPC verified its candidate identity. It was not
-published and has no signed-CRUD-in-image certification. No closeout tag,
-GitHub release, Hex package or public image was created. A28 upstream repair,
-A30 diagnosis/full cases, passing A38 aggregate, authorized release and independent
-published-artifact verification remain outstanding.
+Runner: NixOS/Linux6.18.48 x86_64 ms04,16 CPU affinity, no observed cgroup
+CPU/memory cap, approximately62.6GiB RAM, BEAM4 schedulers plus2/2 dirty schedulers;
+pre-run load0.124/0.160/0.380. Private /tmp uses NVMe/ext4; no overlapping
+task-owned heavy workload. Private writable NPM/Buildx client state repairs
+runner prerequisites without changing service limits. Python3.13.15,
+Elixir1.18.5, OTP28/ERTS16.4.0.5, Concord/VSR/ExTurso3.1.4,
+http_fetch0.21.13, Boto3/botocore1.43.114, AWS CLI2.34.24,
+mc RELEASE.2025-08-13T08-35-41Z and RustFS1.0.1 are recorded. Checksums and
+signing stayed enabled; cluster remained strict RF2/W2/degradedfalse.
 
-This closeout supersedes only the earlier delivery-specific daily restriction.
-Historical candidates remain in their receipt directories; the
-[original ledger](s3-hardening/closeout-002/historical-results-b17282d.json) is
-byte-identical. v0.6.10's daily result remains valid for its narrower scope.
+The terminal check found all 12 unique recorded PID/start identities absent
+(20 receipt observations), no known fixture Erlang name/listener/container match.
+[Cleanup evidence](s3-hardening/closeout-002/candidate-c7/terminal-cleanup.json)
+states its limits: unrecorded descendants and restore child PID namespaces are
+not universally certified. After a verified private metadata archive, all14exact
+receipt/inode-bound C7 roots were removed; no other root/process/container was
+modified ([disposal](s3-hardening/closeout-002/candidate-c7/terminal-disposal/disposal.json)).
+The private archive retains519log/JSON/JSONL files,230,318,864bytes, with each
+member size/hash checked before deletion; object payloads/native databases are
+excluded. Disposal has acceptance:false and does not change runtime outcomes.
+Raw receipts remain unchanged. Five sample files have lossless gzip copies and
+five credential-bearing logs have credential-only public derivatives with exact
+original/derivative hashes in the
+[publication manifest](s3-hardening/closeout-002/candidate-c7/evidence-publication/manifest.json).
+Original sensitive logs stay private; no current clause references them as public
+execution evidence. The separately reviewed
+[terminal supplement](s3-hardening/closeout-002/candidate-c7/evidence-publication/terminal-supplement.json)
+adds only disposal receipts/tools. Historical C5 failures and C6 supplements
+remain separate and cannot certify C7.
+
+Current standalone/cluster restoration passed in51.505s, including9/6 required
+artifact/key negatives, originals-inaccessible/read-only-backup isolation,
+generation2 identity and stale-worker fencing, quarantine restarts and postactivation
+signed content/metadata/MPU checks. All eight destructive/outbound worker flags
+remain false and the outbound canary is0. Existing command-format0 databases are
+unchanged; every empty target retained1 through all restarts/activation. Explicit
+backfill still requires quiescence and verified backup; old-binary rollback after
+v2 writes requires verified metadata/blob restoration, never destructive startup
+rebuild. The local release lane passed in218.915s; its 0.6.10 image
+`sha256:812591b0b174f02d6173b59a0c7909bb54402d3432a44fa2cc09ccbf4d1f1b62`
+reports exact C7 source and build-start2026-10-21T00:12:38Z. Health/readiness/operator
+RPC passed; signed CRUD in that image was not certified, and it was not published
+as a closeout artifact.
+
+Remaining blockers are the released/validated upstream A28 repairs and original
+mandatory scale measurements, then a passing full A38 aggregate, authorized
+canonical patch release and independent verification of every intended public
+artifact. The task is **not complete**. This closeout narrowly supersedes the
+older daily-only delivery instruction; historical receipts below retain their
+original dates, sources, outcomes and scope.
+
+---
 
 ## Historical daily-use verification — original 2026-10-20 scope
 

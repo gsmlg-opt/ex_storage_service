@@ -1,0 +1,79 @@
+{
+  "scope": "Terminal report-only analyzers, clause reconciliation and synthetic test evidence; no runtime/harness input is changed. Publication scanner remains external and is identified by hash in its validation and publication manifests.",
+  "candidate_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd",
+  "source_sha256": "ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913",
+  "files": [
+    {
+      "name": "analyze_resources.py",
+      "bytes": 47491,
+      "sha256": "dbea91aa831bd8a531b8a18334271bd4afb7746ffe69f3eb46fa299e1bc822ce"
+    },
+    {
+      "name": "terminal_evidence.py",
+      "bytes": 11428,
+      "sha256": "284cfd85dbbabccdf69f47aa5dd2daa8e8b315ba980e4f8e28432ae16b9d7061"
+    },
+    {
+      "name": "select_final_lanes.py",
+      "bytes": 3571,
+      "sha256": "52f3349c517492e05284f095b8bb819f2e7bea3c3e56c6bb66222dad1d2a5291"
+    },
+    {
+      "name": "verify_terminal_cleanup.py",
+      "bytes": 14202,
+      "sha256": "c0e4dc24fadd78a048256f9f9d86af89dd491238c6a48ab65455930e770b4f06"
+    },
+    {
+      "name": "integrate_ledger.py",
+      "bytes": 20715,
+      "sha256": "0b0bee3c36c3e4fe822bc0fe2f54a32aac6c21fdfa9f30982547d9138bfcee59"
+    },
+    {
+      "name": "test_terminal_evidence.py",
+      "bytes": 13350,
+      "sha256": "097a2a91b0c390798bb5a3c87e61f76bd08b5ef97f99fbe1d54f6feecde231cc"
+    },
+    {
+      "name": "test_integrator_gate.py",
+      "bytes": 9499,
+      "sha256": "c023805f883a9fbafe4128f0ae86d796c10575e1bad96e4d6f4c3b3ee3c2cce3"
+    },
+    {
+      "name": "terminal-evidence-red-green.log",
+      "bytes": 6219,
+      "sha256": "6243cd59e315bad33189011ce2bb2a7d313171023556a386b8732797cc4642ea"
+    },
+    {
+      "name": "integrator-gate-green.log",
+      "bytes": 1830,
+      "sha256": "cecd72deeea68aee3f5b03e1ba7a6efc7d946428a09a7b778c0ea9fa3f739f28"
+    },
+    {
+      "name": "evidence-publication-self-test.json",
+      "bytes": 5734,
+      "sha256": "e449ecee433c22eafe409e5d7fd2331a5e2f6549ab40ee00a3982b92d04c40b9"
+    },
+    {
+      "name": "integrator-gate-final.log",
+      "bytes": 1979,
+      "sha256": "c9284f6d4c98668681375bfbfecd5e8fee5ff7a8721091840addfc268d2a2b80"
+    },
+    {
+      "name": "ledger-integration.log",
+      "bytes": 1388,
+      "sha256": "d4ff493554aef942e5dedfac052d4ee6a8675d83f27b937133a41113fe9832e7"
+    },
+    {
+      "name": "ledger-integration-final.log",
+      "bytes": 299,
+      "sha256": "796b52630326e0603559f63f9ede38c637d3cdd182ccc20dbf69aeedf092e44d"
+    }
+  ],
+  "postprocessing_validation": {
+    "terminal_lane_synthetic_tests": 16,
+    "clause_binding_synthetic_tests": 14,
+    "resource_analyzer_synthetic_checks": 112,
+    "publication_synthetic_checks": 22,
+    "scope": "Post-run report-only validation; not additional application tests or acceptance cases. First integration attempt refused the absent mode-map input before any ledger mutation; final explicit mapped integration succeeds, actual authoritative aggregate still exits1."
+  }
+}

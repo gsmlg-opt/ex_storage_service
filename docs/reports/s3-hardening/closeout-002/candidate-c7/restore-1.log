@@ -1,0 +1,5 @@
+restore clients: boto3=1.43.114 botocore=1.43.114
+{"scenario": "A36", "status": "passed", "backup_id": "b47e8395d5cce58566e34619", "evidence": "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c7-restore-standalone"}
+Disposable restore root retained: /tmp/ess-hardening-restore-szGeNHMX
+{"scenario": "A37", "status": "passed", "backup_id": "665f72bd785174932a4dfcb7", "evidence": "/home/gao/Workspace/gsmlg-opt/ex_storage_service/docs/reports/s3-hardening/closeout002-c7-restore-cluster"}
+Disposable restore root retained: /tmp/ess-hardening-restore-1xRzf8Uf

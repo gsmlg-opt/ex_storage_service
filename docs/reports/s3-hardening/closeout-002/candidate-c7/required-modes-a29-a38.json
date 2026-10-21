@@ -1,0 +1,480 @@
+{
+  "candidate_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd",
+  "source_sha256": "ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913",
+  "baseline_ledger_sha256": "20a5a4bb17d1ae1715e20f683d66f092c33123daacdfad8b167300755e48b882",
+  "scope": "Add explicit per-clause execution modes only where the baseline A29\u2013A38 ledger omitted them; preserve every existing A01\u2013A27 required mode set. A28 remains separately blocked and is not promoted by this mapping. Every unchanged original compound requirement and assertion inventory remains mandatory.",
+  "reviewed_audit": "docs/reports/s3-hardening/closeout-002/candidate-c7/clause-audit-a29-a38.json",
+  "reviewed_audit_sha256": "bba0132faf5b707ba94aaa91becc1460c6f78e91088a12daa961c53b2480ddea",
+  "clauses": {
+    "A29.1": {
+      "requirement": "Quiesced, verified-backup prerequisite and bounded legacy/v2 backfill/rebuild.",
+      "required_modes": [
+        "correctness",
+        "index"
+      ],
+      "rationale": "Requirement: Quiesced, verified-backup prerequisite and bounded legacy/v2 backfill/rebuild. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. index: Actual quiesced three-voter migration/checkpoint interruption/rejoin/cutover fixture is required; only independently successful index command2 supplies it, never failed A28 scale command1."
+    },
+    "A29.2": {
+      "requirement": "Interrupt actual coordinator, rejoin retained-root voter, resume exact checkpoint and fence former owner.",
+      "required_modes": [
+        "correctness",
+        "index"
+      ],
+      "rationale": "Requirement: Interrupt actual coordinator, rejoin retained-root voter, resume exact checkpoint and fence former owner. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. index: Actual quiesced three-voter migration/checkpoint interruption/rejoin/cutover fixture is required; only independently successful index command2 supplies it, never failed A28 scale command1."
+    },
+    "A29.3": {
+      "requirement": "Target mutation/list gates remain after interruption while permitted independent operations continue.",
+      "required_modes": [
+        "index"
+      ],
+      "rationale": "Requirement: Target mutation/list gates remain after interruption while permitted independent operations continue. Mode derivation: index: Actual quiesced three-voter migration/checkpoint interruption/rejoin/cutover fixture is required; only independently successful index command2 supplies it, never failed A28 scale command1."
+    },
+    "A29.4": {
+      "requirement": "Bounded resume plus concurrent permitted writes validates atomic cutover and revision-barrier coherence.",
+      "required_modes": [
+        "correctness",
+        "index"
+      ],
+      "rationale": "Requirement: Bounded resume plus concurrent permitted writes validates atomic cutover and revision-barrier coherence. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. index: Actual quiesced three-voter migration/checkpoint interruption/rejoin/cutover fixture is required; only independently successful index command2 supplies it, never failed A28 scale command1."
+    },
+    "A29.5": {
+      "requirement": "Retain legacy v1/v2 barriers, history/delete markers, multipart state and rollback artifacts.",
+      "required_modes": [
+        "correctness",
+        "index"
+      ],
+      "rationale": "Requirement: Retain legacy v1/v2 barriers, history/delete markers, multipart state and rollback artifacts. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. index: Actual quiesced three-voter migration/checkpoint interruption/rejoin/cutover fixture is required; only independently successful index command2 supplies it, never failed A28 scale command1."
+    },
+    "A30.1": {
+      "requirement": "Execute exact current resource manifests at 64MiB/1GiB and concurrency1/4.",
+      "required_modes": [
+        "resources"
+      ],
+      "rationale": "Requirement: Execute exact current resource manifests at 64MiB/1GiB and concurrency1/4. Mode derivation: resources: Original fixed-size/concurrency and bounded stream/resource claims require the real current manifest; command1 supplies local/gateway,command2 cluster,command3 only the separately tagged2GiB transport assertion as selected."
+    },
+    "A30.2": {
+      "requirement": "Local PUT/GET/COPY/multipart/UploadPartCopy and gateway write/miss/hit/COPY paths stream real data.",
+      "required_modes": [
+        "resources"
+      ],
+      "rationale": "Requirement: Local PUT/GET/COPY/multipart/UploadPartCopy and gateway write/miss/hit/COPY paths stream real data. Mode derivation: resources: Original fixed-size/concurrency and bounded stream/resource claims require the real current manifest; command1 supplies local/gateway,command2 cluster,command3 only the separately tagged2GiB transport assertion as selected."
+    },
+    "A30.3": {
+      "requirement": "Throttled upstream/downstream and authenticated replica/repair/cross-cluster transfers preserve bytes and strictRF2/W2.",
+      "required_modes": [
+        "resources"
+      ],
+      "rationale": "Requirement: Throttled upstream/downstream and authenticated replica/repair/cross-cluster transfers preserve bytes and strictRF2/W2. Mode derivation: resources: Original fixed-size/concurrency and bounded stream/resource claims require the real current manifest; command1 supplies local/gateway,command2 cluster,command3 only the separately tagged2GiB transport assertion as selected."
+    },
+    "A30.4": {
+      "requirement": "All six metric windows retain actual <=100ms coverage without interpolation.",
+      "required_modes": [
+        "resources"
+      ],
+      "rationale": "Requirement: All six metric windows retain actual <=100ms coverage without interpolation. Mode derivation: resources: Original fixed-size/concurrency and bounded stream/resource claims require the real current manifest; command1 supplies local/gateway,command2 cluster,command3 only the separately tagged2GiB transport assertion as selected."
+    },
+    "A30.5": {
+      "requirement": "Predeclared fixed-concurrency numeric envelopes apply identically across object sizes.",
+      "required_modes": [
+        "resources"
+      ],
+      "rationale": "Requirement: Predeclared fixed-concurrency numeric envelopes apply identically across object sizes. Mode derivation: resources: Original fixed-size/concurrency and bounded stream/resource claims require the real current manifest; command1 supplies local/gateway,command2 cluster,command3 only the separately tagged2GiB transport assertion as selected."
+    },
+    "A30.6": {
+      "requirement": "Controlled isolated runner provenance distinguishes observer/OS page cache overhead.",
+      "required_modes": [
+        "resources"
+      ],
+      "rationale": "Requirement: Controlled isolated runner provenance distinguishes observer/OS page cache overhead. Mode derivation: resources: Original fixed-size/concurrency and bounded stream/resource claims require the real current manifest; command1 supplies local/gateway,command2 cluster,command3 only the separately tagged2GiB transport assertion as selected."
+    },
+    "A30.7": {
+      "requirement": "Independent upstream readback and terminal staging/process/connection cleanup.",
+      "required_modes": [
+        "resources"
+      ],
+      "rationale": "Requirement: Independent upstream readback and terminal staging/process/connection cleanup. Mode derivation: resources: Original fixed-size/concurrency and bounded stream/resource claims require the real current manifest; command1 supplies local/gateway,command2 cluster,command3 only the separately tagged2GiB transport assertion as selected."
+    },
+    "A30.8": {
+      "requirement": "Retain actual 2GiB tagged private-transport stream check separately from the 1GiB matrices.",
+      "required_modes": [
+        "resources"
+      ],
+      "rationale": "Requirement: Retain actual 2GiB tagged private-transport stream check separately from the 1GiB matrices. Mode derivation: resources: Original fixed-size/concurrency and bounded stream/resource claims require the real current manifest; command1 supplies local/gateway,command2 cluster,command3 only the separately tagged2GiB transport assertion as selected."
+    },
+    "A31.1": {
+      "requirement": "Disconnect/cancellation/upstream interruption/isolated ENOSPC fail truthfully without visible partial object/cache.",
+      "required_modes": [
+        "correctness",
+        "faults"
+      ],
+      "rationale": "Requirement: Disconnect/cancellation/upstream interruption/isolated ENOSPC fail truthfully without visible partial object/cache. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. faults: Actual authenticated disconnect/cancellation/upstream interruption/ENOSPC/restart and online-queue checks are required; simulated exceptions alone are insufficient."
+    },
+    "A31.2": {
+      "requirement": "Restart preserves acknowledged local/gateway bytes and protected uncertainty.",
+      "required_modes": [
+        "correctness",
+        "faults",
+        "crashes"
+      ],
+      "rationale": "Requirement: Restart preserves acknowledged local/gateway bytes and protected uncertainty. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. faults: Actual authenticated disconnect/cancellation/upstream interruption/ENOSPC/restart and online-queue checks are required; simulated exceptions alone are insufficient. crashes: Original actual SIGKILL boundaries and durable-ack crash/rejoin claims require commands1/2 as selected, with physical bytes/intent/version readbacks."
+    },
+    "A31.3": {
+      "requirement": "No runaway owned tasks, unbounded queues, or permanent staging leaks.",
+      "required_modes": [
+        "faults",
+        "resources"
+      ],
+      "rationale": "Requirement: No runaway owned tasks, unbounded queues, or permanent staging leaks. Mode derivation: faults: Actual authenticated disconnect/cancellation/upstream interruption/ENOSPC/restart and online-queue checks are required; simulated exceptions alone are insufficient. resources: Original fixed-size/concurrency and bounded stream/resource claims require the real current manifest; command1 supplies local/gateway,command2 cluster,command3 only the separately tagged2GiB transport assertion as selected."
+    },
+    "A31.4": {
+      "requirement": "Cold ranges and cache eviction preserve selected body/metadata.",
+      "required_modes": [
+        "correctness",
+        "gateway"
+      ],
+      "rationale": "Requirement: Cold ranges and cache eviction preserve selected body/metadata. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. gateway: Actual RustFS-backed gateway mode is required for cache/range/eviction/current-identity behavior beyond injected domain contracts."
+    },
+    "A31.5": {
+      "requirement": "Pre-protection failure cannot create intent/journal/upstream publication.",
+      "required_modes": [
+        "correctness"
+      ],
+      "rationale": "Requirement: Pre-protection failure cannot create intent/journal/upstream publication. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness."
+    },
+    "A32.1": {
+      "requirement": "Exercise every stage/protection/sync/rename/blob/metadata/response crash boundary.",
+      "required_modes": [
+        "crashes"
+      ],
+      "rationale": "Requirement: Exercise every stage/protection/sync/rename/blob/metadata/response crash boundary. Mode derivation: crashes: Original actual SIGKILL boundaries and durable-ack crash/rejoin claims require commands1/2 as selected, with physical bytes/intent/version readbacks."
+    },
+    "A32.2": {
+      "requirement": "Pre-protection and post-intent sync semantics remain distinct.",
+      "required_modes": [
+        "correctness",
+        "crashes"
+      ],
+      "rationale": "Requirement: Pre-protection and post-intent sync semantics remain distinct. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. crashes: Original actual SIGKILL boundaries and durable-ack crash/rejoin claims require commands1/2 as selected, with physical bytes/intent/version readbacks."
+    },
+    "A32.3": {
+      "requirement": "Response crash preserves exactly one committed version; nonresponse uncertainty remains unexposed.",
+      "required_modes": [
+        "crashes"
+      ],
+      "rationale": "Requirement: Response crash preserves exactly one committed version; nonresponse uncertainty remains unexposed. Mode derivation: crashes: Original actual SIGKILL boundaries and durable-ack crash/rejoin claims require commands1/2 as selected, with physical bytes/intent/version readbacks."
+    },
+    "A32.4": {
+      "requirement": "Remote durable acknowledgement crash/rejoin/resume preserves strict quorum and exactly-once metadata.",
+      "required_modes": [
+        "crashes"
+      ],
+      "rationale": "Requirement: Remote durable acknowledgement crash/rejoin/resume preserves strict quorum and exactly-once metadata. Mode derivation: crashes: Original actual SIGKILL boundaries and durable-ack crash/rejoin claims require commands1/2 as selected, with physical bytes/intent/version readbacks."
+    },
+    "A32.5": {
+      "requirement": "Current fault/contracts/crash receipts and owned cleanup all complete.",
+      "required_modes": [
+        "crashes",
+        "faults"
+      ],
+      "rationale": "Requirement: Current fault/contracts/crash receipts and owned cleanup all complete. Mode derivation: crashes: Original actual SIGKILL boundaries and durable-ack crash/rejoin claims require commands1/2 as selected, with physical bytes/intent/version readbacks. faults: Actual authenticated disconnect/cancellation/upstream interruption/ENOSPC/restart and online-queue checks are required; simulated exceptions alone are insufficient."
+    },
+    "A33.1": {
+      "requirement": "Stop observed real primary; prove new election and retained-root restart/rejoin.",
+      "required_modes": [
+        "resilience"
+      ],
+      "rationale": "Requirement: Stop observed real primary; prove new election and retained-root restart/rejoin. Mode derivation: resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause."
+    },
+    "A33.2": {
+      "requirement": "Data outage retains reads and rejects strict writes without lowering RF/W.",
+      "required_modes": [
+        "correctness",
+        "resilience"
+      ],
+      "rationale": "Requirement: Data outage retains reads and rejects strict writes without lowering RF/W. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause."
+    },
+    "A33.3": {
+      "requirement": "Recovery verifies ready same-generation physical replicas and resumes writes.",
+      "required_modes": [
+        "resilience"
+      ],
+      "rationale": "Requirement: Recovery verifies ready same-generation physical replicas and resumes writes. Mode derivation: resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause."
+    },
+    "A33.4": {
+      "requirement": "Retained-root bootstrap=true is rejected without mutating durable state.",
+      "required_modes": [
+        "cluster"
+      ],
+      "rationale": "Requirement: Retained-root bootstrap=true is rejected without mutating durable state. Mode derivation: cluster: Original retained-root bootstrap negative requires explicitly included three-voter integration; correctness tag exclusion cannot certify it."
+    },
+    "A33.5": {
+      "requirement": "Stale generations never satisfy durability.",
+      "required_modes": [
+        "correctness",
+        "resilience"
+      ],
+      "rationale": "Requirement: Stale generations never satisfy durability. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause."
+    },
+    "A34.1": {
+      "requirement": "GC retains shared-key/history/MPU/live-reader/unknown-intent blobs.",
+      "required_modes": [
+        "correctness",
+        "resilience"
+      ],
+      "rationale": "Requirement: GC retains shared-key/history/MPU/live-reader/unknown-intent blobs. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause."
+    },
+    "A34.2": {
+      "requirement": "Deterministic packing/GC/open-reader interleavings preserve content.",
+      "required_modes": [
+        "correctness"
+      ],
+      "rationale": "Requirement: Deterministic packing/GC/open-reader interleavings preserve content. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness."
+    },
+    "A34.3": {
+      "requirement": "Actual corruption/repair interleaving preserves versions and RF.",
+      "required_modes": [
+        "correctness",
+        "resilience"
+      ],
+      "rationale": "Requirement: Actual corruption/repair interleaving preserves versions and RF. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause."
+    },
+    "A34.4": {
+      "requirement": "Unsupported cluster packer/lifecycle modes remain guarded.",
+      "required_modes": [
+        "correctness",
+        "resilience"
+      ],
+      "rationale": "Requirement: Unsupported cluster packer/lifecycle modes remain guarded. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause."
+    },
+    "A35.1": {
+      "requirement": "Duplicate materialization, retry, lease expiry and takeover retain durable identity/fence.",
+      "required_modes": [
+        "correctness",
+        "resilience"
+      ],
+      "rationale": "Requirement: Duplicate materialization, retry, lease expiry and takeover retain durable identity/fence. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause."
+    },
+    "A35.2": {
+      "requirement": "Stale workers cannot renew/complete/fail/cleanup or change location metadata.",
+      "required_modes": [
+        "correctness",
+        "resilience",
+        "restore"
+      ],
+      "rationale": "Requirement: Stale workers cannot renew/complete/fail/cleanup or change location metadata. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause. restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts."
+    },
+    "A35.3": {
+      "requirement": "Scrub detects real corruption and bounded repair restores two valid replicas.",
+      "required_modes": [
+        "correctness",
+        "resilience"
+      ],
+      "rationale": "Requirement: Scrub detects real corruption and bounded repair restores two valid replicas. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause."
+    },
+    "A35.4": {
+      "requirement": "Range reads never publish partial repair; full GET repairs with stable identity.",
+      "required_modes": [
+        "correctness",
+        "resilience"
+      ],
+      "rationale": "Requirement: Range reads never publish partial repair; full GET repairs with stable identity. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause."
+    },
+    "A35.5": {
+      "requirement": "Real external-peer outage backlog persists across full BEAM restart.",
+      "required_modes": [
+        "resilience"
+      ],
+      "rationale": "Requirement: Real external-peer outage backlog persists across full BEAM restart. Mode derivation: resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause."
+    },
+    "A35.6": {
+      "requirement": "Normal dispatcher drains backlog to exact remote current bytes/deletion.",
+      "required_modes": [
+        "resilience"
+      ],
+      "rationale": "Requirement: Normal dispatcher drains backlog to exact remote current bytes/deletion. Mode derivation: resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause."
+    },
+    "A35.7": {
+      "requirement": "Eventual external replication never counts toward RF/W.",
+      "required_modes": [
+        "correctness",
+        "resilience"
+      ],
+      "rationale": "Requirement: Eventual external replication never counts toward RF/W. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause."
+    },
+    "A36.1": {
+      "requirement": "Backup quiesced boundary, then mutate/delete originals and recover with original roots inaccessible.",
+      "required_modes": [
+        "restore"
+      ],
+      "rationale": "Requirement: Backup quiesced boundary, then mutate/delete originals and recover with original roots inaccessible. Mode derivation: restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts."
+    },
+    "A36.2": {
+      "requirement": "Empty isolated target advances identity/generation and fences imported leases/jobs/intents.",
+      "required_modes": [
+        "restore",
+        "correctness"
+      ],
+      "rationale": "Requirement: Empty isolated target advances identity/generation and fences imported leases/jobs/intents. Mode derivation: restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts. correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness."
+    },
+    "A36.3": {
+      "requirement": "Manifest/native metadata and every required body artifact are independently verified.",
+      "required_modes": [
+        "restore",
+        "correctness"
+      ],
+      "rationale": "Requirement: Manifest/native metadata and every required body artifact are independently verified. Mode derivation: restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts. correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness."
+    },
+    "A36.4": {
+      "requirement": "Public restored content, history, tags/attributes/checksums, IAM/config and active MPU handling match backup.",
+      "required_modes": [
+        "restore"
+      ],
+      "rationale": "Requirement: Public restored content, history, tags/attributes/checksums, IAM/config and active MPU handling match backup. Mode derivation: restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts."
+    },
+    "A36.5": {
+      "requirement": "Required missing/corrupt artifacts and wrong/absent master keys fail verification.",
+      "required_modes": [
+        "restore",
+        "correctness"
+      ],
+      "rationale": "Requirement: Required missing/corrupt artifacts and wrong/absent master keys fail verification. Mode derivation: restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts. correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness."
+    },
+    "A36.6": {
+      "requirement": "Existing command0 compatibility is preserved; every empty target uses command1 across all restarts.",
+      "required_modes": [
+        "restore",
+        "correctness"
+      ],
+      "rationale": "Requirement: Existing command0 compatibility is preserved; every empty target uses command1 across all restarts. Mode derivation: restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts. correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness."
+    },
+    "A36.7": {
+      "requirement": "All outbound/destructive workers remain disabled until verified explicit activation; quarantine survives restart.",
+      "required_modes": [
+        "restore"
+      ],
+      "rationale": "Requirement: All outbound/destructive workers remain disabled until verified explicit activation; quarantine survives restart. Mode derivation: restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts."
+    },
+    "A37.1": {
+      "requirement": "Backup quiesced boundary, then mutate/delete originals and recover with original roots inaccessible.",
+      "required_modes": [
+        "restore"
+      ],
+      "rationale": "Requirement: Backup quiesced boundary, then mutate/delete originals and recover with original roots inaccessible. Mode derivation: restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts."
+    },
+    "A37.2": {
+      "requirement": "Empty isolated target advances identity/generation and fences imported leases/jobs/intents.",
+      "required_modes": [
+        "restore",
+        "correctness"
+      ],
+      "rationale": "Requirement: Empty isolated target advances identity/generation and fences imported leases/jobs/intents. Mode derivation: restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts. correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness."
+    },
+    "A37.3": {
+      "requirement": "Manifest/native metadata and every required body artifact are independently verified.",
+      "required_modes": [
+        "restore",
+        "correctness"
+      ],
+      "rationale": "Requirement: Manifest/native metadata and every required body artifact are independently verified. Mode derivation: restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts. correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness."
+    },
+    "A37.4": {
+      "requirement": "Public restored content, history, tags/attributes/checksums, IAM/config and active MPU handling match backup.",
+      "required_modes": [
+        "restore"
+      ],
+      "rationale": "Requirement: Public restored content, history, tags/attributes/checksums, IAM/config and active MPU handling match backup. Mode derivation: restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts."
+    },
+    "A37.5": {
+      "requirement": "Required missing/corrupt artifacts and wrong/absent master keys fail verification.",
+      "required_modes": [
+        "restore",
+        "correctness"
+      ],
+      "rationale": "Requirement: Required missing/corrupt artifacts and wrong/absent master keys fail verification. Mode derivation: restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts. correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness."
+    },
+    "A37.6": {
+      "requirement": "Existing command0 compatibility is preserved; every empty target uses command1 across all restarts.",
+      "required_modes": [
+        "restore",
+        "correctness"
+      ],
+      "rationale": "Requirement: Existing command0 compatibility is preserved; every empty target uses command1 across all restarts. Mode derivation: restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts. correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness."
+    },
+    "A37.7": {
+      "requirement": "All outbound/destructive workers remain disabled until verified explicit activation; quarantine survives restart.",
+      "required_modes": [
+        "restore"
+      ],
+      "rationale": "Requirement: All outbound/destructive workers remain disabled until verified explicit activation; quarantine survives restart. Mode derivation: restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts."
+    },
+    "A38.1": {
+      "requirement": "All original A01\u2013A37 compound clauses, required A38 input gates and authoritative lane commands pass; the actual aggregate verifier remains a separate mandatory final gate.",
+      "required_modes": [
+        "correctness",
+        "standalone",
+        "gateway",
+        "cluster",
+        "index",
+        "resources",
+        "faults",
+        "crashes",
+        "resilience",
+        "restore",
+        "release"
+      ],
+      "rationale": "All eleven original profiles are mandatory for the full aggregate. This clause stays blocked; no per-command success can replace missing A28 scale/full zero."
+    },
+    "A38.2": {
+      "requirement": "Automatic PR/push correctness preserves complete core/S3/transport/web and CLI contracts.",
+      "required_modes": [
+        "correctness",
+        "remote_correctness",
+        "cluster",
+        "resources"
+      ],
+      "rationale": "Requirement: Automatic PR/push correctness preserves complete core/S3/transport/web and CLI contracts. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. remote_correctness: Continuous coverage requires actual exact-head automatic push and PR job receipts/count artifacts, separately from local full suite. cluster: Original retained-root bootstrap negative requires explicitly included three-voter integration; correctness tag exclusion cannot certify it. resources: Original fixed-size/concurrency and bounded stream/resource claims require the real current manifest; command1 supplies local/gateway,command2 cluster,command3 only the separately tagged2GiB transport assertion as selected."
+    },
+    "A38.3": {
+      "requirement": "Production assets/release/container smoke and runtime metadata succeed.",
+      "required_modes": [
+        "release"
+      ],
+      "rationale": "Requirement: Production assets/release/container smoke and runtime metadata succeed. Mode derivation: release: Original A38 requires local production assets/release/image execution and runtime smoke from release command0; this mode does not mean publication."
+    },
+    "A38.4": {
+      "requirement": "Diagnostics, metrics and readiness agree with normal/error/quorum behavior.",
+      "required_modes": [
+        "correctness",
+        "standalone",
+        "resilience",
+        "release"
+      ],
+      "rationale": "Requirement: Diagnostics, metrics and readiness agree with normal/error/quorum behavior. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. standalone: Original operator/status contract requires the retained standalone HTTP/RPC fixture command2, separately from container/runtime smoke. resilience: Actual observed-primary election, strict outage/recovery,maintenance/read-repair and external durable-backlog fixtures are required; command1 and/or2 are selected by the specific clause. release: Original A38 requires local production assets/release/image execution and runtime smoke from release command0; this mode does not mean publication."
+    },
+    "A38.5": {
+      "requirement": "Upgrade/backfill/rollback notes reflect tested generation/index/command-format boundaries.",
+      "required_modes": [
+        "correctness",
+        "index",
+        "restore",
+        "documentation"
+      ],
+      "rationale": "Requirement: Upgrade/backfill/rollback notes reflect tested generation/index/command-format boundaries. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness. index: Actual quiesced three-voter migration/checkpoint interruption/rejoin/cutover fixture is required; only independently successful index command2 supplies it, never failed A28 scale command1. restore: Actual isolated standalone and/or three-voter recovery (chosen by original clause mode) requires command1 and substantive mode-specific backup/isolation/negative/fence/activation receipts. documentation: Original upgrade/rollback and local-versus-published acceptance boundary must be stated in current candidate-identified compatibility/release/runbooks."
+    },
+    "A38.6": {
+      "requirement": "Publication guards reject missing, stale, failed or incomplete full-acceptance evidence and validate exact source and version-only mappings.",
+      "required_modes": [
+        "correctness"
+      ],
+      "rationale": "Requirement: Publication guards reject missing, stale, failed or incomplete full-acceptance evidence and validate exact source and version-only mappings. Mode derivation: correctness: Original named domain/HTTP contracts (including injected failures and deterministic barriers) require the complete current fast application or Python harness suite rather than mere integration liveness."
+    },
+    "A38.7": {
+      "requirement": "Local artifact smoke checks source/version identity, and release documentation distinguishes acceptance from subsequent publication verification.",
+      "required_modes": [
+        "release",
+        "documentation"
+      ],
+      "rationale": "Requirement: Local artifact smoke checks source/version identity, and release documentation distinguishes acceptance from subsequent publication verification. Mode derivation: release: Original A38 requires local production assets/release/image execution and runtime smoke from release command0; this mode does not mean publication. documentation: Original upgrade/rollback and local-versus-published acceptance boundary must be stated in current candidate-identified compatibility/release/runbooks."
+    }
+  }
+}

@@ -1,0 +1,11 @@
+curl: (7) Failed to connect to 127.0.0.1:9001 after 0 ms: Could not connect to server
+{"action": "seed", "status": "passed"}
+{"action": "read-repair", "status": "passed"}
+{"action": "maintenance", "status": "passed"}
+{"action": "outage", "status": "passed"}
+curl: (7) Failed to connect to 127.0.0.1:9002 after 0 ms: Could not connect to server
+{"action": "recovered", "status": "passed"}
+{"action": "record-leader", "status": "passed"}
+{"action": "elected", "status": "passed"}
+{"action": "verify", "status": "passed"}
+Disposable resilience roots retained: /tmp/ess-s3-hardening-cluster-ceO2GjHQ; exit 0

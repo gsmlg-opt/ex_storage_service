@@ -1,0 +1,10 @@
+test_child_failure_is_preserved (__main__.FreezeGateTest.test_child_failure_is_preserved) ... ok
+test_drift_does_not_replace_an_existing_child_failure (__main__.FreezeGateTest.test_drift_does_not_replace_an_existing_child_failure) ... ok
+test_each_frozen_input_drift_fails_a_successful_child (__main__.FreezeGateTest.test_each_frozen_input_drift_fails_a_successful_child) ... ok
+test_regression_is_archived_with_driver_inputs (__main__.FreezeGateTest.test_regression_is_archived_with_driver_inputs) ... ok
+test_unchanged_success_preserves_child_outcome (__main__.FreezeGateTest.test_unchanged_success_preserves_child_outcome) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.014s
+
+OK

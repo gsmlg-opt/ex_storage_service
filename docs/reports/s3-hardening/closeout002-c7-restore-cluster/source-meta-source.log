@@ -1,0 +1,42 @@
+
+08:12:10.674 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+08:12:10.685 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+08:12:10.973 [info] Concord VSR metadata quorum pending: :quorum_unavailable
+{"restore_control":"boot_ready"}
+
+08:12:12.951 [notice] Application ex_storage_service_s3 exited: :stopped
+
+08:12:12.953 [notice] Application ex_storage_service_cluster exited: :stopped
+
+08:12:15.370 [notice] SIGTERM received - shutting down
+
+==> ex_storage_service
+[0mWaiting for lock on the build directory (held by process 829630)
+[0mWaiting for lock on the build directory (held by process 829630)
+==> ex_storage_service_cluster
+[0mWaiting for lock on the build directory (held by process 829630)
+==> ex_storage_service_cli
+[0mWaiting for lock on the build directory (held by process 829630)
+==> ex_storage_service_s3
+[0mWaiting for lock on the build directory (held by process 829630)
+[0mWaiting for lock on the build directory (held by process 829629)
+==> ex_storage_service_web
+[0mWaiting for lock on the build directory (held by process 829629)
+
+08:12:17.040 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+08:12:17.058 [info] Starting Concord TTL manager with cleanup interval: 300000s
+
+08:12:17.111 [info] Concord VSR metadata quorum ready
+{"restore_control":"boot_ready"}
+
+08:12:17.432 [notice] SIGTERM received - shutting down
+

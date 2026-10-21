@@ -1,0 +1,19 @@
+test_absent_modes_require_explicit_complete_reviewed_map (__main__.ClauseBindingsTest.test_absent_modes_require_explicit_complete_reviewed_map) ... ok
+test_binding_requires_indices_and_substantive_output (__main__.ClauseBindingsTest.test_binding_requires_indices_and_substantive_output) ... ok
+test_blocked_a28_remains_outside_a29_a38_mode_additions (__main__.ClauseBindingsTest.test_blocked_a28_remains_outside_a29_a38_mode_additions) ... ok
+test_blocked_index_only_selected_a29_child (__main__.ClauseBindingsTest.test_blocked_index_only_selected_a29_child) ... ok
+test_documentation_requires_current_candidate_identity (__main__.ClauseBindingsTest.test_documentation_requires_current_candidate_identity) ... ok
+test_existing_modes_cannot_be_shrunk_or_overridden_by_new_map (__main__.ClauseBindingsTest.test_existing_modes_cannot_be_shrunk_or_overridden_by_new_map) ... ok
+test_failed_child_is_not_pass (__main__.ClauseBindingsTest.test_failed_child_is_not_pass) ... ok
+test_missing_or_unknown_required_mode (__main__.ClauseBindingsTest.test_missing_or_unknown_required_mode) ... ok
+test_remaining_requirement_blocks_pass (__main__.ClauseBindingsTest.test_remaining_requirement_blocks_pass) ... ok
+test_selected_successful_execution (__main__.ClauseBindingsTest.test_selected_successful_execution) ... ok
+test_source_only_evidence_is_not_execution (__main__.ClauseBindingsTest.test_source_only_evidence_is_not_execution) ... ok
+test_supplemental_runtime_claims_are_verified_and_retained (__main__.ClauseBindingsTest.test_supplemental_runtime_claims_are_verified_and_retained) ... ok
+test_unpassed_clause_never_produces_pass_bindings (__main__.ClauseBindingsTest.test_unpassed_clause_never_produces_pass_bindings) ... ok
+test_unrelated_candidate_files_cannot_substantiate_execution (__main__.ClauseBindingsTest.test_unrelated_candidate_files_cannot_substantiate_execution) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.012s
+
+OK

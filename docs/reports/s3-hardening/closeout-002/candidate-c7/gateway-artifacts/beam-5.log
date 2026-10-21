@@ -1,0 +1,38 @@
+07:39:29.077 [info] The function passed as a handler with ID "concord-logger" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+07:39:29.088 [info] Starting Concord TTL manager with cleanup interval: 300000s
+07:39:29.122 [info] Concord VSR metadata store ready
+07:39:29.133 [info] Storage engine started with data root /tmp/ess-s3-hardening-closeout002-c7-gateway/data and blob root /tmp/ess-s3-hardening-closeout002-c7-gateway/data/blob
+07:39:29.159 [info] Running ExStorageServiceS3.Router with Bandit 1.12.5 at 0.0.0.0:19000 (http)
+07:39:30.314 [info] CloudCache LIST upstream-hardening: 0 keys, 0 prefixes, xml_bytes=283
+07:39:31.365 [info] CloudCache LIST upstream-hardening: 12 keys, 0 prefixes, xml_bytes=2660
+07:39:32.527 [info] CloudCache LIST upstream-hardening: 0 keys, 0 prefixes, xml_bytes=288
+07:39:33.576 [info] CloudCache LIST upstream-hardening: 13 keys, 0 prefixes, xml_bytes=2862
+07:39:33.604 [info] CloudCache LIST upstream-hardening: 0 keys, 0 prefixes, xml_bytes=289
+07:39:34.668 [info] CloudCache LIST upstream-hardening: 13 keys, 0 prefixes, xml_bytes=2863
+07:39:35.735 [info] CloudCache LIST upstream-hardening: 12 keys, 0 prefixes, xml_bytes=2660
+07:39:36.821 [info] CloudCache LIST upstream-hardening: 0 keys, 0 prefixes, xml_bytes=286
+07:39:36.864 [info] CloudCache LIST upstream-hardening: 0 keys, 0 prefixes, xml_bytes=286
+07:39:36.908 [info] CloudCache LIST upstream-hardening: 0 keys, 0 prefixes, xml_bytes=293
+07:39:37.954 [info] CloudCache LIST upstream-hardening: 11 keys, 1 prefixes, xml_bytes=2519
+07:39:38.000 [info] CloudCache LIST upstream-hardening: 2 keys, 1 prefixes, xml_bytes=741
+07:39:38.120 [info] CloudCache LIST upstream-hardening: 3 keys, 0 prefixes, xml_bytes=861
+07:39:38.124 [info] CloudCache LIST upstream-hardening: 3 keys, 0 prefixes, xml_bytes=861
+07:39:39.186 [info] CloudCache LIST upstream-hardening: 11 keys, 2 prefixes, xml_bytes=2580
+07:39:39.245 [info] CloudCache LIST upstream-hardening: 3 keys, 0 prefixes, xml_bytes=881
+07:39:39.248 [info] CloudCache LIST upstream-hardening: 3 keys, 0 prefixes, xml_bytes=881
+07:39:40.354 [info] CloudCache LIST upstream-hardening: 11 keys, 2 prefixes, xml_bytes=2581
+07:39:40.381 [info] CloudCache LIST upstream-hardening: 1 keys, 0 prefixes, xml_bytes=665
+07:39:40.385 [info] CloudCache LIST upstream-hardening: 1 keys, 0 prefixes, xml_bytes=836
+07:39:40.386 [info] CloudCache LIST upstream-hardening: 3 keys, 0 prefixes, xml_bytes=885
+07:39:40.389 [info] CloudCache LIST upstream-hardening: 0 keys, 1 prefixes, xml_bytes=521
+07:39:41.451 [info] CloudCache LIST upstream-hardening: 11 keys, 1 prefixes, xml_bytes=2519
+07:39:41.476 [info] CloudCache LIST upstream-hardening: 1 keys, 0 prefixes, xml_bytes=645
+07:39:41.480 [info] CloudCache LIST upstream-hardening: 1 keys, 0 prefixes, xml_bytes=808
+07:39:41.480 [info] CloudCache LIST upstream-hardening: 3 keys, 0 prefixes, xml_bytes=861
+07:39:41.484 [info] CloudCache LIST upstream-hardening: 0 keys, 1 prefixes, xml_bytes=501
+07:39:42.543 [info] CloudCache LIST upstream-hardening: 11 keys, 0 prefixes, xml_bytes=2463
+07:39:42.591 [notice] SIGTERM received - shutting down
+

@@ -1,0 +1,72 @@
+test_selector_rejects_passed_with_failed_child (__main__.Fixtures.test_selector_rejects_passed_with_failed_child) ... FAIL
+test_selector_rejects_passed_compile_only (__main__.Fixtures.test_selector_rejects_passed_compile_only) ... FAIL
+
+======================================================================
+FAIL: test_selector_rejects_passed_with_failed_child (__main__.Fixtures.test_selector_rejects_passed_with_failed_child)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/fast/build/ess-closeout-c7-acceptance/test_terminal_evidence.py", line 82, in test_selector_rejects_passed_with_failed_child
+    with self.assertRaises((RuntimeError, ValueError)):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_selector_rejects_passed_compile_only (__main__.Fixtures.test_selector_rejects_passed_compile_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/fast/build/ess-closeout-c7-acceptance/test_terminal_evidence.py", line 89, in test_selector_rejects_passed_compile_only
+    with self.assertRaises((RuntimeError, ValueError)):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.018s
+
+FAILED (failures=2)
+test_any_profile_compile_failure_cannot_continue (__main__.Fixtures.test_any_profile_compile_failure_cannot_continue) ... ok
+test_blocked_compile_failure_prefix_allowed (__main__.Fixtures.test_blocked_compile_failure_prefix_allowed) ... ok
+test_blocked_exception_after_successful_prefix_allowed (__main__.Fixtures.test_blocked_exception_after_successful_prefix_allowed) ... ok
+test_invocation_rejects_null_bool_unfinished_stale (__main__.Fixtures.test_invocation_rejects_null_bool_unfinished_stale) ... ok
+test_invocation_valid_failed_acceptance_is_terminal (__main__.Fixtures.test_invocation_valid_failed_acceptance_is_terminal) ... ok
+test_lane_rejects_profile_source_environment_argv_log_exit (__main__.Fixtures.test_lane_rejects_profile_source_environment_argv_log_exit) ... ok
+test_legitimate_blocked_independent_index_and_resources (__main__.Fixtures.test_legitimate_blocked_independent_index_and_resources) ... ok
+test_missing_lane_and_symlink_receipt_rejected (__main__.Fixtures.test_missing_lane_and_symlink_receipt_rejected) ... ok
+test_non_independent_continuation_after_failure_rejected (__main__.Fixtures.test_non_independent_continuation_after_failure_rejected) ... ok
+test_safe_read_limits_actual_bytes_not_stat_only (__main__.Fixtures.test_safe_read_limits_actual_bytes_not_stat_only) ... ok
+test_safe_reads_refuse_traversal_symlinks_private_and_nonregular (__main__.Fixtures.test_safe_reads_refuse_traversal_symlinks_private_and_nonregular) ... ok
+test_selector_keeps_valid_blocked_receipt_byte_identical (__main__.Fixtures.test_selector_keeps_valid_blocked_receipt_byte_identical) ... ok
+test_selector_rejects_passed_compile_only (__main__.Fixtures.test_selector_rejects_passed_compile_only) ... ok
+test_selector_rejects_passed_with_failed_child (__main__.Fixtures.test_selector_rejects_passed_with_failed_child) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.116s
+
+OK
+
+RED command metadata retained from prior actual execution:
+PAGER=cat python /fast/build/ess-closeout-c7-acceptance/test_terminal_evidence.py --legacy-selector Fixtures.test_selector_rejects_passed_with_failed_child Fixtures.test_selector_rejects_passed_compile_only
+Actual exit: 1; 2 tests, 2 expected reproducing failures.
+
+Final GREEN command: ["/run/current-system/sw/bin/python", "/fast/build/ess-closeout-c7-acceptance/test_terminal_evidence.py"]
+Exit: 0
+test_any_profile_compile_failure_cannot_continue (__main__.Fixtures.test_any_profile_compile_failure_cannot_continue) ... ok
+test_blocked_compile_failure_prefix_allowed (__main__.Fixtures.test_blocked_compile_failure_prefix_allowed) ... ok
+test_blocked_exception_after_successful_prefix_allowed (__main__.Fixtures.test_blocked_exception_after_successful_prefix_allowed) ... ok
+test_directory_boundary_refuses_symlink_and_allows_real_directory (__main__.Fixtures.test_directory_boundary_refuses_symlink_and_allows_real_directory) ... ok
+test_invocation_rejects_null_bool_unfinished_stale (__main__.Fixtures.test_invocation_rejects_null_bool_unfinished_stale) ... ok
+test_invocation_valid_failed_acceptance_is_terminal (__main__.Fixtures.test_invocation_valid_failed_acceptance_is_terminal) ... ok
+test_lane_rejects_profile_source_environment_argv_log_exit (__main__.Fixtures.test_lane_rejects_profile_source_environment_argv_log_exit) ... ok
+test_legitimate_blocked_independent_index_and_resources (__main__.Fixtures.test_legitimate_blocked_independent_index_and_resources) ... ok
+test_missing_lane_and_symlink_receipt_rejected (__main__.Fixtures.test_missing_lane_and_symlink_receipt_rejected) ... ok
+test_non_independent_continuation_after_failure_rejected (__main__.Fixtures.test_non_independent_continuation_after_failure_rejected) ... ok
+test_read_growth_is_bounded_even_when_initial_stat_underreports (__main__.Fixtures.test_read_growth_is_bounded_even_when_initial_stat_underreports) ... ok
+test_safe_read_limits_actual_bytes_not_stat_only (__main__.Fixtures.test_safe_read_limits_actual_bytes_not_stat_only) ... ok
+test_safe_reads_refuse_traversal_symlinks_private_and_nonregular (__main__.Fixtures.test_safe_reads_refuse_traversal_symlinks_private_and_nonregular) ... ok
+test_selector_keeps_valid_blocked_receipt_byte_identical (__main__.Fixtures.test_selector_keeps_valid_blocked_receipt_byte_identical) ... ok
+test_selector_rejects_passed_compile_only (__main__.Fixtures.test_selector_rejects_passed_compile_only) ... ok
+test_selector_rejects_passed_with_failed_child (__main__.Fixtures.test_selector_rejects_passed_with_failed_child) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.055s
+
+OK

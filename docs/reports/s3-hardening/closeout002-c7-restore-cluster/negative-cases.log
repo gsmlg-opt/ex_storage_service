@@ -1,0 +1,6 @@
+{"restore_control":{"rejected":":master_key_mismatch"}}
+{"restore_control":{"rejected":":master_key_required"}}
+{"restore_control":{"rejected":":enoent"}}
+{"restore_control":{"rejected":":artifact_checksum_mismatch"}}
+{"restore_control":{"rejected":":enoent"}}
+{"restore_control":{"rejected":":artifact_checksum_mismatch"}}

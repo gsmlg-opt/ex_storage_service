@@ -1,0 +1,40 @@
+{
+  "candidate_sha": "fcc02e148ae31f00022d563ebce2b039be5d32dd",
+  "source_sha256": "ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913",
+  "scope": "Additive terminal fixture disposal evidence generated only after the primary publication/privacy snapshot. All four files reviewed separately; no original receipt, historical manifest or acceptance decision changed. Supplemental C6 copies retain their explicit acceptance:false boundary.",
+  "acceptance": false,
+  "privacy_review": {
+    "method": "Complete source/schema review plus the same bounded credential-field/header/signed-query pattern scanner; no raw private metadata archive is published.",
+    "credential_values_included": false
+  },
+  "private_archive": {
+    "path": "/fast/build/ess-closeout-c7-acceptance/private-fixtures/metadata.tar",
+    "sha256": "c82423077d38c0c72f9eb8aeafcf59b91bbe694a1e6d0984db278bcca54e0214",
+    "files": 519,
+    "bytes": 230318864,
+    "mode": "0600 in owned0700 directory",
+    "content": "Regular log/JSON/JSONL metadata only; excludes object payloads and native databases; every tar member size/hash verified before deletion."
+  },
+  "files": [
+    {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/terminal-disposal/disposal.json",
+      "bytes": 131029,
+      "sha256": "4617318d2b09b88dbab7862f2a5f10f3189d70e6cb3707def757517227822851"
+    },
+    {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/terminal-disposal/dispose_c7_fixtures.py",
+      "bytes": 19429,
+      "sha256": "eeea4fc7e18c98f4afd0507f4cfa681ab71da8355eb01ccecc80bd8c95df45b8"
+    },
+    {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/terminal-disposal/test_dispose_c7_fixtures.py",
+      "bytes": 11453,
+      "sha256": "31337374c65c1248af3cb6f2cd93d276431be377b7c16ce383c6b18c92feb47d"
+    },
+    {
+      "path": "docs/reports/s3-hardening/closeout-002/candidate-c7/terminal-disposal/disposal-tests.log",
+      "bytes": 2389,
+      "sha256": "61be986351295a254368c9fc28a178429f14e46c3d8cf5f04ca9ae8b629324e7"
+    }
+  ]
+}

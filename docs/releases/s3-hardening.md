@@ -1,3 +1,29 @@
+# Unreleased — S3 hardening closeout
+
+Candidate `fcc02e148ae31f00022d563ebce2b039be5d32dd` fixes coherent latest-version
+selection and root ListBuckets SDK query dispatch, with deterministic domain,
+independently signed HTTP and isolated cluster regressions. Automatic PR/push
+correctness now covers the complete server suites and retained CLI contracts.
+Concord/VSR/ExTurso are coordinated at 3.1.4; HTTP remains 0.21.13.
+
+The candidate passed all 56 local/gateway and 20 cluster resource groups under
+the original sizes, concurrency, 100 ms observation bound and numeric envelopes,
+plus fault/crash, resilience, standalone/cluster restore and local container
+checks. A28's mandatory 10k/100k listing datasets remain blocked by Concord
+[#101](https://github.com/gsmlg-dev/concord/issues/101) and
+[#102](https://github.com/gsmlg-dev/concord/issues/102); the full entry point exits 1.
+No closeout patch version has been selected or published. Local container smoke
+does not constitute public artifact verification. The
+[closeout report](../reports/s3-hardening-verification.md) records the exact
+source fingerprint, evidence and remaining publication prerequisites.
+
+Existing command-format 0 databases remain unchanged. Empty restore targets
+must retain format 1 through every restart and activation. Retain verified
+metadata/blob backups before explicit backfill; old-binary rollback after v2
+writes requires restoration. Destructive/outbound workers remain disabled until
+the established validation and activation boundary. The published v0.6.10 notes
+below retain their original daily-use scope.
+
 # v0.6.10 — S3 compatibility and daily-use hardening
 
 Published [v0.6.10](https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.10)

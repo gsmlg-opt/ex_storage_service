@@ -1,0 +1,32 @@
+{
+  "candidate_sha": "69371bc0c2d00f63fd8f3ff0edc751c28a02d441",
+  "source_sha256": "97e56e9eb014454095aff5cc5501f3acc132dbbdcbd04d7d4555d46226031bcb",
+  "acceptance": false,
+  "scope": "Byte-identical supplemental C6 terminal inventory/review. Does not reconstruct per-case inventories or certify C7. Existing C6 publication manifest unchanged.",
+  "files": [
+    {
+      "original_path": "/fast/build/ess-closeout-c6-acceptance/c6-local-terminal-staging.json",
+      "public_copy": "docs/reports/s3-hardening/closeout-002/resource-staging/c6-supplement/c6-local-terminal-staging.json",
+      "sha256": "4588ec4118e58fb1312a62f513491f327db96303665090e4f79e5fa977877649",
+      "bytes": 4271
+    },
+    {
+      "original_path": "/fast/build/ess-closeout-c6-acceptance/a30-final-review.json",
+      "public_copy": "docs/reports/s3-hardening/closeout-002/resource-staging/c6-supplement/a30-final-review.json",
+      "sha256": "d360264ab25be8e3ddc3e6bb8f903a45d1330bebeb6992f477d1dad68d6ddfe4",
+      "bytes": 16017
+    },
+    {
+      "original_path": "/fast/build/ess-closeout-c6-acceptance/inventory_c6_local_stages.py",
+      "public_copy": "docs/reports/s3-hardening/closeout-002/resource-staging/c6-supplement/inventory_c6_local_stages.py",
+      "sha256": "8c77c373dc00379a1ed0390edf1fee2b2d9257778887d90ef0e544a384fb0cbf",
+      "bytes": 13353
+    },
+    {
+      "original_path": "/fast/build/ess-closeout-c6-acceptance/test_inventory_c6_local_stages.py",
+      "public_copy": "docs/reports/s3-hardening/closeout-002/resource-staging/c6-supplement/test_inventory_c6_local_stages.py",
+      "sha256": "5b6989586a40e7b437e8ea64728dec9ff28d6b370b16c8c9ebdbc7ef2ac3817d",
+      "bytes": 9990
+    }
+  ]
+}

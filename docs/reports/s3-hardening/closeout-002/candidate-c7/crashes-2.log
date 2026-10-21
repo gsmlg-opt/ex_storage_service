@@ -1,0 +1,6 @@
+curl: (7) Failed to connect to 127.0.0.1:9001 after 0 ms: Could not connect to server
+PASS remote-durable-ack-origin-crash-isolates-uncertain-operation
+curl: (7) Failed to connect to 127.0.0.1:9002 after 0 ms: Could not connect to server
+PASS retained-root-rejoin-preserves-data-and-uncertainty
+PASS same-internal-operation-resumes-strict-quorum-exactly-one-version
+Disposable replication crash roots retained: /tmp/ess-s3-hardening-cluster-MQ8AmX6A; exit 0
