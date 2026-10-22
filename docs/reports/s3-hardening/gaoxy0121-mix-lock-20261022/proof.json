@@ -1,0 +1,36 @@
+{
+  "worker_os_pid": 1335470,
+  "log": "RUNTIME 1.19.6 OTP 28 PID 1335470 MODULE /tmp/ess-elixir-1.19-otp28-format/bin/../lib/mix/ebin/Elixir.Mix.Sync.Lock.beam\nATTEMPT 1\nACQUIRED 1\nATTEMPT 2\nTAKEN 1335470 SELF 1335470\n",
+  "lock_file": "/tmp/ess-gaoxy-mix-lock-20261022/runtime-tmp-two-ports/mix_lock_user0/6hu1vAdc0x_eGeUfIs28GQ/lock_0",
+  "lock_port": 32769,
+  "lock_os_pid": "1335470",
+  "lock_inode": 12194117,
+  "lock_nlink": 2,
+  "port_file_same_inode": true,
+  "socket_rows": [
+    {
+      "local": "0100007F:8001",
+      "remote": "00000000:0000",
+      "state": "0A",
+      "inode": "3359754",
+      "worker_owned": true
+    },
+    {
+      "local": "0100007F:8001",
+      "remote": "0100007F:8000",
+      "state": "01",
+      "inode": "3359758",
+      "worker_owned": true
+    },
+    {
+      "local": "0100007F:8000",
+      "remote": "0100007F:8001",
+      "state": "01",
+      "inode": "3359757",
+      "worker_owned": true
+    }
+  ],
+  "self_deadlock_proven": true,
+  "worker_exit_code": 0,
+  "worker_stopped": true
+}

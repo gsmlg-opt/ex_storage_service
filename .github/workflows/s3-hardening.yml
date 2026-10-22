@@ -77,6 +77,9 @@ jobs:
     name: Extended audit / ${{ matrix.profile }}
     if: github.event_name == 'workflow_dispatch' && inputs.extended
     runs-on: ubuntu-24.04
+    env:
+      # Each isolated matrix job runs Mix sequentially; avoid elixir-lang/elixir#15761.
+      MIX_OS_CONCURRENCY_LOCK: '0'
     timeout-minutes: 240
     strategy:
       fail-fast: false

@@ -35,6 +35,9 @@ jobs:
   validate-and-tag:
     name: Validate all candidates before publication
     runs-on: ubuntu-latest
+    env:
+      # This isolated job runs Mix sequentially; avoid elixir-lang/elixir#15761.
+      MIX_OS_CONCURRENCY_LOCK: '0'
     outputs:
       source_sha: ${{ steps.prepared.outputs.source_sha }}
       release_sha: ${{ steps.prepared.outputs.release_sha }}

@@ -1,0 +1,20 @@
+[
+  {
+    "tag": "v1.20.3",
+    "has_ensure_peer_port": false,
+    "namespace_v2": false,
+    "removes_port_path": false
+  },
+  {
+    "tag": "v1.20.4",
+    "has_ensure_peer_port": false,
+    "namespace_v2": false,
+    "removes_port_path": false
+  },
+  {
+    "tag": "main",
+    "has_ensure_peer_port": true,
+    "namespace_v2": true,
+    "removes_port_path": false
+  }
+]

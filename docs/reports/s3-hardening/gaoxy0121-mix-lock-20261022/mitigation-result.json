@@ -1,0 +1,7 @@
+{
+  "exit_code": 0,
+  "worker_stopped": true,
+  "command": "MIX_OS_CONCURRENCY_LOCK=0 elixir mitigation.exs (private user+network namespace)",
+  "stdout": "RUNTIME 1.19.6 OTP 28 PID 1335739\nMIX_OS_CONCURRENCY_LOCK 0\nACQUIRED 1 LOCK_FILES [] TCP_LISTENERS 0\nACQUIRED 2 LOCK_FILES [] TCP_LISTENERS 0\nMITIGATION_PASS\n",
+  "stderr": ""
+}

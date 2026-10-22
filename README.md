@@ -762,6 +762,14 @@ Cloud-cache E2E upstream settings:
 
 ## CI/CD
 
+Hosted jobs that reserve native journal ports use the official
+`MIX_OS_CONCURRENCY_LOCK=0` within each isolated job, where Mix runs sequentially.
+This avoids the Elixir 1.19.6 build-lock self-deadlock documented in
+[elixir-lang/elixir#15761](https://github.com/elixir-lang/elixir/issues/15761)
+and fixed upstream by [#15765](https://github.com/elixir-lang/elixir/pull/15765).
+Native transfer-journal mutexes remain enabled. Shared checkouts with concurrent
+Mix processes must retain the OS build lock; this is not a production setting.
+
 GitHub Actions workflows include:
 
 - **CI** (`ci.yml`) - compile with warnings as errors and check formatting

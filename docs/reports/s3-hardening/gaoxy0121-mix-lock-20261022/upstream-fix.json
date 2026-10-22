@@ -1,0 +1,30 @@
+{
+  "sha": "b703302cd1fc91dd1b2df51659daf9b8d6053776",
+  "html_url": "https://github.com/elixir-lang/elixir/commit/b703302cd1fc91dd1b2df51659daf9b8d6053776",
+  "commit": {
+    "author": {
+      "name": "Jonatan K\u0142osko",
+      "email": "jonatanklosko@gmail.com",
+      "date": "2026-08-18T11:25:11Z"
+    },
+    "committer": {
+      "name": "GitHub",
+      "email": "noreply@github.com",
+      "date": "2026-08-18T11:25:11Z"
+    },
+    "message": "Fix mix sync lock_N files getting overridden with empty content (#15765)",
+    "tree": {
+      "sha": "99bde12132d5b43474ad128050927f47a06328af",
+      "url": "https://api.github.com/repos/elixir-lang/elixir/git/trees/99bde12132d5b43474ad128050927f47a06328af"
+    },
+    "url": "https://api.github.com/repos/elixir-lang/elixir/git/commits/b703302cd1fc91dd1b2df51659daf9b8d6053776",
+    "comment_count": 0,
+    "verification": {
+      "verified": true,
+      "reason": "valid",
+      "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqhEEXCRC1aQ7uu5UhlAAAzqEQAKH0QFon+zbtBEshogMPpB3t\n4srX5z7gS9U1jcpGO2hR1+gPzh/307cQB2oMk9d9N/uJGIikcy5z+UKcgdXiDzEx\nmRlgbT72cvIiGDTJEfG/ds+CjiZir0O969ok3WzYF3m7+RUjxn5t3VahxobGlqGZ\n/+k0YUC/UiVg43GehBqv3SMvsT1LDBtIBxVPigZhc0IZ2lLjvH24jPep/cxrUXP8\nflGEFjGE/jRqhKETJdgdRC2AEEn9yPvaQI4rkwP/M1UWylcHEFNFSHg55PxzwcJV\ntpencLfmbkO1zPbRIhuSuoCKwucy/5337maQ1+LgW3QnSMsJIUeKr80ZK9jzFG9E\n4oZVQ4u/5xmYAWXz6tR7r4hEjgKNby0/A7d9pH/Be/i7yZncvZ+UPHm6jeLMUfTx\nKsd1Gs+KOftMQT7XqVASs7wn6FK1MjUGmjQRHvfPAbQTBak7K9PPB0P3bRAKsAZ8\nTCwRXJkRHI5WSueAy9Ni0VLBG1Ma4UAM0OJ2tx51ME6OsnvwQkyrUWVUopYwDpSb\nlCffF9PCQg87ToICHAVRs3KrMSw2dt6k0APfL4Tzl7pA4VEWPlw3d/kDjcrNOaly\n9ASE2sj6MokLZj0XsmuxVLRl/khOOQzJqaag/9Q3dCaSvtkLIIczMUEmRw1UERwy\n3X2hc9J1PnioNOwGlZHy\n=O15h\n-----END PGP SIGNATURE-----\n",
+      "payload": "tree 99bde12132d5b43474ad128050927f47a06328af\nparent 02124013ded95fe75d17f581ea56174e117f74a0\nauthor Jonatan K\u0142osko <jonatanklosko@gmail.com> 1787052311 +0200\ncommitter GitHub <noreply@github.com> 1787052311 +0200\n\nFix mix sync lock_N files getting overridden with empty content (#15765)",
+      "verified_at": "2026-08-18T11:25:12Z"
+    }
+  }
+}

@@ -38,6 +38,9 @@ jobs:
   diagnostic:
     name: Both data observers / original cluster groups 1–6 / not acceptance
     runs-on: ubuntu-24.04
+    env:
+      # This isolated job runs Mix sequentially; avoid elixir-lang/elixir#15761.
+      MIX_OS_CONCURRENCY_LOCK: '0'
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4

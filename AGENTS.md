@@ -137,6 +137,12 @@ enforces decoded object size.
   helper check; the default `extended` profile retains all 11 helper cases.
   Full CLI suites, resource/provider checks and the platform matrix require manual
   `extended: true`; cluster, cloud-cache and restart E2E workflows are manual-only.
+- Hosted jobs that reserve native journal ports set the official
+  `MIX_OS_CONCURRENCY_LOCK=0` only within their isolated, sequential Mix job.
+  Elixir 1.19.6 can self-deadlock when a build-lock listener reuses a stale
+  hard-linked port file (`elixir-lang/elixir#15761`, fixed upstream by #15765).
+  Keep native transfer-journal mutexes enabled; do not apply this setting to
+  shared checkouts with concurrent Mix processes or production runtime.
 - All new features must be accompanied by tests.
 - When fixing a bug, write a reproducing test case first to prevent future regression.
 - Cloud-cache E2E uses RustFS as the upstream server through the generic

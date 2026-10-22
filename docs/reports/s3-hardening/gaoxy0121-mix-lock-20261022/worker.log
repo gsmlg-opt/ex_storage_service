@@ -1,0 +1,8 @@
+RUNTIME 1.19.6 OTP 28 PID 1335470 MODULE /tmp/ess-elixir-1.19-otp28-format/bin/../lib/mix/ebin/Elixir.Mix.Sync.Lock.beam
+ATTEMPT 1
+ACQUIRED 1
+ATTEMPT 2
+TAKEN 1335470 SELF 1335470
+
+21:17:08.573 [notice] SIGTERM received - shutting down
+

@@ -48,6 +48,9 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && inputs.extended
     name: CLI unit, wire and executable contracts
     runs-on: ubuntu-latest
+    env:
+      # This isolated job runs Mix sequentially; avoid elixir-lang/elixir#15761.
+      MIX_OS_CONCURRENCY_LOCK: '0'
     steps:
       - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
@@ -81,6 +84,9 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && inputs.extended
     name: CLI throttled 2 GiB resource acceptance
     runs-on: ubuntu-latest
+    env:
+      # This isolated job runs Mix sequentially; avoid elixir-lang/elixir#15761.
+      MIX_OS_CONCURRENCY_LOCK: '0'
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
