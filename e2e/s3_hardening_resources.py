@@ -11,7 +11,6 @@ import json
 import os
 from pathlib import Path
 import signal
-import socket
 import stat
 import subprocess
 import time
@@ -24,6 +23,7 @@ from gateway_hardening import Runtime, client, wait_http
 from gateway_fault_proxy import FaultProxy
 from hardening_acceptance import source_fingerprint
 from resource_cadence import execute_group, measure_samples
+from hardening_ports import free_port as port
 
 MIB = 1024 * 1024
 
@@ -53,12 +53,6 @@ def staging_snapshot(data):
         elif child.is_dir() and ((child / "cache").exists() or (child / "cache").is_symlink()):
             inspect(child / "cache", cache=True)
     return result
-
-
-def port():
-    with socket.socket() as sock:
-        sock.bind(("127.0.0.1", 0))
-        return sock.getsockname()[1]
 
 
 class PacedFile:

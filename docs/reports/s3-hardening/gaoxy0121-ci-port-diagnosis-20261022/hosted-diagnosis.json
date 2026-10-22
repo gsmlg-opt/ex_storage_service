@@ -1,0 +1,42 @@
+{
+  "run_id": 39774960133,
+  "status": "blocked",
+  "selected_endpoints": 6,
+  "port32771_count": 5,
+  "duplicate_selection_proved": true,
+  "startup_processes": {
+    "data-a": {
+      "exit_status": 1,
+      "pid": 23707
+    },
+    "data-b": {
+      "exit_status": 1,
+      "pid": 23711
+    },
+    "meta": {
+      "exit_status": null,
+      "pid": 23706
+    }
+  },
+  "private_service_log_marker_summary": {
+    "data-a": {
+      "source": "docs/reports/s3-hardening/gaoxy0121-ci39774960133-restore-triage/ci-39774960133-1-restore-cluster/source-data-a-source.log",
+      "sha256": "2586ff2819fe6aebd0ee5ad4ed44b0e7f0b62c2b4b283f63b301258fbe8195a5",
+      "eaddrinuse_marker": true,
+      "raw_log_retained_in_this_report": false
+    },
+    "data-b": {
+      "source": "docs/reports/s3-hardening/gaoxy0121-ci39774960133-restore-triage/ci-39774960133-1-restore-cluster/source-data-b-source.log",
+      "sha256": "ad6f809f1e5444999b706f4b677bf1461c904e73b0559e120cfb7f49c5477dc7",
+      "eaddrinuse_marker": true,
+      "raw_log_retained_in_this_report": false
+    },
+    "meta": {
+      "source": "docs/reports/s3-hardening/gaoxy0121-ci39774960133-restore-triage/ci-39774960133-1-restore-cluster/source-meta-source.log",
+      "sha256": "84b766797f07d495086fb5e55fa4c23ab74c9fe62c1e4facda043355016319b2",
+      "eaddrinuse_marker": false,
+      "raw_log_retained_in_this_report": false
+    }
+  },
+  "historical_ci_status_changed": false
+}

@@ -1,0 +1,90 @@
+{
+  "captured_utc": "2026-10-22T12:29:42.335384+00:00",
+  "repository": "gsmlg-opt/ex_storage_service",
+  "branch": "main",
+  "observed_head": "4457631e4aef776e6106a086f21ab4e0bc1a0263",
+  "source_status": "dirty intermediate445; not immutable/final-source acceptance",
+  "copied_inputs": {
+    "kernel-collision.json": {
+      "source": "/tmp/ess-gaoxy0121-ci-port-collision-probe-20261022.json",
+      "sha256": "2044f9d5698b3998394057b50a481ec468b5553e0d08b64a9da64161126a739f",
+      "bytes": 307,
+      "copy": "byte-identical"
+    },
+    "regressions.log": {
+      "source": "/tmp/ess-gaoxy0121-port-regressions-20261022.log",
+      "sha256": "bc30d8133b46de3c6c67928d001ebc6ca392dc260dfa4eba4cee6502a57739ee",
+      "bytes": 120,
+      "copy": "byte-identical"
+    },
+    "runtime-commands.json": {
+      "source": "/tmp/ess-gaoxy0121-portfix-runtime-verification-20261022.json",
+      "sha256": "000d3c76663eed8f389a537dca3068e9292c452a5d3ff1583aca3ef9288d527a",
+      "bytes": 648,
+      "copy": "byte-identical"
+    },
+    "hosted-restore-lane.json": {
+      "source": "docs/reports/s3-hardening/gaoxy0121-ci39774960133-restore-triage/ci-39774960133-1/restore.json",
+      "sha256": "271125d4dadb4e22099048502a1c5caa09df1a952c2e69fecf8168c93a9c0bb3",
+      "bytes": 1023,
+      "copy": "byte-identical"
+    },
+    "hosted-cluster-start.json": {
+      "source": "docs/reports/s3-hardening/gaoxy0121-ci39774960133-restore-triage/ci-39774960133-1-restore-cluster/source-source-start-1.json",
+      "sha256": "041da25fa8cbd0f2d939481b2bbc3563cd187abbf627fbf17b14798a8bf1f484",
+      "bytes": 701,
+      "copy": "byte-identical"
+    },
+    "fixed-crashes.json": {
+      "source": "docs/reports/s3-hardening/gaoxy0121-portfix-crashes-20261022/results.json",
+      "sha256": "7fb1200ffd6a4d0687a6e871c5042d925c33bb45eb57947af808033d691f3aa8",
+      "bytes": 4160,
+      "copy": "byte-identical"
+    },
+    "fixed-restore.json": {
+      "source": "docs/reports/s3-hardening/gaoxy0121-portfix-restore-20261022-cluster/restore-verification.json",
+      "sha256": "da1e5a98d604b374d3469135ba2fbcc2cac10f295a20fa80866585bad87388a5",
+      "bytes": 2237,
+      "copy": "byte-identical"
+    },
+    "fixed-restore-boundary.json": {
+      "source": "docs/reports/s3-hardening/gaoxy0121-portfix-restore-20261022-cluster/backup-boundary.json",
+      "sha256": "aa1f6b48c61d96a747167fe9e8d51d09d5e1c4b9d7abd115c033bc8313b5b4a1",
+      "bytes": 274,
+      "copy": "byte-identical"
+    },
+    "fixed-restore-isolation.json": {
+      "source": "docs/reports/s3-hardening/gaoxy0121-portfix-restore-20261022-cluster/original-root-isolation.json",
+      "sha256": "f7444f93f83e7699b02d6682f9ab9e9ddfb8fdeef2a3e3111cb7e0864a4bb5f4",
+      "bytes": 139,
+      "copy": "byte-identical"
+    }
+  },
+  "selected_source_hashes_at_curation_not_an_execution_manifest": {
+    "e2e/hardening_ports.py": "b382c7a529af93c797748ecb67b6c856c0426fc2d64c444ca3eb96773aa201a8",
+    "e2e/test_hardening_ports.py": "a1c7cf2ee02775868e6a557d25e701be7892f7c1ce03677364d9bb22393941c7",
+    "e2e/s3_hardening_crashes.py": "36ce5939532445f2003dd056193b2db96865579e9fa96da40b2f2136d7cde1fb",
+    "e2e/s3_hardening_daily.py": "f1e1fb8d0c78adbb0193bd7f0e9f38ba524e0620844a1868f4db4a3b3e57e99e",
+    "e2e/s3_hardening_faults.py": "3985dda2600206d58adaeb140f7a7bbb53f2a6b21da54a29c1e70a03193f5dbf",
+    "e2e/s3_hardening_replication_backlog.py": "3ff5177f8569c7ec413798004982dd5f7a85c94498caf72113f59a2c0b8b5dd5",
+    "e2e/s3_hardening_resources.py": "2405b1ebe7f751f36ceaa123dab0b6ad4a2ffbd70f60a7d2a656fc7c39df1fc6",
+    "e2e/s3_hardening_restore.py": "67e88e93126b6d95c3b431a29adea2e935e48254dff5da10d2f12caed7a5363a",
+    "e2e/test_restore_startup_diagnostics.py": "4663e8433498b8ae07c26d91d789b7f9ceb3591557d200f1337a28a1e84417a9"
+  },
+  "receipt_source_identities": {
+    "hosted": {
+      "starting_sha": "4457631e4aef776e6106a086f21ab4e0bc1a0263",
+      "ending_sha": "4457631e4aef776e6106a086f21ab4e0bc1a0263",
+      "source_sha256": "7dcef2598560de62da7dd12a889f7f4d3848d02b1d5905afd43211511eefe739"
+    },
+    "fixed_crashes": {
+      "source_sha": "4457631e4aef776e6106a086f21ab4e0bc1a0263",
+      "source_sha256": "ac65a1b192dee251d960d6cb62bea975ba5d1f4bcc1b3f46a18b772759cf961a",
+      "working_tree": "uncommitted hardening implementation"
+    },
+    "fixed_restore": {
+      "source_fingerprint_receipt": "unavailable; runtime command receipt identifies the same parent-owned dirty intermediate run, not an independently fenced source manifest"
+    },
+    "parent_context": "Partial diagnostic folder was held stable during runtime verification; subsequent sibling diagnostic/workflow work is outside this evidence claim."
+  }
+}

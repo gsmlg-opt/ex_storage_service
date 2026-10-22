@@ -11,7 +11,6 @@ import json
 import os
 from pathlib import Path
 import signal
-import socket
 import subprocess
 import time
 import uuid
@@ -25,14 +24,9 @@ from botocore.exceptions import ClientError
 from gateway_fault_proxy import FaultProxy
 from gateway_hardening import Runtime, client, wait_http
 from resource_cadence import measure_online_windows
+from hardening_ports import free_port as port
 
 MIB = 1024 * 1024
-
-
-def port():
-    with socket.socket() as sock:
-        sock.bind(("127.0.0.1", 0))
-        return sock.getsockname()[1]
 
 
 def signed_get_error(endpoint_port, signing, path):

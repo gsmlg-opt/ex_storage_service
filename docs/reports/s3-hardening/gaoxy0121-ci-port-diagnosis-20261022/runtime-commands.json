@@ -1,0 +1,27 @@
+[
+  {
+    "name": "crashes",
+    "argv": [
+      "bash",
+      "e2e/run_hardening_crashes.sh",
+      "/tmp/ess-gaoxy012-venv-20261022/bin/python",
+      "gaoxy0121-portfix-crashes-20261022"
+    ],
+    "exit_status": 0,
+    "seconds": 17.607,
+    "log": "/tmp/ess-gaoxy0121-portfix-crashes-20261022.log"
+  },
+  {
+    "name": "restore-cluster",
+    "argv": [
+      "bash",
+      "e2e/run_hardening_restore.sh",
+      "/tmp/ess-gaoxy012-venv-20261022/bin/python",
+      "gaoxy0121-portfix-restore-20261022",
+      "cluster"
+    ],
+    "exit_status": 0,
+    "seconds": 29.839,
+    "log": "/tmp/ess-gaoxy0121-portfix-restore-cluster-20261022.log"
+  }
+]

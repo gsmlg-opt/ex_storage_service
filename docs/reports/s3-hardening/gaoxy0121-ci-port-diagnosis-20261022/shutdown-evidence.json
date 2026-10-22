@@ -1,0 +1,16 @@
+{
+  "command_receipts": {
+    "crashes_exit_status": 0,
+    "restore_cluster_exit_status": 0
+  },
+  "crash_boundary_proofs": {
+    "count": 11,
+    "all_owned_prior_process_exit137": true,
+    "all_restarted_with_new_process": true,
+    "final_runtime_close_returned": true,
+    "basis": "results.json and command exit0; Runtime.close is in original finally"
+  },
+  "restore_source_processes_stopped": true,
+  "independent_final_pid_start_ticks_receipt": "not available in supplied inputs at curation",
+  "claim_limit": "No fabricated all-owned-OS-identities-stopped assertion; command exits and original cleanup contracts do not substitute for an independent final PID/start inventory."
+}

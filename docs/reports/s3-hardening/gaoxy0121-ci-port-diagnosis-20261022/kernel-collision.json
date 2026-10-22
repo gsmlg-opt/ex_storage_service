@@ -1,0 +1,1 @@
+{"namespace_isolated": true, "ephemeral_range": "32768\t60999", "baseline_unique": 300, "reserved_unique": 175, "reserved_most_common": [[32769, 125], [41605, 2], [39919, 1], [47635, 1]], "competing_listener_collisions": 14, "first_collision": {"selected": 32769, "competing_listener": 32769, "errno": 98}}

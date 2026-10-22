@@ -1,0 +1,1 @@
+{"backup": {"artifacts": 12, "backup_id": "b39c255319c5a1e7ee15087a", "consistency_point": "2026-10-22T12:25:44.915947Z", "path": "/tmp/ess-hardening-restore-NzMIEGp1/bundle"}, "mode": "cluster", "post_backup_original_changes_proved": true, "source_processes_stopped": true}

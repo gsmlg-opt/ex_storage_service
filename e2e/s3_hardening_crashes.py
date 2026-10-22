@@ -11,7 +11,6 @@ import json
 import os
 from pathlib import Path
 import signal
-import socket
 import subprocess
 import time
 import uuid
@@ -20,6 +19,7 @@ import boto3
 import botocore
 from gateway_hardening import Runtime, client
 from hardening_acceptance import source_fingerprint
+from hardening_ports import free_port
 
 
 def main():
@@ -36,9 +36,7 @@ def main():
     root.mkdir(mode=0o700)
     evidence = args.evidence.resolve()
     evidence.mkdir(parents=True, exist_ok=False)
-    with socket.socket() as sock:
-        sock.bind(("127.0.0.1", 0))
-        port = sock.getsockname()[1]
+    port = free_port()
     runtime = Runtime(root, port)
     results = {"status": "in_progress", "groups": [], "versions": {
         "boto3": boto3.__version__, "botocore": botocore.__version__},

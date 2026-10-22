@@ -11,6 +11,7 @@ import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
+from hardening_ports import free_port
 
 
 def restore_helpers():

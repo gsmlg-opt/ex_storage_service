@@ -1,0 +1,36 @@
+{
+  "profile": "restore",
+  "status": "blocked",
+  "starting_sha": "4457631e4aef776e6106a086f21ab4e0bc1a0263",
+  "ending_sha": "4457631e4aef776e6106a086f21ab4e0bc1a0263",
+  "source_sha256": "7dcef2598560de62da7dd12a889f7f4d3848d02b1d5905afd43211511eefe739",
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "mix_env": "prod",
+      "exit_status": 0,
+      "duration_seconds": 314.003,
+      "log": "docs/reports/s3-hardening/ci-39774960133-1/restore-0.log"
+    },
+    {
+      "argv": [
+        "bash",
+        "e2e/run_hardening_restore.sh",
+        "/home/runner/work/_temp/hardening-venv/bin/python",
+        "ci-39774960133-1-restore",
+        "all"
+      ],
+      "mix_env": "prod",
+      "exit_status": 1,
+      "duration_seconds": 29.332,
+      "log": "docs/reports/s3-hardening/ci-39774960133-1/restore-1.log"
+    }
+  ],
+  "started_at": "2026-10-22T12:04:12.805612+00:00",
+  "reason": "command exited 1; inspect retained log"
+}

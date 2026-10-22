@@ -1,0 +1,35 @@
+{
+  "publication_or_full_acceptance_claimed": false,
+  "historical_ci_receipts_unchanged": [
+    39768692842,
+    39774960133
+  ],
+  "hosted_port_fix_validation": "not yet provided for final immutable candidate",
+  "resource_gap": {
+    "source": "docs/reports/s3-hardening/gaoxy0121-ci-repair-20261022/resource-cadence.json",
+    "source_file_sha256": "28143859a18d2d5c187b4ccdd57792bc2bef18f7d2eeb8cf098a50d8a0318b8c",
+    "run_id": 39768692842,
+    "status": "failed",
+    "source_sha256": "47c8e99c7999ac49c92a0224001e91d18a16c0b09a2a3932ca4a2656a5a94ec5",
+    "group": "strict-quorum-replica-put",
+    "size": 67108864,
+    "concurrency": 4,
+    "failure": [
+      "data-a:cadence:temporary:interval_over100ms"
+    ],
+    "temporary_cadence": {
+      "end_edge_ns": 11192818,
+      "intervals_over100ms": 1,
+      "max_interval_ns": 100000000,
+      "maximum_gap_ns": 138940762,
+      "maximum_probe_ns": 63141805,
+      "sampler_ids": [
+        "1792668220010053679"
+      ],
+      "samples": 404,
+      "start_edge_ns": 22505077
+    },
+    "interpretation": "Conservative coverage uses end(current)-start(previous). One gap 138940762 ns is a valid failure. Adjacent 61.109401 ms and 63.141805 ms fresh temporary scans consumed little observer CPU; exact syscall, scheduling delay, or filesystem cause not established. No cadence, sampling, resource bound or acceptance condition was relaxed."
+  },
+  "other_lanes": "No unexecuted or previously blocked lane is promoted by this port diagnosis or by local subset validation."
+}

@@ -1,0 +1,91 @@
+{
+  "starts": [
+    {
+      "source": "recovered-active-start-4.json",
+      "source_sha256": "cc6423216d070464a836fcdc0dd0752090336c46f612099e886e29c834e38051",
+      "s3_ports": {
+        "data-a": 5275,
+        "data-b": 20448,
+        "meta": 18190
+      },
+      "internal_ports": {
+        "data-a": 30861,
+        "data-b": 30031,
+        "meta": 5341
+      }
+    },
+    {
+      "source": "recovered-quarantine-start-1.json",
+      "source_sha256": "cc6423216d070464a836fcdc0dd0752090336c46f612099e886e29c834e38051",
+      "s3_ports": {
+        "data-a": 5275,
+        "data-b": 20448,
+        "meta": 18190
+      },
+      "internal_ports": {
+        "data-a": 30861,
+        "data-b": 30031,
+        "meta": 5341
+      }
+    },
+    {
+      "source": "recovered-quarantine-start-2.json",
+      "source_sha256": "cc6423216d070464a836fcdc0dd0752090336c46f612099e886e29c834e38051",
+      "s3_ports": {
+        "data-a": 5275,
+        "data-b": 20448,
+        "meta": 18190
+      },
+      "internal_ports": {
+        "data-a": 30861,
+        "data-b": 30031,
+        "meta": 5341
+      }
+    },
+    {
+      "source": "recovered-quarantine-start-3.json",
+      "source_sha256": "cc6423216d070464a836fcdc0dd0752090336c46f612099e886e29c834e38051",
+      "s3_ports": {
+        "data-a": 5275,
+        "data-b": 20448,
+        "meta": 18190
+      },
+      "internal_ports": {
+        "data-a": 30861,
+        "data-b": 30031,
+        "meta": 5341
+      }
+    },
+    {
+      "source": "source-source-start-1.json",
+      "source_sha256": "b18abf7da1c6e7611ca4ace89759dc1b6f6db182900adda2619553ae4206211b",
+      "s3_ports": {
+        "data-a": 25361,
+        "data-b": 25684,
+        "meta": 14435
+      },
+      "internal_ports": {
+        "data-a": 14851,
+        "data-b": 12677,
+        "meta": 14506
+      }
+    },
+    {
+      "source": "source-source-start-2.json",
+      "source_sha256": "e905a7ea58626370f27c28a525b31cde744b5a6c3538d85450978bbbbd629a81",
+      "s3_ports": {
+        "data-a": 25361,
+        "data-b": 25684,
+        "meta": 14435
+      },
+      "internal_ports": {
+        "data-a": 14851,
+        "data-b": 12677,
+        "meta": 14506
+      }
+    }
+  ],
+  "distinct_source_plus_recovered_endpoints": 12,
+  "all_below_32768": true,
+  "restart_note": "Each node group retains its assigned endpoints across restarts; repeated receipts are intentional."
+}

@@ -14,7 +14,6 @@ import os
 from pathlib import Path
 import shutil
 import signal
-import socket
 import subprocess
 import threading
 import time
@@ -25,6 +24,7 @@ import boto3
 import botocore
 from botocore.config import Config
 from botocore.exceptions import ClientError
+from hardening_ports import free_port
 
 
 CONTROL = "e2e/scripts/restore_hardening_control.exs"
@@ -56,12 +56,6 @@ def save(path, value):
 
 def read(path):
     return json.loads(Path(path).read_text())
-
-
-def free_port():
-    with socket.socket() as sock:
-        sock.bind(("127.0.0.1", 0))
-        return sock.getsockname()[1]
 
 
 def socket_snapshot(ports, proc=Path("/proc")):

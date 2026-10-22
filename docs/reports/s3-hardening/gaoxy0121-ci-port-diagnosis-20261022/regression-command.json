@@ -1,0 +1,23 @@
+{
+  "provenance": "parent-reported reconstruction of exact earlier tool invocation; not independently embedded in retained regression log",
+  "environment": {
+    "PAGER": "cat",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "e2e"
+  },
+  "argv": [
+    "/tmp/ess-gaoxy012-venv-20261022/bin/python",
+    "-m",
+    "unittest",
+    "e2e.test_hardening_ports",
+    "e2e.test_restore_startup_diagnostics",
+    "e2e.test_hardening_runtime_logs",
+    "e2e.test_resource_staging"
+  ],
+  "recorded_log": "regressions.log",
+  "recorded_result": {
+    "tests": 21,
+    "seconds": 0.298,
+    "status": "OK"
+  }
+}

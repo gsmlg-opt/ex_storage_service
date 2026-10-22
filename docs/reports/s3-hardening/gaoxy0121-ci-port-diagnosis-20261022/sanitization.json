@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "copied_receipts": "9 exact small JSON/log inputs, source hashes recorded in provenance.json",
+  "raw_private_service_logs_retained": false,
+  "credentials_or_auth_values_retained": false,
+  "large_sampling_artifacts_retained": false,
+  "checks": [
+    "JSON syntax and credential-key exclusion",
+    "known private restore fixture values absent",
+    "byte equality for every copied receipt",
+    "six hosted endpoints with five duplicate32771 selections",
+    "twelve distinct fixed source/recovered listener assignments below32768",
+    "21-test log terminalOK",
+    "eleven crash boundaries passed and prior processes exited137",
+    "runtime exit statuses0 and exact17.607/29.839second receipts"
+  ],
+  "shutdown_limit": "No separate final OS PID/start receipt exists for these runtime checks, per parent; only recorded proofs are retained."
+}

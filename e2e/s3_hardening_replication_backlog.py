@@ -7,7 +7,6 @@ import json
 from pathlib import Path
 import secrets
 import signal
-import socket
 import subprocess
 import threading
 import time
@@ -17,12 +16,7 @@ import boto3
 import botocore
 
 from gateway_hardening import Runtime, client
-
-
-def free_port():
-    with socket.socket() as sock:
-        sock.bind(("127.0.0.1", 0))
-        return sock.getsockname()[1]
+from hardening_ports import free_port
 
 
 class Replica:

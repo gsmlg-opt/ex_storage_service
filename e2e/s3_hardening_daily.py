@@ -31,6 +31,7 @@ from botocore.config import Config
 from botocore.exceptions import ClientError
 
 from hardening_acceptance import REPO, sha, source_fingerprint
+from hardening_ports import free_port
 
 
 def check(condition, message):
@@ -263,9 +264,7 @@ def main():
               "versions": {"python": sys.version.split()[0], "boto3": boto3.__version__,
                            "botocore": botocore.__version__}, "disposable_root": str(root)}
     environment = {k: v for k, v in os.environ.items() if not k.startswith(("ESS_", "E2E_"))}
-    with socket.socket() as port:
-        port.bind(("127.0.0.1", 0))
-        number = port.getsockname()[1]
+    number = free_port()
     endpoint = f"http://127.0.0.1:{number}"
     credential_file = root / "credentials.env"
     environment.update({"MIX_ENV": "prod", "PAGER": "cat", "ESS_MODE": "standalone",
