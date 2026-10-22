@@ -143,6 +143,9 @@ enforces decoded object size.
   hard-linked port file (`elixir-lang/elixir#15761`, fixed upstream by #15765).
   Keep native transfer-journal mutexes enabled; do not apply this setting to
   shared checkouts with concurrent Mix processes or production runtime.
+- Retained standalone startup failures preserve the child exit status and an
+  allowlisted `startup-failure.json` receipt. Full runtime logs remain private;
+  diagnostic markers describe observations and do not establish a root cause.
 - All new features must be accompanied by tests.
 - When fixing a bug, write a reproducing test case first to prevent future regression.
 - Cloud-cache E2E uses RustFS as the upstream server through the generic
@@ -270,7 +273,9 @@ enforces decoded object size.
   `ESS_DATA_ROOT` remains the compatibility fallback for split roots.
   `ESS_RA_ROOT` is retained as a legacy embedding compatibility value but is
   not used by Concord 3. Require Concord `~> 3.1.4` with matching VSR/ExTurso
-  packages. New backup checksums use the declared deterministic ETF scheme;
+  packages; the umbrella lock selects 3.1.6 with bounded ready-singleton runtime
+  writes and restored transient local PID rebinding. New backup checksums use
+  the declared deterministic ETF scheme;
   preserve legacy validation, reject unknown schemes, and verify restore on the
   same OTP major before a runtime upgrade. Concord/VSR is shared application infrastructure;
   support only one Concord metadata instance per BEAM until the cluster phases

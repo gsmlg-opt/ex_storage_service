@@ -13,18 +13,30 @@ PACKAGES = ("concord", "viewstamped_replication", "ex_turso")
 # Hex inner/package checksums for the independently verified published cohort.
 VERIFIED_CHECKSUMS = {
     "concord": (
-        "c46e5817e5fe50e5e0b75f5a4f569a1d352d51d9e3f10c0bc03b785d45e22bc1",
-        "e10cf2b128c04f27cd3649e5020db70e4c0d3f04ca8a7aa0b89c799c10341d93"),
+        "7aa89ba62ebea474421dc251b4a1ee418ea013bda0230b7cbe5f81710b365a38",
+        "75bd5e3be9aaeab7d673663bd73767129bac1eda97ecf944d3ac558619520f21"),
     "viewstamped_replication": (
-        "209a01e721605daf0fd15ee848146c4098ec71eeae22fb999bab698cd60b28bf",
-        "88a79917aeaa141be7caa8a99bed4f479af39e5335f43edbbe899d4790fb7833"),
+        "e1c5d3f18b39b2a8a65569452219d6c37a58c01f9137115cb252853cc3e83137",
+        "4052659b0afa6cf351a23e5e916db9f0a159afd9d623b55dc8b6227d3ecb1963"),
     "ex_turso": (
-        "355b1c21a3bc18fda0e66630bbc8b79aaa3d3e879b99876f12a4e2377b814fc8",
-        "f1219b208f45bc53ef1f83c17122dab4316439bbb2e43cdf1507590fac60b66e"),
+        "c6fdaf0ef160d011a1675b70dc21fbc3ec4900d66d17a4af132601f215f483ba",
+        "47d4389790a51f488fbbaf457edf7a4f8b56b0678f4329c190354cece698f0fc"),
 }
 VERIFIED_SOURCES = {
     "viewstamped_replication/lib/viewstamped_replication/replica.ex":
-        "d8672cdefc7f5ce5152091ba2e028b5c226494606deafa7fbd2374b7fd2df6a3",
+        "bb62a681344538fee05a357082d0e87721deb5a3614c1344f07b4e2aa4e16541",
+    "viewstamped_replication/lib/viewstamped_replication/protocol.ex":
+        "133cd6e7532b4b8a6d841e8be39d07023229e5a8f71e3cc5c060b40bd8e64fb2",
+    "viewstamped_replication/lib/viewstamped_replication/protocol/state.ex":
+        "b97e99e709823e37d243b22e7203398eb9f5302ec2e1c4e266f8d4be26d12142",
+    "viewstamped_replication/lib/viewstamped_replication/log.ex":
+        "26e992fcad95826b75ca5beeb1adc0acc9a2e223904e68142696b4ce45d34a87",
+    "viewstamped_replication/lib/viewstamped_replication/log/indexed.ex":
+        "2d3b160486489a6b73ce7d4d1076abffaa902ef896230f67b625f423bee49164",
+    "viewstamped_replication/lib/viewstamped_replication/storage/memory.ex":
+        "241e2d793ac385c8b3a92d5e88b59f9a05ee65f41bf2a62404fa8213813d850e",
+    "viewstamped_replication/lib/viewstamped_replication/storage/file.ex":
+        "9a3c2a8bf45bd0220b930a4907f9e128cfc8e28b9dffd3bf04d3df5086aaae96",
     "concord/lib/concord/state_machine/core.ex":
         "85eed0f6afa87c52e239f2f8b36671338dce8ad56ad22637520248c8262b9f72",
     "concord/lib/concord/engine/vsr/state_machine.ex":
@@ -57,14 +69,17 @@ def blocker(lock, dependencies_root=pathlib.Path("deps")):
                 "coordinated 3.1.4. No 10k/100k acceptance run is valid yet.")
     if set(versions.values()) == {"3.1.3"}:
         return "BLOCKED A28: gsmlg-dev/concord#99 and #100; coordinated 3.1.3 is not admissible."
-    if set(versions.values()) != {"3.1.5"}:
+    if set(versions.values()) == {"3.1.5"}:
+        return ("BLOCKED A28: gsmlg-dev/concord#104 (singleton write history traversal); "
+                "coordinated 3.1.5 is not admissible.")
+    if set(versions.values()) != {"3.1.6"}:
         return (f"Unvalidated index dependency versions {versions}; require released upstream fixes "
-                "for gsmlg-dev/concord#101/#102, source/API review and both diagnostic probes "
+                "for gsmlg-dev/concord#101/#102/#104, source/API review and both diagnostic probes "
                 "before updating this gate. Refusing expensive acceptance workload.")
 
     for package in PACKAGES:
         if checksums[package] != VERIFIED_CHECKSUMS[package]:
-            return f"Unverified {package} 3.1.5 Hex checksums; refusing index workload."
+            return f"Unverified {package} 3.1.6 Hex checksums; refusing index workload."
     for relative, expected in VERIFIED_SOURCES.items():
         try:
             actual = hashlib.sha256((pathlib.Path(dependencies_root) / relative).read_bytes()).hexdigest()
@@ -83,7 +98,7 @@ def main():
     if reason:
         print(reason, file=sys.stderr)
         return 1
-    print("Verified Concord/VSR/ExTurso 3.1.5; entering the unchanged A28 workload, not acceptance.")
+    print("Verified Concord/VSR/ExTurso 3.1.6; entering the unchanged A28 workload, not acceptance.")
     return 0
 
 

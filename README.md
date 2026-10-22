@@ -537,6 +537,10 @@ These variables do not configure production behavior. Workflow-local
 optionally enables scheduler accounting on the disposable hosted VM and retains
 readback. See [the diagnostic guide](e2e/diagnostics/resource_cadence/README.md).
 
+Retained standalone startup failures keep the child exit status and bounded
+allowlisted markers in `startup-failure.json`; full runtime logs remain private.
+These markers are diagnostic observations, not a root-cause or acceptance claim.
+
 Index diagnostics use test-only `ESS_INDEX_PROGRESS` for bounded JSONL progress
 and `ESS_INDEX_SOURCE_SHA256` / `ESS_INDEX_SOURCE_HEAD` for source identity.
 They do not change production storage settings.
@@ -628,14 +632,17 @@ explicit export/restore boundary; starting the new binary creates or recovers
 only the VSR state under `ESS_METADATA_ROOT`.
 
 The core requires Concord `~> 3.1.4`; the lockfile selects matching Concord,
-Viewstamped Replication and ExTurso 3.1.5 packages. They retain the 3.1.2 fixes for
+Viewstamped Replication and ExTurso 3.1.6 packages. They retain the 3.1.2 fixes for
 committed-prefix transition validation, primary-discovery read deadlines, native
 range pagination and new-backup checksum portability. Version 3.1.4 makes supported
 direct put/delete compatibility-view and observer updates incremental and bounds
 ready singleton read allocation. Version 3.1.5 extends incremental view updates
 to supported atomic transactions and avoids revalidating an unchanged retained
-log on ready single-node reads. Recovery, snapshots, state changes and multi-node
-quorum paths retain validation. Version-one command admission still checks
+log on ready single-node reads. Version 3.1.6 bounds ready singleton runtime
+writes through owned protocol transitions and an indexed retained log, and
+rebinds transient local process identities when restoring backups. Recovery,
+snapshots, state changes and multi-node quorum paths retain validation.
+Version-one command admission still checks
 representations. New backups declare deterministic ETF checksums;
 verify restoration on the same OTP major before changing runtimes. Existing
 legacy backups retain their original checksum rules: an invalid checksum stays

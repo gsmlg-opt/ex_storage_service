@@ -1,4 +1,28 @@
-## ESS-S3-HARDENING-CLOSEOUT-002 — current status
+## Gaoxy migration — current validation status
+
+The Phoenix, public S3 and private cluster listeners now use Gaoxy 0.12.1.
+The latest completed full run is
+[39786495034](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39786495034)
+at `976c5e0bc8ca6192516908d7311f844e2f47fbca`, executable fingerprint
+`5f379ef7609af682cf2dabbc73cdd7ae3516980b6844f0980e22658df1a7a167`.
+Daily and eight extended lanes passed. Standalone, index and resources failed;
+the aggregate did not run its verifier because the required lanes failed.
+
+Standalone's retained server exited before readiness without a public root-cause
+receipt. A28 stopped at the 10k post-growth listing's 512-message trace mailbox
+bound; the mandatory 100k fixture never started. Resource coverage failed at
+standalone group 46/56 (temporary probe) and cluster group 8/20 (BEAM queue scan).
+Numeric resource envelopes passed for executed groups; incomplete 100 ms coverage
+and unexecuted groups remain failures. These observations establish no production
+or Gaoxy defect.
+
+Follow-up validation adds bounded private-log startup diagnostics, isolates A28's
+trace collector from the fixture caller, and reviews the published Concord /
+VSR / ExTurso 3.1.6 fixes before a fresh complete run. Prior passes do not certify
+the changed checkout. The default machine ledger still describes historical C7;
+no successor clause is promoted and no v0.7.0 release has been published.
+
+## Historical ESS-S3-HARDENING-CLOSEOUT-002 C7 status
 
 Current candidate C7 is `fcc02e148ae31f00022d563ebce2b039be5d32dd`, fingerprint
 `ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913`.

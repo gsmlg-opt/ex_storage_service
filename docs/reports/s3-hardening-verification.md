@@ -1,4 +1,29 @@
-## ESS-S3-HARDENING-CLOSEOUT-002 — current closeout
+## Gaoxy migration — current verification
+
+Gaoxy 0.12.1 serves Phoenix, S3 and internal cluster HTTP. Full run
+[39786495034](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39786495034)
+tested `976c5e0bc8ca6192516908d7311f844e2f47fbca` with executable fingerprint
+`5f379ef7609af682cf2dabbc73cdd7ae3516980b6844f0980e22658df1a7a167`.
+Daily, correctness, gateway, cluster, faults, crashes, resilience, restore and
+release-artifact lanes passed. Standalone, index and resources failed. No full
+aggregate or publication acceptance is claimed.
+
+The retained standalone child exited before readiness; its original exception
+was not retained publicly. A28 failed the unchanged trace mailbox bound after
+10k fixture growth; 100k was unexecuted. Standalone resources completed 45 clean
+groups then failed group 46/56, and cluster resources completed seven clean groups
+then failed group 8/20. The resource failures were conservative probe coverage
+gaps above 100 ms, despite passing numeric envelopes and body assertions for
+executed groups. A slow filesystem probe and a slow BEAM queue scan are separate
+observations, without an established common cause.
+
+The successor adds tested startup receipts and an isolated A28 collector, and
+reviews Concord / VSR / ExTurso 3.1.6 before fresh acceptance. The detailed
+[status](../plans/s3-hardening-status.md) records the remaining gates. The default
+ledger and all C7 results below are historical; they do not certify Gaoxy or the
+new dependency cohort. **v0.7.0 has not been published.**
+
+## Historical ESS-S3-HARDENING-CLOSEOUT-002 C7 verification
 
 Implemented and verified portions are pushed for review; **full acceptance and
 release remain incomplete**. Starting checkout was clean
