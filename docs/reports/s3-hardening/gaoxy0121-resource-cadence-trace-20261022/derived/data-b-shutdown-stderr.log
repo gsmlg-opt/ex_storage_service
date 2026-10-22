@@ -1,0 +1,22 @@
+12:43:22.216 [notice] SIGTERM received - shutting down
+
+Traceback (most recent call last):
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/diagnostics/resource_cadence/instrument_observer.py", line 59, in <module>
+    module.main()
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/scripts/resource_observer.py", line 441, in main
+    sample(args)
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/scripts/resource_observer.py", line 311, in sample
+    resident, rss_window = probe(lambda: rss(args.beam_pid))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/diagnostics/resource_cadence/instrument_observer.py", line 32, in probe
+    value, window = original_probe(function)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/scripts/resource_observer.py", line 111, in probe
+    value = function()
+            ^^^^^^^^^^
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/scripts/resource_observer.py", line 311, in <lambda>
+    resident, rss_window = probe(lambda: rss(args.beam_pid))
+                                         ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/scripts/resource_observer.py", line 53, in rss
+    raise RuntimeError("observed process has no resident memory")
+RuntimeError: observed process has no resident memory

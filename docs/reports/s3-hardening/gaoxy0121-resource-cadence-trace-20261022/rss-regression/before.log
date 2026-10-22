@@ -1,0 +1,34 @@
+F
+======================================================================
+FAIL: test_owner_exit_during_rss_finishes_admitted_export (test_resource_observer.ProcessIdentityTest.test_owner_exit_during_rss_finishes_admitted_export)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/test_resource_observer.py", line 137, in test_owner_exit_during_rss_finishes_admitted_export
+    self.assertEqual(0, process.returncode, stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : Traceback (most recent call last):
+  File "<string>", line 20, in <module>
+    o.main()
+    ~~~~~~^^
+  File "/tmp/ess-observer-rss-before-7_sc1noh/e2e/scripts/resource_observer.py", line 441, in main
+    sample(args)
+    ~~~~~~^^^^^^
+  File "/tmp/ess-observer-rss-before-7_sc1noh/e2e/scripts/resource_observer.py", line 311, in sample
+    resident, rss_window = probe(lambda: rss(args.beam_pid))
+                           ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/ess-observer-rss-before-7_sc1noh/e2e/scripts/resource_observer.py", line 111, in probe
+    value = function()
+  File "/tmp/ess-observer-rss-before-7_sc1noh/e2e/scripts/resource_observer.py", line 311, in <lambda>
+    resident, rss_window = probe(lambda: rss(args.beam_pid))
+                                         ~~~^^^^^^^^^^^^^^^
+  File "<string>", line 17, in exit_during_rss
+    return read_rss(pid)
+  File "/tmp/ess-observer-rss-before-7_sc1noh/e2e/scripts/resource_observer.py", line 53, in rss
+    raise RuntimeError("observed process has no resident memory")
+RuntimeError: observed process has no resident memory
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.117s
+
+FAILED (failures=1)

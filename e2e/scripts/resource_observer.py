@@ -54,6 +54,19 @@ def rss(pid):
     return int(match[1]) * 1024
 
 
+def owned_rss(expected):
+    try:
+        return rss(expected["pid"])
+    except (FileNotFoundError, ProcessLookupError, RuntimeError):
+        actual = process_identity(expected["pid"])
+        if (actual is None or actual["start_ticks"] != expected["start_ticks"]
+                or actual["state"] == "Z"):
+            # The owner can exit after replying but before this OS probe.
+            # Drain admitted rows; never publish the incomplete observation.
+            raise OwnerClosed() from None
+        raise
+
+
 def namespaces(pid):
     return {name: os.readlink(f"/proc/{pid}/ns/{name}") for name in ("pid", "mnt")}
 
@@ -308,7 +321,7 @@ def sample(args):
             write_all(1, encode({"generation": args.generation, "sequence": sequence}, FRAME_BYTES))
             reply = validate_reply(read_frame(0), args.generation, sequence)
             exchange.update(end_ns=time.time_ns(), end_monotonic_ns=time.monotonic_ns())
-            resident, rss_window = probe(lambda: rss(args.beam_pid))
+            resident, rss_window = probe(lambda: owned_rss(beam))
             temporary, tmp_window = probe(lambda: temporary_bytes(args.tmp, args.data))
             usage = resource.getrusage(resource.RUSAGE_SELF)
             observer_usage = {"rss": rss(os.getpid()), "user_seconds": usage.ru_utime,

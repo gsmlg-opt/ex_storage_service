@@ -1,0 +1,50 @@
+[
+  {
+    "elapsed_ms": 93.384,
+    "end_ns": 1792672996695419000,
+    "entry_line": 598462,
+    "entry_original": "23061 1792672996.602035 write(0x4, 0x7fbda4022060, 0x764 <unfinished ...>",
+    "node": "data-a",
+    "resume_line": 599098,
+    "resume_original": "23061 1792672996.695429 <... write resumed>) = 0x764 <0.093384>",
+    "start_ns": 1792672996602035000,
+    "syscall": "write",
+    "tid": 23061
+  },
+  {
+    "elapsed_ms": 173.447,
+    "end_ns": 1792672997794419000,
+    "entry_line": 607716,
+    "entry_original": "23061 1792672997.620972 futex(0x7fbda4005d40, 0x89, 0, 0x7fbdabdfe8e0, 0, 0xffffffff <unfinished ...>",
+    "node": "data-a",
+    "resume_line": 607802,
+    "resume_original": "23061 1792672997.794439 <... futex resumed>) = -1 ETIMEDOUT (Connection timed out) <0.173447>",
+    "start_ns": 1792672997620972000,
+    "syscall": "futex",
+    "tid": 23061
+  },
+  {
+    "elapsed_ms": 148.583,
+    "end_ns": 1792672998039386000,
+    "entry_line": 608392,
+    "entry_original": "23046 1792672997.890803 fstat(0x6, 0x7ffc76d3f130 <unfinished ...>",
+    "node": "data-a",
+    "resume_line": 608394,
+    "resume_original": "23046 1792672998.039395 <... fstat resumed>) = 0 <0.148583>",
+    "start_ns": 1792672997890803000,
+    "syscall": "fstat",
+    "tid": 23046
+  },
+  {
+    "elapsed_ms": 106.771,
+    "end_ns": 1792672998154536000,
+    "entry_line": 608536,
+    "entry_original": "23046 1792672998.047765 getdents64(0x6, 0x561222b21870, 0x8000 <unfinished ...>",
+    "node": "data-a",
+    "resume_line": 608542,
+    "resume_original": "23046 1792672998.154546 <... getdents64 resumed>) = 0x1c0 <0.106771>",
+    "start_ns": 1792672998047765000,
+    "syscall": "getdents64",
+    "tid": 23046
+  }
+]

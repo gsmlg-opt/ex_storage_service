@@ -1,0 +1,233 @@
+[
+  {
+    "original_row_sha256": "fa4af8e1ca9c4891faebc55421e7cd75ac176ec6432201ffd8f17e217505f8c0",
+    "projection": {
+      "after": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 8135,
+          "voluntary_ctxt_switches": 543408
+        },
+        "identity": {
+          "pid": 23062,
+          "start_ticks": 76826,
+          "state": "R"
+        },
+        "schedstat": "5511519160 4989905728 551507\n",
+        "tid": 23062,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 816425308960,
+            "thread_cpu_ns": 5512048657,
+            "wall_ns": 1792672997801123630
+          },
+          "start": {
+            "monotonic_ns": 816419325930,
+            "thread_cpu_ns": 5511236748,
+            "wall_ns": 1792672997795140851
+          }
+        }
+      },
+      "before": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 8133,
+          "voluntary_ctxt_switches": 543322
+        },
+        "identity": {
+          "pid": 23062,
+          "start_ticks": 76826,
+          "state": "R"
+        },
+        "schedstat": "5510663322 4988930687 551432\n",
+        "tid": 23062,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 816419215994,
+            "thread_cpu_ns": 5511151300,
+            "wall_ns": 1792672997795030434
+          },
+          "start": {
+            "monotonic_ns": 816256771797,
+            "thread_cpu_ns": 5510472182,
+            "wall_ns": 1792672997632586608
+          }
+        }
+      },
+      "kind": "probe_boundary",
+      "ordinal": 3484,
+      "original_window": {
+        "end_monotonic_ns": 816419299690,
+        "end_ns": 1792672997795114581,
+        "start_monotonic_ns": 816419241913,
+        "start_ns": 1792672997795056784
+      },
+      "role": "encoding",
+      "scheduling_delta": {
+        "nonvoluntary_ctxt_switches": 2,
+        "schedstat": {
+          "executing_ns": 855838,
+          "runqueue_wait_ns": 975041,
+          "timeslices": 75
+        },
+        "voluntary_ctxt_switches": 86
+      },
+      "tid": 23062
+    },
+    "source_line": 6971
+  },
+  {
+    "original_row_sha256": "1bdc5284c75195214869fa9e51f10e6619c00c6591dcbefa5e2a7414c6232dc5",
+    "projection": {
+      "after": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 8156,
+          "voluntary_ctxt_switches": 544475
+        },
+        "identity": {
+          "pid": 23062,
+          "start_ticks": 76826,
+          "state": "R"
+        },
+        "schedstat": "5523216218 4995275157 552616\n",
+        "tid": 23062,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 816666691343,
+            "thread_cpu_ns": 5523506280,
+            "wall_ns": 1792672998042506003
+          },
+          "start": {
+            "monotonic_ns": 816665525222,
+            "thread_cpu_ns": 5523049771,
+            "wall_ns": 1792672998041340143
+          }
+        }
+      },
+      "before": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 8144,
+          "voluntary_ctxt_switches": 544409
+        },
+        "identity": {
+          "pid": 23062,
+          "start_ticks": 76826,
+          "state": "R"
+        },
+        "schedstat": "5522641731 4994183842 552538\n",
+        "tid": 23062,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 816665432832,
+            "thread_cpu_ns": 5523010203,
+            "wall_ns": 1792672998041247102
+          },
+          "start": {
+            "monotonic_ns": 816514412730,
+            "thread_cpu_ns": 5522359953,
+            "wall_ns": 1792672997890227441
+          }
+        }
+      },
+      "kind": "probe_boundary",
+      "ordinal": 3491,
+      "original_window": {
+        "end_monotonic_ns": 816665500815,
+        "end_ns": 1792672998041315686,
+        "start_monotonic_ns": 816665459072,
+        "start_ns": 1792672998041273943
+      },
+      "role": "export_write",
+      "scheduling_delta": {
+        "nonvoluntary_ctxt_switches": 12,
+        "schedstat": {
+          "executing_ns": 574487,
+          "runqueue_wait_ns": 1091315,
+          "timeslices": 78
+        },
+        "voluntary_ctxt_switches": 66
+      },
+      "tid": 23062
+    },
+    "source_line": 6984
+  },
+  {
+    "original_row_sha256": "00384ff9365a360aed277ec3d597282ada40d9081f3a1b01bd40cd078699ca0a",
+    "projection": {
+      "after": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 8636,
+          "voluntary_ctxt_switches": 687989
+        },
+        "identity": {
+          "pid": 23050,
+          "start_ticks": 76809,
+          "state": "R"
+        },
+        "schedstat": "7152574812 6605818313 696610\n",
+        "tid": 23050,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 816790037830,
+            "thread_cpu_ns": 7152996691,
+            "wall_ns": 1792672998165851759
+          },
+          "start": {
+            "monotonic_ns": 816670529013,
+            "thread_cpu_ns": 7152194791,
+            "wall_ns": 1792672998046343854
+          }
+        }
+      },
+      "before": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 8636,
+          "voluntary_ctxt_switches": 687907
+        },
+        "identity": {
+          "pid": 23050,
+          "start_ticks": 76809,
+          "state": "R"
+        },
+        "schedstat": "7151435834 6604451964 696528\n",
+        "tid": 23050,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 816669966954,
+            "thread_cpu_ns": 7151958139,
+            "wall_ns": 1792672998045781555
+          },
+          "start": {
+            "monotonic_ns": 816668331946,
+            "thread_cpu_ns": 7151168267,
+            "wall_ns": 1792672998044146836
+          }
+        }
+      },
+      "kind": "probe_boundary",
+      "ordinal": 3492,
+      "original_window": {
+        "end_monotonic_ns": 816670501031,
+        "end_ns": 1792672998046315822,
+        "start_monotonic_ns": 816669998592,
+        "start_ns": 1792672998045813483
+      },
+      "role": "rss",
+      "scheduling_delta": {
+        "nonvoluntary_ctxt_switches": 0,
+        "schedstat": {
+          "executing_ns": 1138978,
+          "runqueue_wait_ns": 1366349,
+          "timeslices": 82
+        },
+        "voluntary_ctxt_switches": 82
+      },
+      "tid": 23050
+    },
+    "source_line": 6985
+  }
+]

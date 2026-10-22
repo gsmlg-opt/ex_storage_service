@@ -1,0 +1,1257 @@
+{
+  "status": "incomplete_diagnostic_analysis",
+  "acceptance_promotion": false,
+  "publication_eligible": false,
+  "source_head": "fc85bafd9706731192d1da66cc1dcee023268ee3",
+  "source_fingerprint": "1bb4eb2b4359a672d56e5df788b1b41ca385b08fc4d31dd76db98f2dab83f2e9",
+  "source_identity_matches": true,
+  "diagnostic_errors": [],
+  "all_owned_identities_stopped": true,
+  "remaining_group_members": [],
+  "groups": [
+    {
+      "number": 1,
+      "name": "strict-quorum-replica-put",
+      "size": 67108864,
+      "concurrency": 1,
+      "failures": []
+    },
+    {
+      "number": 2,
+      "name": "authenticated-peer-get",
+      "size": 67108864,
+      "concurrency": 1,
+      "failures": []
+    },
+    {
+      "number": 3,
+      "name": "fenced-repair-pull",
+      "size": 67108864,
+      "concurrency": 1,
+      "failures": []
+    },
+    {
+      "number": 4,
+      "name": "fenced-repair-push",
+      "size": 67108864,
+      "concurrency": 1,
+      "failures": []
+    },
+    {
+      "number": 5,
+      "name": "cross-cluster-worker-paced-sink",
+      "size": 67108864,
+      "concurrency": 1,
+      "failures": []
+    },
+    {
+      "number": 6,
+      "name": "strict-quorum-replica-put",
+      "size": 67108864,
+      "concurrency": 4,
+      "failures": [
+        "data-a:cadence:binary:interval_over100ms",
+        "data-a:cadence:total:interval_over100ms",
+        "data-a:cadence:rss:interval_over100ms",
+        "data-a:cadence:queue_max:interval_over100ms",
+        "data-a:cadence:queue_total:interval_over100ms",
+        "data-a:cadence:temporary:probe_too_slow",
+        "data-a:cadence:temporary:interval_over100ms",
+        "data-b:cadence:binary:interval_over100ms",
+        "data-b:cadence:total:interval_over100ms",
+        "data-b:cadence:rss:interval_over100ms",
+        "data-b:cadence:queue_max:interval_over100ms",
+        "data-b:cadence:queue_total:interval_over100ms",
+        "data-b:cadence:temporary:interval_over100ms"
+      ]
+    }
+  ],
+  "nodes": {
+    "data-a": {
+      "observer": {
+        "pid": 23046,
+        "start_ticks": 76804,
+        "state": "R"
+      },
+      "original_source_hash_matches_candidate": true,
+      "monitor_terminal": {
+        "acceptance_promotion": false,
+        "clocks": {
+          "monotonic_ns": 823410356250,
+          "thread_cpu_ns": 24848952526,
+          "wall_ns": 1792673004786171060
+        },
+        "discarded_bytes": {
+          "probes": 0,
+          "scheduler": 0,
+          "syscalls": 0
+        },
+        "errors": [],
+        "instrumentation": {
+          "clocks": {
+            "monotonic_ns": 823118116061,
+            "thread_cpu_ns": 7953000848,
+            "wall_ns": 1792673004493930161
+          },
+          "counts": {
+            "dropped": 0,
+            "sent": 7720
+          },
+          "kind": "terminal",
+          "pid": 23046
+        },
+        "monitor": {
+          "pid": 23049,
+          "start_ticks": 76808,
+          "state": "R"
+        },
+        "observer": {
+          "pid": 23046,
+          "start_ticks": 76804,
+          "state": "R"
+        },
+        "observer_stopped": true,
+        "socket_rows": 7720,
+        "status": "complete",
+        "tracers": [
+          {
+            "expected": {
+              "pid": 23055,
+              "start_ticks": 76811,
+              "state": "S"
+            },
+            "observed": null,
+            "stopped": true
+          }
+        ],
+        "written_bytes": {
+          "probes": 83199622,
+          "scheduler": 30021944,
+          "syscalls": 50237008
+        }
+      },
+      "retained_sizes_match": {
+        "probes": true,
+        "scheduler": true,
+        "syscalls": true
+      },
+      "probe_rows": 7720,
+      "delivery_count_matches": true,
+      "original_rows": 1930,
+      "original_sequences_contiguous": true,
+      "original_probe_windows_aligned": true,
+      "original_stop": [
+        {
+          "identity_file": "/tmp/ess-s3-hardening-cluster-aTvDmg7C/resource-samples/data-a/observer-1792672949421171555.json",
+          "expected": {
+            "pid": 23046,
+            "start_ticks": 76804,
+            "state": "R"
+          },
+          "observed": null,
+          "stopped": true,
+          "export_manifest": "/tmp/ess-s3-hardening-cluster-aTvDmg7C/resource-samples/data-a/resource-export-1792672949421171555.json",
+          "export": {
+            "schema": 1,
+            "generation": "1792672949421171555",
+            "observer": {
+              "pid": 23046,
+              "start_ticks": 76804,
+              "state": "R"
+            },
+            "status": "passed",
+            "admitted_rows": 1930,
+            "persisted_rows": 1930,
+            "first_sequence": 0,
+            "last_sequence": 1929,
+            "output_start": 0,
+            "output_bytes": 3640899,
+            "sha256": "69ade6d247742d7e13e0eff1cf0e64d370d26743f17edb898195e7bde9081ec6",
+            "queue_capacity": 128,
+            "queued_byte_limit": 2097152,
+            "row_byte_limit": 16384,
+            "maximum_queued_rows": 4
+          }
+        }
+      ],
+      "worst_gaps": {
+        "binary": {
+          "previous_sequence": 1708,
+          "current_sequence": 1709,
+          "previous": {
+            "start_ns": 1792672997887250425,
+            "start_monotonic_ns": -576460700000980672,
+            "end_ns": 1792672997887419400,
+            "end_monotonic_ns": -576460700000811477
+          },
+          "current": {
+            "start_ns": 1792672998179351329,
+            "start_monotonic_ns": -576460699708879438,
+            "end_ns": 1792672998179869081,
+            "end_monotonic_ns": -576460699708362057
+          },
+          "coverage": {
+            "samples": 315,
+            "max_interval_ns": 100000000,
+            "start_edge_ns": 11721029,
+            "end_edge_ns": 2099280,
+            "maximum_probe_ns": 7407926,
+            "maximum_gap_ns": 292618615,
+            "intervals_over100ms": 4,
+            "sampler_ids": [
+              "1792672949421171555"
+            ]
+          }
+        },
+        "total": {
+          "previous_sequence": 1708,
+          "current_sequence": 1709,
+          "previous": {
+            "start_ns": 1792672997887250425,
+            "start_monotonic_ns": -576460700000980672,
+            "end_ns": 1792672997887419400,
+            "end_monotonic_ns": -576460700000811477
+          },
+          "current": {
+            "start_ns": 1792672998179351329,
+            "start_monotonic_ns": -576460699708879438,
+            "end_ns": 1792672998179869081,
+            "end_monotonic_ns": -576460699708362057
+          },
+          "coverage": {
+            "samples": 315,
+            "max_interval_ns": 100000000,
+            "start_edge_ns": 11721029,
+            "end_edge_ns": 2099280,
+            "maximum_probe_ns": 7407926,
+            "maximum_gap_ns": 292618615,
+            "intervals_over100ms": 4,
+            "sampler_ids": [
+              "1792672949421171555"
+            ]
+          }
+        },
+        "rss": {
+          "previous_sequence": 1707,
+          "current_sequence": 1708,
+          "previous": {
+            "start_ns": 1792672997833531638,
+            "start_monotonic_ns": 816457716737,
+            "end_ns": 1792672997833756247,
+            "end_monotonic_ns": 816457941346
+          },
+          "current": {
+            "start_ns": 1792672998043097396,
+            "start_monotonic_ns": 816667282535,
+            "end_ns": 1792672998044200732,
+            "end_monotonic_ns": 816668385962
+          },
+          "coverage": {
+            "samples": 314,
+            "max_interval_ns": 100000000,
+            "start_edge_ns": 13545474,
+            "end_edge_ns": 26210511,
+            "maximum_probe_ns": 4862793,
+            "maximum_gap_ns": 210669225,
+            "intervals_over100ms": 4,
+            "sampler_ids": [
+              "1792672949421171555"
+            ]
+          }
+        },
+        "queue_max": {
+          "previous_sequence": 1708,
+          "current_sequence": 1709,
+          "previous": {
+            "start_ns": 1792672997884736769,
+            "start_monotonic_ns": -576460700003493707,
+            "end_ns": 1792672997887239508,
+            "end_monotonic_ns": -576460700000990828
+          },
+          "current": {
+            "start_ns": 1792672998175623520,
+            "start_monotonic_ns": -576460699712598564,
+            "end_ns": 1792672998179341484,
+            "end_monotonic_ns": -576460699708888992
+          },
+          "coverage": {
+            "samples": 315,
+            "max_interval_ns": 100000000,
+            "start_edge_ns": 11460065,
+            "end_edge_ns": 4779656,
+            "maximum_probe_ns": 18481197,
+            "maximum_gap_ns": 294604715,
+            "intervals_over100ms": 4,
+            "sampler_ids": [
+              "1792672949421171555"
+            ]
+          }
+        },
+        "queue_total": {
+          "previous_sequence": 1708,
+          "current_sequence": 1709,
+          "previous": {
+            "start_ns": 1792672997884736769,
+            "start_monotonic_ns": -576460700003493707,
+            "end_ns": 1792672997887239508,
+            "end_monotonic_ns": -576460700000990828
+          },
+          "current": {
+            "start_ns": 1792672998175623520,
+            "start_monotonic_ns": -576460699712598564,
+            "end_ns": 1792672998179341484,
+            "end_monotonic_ns": -576460699708888992
+          },
+          "coverage": {
+            "samples": 315,
+            "max_interval_ns": 100000000,
+            "start_edge_ns": 11460065,
+            "end_edge_ns": 4779656,
+            "maximum_probe_ns": 18481197,
+            "maximum_gap_ns": 294604715,
+            "intervals_over100ms": 4,
+            "sampler_ids": [
+              "1792672949421171555"
+            ]
+          }
+        },
+        "temporary": {
+          "previous_sequence": 1707,
+          "current_sequence": 1708,
+          "previous": {
+            "start_ns": 1792672997837189121,
+            "start_monotonic_ns": 816461374200,
+            "end_ns": 1792672997838524207,
+            "end_monotonic_ns": 816462709346
+          },
+          "current": {
+            "start_ns": 1792672998047514496,
+            "start_monotonic_ns": 816671699625,
+            "end_ns": 1792672998155276480,
+            "end_monotonic_ns": 816779462080
+          },
+          "coverage": {
+            "samples": 314,
+            "max_interval_ns": 100000000,
+            "start_edge_ns": 17677051,
+            "end_edge_ns": 23631607,
+            "maximum_probe_ns": 107762455,
+            "maximum_gap_ns": 318087880,
+            "intervals_over100ms": 4,
+            "sampler_ids": [
+              "1792672949421171555"
+            ]
+          }
+        }
+      },
+      "largest_instrumented_boundaries": [
+        {
+          "role": "temporary",
+          "tid": 23046,
+          "original_window": {
+            "start_ns": 1792672997800392957,
+            "start_monotonic_ns": 816424578206,
+            "end_ns": 1792672997802706380,
+            "end_monotonic_ns": 816426892040
+          },
+          "before_start": {
+            "wall_ns": 1792672997633203104,
+            "monotonic_ns": 816257388313,
+            "thread_cpu_ns": 7018606217
+          },
+          "after_end": {
+            "wall_ns": 1792672997804625108,
+            "monotonic_ns": 816428810598,
+            "thread_cpu_ns": 7020563766
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 1318505,
+              "runqueue_wait_ns": 3815528,
+              "timeslices": 128
+            },
+            "voluntary_ctxt_switches": 116,
+            "nonvoluntary_ctxt_switches": 20
+          }
+        },
+        {
+          "role": "rss",
+          "tid": 23046,
+          "original_window": {
+            "start_ns": 1792672998043097396,
+            "start_monotonic_ns": 816667282535,
+            "end_ns": 1792672998044200732,
+            "end_monotonic_ns": 816668385962
+          },
+          "before_start": {
+            "wall_ns": 1792672997887859980,
+            "monotonic_ns": 816512045199,
+            "thread_cpu_ns": 7025066567
+          },
+          "after_end": {
+            "wall_ns": 1792672998045799256,
+            "monotonic_ns": 816669984626,
+            "thread_cpu_ns": 7026755081
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 993452,
+              "runqueue_wait_ns": 375648,
+              "timeslices": 114
+            },
+            "voluntary_ctxt_switches": 114,
+            "nonvoluntary_ctxt_switches": 0
+          }
+        },
+        {
+          "role": "export_write",
+          "tid": 23061,
+          "original_window": {
+            "start_ns": 1792672997888359004,
+            "start_monotonic_ns": 816512544103,
+            "end_ns": 1792672997888404953,
+            "end_monotonic_ns": 816512590052
+          },
+          "before_start": {
+            "wall_ns": 1792672997886460637,
+            "monotonic_ns": 816510645746,
+            "thread_cpu_ns": 5375553585
+          },
+          "after_end": {
+            "wall_ns": 1792672998043692635,
+            "monotonic_ns": 816667877995,
+            "thread_cpu_ns": 5377008517
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 657286,
+              "runqueue_wait_ns": 700136,
+              "timeslices": 83
+            },
+            "voluntary_ctxt_switches": 83,
+            "nonvoluntary_ctxt_switches": 0
+          }
+        },
+        {
+          "role": "temporary",
+          "tid": 23046,
+          "original_window": {
+            "start_ns": 1792672998047514496,
+            "start_monotonic_ns": 816671699625,
+            "end_ns": 1792672998155276480,
+            "end_monotonic_ns": 816779462080
+          },
+          "before_start": {
+            "wall_ns": 1792672998046072158,
+            "monotonic_ns": 816670257378,
+            "thread_cpu_ns": 7026921511
+          },
+          "after_end": {
+            "wall_ns": 1792672998169431654,
+            "monotonic_ns": 816793617254,
+            "thread_cpu_ns": 7028970598
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 1299243,
+              "runqueue_wait_ns": 408846,
+              "timeslices": 115
+            },
+            "voluntary_ctxt_switches": 115,
+            "nonvoluntary_ctxt_switches": 0
+          }
+        },
+        {
+          "role": "export_write",
+          "tid": 23061,
+          "original_window": {
+            "start_ns": 1792672996602026239,
+            "start_monotonic_ns": 815226211318,
+            "end_ns": 1792672996695458689,
+            "end_monotonic_ns": 815319644049
+          },
+          "before_start": {
+            "wall_ns": 1792672996600394284,
+            "monotonic_ns": 815224579434,
+            "thread_cpu_ns": 5279657086
+          },
+          "after_end": {
+            "wall_ns": 1792672996699033608,
+            "monotonic_ns": 815323219038,
+            "thread_cpu_ns": 5280972448
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 687453,
+              "runqueue_wait_ns": 2664518,
+              "timeslices": 67
+            },
+            "voluntary_ctxt_switches": 67,
+            "nonvoluntary_ctxt_switches": 1
+          }
+        },
+        {
+          "role": "encoding",
+          "tid": 23061,
+          "original_window": {
+            "start_ns": 1792672997843262827,
+            "start_monotonic_ns": 816467447966,
+            "end_ns": 1792672997843291120,
+            "end_monotonic_ns": 816467476209
+          },
+          "before_start": {
+            "wall_ns": 1792672997841527256,
+            "monotonic_ns": 816465712796,
+            "thread_cpu_ns": 5373693821
+          },
+          "after_end": {
+            "wall_ns": 1792672997886154315,
+            "monotonic_ns": 816510339694,
+            "thread_cpu_ns": 5375340065
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 844006,
+              "runqueue_wait_ns": 2808090,
+              "timeslices": 64
+            },
+            "voluntary_ctxt_switches": 64,
+            "nonvoluntary_ctxt_switches": 0
+          }
+        },
+        {
+          "role": "temporary",
+          "tid": 23046,
+          "original_window": {
+            "start_ns": 1792672998838442555,
+            "start_monotonic_ns": 817462627795,
+            "end_ns": 1792672998842399320,
+            "end_monotonic_ns": 817466584780
+          },
+          "before_start": {
+            "wall_ns": 1792672998826318558,
+            "monotonic_ns": 817450504007,
+            "thread_cpu_ns": 7104636747
+          },
+          "after_end": {
+            "wall_ns": 1792672998870527495,
+            "monotonic_ns": 817494713225,
+            "thread_cpu_ns": 7107117561
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 1598766,
+              "runqueue_wait_ns": 3148086,
+              "timeslices": 118
+            },
+            "voluntary_ctxt_switches": 118,
+            "nonvoluntary_ctxt_switches": 0
+          }
+        },
+        {
+          "role": "rss",
+          "tid": 23046,
+          "original_window": {
+            "start_ns": 1792672997193666382,
+            "start_monotonic_ns": 815817851551,
+            "end_ns": 1792672997198529065,
+            "end_monotonic_ns": 815822714344
+          },
+          "before_start": {
+            "wall_ns": 1792672997184990711,
+            "monotonic_ns": 815809175971,
+            "thread_cpu_ns": 6975579232
+          },
+          "after_end": {
+            "wall_ns": 1792672997211306479,
+            "monotonic_ns": 815835492600,
+            "thread_cpu_ns": 6977234120
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 946003,
+              "runqueue_wait_ns": 3175849,
+              "timeslices": 120
+            },
+            "voluntary_ctxt_switches": 125,
+            "nonvoluntary_ctxt_switches": 11
+          }
+        }
+      ],
+      "scheduler_summary": {
+        "window_start_ns": 1792672989385018070,
+        "window_end_ns": 1792672999961130815,
+        "host_cpu_tick_deltas": {
+          "user": 1831,
+          "nice": 0,
+          "system": 1320,
+          "idle": 664,
+          "iowait": 201,
+          "irq": 0,
+          "softirq": 18,
+          "steal": 0,
+          "guest": 0,
+          "guest_nice": 0
+        },
+        "cgroups": {
+          "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+            "cpu_max": "max 100000\n",
+            "cpuset": "0-3\n",
+            "throttle_deltas": {
+              "nr_periods": 0,
+              "nr_throttled": 0,
+              "throttled_usec": 0
+            }
+          },
+          "/sys/fs/cgroup/system.slice": {
+            "cpu_max": "max 100000\n",
+            "cpuset": "0-3\n",
+            "throttle_deltas": {
+              "nr_periods": 0,
+              "nr_throttled": 0,
+              "throttled_usec": 0
+            }
+          },
+          "/sys/fs/cgroup": {
+            "cpu_max": {
+              "unavailable": "FileNotFoundError"
+            },
+            "cpuset": "0-3\n",
+            "throttle_deltas": {
+              "nr_periods": 0,
+              "nr_throttled": 0,
+              "throttled_usec": 0
+            }
+          }
+        },
+        "max_monitor_start_interval_ns": 184513883,
+        "max_observed_main_runqueue_delta_ns": 16080459,
+        "host_io_pressure_total_delta_usec": {
+          "some": 1349068,
+          "full": 606844
+        }
+      }
+    },
+    "data-b": {
+      "observer": {
+        "pid": 23050,
+        "start_ticks": 76809,
+        "state": "R"
+      },
+      "original_source_hash_matches_candidate": true,
+      "monitor_terminal": {
+        "acceptance_promotion": false,
+        "clocks": {
+          "monotonic_ns": 822199086625,
+          "thread_cpu_ns": 24639578119,
+          "wall_ns": 1792673003574900995
+        },
+        "discarded_bytes": {
+          "probes": 0,
+          "scheduler": 0,
+          "syscalls": 0
+        },
+        "errors": [],
+        "instrumentation": {
+          "clocks": {
+            "monotonic_ns": 821918351932,
+            "thread_cpu_ns": 7894316505,
+            "wall_ns": 1792673003294157062
+          },
+          "counts": {
+            "dropped": 0,
+            "sent": 7716
+          },
+          "kind": "terminal",
+          "pid": 23050
+        },
+        "monitor": {
+          "pid": 23056,
+          "start_ticks": 76812,
+          "state": "R"
+        },
+        "observer": {
+          "pid": 23050,
+          "start_ticks": 76809,
+          "state": "R"
+        },
+        "observer_stopped": true,
+        "socket_rows": 7716,
+        "status": "complete",
+        "tracers": [
+          {
+            "expected": {
+              "pid": 23060,
+              "start_ticks": 76815,
+              "state": "R"
+            },
+            "observed": null,
+            "stopped": true
+          }
+        ],
+        "written_bytes": {
+          "probes": 83156501,
+          "scheduler": 29281794,
+          "syscalls": 49257501
+        }
+      },
+      "retained_sizes_match": {
+        "probes": true,
+        "scheduler": true,
+        "syscalls": true
+      },
+      "probe_rows": 7716,
+      "delivery_count_matches": true,
+      "original_rows": 1929,
+      "original_sequences_contiguous": true,
+      "original_probe_windows_aligned": true,
+      "original_stop": {
+        "status": "failed",
+        "error_type": "FileNotFoundError"
+      },
+      "worst_gaps": {
+        "binary": {
+          "previous_sequence": 1742,
+          "current_sequence": 1743,
+          "previous": {
+            "start_ns": 1792672997621861683,
+            "start_monotonic_ns": -576460700271442529,
+            "end_ns": 1792672997622939866,
+            "end_monotonic_ns": -576460700270363114
+          },
+          "current": {
+            "start_ns": 1792672997798148793,
+            "start_monotonic_ns": -576460700095155299,
+            "end_ns": 1792672997798571060,
+            "end_monotonic_ns": -576460700094732570
+          },
+          "coverage": {
+            "samples": 340,
+            "max_interval_ns": 100000000,
+            "start_edge_ns": 8229878,
+            "end_edge_ns": 10503678,
+            "maximum_probe_ns": 4353502,
+            "maximum_gap_ns": 176709959,
+            "intervals_over100ms": 4,
+            "sampler_ids": [
+              "1792672949466654604"
+            ]
+          }
+        },
+        "total": {
+          "previous_sequence": 1742,
+          "current_sequence": 1743,
+          "previous": {
+            "start_ns": 1792672997621861683,
+            "start_monotonic_ns": -576460700271442529,
+            "end_ns": 1792672997622939866,
+            "end_monotonic_ns": -576460700270363114
+          },
+          "current": {
+            "start_ns": 1792672997798148793,
+            "start_monotonic_ns": -576460700095155299,
+            "end_ns": 1792672997798571060,
+            "end_monotonic_ns": -576460700094732570
+          },
+          "coverage": {
+            "samples": 340,
+            "max_interval_ns": 100000000,
+            "start_edge_ns": 8229878,
+            "end_edge_ns": 10503678,
+            "maximum_probe_ns": 4353502,
+            "maximum_gap_ns": 176709959,
+            "intervals_over100ms": 4,
+            "sampler_ids": [
+              "1792672949466654604"
+            ]
+          }
+        },
+        "rss": {
+          "previous_sequence": 1742,
+          "current_sequence": 1743,
+          "previous": {
+            "start_ns": 1792672997624739518,
+            "start_monotonic_ns": 816248924687,
+            "end_ns": 1792672997625020142,
+            "end_monotonic_ns": 816249205401
+          },
+          "current": {
+            "start_ns": 1792672997802829136,
+            "start_monotonic_ns": 816427014275,
+            "end_ns": 1792672997803710086,
+            "end_monotonic_ns": 816427895345
+          },
+          "coverage": {
+            "samples": 340,
+            "max_interval_ns": 100000000,
+            "start_edge_ns": 10577303,
+            "end_edge_ns": 8459472,
+            "maximum_probe_ns": 5277209,
+            "maximum_gap_ns": 178970658,
+            "intervals_over100ms": 4,
+            "sampler_ids": [
+              "1792672949466654604"
+            ]
+          }
+        },
+        "queue_max": {
+          "previous_sequence": 1742,
+          "current_sequence": 1743,
+          "previous": {
+            "start_ns": 1792672997620103868,
+            "start_monotonic_ns": -576460700273198651,
+            "end_ns": 1792672997621852719,
+            "end_monotonic_ns": -576460700271450781
+          },
+          "current": {
+            "start_ns": 1792672997795619759,
+            "start_monotonic_ns": -576460700097682800,
+            "end_ns": 1792672997798141071,
+            "end_monotonic_ns": -576460700095162490
+          },
+          "coverage": {
+            "samples": 340,
+            "max_interval_ns": 100000000,
+            "start_edge_ns": 6446997,
+            "end_edge_ns": 12490798,
+            "maximum_probe_ns": 12021739,
+            "maximum_gap_ns": 178036161,
+            "intervals_over100ms": 4,
+            "sampler_ids": [
+              "1792672949466654604"
+            ]
+          }
+        },
+        "queue_total": {
+          "previous_sequence": 1742,
+          "current_sequence": 1743,
+          "previous": {
+            "start_ns": 1792672997620103868,
+            "start_monotonic_ns": -576460700273198651,
+            "end_ns": 1792672997621852719,
+            "end_monotonic_ns": -576460700271450781
+          },
+          "current": {
+            "start_ns": 1792672997795619759,
+            "start_monotonic_ns": -576460700097682800,
+            "end_ns": 1792672997798141071,
+            "end_monotonic_ns": -576460700095162490
+          },
+          "coverage": {
+            "samples": 340,
+            "max_interval_ns": 100000000,
+            "start_edge_ns": 6446997,
+            "end_edge_ns": 12490798,
+            "maximum_probe_ns": 12021739,
+            "maximum_gap_ns": 178036161,
+            "intervals_over100ms": 4,
+            "sampler_ids": [
+              "1792672949466654604"
+            ]
+          }
+        },
+        "temporary": {
+          "previous_sequence": 1745,
+          "current_sequence": 1746,
+          "previous": {
+            "start_ns": 1792672997878634084,
+            "start_monotonic_ns": 816502819203,
+            "end_ns": 1792672997879720995,
+            "end_monotonic_ns": 816503906325
+          },
+          "current": {
+            "start_ns": 1792672998167369841,
+            "start_monotonic_ns": 816791554971,
+            "end_ns": 1792672998168114095,
+            "end_monotonic_ns": 816792299264
+          },
+          "coverage": {
+            "samples": 340,
+            "max_interval_ns": 100000000,
+            "start_edge_ns": 14560536,
+            "end_edge_ns": 4287523,
+            "maximum_probe_ns": 7985478,
+            "maximum_gap_ns": 289480061,
+            "intervals_over100ms": 3,
+            "sampler_ids": [
+              "1792672949466654604"
+            ]
+          }
+        }
+      },
+      "largest_instrumented_boundaries": [
+        {
+          "role": "encoding",
+          "tid": 23062,
+          "original_window": {
+            "start_ns": 1792672997795056784,
+            "start_monotonic_ns": 816419241913,
+            "end_ns": 1792672997795114581,
+            "end_monotonic_ns": 816419299690
+          },
+          "before_start": {
+            "wall_ns": 1792672997632586608,
+            "monotonic_ns": 816256771797,
+            "thread_cpu_ns": 5510472182
+          },
+          "after_end": {
+            "wall_ns": 1792672997801123630,
+            "monotonic_ns": 816425308960,
+            "thread_cpu_ns": 5512048657
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 855838,
+              "runqueue_wait_ns": 975041,
+              "timeslices": 75
+            },
+            "voluntary_ctxt_switches": 86,
+            "nonvoluntary_ctxt_switches": 2
+          }
+        },
+        {
+          "role": "export_write",
+          "tid": 23062,
+          "original_window": {
+            "start_ns": 1792672998041273943,
+            "start_monotonic_ns": 816665459072,
+            "end_ns": 1792672998041315686,
+            "end_monotonic_ns": 816665500815
+          },
+          "before_start": {
+            "wall_ns": 1792672997890227441,
+            "monotonic_ns": 816514412730,
+            "thread_cpu_ns": 5522359953
+          },
+          "after_end": {
+            "wall_ns": 1792672998042506003,
+            "monotonic_ns": 816666691343,
+            "thread_cpu_ns": 5523506280
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 574487,
+              "runqueue_wait_ns": 1091315,
+              "timeslices": 78
+            },
+            "voluntary_ctxt_switches": 66,
+            "nonvoluntary_ctxt_switches": 12
+          }
+        },
+        {
+          "role": "rss",
+          "tid": 23050,
+          "original_window": {
+            "start_ns": 1792672998045813483,
+            "start_monotonic_ns": 816669998592,
+            "end_ns": 1792672998046315822,
+            "end_monotonic_ns": 816670501031
+          },
+          "before_start": {
+            "wall_ns": 1792672998044146836,
+            "monotonic_ns": 816668331946,
+            "thread_cpu_ns": 7151168267
+          },
+          "after_end": {
+            "wall_ns": 1792672998165851759,
+            "monotonic_ns": 816790037830,
+            "thread_cpu_ns": 7152996691
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 1138978,
+              "runqueue_wait_ns": 1366349,
+              "timeslices": 82
+            },
+            "voluntary_ctxt_switches": 82,
+            "nonvoluntary_ctxt_switches": 0
+          }
+        },
+        {
+          "role": "encoding",
+          "tid": 23062,
+          "original_window": {
+            "start_ns": 1792672996704830286,
+            "start_monotonic_ns": 815329015446,
+            "end_ns": 1792672996704891909,
+            "end_monotonic_ns": 815329077049
+          },
+          "before_start": {
+            "wall_ns": 1792672996595596094,
+            "monotonic_ns": 815219781483,
+            "thread_cpu_ns": 5421260097
+          },
+          "after_end": {
+            "wall_ns": 1792672996708368549,
+            "monotonic_ns": 815332554009,
+            "thread_cpu_ns": 5423362310
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 1054910,
+              "runqueue_wait_ns": 2086487,
+              "timeslices": 111
+            },
+            "voluntary_ctxt_switches": 115,
+            "nonvoluntary_ctxt_switches": 0
+          }
+        },
+        {
+          "role": "encoding",
+          "tid": 23062,
+          "original_window": {
+            "start_ns": 1792672996986447143,
+            "start_monotonic_ns": 815610632293,
+            "end_ns": 1792672996986506814,
+            "end_monotonic_ns": 815610691933
+          },
+          "before_start": {
+            "wall_ns": 1792672996914620217,
+            "monotonic_ns": 815538805557,
+            "thread_cpu_ns": 5446820927
+          },
+          "after_end": {
+            "wall_ns": 1792672996993163535,
+            "monotonic_ns": 815617348885,
+            "thread_cpu_ns": 5448575805
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 979612,
+              "runqueue_wait_ns": 2057521,
+              "timeslices": 113
+            },
+            "voluntary_ctxt_switches": 124,
+            "nonvoluntary_ctxt_switches": 3
+          }
+        },
+        {
+          "role": "encoding",
+          "tid": 23062,
+          "original_window": {
+            "start_ns": 1792672996836346315,
+            "start_monotonic_ns": 815460531454,
+            "end_ns": 1792672996836402330,
+            "end_monotonic_ns": 815460587449
+          },
+          "before_start": {
+            "wall_ns": 1792672996812222087,
+            "monotonic_ns": 815436407336,
+            "thread_cpu_ns": 5435885899
+          },
+          "after_end": {
+            "wall_ns": 1792672996838802003,
+            "monotonic_ns": 815462987323,
+            "thread_cpu_ns": 5437579291
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 991593,
+              "runqueue_wait_ns": 534689,
+              "timeslices": 73
+            },
+            "voluntary_ctxt_switches": 64,
+            "nonvoluntary_ctxt_switches": 0
+          }
+        },
+        {
+          "role": "rss",
+          "tid": 23050,
+          "original_window": {
+            "start_ns": 1792672997418180156,
+            "start_monotonic_ns": 816042365275,
+            "end_ns": 1792672997423456974,
+            "end_monotonic_ns": 816047642484
+          },
+          "before_start": {
+            "wall_ns": 1792672997411354579,
+            "monotonic_ns": 816035539729,
+            "thread_cpu_ns": 7108457766
+          },
+          "after_end": {
+            "wall_ns": 1792672997434245115,
+            "monotonic_ns": 816058430785,
+            "thread_cpu_ns": 7110234774
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 1030237,
+              "runqueue_wait_ns": 8685567,
+              "timeslices": 104
+            },
+            "voluntary_ctxt_switches": 104,
+            "nonvoluntary_ctxt_switches": 0
+          }
+        },
+        {
+          "role": "export_write",
+          "tid": 23062,
+          "original_window": {
+            "start_ns": 1792672997414032403,
+            "start_monotonic_ns": 816038217502,
+            "end_ns": 1792672997414128408,
+            "end_monotonic_ns": 816038313577
+          },
+          "before_start": {
+            "wall_ns": 1792672997410137091,
+            "monotonic_ns": 816034322460,
+            "thread_cpu_ns": 5489974446
+          },
+          "after_end": {
+            "wall_ns": 1792672997431575143,
+            "monotonic_ns": 816055760863,
+            "thread_cpu_ns": 5491536813
+          },
+          "scheduling_delta": {
+            "schedstat": {
+              "executing_ns": 632489,
+              "runqueue_wait_ns": 3123559,
+              "timeslices": 66
+            },
+            "voluntary_ctxt_switches": 73,
+            "nonvoluntary_ctxt_switches": 0
+          }
+        }
+      ],
+      "scheduler_summary": {
+        "window_start_ns": 1792672989373669097,
+        "window_end_ns": 1792672999975667506,
+        "host_cpu_tick_deltas": {
+          "user": 1836,
+          "nice": 0,
+          "system": 1323,
+          "idle": 665,
+          "iowait": 201,
+          "irq": 0,
+          "softirq": 18,
+          "steal": 0,
+          "guest": 0,
+          "guest_nice": 0
+        },
+        "cgroups": {
+          "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+            "cpu_max": "max 100000\n",
+            "cpuset": "0-3\n",
+            "throttle_deltas": {
+              "nr_periods": 0,
+              "nr_throttled": 0,
+              "throttled_usec": 0
+            }
+          },
+          "/sys/fs/cgroup/system.slice": {
+            "cpu_max": "max 100000\n",
+            "cpuset": "0-3\n",
+            "throttle_deltas": {
+              "nr_periods": 0,
+              "nr_throttled": 0,
+              "throttled_usec": 0
+            }
+          },
+          "/sys/fs/cgroup": {
+            "cpu_max": {
+              "unavailable": "FileNotFoundError"
+            },
+            "cpuset": "0-3\n",
+            "throttle_deltas": {
+              "nr_periods": 0,
+              "nr_throttled": 0,
+              "throttled_usec": 0
+            }
+          }
+        },
+        "max_monitor_start_interval_ns": 170302943,
+        "max_observed_main_runqueue_delta_ns": 12462931,
+        "host_io_pressure_total_delta_usec": {
+          "some": 1349068,
+          "full": 606844
+        }
+      }
+    }
+  },
+  "tool_hashes_match_candidate": {
+    "README.md": true,
+    "common.py": true,
+    "dispatch.py": true,
+    "instrument_observer.py": true,
+    "monitor.py": true,
+    "python-launcher": true,
+    "run.py": true,
+    "subset.py": true,
+    "test_diagnostic.py": true
+  },
+  "long_syscall_alignment": [
+    {
+      "node": "data-a",
+      "tid": 23061,
+      "syscall": "write",
+      "start_ns": 1792672996602035000,
+      "end_ns": 1792672996695419000,
+      "elapsed_ms": 93.384,
+      "entry_line": 598462
+    },
+    {
+      "node": "data-a",
+      "tid": 23061,
+      "syscall": "futex",
+      "start_ns": 1792672997620972000,
+      "end_ns": 1792672997794419000,
+      "elapsed_ms": 173.447,
+      "entry_line": 607716
+    },
+    {
+      "node": "data-a",
+      "tid": 23046,
+      "syscall": "fstat",
+      "start_ns": 1792672997890803000,
+      "end_ns": 1792672998039386000,
+      "elapsed_ms": 148.583,
+      "entry_line": 608392
+    },
+    {
+      "node": "data-a",
+      "tid": 23046,
+      "syscall": "getdents64",
+      "start_ns": 1792672998047765000,
+      "end_ns": 1792672998154536000,
+      "elapsed_ms": 106.771,
+      "entry_line": 608536
+    },
+    {
+      "node": "data-b",
+      "tid": 23050,
+      "syscall": "pselect6",
+      "start_ns": 1792672997632861000,
+      "end_ns": 1792672997794480000,
+      "elapsed_ms": 161.619,
+      "entry_line": 607980
+    },
+    {
+      "node": "data-b",
+      "tid": 23050,
+      "syscall": "pselect6",
+      "start_ns": 1792672997881967000,
+      "end_ns": 1792672998038141000,
+      "elapsed_ms": 156.174,
+      "entry_line": 609101
+    },
+    {
+      "node": "data-b",
+      "tid": 23062,
+      "syscall": "futex",
+      "start_ns": 1792672998042733000,
+      "end_ns": 1792672998154515000,
+      "elapsed_ms": 111.782,
+      "entry_line": 609221
+    }
+  ],
+  "interpretation": [
+    "Group6 transfers verified hash/size and two ready replicas for all four fixtures; original cadence failed on both nodes.",
+    "Tracer lifetime and retained trace/probe delivery passed, but data-b original terminal export is absent; that original acceptance contract failed separately.",
+    "Traced gaps exceed earlier untraced 111-139ms observations; additional syscall scheduling, snapshot/GIL work and ~310MiB diagnostic output perturb the workload.",
+    "The long getdents64 falls inside original temporary probe; long fstat falls inside diagnostic RSS-before-snapshot, outside original RSS probe.",
+    "Simultaneous pselect/futex waits and monitor sampling gaps are not explained by tracee runqueue counters. Zero recorded steal/throttle does not measure tracer delay or eliminate shared I/O/VM stalls.",
+    "No justified production filesystem/fsync/GIL fix is established. Any follow-up should test a narrow hypothesis without ptrace; preserve original limits."
+  ],
+  "diagnostic_retained_bytes": 325154370,
+  "hypothesis_for_optional_no_ptrace_followup": "Test whether real original temporary-directory probes still spend >100ms blocked when ptrace and bulky per-probe procfs snapshots/trace output are absent. Preserve the original first-six-group workload, limits, failure stopping and windows; collect only bounded low-volume CPU/context-switch brackets plus external main-thread schedstat and contemporaneous host/cgroup accounting. Do not execute without parent decision; this would distinguish diagnostic transport perturbation from a recurring native wait, not automatically prove filesystem/fsync causation."
+}

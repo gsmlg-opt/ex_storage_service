@@ -1,0 +1,30 @@
+{
+  "status": "failed",
+  "acceptance_status": "incomplete",
+  "acceptance_promotion": false,
+  "source": "/home/runner/work/ex_storage_service/ex_storage_service/e2e/s3_hardening_cluster_resources.py",
+  "original_group_count": 20,
+  "selected_prefix_groups": 6,
+  "target": {
+    "name": "strict-quorum-replica-put",
+    "size": 67108864,
+    "concurrency": 4
+  },
+  "excluded_groups": [
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "wall_ns": 1792673002107641995
+}

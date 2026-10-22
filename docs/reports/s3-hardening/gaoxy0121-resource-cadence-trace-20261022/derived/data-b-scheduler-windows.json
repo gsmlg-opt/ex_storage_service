@@ -1,0 +1,602 @@
+[
+  {
+    "original_row_sha256": "68755b5f79b8981a86eeb1a58446cc17faa1e2490b9bb0534bdb221d171f26e4",
+    "projection": {
+      "cgroups": {
+        "ancestors": {
+          "/sys/fs/cgroup": {
+            "cpu.max": {
+              "unavailable": "FileNotFoundError"
+            },
+            "cpu.pressure": "some avg10=44.23 avg60=32.14 avg300=16.95 total=83475403\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+            "cpu.stat": "usage_usec 1238079000\nuser_usec 1092599000\nsystem_usec 145480000\nnice_usec 2932000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "cpuset.cpus.effective": "0-3\n",
+            "io.pressure": "some avg10=6.64 avg60=2.90 avg300=1.91 total=25209216\nfull avg10=2.25 avg60=1.27 avg300=1.33 total=22345401\n"
+          },
+          "/sys/fs/cgroup/system.slice": {
+            "cpu.max": "max 100000\n",
+            "cpu.pressure": "some avg10=44.85 avg60=32.25 avg300=16.55 total=77268451\nfull avg10=2.17 avg60=0.96 avg300=0.26 total=2163773\n",
+            "cpu.stat": "usage_usec 1239127584\nuser_usec 1098591459\nsystem_usec 140536124\nnice_usec 2932000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "cpuset.cpus.effective": "0-3\n",
+            "io.pressure": "some avg10=3.38 avg60=1.66 avg300=0.81 total=7922546\nfull avg10=1.28 avg60=0.83 avg300=0.57 total=6756745\n"
+          },
+          "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+            "cpu.max": "max 100000\n",
+            "cpu.pressure": "some avg10=44.54 avg60=32.30 avg300=16.57 total=76346737\nfull avg10=2.07 avg60=0.93 avg300=0.26 total=1979796\n",
+            "cpu.stat": "usage_usec 1222279600\nuser_usec 1087467505\nsystem_usec 134812095\nnice_usec 2922000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "cpuset.cpus.effective": "0-3\n",
+            "io.pressure": "some avg10=3.04 avg60=1.61 avg300=0.70 total=4933871\nfull avg10=1.26 avg60=0.83 avg300=0.46 total=4022901\n"
+          }
+        },
+        "membership": "0::/system.slice/hosted-compute-agent.service\n"
+      },
+      "cpu_aggregate": "cpu  108966 293 14454 192701 4415 0 93 0 0 0",
+      "cpu_stat_deltas": {
+        "/sys/fs/cgroup": {
+          "burst_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 0,
+          "nr_throttled": 0,
+          "system_usec": 23000,
+          "throttled_usec": 0,
+          "usage_usec": 74000,
+          "user_usec": 51000
+        },
+        "/sys/fs/cgroup/system.slice": {
+          "burst_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 0,
+          "nr_throttled": 0,
+          "system_usec": 23043,
+          "throttled_usec": 0,
+          "usage_usec": 73354,
+          "user_usec": 50310
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "burst_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 0,
+          "nr_throttled": 0,
+          "system_usec": 23089,
+          "throttled_usec": 0,
+          "usage_usec": 73764,
+          "user_usec": 50675
+        }
+      },
+      "kind": "scheduler",
+      "load": "4.23 3.08 1.42 6/299 23477\n",
+      "observer": {
+        "pid": 23050,
+        "start_ticks": 76809,
+        "state": "R"
+      },
+      "pressure": {
+        "cpu": "some avg10=44.23 avg60=32.14 avg300=16.95 total=83475403\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+        "io": "some avg10=6.64 avg60=2.90 avg300=1.91 total=25209216\nfull avg10=2.25 avg60=1.27 avg300=1.33 total=22345401\n"
+      },
+      "threads": [
+        {
+          "context_switches": {
+            "nonvoluntary_ctxt_switches": 7140,
+            "voluntary_ctxt_switches": 574904
+          },
+          "identity": {
+            "pid": 23050,
+            "start_ticks": 76809,
+            "state": "t"
+          },
+          "schedstat": "5971729918 5409246433 582038\n",
+          "tid": 23050,
+          "wchan": "ptrace_stop",
+          "window": {
+            "end": {
+              "monotonic_ns": 807998140248,
+              "thread_cpu_ns": 18611889151,
+              "wall_ns": 1792672989373955138
+            },
+            "start": {
+              "monotonic_ns": 807997925984,
+              "thread_cpu_ns": 18611674641,
+              "wall_ns": 1792672989373740885
+            }
+          }
+        },
+        {
+          "context_switches": {
+            "nonvoluntary_ctxt_switches": 6801,
+            "voluntary_ctxt_switches": 454571
+          },
+          "identity": {
+            "pid": 23062,
+            "start_ticks": 76826,
+            "state": "S"
+          },
+          "schedstat": "4591371632 4086000367 461372\n",
+          "tid": 23062,
+          "wchan": "futex_do_wait",
+          "window": {
+            "end": {
+              "monotonic_ns": 807998366459,
+              "thread_cpu_ns": 18612115088,
+              "wall_ns": 1792672989374181380
+            },
+            "start": {
+              "monotonic_ns": 807998205296,
+              "thread_cpu_ns": 18611953928,
+              "wall_ns": 1792672989374020217
+            }
+          }
+        }
+      ],
+      "window": {
+        "end": {
+          "monotonic_ns": 807998909239,
+          "thread_cpu_ns": 18612658008,
+          "wall_ns": 1792672989374724029
+        },
+        "start": {
+          "monotonic_ns": 807997854656,
+          "thread_cpu_ns": 18611604266,
+          "wall_ns": 1792672989373669097
+        }
+      }
+    },
+    "source_line": 1581
+  },
+  {
+    "original_row_sha256": "c688c291677500f00aa2f9ba1654c9fb4e33aab92864bb32ada013898c23a7bd",
+    "projection": {
+      "cgroups": {
+        "ancestors": {
+          "/sys/fs/cgroup": {
+            "cpu.max": {
+              "unavailable": "FileNotFoundError"
+            },
+            "cpu.pressure": "some avg10=46.17 avg60=33.85 avg300=17.72 total=87465104\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+            "cpu.stat": "usage_usec 1262268000\nuser_usec 1106277000\nsystem_usec 155991000\nnice_usec 2932000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "cpuset.cpus.effective": "0-3\n",
+            "io.pressure": "some avg10=3.16 avg60=2.57 avg300=1.87 total=25978575\nfull avg10=1.01 avg60=1.11 avg300=1.30 total=22669073\n"
+          },
+          "/sys/fs/cgroup/system.slice": {
+            "cpu.max": "max 100000\n",
+            "cpu.pressure": "some avg10=46.48 avg60=33.95 avg300=17.34 total=81307748\nfull avg10=2.08 avg60=1.12 avg300=0.32 total=2357805\n",
+            "cpu.stat": "usage_usec 1264360534\nuser_usec 1113139145\nsystem_usec 151221388\nnice_usec 2932000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "cpuset.cpus.effective": "0-3\n",
+            "io.pressure": "some avg10=1.52 avg60=1.45 avg300=0.79 total=8695440\nfull avg10=0.57 avg60=0.72 avg300=0.55 total=7081231\n"
+          },
+          "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+            "cpu.max": "max 100000\n",
+            "cpu.pressure": "some avg10=46.00 avg60=33.98 avg300=17.36 total=80383293\nfull avg10=2.07 avg60=1.09 avg300=0.31 total=2175005\n",
+            "cpu.stat": "usage_usec 1247504271\nuser_usec 1102019116\nsystem_usec 145485155\nnice_usec 2922000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "cpuset.cpus.effective": "0-3\n",
+            "io.pressure": "some avg10=3.90 avg60=1.87 avg300=0.78 total=5706452\nfull avg10=1.29 avg60=0.86 avg300=0.47 total=4347474\n"
+          }
+        },
+        "membership": "0::/system.slice/hosted-compute-agent.service\n"
+      },
+      "cpu_aggregate": "cpu  110334 293 15490 193292 4523 0 108 0 0 0",
+      "cpu_stat_deltas": {
+        "/sys/fs/cgroup": {
+          "burst_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 0,
+          "nr_throttled": 0,
+          "system_usec": 43000,
+          "throttled_usec": 0,
+          "usage_usec": 87000,
+          "user_usec": 44000
+        },
+        "/sys/fs/cgroup/system.slice": {
+          "burst_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 0,
+          "nr_throttled": 0,
+          "system_usec": 41811,
+          "throttled_usec": 0,
+          "usage_usec": 88534,
+          "user_usec": 46722
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "burst_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 0,
+          "nr_throttled": 0,
+          "system_usec": 41761,
+          "throttled_usec": 0,
+          "usage_usec": 88270,
+          "user_usec": 46509
+        }
+      },
+      "kind": "scheduler",
+      "load": "4.61 3.20 1.47 6/304 23490\n",
+      "observer": {
+        "pid": 23050,
+        "start_ticks": 76809,
+        "state": "R"
+      },
+      "pressure": {
+        "cpu": "some avg10=46.17 avg60=33.85 avg300=17.72 total=87466152\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+        "io": "some avg10=3.16 avg60=2.57 avg300=1.87 total=25979623\nfull avg10=1.01 avg60=1.11 avg300=1.30 total=22669073\n"
+      },
+      "threads": [
+        {
+          "context_switches": {
+            "nonvoluntary_ctxt_switches": 8613,
+            "voluntary_ctxt_switches": 686310
+          },
+          "identity": {
+            "pid": 23050,
+            "start_ticks": 76809,
+            "state": "R"
+          },
+          "schedstat": "7134265275 6592880469 694918\n",
+          "tid": 23050,
+          "wchan": "0",
+          "window": {
+            "end": {
+              "monotonic_ns": 816248435719,
+              "thread_cpu_ns": 22276703403,
+              "wall_ns": 1792672997624250500
+            },
+            "start": {
+              "monotonic_ns": 816248206343,
+              "thread_cpu_ns": 22276474031,
+              "wall_ns": 1792672997624021174
+            }
+          }
+        },
+        {
+          "context_switches": {
+            "nonvoluntary_ctxt_switches": 8118,
+            "voluntary_ctxt_switches": 543266
+          },
+          "identity": {
+            "pid": 23062,
+            "start_ticks": 76826,
+            "state": "S"
+          },
+          "schedstat": "5510341155 4988706961 551384\n",
+          "tid": 23062,
+          "wchan": "futex_do_wait",
+          "window": {
+            "end": {
+              "monotonic_ns": 816248696153,
+              "thread_cpu_ns": 22276963792,
+              "wall_ns": 1792672997624511033
+            },
+            "start": {
+              "monotonic_ns": 816248510823,
+              "thread_cpu_ns": 22276778435,
+              "wall_ns": 1792672997624325694
+            }
+          }
+        }
+      ],
+      "window": {
+        "end": {
+          "monotonic_ns": 816250207194,
+          "thread_cpu_ns": 22277592250,
+          "wall_ns": 1792672997626021745
+        },
+        "start": {
+          "monotonic_ns": 816248127123,
+          "thread_cpu_ns": 22276395173,
+          "wall_ns": 1792672997623941524
+        }
+      }
+    },
+    "source_line": 1907
+  },
+  {
+    "original_row_sha256": "ac6014c0df1b52bceeecd641b9db01d14c166dffe07861e1e9af7f3168d44ac9",
+    "projection": {
+      "cgroups": {
+        "ancestors": {
+          "/sys/fs/cgroup": {
+            "cpu.max": {
+              "unavailable": "FileNotFoundError"
+            },
+            "cpu.pressure": "some avg10=46.50 avg60=34.32 avg300=17.93 total=87495159\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+            "cpu.stat": "usage_usec 1262682000\nuser_usec 1106587000\nsystem_usec 156095000\nnice_usec 2932000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "cpuset.cpus.effective": "0-3\n",
+            "io.pressure": "some avg10=10.56 avg60=3.93 avg300=2.16 total=26119982\nfull avg10=4.09 avg60=1.67 avg300=1.41 total=22726335\n"
+          },
+          "/sys/fs/cgroup/system.slice": {
+            "cpu.max": "max 100000\n",
+            "cpu.pressure": "some avg10=47.12 avg60=34.48 avg300=17.56 total=81336347\nfull avg10=2.07 avg60=1.14 avg300=0.33 total=2358817\n",
+            "cpu.stat": "usage_usec 1264761718\nuser_usec 1113436623\nsystem_usec 151325094\nnice_usec 2932000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "cpuset.cpus.effective": "0-3\n",
+            "io.pressure": "some avg10=8.49 avg60=2.71 avg300=1.06 total=8832557\nfull avg10=3.37 avg60=1.22 avg300=0.66 total=7136374\n"
+          },
+          "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+            "cpu.max": "max 100000\n",
+            "cpu.pressure": "some avg10=46.00 avg60=33.98 avg300=17.36 total=80412120\nfull avg10=2.07 avg60=1.09 avg300=0.31 total=2176002\n",
+            "cpu.stat": "usage_usec 1247905838\nuser_usec 1102316891\nsystem_usec 145588947\nnice_usec 2922000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "cpuset.cpus.effective": "0-3\n",
+            "io.pressure": "some avg10=3.90 avg60=1.87 avg300=0.78 total=5842956\nfull avg10=1.29 avg60=0.86 avg300=0.47 total=4402756\n"
+          }
+        },
+        "membership": "0::/system.slice/hosted-compute-agent.service\n"
+      },
+      "cpu_aggregate": "cpu  110365 293 15501 193300 4543 0 108 0 0 0",
+      "cpu_stat_deltas": {
+        "/sys/fs/cgroup": {
+          "burst_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 0,
+          "nr_throttled": 0,
+          "system_usec": 104000,
+          "throttled_usec": 0,
+          "usage_usec": 414000,
+          "user_usec": 310000
+        },
+        "/sys/fs/cgroup/system.slice": {
+          "burst_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 0,
+          "nr_throttled": 0,
+          "system_usec": 103706,
+          "throttled_usec": 0,
+          "usage_usec": 401184,
+          "user_usec": 297478
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "burst_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 0,
+          "nr_throttled": 0,
+          "system_usec": 103792,
+          "throttled_usec": 0,
+          "usage_usec": 401567,
+          "user_usec": 297775
+        }
+      },
+      "kind": "scheduler",
+      "load": "4.61 3.20 1.47 14/318 23515\n",
+      "observer": {
+        "pid": 23050,
+        "start_ticks": 76809,
+        "state": "t"
+      },
+      "pressure": {
+        "cpu": "some avg10=46.50 avg60=34.32 avg300=17.93 total=87495159\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+        "io": "some avg10=10.56 avg60=3.93 avg300=2.16 total=26119982\nfull avg10=4.09 avg60=1.67 avg300=1.41 total=22726335\n"
+      },
+      "threads": [
+        {
+          "context_switches": {
+            "nonvoluntary_ctxt_switches": 8615,
+            "voluntary_ctxt_switches": 686642
+          },
+          "identity": {
+            "pid": 23050,
+            "start_ticks": 76809,
+            "state": "t"
+          },
+          "schedstat": "7137047880 6595594716 695257\n",
+          "tid": 23050,
+          "wchan": "0",
+          "window": {
+            "end": {
+              "monotonic_ns": 816418759835,
+              "thread_cpu_ns": 22282923778,
+              "wall_ns": 1792672997794574505
+            },
+            "start": {
+              "monotonic_ns": 816418530829,
+              "thread_cpu_ns": 22282694456,
+              "wall_ns": 1792672997794345640
+            }
+          }
+        },
+        {
+          "context_switches": {
+            "nonvoluntary_ctxt_switches": 8134,
+            "voluntary_ctxt_switches": 543332
+          },
+          "identity": {
+            "pid": 23062,
+            "start_ticks": 76826,
+            "state": "R"
+          },
+          "schedstat": "5510970001 4989586260 551464\n",
+          "tid": 23062,
+          "wchan": "0",
+          "window": {
+            "end": {
+              "monotonic_ns": 816421099868,
+              "thread_cpu_ns": 22283265298,
+              "wall_ns": 1792672997796914479
+            },
+            "start": {
+              "monotonic_ns": 816418839465,
+              "thread_cpu_ns": 22283003127,
+              "wall_ns": 1792672997794654346
+            }
+          }
+        }
+      ],
+      "window": {
+        "end": {
+          "monotonic_ns": 816421724161,
+          "thread_cpu_ns": 22283889500,
+          "wall_ns": 1792672997797539002
+        },
+        "start": {
+          "monotonic_ns": 816418430187,
+          "thread_cpu_ns": 22282594537,
+          "wall_ns": 1792672997794244467
+        }
+      }
+    },
+    "source_line": 1908
+  },
+  {
+    "original_row_sha256": "d12d5ea023b56fdbfde8ff0c0975f63f582261be24fae7abb8a7117a141b5be9",
+    "projection": {
+      "cgroups": {
+        "ancestors": {
+          "/sys/fs/cgroup": {
+            "cpu.max": {
+              "unavailable": "FileNotFoundError"
+            },
+            "cpu.pressure": "some avg10=50.58 avg60=35.45 avg300=18.28 total=88959024\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+            "cpu.stat": "usage_usec 1269844000\nuser_usec 1110957000\nsystem_usec 158887000\nnice_usec 2932000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "cpuset.cpus.effective": "0-3\n",
+            "io.pressure": "some avg10=12.63 avg60=4.52 avg300=2.29 total=26558284\nfull avg10=5.34 avg60=1.97 avg300=1.48 total=22952245\n"
+          },
+          "/sys/fs/cgroup/system.slice": {
+            "cpu.max": "max 100000\n",
+            "cpu.pressure": "some avg10=50.54 avg60=35.51 avg300=17.89 total=82817599\nfull avg10=1.69 avg60=1.11 avg300=0.33 total=2376020\n",
+            "cpu.stat": "usage_usec 1272000832\nuser_usec 1117860666\nsystem_usec 154140165\nnice_usec 2932000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "cpuset.cpus.effective": "0-3\n",
+            "io.pressure": "some avg10=11.66 avg60=3.47 avg300=1.23 total=9263908\nfull avg10=4.93 avg60=1.57 avg300=0.74 total=7348459\n"
+          },
+          "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+            "cpu.max": "max 100000\n",
+            "cpu.pressure": "some avg10=46.55 avg60=34.47 avg300=17.57 total=81893162\nfull avg10=1.87 avg60=1.09 avg300=0.32 total=2193512\n",
+            "cpu.stat": "usage_usec 1255142447\nuser_usec 1106738912\nsystem_usec 148403535\nnice_usec 2922000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+            "cpuset.cpus.effective": "0-3\n",
+            "io.pressure": "some avg10=11.71 avg60=3.34 avg300=1.09 total=6274264\nfull avg10=5.22 avg60=1.58 avg300=0.62 total=4614821\n"
+          }
+        },
+        "membership": "0::/system.slice/hosted-compute-agent.service\n"
+      },
+      "cpu_aggregate": "cpu  110802 293 15777 193366 4616 0 111 0 0 0",
+      "cpu_stat_deltas": {
+        "/sys/fs/cgroup": {
+          "burst_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 0,
+          "nr_throttled": 0,
+          "system_usec": 36000,
+          "throttled_usec": 0,
+          "usage_usec": 69000,
+          "user_usec": 33000
+        },
+        "/sys/fs/cgroup/system.slice": {
+          "burst_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 0,
+          "nr_throttled": 0,
+          "system_usec": 37022,
+          "throttled_usec": 0,
+          "usage_usec": 75461,
+          "user_usec": 38438
+        },
+        "/sys/fs/cgroup/system.slice/hosted-compute-agent.service": {
+          "burst_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 0,
+          "nr_throttled": 0,
+          "system_usec": 36961,
+          "throttled_usec": 0,
+          "usage_usec": 75144,
+          "user_usec": 38183
+        }
+      },
+      "kind": "scheduler",
+      "load": "4.61 3.20 1.47 12/299 23625\n",
+      "observer": {
+        "pid": 23050,
+        "start_ticks": 76809,
+        "state": "S"
+      },
+      "pressure": {
+        "cpu": "some avg10=50.58 avg60=35.45 avg300=18.28 total=88959024\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+        "io": "some avg10=12.63 avg60=4.52 avg300=2.29 total=26558284\nfull avg10=5.34 avg60=1.97 avg300=1.48 total=22952245\n"
+      },
+      "threads": [
+        {
+          "context_switches": {
+            "nonvoluntary_ctxt_switches": 8796,
+            "voluntary_ctxt_switches": 710362
+          },
+          "identity": {
+            "pid": 23050,
+            "start_ticks": 76809,
+            "state": "S"
+          },
+          "schedstat": "7385179835 6846584535 719158\n",
+          "tid": 23050,
+          "wchan": "ptrace_stop",
+          "window": {
+            "end": {
+              "monotonic_ns": 818598834548,
+              "thread_cpu_ns": 22957874573,
+              "wall_ns": 1792672999974649339
+            },
+            "start": {
+              "monotonic_ns": 818598611862,
+              "thread_cpu_ns": 22957652191,
+              "wall_ns": 1792672999974426502
+            }
+          }
+        },
+        {
+          "context_switches": {
+            "nonvoluntary_ctxt_switches": 8258,
+            "voluntary_ctxt_switches": 562145
+          },
+          "identity": {
+            "pid": 23062,
+            "start_ticks": 76826,
+            "state": "t"
+          },
+          "schedstat": "5709264745 5192531758 570401\n",
+          "tid": 23062,
+          "wchan": "ptrace_stop",
+          "window": {
+            "end": {
+              "monotonic_ns": 818599141592,
+              "thread_cpu_ns": 22958138876,
+              "wall_ns": 1792672999974956433
+            },
+            "start": {
+              "monotonic_ns": 818598905205,
+              "thread_cpu_ns": 22957945219,
+              "wall_ns": 1792672999974720106
+            }
+          }
+        }
+      ],
+      "window": {
+        "end": {
+          "monotonic_ns": 818599852715,
+          "thread_cpu_ns": 22958844659,
+          "wall_ns": 1792672999975667506
+        },
+        "start": {
+          "monotonic_ns": 818598147140,
+          "thread_cpu_ns": 22957539856,
+          "wall_ns": 1792672999973961661
+        }
+      }
+    },
+    "source_line": 1987
+  }
+]

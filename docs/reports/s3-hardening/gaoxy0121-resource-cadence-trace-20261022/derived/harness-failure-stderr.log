@@ -1,0 +1,27 @@
+Traceback (most recent call last):
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/diagnostics/resource_cadence/subset.py", line 59, in <module>
+    main()
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/diagnostics/resource_cadence/subset.py", line 40, in main
+    exec(compile(tree, str(original), 'exec'), dict(__name__='__main__', __file__=str(original),
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/s3_hardening_cluster_resources.py", line 310, in <module>
+    main()
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/s3_hardening_cluster_resources.py", line 245, in main
+    measured("strict-quorum-replica-put", size, concurrency, upload)
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/s3_hardening_cluster_resources.py", line 198, in measured
+    assert not failures, f"predeclared cluster resource envelope exceeded: {failures}"
+           ^^^^^^^^^^^^
+AssertionError: predeclared cluster resource envelope exceeded: ['data-a:cadence:binary:interval_over100ms', 'data-a:cadence:total:interval_over100ms', 'data-a:cadence:rss:interval_over100ms', 'data-a:cadence:queue_max:interval_over100ms', 'data-a:cadence:queue_total:interval_over100ms', 'data-a:cadence:temporary:probe_too_slow', 'data-a:cadence:temporary:interval_over100ms', 'data-b:cadence:binary:interval_over100ms', 'data-b:cadence:total:interval_over100ms', 'data-b:cadence:rss:interval_over100ms', 'data-b:cadence:queue_max:interval_over100ms', 'data-b:cadence:queue_total:interval_over100ms', 'data-b:cadence:temporary:interval_over100ms']
+Traceback (most recent call last):
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/scripts/resource_observer.py", line 445, in <module>
+    main()
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/scripts/resource_observer.py", line 435, in main
+    receipt = verify_exports(args.root, verify_stopped(args.root))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/ex_storage_service/ex_storage_service/e2e/scripts/resource_observer.py", line 375, in verify_exports
+    with path.open("rb") as source:
+         ^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/ess-s3-hardening-cluster-aTvDmg7C/resource-samples/data-b/resource-export-1792672949466654604.json'
+Disposable cluster resource roots retained: /tmp/ess-s3-hardening-cluster-aTvDmg7C; exit 1

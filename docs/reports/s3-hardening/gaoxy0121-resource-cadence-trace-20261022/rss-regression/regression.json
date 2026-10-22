@@ -1,0 +1,18 @@
+{
+  "before": {
+    "revision": "e754ad83af47934666c79c663eb6cac2077828c0",
+    "sha256": "6d594fbf1b3cd0158eef2f03c7e2ef517f227671bdd80ddbd96d9308412e7b5d",
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "log": "/tmp/ess-gaoxy0121-rss-exit-before.log"
+  },
+  "after": {
+    "scope": "dirty intermediate e754ad8, observer repair only",
+    "sha256": "7899bd0ef66f527af2840db7740d6290dd4a03f6c12bbf91a21cf4f0a75cf343",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "log": "/tmp/ess-gaoxy0121-rss-exit-after.log"
+  }
+}

@@ -1,0 +1,250 @@
+{
+  "candidate_observer_sha256": "6d594fbf1b3cd0158eef2f03c7e2ef517f227671bdd80ddbd96d9308412e7b5d",
+  "job_url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39779530866/job/119826918910",
+  "limits": [
+    "No complete raw telemetry copied; only explicit selected windows and original small receipts.",
+    "Selected rows cannot re-establish global completeness, the full cadence manifest, or every possible slow syscall.",
+    "Probe/scheduler projections omit bulk sched/status/stat strings; retained original row hashes bind projections to the large original artifact.",
+    "Clocks remain native: compare durations inside their source clock; cross-runtime overlap is approximate wall-time alignment, not shared monotonic time."
+  ],
+  "run_url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39779530866",
+  "scope": "Compact diagnostic selections; not acceptance or a production root-cause finding",
+  "selections": {
+    "derived/data-a-original-sample-pairs.json": {
+      "rule": "Union of previous_sequence/current_sequence for all six worst_gaps in analysis.json; full original row values, no interpolation.",
+      "selected_rows": 3,
+      "sequences": [
+        1707,
+        1708,
+        1709
+      ],
+      "source": "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1-cluster/samples/data-a/samples.jsonl",
+      "total_original_rows": 1930
+    },
+    "derived/data-a-probe-windows.json": {
+      "rule": "Exact (role, tid, original_window.start_ns) from analysis.json largest_instrumented_boundaries first5(data-a)/first3(data-b). Includes actual long probe/write and snapshot-overhead counterexamples; not every boundary.",
+      "selected_line_numbers": [
+        6732,
+        6826,
+        6832,
+        6833,
+        6834
+      ],
+      "selected_rows": 5,
+      "source": "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-a/probes.jsonl",
+      "total_original_rows": 7720
+    },
+    "derived/data-a-scheduler-windows.json": {
+      "maximum_selected_start_gap_ns": 184513883,
+      "rule": "First/last scheduler row in analysis summary wall-time interval plus adjacent row pair with maximum start-to-start wall interval inside that interval. Projected thread records omit bulk sched/status/stat strings.",
+      "selected_line_numbers": [
+        1587,
+        1913,
+        1914,
+        1993
+      ],
+      "selected_rows": 4,
+      "source": "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-a/scheduler.jsonl",
+      "total_original_rows": 2185
+    },
+    "derived/data-a-syscall-pairs.json": {
+      "rule": "Only analysis.json long_syscall_alignment entries, with exact entry line and first subsequent same-TID/name resumed line; raw=all pointer arguments retained, no payloads. Elapsed durations checked against analysis. No exhaustive slow-syscall claim.",
+      "selected_events": 4,
+      "source": "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-a/syscalls.log",
+      "total_original_lines": 684494
+    },
+    "derived/data-b-original-sample-pairs.json": {
+      "rule": "Union of previous_sequence/current_sequence for all six worst_gaps in analysis.json; full original row values, no interpolation.",
+      "selected_rows": 4,
+      "sequences": [
+        1742,
+        1743,
+        1745,
+        1746
+      ],
+      "source": "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1-cluster/samples/data-b/samples.jsonl",
+      "total_original_rows": 1929
+    },
+    "derived/data-b-probe-windows.json": {
+      "rule": "Exact (role, tid, original_window.start_ns) from analysis.json largest_instrumented_boundaries first5(data-a)/first3(data-b). Includes actual long probe/write and snapshot-overhead counterexamples; not every boundary.",
+      "selected_line_numbers": [
+        6971,
+        6984,
+        6985
+      ],
+      "selected_rows": 3,
+      "source": "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-b/probes.jsonl",
+      "total_original_rows": 7716
+    },
+    "derived/data-b-scheduler-windows.json": {
+      "maximum_selected_start_gap_ns": 170302943,
+      "rule": "First/last scheduler row in analysis summary wall-time interval plus adjacent row pair with maximum start-to-start wall interval inside that interval. Projected thread records omit bulk sched/status/stat strings.",
+      "selected_line_numbers": [
+        1581,
+        1907,
+        1908,
+        1987
+      ],
+      "selected_rows": 4,
+      "source": "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-b/scheduler.jsonl",
+      "total_original_rows": 2130
+    },
+    "derived/data-b-shutdown-stderr.log": {
+      "first_line": 12,
+      "last_line": 33,
+      "rule": "Exact inclusive original log lines; no payload-bearing group JSON copied.",
+      "source": "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1-cluster-data-b.log"
+    },
+    "derived/data-b-syscall-pairs.json": {
+      "rule": "Only analysis.json long_syscall_alignment entries, with exact entry line and first subsequent same-TID/name resumed line; raw=all pointer arguments retained, no payloads. Elapsed durations checked against analysis. No exhaustive slow-syscall claim.",
+      "selected_events": 3,
+      "source": "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-b/syscalls.log",
+      "total_original_lines": 673930
+    },
+    "derived/harness-failure-stderr.log": {
+      "first_line": 11,
+      "last_line": 37,
+      "rule": "Exact inclusive original log lines; no payload-bearing group JSON copied.",
+      "source": "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/run.log"
+    }
+  },
+  "source_fingerprint": "1bb4eb2b4359a672d56e5df788b1b41ca385b08fc4d31dd76db98f2dab83f2e9",
+  "source_head": "fc85bafd9706731192d1da66cc1dcee023268ee3",
+  "sources": {
+    "/tmp/ess-gaoxy0121-rss-exit-after.log": {
+      "byte_identical_copy": "rss-regression/after.log",
+      "bytes": 98,
+      "sha256": "d1d57d8773ac1c264229bc97a83e6b5d053c848949f2d0a74ef839954447b00e"
+    },
+    "/tmp/ess-gaoxy0121-rss-exit-before.log": {
+      "byte_identical_copy": "rss-regression/before.log",
+      "bytes": 1825,
+      "sha256": "c051548cb65bf49fa2bd696c1e779bb5dd8433d6731f2479a4644fb40e767a8c"
+    },
+    "/tmp/ess-gaoxy0121-rss-exit-regression.json": {
+      "byte_identical_copy": "rss-regression/regression.json",
+      "bytes": 536,
+      "sha256": "8b9dc7e4e8bdcd5f1b03551697c0244131420b7c68462a09044166acd5ec4a09"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/analysis.json": {
+      "byte_identical_copy": "original/analysis.json",
+      "bytes": 39723,
+      "sha256": "e29e57a9675e000e062a46e67d224d2a94cbd76877d7201ae5011df046f6f413"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/hosted-run.json": {
+      "byte_identical_copy": "original/hosted-run.json",
+      "bytes": 3754,
+      "sha256": "573a47f7242b5c37651c9215ba3b17b4a8195fc64102d5aa392338eb161c48ee"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1-cluster-data-b.log": {
+      "bytes": 2608,
+      "sha256": "748c6562243f6f65d265353959b76d9618bc8a8cae799ec14a145bdb88b6d844"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1-cluster/diagnostic-scope.json": {
+      "byte_identical_copy": "original/diagnostic-scope.json",
+      "bytes": 538,
+      "sha256": "0554ad36dc3d409f5713f3a1da10a26617593cd6f55426992aa73ee6f0143ad2"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1-cluster/results.json": {
+      "byte_identical_copy": "original/results.json",
+      "bytes": 143517,
+      "sha256": "a9b42dd7d594027fadec1b4d71202a76f39442c9fe3d6637dcb3ef57bedae4c8"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1-cluster/samples/data-a/observer-stop-verification.json": {
+      "byte_identical_copy": "original/data-a-observer-stop-verification.json",
+      "bytes": 758,
+      "sha256": "fb4c00d3020c2ee1add5cee7299a51470695e0f682f3581f6a2ab3619d0946f5"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1-cluster/samples/data-a/samples.jsonl": {
+      "bytes": 3640899,
+      "sha256": "69ade6d247742d7e13e0eff1cf0e64d370d26743f17edb898195e7bde9081ec6"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1-cluster/samples/data-b/observer-stop-verification.json": {
+      "byte_identical_copy": "original/data-b-observer-stop-verification.json",
+      "bytes": 53,
+      "sha256": "72b7c60f7af55f7e6d329c921058834342419ba8516397c49407eb16b35b5188"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1-cluster/samples/data-b/samples.jsonl": {
+      "bytes": 3636559,
+      "sha256": "98d0fd66e7189948c0316fcb0998153e2d23e07f76b891d538acf15f93d38864"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1-cluster/samples/meta/observer-stop-verification.json": {
+      "byte_identical_copy": "original/meta-observer-stop-verification.json",
+      "bytes": 754,
+      "sha256": "58441f47a7bd10ab3b7111e21816ea177a2c3322ff9de1cefbbabfe8d5d30462"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/diagnostic.json": {
+      "byte_identical_copy": "original/diagnostic.json",
+      "bytes": 2844,
+      "sha256": "03c009388b7a6bc2f9a594ed97e94a2c0f123007487c63e8749c52cf2adb5f82"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-a/launch.json": {
+      "byte_identical_copy": "original/data-a-launch.json",
+      "bytes": 695,
+      "sha256": "6852ddaf7837a4a06190780afd52fe4006dc4be5a58daa1179a8cf7241f37d7d"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-a/monitor-terminal.json": {
+      "byte_identical_copy": "original/data-a-monitor-terminal.json",
+      "bytes": 807,
+      "sha256": "80ab04a51988095592b0091deeb7d575e059b48a6b93e5774cb8ca4e7f162588"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-a/observer-instrumentation-terminal.json": {
+      "byte_identical_copy": "original/data-a-observer-instrumentation-terminal.json",
+      "bytes": 178,
+      "sha256": "1c08ffcc8ddcf851ee4b0ff92944741e2c456c5bf4a87d71c2be220c87fd8016"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-a/probes.jsonl": {
+      "bytes": 83199622,
+      "sha256": "0aad6a4c5507f6d394c1dcdb69c82bb652f27a7437fb6f72ea7cdd9aac47cf91"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-a/scheduler.jsonl": {
+      "bytes": 30021944,
+      "sha256": "f9224e0e69402502ce08b5d18fdaede16e957979bb89608b0f41eca65a16ecce"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-a/strace-command.json": {
+      "byte_identical_copy": "original/data-a-strace-command.json",
+      "bytes": 933,
+      "sha256": "1299888906063e235b069e5b8227b1fd691162ef3058aaa839130c86d9dbc52d"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-a/syscalls.log": {
+      "bytes": 50237008,
+      "sha256": "b28d9f49f28c9421193354afb35294c84ce04b8e442c0cd3b6e300f8eabf15e3"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-b/launch.json": {
+      "byte_identical_copy": "original/data-b-launch.json",
+      "bytes": 695,
+      "sha256": "8e95e9b0761e2983f945ac87c4afd0fb7c5fc2e5bda6de87bddb0846795d790f"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-b/monitor-terminal.json": {
+      "byte_identical_copy": "original/data-b-monitor-terminal.json",
+      "bytes": 807,
+      "sha256": "a22a30cc3890b623f1f5235fdf73d212130314704184edf2302481d34064697c"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-b/observer-instrumentation-terminal.json": {
+      "byte_identical_copy": "original/data-b-observer-instrumentation-terminal.json",
+      "bytes": 178,
+      "sha256": "0c97a7d40e0ce3a248d416d9f0c1e3ac6e9556aa15fc6074d7ea9143bf4e283a"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-b/probes.jsonl": {
+      "bytes": 83156501,
+      "sha256": "f40331bd553021515de6abc3b252768efbd3e7d25f20dfb539992891d0ed5865"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-b/scheduler.jsonl": {
+      "bytes": 29281794,
+      "sha256": "f847dc92e52897f3aef13f80944d41eec93ed2a745a7706730cb14add10d59a7"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-b/strace-command.json": {
+      "byte_identical_copy": "original/data-b-strace-command.json",
+      "bytes": 933,
+      "sha256": "914ea57dbd38548cb16808ec956d76732809c64ccb50ae428436c9533390d8aa"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/observer-diagnostic-data-b/syscalls.log": {
+      "bytes": 49257501,
+      "sha256": "b39b8d29506be3da049914a27be813725ab04499ab01214e16aec1cc8e0b1a10"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-resource-ci-diagnostic-39779530866/incomplete-resource-cadence-diagnostic-39779530866-1/cadence-diagnostic-39779530866-1/run.log": {
+      "bytes": 84913,
+      "sha256": "3d48472a5b62da4baeff3254e0c2f5824065ac318007c482f16152e586adf5fc"
+    }
+  }
+}

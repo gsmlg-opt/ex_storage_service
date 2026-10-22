@@ -1,0 +1,275 @@
+[
+  {
+    "original_row": {
+      "beam_exchange": {
+        "end_monotonic_ns": 816455488322,
+        "end_ns": 1792672997831302752,
+        "start_monotonic_ns": 816449303483,
+        "start_ns": 1792672997825118253
+      },
+      "binary": 2922360,
+      "collection": {
+        "end_monotonic_ns": 816465140046,
+        "end_ns": 1792672997840954727,
+        "start_monotonic_ns": 816449303483,
+        "start_ns": 1792672997825118253
+      },
+      "observer": {
+        "max_rss": 20869120,
+        "rss": 21180416,
+        "system_seconds": 7.773966,
+        "user_seconds": 4.624077
+      },
+      "previous_export": {
+        "encoded_bytes": 1893,
+        "encoding": {
+          "cpu_ns": 1673765,
+          "end_monotonic_ns": 816434577560,
+          "end_ns": 1792672997810392421,
+          "start_monotonic_ns": 816434533203,
+          "start_ns": 1792672997810348054
+        },
+        "sampler_id": "1792672949421171555",
+        "sequence": 1706,
+        "write": {
+          "cpu_ns": 1539052,
+          "end_monotonic_ns": 816441523099,
+          "end_ns": 1792672997817337969,
+          "start_monotonic_ns": 816441355596,
+          "start_ns": 1792672997817170456
+        }
+      },
+      "probes": {
+        "binary": {
+          "end_monotonic_ns": -576460700057311664,
+          "end_ns": 1792672997830919113,
+          "start_monotonic_ns": -576460700057850934,
+          "start_ns": 1792672997830379743
+        },
+        "queue_max": {
+          "end_monotonic_ns": -576460700057968091,
+          "end_ns": 1792672997830262255,
+          "start_monotonic_ns": -576460700061320573,
+          "start_ns": 1792672997826909262
+        },
+        "queue_total": {
+          "end_monotonic_ns": -576460700057968091,
+          "end_ns": 1792672997830262255,
+          "start_monotonic_ns": -576460700061320573,
+          "start_ns": 1792672997826909262
+        },
+        "rss": {
+          "end_monotonic_ns": 816457941346,
+          "end_ns": 1792672997833756247,
+          "start_monotonic_ns": 816457716737,
+          "start_ns": 1792672997833531638
+        },
+        "temporary": {
+          "end_monotonic_ns": 816462709346,
+          "end_ns": 1792672997838524207,
+          "start_monotonic_ns": 816461374200,
+          "start_ns": 1792672997837189121
+        },
+        "total": {
+          "end_monotonic_ns": -576460700057311664,
+          "end_ns": 1792672997830919113,
+          "start_monotonic_ns": -576460700057850934,
+          "start_ns": 1792672997830379743
+        }
+      },
+      "queue_max": 2,
+      "queue_total": 2,
+      "rss": 161247232,
+      "sampler_id": "1792672949421171555",
+      "scheduled_monotonic_ns": 816448907378,
+      "sequence": 1707,
+      "temporary": 201326592,
+      "time": 1792672997840,
+      "total": 68359888
+    },
+    "original_row_sha256": "ae5da51bfb97d00574911f7fbfb78d32db3424112667f0698cc9a9791d9243c0",
+    "source_line": 1708
+  },
+  {
+    "original_row": {
+      "beam_exchange": {
+        "end_monotonic_ns": 816511971989,
+        "end_ns": 1792672997887786659,
+        "start_monotonic_ns": 816508678020,
+        "start_ns": 1792672997884492811
+      },
+      "binary": 3186608,
+      "collection": {
+        "end_monotonic_ns": 816795276796,
+        "end_ns": 1792672998171091376,
+        "start_monotonic_ns": 816508678020,
+        "start_ns": 1792672997884492811
+      },
+      "observer": {
+        "max_rss": 20869120,
+        "rss": 21180416,
+        "system_seconds": 7.778816,
+        "user_seconds": 4.62776
+      },
+      "previous_export": {
+        "encoded_bytes": 1893,
+        "encoding": {
+          "cpu_ns": 1850780,
+          "end_monotonic_ns": 816467476209,
+          "end_ns": 1792672997843291120,
+          "start_monotonic_ns": 816467447966,
+          "start_ns": 1792672997843262827
+        },
+        "sampler_id": "1792672949421171555",
+        "sequence": 1707,
+        "write": {
+          "cpu_ns": 1686808,
+          "end_monotonic_ns": 816512590052,
+          "end_ns": 1792672997888404953,
+          "start_monotonic_ns": 816512544103,
+          "start_ns": 1792672997888359004
+        }
+      },
+      "probes": {
+        "binary": {
+          "end_monotonic_ns": -576460700000811477,
+          "end_ns": 1792672997887419400,
+          "start_monotonic_ns": -576460700000980672,
+          "start_ns": 1792672997887250425
+        },
+        "queue_max": {
+          "end_monotonic_ns": -576460700000990828,
+          "end_ns": 1792672997887239508,
+          "start_monotonic_ns": -576460700003493707,
+          "start_ns": 1792672997884736769
+        },
+        "queue_total": {
+          "end_monotonic_ns": -576460700000990828,
+          "end_ns": 1792672997887239508,
+          "start_monotonic_ns": -576460700003493707,
+          "start_ns": 1792672997884736769
+        },
+        "rss": {
+          "end_monotonic_ns": 816668385962,
+          "end_ns": 1792672998044200732,
+          "start_monotonic_ns": 816667282535,
+          "start_ns": 1792672998043097396
+        },
+        "temporary": {
+          "end_monotonic_ns": 816779462080,
+          "end_ns": 1792672998155276480,
+          "start_monotonic_ns": 816671699625,
+          "start_ns": 1792672998047514496
+        },
+        "total": {
+          "end_monotonic_ns": -576460700000811477,
+          "end_ns": 1792672997887419400,
+          "start_monotonic_ns": -576460700000980672,
+          "start_ns": 1792672997887250425
+        }
+      },
+      "queue_max": 2,
+      "queue_total": 2,
+      "rss": 156254208,
+      "sampler_id": "1792672949421171555",
+      "scheduled_monotonic_ns": 816473907378,
+      "sequence": 1708,
+      "temporary": 134217728,
+      "time": 1792672998171,
+      "total": 68616704
+    },
+    "original_row_sha256": "5d4e9f1d80d1c332cdb1afa966fb1fe4d1cdc8a275b66f54f02e37c20c5265c0",
+    "source_line": 1709
+  },
+  {
+    "original_row": {
+      "beam_exchange": {
+        "end_monotonic_ns": 816804499052,
+        "end_ns": 1792672998180313612,
+        "start_monotonic_ns": 816799377899,
+        "start_ns": 1792672998175192699
+      },
+      "binary": 3449488,
+      "collection": {
+        "end_monotonic_ns": 816840284784,
+        "end_ns": 1792672998216099424,
+        "start_monotonic_ns": 816799377899,
+        "start_ns": 1792672998175192699
+      },
+      "observer": {
+        "max_rss": 20869120,
+        "rss": 21180416,
+        "system_seconds": 7.783307,
+        "user_seconds": 4.631499
+      },
+      "previous_export": {
+        "encoded_bytes": 1892,
+        "encoding": {
+          "cpu_ns": 1925854,
+          "end_monotonic_ns": 816799798985,
+          "end_ns": 1792672998175613865,
+          "start_monotonic_ns": 816799766015,
+          "start_ns": 1792672998175580906
+        },
+        "sampler_id": "1792672949421171555",
+        "sequence": 1708,
+        "write": {
+          "cpu_ns": 1609622,
+          "end_monotonic_ns": 816818418415,
+          "end_ns": 1792672998194233286,
+          "start_monotonic_ns": 816818129649,
+          "start_ns": 1792672998193944560
+        }
+      },
+      "probes": {
+        "binary": {
+          "end_monotonic_ns": -576460699708362057,
+          "end_ns": 1792672998179869081,
+          "start_monotonic_ns": -576460699708879438,
+          "start_ns": 1792672998179351329
+        },
+        "queue_max": {
+          "end_monotonic_ns": -576460699708888992,
+          "end_ns": 1792672998179341484,
+          "start_monotonic_ns": -576460699712598564,
+          "start_ns": 1792672998175623520
+        },
+        "queue_total": {
+          "end_monotonic_ns": -576460699708888992,
+          "end_ns": 1792672998179341484,
+          "start_monotonic_ns": -576460699712598564,
+          "start_ns": 1792672998175623520
+        },
+        "rss": {
+          "end_monotonic_ns": 816816920063,
+          "end_ns": 1792672998192734903,
+          "start_monotonic_ns": 816816496483,
+          "start_ns": 1792672998192311404
+        },
+        "temporary": {
+          "end_monotonic_ns": 816831717387,
+          "end_ns": 1792672998207531967,
+          "start_monotonic_ns": 816829346166,
+          "start_ns": 1792672998205161057
+        },
+        "total": {
+          "end_monotonic_ns": -576460699708362057,
+          "end_ns": 1792672998179869081,
+          "start_monotonic_ns": -576460699708879438,
+          "start_ns": 1792672998179351329
+        }
+      },
+      "queue_max": 2,
+      "queue_total": 2,
+      "rss": 155205632,
+      "sampler_id": "1792672949421171555",
+      "scheduled_monotonic_ns": 816798907378,
+      "sequence": 1709,
+      "temporary": 67108864,
+      "time": 1792672998216,
+      "total": 68737864
+    },
+    "original_row_sha256": "66aa861084208ea90ec1f2fa5561d77490419d42203f063e87923c56dde3f9ed",
+    "source_line": 1710
+  }
+]

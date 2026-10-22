@@ -66,12 +66,13 @@ def finish_empty_observer(root, generation):
     return json.loads((root / f"observer-{generation}.json").read_text())
 
 
-def start_observer(root, generation, wrapper="", pass_fds=()):
+def start_observer(root, generation, wrapper="", pass_fds=(), beam_pid=None):
     code = ("import os,sys,time;sys.path.insert(0," + repr(str(REPO / "e2e/scripts")) + ")\n"
             "import resource_observer as o\n" + wrapper + "\no.main()\n")
     return subprocess.Popen([sys.executable, "-B", "-c", code, "sample", "--root", str(root),
                              "--tmp", str(root / "tmp"), "--data", str(root / "data"),
-                             "--beam-pid", str(os.getpid()), "--generation", generation],
+                             "--beam-pid", str(os.getpid() if beam_pid is None else beam_pid),
+                             "--generation", generation],
                             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                             pass_fds=pass_fds, env=dict(os.environ, PAGER="cat"))
 
@@ -87,6 +88,71 @@ def respond(process, generation, sequence):
 
 
 class ProcessIdentityTest(unittest.TestCase):
+    def test_owned_rss_read_failure_requires_actual_owner_exit(self):
+        expected = {"pid": 123, "start_ticks": 456, "state": "S"}
+        errors = (FileNotFoundError(), ProcessLookupError(), RuntimeError("missing RSS"))
+        for actual in (None, {**expected, "state": "Z"}, {**expected, "start_ticks": 457}):
+            for error in errors:
+                with self.subTest(actual=actual, error=type(error).__name__), \
+                        mock.patch.object(observer, "rss", side_effect=error), \
+                        mock.patch.object(observer, "process_identity", return_value=actual), \
+                        self.assertRaises(observer.OwnerClosed):
+                    observer.owned_rss(expected)
+        for error in (*errors, PermissionError(), OSError(errno.EIO, "read failed")):
+            with self.subTest(error=type(error).__name__), \
+                    mock.patch.object(observer, "rss", side_effect=error), \
+                    mock.patch.object(observer, "process_identity", return_value=expected), \
+                    self.assertRaises(type(error)) as raised:
+                observer.owned_rss(expected)
+            self.assertIs(error, raised.exception)
+
+    def test_owner_exit_during_rss_finishes_admitted_export(self):
+        with tempfile.TemporaryDirectory(prefix="ess-observer-rss-exit-") as directory:
+            root = roots(directory)
+            beam = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
+            wrapper = '''
+read_rss = o.rss
+calls = 0
+def exit_during_rss(pid):
+    global calls
+    if pid == OWNER:
+        calls += 1
+        if calls == 2:
+            os.kill(pid, 15)
+            deadline = time.monotonic() + 2
+            while o.process_identity(pid)["state"] != "Z":
+                if time.monotonic() >= deadline:
+                    raise RuntimeError("owned fixture did not exit")
+                time.sleep(.001)
+    return read_rss(pid)
+o.rss = exit_during_rss
+'''.replace("OWNER", str(beam.pid))
+            process = None
+            try:
+                process = start_observer(root, "rss-exit", wrapper, beam_pid=beam.pid)
+                respond(process, "rss-exit", 0)
+                respond(process, "rss-exit", 1)
+                process.wait(timeout=5)
+                stderr = process.stderr.read().decode()
+                self.assertEqual(0, process.returncode, stderr)
+                verified = public_verify(root)
+                self.assertEqual(0, verified.returncode, verified.stderr)
+                rows = [json.loads(line) for line in (root / "samples.jsonl").read_bytes().splitlines()]
+                self.assertEqual([0], [row["sequence"] for row in rows])
+                manifest = json.loads((root / "resource-export-rss-exit.json").read_text())
+                self.assertEqual(1, manifest["admitted_rows"])
+                self.assertEqual(1, manifest["persisted_rows"])
+                self.assertEqual(hashlib.sha256((root / "samples.jsonl").read_bytes()).hexdigest(),
+                                 manifest["sha256"])
+            finally:
+                if process is not None:
+                    if process.poll() is None:
+                        process.kill()
+                    process.communicate(timeout=3)
+                if beam.poll() is None:
+                    beam.kill()
+                beam.wait(timeout=3)
+
     def test_disappeared_process_has_no_identity(self):
         for code in (errno.ENOENT, errno.ENOTDIR, errno.ESRCH):
             with self.subTest(errno=code), mock.patch.object(

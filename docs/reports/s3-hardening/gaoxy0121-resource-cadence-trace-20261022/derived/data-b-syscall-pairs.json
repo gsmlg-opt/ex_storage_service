@@ -1,0 +1,38 @@
+[
+  {
+    "elapsed_ms": 161.619,
+    "end_ns": 1792672997794480000,
+    "entry_line": 607980,
+    "entry_original": "23050 1792672997.632861 pselect6(0x1, 0x7ffd1eb70d80, 0, 0, 0x7ffd1eb70cd0, 0 <unfinished ...>",
+    "node": "data-b",
+    "resume_line": 608002,
+    "resume_original": "23050 1792672997.794510 <... pselect6 resumed>) = 0 <0.161619>",
+    "start_ns": 1792672997632861000,
+    "syscall": "pselect6",
+    "tid": 23050
+  },
+  {
+    "elapsed_ms": 156.174,
+    "end_ns": 1792672998038141000,
+    "entry_line": 609101,
+    "entry_original": "23050 1792672997.881967 pselect6(0x1, 0x7ffd1eb70d80, 0, 0, 0x7ffd1eb70cd0, 0 <unfinished ...>",
+    "node": "data-b",
+    "resume_line": 609159,
+    "resume_original": "23050 1792672998.038166 <... pselect6 resumed>) = 0 <0.156174>",
+    "start_ns": 1792672997881967000,
+    "syscall": "pselect6",
+    "tid": 23050
+  },
+  {
+    "elapsed_ms": 111.782,
+    "end_ns": 1792672998154515000,
+    "entry_line": 609221,
+    "entry_original": "23062 1792672998.042733 futex(0x7fbfa4005d40, 0x89, 0, 0x7fbfacfcc8e0, 0, 0xffffffff <unfinished ...>",
+    "node": "data-b",
+    "resume_line": 609268,
+    "resume_original": "23062 1792672998.154530 <... futex resumed>) = -1 ETIMEDOUT (Connection timed out) <0.111782>",
+    "start_ns": 1792672998042733000,
+    "syscall": "futex",
+    "tid": 23062
+  }
+]

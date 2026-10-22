@@ -1,0 +1,387 @@
+[
+  {
+    "original_row_sha256": "e6d8a7235dc2ec34ed5e1ace16f28fee494ecc31e7d1b19074ed28a1c7845065",
+    "projection": {
+      "after": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 6691,
+          "voluntary_ctxt_switches": 528956
+        },
+        "identity": {
+          "pid": 23061,
+          "start_ticks": 76824,
+          "state": "R"
+        },
+        "schedstat": "5280594007 4890060491 535631\n",
+        "tid": 23061,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 815323219038,
+            "thread_cpu_ns": 5280972448,
+            "wall_ns": 1792672996699033608
+          },
+          "start": {
+            "monotonic_ns": 815319771081,
+            "thread_cpu_ns": 5280365899,
+            "wall_ns": 1792672996695585982
+          }
+        }
+      },
+      "before": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 6690,
+          "voluntary_ctxt_switches": 528889
+        },
+        "identity": {
+          "pid": 23061,
+          "start_ticks": 76824,
+          "state": "R"
+        },
+        "schedstat": "5279906554 4887395973 535564\n",
+        "tid": 23061,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 815226151688,
+            "thread_cpu_ns": 5280294321,
+            "wall_ns": 1792672996601966388
+          },
+          "start": {
+            "monotonic_ns": 815224579434,
+            "thread_cpu_ns": 5279657086,
+            "wall_ns": 1792672996600394284
+          }
+        }
+      },
+      "kind": "probe_boundary",
+      "ordinal": 3361,
+      "original_window": {
+        "end_monotonic_ns": 815319644049,
+        "end_ns": 1792672996695458689,
+        "start_monotonic_ns": 815226211318,
+        "start_ns": 1792672996602026239
+      },
+      "role": "export_write",
+      "scheduling_delta": {
+        "nonvoluntary_ctxt_switches": 1,
+        "schedstat": {
+          "executing_ns": 687453,
+          "runqueue_wait_ns": 2664518,
+          "timeslices": 67
+        },
+        "voluntary_ctxt_switches": 67
+      },
+      "tid": 23061
+    },
+    "source_line": 6732
+  },
+  {
+    "original_row_sha256": "6cbd2b9bfc76cc80b098c52a5c4edc89beda4e9e05b97a596a80ae4636d130cd",
+    "projection": {
+      "after": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 9785,
+          "voluntary_ctxt_switches": 681132
+        },
+        "identity": {
+          "pid": 23046,
+          "start_ticks": 76804,
+          "state": "R"
+        },
+        "schedstat": "7020203994 5859836216 690894\n",
+        "tid": 23046,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 816428810598,
+            "thread_cpu_ns": 7020563766,
+            "wall_ns": 1792672997804625108
+          },
+          "start": {
+            "monotonic_ns": 816426929387,
+            "thread_cpu_ns": 7019937554,
+            "wall_ns": 1792672997802744298
+          }
+        }
+      },
+      "before": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 9765,
+          "voluntary_ctxt_switches": 681016
+        },
+        "identity": {
+          "pid": 23046,
+          "start_ticks": 76804,
+          "state": "R"
+        },
+        "schedstat": "7018885489 5856020688 690766\n",
+        "tid": 23046,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 816424511966,
+            "thread_cpu_ns": 7019458457,
+            "wall_ns": 1792672997800325926
+          },
+          "start": {
+            "monotonic_ns": 816257388313,
+            "thread_cpu_ns": 7018606217,
+            "wall_ns": 1792672997633203104
+          }
+        }
+      },
+      "kind": "probe_boundary",
+      "ordinal": 3413,
+      "original_window": {
+        "end_monotonic_ns": 816426892040,
+        "end_ns": 1792672997802706380,
+        "start_monotonic_ns": 816424578206,
+        "start_ns": 1792672997800392957
+      },
+      "role": "temporary",
+      "scheduling_delta": {
+        "nonvoluntary_ctxt_switches": 20,
+        "schedstat": {
+          "executing_ns": 1318505,
+          "runqueue_wait_ns": 3815528,
+          "timeslices": 128
+        },
+        "voluntary_ctxt_switches": 116
+      },
+      "tid": 23046
+    },
+    "source_line": 6826
+  },
+  {
+    "original_row_sha256": "0373bbfdc148d4a1c82e3f3df2ace0661ff108b615c3ce61e06a5067da5f4f77",
+    "projection": {
+      "after": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 6827,
+          "voluntary_ctxt_switches": 537448
+        },
+        "identity": {
+          "pid": 23061,
+          "start_ticks": 76824,
+          "state": "R"
+        },
+        "schedstat": "5376471354 5022862190 544260\n",
+        "tid": 23061,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 816667877995,
+            "thread_cpu_ns": 5377008517,
+            "wall_ns": 1792672998043692635
+          },
+          "start": {
+            "monotonic_ns": 816512619567,
+            "thread_cpu_ns": 5376259894,
+            "wall_ns": 1792672997888434478
+          }
+        }
+      },
+      "before": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 6827,
+          "voluntary_ctxt_switches": 537365
+        },
+        "identity": {
+          "pid": 23061,
+          "start_ticks": 76824,
+          "state": "R"
+        },
+        "schedstat": "5375814068 5022162054 544177\n",
+        "tid": 23061,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 816512513256,
+            "thread_cpu_ns": 5376222708,
+            "wall_ns": 1792672997888328127
+          },
+          "start": {
+            "monotonic_ns": 816510645746,
+            "thread_cpu_ns": 5375553585,
+            "wall_ns": 1792672997886460637
+          }
+        }
+      },
+      "kind": "probe_boundary",
+      "ordinal": 3415,
+      "original_window": {
+        "end_monotonic_ns": 816512590052,
+        "end_ns": 1792672997888404953,
+        "start_monotonic_ns": 816512544103,
+        "start_ns": 1792672997888359004
+      },
+      "role": "export_write",
+      "scheduling_delta": {
+        "nonvoluntary_ctxt_switches": 0,
+        "schedstat": {
+          "executing_ns": 657286,
+          "runqueue_wait_ns": 700136,
+          "timeslices": 83
+        },
+        "voluntary_ctxt_switches": 83
+      },
+      "tid": 23061
+    },
+    "source_line": 6832
+  },
+  {
+    "original_row_sha256": "e4f522cd09c0c038a59911f36861f1c4d42e45dcf3b3f92b284dce7fef91759e",
+    "projection": {
+      "after": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 9788,
+          "voluntary_ctxt_switches": 681747
+        },
+        "identity": {
+          "pid": 23046,
+          "start_ticks": 76804,
+          "state": "R"
+        },
+        "schedstat": "7026312702 5864639738 691520\n",
+        "tid": 23046,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 816669984626,
+            "thread_cpu_ns": 7026755081,
+            "wall_ns": 1792672998045799256
+          },
+          "start": {
+            "monotonic_ns": 816668442587,
+            "thread_cpu_ns": 7026048622,
+            "wall_ns": 1792672998044257488
+          }
+        }
+      },
+      "before": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 9788,
+          "voluntary_ctxt_switches": 681633
+        },
+        "identity": {
+          "pid": 23046,
+          "start_ticks": 76804,
+          "state": "R"
+        },
+        "schedstat": "7025319250 5864264090 691406\n",
+        "tid": 23046,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 816667144687,
+            "thread_cpu_ns": 7025764894,
+            "wall_ns": 1792672998042958577
+          },
+          "start": {
+            "monotonic_ns": 816512045199,
+            "thread_cpu_ns": 7025066567,
+            "wall_ns": 1792672997887859980
+          }
+        }
+      },
+      "kind": "probe_boundary",
+      "ordinal": 3416,
+      "original_window": {
+        "end_monotonic_ns": 816668385962,
+        "end_ns": 1792672998044200732,
+        "start_monotonic_ns": 816667282535,
+        "start_ns": 1792672998043097396
+      },
+      "role": "rss",
+      "scheduling_delta": {
+        "nonvoluntary_ctxt_switches": 0,
+        "schedstat": {
+          "executing_ns": 993452,
+          "runqueue_wait_ns": 375648,
+          "timeslices": 114
+        },
+        "voluntary_ctxt_switches": 114
+      },
+      "tid": 23046
+    },
+    "source_line": 6833
+  },
+  {
+    "original_row_sha256": "935664d7fa09a4d36aefdfa458225d0205bce9bb3d4170dee4cd9efb6ff08b31",
+    "projection": {
+      "after": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 9788,
+          "voluntary_ctxt_switches": 681932
+        },
+        "identity": {
+          "pid": 23046,
+          "start_ticks": 76804,
+          "state": "R"
+        },
+        "schedstat": "7028447498 5865427688 691705\n",
+        "tid": 23046,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 816793617254,
+            "thread_cpu_ns": 7028970598,
+            "wall_ns": 1792672998169431654
+          },
+          "start": {
+            "monotonic_ns": 816779494279,
+            "thread_cpu_ns": 7028096104,
+            "wall_ns": 1792672998155309049
+          }
+        }
+      },
+      "before": {
+        "context_switches": {
+          "nonvoluntary_ctxt_switches": 9788,
+          "voluntary_ctxt_switches": 681817
+        },
+        "identity": {
+          "pid": 23046,
+          "start_ticks": 76804,
+          "state": "R"
+        },
+        "schedstat": "7027148255 5865018842 691590\n",
+        "tid": 23046,
+        "wchan": "0",
+        "window": {
+          "end": {
+            "monotonic_ns": 816671675319,
+            "thread_cpu_ns": 7027557000,
+            "wall_ns": 1792672998047489939
+          },
+          "start": {
+            "monotonic_ns": 816670257378,
+            "thread_cpu_ns": 7026921511,
+            "wall_ns": 1792672998046072158
+          }
+        }
+      },
+      "kind": "probe_boundary",
+      "ordinal": 3417,
+      "original_window": {
+        "end_monotonic_ns": 816779462080,
+        "end_ns": 1792672998155276480,
+        "start_monotonic_ns": 816671699625,
+        "start_ns": 1792672998047514496
+      },
+      "role": "temporary",
+      "scheduling_delta": {
+        "nonvoluntary_ctxt_switches": 0,
+        "schedstat": {
+          "executing_ns": 1299243,
+          "runqueue_wait_ns": 408846,
+          "timeslices": 115
+        },
+        "voluntary_ctxt_switches": 115
+      },
+      "tid": 23046
+    },
+    "source_line": 6834
+  }
+]
