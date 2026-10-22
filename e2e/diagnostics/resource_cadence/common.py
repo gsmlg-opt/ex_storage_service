@@ -1,8 +1,60 @@
 """Diagnostic-only Linux snapshots. No production module imports."""
 import os
 import json
+import resource
 from pathlib import Path
 import time
+
+MODES = ("probe-only", "syscall-trace")
+
+
+def diagnostic_mode(value=None):
+    mode = os.environ.get("ESS_DIAGNOSTIC_MODE", "probe-only") if value is None else value
+    if mode not in MODES:
+        raise ValueError("ESS_DIAGNOSTIC_MODE must be probe-only or syscall-trace")
+    return mode
+
+
+def datagram_limit(mode):
+    return 2048 if diagnostic_mode(mode) == "probe-only" else 32768
+
+
+def compact_thread_snapshot():
+    """One schedstat read per side; no full procfs snapshot in the observer."""
+    start = clocks()
+    schedstat = read("/proc/thread-self/schedstat", limit=128)
+    usage = resource.getrusage(resource.RUSAGE_THREAD)
+    return dict(window=dict(start=start, end=clocks()), schedstat=schedstat,
+                user_ns=int(usage.ru_utime * 1_000_000_000),
+                system_ns=int(usage.ru_stime * 1_000_000_000),
+                voluntary_ctxt_switches=usage.ru_nvcsw,
+                nonvoluntary_ctxt_switches=usage.ru_nivcsw)
+
+
+def compact_thread_delta(before, after):
+    result = thread_delta(before, after)
+    result["thread_cpu_ns"] = (after["window"]["end"]["thread_cpu_ns"]
+                               - before["window"]["end"]["thread_cpu_ns"])
+    for name in ("user_ns", "system_ns", "voluntary_ctxt_switches", "nonvoluntary_ctxt_switches"):
+        result[name] = after[name] - before[name]
+    return result
+
+
+def delivery_errors(mode, trace_seen, tracers, discarded, instrument, socket_rows):
+    errors = set()
+    if diagnostic_mode(mode) == "syscall-trace":
+        if not trace_seen:
+            errors.add("no_syscall_trace")
+        if not tracers:
+            errors.add("no_fenced_tracer_identity")
+    elif tracers:
+        errors.add("unexpected_tracer_in_probe_only")
+    if any(discarded.values()):
+        errors.add("retention_cap_exhausted")
+    if (instrument is None or instrument.get("mode") != mode
+            or instrument["counts"]["dropped"] or instrument["counts"]["sent"] != socket_rows):
+        errors.add("incomplete_probe_delivery")
+    return errors
 
 
 def write_json(path, value):

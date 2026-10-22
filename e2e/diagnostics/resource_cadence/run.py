@@ -12,7 +12,7 @@ import subprocess
 import sys
 import time
 
-from common import alive, identity, write_json
+from common import alive, diagnostic_mode, identity, write_json
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
@@ -26,14 +26,16 @@ def write(path, value):
 
 
 def initialize(label):
+    mode = diagnostic_mode()
     if not re.fullmatch(r"[A-Za-z0-9_-]+", label):
         raise ValueError("unique alphanumeric diagnostic label required")
     output = REPO / "docs/reports/s3-hardening" / label
     output.mkdir(parents=True, exist_ok=False)
     sys.path.insert(0, str(REPO / "e2e"))
     from hardening_acceptance import source_fingerprint
-    write(output / "diagnostic.json", dict(status="prepared", label=label,
-        selected_prefix_groups=6, traced_nodes=["data-a", "data-b"],
+    write(output / "diagnostic.json", dict(status="prepared", label=label, mode=mode,
+        selected_prefix_groups=6, observed_nodes=["data-a", "data-b"],
+        traced_nodes=["data-a", "data-b"] if mode == "syscall-trace" else [],
         timeout_seconds=TIMEOUT_SECONDS, sampling_ms=25, coverage_limit_ms=100,
         source_head=subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO, text=True).strip(),
         source_fingerprint=source_fingerprint(),
@@ -57,7 +59,7 @@ def discover(output, owned):
             monitor = json.loads(ready.read_text())["monitor"]
             owned[(monitor["pid"], monitor["start_ticks"])] = monitor
         observer = launch["observer"]
-        if alive(observer):
+        if launch["mode"] == "syscall-trace" and alive(observer):
             try:
                 status = Path(f"/proc/{observer['pid']}/status").read_text()
                 tracer_pid = next(int(line.split()[1]) for line in status.splitlines()
@@ -104,6 +106,9 @@ def group_members(pgid):
 
 def execute(python, label, output):
     preparation = json.loads((output / "diagnostic.json").read_text())
+    mode = diagnostic_mode()
+    if preparation["mode"] != mode:
+        raise ValueError("diagnostic mode changed after initialization")
     launcher = HERE / "python-launcher"
     if (not Path(python).is_absolute() or not os.access(python, os.X_OK)
             or not os.access(launcher, os.X_OK)):
@@ -112,7 +117,8 @@ def execute(python, label, output):
         raise ValueError("diagnostic label already used")
     env = dict(os.environ, PAGER="cat", MIX_ENV="prod",
                ERL_FLAGS="+S 4:4 +SDcpu 2 +SDio 2",
-               ESS_DIAGNOSTIC_PINNED_PYTHON=python, ESS_DIAGNOSTIC_EVIDENCE=str(output))
+               ESS_DIAGNOSTIC_PINNED_PYTHON=python, ESS_DIAGNOSTIC_EVIDENCE=str(output),
+               ESS_DIAGNOSTIC_MODE=mode)
     argv = ["bash", "e2e/run_hardening_cluster_resources.sh", str(launcher), label + "-cluster"]
     started = time.monotonic()
     owned = {}
@@ -181,8 +187,8 @@ def execute(python, label, output):
                         if terminal.is_file():
                             terminals[node] = json.loads(terminal.read_text())
             if set(terminals) != {"data-a", "data-b"} or any(
-                    row["status"] != "complete" for row in terminals.values()):
-                errors.append("both_observer_full_lifetime_traces_required")
+                    row["status"] != "complete" or row["mode"] != mode for row in terminals.values()):
+                errors.append("both_observer_full_lifetime_receipts_required")
             group = group_members(child.pid) if child else []
             if any(row["state"] != "Z" for row in group):
                 errors.append("process_group_still_running")
@@ -195,7 +201,8 @@ def execute(python, label, output):
                 status="diagnostic_complete" if status == 0 and not errors else "failed",
                 returncode=status, errors=errors, elapsed_seconds=time.monotonic() - started,
                 owned_identities=identities, remaining_group_members=group,
-                roots=[str(root) for root in roots], traced_nodes=sorted(terminals),
+                roots=[str(root) for root in roots], observed_nodes=sorted(terminals),
+                traced_nodes=sorted(terminals) if mode == "syscall-trace" else [],
                 provenance=json.loads((output / "started.json").read_text()) if child else None))
     return 0 if status == 0 and not errors else 1
 

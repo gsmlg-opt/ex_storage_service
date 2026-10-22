@@ -1,4 +1,4 @@
-"""Preserve Python/Port dispatch, tracing only both fresh data-node observers."""
+"""Preserve Python/Port dispatch, instrumenting both fresh data-node observers."""
 import hashlib
 import json
 import os
@@ -9,7 +9,7 @@ import subprocess
 import sys
 import time
 
-from common import alive, identity, write_json
+from common import alive, diagnostic_mode, identity, write_json
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
@@ -57,7 +57,17 @@ def trace_command(strace, fifo, python, observer, args):
             python, "-B", str(HERE / "instrument_observer.py"), str(observer), *args]
 
 
+def observer_command(mode, python, observer, args, fifo):
+    if diagnostic_mode(mode) == "probe-only":
+        return [python, "-B", str(HERE / "instrument_observer.py"), str(observer), *args]
+    strace = shutil.which("strace")
+    if strace is None:
+        raise RuntimeError("strace unavailable; do not change ptrace policy")
+    return trace_command(strace, fifo, python, observer, args)
+
+
 def main():
+    mode = diagnostic_mode()
     python = os.environ["ESS_DIAGNOSTIC_PINNED_PYTHON"]
     evidence = Path(os.environ["ESS_DIAGNOSTIC_EVIDENCE"])
     args = sys.argv[1:]
@@ -85,14 +95,15 @@ def main():
         shutil.copytree(diagnostic, evidence / diagnostic.name,
                         ignore=shutil.ignore_patterns("*.fifo", "*.sock"))
         if alive(monitor) or receipt["status"] != "complete":
-            raise RuntimeError("diagnostic trace/scheduler coverage or monitor cleanup incomplete")
+            raise RuntimeError("diagnostic delivery/scheduler coverage or monitor cleanup incomplete")
         return
     observer = REPO / "e2e/scripts/resource_observer.py"
     diagnostic.mkdir(mode=0o700)
     fifo = diagnostic / "syscalls.fifo"
-    os.mkfifo(fifo, 0o600)
+    if mode == "syscall-trace":
+        os.mkfifo(fifo, 0o600)
     launch = dict(observer=identity(os.getpid()), beam=identity(int(flags["--beam-pid"])),
-                  generation=flags["--generation"], original_argv=[python, *args],
+                  generation=flags["--generation"], mode=mode, original_argv=[python, *args],
                   original_source_sha256=hashlib.sha256(observer.read_bytes()).hexdigest())
     write_json(diagnostic / "launch.json", launch)
     write_json(evidence / (node + "-launch.json"),
@@ -105,13 +116,13 @@ def main():
         if time.monotonic() >= deadline:
             raise RuntimeError("diagnostic monitor readiness timeout")
         time.sleep(.005)
-    strace = shutil.which("strace")
-    if strace is None:
-        raise RuntimeError("strace unavailable; do not change ptrace policy")
     os.environ["ESS_OBSERVER_DIAGNOSTIC_ROOT"] = str(diagnostic)
-    argv = trace_command(strace, fifo, python, observer, normalized[1:])
-    (diagnostic / "strace-command.json").write_text(json.dumps(argv) + "\n")
-    os.execv(strace, argv)
+    argv = observer_command(mode, python, observer, normalized[1:], fifo)
+    write_json(diagnostic / "observer-command.json", dict(mode=mode, argv=argv))
+    if mode == "syscall-trace":
+        write_json(diagnostic / "strace-command.json", argv)
+    # Both paths exec in place, retaining the original Port PID and pipes.
+    os.execv(argv[0], argv)
 
 
 if __name__ == "__main__":

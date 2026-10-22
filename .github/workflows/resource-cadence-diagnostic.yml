@@ -3,6 +3,14 @@ name: Incomplete resource cadence diagnostic
 on:
   workflow_dispatch:
     inputs:
+      mode:
+        description: 'Probe-only brackets or the retained intrusive syscall trace'
+        type: choice
+        required: true
+        default: probe-only
+        options:
+          - probe-only
+          - syscall-trace
       scheduler_accounting:
         description: 'Enable scheduler wait accounting on this disposable VM'
         type: boolean
@@ -24,6 +32,7 @@ env:
   ESS_ADMIN_PASSWORD_HASH: c89aca9f1fbfa8dc9383ff1f97a9c0f64a9bb6c1f456f00f2888c2e2fb733d14
   SECRET_KEY_BASE: disposable-hardening-ci-secret-key-base-must-have-sixty-four-bytes-12345
   DIAGNOSTIC_LABEL: cadence-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
+  ESS_DIAGNOSTIC_MODE: ${{ inputs.mode }}
 
 jobs:
   diagnostic:
@@ -55,12 +64,15 @@ jobs:
             deps
             _build
           key: ${{ runner.os }}-cadence-diagnostic-prod-${{ hashFiles('mix.lock') }}
-      - name: Install the unchanged harness prerequisites and tracer
+      - name: Install the unchanged harness prerequisites and optional tracer
         run: |
           python3 e2e/scripts/ci_isolation.py --output "docs/reports/s3-hardening/$DIAGNOSTIC_LABEL/isolation"
-          sudo -n apt-get install --yes ripgrep strace
+          sudo -n apt-get install --yes ripgrep
           rg --version
-          strace --version > "docs/reports/s3-hardening/$DIAGNOSTIC_LABEL/strace-version.txt"
+          if [[ "$ESS_DIAGNOSTIC_MODE" == syscall-trace ]]; then
+            sudo -n apt-get install --yes strace
+            strace --version > "docs/reports/s3-hardening/$DIAGNOSTIC_LABEL/strace-version.txt"
+          fi
           python3 -m venv "$RUNNER_TEMP/hardening-venv"
           "$RUNNER_TEMP/hardening-venv/bin/pip" install -r e2e/hardening-requirements.txt
           python3 scripts/release/reserve_journal_ports.py

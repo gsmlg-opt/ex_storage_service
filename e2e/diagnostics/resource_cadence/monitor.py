@@ -1,4 +1,4 @@
-"""Owned observer monitor + bounded, continuously drained full-phase syscall stream."""
+"""Owned observer monitor + bounded, continuously drained diagnostic streams."""
 import json
 import os
 from pathlib import Path
@@ -6,15 +6,19 @@ import selectors
 import socket
 import sys
 import time
-from common import (Retention, alive, cgroups, clocks, counter_delta, identity,
-                    read, thread_delta, thread_snapshot, write_json)
+from common import (Retention, alive, cgroups, clocks, counter_delta, datagram_limit,
+                    delivery_errors, diagnostic_mode, identity, read, thread_delta,
+                    thread_snapshot, write_json)
 
 ROOT = Path(sys.argv[1]).resolve()
 launch = json.loads((ROOT / "launch.json").read_text())
+mode = diagnostic_mode(launch["mode"])
 expected = launch["observer"]
 pid = expected["pid"]
 caps = {"syscalls": 1024 * 1024 * 1024, "probes": 512 * 1024 * 1024,
         "scheduler": 256 * 1024 * 1024}
+if mode == "probe-only":
+    del caps["syscalls"]
 files = {key: (ROOT / (key + (".log" if key == "syscalls" else ".jsonl"))).open("xb")
          for key in caps}
 retention = Retention(files, caps)
@@ -74,15 +78,17 @@ def snapshot():
 
 
 selector = selectors.DefaultSelector()
-fifo = os.open(ROOT / "syscalls.fifo", os.O_RDWR | os.O_NONBLOCK)
+fifo = None
+if mode == "syscall-trace":
+    fifo = os.open(ROOT / "syscalls.fifo", os.O_RDWR | os.O_NONBLOCK)
+    selector.register(fifo, selectors.EVENT_READ, "trace")
 channel = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
 channel.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1024 * 1024)
 channel.bind(str(ROOT / "events.sock"))
 channel.setblocking(False)
-selector.register(fifo, selectors.EVENT_READ, "trace")
 selector.register(channel, selectors.EVENT_READ, "probe")
 write_json(ROOT / "monitor-ready.json", dict(
-    monitor=identity(os.getpid()), observer=expected, caps_bytes=caps, clocks=clocks(),
+    monitor=identity(os.getpid()), observer=expected, mode=mode, caps_bytes=caps, clocks=clocks(),
     sched_schedstats=read("/proc/sys/kernel/sched_schedstats"),
     ptrace_scope=read("/proc/sys/kernel/yama/ptrace_scope")))
 deadline = time.monotonic()
@@ -105,8 +111,8 @@ try:
                     quiet_since = None
                     retain("syscalls", chunk)
             else:
-                chunk, _address = channel.recvfrom(32769)
-                if len(chunk) > 32768:
+                chunk, _address = channel.recvfrom(datagram_limit(mode) + 1)
+                if len(chunk) > datagram_limit(mode):
                     errors.add("oversized_probe_event")
                 else:
                     retain("probes", chunk + b"\n")
@@ -128,20 +134,14 @@ finally:
         stream.close()
     selector.close()
     channel.close()
-    os.close(fifo)
+    if fifo is not None:
+        os.close(fifo)
     terminal_path = ROOT / "observer-instrumentation-terminal.json"
     instrument = json.loads(terminal_path.read_text()) if terminal_path.is_file() else None
-    if not trace_seen:
-        errors.add("no_syscall_trace")
-    if not tracers:
-        errors.add("no_fenced_tracer_identity")
-    if any(discarded.values()):
-        errors.add("retention_cap_exhausted")
-    if instrument is None or instrument["counts"]["dropped"] or instrument["counts"]["sent"] != socket_rows:
-        errors.add("incomplete_probe_delivery")
+    errors.update(delivery_errors(mode, trace_seen, tracers, discarded, instrument, socket_rows))
     if alive(expected) or any(alive(value) for value in tracers.values()):
         errors.add("owned_identity_still_running")
-    terminal = dict(status="complete" if not errors else "incomplete", errors=sorted(errors),
+    terminal = dict(status="complete" if not errors else "incomplete", errors=sorted(errors), mode=mode,
         observer=expected, observer_stopped=not alive(expected),
         tracers=[dict(expected=value, observed=identity(value["pid"]), stopped=not alive(value))
                  for value in tracers.values()], monitor=identity(os.getpid()),
