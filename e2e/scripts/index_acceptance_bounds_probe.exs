@@ -80,6 +80,7 @@ defmodule ESSIndexAcceptance.Probe do
         end
       end
 
+      caller_isolation!(request, options)
       good = Bounds.measure(request.(:good), 1, options)
 
       %{
@@ -88,15 +89,19 @@ defmodule ESSIndexAcceptance.Probe do
         forbidden_native_calls: 0
       } = good
 
-      must_fail!(fn -> Bounds.check_sample!(%{good | reads: Bounds.limits(1).reads + 1}, 1) end)
+      for {field, value, tag} <- [
+            {:reads, Bounds.limits(1).reads + 1, :read_bound},
+            {:bytes, Bounds.limits(1).bytes + 1, :returned_byte_bound},
+            {:output_bytes, Bounds.limits(1).output + 1, :page_output_bound},
+            {:output_heap_bytes, Bounds.limits(1).output_heap + 1, :page_output_heap_bound},
+            {:output_entries, 2, :page_entry_bound},
+            {:peak_heap_bytes, Bounds.limits(1).heap + 1, :peak_heap_bound},
+            {:forbidden_native_calls, 1, :forbidden_native_boundary}
+          ] do
+        must_fail!(fn -> Bounds.check_sample!(Map.put(good, field, value), 1) end, tag)
+      end
 
-      must_fail!(fn ->
-        Bounds.check_sample!(%{good | output_bytes: Bounds.limits(1).output + 1}, 1)
-      end)
-
-      must_fail!(fn ->
-        Bounds.check_sample!(%{good | peak_heap_bytes: Bounds.limits(1).heap + 1}, 1)
-      end)
+      collector_mailbox_bound!(request, options)
 
       # Worker API still says exact get_record; forbidden operation executes in native PID.
       must_fail!(fn -> Bounds.measure(request.(:bad_query), 1, options) end)
@@ -107,7 +112,7 @@ defmodule ESSIndexAcceptance.Probe do
       fixture!()
 
       IO.puts(
-        "PASS A28 CPU: good sample, deliberate bounds, replica query/scan detection, failure cleanup, sentinel preservation, offline fixture"
+        "PASS A28 CPU: good sample, all sample bounds, private trace mailbox bound, caller heap/message isolation, replica query/scan detection, failure cleanup, sentinel preservation, offline fixture"
       )
     after
       :trace.session_destroy(sentinel)
@@ -121,6 +126,88 @@ defmodule ESSIndexAcceptance.Probe do
           raise "probe native did not stop"
       end
     end
+  end
+
+  defp caller_isolation!(request, options) do
+    token = make_ref()
+    owner = self()
+    history = for value <- 1..50_000, do: {value, value + 1, value + 2}
+    Process.put(token, history)
+    for value <- 1..600, do: send(owner, {token, :unrelated, value})
+    caller_memory = Process.info(owner, [:memory, :message_queue_len])
+
+    measured = fn mode ->
+      fn ->
+        {:monitored_by, [collector]} = Process.info(self(), :monitored_by)
+        {:memory, memory} = Process.info(collector, :memory)
+        send(owner, {token, :worker, self(), collector, memory})
+        request.(mode).()
+      end
+    end
+
+    try do
+      %{reads: 1} = Bounds.measure(measured.(:good), 1, options)
+      first_memory = stopped_worker!(token)
+      must_fail!(fn -> Bounds.measure(measured.(:bad_query), 1, options) end)
+      failed_memory = stopped_worker!(token)
+      %{reads: 1} = Bounds.measure(measured.(:good), 1, options)
+      last_memory = stopped_worker!(token)
+      ^history = Process.get(token)
+
+      IO.puts(
+        "A28 caller isolation: " <>
+          inspect(%{
+            history_entries: length(history),
+            caller_memory_bytes: caller_memory[:memory],
+            unrelated_messages: caller_memory[:message_queue_len],
+            collector_memory_bytes: [first_memory, failed_memory, last_memory]
+          })
+      )
+    after
+      Process.delete(token)
+
+      for value <- 1..600 do
+        receive do
+          {^token, :unrelated, ^value} -> :ok
+        after
+          1000 -> raise "caller message lost or changed"
+        end
+      end
+    end
+  end
+
+  defp stopped_worker!(token) do
+    receive do
+      {^token, :worker, pid, collector, memory} ->
+        if Process.alive?(pid), do: raise("measurement worker survived completion")
+
+        if collector == self() or Process.alive?(collector),
+          do: raise("measurement collector did not stop in isolation")
+
+        if memory >= 1_048_576, do: raise("collector inherited caller history heap")
+        memory
+    after
+      1000 -> raise "measurement worker identity missing"
+    end
+  end
+
+  defp collector_mailbox_bound!(request, options) do
+    overloaded = fn ->
+      {:monitored_by, [collector]} = Process.info(self(), :monitored_by)
+      true = :erlang.suspend_process(collector)
+
+      try do
+        # 200 reads emit 600 real query trace events while delivery is paused.
+        # The unchanged private mailbox limit must reject this backlog.
+        for _ <- 1..200, do: request.(:good).()
+      after
+        true = :erlang.resume_process(collector)
+      end
+
+      {:ok, %{keys: [], common_prefixes: [], index_stats: %{reads: 200}}}
+    end
+
+    must_fail!(fn -> Bounds.measure(overloaded, 1000, options) end, :trace_mailbox_bound)
   end
 
   defp fixture! do
@@ -157,13 +244,18 @@ defmodule ESSIndexAcceptance.Probe do
     end
   end
 
-  defp must_fail!(fun) do
+  defp must_fail!(fun, tag \\ nil) do
     failed =
       try do
         fun.()
         false
       rescue
-        error in RuntimeError -> String.starts_with?(Exception.message(error), "A28 ")
+        error in RuntimeError ->
+          message = Exception.message(error)
+
+          if tag,
+            do: message == "A28 " <> Atom.to_string(tag),
+            else: String.starts_with?(message, "A28 ")
       end
 
     if not failed, do: raise("CPU probe did not reject bad case")

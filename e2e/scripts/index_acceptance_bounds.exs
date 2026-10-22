@@ -175,6 +175,41 @@ defmodule ESSIndexAcceptance.Bounds do
   end
 
   def measure(request, maximum, opts \\ []) do
+    owner = self()
+    reference = make_ref()
+
+    # Fixture inventory/history and unrelated caller messages must not become
+    # collector heap or count against the private trace mailbox bound.
+    {collector, monitor} =
+      spawn_monitor(fn ->
+        result =
+          try do
+            {:ok, measure_isolated(request, maximum, opts)}
+          catch
+            kind, reason -> {:raised, kind, reason, __STACKTRACE__}
+          end
+
+        send(owner, {reference, result})
+      end)
+
+    receive do
+      {^reference, result} ->
+        receive do
+          {:DOWN, ^monitor, :process, ^collector, reason} ->
+            ensure!(reason == :normal, :collector_exit)
+        end
+
+        case result do
+          {:ok, sample} -> sample
+          {:raised, kind, reason, stacktrace} -> :erlang.raise(kind, reason, stacktrace)
+        end
+
+      {:DOWN, ^monitor, :process, ^collector, _reason} ->
+        raise "A28 owned collector exited before completion"
+    end
+  end
+
+  defp measure_isolated(request, maximum, opts) do
     ensure!(
       Code.ensure_loaded?(:trace) and function_exported?(:trace, :session_create, 3),
       :otp28_trace_required

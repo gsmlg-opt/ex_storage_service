@@ -24,11 +24,10 @@ export SECRET_KEY_BASE=disposable-retained-standalone-secret-key-base-at-least-s
 export E2E_GITHUB_ENV="$ESS_DATA_ROOT/credentials.env"
 export E2E_STATE_FILE="$ESS_DATA_ROOT/persistence-state.json"
 read -r ESS_S3_PORT ESS_ADMIN_PORT < <("$python" - <<'PY'
-import socket
-with socket.socket() as first, socket.socket() as second:
-    first.bind(("127.0.0.1", 0))
-    second.bind(("127.0.0.1", 0))
-    print(first.getsockname()[1], second.getsockname()[1])
+import sys
+sys.path.insert(0, "e2e")
+from hardening_ports import free_port
+print(free_port(), free_port())
 PY
 )
 export ESS_S3_PORT ESS_ADMIN_PORT
@@ -61,8 +60,26 @@ trap 'exit 143' TERM
 
 # Existing CI builds production assets before exercising the unchanged admin UI.
 # Seed output can include GitHub secret-mask commands, so keep it private.
-mix assets.deploy > "$ESS_DATA_ROOT/assets.log" 2>&1
-mix run --no-start --no-compile e2e/scripts/seed_e2e.exs > "$ESS_DATA_ROOT/seed.log" 2>&1
+record_failure() {
+  if ! "$python" e2e/retained_startup_diagnostics.py \
+      --root "$ESS_DATA_ROOT" --output "$logs/startup-failure.json" \
+      --phase "$1" --exit-status "$2" --reason "$3" \
+      --ports "$ESS_S3_PORT" "$ESS_ADMIN_PORT"; then
+    printf 'Failed to retain safe startup diagnostic; original failure preserved\n' >&2
+  fi
+}
+status=0
+mix assets.deploy > "$ESS_DATA_ROOT/assets.log" 2>&1 || status=$?
+if (( status != 0 )); then
+  record_failure assets "$status" command_failure
+  exit "$status"
+fi
+status=0
+mix run --no-start --no-compile e2e/scripts/seed_e2e.exs > "$ESS_DATA_ROOT/seed.log" 2>&1 || status=$?
+if (( status != 0 )); then
+  record_failure seed "$status" command_failure
+  exit "$status"
+fi
 [[ -s "$E2E_GITHUB_ENV" ]] || exit 1
 while IFS='=' read -r name value; do
   case "$name" in
@@ -76,13 +93,19 @@ start_server() {
   setsid mix run --no-compile --no-halt > "$ESS_DATA_ROOT/$1.log" 2>&1 &
   pid=$!
   for attempt in $(seq 1 150); do
-    kill -0 "$pid" || return 1
+    if ! kill -0 "$pid" 2>/dev/null; then
+      status=0
+      wait "$pid" || status=$?
+      record_failure "$1" "$status" early_exit
+      return 1
+    fi
     if curl -fsS "$E2E_S3_ENDPOINT/health" >/dev/null 2>&1 &&
        curl -fsS "$E2E_ADMIN_ENDPOINT/" >/dev/null 2>&1; then
       return 0
     fi
     sleep 0.2
   done
+  record_failure "$1" null readiness_timeout
   return 1
 }
 
