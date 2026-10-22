@@ -350,6 +350,7 @@ def main():
                     {"component": name, "error_type": type(failure).__name__})
 
         cleanup("runtime", runtime.close)
+        cleanup("service_logs", lambda: runtime.retain_logs(evidence))
         if proxy:
             cleanup("proxy", proxy.close)
         cleanup("ending_sha", lambda: result.update(ending_sha=subprocess.check_output(

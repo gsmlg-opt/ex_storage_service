@@ -1,0 +1,184 @@
+{
+  "aggregate_note": "All jobs completed; overall acceptance failed. Successful release lane is artifact/package validation, not a published release. Aggregate audit also failed; no full-acceptance claim.",
+  "conclusion": "failure",
+  "correctness": {
+    "application_results": [
+      {
+        "application": "ex_storage_service",
+        "excluded": 1,
+        "failures": 0,
+        "tests": 606
+      },
+      {
+        "application": "ex_storage_service_cluster",
+        "excluded": 1,
+        "failures": 0,
+        "tests": 43
+      },
+      {
+        "application": "ex_storage_service_cli",
+        "excluded": 0,
+        "failures": 0,
+        "tests": 3491
+      },
+      {
+        "application": "ex_storage_service_s3",
+        "excluded": 0,
+        "failures": 0,
+        "tests": 379
+      },
+      {
+        "application": "ex_storage_service_web",
+        "excluded": 0,
+        "failures": 5,
+        "tests": 24
+      }
+    ],
+    "checks": [
+      {
+        "argv": [
+          "mix",
+          "format",
+          "--check-formatted"
+        ],
+        "exit_status": 0,
+        "mix_env": "test"
+      },
+      {
+        "argv": [
+          "mix",
+          "compile",
+          "--force",
+          "--warnings-as-errors"
+        ],
+        "exit_status": 0,
+        "mix_env": "test"
+      },
+      {
+        "argv": [
+          "/home/runner/work/_temp/hardening-venv/bin/python",
+          "e2e/run_correctness_tests.py",
+          "--extended",
+          "--output",
+          "/home/runner/work/ex_storage_service/ex_storage_service/docs/reports/s3-hardening/ci-39768692842-1/suite-selection"
+        ],
+        "exit_status": 1,
+        "mix_env": "test"
+      }
+    ],
+    "diagnosis": "All five failures are web authentication assertions under inherited CI administrator configuration; other four application suites passed. Tagged cluster/large-stream cases excluded here retain their separate lanes.",
+    "failed_tests": [
+      "1) test serves authenticated LiveView requests and theme events through the Gaoxy listener (ExStorageServiceWeb.EndpointHTTPTest)",
+      "2) test serves a real object listing larger than 256 KiB over LiveView (ExStorageServiceWeb.EndpointHTTPTest)",
+      "3) test admin layout theme switcher keeps admin navigation only in the left menu (ExStorageServiceWeb.SessionControllerTest)",
+      "4) test admin layout theme switcher handles theme changes from the shared layout (ExStorageServiceWeb.SessionControllerTest)",
+      "5) test POST /login with correct credentials redirects to /dashboard (ExStorageServiceWeb.SessionControllerTest)"
+    ]
+  },
+  "databaseId": 39768692842,
+  "headSha": "0f347902a2e5c0c649bcec4c14d904c5281a3bd6",
+  "jobs": [
+    {
+      "conclusion": "success",
+      "databaseId": 119791060029,
+      "name": "Sequential daily-use S3 checks",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39768692842/job/119791060029"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 119791060099,
+      "name": "Extended audit / crashes",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39768692842/job/119791060099"
+    },
+    {
+      "conclusion": "failure",
+      "databaseId": 119791060212,
+      "name": "Extended audit / index",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39768692842/job/119791060212"
+    },
+    {
+      "conclusion": "failure",
+      "databaseId": 119791060331,
+      "name": "Extended audit / resilience",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39768692842/job/119791060331"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 119791060396,
+      "name": "Extended audit / gateway",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39768692842/job/119791060396"
+    },
+    {
+      "conclusion": "failure",
+      "databaseId": 119791060398,
+      "name": "Extended audit / standalone",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39768692842/job/119791060398"
+    },
+    {
+      "conclusion": "failure",
+      "databaseId": 119791060460,
+      "name": "Extended audit / cluster",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39768692842/job/119791060460"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 119791060476,
+      "name": "Extended audit / release",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39768692842/job/119791060476"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 119791060486,
+      "name": "Extended audit / faults",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39768692842/job/119791060486"
+    },
+    {
+      "conclusion": "failure",
+      "databaseId": 119791060501,
+      "name": "Extended audit / resources",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39768692842/job/119791060501"
+    },
+    {
+      "conclusion": "failure",
+      "databaseId": 119791060527,
+      "name": "Extended audit / restore",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39768692842/job/119791060527"
+    },
+    {
+      "conclusion": "failure",
+      "databaseId": 119791060624,
+      "name": "Extended audit / correctness",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39768692842/job/119791060624"
+    },
+    {
+      "conclusion": "failure",
+      "databaseId": 119799237338,
+      "name": "Extended audit of all 38 scenarios and every lane",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39768692842/job/119799237338"
+    }
+  ],
+  "lane_details": {
+    "cluster": "Tagged three-voter test command passed. Wrapper later failed at the same missing mc executable; lane remains incomplete.",
+    "index": "ripgrep absent; A28/A29 source-inspection gates blocked before workload start.",
+    "resilience": "Initial cluster resilience command passed; replication-backlog service exited during startup, retained private service log absent from original artifact. Backlog acceptance unpassed.",
+    "resources": "Standalone service exited during startup before groups completed; exact cause unavailable in original artifact. Cluster concurrency-4 temporary observation gap exceeded 100 ms. Large-stream tagged command passed; resource lane remains failed.",
+    "restore": "Standalone A37 receipt exists; cluster source data-a S3 listener failed with :eaddrinuse. Original port owner and mechanism unresolved.",
+    "standalone": "Failed clients profile: workflow --mc path not propagated to child ESS_HARDENING_MC; nonexistent default path. Earlier phase1, versions_lists, tag_cors, multipart, multipart_races and multipart restart checks passed. Remaining checks are not certified."
+  },
+  "observed_on_utc": "2026-10-22",
+  "status": "completed",
+  "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39768692842"
+}

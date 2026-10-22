@@ -16,12 +16,14 @@ import importlib.metadata
 import json
 import os
 from pathlib import Path
+import re
 import secrets
 import signal
 import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 import uuid
 
@@ -201,6 +203,42 @@ class Runtime:
         self.stop()
         for handle in self.handles:
             handle.close()
+
+    def retain_logs(self, evidence):
+        """Export owned service logs; credentials and RPC files stay private."""
+        sensitive = re.compile(r"access|secret|master_key|cookie|password|token|credential|authorization", re.I)
+        secrets = {self.cookie}
+
+        def collect(value, private=False):
+            if isinstance(value, dict):
+                for key, item in value.items():
+                    collect(item, private or bool(sensitive.search(key)))
+            elif isinstance(value, list):
+                for item in value:
+                    collect(item, private)
+            elif private and isinstance(value, str) and value:
+                secrets.add(value)
+
+        collect(self.env)
+        for pattern in ("*-request.json", "*-result.json"):
+            for private in self.root.glob(pattern):
+                collect(json.loads(private.read_text()))
+        variants = {encoded for value in secrets for encoded in
+                    (value, urllib.parse.quote(value, safe=""), json.dumps(value)[1:-1]) if encoded}
+        variants = sorted(variants, key=len, reverse=True)
+        for source in self.root.glob("beam-*.log"):
+            if not re.fullmatch(r"beam-[0-9]+\.log", source.name) or source.is_symlink():
+                continue
+            with source.open(encoding="utf-8", errors="replace") as incoming, \
+                    (Path(evidence) / source.name).open("w") as outgoing:
+                for line in incoming:
+                    if "::add-mask::" in line:
+                        outgoing.write("[redacted credential mask]\n")
+                        continue
+                    for value in variants:
+                        line = line.replace(value, "[redacted]")
+                    line = re.sub(r"(https?://)[^\s/@]+:[^\s/@]+@", r"\1[redacted]@", line)
+                    outgoing.write(line)
 
 
 def main():

@@ -49,7 +49,7 @@ class AggregateTest(unittest.TestCase):
     def test_independent_resource_and_migration_commands_retain_failure_and_still_run(self):
         for profile in ("resources", "index"):
             with self.subTest(profile=profile):
-                args = SimpleNamespace(output=self.root, label="test", timeout=5)
+                args = SimpleNamespace(output=self.root, label="test", timeout=5, mc=None)
                 with patch.object(acceptance, "REPO", self.root), \
                         patch.object(acceptance, "sha", return_value="source"), \
                         patch.object(acceptance, "source_fingerprint", return_value="fingerprint"), \
@@ -64,7 +64,7 @@ class AggregateTest(unittest.TestCase):
                 self.assertEqual([0, 1, 0], [row["exit_status"] for row in record["commands"]])
 
     def test_failed_resource_compile_does_not_start_workloads(self):
-        args = SimpleNamespace(output=self.root, label="test", timeout=5)
+        args = SimpleNamespace(output=self.root, label="test", timeout=5, mc=None)
         with patch.object(acceptance, "REPO", self.root), \
                 patch.object(acceptance, "sha", return_value="source"), \
                 patch.object(acceptance, "source_fingerprint", return_value="fingerprint"), \
@@ -75,6 +75,43 @@ class AggregateTest(unittest.TestCase):
             self.assertFalse(acceptance.run_profile("resources", args))
         self.assertEqual(1, run.call_count)
         self.assertEqual(["mix", "compile", "--force", "--warnings-as-errors"], run.call_args.args[0])
+
+    def test_verified_mc_option_reaches_standalone_and_cluster_children(self):
+        for profile in ("standalone", "cluster"):
+            with self.subTest(profile=profile):
+                args = SimpleNamespace(output=self.root, label="test", timeout=5,
+                                       python="/usr/bin/python3", mc="/verified/mc")
+                with patch.dict(os.environ, {"ESS_HARDENING_MC": "/caller/mc"}), \
+                        patch.object(acceptance, "REPO", self.root), \
+                        patch.object(acceptance, "sha", return_value="source"), \
+                        patch.object(acceptance, "source_fingerprint", return_value="fingerprint"), \
+                        patch.object(acceptance, "run_command", return_value=0) as run, \
+                        contextlib.redirect_stdout(io.StringIO()):
+                    (self.root / f"{profile}.json").unlink()
+                    self.assertTrue(acceptance.run_profile(profile, args))
+                    self.assertEqual("/caller/mc", os.environ["ESS_HARDENING_MC"])
+                    for call in run.call_args_list:
+                        self.assertEqual("/verified/mc", call.args[1]["ESS_HARDENING_MC"])
+                        self.assertEqual(os.environ["PATH"], call.args[1]["PATH"])
+
+    def test_without_mc_option_preserves_the_callers_client_environment(self):
+        for inherited in (None, "/caller/mc"):
+            with self.subTest(inherited=inherited):
+                args = SimpleNamespace(output=self.root, label="test", timeout=5,
+                                       python="/usr/bin/python3", mc=None)
+                with patch.dict(os.environ), \
+                        patch.object(acceptance, "REPO", self.root), \
+                        patch.object(acceptance, "sha", return_value="source"), \
+                        patch.object(acceptance, "source_fingerprint", return_value="fingerprint"), \
+                        patch.object(acceptance, "run_command", return_value=0) as run, \
+                        contextlib.redirect_stdout(io.StringIO()):
+                    os.environ.pop("ESS_HARDENING_MC", None)
+                    if inherited is not None:
+                        os.environ["ESS_HARDENING_MC"] = inherited
+                    (self.root / "standalone.json").unlink()
+                    self.assertTrue(acceptance.run_profile("standalone", args))
+                    for call in run.call_args_list:
+                        self.assertEqual(inherited, call.args[1].get("ESS_HARDENING_MC"))
 
     def test_requires_all_38_unique_audited_scenarios(self):
         self.assertEqual([], self.audit())

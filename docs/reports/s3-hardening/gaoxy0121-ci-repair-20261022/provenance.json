@@ -1,0 +1,87 @@
+{
+  "base_sha": "0f347902a2e5c0c649bcec4c14d904c5281a3bd6",
+  "local_state": "Uncommitted CI harness repairs on main; local receipts are not evidence for an immutable repaired candidate.",
+  "sanitization": "No raw hosted logs, CI secret-mask commands, authentication headers, private cookies, request/state files or controller payloads copied. Selected restore roots and diagnostic process IDs omitted. Existing sanitized sources referenced by SHA256.",
+  "sources": {
+    "/tmp/ess-ci-39768692842-correctness/ci-39768692842-1/correctness-2.log": {
+      "bytes": 21810,
+      "sha256": "eed16ad03c4fe82eb7eee7331f33752b831557823ff7cf3ba443b21944722e71"
+    },
+    "/tmp/ess-ci-39768692842-correctness/ci-39768692842-1/correctness.json": {
+      "bytes": 1394,
+      "sha256": "b59c5eb294e56d983f009c12e51da9256f9def5ca1fa0893b74e03e74895cd82"
+    },
+    "/tmp/ess-gaoxy-reuse-l4h3y6pp/cross-vm-receipt.json": {
+      "bytes": 1482,
+      "sha256": "023a868122a67461e0a73f6c4c909e6e4a3d4780632457e92131580743103d45"
+    },
+    "/tmp/ess-gaoxy-reuse-l4h3y6pp/receipt-r3.json": {
+      "bytes": 7417,
+      "sha256": "824620b588a256aaa0ebbae7c291128587820552c0a6cfd10bfdf9c27113c6b3"
+    },
+    "/tmp/ess-gaoxy0121-ci-repair-python-20261022.log": {
+      "bytes": 156,
+      "sha256": "47e09de6109a39ba972d2da86c9875d276c1ca301aa1608c3303ee2a5bb7bcc7"
+    },
+    "/tmp/ess-gaoxy0121-test-ci-recompile-20261022.log": {
+      "bytes": 518,
+      "sha256": "05ecc053ac4d2c2a62ebecc3511b8717c31849533b53b2b948c3e438f5486428"
+    },
+    "/tmp/ess-gaoxy0121-web-ci-env-20261022.log": {
+      "bytes": 170,
+      "sha256": "9cb2cbdf737dbdc6ea6288094d089d2439a843693439425d7c2ba10ac594a9b5"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-ci-39768692842-cluster-triage/ci-39768692842-1/cluster.json": {
+      "bytes": 1374,
+      "sha256": "065600115dc81c92918eeffca879297649de2a016bd3e73df8f4f16642538f94"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-ci-39768692842-index-triage/triage.json": {
+      "bytes": 1959,
+      "sha256": "ca0b331acf33c6f3f7f13defae984fd0544fec513ab577dfdfad343c9795e369"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-ci-39768692842-resilience-triage/ci-39768692842-1/resilience.json": {
+      "bytes": 1393,
+      "sha256": "69884980fbb94f588989dee23a2a8b15ef6ef1474acdc111cb23050ffbc45c7a"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-ci-39768692842-resources-triage/ci-39768692842-1-resources-cluster/results.json": {
+      "bytes": 142193,
+      "sha256": "271ec9d757316ddf7fb89f31d7ef9c87ddf4b281472517bc10d9f7354d0b1569"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-ci-39768692842-resources-triage/ci-39768692842-1-resources-cluster/samples/data-a/samples.jsonl": {
+      "bytes": 3949945,
+      "sha256": "f56e59aef48ed1500616806748f78a5e4323162433c6d7b2c7202ed34b7173da"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-ci-39768692842-resources-triage/ci-39768692842-1/resources.json": {
+      "bytes": 1810,
+      "sha256": "359fbb7f29d6bdd60286dfc258458ed6c83c26d694a0e351255fc7cae80dc768"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-ci-39768692842-restore-triage/ci-39768692842-1-restore-cluster/source-data-a-source.log": {
+      "bytes": 1879,
+      "sha256": "e5506bc55116a63622e1c1a556955e3b0549f9c25f55449fd7907a630f11634b"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-ci-39768692842-restore-triage/ci-39768692842-1/restore.json": {
+      "bytes": 1022,
+      "sha256": "8b1e3c7cf5087fbc5a63d79417dd7e9b4195078c712b55aafe1ebf3a7f150d15"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-ci-39768692842-s3-triage/diagnosis.md": {
+      "bytes": 1252,
+      "sha256": "7b6736b8084c6a21c82b357ab1922e924d295c9dfb93764f74def54a0d4f9019"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-local-restore-diag-20261022-cluster/backup-boundary.json": {
+      "bytes": 274,
+      "sha256": "7ad5336ffa8907db60f4b4e597e3235a346c850fffaef8751221ba6d113222e9"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-local-restore-diag-20261022-cluster/negative-cases.json": {
+      "bytes": 268,
+      "sha256": "e0382e8ba4219bbcdbab01495cd31bb78b91f82e1e134202341075503ae3ea3c"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-local-restore-diag-20261022-cluster/original-root-isolation.json": {
+      "bytes": 139,
+      "sha256": "cc1606820a06e97dbaef98b5704a8993bdceb4405756f9a299000c4dc8c21301"
+    },
+    "docs/reports/s3-hardening/gaoxy0121-local-restore-diag-20261022-cluster/restore-verification.json": {
+      "bytes": 2237,
+      "sha256": "a7e75823e270021b4f369a5c1819d7f9ca377c7851b4c5aab924678997630233"
+    }
+  }
+}

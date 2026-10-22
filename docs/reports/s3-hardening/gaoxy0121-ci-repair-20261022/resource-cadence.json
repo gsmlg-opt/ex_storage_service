@@ -1,0 +1,231 @@
+{
+  "concurrency": 4,
+  "details": [
+    [
+      {
+        "hash": "00afebba85e43cc00bc78139563ceca7a4b99de6bee6088203c60266bffc7d8f",
+        "node": "data-a",
+        "ready_replicas": 2,
+        "size": 67108864,
+        "verified": true
+      },
+      {
+        "hash": "00afebba85e43cc00bc78139563ceca7a4b99de6bee6088203c60266bffc7d8f",
+        "node": "data-b",
+        "ready_replicas": 2,
+        "size": 67108864,
+        "verified": true
+      }
+    ],
+    [
+      {
+        "hash": "96fca8d6638bb34fdbb4b56e368ff6b97386ccd0e52e76b2cbfdee84878f8282",
+        "node": "data-a",
+        "ready_replicas": 2,
+        "size": 67108864,
+        "verified": true
+      },
+      {
+        "hash": "96fca8d6638bb34fdbb4b56e368ff6b97386ccd0e52e76b2cbfdee84878f8282",
+        "node": "data-b",
+        "ready_replicas": 2,
+        "size": 67108864,
+        "verified": true
+      }
+    ],
+    [
+      {
+        "hash": "476c5b5a2a405b697142a6a77410f312f236eca4d74ada1018acc37e76ac3d07",
+        "node": "data-a",
+        "ready_replicas": 2,
+        "size": 67108864,
+        "verified": true
+      },
+      {
+        "hash": "476c5b5a2a405b697142a6a77410f312f236eca4d74ada1018acc37e76ac3d07",
+        "node": "data-b",
+        "ready_replicas": 2,
+        "size": 67108864,
+        "verified": true
+      }
+    ],
+    [
+      {
+        "hash": "5bcc7a6d03ea2b105fe7847f2a3684534fc8fcbefd8b3014011c5443a71213c6",
+        "node": "data-a",
+        "ready_replicas": 2,
+        "size": 67108864,
+        "verified": true
+      },
+      {
+        "hash": "5bcc7a6d03ea2b105fe7847f2a3684534fc8fcbefd8b3014011c5443a71213c6",
+        "node": "data-b",
+        "ready_replicas": 2,
+        "size": 67108864,
+        "verified": true
+      }
+    ]
+  ],
+  "failures": [
+    "data-a:cadence:temporary:interval_over100ms"
+  ],
+  "interpretation": "Conservative coverage uses end(current)-start(previous). One gap 138940762 ns is a valid failure. Adjacent 61.109401 ms and 63.141805 ms fresh temporary scans consumed little observer CPU; exact syscall, scheduling delay, or filesystem cause not established. No cadence, sampling, resource bound or acceptance condition was relaxed.",
+  "name": "strict-quorum-replica-put",
+  "nodes": {
+    "data-a": {
+      "baseline": {
+        "binary": 773576,
+        "rss": 128450560,
+        "temporary": 0,
+        "total": 65035864
+      },
+      "failures": [
+        "cadence:temporary:interval_over100ms"
+      ],
+      "limits": {
+        "binary": 201326592,
+        "queue_max": 128,
+        "queue_total": 2048,
+        "rss": 536870912,
+        "temporary": 603979776,
+        "total": 335544320
+      },
+      "peak": {
+        "binary": 11205536,
+        "queue_max": 4,
+        "queue_total": 7,
+        "rss": 161181696,
+        "temporary": 268435456,
+        "total": 76085472
+      },
+      "temporary_cadence": {
+        "end_edge_ns": 11192818,
+        "intervals_over100ms": 1,
+        "max_interval_ns": 100000000,
+        "maximum_gap_ns": 138940762,
+        "maximum_probe_ns": 63141805,
+        "sampler_ids": [
+          "1792668220010053679"
+        ],
+        "samples": 404,
+        "start_edge_ns": 22505077
+      }
+    },
+    "data-b": {
+      "baseline": {
+        "binary": 583276,
+        "rss": 123654144,
+        "temporary": 0,
+        "total": 63138824
+      },
+      "failures": [],
+      "limits": {
+        "binary": 201326592,
+        "queue_max": 128,
+        "queue_total": 2048,
+        "rss": 536870912,
+        "temporary": 603979776,
+        "total": 335544320
+      },
+      "peak": {
+        "binary": 4958752,
+        "queue_max": 15,
+        "queue_total": 17,
+        "rss": 145981440,
+        "temporary": 199229440,
+        "total": 68091856
+      },
+      "temporary_cadence": {
+        "end_edge_ns": 13730145,
+        "intervals_over100ms": 0,
+        "max_interval_ns": 100000000,
+        "maximum_gap_ns": 31970491,
+        "maximum_probe_ns": 521649,
+        "sampler_ids": [
+          "1792668220063122289"
+        ],
+        "samples": 408,
+        "start_edge_ns": 19061048
+      }
+    },
+    "meta": {
+      "baseline": {
+        "binary": 439072,
+        "rss": 109613056,
+        "temporary": 0,
+        "total": 58210740
+      },
+      "failures": [],
+      "limits": {
+        "binary": 201326592,
+        "queue_max": 128,
+        "queue_total": 2048,
+        "rss": 536870912,
+        "temporary": 603979776,
+        "total": 335544320
+      },
+      "peak": {
+        "binary": 541640,
+        "queue_max": 6,
+        "queue_total": 6,
+        "rss": 110419968,
+        "temporary": 0,
+        "total": 59649288
+      },
+      "temporary_cadence": {
+        "end_edge_ns": 16821260,
+        "intervals_over100ms": 0,
+        "max_interval_ns": 100000000,
+        "maximum_gap_ns": 34682463,
+        "maximum_probe_ns": 132400,
+        "sampler_ids": [
+          "1792668219962780444"
+        ],
+        "samples": 408,
+        "start_edge_ns": 17880372
+      }
+    }
+  },
+  "sampling_ms": 25,
+  "selected_data_a_samples": [
+    {
+      "conservative_gap_ns": 25172140,
+      "observer_system_seconds": 0.261499,
+      "observer_user_seconds": 0.796384,
+      "probe_duration_ns": 125790,
+      "probe_start_ns": 1792668265156425223,
+      "sequence": 1804,
+      "temporary_bytes": 268435456
+    },
+    {
+      "conservative_gap_ns": 86031442,
+      "observer_system_seconds": 0.261683,
+      "observer_user_seconds": 0.796945,
+      "probe_duration_ns": 61109401,
+      "probe_start_ns": 1792668265181347274,
+      "sequence": 1805,
+      "temporary_bytes": 268435456
+    },
+    {
+      "conservative_gap_ns": 138940762,
+      "observer_system_seconds": 0.26187299999999997,
+      "observer_user_seconds": 0.797524,
+      "probe_duration_ns": 63141805,
+      "probe_start_ns": 1792668265257146201,
+      "sequence": 1806,
+      "temporary_bytes": 268435456
+    },
+    {
+      "conservative_gap_ns": 75043826,
+      "observer_system_seconds": 0.26187299999999997,
+      "observer_user_seconds": 0.798292,
+      "probe_duration_ns": 148255,
+      "probe_start_ns": 1792668265332041792,
+      "sequence": 1807,
+      "temporary_bytes": 268435456
+    }
+  ],
+  "size": 67108864,
+  "source_sha256": "47c8e99c7999ac49c92a0224001e91d18a16c0b09a2a3932ca4a2656a5a94ec5",
+  "status": "failed"
+}

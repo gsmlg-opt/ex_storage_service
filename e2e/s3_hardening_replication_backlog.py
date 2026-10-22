@@ -205,10 +205,21 @@ def main():
         result.update(status="failed", error_type=type(failure).__name__)
         raise
     finally:
-        runtime.close()
-        replica.close()
+        cleanup_failures = []
+        for name, action in (("runtime", runtime.close),
+                             ("service_logs", lambda: runtime.retain_logs(evidence)),
+                             ("replica", replica.close)):
+            try:
+                action()
+            except BaseException as failure:
+                result.update(status="failed")
+                result.setdefault("cleanup_errors", []).append(
+                    {"component": name, "error_type": type(failure).__name__})
+                cleanup_failures.append(failure)
         (evidence / "results.json").write_text(json.dumps(result, indent=2))
         print(f"Disposable replication backlog root retained: {root}", flush=True)
+        if cleanup_failures:
+            raise cleanup_failures[0]
 
 
 if __name__ == "__main__":

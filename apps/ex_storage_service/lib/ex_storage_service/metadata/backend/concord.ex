@@ -91,7 +91,7 @@ defmodule ExStorageService.Metadata.Backend.Concord do
 
   @impl true
   def transaction(spec, opts \\ []) do
-    # TODO(upstream): gsmlg-dev/concord#102 avoid full materialization for atomic transactions.
+    # TODO(upstream): gsmlg-dev/concord#104 avoid rescanning retained VSR history on writes.
     Concord.Txn.commit(spec, opts)
     |> normalize_availability_error()
   end

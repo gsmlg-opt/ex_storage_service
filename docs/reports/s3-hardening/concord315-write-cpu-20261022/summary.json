@@ -1,0 +1,238 @@
+{
+  "rows": [
+    {
+      "profiled": false,
+      "retained_entries_at_start": 1000,
+      "sample_count": 30,
+      "guards_passed": true,
+      "effect_order_checked": true,
+      "duplicate_deduplicated": true,
+      "forged_duplicate_history_rejected": true,
+      "call_time": [],
+      "submit": {
+        "microseconds": 182.5,
+        "reductions": 11688.0
+      },
+      "apply_ack": {
+        "microseconds": 307.5,
+        "reductions": 16882.0
+      },
+      "complete_write_median_us": 483.5,
+      "complete_write_median_reductions": 27898.0
+    },
+    {
+      "profiled": false,
+      "retained_entries_at_start": 2000,
+      "sample_count": 30,
+      "guards_passed": true,
+      "effect_order_checked": true,
+      "duplicate_deduplicated": true,
+      "forged_duplicate_history_rejected": true,
+      "call_time": [],
+      "submit": {
+        "microseconds": 463.5,
+        "reductions": 24023.5
+      },
+      "apply_ack": {
+        "microseconds": 741.0,
+        "reductions": 34547.5
+      },
+      "complete_write_median_us": 1229.5,
+      "complete_write_median_reductions": 58537.0
+    },
+    {
+      "profiled": false,
+      "retained_entries_at_start": 4000,
+      "sample_count": 30,
+      "guards_passed": true,
+      "effect_order_checked": true,
+      "duplicate_deduplicated": true,
+      "forged_duplicate_history_rejected": true,
+      "call_time": [],
+      "submit": {
+        "microseconds": 945.0,
+        "reductions": 47366.5
+      },
+      "apply_ack": {
+        "microseconds": 1382.5,
+        "reductions": 67972.0
+      },
+      "complete_write_median_us": 2484.0,
+      "complete_write_median_reductions": 115543.5
+    },
+    {
+      "profiled": true,
+      "retained_entries_at_start": 1000,
+      "sample_count": 30,
+      "guards_passed": true,
+      "effect_order_checked": true,
+      "duplicate_deduplicated": true,
+      "forged_duplicate_history_rejected": true,
+      "call_time": [
+        {
+          "function": "{ViewstampedReplication.Protocol, :assert_invariants!, 1}",
+          "microseconds": 6341,
+          "calls": 120
+        },
+        {
+          "function": "{ViewstampedReplication.Protocol, :refresh_applied_request_index, 2}",
+          "microseconds": 62,
+          "calls": 60
+        },
+        {
+          "function": "{ViewstampedReplication.Protocol, :index_applied_requests, 3}",
+          "microseconds": 15559,
+          "calls": 60960
+        },
+        {
+          "function": "{ViewstampedReplication.Protocol, :retained_prefix_mismatch, 4}",
+          "microseconds": 3158,
+          "calls": 30465
+        },
+        {
+          "function": "{ViewstampedReplication.Log, :append, 2}",
+          "microseconds": 148,
+          "calls": 30
+        },
+        {
+          "function": "{ViewstampedReplication.Log, :fetch, 2}",
+          "microseconds": 87,
+          "calls": 60
+        }
+      ],
+      "submit": {
+        "microseconds": 416.5,
+        "reductions": 11683.5
+      },
+      "apply_ack": {
+        "microseconds": 426.5,
+        "reductions": 16758.5
+      },
+      "complete_write_median_us": 843.5,
+      "complete_write_median_reductions": 27899.0
+    },
+    {
+      "profiled": true,
+      "retained_entries_at_start": 2000,
+      "sample_count": 30,
+      "guards_passed": true,
+      "effect_order_checked": true,
+      "duplicate_deduplicated": true,
+      "forged_duplicate_history_rejected": true,
+      "call_time": [
+        {
+          "function": "{ViewstampedReplication.Protocol, :assert_invariants!, 1}",
+          "microseconds": 13230,
+          "calls": 120
+        },
+        {
+          "function": "{ViewstampedReplication.Protocol, :refresh_applied_request_index, 2}",
+          "microseconds": 212,
+          "calls": 60
+        },
+        {
+          "function": "{ViewstampedReplication.Protocol, :index_applied_requests, 3}",
+          "microseconds": 34661,
+          "calls": 120960
+        },
+        {
+          "function": "{ViewstampedReplication.Protocol, :retained_prefix_mismatch, 4}",
+          "microseconds": 6321,
+          "calls": 60465
+        },
+        {
+          "function": "{ViewstampedReplication.Log, :append, 2}",
+          "microseconds": 425,
+          "calls": 30
+        },
+        {
+          "function": "{ViewstampedReplication.Log, :fetch, 2}",
+          "microseconds": 157,
+          "calls": 60
+        }
+      ],
+      "submit": {
+        "microseconds": 894.0,
+        "reductions": 22473.0
+      },
+      "apply_ack": {
+        "microseconds": 947.5,
+        "reductions": 34096.5
+      },
+      "complete_write_median_us": 1832.0,
+      "complete_write_median_reductions": 56416.5
+    },
+    {
+      "profiled": true,
+      "retained_entries_at_start": 4000,
+      "sample_count": 30,
+      "guards_passed": true,
+      "effect_order_checked": true,
+      "duplicate_deduplicated": true,
+      "forged_duplicate_history_rejected": true,
+      "call_time": [
+        {
+          "function": "{ViewstampedReplication.Protocol, :assert_invariants!, 1}",
+          "microseconds": 27374,
+          "calls": 120
+        },
+        {
+          "function": "{ViewstampedReplication.Protocol, :refresh_applied_request_index, 2}",
+          "microseconds": 177,
+          "calls": 60
+        },
+        {
+          "function": "{ViewstampedReplication.Protocol, :index_applied_requests, 3}",
+          "microseconds": 69778,
+          "calls": 240960
+        },
+        {
+          "function": "{ViewstampedReplication.Protocol, :retained_prefix_mismatch, 4}",
+          "microseconds": 12535,
+          "calls": 120465
+        },
+        {
+          "function": "{ViewstampedReplication.Log, :append, 2}",
+          "microseconds": 677,
+          "calls": 30
+        },
+        {
+          "function": "{ViewstampedReplication.Log, :fetch, 2}",
+          "microseconds": 308,
+          "calls": 60
+        }
+      ],
+      "submit": {
+        "microseconds": 1726.0,
+        "reductions": 47354.0
+      },
+      "apply_ack": {
+        "microseconds": 1846.5,
+        "reductions": 66680.5
+      },
+      "complete_write_median_us": 3722.0,
+      "complete_write_median_reductions": 114014.0
+    }
+  ],
+  "toolchain": {
+    "elixir": "1.18.5",
+    "otp": "28",
+    "erts": "16.4.0.5",
+    "schedulers": 1,
+    "apps_before": [
+      "compiler",
+      "elixir",
+      "kernel",
+      "logger",
+      "stdlib"
+    ],
+    "apps_after": [
+      "compiler",
+      "elixir",
+      "kernel",
+      "logger",
+      "stdlib"
+    ]
+  },
+  "boundary": "Protocol.step only; effects inspected in order, persistence/network/apply effects not executed; deterministic successful apply acknowledgements supplied; no durability or ESS performance claim"
+}

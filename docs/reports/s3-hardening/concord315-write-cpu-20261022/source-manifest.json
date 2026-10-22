@@ -1,0 +1,30 @@
+{
+  "repo": "/home/gao/Workspace/gsmlg-opt/ex_storage_service",
+  "head": "0f347902a2e5c0c649bcec4c14d904c5281a3bd6",
+  "files": {
+    "mix.lock": "87b69b40789edb49f0e1ee78838960fd8507a3f7a84aa8a7ae898d40c3f9a0cb",
+    "deps/viewstamped_replication/lib/viewstamped_replication/protocol.ex": "d89a2b18f82c77484d46e75dc6586960bff97897b9469c28c8987574f0565f1c",
+    "deps/viewstamped_replication/lib/viewstamped_replication/log.ex": "8376ab3ae6e12b985d320e93c9cde7740ed9f6d8c5e1061fd40180b81ca63775",
+    "deps/viewstamped_replication/lib/viewstamped_replication/replica.ex": "d8672cdefc7f5ce5152091ba2e028b5c226494606deafa7fbd2374b7fd2df6a3",
+    "deps/viewstamped_replication/lib/viewstamped_replication/storage/file.ex": "3f6b6f5ddeba29296a5d2a5e3e57fee765f5f39cb6734c191d05e7cb6384989e",
+    "deps/concord/lib/concord/state_machine/core.ex": "85eed0f6afa87c52e239f2f8b36671338dce8ad56ad22637520248c8262b9f72",
+    "deps/concord/lib/concord/engine/vsr/state_machine.ex": "76da3884a9c779b0311507c2da3c9ed8dae390fd51438c71a850933a2c1fa306",
+    "deps/concord/lib/concord/state_machine.ex": "fb417d9970ded983b25fdd459e46d13b5c8c28a37f2d275dcb349164ce422699",
+    "_build/prod/lib/viewstamped_replication/ebin/Elixir.ViewstampedReplication.Protocol.beam": "7fd9b029ff590f0ae08db6cc0bb4b8863bac865205e53733161ec0c2b966dd79",
+    "_build/prod/lib/viewstamped_replication/ebin/Elixir.ViewstampedReplication.Log.beam": "72f4f913e319121bdd8d87bfd6be3401134ba6008de1f35ff25961fef2867690",
+    "_build/prod/lib/viewstamped_replication/ebin/viewstamped_replication.app": "faa6959d3c902e2061df26f90203286e37c83a84e94ff4978a085be93beaea9d"
+  },
+  "probe_sha256": "1793410a5608b088dd89c47776eaa3867e52102ba53f9db6fd6e1b2dd9867bf2",
+  "argv": [
+    "elixir",
+    "-pa",
+    "/home/gao/Workspace/gsmlg-opt/ex_storage_service/_build/prod/lib/viewstamped_replication/ebin",
+    "/tmp/ess-vsr-write-cpu-iU3PleL2/probe.exs"
+  ],
+  "environment": {
+    "PAGER": "cat",
+    "ERL_FLAGS": "+S 1:1 +SDcpu 1 +SDio 1"
+  },
+  "timeout_seconds": 30,
+  "application_vsn": "3.1.5"
+}

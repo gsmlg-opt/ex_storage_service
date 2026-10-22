@@ -286,7 +286,7 @@ class DiagnosticRetentionTest(unittest.TestCase):
         source = ast.parse((Path(__file__).parent / "s3_hardening_resources.py").read_text())
         main = next(node for node in source.body if isinstance(node, ast.FunctionDef) and node.name == "main")
         finalizer = next(node.finalbody for node in main.body if isinstance(node, ast.Try) and node.finalbody)
-        for mode in ("retention", "discovery", "docker"):
+        for mode in ("retention", "discovery", "docker", "service_logs"):
             with self.subTest(mode=mode), tempfile.TemporaryDirectory() as directory:
                 root, evidence = Path(directory) / "root", Path(directory) / "evidence"
                 root.mkdir()
@@ -309,9 +309,13 @@ class DiagnosticRetentionTest(unittest.TestCase):
                 def discover_samples():
                     raise error
 
+                def retain_logs(_evidence):
+                    if mode == "service_logs":
+                        raise error
+
                 result = {"status": "passed"}
                 namespace = {"root": root, "evidence": evidence, "result": result,
-                             "runtime": SimpleNamespace(close=lambda: None), "proxy": None,
+                             "runtime": SimpleNamespace(close=lambda: None, retain_logs=retain_logs), "proxy": None,
                              "samples_path": (SimpleNamespace(exists=lambda: True, read_bytes=read_samples)
                                               if mode == "retention" else
                                               SimpleNamespace(exists=discover_samples)
@@ -346,7 +350,7 @@ class DiagnosticRetentionTest(unittest.TestCase):
             docker = []
             result = {"status": "passed"}
             namespace = {"root": root, "evidence": evidence, "result": result,
-                         "runtime": SimpleNamespace(close=stop), "proxy": None,
+                         "runtime": SimpleNamespace(close=stop, retain_logs=lambda _evidence: None), "proxy": None,
                          "samples_path": root / "samples.jsonl", "container": "owned-fixture",
                          "json": json,
                          "subprocess": SimpleNamespace(DEVNULL=-3, check_output=lambda *_args, **_kwargs: "candidate\n",

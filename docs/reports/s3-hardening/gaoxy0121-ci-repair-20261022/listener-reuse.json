@@ -1,0 +1,418 @@
+{
+  "cross_vm": {
+    "rows": [
+      {
+        "cycle": 0,
+        "exit_status": 0,
+        "port": 53067,
+        "process_group_stopped": true,
+        "profile": "s3",
+        "reaped": true,
+        "stop_signal": "SIGTERM"
+      },
+      {
+        "cycle": 1,
+        "exit_status": -9,
+        "port": 53067,
+        "process_group_stopped": true,
+        "profile": "s3",
+        "reaped": true,
+        "stop_signal": "SIGKILL"
+      },
+      {
+        "cycle": 2,
+        "exit_status": 0,
+        "port": 53067,
+        "process_group_stopped": true,
+        "profile": "s3",
+        "reaped": true,
+        "stop_signal": "SIGTERM"
+      },
+      {
+        "cycle": 0,
+        "exit_status": 0,
+        "port": 48343,
+        "process_group_stopped": true,
+        "profile": "cluster",
+        "reaped": true,
+        "stop_signal": "SIGTERM"
+      },
+      {
+        "cycle": 1,
+        "exit_status": -9,
+        "port": 48343,
+        "process_group_stopped": true,
+        "profile": "cluster",
+        "reaped": true,
+        "stop_signal": "SIGKILL"
+      },
+      {
+        "cycle": 2,
+        "exit_status": 0,
+        "port": 48343,
+        "process_group_stopped": true,
+        "profile": "cluster",
+        "reaped": true,
+        "stop_signal": "SIGTERM"
+      }
+    ],
+    "scope": "same port reused immediately after prior full VM SIGTERM/SIGKILL and reap; production listener options except trivial Plug",
+    "status": "all_cross_vm_rebinds_passed"
+  },
+  "limitation": "Trivial Plug with production listener settings. Forty immediate in-VM restarts plus six fresh-VM cycles passed locally. Does not establish the cause or absence of the hosted restore port conflict.",
+  "same_vm": {
+    "elixir": "1.18.5",
+    "gaoxy_http_version": "0.12.1",
+    "gaoxy_version": "0.12.1",
+    "hell_version": "0.1.2",
+    "otp": "28",
+    "profiles": [
+      {
+        "cycles": [
+          {
+            "cycle": 1,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 276
+          },
+          {
+            "cycle": 2,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 194
+          },
+          {
+            "cycle": 3,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 245
+          },
+          {
+            "cycle": 4,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 210
+          },
+          {
+            "cycle": 5,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 230
+          },
+          {
+            "cycle": 6,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 236
+          },
+          {
+            "cycle": 7,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 229
+          },
+          {
+            "cycle": 8,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 197
+          },
+          {
+            "cycle": 9,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 261
+          },
+          {
+            "cycle": 10,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 217
+          },
+          {
+            "cycle": 11,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 219
+          },
+          {
+            "cycle": 12,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 200
+          },
+          {
+            "cycle": 13,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 241
+          },
+          {
+            "cycle": 14,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 191
+          },
+          {
+            "cycle": 15,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 266
+          },
+          {
+            "cycle": 16,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 222
+          },
+          {
+            "cycle": 17,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 245
+          },
+          {
+            "cycle": 18,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 205
+          },
+          {
+            "cycle": 19,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 249
+          },
+          {
+            "cycle": 20,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 201
+          }
+        ],
+        "initial_listeners": [
+          {
+            "address": "{0, 0, 0, 0}",
+            "reuseaddr": true
+          }
+        ],
+        "profile": "s3",
+        "reuseaddr_override_result": "{:error, {:unsupported_backend_option, :hell_options, {:transport_options, :reuseaddr}}}"
+      },
+      {
+        "cycles": [
+          {
+            "cycle": 1,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 235
+          },
+          {
+            "cycle": 2,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 192
+          },
+          {
+            "cycle": 3,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 254
+          },
+          {
+            "cycle": 4,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 194
+          },
+          {
+            "cycle": 5,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 229
+          },
+          {
+            "cycle": 6,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 233
+          },
+          {
+            "cycle": 7,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 227
+          },
+          {
+            "cycle": 8,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 185
+          },
+          {
+            "cycle": 9,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 248
+          },
+          {
+            "cycle": 10,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 188
+          },
+          {
+            "cycle": 11,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 219
+          },
+          {
+            "cycle": 12,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 236
+          },
+          {
+            "cycle": 13,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 218
+          },
+          {
+            "cycle": 14,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 184
+          },
+          {
+            "cycle": 15,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 214
+          },
+          {
+            "cycle": 16,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 191
+          },
+          {
+            "cycle": 17,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 236
+          },
+          {
+            "cycle": 18,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 182
+          },
+          {
+            "cycle": 19,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": false,
+            "stop_microseconds": 212
+          },
+          {
+            "cycle": 20,
+            "instance_stopped": true,
+            "listener_reuseaddr": true,
+            "no_listening_socket_after_stop": true,
+            "server_side_close": true,
+            "stop_microseconds": 192
+          }
+        ],
+        "initial_listeners": [
+          {
+            "address": "{127, 0, 0, 1}",
+            "reuseaddr": true
+          }
+        ],
+        "profile": "cluster",
+        "reuseaddr_override_result": "{:error, {:unsupported_backend_option, :hell_options, {:transport_options, :reuseaddr}}}"
+      }
+    ],
+    "scope": "same VM stop/restart with actual production listener options; no storage apps started, no restore acceptance claim",
+    "status": "all_immediate_restarts_passed"
+  }
+}

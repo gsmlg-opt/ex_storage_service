@@ -64,6 +64,49 @@ def free_port():
         return sock.getsockname()[1]
 
 
+def socket_snapshot(ports, proc=Path("/proc")):
+    """Record selected TCP endpoints and owners, never process argv or environment."""
+    sockets, unreadable = [], 0
+    for family in ("tcp", "tcp6"):
+        try:
+            lines = (proc / "net" / family).read_text().splitlines()[1:]
+        except OSError:
+            unreadable += 1
+            continue
+        for line in lines:
+            fields = line.split()
+            local_port = int(fields[1].rsplit(":", 1)[1], 16)
+            remote_port = int(fields[2].rsplit(":", 1)[1], 16)
+            if local_port in ports or remote_port in ports:
+                sockets.append({"family": family, "local_port": local_port,
+                    "remote_port": remote_port, "state": fields[3], "inode": fields[9], "owners": []})
+    by_inode = {}
+    for row in sockets:
+        by_inode.setdefault(row["inode"], []).append(row)
+    for process in proc.iterdir():
+        if not process.name.isdecimal() or not by_inode:
+            continue
+        try:
+            descriptors = list((process / "fd").iterdir())
+            comm = (process / "comm").read_text().strip()
+        except OSError:
+            unreadable += 1
+            continue
+        matched = set()
+        for descriptor in descriptors:
+            try:
+                target = os.readlink(descriptor)
+            except OSError:
+                unreadable += 1
+                continue
+            if target.startswith("socket:[") and target.endswith("]"):
+                matched.add(target[8:-1])
+        for inode in matched & by_inode.keys():
+            for row in by_inode[inode]:
+                row["owners"].append({"pid": int(process.name), "comm": comm})
+    return {"sockets": sockets, "unreadable": unreadable}
+
+
 def command(argv, *, env, log, expected=0, timeout=150):
     with open(log, "a") as output:
         result = subprocess.run(argv, env=env, stdout=output, stderr=subprocess.STDOUT,
@@ -91,6 +134,7 @@ class Nodes:
         self.ports = {node: free_port() for node in self.ids}
         self.internal_ports = {node: free_port() for node in self.ids}
         self.processes, self.handles = {}, []
+        self.start_count = 0
         self.control.mkdir(parents=True, exist_ok=True)
         self.evidence.mkdir(parents=True, exist_ok=True)
 
@@ -122,6 +166,22 @@ class Nodes:
 
     def start(self, boot, bootstrap=False):
         check(not self.processes, "existing owned nodes must stop before restart")
+        self.start_count += 1
+        path = self.evidence / f"{self.phase}-{boot}-start-{self.start_count}.json"
+        ports = set(self.ports.values()) | set(self.internal_ports.values())
+        receipt = {"s3_ports": self.ports, "internal_ports": self.internal_ports,
+                   "names": self.names, "before": socket_snapshot(ports)}
+        save(path, receipt)
+        try:
+            self._start(boot, bootstrap)
+        except BaseException as error:
+            receipt.update(failure_type=type(error).__name__, failure=socket_snapshot(ports),
+                processes={node: {"pid": process.pid, "exit_status": process.poll()}
+                           for node, process in self.processes.items()})
+            save(path, receipt)
+            raise
+
+    def _start(self, boot, bootstrap):
         for node in self.ids:
             ready = self.control / (node + ".ready.json")
             ready.unlink(missing_ok=True)

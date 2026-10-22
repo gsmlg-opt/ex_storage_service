@@ -1,0 +1,148 @@
+{
+  "backup-boundary.json": {
+    "backup": {
+      "artifacts": 12,
+      "backup_id": "8a960c896eeb84bb8da63e6b",
+      "consistency_point": "2026-10-22T11:36:17.638301Z"
+    },
+    "mode": "cluster",
+    "post_backup_original_changes_proved": true,
+    "source_processes_stopped": true
+  },
+  "negative-cases.json": [
+    {
+      "case": "wrong-key",
+      "rejected": true
+    },
+    {
+      "case": "missing-key",
+      "rejected": true
+    },
+    {
+      "case": "metadata-missing",
+      "rejected": true
+    },
+    {
+      "case": "metadata-corrupt",
+      "rejected": true
+    },
+    {
+      "case": "body-missing",
+      "rejected": true
+    },
+    {
+      "case": "body-corrupt",
+      "rejected": true
+    }
+  ],
+  "original-root-isolation.json": {
+    "all_inaccessible": true,
+    "backup_read_only": true,
+    "pid_namespace": true
+  },
+  "restore-verification.json": {
+    "activations": [
+      {
+        "backup_id": "8a960c896eeb84bb8da63e6b",
+        "status": "activated",
+        "workers": {
+          "cas_gc": false,
+          "content_gc": false,
+          "cross_cluster_replication": false,
+          "lifecycle": false,
+          "multipart_gc": false,
+          "packer": false,
+          "repair": false,
+          "scrub": false
+        }
+      },
+      {
+        "backup_id": "8a960c896eeb84bb8da63e6b",
+        "status": "activated",
+        "workers": {
+          "cas_gc": false,
+          "content_gc": false,
+          "cross_cluster_replication": false,
+          "lifecycle": false,
+          "multipart_gc": false,
+          "packer": false,
+          "repair": false,
+          "scrub": false
+        }
+      },
+      {
+        "backup_id": "8a960c896eeb84bb8da63e6b",
+        "status": "activated",
+        "workers": {
+          "cas_gc": false,
+          "content_gc": false,
+          "cross_cluster_replication": false,
+          "lifecycle": false,
+          "multipart_gc": false,
+          "packer": false,
+          "repair": false,
+          "scrub": false
+        }
+      }
+    ],
+    "backup_id": "8a960c896eeb84bb8da63e6b",
+    "boto3": "1.43.114",
+    "botocore": "1.43.114",
+    "consistency_point": "2026-10-22T11:36:17.638301Z",
+    "fences": {
+      "old_cleanup_rejected": true,
+      "old_renew_complete_fail_rejected": true,
+      "pending_preserved": true,
+      "running_fenced": true,
+      "terminal_preserved": true,
+      "unknown_intent_preserved": true
+    },
+    "mode": "cluster",
+    "nodes": [
+      {
+        "backup_id": "8a960c896eeb84bb8da63e6b",
+        "consistency_point": "2026-10-22T11:36:17.638301Z",
+        "generation": 2,
+        "node_id": "meta",
+        "prepared_at": "2026-10-22T11:36:24.806278Z",
+        "status": "verified",
+        "verified_at": "2026-10-22T11:36:33.202310Z"
+      },
+      {
+        "backup_id": "8a960c896eeb84bb8da63e6b",
+        "consistency_point": "2026-10-22T11:36:17.638301Z",
+        "generation": 2,
+        "node_id": "data-a",
+        "prepared_at": "2026-10-22T11:36:25.383644Z",
+        "status": "verified",
+        "verified_at": "2026-10-22T11:36:33.795540Z"
+      },
+      {
+        "backup_id": "8a960c896eeb84bb8da63e6b",
+        "consistency_point": "2026-10-22T11:36:17.638301Z",
+        "generation": 2,
+        "node_id": "data-b",
+        "prepared_at": "2026-10-22T11:36:25.937773Z",
+        "status": "verified",
+        "verified_at": "2026-10-22T11:36:34.423956Z"
+      }
+    ],
+    "original_roots_inaccessible": true,
+    "quarantine_restart_verified": true,
+    "recovery_seconds": 16.097,
+    "scenario": "A37",
+    "versions_bytes_tags_attributes_checksums_iam_config_multipart": true,
+    "worker_policy": {
+      "cas_gc": false,
+      "content_gc": false,
+      "cross_cluster_replication": false,
+      "lifecycle": false,
+      "multipart_gc": false,
+      "packer": false,
+      "repair": false,
+      "scrub": false
+    }
+  },
+  "scope": "Local cluster A37 receipt on uncommitted CI-repair checkout; does not replace failed hosted run or certify all hardening scenarios.",
+  "source_directory": "docs/reports/s3-hardening/gaoxy0121-local-restore-diag-20261022-cluster"
+}

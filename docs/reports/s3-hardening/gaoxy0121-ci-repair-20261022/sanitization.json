@@ -1,0 +1,43 @@
+{
+  "checks": [
+    "JSON syntax and regular-file checks passed",
+    "13 hosted completed jobs; exact application test/failure counts matched",
+    "Local outputs retain 57 passing Python tests, 24/0 web tests and strict compile",
+    "40 in-VM and six reaped cross-VM restart cycles matched receipts",
+    "138940762 ns failed gap and 61109401/63141805 ns probes retained",
+    "Three restored voters and six rejected negative cases retained",
+    "Sensitive syntax and credential-field patterns absent; CI hash and observed private mask/environment values checked and absent"
+  ],
+  "files": {
+    "README.md": {
+      "bytes": 7106,
+      "sha256": "9ccaa6ec58708d7865afb4acd8bba5a23bc358e0edd2d61d0a8e22717424501f"
+    },
+    "hosted-run.json": {
+      "bytes": 7363,
+      "sha256": "616a7db65db8f15e6025ea904d01eaf25ffa41de5e940239bd80310436edaaae"
+    },
+    "listener-reuse.json": {
+      "bytes": 12979,
+      "sha256": "30d92005326f3d07bd355c4bfe0e6b943fec3eda393ae997e16f33760acc98c7"
+    },
+    "local-restore-a37.json": {
+      "bytes": 4128,
+      "sha256": "288f6e50c63f8256c40efd01e399f9b482fd0dd696524e3a3f09e64fbfe400a5"
+    },
+    "local-verification.log": {
+      "bytes": 1086,
+      "sha256": "12f23d95346caa4a86ec046f94d9135be4732bb9afe38888c518df187cef86ab"
+    },
+    "provenance.json": {
+      "bytes": 4556,
+      "sha256": "3f89ecb098246c7ea359356124f563eafe60f5aaedcc94512612696826081516"
+    },
+    "resource-cadence.json": {
+      "bytes": 6284,
+      "sha256": "28143859a18d2d5c187b4ccdd57792bc2bef18f7d2eeb8cf098a50d8a0318b8c"
+    }
+  },
+  "scope": "New evidence directory only; consistency and sanitization checks, no workload execution",
+  "status": "passed"
+}

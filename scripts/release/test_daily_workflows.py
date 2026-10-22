@@ -38,6 +38,16 @@ class DailyWorkflowTest(unittest.TestCase):
         self.assertLess(extended.index("ci_isolation.py --output"),
                         extended.index("--profile '${{ matrix.profile }}'"))
 
+    def test_extended_lanes_install_ripgrep_before_running_workloads(self):
+        extended = self.workflow("s3-hardening.yml").split("  extended-lane:\n", 1)[1]
+        extended = extended.split("  full-acceptance:\n", 1)[0]
+        installation = extended.index("sudo -n apt-get install --yes ripgrep")
+        # Namespace setup already updates the Ubuntu package index.
+        self.assertLess(extended.index("ci_isolation.py --output"), installation)
+        self.assertLess(installation, extended.index("rg --version"))
+        self.assertLess(extended.index("rg --version"), extended.index("mix deps.get"))
+        self.assertLess(installation, extended.index("--profile '${{ matrix.profile }}'"))
+
     def test_release_retains_daily_business_and_independent_artifact_gates(self):
         text = self.workflow("release.yml")
         for command in ("run_daily_unit_tests.sh all", "run_hardening_daily.sh",

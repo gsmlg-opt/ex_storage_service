@@ -1,0 +1,37 @@
+Combined scoped Python regression tests
+=======================================
+.........................................................
+----------------------------------------------------------------------
+Ran 57 tests in 0.366s
+
+OK
+
+Web suite with inherited CI administrator configuration
+=======================================================
+==> ex_storage_service_web
+Running ExUnit with seed: 608186, max_cases: 1
+
+........................
+Finished in 3.3 seconds (3.3s async, 0.03s sync)
+24 tests, 0 failures
+
+Strict test compilation
+=======================
+==> ex_storage_service
+Compiling 130 files (.ex)
+Generated ex_storage_service app
+==> ex_storage_service_cluster
+Compiling 7 files (.ex)
+Generated ex_storage_service_cluster app
+==> ex_storage_service_cli
+Compiling 1 file (.yrl)
+Compiling 1 file (.xrl)
+Compiling 22 files (.erl)
+Compiling 150 files (.ex)
+Generated ex_storage_service_cli app
+==> ex_storage_service_s3
+Compiling 33 files (.ex)
+Generated ex_storage_service_s3 app
+==> ex_storage_service_web
+Compiling 27 files (.ex)
+Generated ex_storage_service_web app
