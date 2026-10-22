@@ -1,0 +1,26 @@
+{
+  "probe": "minimal",
+  "argv": [
+    "mix",
+    "run",
+    "--no-compile",
+    "--no-start",
+    "/tmp/ess-index-dep315-0e0DdOpK/runtime_probe.exs",
+    "/tmp/ess-index-dep315-0e0DdOpK/minimal-r1.json"
+  ],
+  "root": "/tmp/ess-concord315-minimal-nzzpuz6h",
+  "pid": 1298795,
+  "deadline_seconds": 300,
+  "elapsed_seconds": 35.098121275019366,
+  "exit_status": 0,
+  "timed_out": false,
+  "reaped": true,
+  "process_group_stopped": true,
+  "diagnostic_only": true,
+  "acceptance_promotion": false,
+  "source_sha256": "42317cc8771d0be6748d7df91c6e86ac1a5092706218da3a28e4ea3ae7549191",
+  "source_after_sha256": "42317cc8771d0be6748d7df91c6e86ac1a5092706218da3a28e4ea3ae7549191",
+  "source_head": "52e4b57047f67d466b2bed47bd7261d1b9fbb5fe",
+  "probe_sha256": "d206b3185c193906ea71a326a9969fedbecd8b67d2eb1f6db958026114e54121",
+  "completed_at": "2026-10-22T10:49:36.813797+00:00"
+}

@@ -4959,6 +4959,10 @@ const css$23 = `/**
   .pagination-item-active,
   .pagination-item-active-primary,
   .pagination-item[aria-current="page"],
+  .pagination li > a.pagination-item-active,
+  .pagination li > button.pagination-item-active,
+  .pagination li > a.pagination-item-active-primary,
+  .pagination li > button.pagination-item-active-primary,
   .pagination li > a.active,
   .pagination li > button.active,
   .pagination li > a[aria-current="page"],
@@ -4968,13 +4972,19 @@ const css$23 = `/**
     border-color: var(--color-primary);
   }
 
-  .pagination-item-active-secondary {
+  .pagination-item-active-secondary,
+  .pagination-item-active-secondary[aria-current="page"],
+  .pagination li > a.pagination-item-active-secondary,
+  .pagination li > button.pagination-item-active-secondary {
     background-color: var(--color-secondary);
     color: var(--color-secondary-content);
     border-color: var(--color-secondary);
   }
 
-  .pagination-item-active-tertiary {
+  .pagination-item-active-tertiary,
+  .pagination-item-active-tertiary[aria-current="page"],
+  .pagination li > a.pagination-item-active-tertiary,
+  .pagination li > button.pagination-item-active-tertiary {
     background-color: var(--color-tertiary);
     color: var(--color-tertiary-content);
     border-color: var(--color-tertiary);
@@ -4983,9 +4993,27 @@ const css$23 = `/**
   .pagination-item-active:hover,
   .pagination-item-active-primary:hover,
   .pagination-item[aria-current="page"]:hover,
+  .pagination li > a.pagination-item-active:hover,
+  .pagination li > button.pagination-item-active:hover,
+  .pagination li > a.pagination-item-active-primary:hover,
+  .pagination li > button.pagination-item-active-primary:hover,
   .pagination li > a[aria-current="page"]:hover,
   .pagination li > button[aria-current="page"]:hover {
     background-color: color-mix(in oklch, var(--color-primary), black 10%);
+  }
+
+  .pagination-item-active-secondary:hover,
+  .pagination-item-active-secondary[aria-current="page"]:hover,
+  .pagination li > a.pagination-item-active-secondary:hover,
+  .pagination li > button.pagination-item-active-secondary:hover {
+    background-color: color-mix(in oklch, var(--color-secondary), black 10%);
+  }
+
+  .pagination-item-active-tertiary:hover,
+  .pagination-item-active-tertiary[aria-current="page"]:hover,
+  .pagination li > a.pagination-item-active-tertiary:hover,
+  .pagination li > button.pagination-item-active-tertiary:hover {
+    background-color: color-mix(in oklch, var(--color-tertiary), black 10%);
   }
 
   .pagination-item:focus-visible,
@@ -5202,7 +5230,9 @@ const css$23 = `/**
   .megamenu-panel[popover] {
     position-anchor: var(--megamenu-anchor);
     position-area: block-end span-inline-end;
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    /* Narrow viewports need candidates spanning the whole inline axis. */
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline,
+      block-end span-all, block-start span-all;
     display: none; box-sizing: border-box;
     width: min(48rem, calc(100vw - 2rem)); max-width: calc(100vw - 2rem);
     max-height: min(36rem, calc(100dvh - 2rem)); margin: 0.5rem; padding: 1rem;
@@ -6161,6 +6191,13 @@ var styles$52 = css$30`
   }
 `;
 var ElDmButton = class extends BaseElement {
+	static get observedAttributes() {
+		return [
+			...super.observedAttributes,
+			"aria-label",
+			"aria-labelledby"
+		];
+	}
 	static properties = {
 		variant: {
 			type: String,
@@ -6184,6 +6221,8 @@ var ElDmButton = class extends BaseElement {
 			reflect: true
 		}
 	};
+	_labelObserver;
+	_boundHandleClick = this._handleClick.bind(this);
 	constructor() {
 		super();
 		this.attachStyles(styles$52);
@@ -6231,7 +6270,48 @@ var ElDmButton = class extends BaseElement {
 	}
 	connectedCallback() {
 		super.connectedCallback();
-		this.addEventListener("click", this._handleClick.bind(this));
+		this.addEventListener("click", this._boundHandleClick);
+		this._observeLabels();
+	}
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this.removeEventListener("click", this._boundHandleClick);
+		this._labelObserver?.disconnect();
+	}
+	attributeChangedCallback(name, oldValue, newValue) {
+		super.attributeChangedCallback(name, oldValue, newValue);
+		if (oldValue === newValue || !this.isConnected) return;
+		if (name === "aria-label" || name === "aria-labelledby") {
+			this._syncLabel();
+			if (name === "aria-labelledby") this._observeLabels();
+		}
+	}
+	update() {
+		super.update();
+		this._syncLabel();
+	}
+	_observeLabels() {
+		this._labelObserver?.disconnect();
+		if (!this.getAttribute("aria-labelledby")?.trim()) return;
+		this._labelObserver ??= new MutationObserver(() => this._syncLabel());
+		this._labelObserver.observe(this.getRootNode(), {
+			subtree: true,
+			childList: true,
+			characterData: true,
+			attributes: true,
+			attributeFilter: ["id", "aria-label"]
+		});
+	}
+	_syncLabel() {
+		const button = this.shadowRoot.querySelector("button");
+		if (!button) return;
+		const root = this.getRootNode();
+		const labels = (this.getAttribute("aria-labelledby")?.trim().split(/\s+/) ?? []).map((id) => root.getElementById?.(id)).filter((label) => !!label);
+		let name = this.getAttribute("aria-label");
+		if ("ariaLabelledByElements" in button) button.ariaLabelledByElements = labels;
+		else if (labels.length) name = labels.map((label) => label.getAttribute("aria-label") ?? label.textContent).join(" ");
+		if (name === null) button.removeAttribute("aria-label");
+		else button.setAttribute("aria-label", name);
 	}
 	_getButtonClasses() {
 		const classes = ["btn"];

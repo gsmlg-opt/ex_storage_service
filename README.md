@@ -6,7 +6,7 @@
 [![ex_storage_service_cli on Hex.pm](https://img.shields.io/hexpm/v/ex_storage_service_cli.svg)](https://hex.pm/packages/ex_storage_service_cli)
 
 ExStorageService is an S3-compatible object storage server built with Elixir/OTP.
-It runs a Plug/Bandit S3 API, a Phoenix LiveView admin portal, and an optional
+It runs a Plug/Gaoxy S3 API, a Phoenix LiveView admin portal, and an optional
 `ess` command-line client from one umbrella repository. Metadata is stored in
 Concord/Viewstamped Replication KV, and object bytes are stored directly on a content-addressed
 disk backend; the service does not use Ecto or an external database.
@@ -270,7 +270,7 @@ The umbrella contains five apps:
 |---|---|
 | `ex_storage_service` | Core storage engine, Concord metadata, IAM, replication, lifecycle, cloud cache, notifications, and background processes |
 | `ex_storage_service_cluster` | Private authenticated streaming transport between cluster data nodes |
-| `ex_storage_service_s3` | S3-compatible Plug.Router served by Bandit on port 9000 |
+| `ex_storage_service_s3` | S3-compatible Plug.Router served by Gaoxy on port 9000 |
 | `ex_storage_service_web` | Phoenix LiveView admin portal served on port 4900 |
 | `ex_storage_service_cli` | Standalone `ess` command-line client packaged as an escript |
 
@@ -278,12 +278,23 @@ Runtime services:
 
 | Server | Default port | Stack | Purpose |
 |---|---:|---|---|
-| S3 API | 9000 | Plug.Router + Bandit | S3-compatible object operations |
-| Admin portal | 4900 | Phoenix + LiveView + Bandit | Web dashboard and management |
-| Internal cluster transport | 9100 | Bandit + HMAC + optional TLS | Private data-plane between cluster data nodes (never expose publicly) |
+| S3 API | 9000 | Plug.Router + Gaoxy | S3-compatible object operations |
+| Admin portal | 4900 | Phoenix + LiveView + Gaoxy | Web dashboard and management |
+| Internal cluster transport | 9100 | Gaoxy + HMAC + optional TLS | Private data-plane between cluster data nodes (never expose publicly) |
+
+The umbrella locks all listeners to `gaoxy_http` 0.12.1. Phoenix uses
+`Gaoxy.PhoenixAdapter` and `gaoxy_websock_adapter` for LiveView upgrades.
+Phoenix and S3 retain HTTP/1 and cleartext HTTP/2 prior-knowledge support;
+the private cluster transport uses HTTP/1.
+S3 and internal transport preserve HEAD representation lengths and allow
+progressing transfers without a total request deadline, while retaining finite
+header, read, and write inactivity limits. Their aggregate byte budgets are
+256 MiB and 64 MiB respectively; Phoenix also reserves a 256 MiB aggregate
+budget for HTTP/2. Object and blob sizes remain separately bounded.
+The S3 wire-body ceiling also accounts for AWS chunk framing and trailers.
 
 Outbound HTTP clients use [`http_fetch`](https://github.com/gsmlg-dev/http_fetch)
-0.21.13 for the CLI, cloud cache, remote inventory synchronization, webhooks,
+0.21.16 for the CLI, cloud cache, remote inventory synchronization, webhooks,
 internal cluster transport, and cross-cluster replication. Signed requests do
 not follow redirects. Cluster and replication uploads use bounded streams with
 an explicit Content-Length and upload chunks of at most 64 KiB. Cluster downloads
@@ -293,7 +304,7 @@ Webhook retries remain controlled by the notification worker.
 
 The core package accepts HTTP 0.17.2 or later in the 0.17 series, 0.18.x,
 and `~> 0.21.12`. The CLI requires `http_fetch ~> 0.21.13` for its validated
-transport API. The umbrella locks the coordinated 0.21.13 HTTP family without
+transport API. The umbrella locks the coordinated 0.21.16 HTTP family without
 dependency overrides.
 
 Storage requests set `decode_body: false` to preserve stored gzip/deflate object
@@ -557,7 +568,7 @@ end
 
 Configure the listener before the applications start. With core auto-start
 disabled, the host remains responsible for supervising
-`ExStorageService.child_spec/1`; the S3 application starts its own Bandit
+`ExStorageService.child_spec/1`; the S3 application starts its own Gaoxy
 listener:
 
 ```elixir
@@ -571,7 +582,9 @@ config :ex_storage_service_s3,
 
 Enable S3 authentication in production and configure the core credentials as
 described in the environment table above. Set `enabled: false` when the host
-will supervise its own `Bandit` child with `ExStorageServiceS3.Router`.
+will supervise its own `Gaoxy.HTTP` child with
+`plug: {ExStorageServiceS3.Router, []}` and the storage limits from
+`ExStorageServiceS3.Application.children/1`.
 
 The complete staged-write, deduplication, range-read, integrity-check, root
 layout, backup, and upgrade contract is documented in
@@ -600,13 +613,14 @@ explicit export/restore boundary; starting the new binary creates or recovers
 only the VSR state under `ESS_METADATA_ROOT`.
 
 The core requires Concord `~> 3.1.4`; the lockfile selects matching Concord,
-Viewstamped Replication and ExTurso 3.1.4 packages. They retain the 3.1.2 fixes for
+Viewstamped Replication and ExTurso 3.1.5 packages. They retain the 3.1.2 fixes for
 committed-prefix transition validation, primary-discovery read deadlines, native
 range pagination and new-backup checksum portability. Version 3.1.4 makes supported
 direct put/delete compatibility-view and observer updates incremental and bounds
-ready singleton read allocation. Reads still validate the retained log; ESS atomic
-transactions still materialize full state. Those remaining scale blockers are
-tracked in Concord #101/#102. Version-one command admission still checks
+ready singleton read allocation. Version 3.1.5 extends incremental view updates
+to supported atomic transactions and avoids revalidating an unchanged retained
+log on ready single-node reads. Recovery, snapshots, state changes and multi-node
+quorum paths retain validation. Version-one command admission still checks
 representations. New backups declare deterministic ETF checksums;
 verify restoration on the same OTP major before changing runtimes. Existing
 legacy backups retain their original checksum rules: an invalid checksum stays

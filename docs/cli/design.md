@@ -212,7 +212,7 @@ Use a functional core with a small supervised effect layer:
 
 The existing `S3Client`, `SigV4`, command modules, and output modules may initially delegate to the new components. Do not duplicate signing or transfer loops inside each frontend. Audit any documented library API before changing it; the main compatibility commitment is the command-line contract.
 
-Start only the CLI's dependencies and a small invocation supervisor containing the HTTP resources, a `Task.Supervisor`, the credential refresh owner when needed, and transfer coordinators. Do not start Phoenix, Bandit, Concord, storage engines, or the server umbrella to run `ess`.
+Start only the CLI's dependencies and a small invocation supervisor containing the HTTP resources, a `Task.Supervisor`, the credential refresh owner when needed, and transfer coordinators. Do not start Phoenix, Gaoxy, Concord, storage engines, or the server umbrella to run `ess`.
 
 Use bounded tasks for requests/transfers, not a process per listed object or per chunk. Keep scheduling state in the coordinator and transition decisions in pure reducers. Only the executable boundary calls `System.halt`; workers return results and release resources. A cancelled invocation stops scheduling, cancels active requests, closes streams/files, records cleanup outcomes, and only then returns its exit status within a bounded shutdown deadline.
 

@@ -1,0 +1,19 @@
+==> ex_storage_service_s3
+Running ExUnit with seed: 20261022, max_cases: 1
+
+
+ExStorageServiceS3.ApplicationTest [test/ex_storage_service_s3/application_test.exs]
+  * test omits the Gaoxy.HTTP listener when public S3 is disabled [L#39]  * test omits the Gaoxy.HTTP listener when public S3 is disabled (0.00ms) [L#39]
+  * test metadata role cannot start the Gaoxy.HTTP listener [L#43]  * test metadata role cannot start the Gaoxy.HTTP listener (0.00ms) [L#43]
+  * test includes the Gaoxy.HTTP listener by default [L#6]  * test includes the Gaoxy.HTTP listener by default (0.02ms) [L#6]
+
+ExStorageServiceS3.StorageListenerHTTPTest [test/ex_storage_service_s3/storage_listener_http_test.exs]
+  * test the storage listener streams bodies above Gaoxy's default 8 MiB ceiling [L#59]  * test the storage listener streams bodies above Gaoxy's default 8 MiB ceiling (5260.2ms) [L#59]
+  * test AWS wire overhead does not consume the decoded object-size allowance [L#106]  * test AWS wire overhead does not consume the decoded object-size allowance (62.0ms) [L#106]
+  * test signed cleartext HTTP/2 preserves object and range response semantics [L#82]  * test signed cleartext HTTP/2 preserves object and range response semantics (84.8ms) [L#82]
+  * test progressing signed uploads outlive a finite total budget while idle bodies expire [L#37]19:01:09.910 [warning] Failed to connect to http://localhost:43075: connection refused
+19:01:10.261 [warning] Failed to connect to http://localhost:43075: connection refused
+  * test progressing signed uploads outlive a finite total budget while idle bodies expire (968.4ms) [L#37]
+
+Finished in 6.8 seconds (0.1s async, 6.7s sync)
+7 tests, 0 failures

@@ -149,8 +149,13 @@ defmodule ExStorageServiceS3.CoherentLatestHTTPTest do
       {:ok, engine} =
         Agent.start_link(fn -> %{key: Keys.object_head(context.bucket, "key"), hook: hook} end)
 
-      server = start_supervised!({Bandit, plug: {ControlledReadServer, engine: engine}, port: 0})
-      {:ok, {_, port}} = ThousandIsland.listener_info(server)
+      server =
+        start_supervised!(
+          {Gaoxy.HTTP,
+           plug: {ControlledReadServer, engine: engine}, port: 0, limits: %{max_bytes: 4_194_304}}
+        )
+
+      %{local: {:ok, {_, port}}} = Gaoxy.info(server, :http)
 
       response =
         signed(context.credentials, method, "http://localhost:#{port}/#{context.bucket}/key")
@@ -188,8 +193,13 @@ defmodule ExStorageServiceS3.CoherentLatestHTTPTest do
         %{key: Keys.object_version(context.bucket, "key", context.second.version_id), hook: hook}
       end)
 
-    server = start_supervised!({Bandit, plug: {ControlledReadServer, engine: engine}, port: 0})
-    {:ok, {_, port}} = ThousandIsland.listener_info(server)
+    server =
+      start_supervised!(
+        {Gaoxy.HTTP,
+         plug: {ControlledReadServer, engine: engine}, port: 0, limits: %{max_bytes: 4_194_304}}
+      )
+
+    %{local: {:ok, {_, port}}} = Gaoxy.info(server, :http)
     response = signed(context.credentials, :get, "http://localhost:#{port}/#{context.bucket}/key")
     assert_receive :bucket_recreated_after_version_capture
     assert response.status == 409

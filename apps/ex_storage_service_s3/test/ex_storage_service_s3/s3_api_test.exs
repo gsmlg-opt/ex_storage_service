@@ -293,8 +293,15 @@ defmodule ExStorageServiceS3.ApiTest do
       body = "copy me #{System.unique_integer([:positive])}"
 
       {:ok, cloud_agent} = Agent.start_link(fn -> %{} end)
-      {:ok, cloud_server} = Bandit.start_link(plug: {CloudStub, cloud_agent}, port: 0)
-      {:ok, {_address, cloud_port}} = ThousandIsland.listener_info(cloud_server)
+
+      {:ok, cloud_server} =
+        Gaoxy.HTTP.start_link(
+          plug: {CloudStub, cloud_agent},
+          port: 0,
+          limits: %{max_bytes: 4_194_304}
+        )
+
+      %{local: {:ok, {_, cloud_port}}} = Gaoxy.info(cloud_server, :http)
 
       enable_cloud_cache(bucket, remote_bucket,
         endpoint: "http://localhost:#{cloud_port}",

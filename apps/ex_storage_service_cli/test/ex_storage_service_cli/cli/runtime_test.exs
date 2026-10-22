@@ -47,7 +47,7 @@ defmodule ExStorageServiceCli.CLI.RuntimeTest do
     script = """
     alias ExStorageServiceCli.CLI.Runtime
     forbidden = [:ex_storage_service, :ex_storage_service_web, :ex_storage_service_s3,
-                 :ex_storage_service_cluster, :concord, :bandit]
+                 :ex_storage_service_cluster, :concord, :gaoxy, :gaoxy_http, :bandit]
     assert_no_servers = fn ->
       apps = Enum.map(Application.started_applications(), &elem(&1, 0))
       [] = Enum.filter(apps, &(&1 in forbidden))

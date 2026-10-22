@@ -3,6 +3,15 @@ defmodule ExStorageServiceS3.AwsChunked do
   import Plug.Conn, only: [get_req_header: 2]
   alias ExStorageServiceS3.Auth.SigV4
   @empty_hash Base.encode16(:crypto.hash(:sha256, ""), case: :lower)
+  @max_line_bytes 8_192
+  @max_trailers 5
+
+  # Every data chunk has at least one decoded byte, a header line and two CRLFs.
+  # Include the terminal header, all allowed trailers, and the final CRLF.
+  def max_wire_size(decoded_bytes) do
+    decoded_bytes * (@max_line_bytes + 5) +
+      (@max_trailers + 1) * (@max_line_bytes + 2) + 2
+  end
 
   def new(conn) do
     mode = get_req_header(conn, "x-amz-content-sha256")
@@ -108,7 +117,7 @@ defmodule ExStorageServiceS3.AwsChunked do
         case String.split(trailer, ":", parts: 2) do
           [name, value] ->
             if not String.starts_with?(name, "x-amz-checksum-") or
-                 Map.has_key?(state.trailers, name) or map_size(state.trailers) >= 5,
+                 Map.has_key?(state.trailers, name) or map_size(state.trailers) >= @max_trailers,
                do: throw({:error, :malformed_chunked})
 
             consume(
@@ -130,11 +139,11 @@ defmodule ExStorageServiceS3.AwsChunked do
     bytes = state.buffer <> data
 
     case :binary.match(bytes, "\r\n") do
-      {size, 2} when size <= 8192 ->
+      {size, 2} when size <= @max_line_bytes ->
         <<header::binary-size(size), "\r\n", rest::binary>> = bytes
         next.(header, rest, %{state | buffer: ""}, output)
 
-      :nomatch when byte_size(bytes) <= 8192 ->
+      :nomatch when byte_size(bytes) <= @max_line_bytes ->
         {Enum.reverse(output), %{state | buffer: bytes}}
 
       _ ->

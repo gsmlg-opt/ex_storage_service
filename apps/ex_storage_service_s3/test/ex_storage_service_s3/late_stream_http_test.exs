@@ -22,8 +22,12 @@ defmodule ExStorageServiceS3.LateStreamHTTPTest do
   end
 
   test "failure after headers truncates the transfer without appending an error document" do
-    server = start_supervised!({Bandit, plug: FailingStream, port: 0})
-    {:ok, {_, port}} = ThousandIsland.listener_info(server)
+    server =
+      start_supervised!(
+        {Gaoxy.HTTP, plug: {FailingStream, []}, port: 0, limits: %{max_bytes: 4_194_304}}
+      )
+
+    %{local: {:ok, {_, port}}} = Gaoxy.info(server, :http)
     {:ok, socket} = :gen_tcp.connect(~c"localhost", port, [:binary, active: false], 2_000)
     on_exit(fn -> :gen_tcp.close(socket) end)
 

@@ -38,7 +38,7 @@ defmodule ExStorageServiceS3.MixProject do
   defp deps do
     [
       ex_storage_service_dep(),
-      {:bandit, "~> 1.6"},
+      {:gaoxy_http, "~> 0.12.0"},
       {:plug, "~> 1.16"},
       {:req, "~> 0.6", only: :test}
     ]

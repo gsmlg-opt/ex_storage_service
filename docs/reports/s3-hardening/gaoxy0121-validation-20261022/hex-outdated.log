@@ -1,0 +1,24 @@
+Dependency              Only  Current  Latest   Status
+concord                       3.1.5    3.1.5    Up-to-date
+dns_cluster                   0.3.1    0.3.1    Up-to-date
+duskmoon_bundler              10.0.2   10.0.2   Up-to-date
+ex_doc                  dev   0.40.4   0.40.4   Up-to-date
+gaoxy_http                    0.12.1   0.12.1   Up-to-date
+gsmlg_toml                    1.0.0    1.0.0    Up-to-date
+http_fetch                    0.21.16  0.21.16  Up-to-date
+jason                         1.4.5    1.4.5    Up-to-date
+lazy_html                     0.1.13   0.1.13   Up-to-date
+phoenix                       1.8.16   1.8.16   Up-to-date
+phoenix_duskmoon              10.0.11  10.0.11  Up-to-date
+phoenix_html                  4.3.0    4.3.0    Up-to-date
+phoenix_live_dashboard        0.9.1    0.9.1    Up-to-date
+phoenix_live_reload     dev   1.7.0    1.7.0    Up-to-date
+phoenix_live_view             1.2.13   1.2.13   Up-to-date
+phoenix_pubsub                2.4.1    2.4.1    Up-to-date
+plug                          1.20.3   1.20.3   Up-to-date
+req                     test  0.7.5    0.7.5    Up-to-date
+telemetry_metrics             1.2.0    1.2.0    Up-to-date
+telemetry_poller              1.3.0    1.3.0    Up-to-date
+websock_adapter               0.12.1   0.12.1   Up-to-date
+
+Run `mix hex.outdated APP` to see requirements for a specific dependency.

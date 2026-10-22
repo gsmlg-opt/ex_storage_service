@@ -32,7 +32,8 @@ defmodule ExStorageServiceWeb.MixProject do
     [
       {:ex_storage_service, in_umbrella: true},
       {:ex_storage_service_s3, in_umbrella: true},
-      {:bandit, "~> 1.6"},
+      {:gaoxy_http, "~> 0.12.0"},
+      {:websock_adapter, "~> 0.12.0", hex: :gaoxy_websock_adapter, override: true},
       {:phoenix, "~> 1.8"},
       {:phoenix_live_view, "~> 1.0"},
       {:phoenix_html, "~> 4.2"},
@@ -40,8 +41,8 @@ defmodule ExStorageServiceWeb.MixProject do
       {:phoenix_live_dashboard, "~> 0.9"},
       {:jason, "~> 1.4"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:duskmoon_bundler, "~> 9.8"},
-      {:phoenix_duskmoon, "~> 9.8"}
+      {:duskmoon_bundler, "~> 10.0"},
+      {:phoenix_duskmoon, "~> 10.0"}
     ]
   end
 

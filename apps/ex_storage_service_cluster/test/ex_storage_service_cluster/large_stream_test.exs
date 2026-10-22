@@ -183,10 +183,23 @@ defmodule ExStorageServiceCluster.LargeStreamTest do
 
     server =
       start_supervised!(
-        {Bandit, plug: {Router, router_opts}, ip: {127, 0, 0, 1}, port: 0, startup_log: false}
+        {Gaoxy.HTTP,
+         id: :large_cluster_stream,
+         plug: {Router, router_opts},
+         ip: {127, 0, 0, 1},
+         port: 0,
+         protocols: [:http1],
+         limits: %{max_bytes: 64 * 1_024 * 1_024},
+         http_limits: %{
+           max_body_bytes: maximum,
+           max_read_chunk: 65_536,
+           request_timeout: :infinity,
+           read_timeout: 600_000,
+           write_timeout: 60_000
+         }}
       )
 
-    assert {:ok, {_address, port}} = ThousandIsland.listener_info(server)
+    assert %{local: {:ok, {_address, port}}} = Gaoxy.info(server, :large_cluster_stream)
     {:ok, config} = InstanceConfig.new(internal_secret: @secret)
 
     %{context: Context.new(config), url: "http://127.0.0.1:#{port}"}

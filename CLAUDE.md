@@ -4,14 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ExStorageService is an S3-compatible object storage server built with Elixir/Phoenix, structured as an **umbrella project** with four apps:
+ExStorageService is an S3-compatible object storage server built with Elixir/Phoenix, structured as an **umbrella project** with five apps:
 
 - **`ex_storage_service`** (core) — Storage engine, metadata (Concord/Raft KV), IAM, replication, lifecycle, cloud cache, webhook notifications, background processes. No Phoenix dependency.
-- **`ex_storage_service_s3`** (S3 API) — Plug.Router served by Bandit on port 9000. S3-compatible REST API with SigV4 auth.
+- **`ex_storage_service_cluster`** (internal transport) — Private Gaoxy HTTP/1 listener with HMAC authentication and optional TLS, enabled only on cluster data nodes.
+- **`ex_storage_service_s3`** (S3 API) — Plug.Router served by Gaoxy on port 9000. S3-compatible REST API with SigV4 auth.
 - **`ex_storage_service_web`** (admin portal) — Phoenix LiveView on port 4900. Dashboard, bucket/user/policy management, audit log, `/metrics`.
-- **`ex_storage_service_cli`** (client) — Standalone `ess` escript, published to Hex as `ex_storage_service_cli`. Not part of the server release; depends only on `req`/`jason`/`gsmlg_toml`, not the other umbrella apps.
+- **`ex_storage_service_cli`** (client) — Standalone `ess` escript, published to Hex as `ex_storage_service_cli`. Not part of the server release; depends only on `http_fetch`/`jason`/`gsmlg_toml`, not the other umbrella apps.
 
-The `ess` release includes only the three server apps. The CLI's version in `apps/ex_storage_service_cli/mix.exs` is kept in sync with the umbrella version in root `mix.exs`.
+The `ess` release includes only the four server apps. The CLI's version in `apps/ex_storage_service_cli/mix.exs` is kept in sync with the umbrella version in root `mix.exs`.
 
 `docs/` holds deployment notes (`deploy.md`) and PRDs (`docs/prd/`). `AGENTS.md` holds equivalent instructions for other coding agents — keep it consistent when changing project conventions.
 
@@ -53,20 +54,23 @@ Commit messages follow conventional commits with an app scope, e.g. `fix(s3): ..
 ```
 apps/
 ├── ex_storage_service/        # Core domain (storage, metadata, IAM, replication, cloud cache, notifications)
-├── ex_storage_service_s3/     # S3 API (Plug.Router + Bandit)
+├── ex_storage_service_cluster/ # Private cluster transport (Gaoxy + HMAC + optional TLS)
+├── ex_storage_service_s3/     # S3 API (Plug.Router + Gaoxy)
 ├── ex_storage_service_web/    # Admin portal (Phoenix LiveView)
 └── ex_storage_service_cli/    # `ess` escript client (Hex package, standalone)
 ```
 
-### Supervision Trees (3 server apps)
+### Supervision Trees (4 server apps)
 
 **Core (`ExStorageService.Application`):** Ra/Concord init + recovery → Storage.Engine → PubSub → MultipartGC → ContentGC → Replication.JobQueue → Replication.Sync → NotificationTaskSupervisor → Storage.Lifecycle. In dev it also seeds the fixed dev access key. It deliberately shuts down Concord's libcluster gossip discovery (single-node deployment; see WORKAROUND comment referencing concord#11).
 
-**S3 (`ExStorageServiceS3.Application`):** Bandit (S3 Router on port 9000)
+**S3 (`ExStorageServiceS3.Application`):** Gaoxy.HTTP (S3 Router on port 9000)
 
-**Web (`ExStorageServiceWeb.Application`):** Phoenix.Endpoint (port 4900)
+**Cluster (`ExStorageServiceCluster.Application`):** ReplayCache → private Gaoxy.HTTP listener (port 9100), guarded by cluster/data-node configuration and recovery quarantine.
 
-OTP starts apps in dependency order: core → S3 → web.
+**Web (`ExStorageServiceWeb.Application`):** Phoenix.Endpoint with Gaoxy.PhoenixAdapter (port 4900)
+
+OTP starts the protocol apps after core; web also depends on S3.
 
 ### Metadata via Concord (Raft KV)
 

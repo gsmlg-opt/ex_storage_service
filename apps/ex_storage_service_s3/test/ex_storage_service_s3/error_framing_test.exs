@@ -53,8 +53,12 @@ defmodule ExStorageServiceS3.ErrorFramingTest do
       {{:access_key, key}, 0, System.monotonic_time(:millisecond)}
     )
 
-    server = start_supervised!({Bandit, plug: {Server, key}, port: 0})
-    {:ok, {_address, port}} = ThousandIsland.listener_info(server)
+    server =
+      start_supervised!(
+        {Gaoxy.HTTP, plug: {Server, key}, port: 0, limits: %{max_bytes: 4_194_304}}
+      )
+
+    %{local: {:ok, {_, port}}} = Gaoxy.info(server, :http)
 
     on_exit(fn ->
       for {name, value} <- [s3_auth_enabled: prior_auth, rate_limit: prior_rate] do

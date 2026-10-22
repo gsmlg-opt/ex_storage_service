@@ -1,0 +1,6 @@
+==> ex_storage_service_web
+Running ExUnit with seed: 20261022, max_cases: 1
+
+...
+Finished in 3.2 seconds (3.2s async, 0.00s sync)
+3 tests, 0 failures

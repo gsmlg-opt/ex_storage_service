@@ -24,7 +24,13 @@ config :ex_storage_service_web, :build_info,
 
 config :ex_storage_service_web, ExStorageServiceWeb.Endpoint,
   url: [host: "localhost"],
-  adapter: Bandit.PhoenixAdapter,
+  adapter: Gaoxy.PhoenixAdapter,
+  # Reserve the native HTTP/2 budget; WebSockAdapter retains its 10 MB frame limit.
+  http: [
+    protocols: [:http2, :http1],
+    h2c: :prior_knowledge,
+    limits: %{max_bytes: 256 * 1024 * 1024}
+  ],
   render_errors: [
     formats: [html: ExStorageServiceWeb.ErrorHTML, json: ExStorageServiceWeb.ErrorJSON],
     layout: false

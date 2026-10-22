@@ -1,0 +1,13 @@
+production_listener transport=tls bind=127.0.0.1 port=34711 protocols=http1
+TLS request=PUT negotiated=tlsv1.3 alpn=http/1.1 status=200
+PUT status=200 bytes=32768 acknowledgement_hash_matches=true
+TLS request=HEAD negotiated=tlsv1.3 alpn=http/1.1 status=200
+HEAD status=200 content_length=32768 body_bytes=0
+TLS request=GET negotiated=tlsv1.3 alpn=http/1.1 status=200
+GET status=200 content_length=32768 bytes=32768 raw_bytes_match=true sha256=32713eebac17ab30d3984a639c594a09fd208252f888fd50c05b50293101047c
+TLS request=HEAD negotiated=tlsv1.3 alpn=http/1.1 status=401
+TLS request=HEAD negotiated=tlsv1.3 alpn=http/1.1 status=401
+authentication unsigned_HEAD=401 replayed_signed_HEAD=401
+shutdown listener_stopped=true supervisor_stopped=true
+RESULT PASS
+exit_code=0

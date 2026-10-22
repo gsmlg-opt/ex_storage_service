@@ -25,8 +25,12 @@ defmodule ExStorageServiceS3.BucketConfigurationHardeningTest do
     assert :ok = ExStorageService.Notifications.put_config(bucket, [%{id: "retained"}])
     on_exit(fn -> Metadata.delete_bucket(bucket) end)
 
-    server = start_supervised!({Bandit, plug: Server, port: 0})
-    {:ok, {_address, port}} = ThousandIsland.listener_info(server)
+    server =
+      start_supervised!(
+        {Gaoxy.HTTP, plug: {Server, []}, port: 0, limits: %{max_bytes: 4_194_304}}
+      )
+
+    %{local: {:ok, {_, port}}} = Gaoxy.info(server, :http)
 
     for {operation, prefix, xml} <- [
           {"versioning", "bucket_versioning",

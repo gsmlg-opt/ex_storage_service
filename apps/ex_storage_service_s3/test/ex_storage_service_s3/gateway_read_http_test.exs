@@ -76,8 +76,12 @@ defmodule ExStorageServiceS3.GatewayReadHTTPTest do
          end}
       )
 
-    server = start_supervised!({Bandit, plug: {Upstream, agent}, port: 0})
-    {:ok, {_, port}} = ThousandIsland.listener_info(server)
+    server =
+      start_supervised!(
+        {Gaoxy.HTTP, plug: {Upstream, agent}, port: 0, limits: %{max_bytes: 4_194_304}}
+      )
+
+    %{local: {:ok, {_, port}}} = Gaoxy.info(server, :http)
 
     :ok =
       Config.set_config(bucket, %{

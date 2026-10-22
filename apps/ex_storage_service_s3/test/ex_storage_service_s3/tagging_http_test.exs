@@ -120,8 +120,13 @@ defmodule ExStorageServiceS3.TaggingHTTPTest do
   test "unsupported gateway object tagging rejects before any upstream request or local mutation",
        ctx do
     spy = start_supervised!({Agent, fn -> [] end})
-    server = start_supervised!({Bandit, plug: {UpstreamSpy, spy}, port: 0})
-    {:ok, {_address, port}} = ThousandIsland.listener_info(server)
+
+    server =
+      start_supervised!(
+        {Gaoxy.HTTP, plug: {UpstreamSpy, spy}, port: 0, limits: %{max_bytes: 4_194_304}}
+      )
+
+    %{local: {:ok, {_, port}}} = Gaoxy.info(server, :http)
     assert {:ok, before} = Versioning.list_versions(ctx.bucket, "key")
 
     assert :ok =

@@ -1,0 +1,17 @@
+==> ex_storage_service_s3
+Running ExUnit with seed: 20261022, max_cases: 1
+
+...
+
+  1) test the storage listener streams bodies above Gaoxy's default 8 MiB ceiling (ExStorageServiceS3.StorageListenerHTTPTest)
+     apps/ex_storage_service_s3/test/ex_storage_service_s3/storage_listener_http_test.exs:59
+     ** (Req.TransportError) timeout
+     code: assert %{status: 200} = Req.put!(url, [body: body] ++ options)
+     stacktrace:
+       (req 0.7.5) lib/req.ex:1156: Req.request!/2
+       test/ex_storage_service_s3/storage_listener_http_test.exs:65: (test)
+
+..18:56:02.078 [warning] Failed to connect to http://localhost:38925: connection refused
+.
+Finished in 43.3 seconds (0.1s async, 43.2s sync)
+7 tests, 1 failure

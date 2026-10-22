@@ -88,16 +88,27 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
   0.21.x from 0.21.12. The CLI requires `~> 0.21.13` for true infinity,
   socket inactivity, request-scoped response-stream policies and completed
   fixed-length upload finalization. The umbrella lock uses the coordinated
-  0.21.13 family.
+  0.21.16 family.
 - Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
 
 ### File Organization
 The codebase is structured as an umbrella project with five apps:
 - **`apps/ex_storage_service/`**: Core domain logic, storage engine, metadata via Concord/VSR KV, replication, background processes.
 - **`apps/ex_storage_service_cluster/`**: Private authenticated streaming blob transport; depends on core, never the reverse.
-- **`apps/ex_storage_service_s3/`**: S3 API server (Plug.Router served by Bandit on port 9000).
+- **`apps/ex_storage_service_s3/`**: S3 API server (Plug.Router served by Gaoxy on port 9000).
 - **`apps/ex_storage_service_web/`**: Admin portal web interface (Phoenix LiveView on port 4900).
 - **`apps/ex_storage_service_cli/`**: Standalone `ess` command-line client packaged as an escript.
+
+The Phoenix web endpoint uses `Gaoxy.PhoenixAdapter` from `gaoxy_http` with
+`gaoxy_websock_adapter` selected as the `:websock_adapter` dependency for
+LiveView upgrades. All listeners require `gaoxy_http` 0.12.0 or newer, which
+preserves HEAD representation lengths and supports `request_timeout: :infinity`
+for progressing storage transfers. Retain finite header/read/write inactivity
+limits, bounded Plug windows, and aggregate byte budgets (S3/Web 256 MiB,
+internal 64 MiB). Phoenix and S3 retain cleartext HTTP/2 prior knowledge plus
+HTTP/1; the private transport uses HTTP/1. The S3 wire-body ceiling includes
+the existing AWS chunk parser's framing/trailer bounds; Integrity independently
+enforces decoded object size.
 
 ### Commit Message Style
 - Use clear, descriptive imperative-tense commit messages (e.g., `feat: add recursive folder download to CLI` or `fix: handle empty prefix on list objects`).

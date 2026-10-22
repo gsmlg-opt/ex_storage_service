@@ -1,0 +1,19 @@
+    warning: variable "opts" is unused (if the variable is not meant to be used, prefix it with an underscore)
+    │
+  3 │   def call(conn, opts), do: drain(conn, 0)
+    │                  ~~~~
+    │
+    └─ /tmp/ess-s3-h2-prepared-ojxsd458/large_transport.exs:3:18: ESSGaoxyLargeProbe.call/2
+
+PROBE: {1, {:ok, %Req.Response{status: 200, headers: %{...}, ...}}, 45}
+PROBE: {2, {:ok, %Req.Response{status: 200, headers: %{...}, ...}}, 13}
+PROBE: {3, {:ok, %Req.Response{status: 200, headers: %{...}, ...}}, 12}
+PROBE: {4, {:ok, %Req.Response{status: 200, headers: %{...}, ...}}, 12}
+PROBE: {5, {:ok, %Req.Response{status: 200, headers: %{...}, ...}}, 11}
+PROBE: {6, {:ok, %Req.Response{status: 200, headers: %{...}, ...}}, 11}
+PROBE: {7, {:ok, %Req.Response{status: 200, headers: %{...}, ...}}, 11}
+PROBE: {8, {:ok, %Req.Response{status: 200, headers: %{...}, ...}}, 11}
+PROBE: {9, {:ok, %Req.Response{status: 200, headers: %{...}, ...}}, 11}
+PROBE: {10, {:ok, %Req.Response{status: 200, headers: %{...}, ...}}, 12}
+PROBE: {11, {:ok, %Req.Response{status: 200, headers: %{...}, ...}}, 12}
+PROBE: {12, {:ok, %Req.Response{status: 200, headers: %{...}, ...}}, 12}

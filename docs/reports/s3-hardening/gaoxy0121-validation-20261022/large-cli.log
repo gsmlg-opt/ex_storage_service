@@ -1,0 +1,15 @@
+==> ex_storage_service_cluster
+Running ExUnit with seed: 20261022, max_cases: 1
+Including tags: [:large_stream]
+
+2 GiB stream process memory bytes: sender=%{after: 8968, peak: 8968, before: 4016} receiver=%{after: 42504, peak: 55296, before: 13912}
+.
+Finished in 5.2 seconds (0.00s async, 5.2s sync)
+1 test, 0 failures
+==> ex_storage_service_cli
+Running ExUnit with seed: 20261022, max_cases: 1
+Including tags: [:large_stream]
+
+..................................................
+Finished in 69.3 seconds (69.3s async, 0.00s sync)
+50 tests, 0 failures

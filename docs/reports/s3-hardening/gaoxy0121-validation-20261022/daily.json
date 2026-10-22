@@ -1,0 +1,133 @@
+{
+  "profile": "daily",
+  "status": "passed",
+  "starting_sha": "52e4b57047f67d466b2bed47bd7261d1b9fbb5fe",
+  "source_sha256": "47c8e99c7999ac49c92a0224001e91d18a16c0b09a2a3932ca4a2656a5a94ec5",
+  "started_at": "2026-10-22T11:08:51.515218+00:00",
+  "checks": [
+    {
+      "name": "production-compile",
+      "status": "passed",
+      "seconds": 0.515
+    },
+    {
+      "name": "server-health-and-readiness",
+      "status": "passed",
+      "seconds": 0.833
+    },
+    {
+      "name": "bucket-create-list-head-location-tags",
+      "status": "passed",
+      "seconds": 0.139
+    },
+    {
+      "name": "put-head-get-range-checksum-attributes",
+      "status": "passed",
+      "seconds": 0.064
+    },
+    {
+      "name": "default-sdk-checksum-gzip-bytes",
+      "status": "passed",
+      "seconds": 0.027
+    },
+    {
+      "name": "list-prefix-delimiter-pagination",
+      "status": "passed",
+      "seconds": 0.088
+    },
+    {
+      "name": "object-tags-copy-replace-delete-tags",
+      "status": "passed",
+      "seconds": 0.071
+    },
+    {
+      "name": "presigned-get-put-and-authentication",
+      "status": "passed",
+      "seconds": 0.031
+    },
+    {
+      "name": "cors-configuration-preflight-authenticated-read",
+      "status": "passed",
+      "seconds": 0.023
+    },
+    {
+      "name": "multipart-upload-list-parts-complete-and-abort",
+      "status": "passed",
+      "seconds": 0.232
+    },
+    {
+      "name": "multipart-part-copy",
+      "status": "passed",
+      "seconds": 0.098
+    },
+    {
+      "name": "batch-delete-and-single-delete",
+      "status": "passed",
+      "seconds": 0.041
+    },
+    {
+      "name": "versions-explicit-read-copy-delete-marker",
+      "status": "passed",
+      "seconds": 0.123
+    },
+    {
+      "name": "remove-created-versions-and-bucket",
+      "status": "passed",
+      "seconds": 0.105
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "exit_status": 0
+    },
+    {
+      "argv": [
+        "mix",
+        "run",
+        "--no-start",
+        "--no-compile",
+        "--no-halt",
+        "e2e/scripts/daily_hardening_server.exs"
+      ]
+    }
+  ],
+  "scope": {
+    "mode": "standalone",
+    "client_concurrency": 1,
+    "largest_part_bytes": 5242880,
+    "multipart_parts": 2,
+    "authentication": true,
+    "sdk_checksum_defaults": true,
+    "extended_acceptance_executed": false
+  },
+  "versions": {
+    "python": "3.13.15",
+    "boto3": "1.43.114",
+    "botocore": "1.43.114",
+    "beam": "Erlang/OTP 28 [erts-16.4.0.5] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.18.5 (compiled with Erlang/OTP 28)",
+    "concord": "3.1.5",
+    "viewstamped_replication": "3.1.5",
+    "ex_turso": "3.1.5",
+    "http_fetch": "0.21.16"
+  },
+  "disposable_root": "/tmp/ess-s3-daily-8yblphw3",
+  "server_pid": 1304010,
+  "endpoint": "http://127.0.0.1:49609",
+  "readiness_http_status": 200,
+  "sdk_checksum_policy": {
+    "request": "when_supported",
+    "response": "when_supported"
+  },
+  "server_stopped": true,
+  "listener_closed": true,
+  "disposable_root_removed": true,
+  "ending_sha": "52e4b57047f67d466b2bed47bd7261d1b9fbb5fe",
+  "ending_source_sha256": "47c8e99c7999ac49c92a0224001e91d18a16c0b09a2a3932ca4a2656a5a94ec5",
+  "finished_at": "2026-10-22T11:08:55.214423+00:00",
+  "seconds": 3.699
+}

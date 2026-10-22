@@ -150,8 +150,12 @@ defmodule ExStorageServiceS3.AuthorizationHardeningTest do
         cloud_backed: true
       })
 
-    server = start_supervised!({Bandit, plug: {DeniedUpstream, self()}, port: 0})
-    {:ok, {_address, port}} = ThousandIsland.listener_info(server)
+    server =
+      start_supervised!(
+        {Gaoxy.HTTP, plug: {DeniedUpstream, self()}, port: 0, limits: %{max_bytes: 4_194_304}}
+      )
+
+    %{local: {:ok, {_, port}}} = Gaoxy.info(server, :http)
 
     :ok =
       CloudConfig.set_config(bucket, %{

@@ -79,9 +79,11 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
     end
 
     defp stream_chunks(conn, owner, chunk_data, remaining, attempt) do
+      # A downstream cancellation can interrupt the first bounded chunk send.
+      if attempt == 1, do: send(owner, {:slow_download, :first_attempt})
+
       case chunk(conn, chunk_data) do
         {:ok, next_conn} when remaining > 1 ->
-          if attempt == 1, do: send(owner, {:slow_download, :first_chunk})
           Process.sleep(10)
           stream_chunks(next_conn, owner, chunk_data, remaining - 1, attempt + 1)
 
@@ -202,6 +204,13 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
 
     assert is_integer(verified_at) and verified_at > 0
 
+    path = "/internal/v1/blobs/#{hash}"
+    headers = InternalAuth.sign(:head, hash, "-", @secret, path: path)
+    response = wire_request(URI.parse(url).port, "HEAD", path, headers)
+    assert response =~ "HTTP/1.1 200"
+    [response_head, ""] = String.split(response, "\r\n\r\n", parts: 2)
+    assert "content-length: #{size}" in String.split(String.downcase(response_head), "\r\n")
+
     assert {:ok, {:stream, full_stream, ^size}} =
              HTTP.open_blob(context, url, hash, nil, secret: @secret)
 
@@ -212,6 +221,54 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
 
     expected_range = binary_part(data, 7, 9)
     assert {:ok, ^expected_range} = collect(range_stream)
+  end
+
+  @tag :tmp_dir
+  test "the private listener enforces authentication and one-use request IDs", %{tmp_dir: tmp_dir} do
+    %{port: port} = start_transport(tmp_dir)
+    hash = sha256("absent")
+    path = "/internal/v1/blobs/#{hash}"
+
+    assert wire_request(port, "HEAD", path, []) =~ "HTTP/1.1 401"
+
+    headers =
+      InternalAuth.sign(:head, hash, "-", @secret,
+        path: path,
+        request_id: "one-use-wire-request"
+      )
+
+    assert wire_request(port, "HEAD", path, headers) =~ "HTTP/1.1 404"
+    assert wire_request(port, "HEAD", path, headers) =~ "HTTP/1.1 401"
+  end
+
+  @tag :tmp_dir
+  test "a progressing upload outlives the socket inactivity window", %{tmp_dir: tmp_dir} do
+    %{url: url, context: context} = start_transport(tmp_dir, read_timeout: 500)
+    chunk = String.duplicate("paced", 256)
+    count = 12
+    data = String.duplicate(chunk, count)
+    size = byte_size(data)
+    hash = sha256(data)
+
+    stream =
+      Stream.map(1..count, fn _ ->
+        Process.sleep(100)
+        chunk
+      end)
+
+    started = System.monotonic_time(:millisecond)
+
+    assert {:ok, %ReplicaAck{size: ^size}} =
+             HTTP.put_blob(context, url, Source.stream(stream, size), descriptor(hash, size),
+               secret: @secret
+             )
+
+    assert System.monotonic_time(:millisecond) - started >= 1_200
+
+    assert {:ok, {:stream, full_stream, ^size}} =
+             HTTP.open_blob(context, url, hash, nil, secret: @secret)
+
+    assert {:ok, ^data} = collect(full_stream)
   end
 
   @tag :tmp_dir
@@ -387,12 +444,7 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
   end
 
   test "download error bodies are not forwarded to the caller sink" do
-    server =
-      start_supervised!(
-        {Bandit, plug: ErrorBodyRouter, ip: {127, 0, 0, 1}, port: 0, startup_log: false}
-      )
-
-    assert {:ok, {_address, port}} = ThousandIsland.listener_info(server)
+    port = start_http(ErrorBodyRouter)
     {:ok, config} = InstanceConfig.new(internal_secret: @secret)
     context = Context.new(config)
     hash = sha256("12345678")
@@ -454,16 +506,7 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
     hash = sha256("slow-download")
     content_length = 262_144 * 64
 
-    server =
-      start_supervised!(
-        {Bandit,
-         plug: {SlowDownloadPlug, owner: self(), hash: hash},
-         ip: {127, 0, 0, 1},
-         port: 0,
-         startup_log: false}
-      )
-
-    assert {:ok, {_address, port}} = ThousandIsland.listener_info(server)
+    port = start_http({SlowDownloadPlug, owner: self(), hash: hash})
     {:ok, config} = InstanceConfig.new(internal_secret: @secret)
     context = Context.new(config)
     url = "http://127.0.0.1:#{port}"
@@ -484,7 +527,7 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
     assert is_binary(received)
     assert byte_size(received) > 0
     assert byte_size(received) < content_length
-    assert_receive {:slow_download, :first_chunk}
+    assert_receive {:slow_download, :first_attempt}
     assert_receive {:slow_download, :closed, attempt, _reason}, 2_000
     assert attempt < 64
     refute_receive {:slow_download, :completed}
@@ -494,17 +537,11 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
     hash = sha256("invalid-download-length")
     content_length = 262_144 * 64
 
-    server =
-      start_supervised!(
-        {Bandit,
-         plug:
-           {SlowDownloadPlug, owner: self(), hash: hash, advertised_length: content_length - 1},
-         ip: {127, 0, 0, 1},
-         port: 0,
-         startup_log: false}
+    port =
+      start_http(
+        {SlowDownloadPlug, owner: self(), hash: hash, advertised_length: content_length - 1}
       )
 
-    assert {:ok, {_address, port}} = ThousandIsland.listener_info(server)
     {:ok, config} = InstanceConfig.new(internal_secret: @secret)
     context = Context.new(config)
 
@@ -525,41 +562,42 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
     refute_receive {:slow_download, :completed}
   end
 
-  defp start_transport(tmp_dir) do
+  defp start_transport(tmp_dir, overrides \\ []) do
     table = :ets.new(:phase5_http_replay, [:set, :public])
 
-    router_opts = [
-      secret: @secret,
-      replay_table: table,
-      auth_skew_seconds: 60,
-      node_id: "data-target",
-      node_generation: 11,
-      cleanup_authorizer: fn
-        _hash,
-        _node_id,
-        _target_generation,
-        _job_id,
-        _owner_node,
-        _owner_generation,
-        _fencing_token,
-        _opts ->
-          :ok
-      end,
-      blob_store_opts: [
-        root: Path.join(tmp_dir, "cas"),
-        tmp_dir: Path.join(tmp_dir, "stage"),
-        pack_module: nil
-      ],
-      max_blob_size: 32 * 1_024 * 1_024,
-      read_timeout: 2_000
-    ]
+    router_opts =
+      [
+        secret: @secret,
+        replay_table: table,
+        auth_skew_seconds: 60,
+        node_id: "data-target",
+        node_generation: 11,
+        cleanup_authorizer: fn
+          _hash,
+          _node_id,
+          _target_generation,
+          _job_id,
+          _owner_node,
+          _owner_generation,
+          _fencing_token,
+          _opts ->
+            :ok
+        end,
+        blob_store_opts: [
+          root: Path.join(tmp_dir, "cas"),
+          tmp_dir: Path.join(tmp_dir, "stage"),
+          pack_module: nil
+        ],
+        max_blob_size: 32 * 1_024 * 1_024,
+        read_timeout: 2_000
+      ]
+      |> Keyword.merge(overrides)
 
-    server =
-      start_supervised!(
-        {Bandit, plug: {Router, router_opts}, ip: {127, 0, 0, 1}, port: 0, startup_log: false}
-      )
-
-    assert {:ok, {_address, port}} = ThousandIsland.listener_info(server)
+    port =
+      start_http({Router, router_opts}, %{
+        max_body_bytes: router_opts[:max_blob_size],
+        read_timeout: router_opts[:read_timeout]
+      })
 
     {:ok, config} = InstanceConfig.new(internal_secret: @secret)
 
@@ -569,6 +607,55 @@ defmodule ExStorageServiceCluster.Transport.HTTPTest do
       router_opts: router_opts,
       url: "http://127.0.0.1:#{port}"
     }
+  end
+
+  defp start_http(plug, http_limits \\ %{}) do
+    plug = if is_atom(plug), do: {plug, []}, else: plug
+    id = :cluster_transport_test
+
+    server =
+      start_supervised!(
+        {Gaoxy.HTTP,
+         id: id,
+         plug: plug,
+         ip: {127, 0, 0, 1},
+         port: 0,
+         protocols: [:http1],
+         limits: %{max_bytes: 64 * 1_024 * 1_024},
+         http_limits:
+           Map.merge(
+             %{request_timeout: :infinity, max_read_chunk: 65_536, write_timeout: 60_000},
+             http_limits
+           )}
+      )
+
+    assert %{local: {:ok, {_address, port}}} = Gaoxy.info(server, id)
+    port
+  end
+
+  defp wire_request(port, method, path, headers) do
+    {:ok, socket} = :gen_tcp.connect(~c"127.0.0.1", port, [:binary, active: false])
+
+    try do
+      :ok =
+        :gen_tcp.send(socket, [
+          "#{method} #{path} HTTP/1.1\r\n",
+          "host: 127.0.0.1\r\nconnection: close\r\n",
+          Enum.map(headers, fn {name, value} -> [name, ": ", value, "\r\n"] end),
+          "\r\n"
+        ])
+
+      receive_response(socket, "")
+    after
+      :gen_tcp.close(socket)
+    end
+  end
+
+  defp receive_response(socket, response) do
+    case :gen_tcp.recv(socket, 0, 5_000) do
+      {:ok, chunk} -> receive_response(socket, response <> chunk)
+      {:error, :closed} -> response
+    end
   end
 
   defp descriptor(hash, size) do

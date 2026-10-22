@@ -33,7 +33,8 @@ defmodule ExStorageServiceCluster.Application do
       [
         {ReplayCache,
          name: ReplayCache, table: replay_table, sweep_interval: skew_seconds * 1_000},
-        {Bandit, bandit_options(opts, router_opts)}
+        # TODO(upstream): gsmlg-dev/gaoxy#15 gracefully handle already-closed upload peers.
+        {Gaoxy.HTTP, http_options(opts, router_opts)}
       ]
     else
       []
@@ -47,20 +48,30 @@ defmodule ExStorageServiceCluster.Application do
     end
   end
 
-  defp bandit_options(opts, router_opts) do
+  defp http_options(opts, router_opts) do
     base = [
+      id: Router,
       plug: {Router, router_opts},
-      scheme: if(Keyword.get(opts, :tls), do: :https, else: :http),
+      protocols: [:http1],
       ip: Keyword.get(opts, :bind, {127, 0, 0, 1}),
-      port: Keyword.get(opts, :port, 9100)
+      port: Keyword.get(opts, :port, 9100),
+      # Aggregate retained-byte budget across concurrent bounded transfer windows.
+      limits: %{max_bytes: 64 * 1_024 * 1_024},
+      http_limits: %{
+        max_body_bytes: Keyword.fetch!(opts, :max_blob_size),
+        max_read_chunk: 65_536,
+        request_timeout: :infinity,
+        read_timeout: Keyword.get(opts, :read_timeout, 60_000),
+        write_timeout: 60_000
+      }
     ]
 
     case Keyword.get(opts, :tls) do
       %{certfile: certfile, keyfile: keyfile} ->
-        base ++ [certfile: certfile, keyfile: keyfile]
+        base ++ [transport: :tls, tls: %{certfile: certfile, keyfile: keyfile}]
 
       nil ->
-        base
+        base ++ [transport: :tcp]
     end
   end
 end

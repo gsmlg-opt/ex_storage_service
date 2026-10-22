@@ -37,8 +37,13 @@ defmodule ExStorageServiceS3.GatewayDeleteReconciliationTest do
     :ok = Concord.put("obj:#{bucket}:key", %{etag: "original", cloud_backed: true})
     :ok = Concord.put("cloud_cache_index:#{bucket}", %{"key" => %{content_hash: "old", size: 4}})
     agent = start_supervised!({Agent, fn -> %{present: true, events: []} end})
-    server = start_supervised!({Bandit, plug: {Upstream, agent}, port: 0})
-    {:ok, {_address, port}} = ThousandIsland.listener_info(server)
+
+    server =
+      start_supervised!(
+        {Gaoxy.HTTP, plug: {Upstream, agent}, port: 0, limits: %{max_bytes: 4_194_304}}
+      )
+
+    %{local: {:ok, {_, port}}} = Gaoxy.info(server, :http)
 
     :ok =
       Config.set_config(bucket, %{

@@ -20,8 +20,13 @@ defmodule ExStorageServiceS3.BucketLifecycleTest do
     assert :ok = Metadata.create_bucket(bucket)
     assert {:ok, original} = Metadata.get_bucket(bucket)
     on_exit(fn -> Metadata.delete_bucket(bucket) end)
-    server = start_supervised!({Bandit, plug: FailedDeleteServer, port: 0})
-    {:ok, {_address, port}} = ThousandIsland.listener_info(server)
+
+    server =
+      start_supervised!(
+        {Gaoxy.HTTP, plug: {FailedDeleteServer, []}, port: 0, limits: %{max_bytes: 4_194_304}}
+      )
+
+    %{local: {:ok, {_, port}}} = Gaoxy.info(server, :http)
 
     assert {:ok, response} = Req.delete("http://localhost:#{port}/#{bucket}", retry: false)
     assert response.status == 503

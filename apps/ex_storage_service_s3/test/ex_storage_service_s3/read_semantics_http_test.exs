@@ -118,6 +118,15 @@ defmodule ExStorageServiceS3.ReadSemanticsHTTPTest do
     end
   end
 
+  test "HEAD retains the stored representation length without sending object bytes", ctx do
+    get = signed(ctx.key, :get, @base <> ctx.path)
+    head = signed(ctx.key, :head, @base <> ctx.path)
+    assert head.status == 200
+    assert head.body == ""
+    assert head.headers["content-length"] == [Integer.to_string(byte_size(get.body))]
+    assert head.headers["etag"] == get.headers["etag"]
+  end
+
   defp signed(key, method, url, headers \\ []) do
     Req.request!(
       method: method,

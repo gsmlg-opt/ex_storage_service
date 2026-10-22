@@ -42,8 +42,12 @@ defmodule ExStorageServiceS3.ReplicaAvailabilityHTTPTest do
   end
 
   test "a rejected stale-generation replica is an S3 availability error over HTTP" do
-    server = start_supervised!({Bandit, plug: Server, port: 0})
-    {:ok, {_, port}} = ThousandIsland.listener_info(server)
+    server =
+      start_supervised!(
+        {Gaoxy.HTTP, plug: {Server, []}, port: 0, limits: %{max_bytes: 4_194_304}}
+      )
+
+    %{local: {:ok, {_, port}}} = Gaoxy.info(server, :http)
     url = "http://127.0.0.1:#{port}/bucket/key"
 
     for method <- [:put, :head] do
