@@ -88,12 +88,15 @@ increasing unrelated bucket size does not increase visited records. Startup and
 resumable backfill are measured separately and cannot be hidden in each request.
 
 Current source uses the transactional radix index for public object/version/upload
-listing, with exact root revision barriers and guarded offline backfill. Concord
-3.1.4 retains native whole-history read validation and full-state atomic
-transaction work, reproduced in upstream #101/#102. Mandatory 10k/100k execution
-with the unchanged read/byte/heap gates remains blocked on validated released
-repairs. Current independent cluster backfill/interruption/rejoin/cutover passed;
-that fixture and smaller diagnostics do not certify the scale datasets.
+listing, with exact root revision barriers and guarded offline backfill. Released
+Concord/VSR/ExTurso 3.1.5 passed the preflights for the earlier 3.1.4 #101/#102
+blockers. Mandatory 10k/100k execution with the unchanged read/byte/heap gates
+remains incomplete; the interrupted run does not establish a scale pass or
+assertion failure. Retained-history write CPU work is tracked as needed in
+`gsmlg-dev/concord#104`. The independent cluster backfill/interruption/rejoin/cutover
+fixture and smaller diagnostics do not certify the scale datasets. See the
+[3.1.5 preflights](../reports/s3-hardening/concord315-preflight-20261022/README.md)
+and [write CPU evidence](../reports/s3-hardening/concord315-write-cpu-20261022/README.md).
 
 Before the upgraded scale run, the fixture must validate encoded keys<=160B,
 radix height<=16, serialized nodes<=2KiB and hydrated records<=4KiB; flat heap
