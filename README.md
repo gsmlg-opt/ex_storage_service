@@ -522,6 +522,17 @@ Their Port observer shares the BEAM's PID/mount namespace and records fresh
 filesystem/RSS measurements alongside the original BEAM metric windows.
 The original 100 ms coverage and resource bounds apply; observer shutdown is
 verified before fixture cleanup. These variables configure test instrumentation.
+The manual `resource-cadence-diagnostic.yml` workflow traces both data observers
+for an incomplete cluster-resource prefix. It preserves the original sampling,
+coverage, quorum and resource limits; its artifacts cannot satisfy acceptance or
+publication gates. Private instrumentation uses `ESS_DIAGNOSTIC_PINNED_PYTHON`
+for the absolute pinned interpreter, `ESS_DIAGNOSTIC_EVIDENCE` for unique output,
+and `ESS_OBSERVER_DIAGNOSTIC_ROOT` for private per-observer trace/socket files.
+These variables do not configure production behavior. Workflow-local
+`DIAGNOSTIC_LABEL` selects evidence paths; `ENABLE_SCHEDULER_ACCOUNTING`
+optionally enables scheduler accounting on the disposable hosted VM and retains
+readback. See [the diagnostic guide](e2e/diagnostics/resource_cadence/README.md).
+
 Index diagnostics use test-only `ESS_INDEX_PROGRESS` for bounded JSONL progress
 and `ESS_INDEX_SOURCE_SHA256` / `ESS_INDEX_SOURCE_HEAD` for source identity.
 They do not change production storage settings.

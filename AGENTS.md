@@ -154,6 +154,16 @@ enforces decoded object size.
   windows. Keep the original 100 ms coverage and resource envelopes; verify the
   observer's OS identity has stopped before fixture cleanup. These variables
   configure test instrumentation only.
+- The manual `resource-cadence-diagnostic.yml` workflow traces both data
+  observers for an incomplete cluster-resource prefix. It retains the original
+  sampling, coverage, quorum and resource limits; its artifacts cannot satisfy
+  acceptance or publication gates. Private instrumentation uses
+  `ESS_DIAGNOSTIC_PINNED_PYTHON` for the absolute pinned interpreter,
+  `ESS_DIAGNOSTIC_EVIDENCE` for unique diagnostic output, and
+  `ESS_OBSERVER_DIAGNOSTIC_ROOT` for private per-observer trace/socket files.
+  These do not configure production behavior. Workflow-local `DIAGNOSTIC_LABEL`
+  selects evidence paths; `ENABLE_SCHEDULER_ACCOUNTING` optionally enables
+  scheduler accounting on the disposable hosted VM and retains readback.
 - Index diagnostics use test-only `ESS_INDEX_PROGRESS` for a bounded JSONL
   progress path and `ESS_INDEX_SOURCE_SHA256` / `ESS_INDEX_SOURCE_HEAD` for the
   recorded source identity. They do not configure production reads or writes.
