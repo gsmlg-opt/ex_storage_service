@@ -126,7 +126,9 @@ class HardeningPortsTest(unittest.TestCase):
                                     sys.executable, "-B", "-c", code, str(Path(__file__).parent.resolve()),
                                     os.readlink("/proc/self/ns/net")],
                                    capture_output=True, text=True, timeout=20)
-        if completed.returncode and "unshare failed: Operation not permitted" in completed.stderr:
+        if completed.returncode and any(message in completed.stderr for message in (
+                "unshare: unshare failed: Operation not permitted",
+                "unshare: write failed /proc/self/uid_map: Operation not permitted")):
             self.skipTest("host disallows isolated user/network namespaces")
         self.assertEqual(0, completed.returncode, completed.stderr)
         self.assertEqual({"unique": 300, "competing_listeners": 100}, json.loads(completed.stdout))
