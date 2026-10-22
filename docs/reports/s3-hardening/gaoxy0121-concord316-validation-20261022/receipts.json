@@ -1,0 +1,472 @@
+{
+  "kind": "failed_validation_evidence_not_acceptance",
+  "tested_candidate": {
+    "sha": "6a356c3c90bee76ee6338774efa848b30390b215",
+    "executable_fingerprint": "129879f910d5c9c22d6504574b150f85c3e5209f5e619fad7a08ea0712debe09",
+    "branch": "main"
+  },
+  "run": {
+    "id": 39795784957,
+    "head_sha": "6a356c3c90bee76ee6338774efa848b30390b215",
+    "status": "completed",
+    "conclusion": "failure",
+    "html_url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39795784957",
+    "updated_at": "2026-10-22T15:02:27Z",
+    "run_attempt": 1
+  },
+  "aggregate": {
+    "stock_verifier_invoked": false,
+    "guard_exit_status": 1,
+    "source": ".github/workflows/s3-hardening.yml:158-161",
+    "explanation": "bash -e ran first command test \"$LANE_RESULT\" = success with LANE_RESULT=failure and exited1. Python verify command appears in pre-execution command echo only; it was not reached. Aggregate upload confirms aggregate.json absent.",
+    "step_log_sha256": "93fe2f182c8b25038cca69408f359e890c48a447ef2f66d2ac12c57718307ed2",
+    "complete_verification_artifact_exists": false,
+    "audit_receipt_sha256": "9425e91f0b1df94e7a594b7aa9139fa4f118e30be6ae3c97c3efb24726bdfe12",
+    "full_run_logs_sha256": "3bfe27924f2b6408c7e6b15859e4a65c52daddd0ad9c2a5c463d5ad61ad05021"
+  },
+  "resilience_api_inconsistency": "Resilience final job/check-run API conclusion remains null/in_progress despite complete successful step records and retained complete logs/artifact.",
+  "artifacts": [
+    {
+      "id": 12435517331,
+      "name": "s3-hardening-extended-index",
+      "size_in_bytes": 348040,
+      "digest": "sha256:8434844ee6da77bdc4e8a4f5bea953b1e8aef418cdb7571e787f00b749081001"
+    },
+    {
+      "id": 12435215146,
+      "name": "s3-hardening-extended-resources",
+      "size_in_bytes": 3210567,
+      "digest": "sha256:21f60a01e25e6ed3b7932b4cc28218d691e07d73afa0f61887e2b21f623b09f3"
+    },
+    {
+      "id": 12434745613,
+      "name": "s3-hardening-extended-restore",
+      "size_in_bytes": 46967,
+      "digest": "sha256:f2d2d4eee0f2b8726531bdccbbd89a43b2c7b33bc2449a65a73b7eb7406389d2"
+    },
+    {
+      "id": 12434721119,
+      "name": "s3-hardening-extended-release",
+      "size_in_bytes": 34931,
+      "digest": "sha256:808e41cfa1ee6640cff407c6c50a60bbb149e28f004fcaa569b7586fa0661c01"
+    },
+    {
+      "id": 12434476552,
+      "name": "s3-hardening-extended-crashes",
+      "size_in_bytes": 14591,
+      "digest": "sha256:4ddfdffa39e71cf9cbf9b1cfbc9278c26b95440776999cee42bb4466782d9034"
+    },
+    {
+      "id": 12434420798,
+      "name": "s3-hardening-extended-resilience",
+      "size_in_bytes": 16731,
+      "digest": "sha256:808ac847a30be0beb7d4b9ea642b5e6af41ce70a946ddec0bbd84f443f4da003"
+    },
+    {
+      "id": 12434167190,
+      "name": "s3-hardening-extended-standalone",
+      "size_in_bytes": 15219,
+      "digest": "sha256:e5efa3b59b631dd7b477281ffcd73f0f19a1ff915a1454d316a42dad225e0ff5"
+    },
+    {
+      "id": 12434122686,
+      "name": "s3-hardening-extended-cluster",
+      "size_in_bytes": 20179,
+      "digest": "sha256:b7b035de695e028570135f55ea1ce1ac127e1391581beed84c155465f0d58d8e"
+    },
+    {
+      "id": 12434086691,
+      "name": "s3-hardening-extended-faults",
+      "size_in_bytes": 365486,
+      "digest": "sha256:94118a2e7bc6a7bc1fc8b49eeaffff1628fd1bbdd73c1fa0916b522488cc9e4e"
+    },
+    {
+      "id": 12433968133,
+      "name": "s3-hardening-extended-correctness",
+      "size_in_bytes": 19767,
+      "digest": "sha256:be175107f8334a1d5ba2b917d3e481dbacfa65bb8e494086c01ada67051f35c7"
+    },
+    {
+      "id": 12432989552,
+      "name": "s3-hardening-extended-gateway",
+      "size_in_bytes": 17521,
+      "digest": "sha256:b9c72e5c5e68eb6b79f8beefd270160c01d0a6a478f1546813c83ff4211c7465"
+    },
+    {
+      "id": 12432798950,
+      "name": "s3-hardening-daily",
+      "size_in_bytes": 11276,
+      "digest": "sha256:4fc336a8186424d2f2ece45dcb29d310ea77895ac2518e19e5e68bda953547aa"
+    }
+  ],
+  "lanes": [
+    {
+      "name": "correctness",
+      "receipt_status": "passed",
+      "receipt_sha256": "324bf848d08ce523950768ca266f5d9815f6528a67c504a8a2dbe100438c0cd4",
+      "commands": [
+        {
+          "exit_status": 0,
+          "duration_seconds": 288.162,
+          "log_sha256": "df4f7856249454b7020f636ebad87f4e7a6e911fbed2817389209bf9b1bea2de"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 10.067,
+          "log_sha256": "05ecc053ac4d2c2a62ebecc3511b8717c31849533b53b2b948c3e438f5486428"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 473.254,
+          "log_sha256": "322c86e0db2ab60fb4bf49e1734b95f7801985cc6d5b54617f5b832187de6503"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 22.858,
+          "log_sha256": "10a1977a92c5afed94fa6a3d13494e088297d250b0156f9b06ca2affef08b8a4"
+        }
+      ]
+    },
+    {
+      "name": "standalone",
+      "receipt_status": "passed",
+      "receipt_sha256": "b88edfe21cdadb617d14c2e1a42a5578b702aed88bc0d52fc9aacb269ab06489",
+      "commands": [
+        {
+          "exit_status": 0,
+          "duration_seconds": 452.636,
+          "log_sha256": "960ed3c74c8f1927f4cebc4d73fdea81833d34d79e922bc4f49f64c06467cce4"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 34.045,
+          "log_sha256": "4d73a3ec5c4654af3a74ab52782e0c9b3eedb486a0ef39c25ba80741fc6d0b22"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 19.114,
+          "log_sha256": "0a710ba5d000686f6bb6315886cd85cbd2fb0a37b6248403b89b4aa12b618a6f"
+        }
+      ]
+    },
+    {
+      "name": "cluster",
+      "receipt_status": "blocked",
+      "receipt_sha256": "83e5cbeabe9146d7b0bca7611c24e3f2c81ebe3e70e043057857235fcad5e9c2",
+      "commands": [
+        {
+          "exit_status": 0,
+          "duration_seconds": 459.04,
+          "log_sha256": "08f575c226e66179417d0e3730d01bcb76fa9958e27973df7837f0cb21a34709"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 109.148,
+          "log_sha256": "112f131ca0a7ee441d499317ab76481a81a9f67aac310b25c3bb5bfe6082e172"
+        },
+        {
+          "exit_status": 1,
+          "duration_seconds": 172.109,
+          "log_sha256": "1c75aee0cc51ea2163a710f38b89631ea9715dc1f9e91bf63e72f8d0e46961ed"
+        }
+      ]
+    },
+    {
+      "name": "gateway",
+      "receipt_status": "passed",
+      "receipt_sha256": "71deb8037245a5d1c3ad21074935c305d49ba00760c7bcff18623635aa73dfc8",
+      "commands": [
+        {
+          "exit_status": 0,
+          "duration_seconds": 359.63,
+          "log_sha256": "75b09429d9354eb69677bc55ff5f9d70668c29fcf0f6057578b6244bf3124a54"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 161.886,
+          "log_sha256": "da0ff05f289635c7660754a59e53d31d0d8ce5fac172cd36b546a5827355351f"
+        }
+      ]
+    },
+    {
+      "name": "resources",
+      "receipt_status": "blocked",
+      "receipt_sha256": "534ebec4e2cb037abedb5bfae289e733e19683ddc2d0c4f40a95a5ce4db347cb",
+      "commands": [
+        {
+          "exit_status": 0,
+          "duration_seconds": 473.449,
+          "log_sha256": "650fddd9ed2047a64b08c6bc4e3d7908da69b0e714ebf505210c862d48065a0a"
+        },
+        {
+          "exit_status": 1,
+          "duration_seconds": 144.585,
+          "log_sha256": "c5c38ea9a08736650f27057abba17b683ea0ae563754f0408c4f293b6267cc54"
+        },
+        {
+          "exit_status": 1,
+          "duration_seconds": 64.158,
+          "log_sha256": "eec21533eda3a82578fc81a38d4961f97235674fcde427cb2cf50f36b40cdf99"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 114.914,
+          "log_sha256": "3ef4b0e5d0b6b39831bc2f3aee86679a5c87ae046c75aaa4ab891ac547a050cd"
+        }
+      ]
+    },
+    {
+      "name": "release",
+      "receipt_status": "passed",
+      "receipt_sha256": "783f0a63664f15a510a4f5eb0c930ec7fa0bc30619014a89fb8ebc16b7228a60",
+      "commands": [
+        {
+          "exit_status": 0,
+          "duration_seconds": 767.122,
+          "log_sha256": "0a191fe6d2a4d9ea9eff402ae7c82d2ef2e46ad60faf7ef0e4abd74b48908750"
+        }
+      ]
+    },
+    {
+      "name": "index",
+      "receipt_status": "blocked",
+      "receipt_sha256": "23f45847c053ad1e5f024fdab91117fb908cc4cc236b778c4265f2ce73bbb0f2",
+      "commands": [
+        {
+          "exit_status": 0,
+          "duration_seconds": 367.826,
+          "log_sha256": "6c832003d7cd38ad8a9adf0904b7a070420ff63e954d0f7b916075634b890d31"
+        },
+        {
+          "exit_status": 1,
+          "duration_seconds": 1577.418,
+          "log_sha256": "7de7d3605a93837219fdfb3313a364d11ee1031d62e82d22814195ebe185d3e5"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 18.52,
+          "log_sha256": "dd9eba20a8cb765ca97da88d8dd9f6b762bfea7927c46a251b114ee081d4152d"
+        }
+      ]
+    },
+    {
+      "name": "faults",
+      "receipt_status": "passed",
+      "receipt_sha256": "be63702f73fc1d3a1772b127ee20aefc0599e5e9ea0753cc2fe35fdeb3e1dc54",
+      "commands": [
+        {
+          "exit_status": 0,
+          "duration_seconds": 483.382,
+          "log_sha256": "4166cdb5c0a673df53303799e01503cdd322c40d5458dd1235eceafcd7720b40"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 23.477,
+          "log_sha256": "7f302e596ef717bb27e6012d4489962c5e71acdefc5e580f324a5e0cc3d2898e"
+        }
+      ]
+    },
+    {
+      "name": "restore",
+      "receipt_status": "passed",
+      "receipt_sha256": "3f6c7540344e9ba7c94d299f7d0fe7562cc285015313c88b26d3ce462ab1af34",
+      "commands": [
+        {
+          "exit_status": 0,
+          "duration_seconds": 449.078,
+          "log_sha256": "a657054ba944fe051c87242e8f0230f2fc350621740b9414c8cf91deabd238f7"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 85.1,
+          "log_sha256": "5d7cc9cbcdc8d0aa7e5f8df06b80a70828bda8177f8423f6626248a69f2d93c2"
+        }
+      ]
+    },
+    {
+      "name": "resilience",
+      "receipt_status": "passed",
+      "receipt_sha256": "433a172d8844bddb62628f359a0168c59b500eb585ddbb9b27261c064cc5d257",
+      "commands": [
+        {
+          "exit_status": 0,
+          "duration_seconds": 472.972,
+          "log_sha256": "46eada4faf70c07548d7bb20bf582cb3f62f07ad273d2ff735267521841c5e8b"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 29.754,
+          "log_sha256": "f759e8ac03a4ff8c2fad9fc18956b58e2f5bf20fceac6793cbbe8158b5039fa7"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 6.579,
+          "log_sha256": "c9fd6096b8b5074e93f6ed52b601628fa2ee5c4b04d199afafa8326734706b2d"
+        }
+      ]
+    },
+    {
+      "name": "crashes",
+      "receipt_status": "passed",
+      "receipt_sha256": "5493397d1bd466f33543ac06c41feb2e8955e9a909f24e837ae11de4e6ebee89",
+      "commands": [
+        {
+          "exit_status": 0,
+          "duration_seconds": 344.899,
+          "log_sha256": "051ff77cece98645b2fd5f4e699f91aee3fb9661d84b89186561cb6d4282c6e0"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 23.17,
+          "log_sha256": "231a59c3c2ff914919223ef259b95608fadd173223bfda3b20212b279c84fc59"
+        },
+        {
+          "exit_status": 0,
+          "duration_seconds": 11.844,
+          "log_sha256": "8340f6c1c4babf0436041bcc8c3582f11a635240d12564a4101d472a8e64e7d9"
+        }
+      ]
+    }
+  ],
+  "daily": {
+    "receipt_sha256": "8ab5f6b5ad362d35c1d804e936b60b471a40593c293728420feccdff9927a817",
+    "status": "passed",
+    "check_groups": 14,
+    "server_stopped": true,
+    "listener_closed": true,
+    "disposable_root_removed": true
+  },
+  "application_correctness": {
+    "receipt_sha256": "56df30571cdbe84194b20e890a045c7f27aa746aa206436419b1d14eaf998071",
+    "exit_status": 0,
+    "executed": 4543,
+    "app_counts": {
+      "ex_storage_service": {
+        "tests": 607,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 606
+      },
+      "ex_storage_service_cluster": {
+        "tests": 44,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 43
+      },
+      "ex_storage_service_cli": {
+        "tests": 3491,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 3491
+      },
+      "ex_storage_service_s3": {
+        "tests": 379,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 379
+      },
+      "ex_storage_service_web": {
+        "tests": 24,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 24
+      }
+    }
+  },
+  "resource_review": {
+    "receipt_sha256": "2b7330f069e9638861b5802498aa0ee4a0487fd079c08ba1c1fb0819e9c64a54",
+    "checked_measurements": 47,
+    "exceeded_metric_pairs": 15,
+    "matrices": {
+      "resources": {
+        "required_groups": 56,
+        "executed_groups": 26,
+        "clean_groups": 25,
+        "failed_groups": [
+          26
+        ],
+        "final_group_failures": [
+          "cadence:binary:interval_over100ms",
+          "cadence:total:interval_over100ms",
+          "cadence:rss:interval_over100ms",
+          "cadence:queue_max:interval_over100ms",
+          "cadence:queue_total:interval_over100ms",
+          "cadence:temporary:probe_too_slow",
+          "cadence:temporary:interval_over100ms"
+        ],
+        "operation_errors": [],
+        "staging_cleanup_complete": true,
+        "unexecuted_groups": 30
+      },
+      "resources-cluster": {
+        "required_groups": 20,
+        "executed_groups": 7,
+        "clean_groups": 6,
+        "failed_groups": [
+          7
+        ],
+        "final_group_failures": [
+          "meta:cadence:binary:interval_over100ms",
+          "meta:cadence:total:interval_over100ms",
+          "meta:cadence:rss:interval_over100ms",
+          "meta:cadence:queue_max:interval_over100ms",
+          "meta:cadence:queue_total:interval_over100ms",
+          "meta:cadence:temporary:interval_over100ms"
+        ],
+        "operation_errors": [],
+        "staging_cleanup_complete": true,
+        "unexecuted_groups": 13
+      }
+    }
+  },
+  "upstream_issue": {
+    "url": "https://github.com/gsmlg-dev/concord/issues/105",
+    "number": 105,
+    "type": "Bug",
+    "labels": [
+      "internal request"
+    ],
+    "severity": "blocker",
+    "exact_posted_body_sha256": "0660a2afe63303ee1cb2f1d3d7554c9f6fb9335f7486ea0f2d7999a210030358",
+    "probes": {
+      "three_voter": {
+        "script_sha256": "a39870e38ef4e2b59eb12d857d0093a984dfa7a32c3ac46e96b571206c9cc70c",
+        "result_sha256": "871da3fcf8e4520776a26385d6d9abd066ac894b0ca9ffa462cc39568d11e31a",
+        "summary_sha256": "0be414da1ee86cd96d5841fd90644be94d68aaf33cad6856c34b60e3c35a908c",
+        "recursive_applied_index_calls": {
+          "1000": 80275,
+          "10000": 800275
+        },
+        "same_process_parity_can_affect_later_gc": true,
+        "production_failure_causation_established": false
+      },
+      "singleton_heartbeat": {
+        "script_sha256": "71944fcc6990cf37c9da641b2a3b0998852a4db9782fe0a748b7ce787fbc60fb",
+        "result_sha256": "338bee89c3121e1d4cd46153468a2c10709fda7440c81de7cbc53c895a2ac9e5",
+        "summary_sha256": "55c4ca312e5a5ef906cdaec725cc8af4008ac4ba339a612f205960ccd329f143",
+        "recursive_applied_index_calls": {
+          "1000": 5005,
+          "10000": 50005
+        },
+        "same_process_parity_can_affect_later_gc": true,
+        "production_failure_causation_established": false
+      }
+    }
+  },
+  "historical_machine_ledger": {
+    "path": "docs/plans/s3-hardening-results.json",
+    "sha256": "6c9688bbe7ce44aa751d6e8fa7d95a09d373791e21891f658100396a6a0e0507",
+    "successor_promotions": 0
+  },
+  "publication": {
+    "version": "0.7.0",
+    "dispatched": false,
+    "published": false
+  },
+  "limits": "Evidence belongs to the immutable candidate. Later TODO/docs changes are not a new acceptance. No causal link to Gaoxy, HTTP503, A28 timeout or resource sampler delays is established by the pure probes."
+}

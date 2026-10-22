@@ -1,26 +1,46 @@
 ## Gaoxy migration — current validation status
 
-The Phoenix, public S3 and private cluster listeners now use Gaoxy 0.12.1.
-The latest completed full run is
+Phoenix, public S3 and private cluster HTTP now use Gaoxy 0.12.1. The umbrella
+locks HTTP 0.21.16 and Concord / VSR / ExTurso 3.1.6. The latest full run,
+[39795784957](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39795784957),
+failed on `6a356c3c90bee76ee6338774efa848b30390b215`, executable fingerprint
+`129879f910d5c9c22d6504574b150f85c3e5209f5e619fad7a08ea0712debe09`.
+Daily passed 14 groups. Extended correctness executed 4,543 application tests
+with no failures/skips; the two excluded tagged cases ran separately. The Python
+harness reported 158 tests with one skip. Eight extended lane command receipts
+passed; cluster, index and resources failed. The aggregate shell guard exited 1
+before invoking the stock verifier; no aggregate or verification artifact exists.
+
+Cluster returned HTTP 503 during multipart completion and later concurrent
+version PUTs after retained-root restart. That command did not reach its later
+data-node failure/recovery or primary-loss/election/rejoin/persistence stages.
+A28 completed the 10k phases and built
+the primary 100k fixture, then timed out during unrelated-bucket growth after the
+last recorded 52,900/100,000 progress point. The remaining 100k measurements did
+not run. Independent A29 migration/rejoin passed. Resource coverage failed at
+standalone group 26/56 and cluster group 7/20; only 25 and six groups respectively
+were clean. Executed operation assertions and numeric envelopes passed, but
+coverage gaps above the unchanged 100 ms bound and incomplete matrices still fail.
+
+Legal pure VSR runtime probes and a fresh minimal consumer reproduce complete
+retained-history rebuilding for normal multi-voter events and singleton
+heartbeats. [Concord #105](https://github.com/gsmlg-dev/concord/issues/105) is the
+typed upstream blocker, with complete reproductions and independent review.
+This establishes history-dependent runtime work; it does not establish the cause
+of the HTTP failures, A28 timeout or resource sampling delays. No dependency
+patch, speculative sampler repair or weakened acceptance limit was applied.
+
+The [current evidence report](../reports/s3-hardening/gaoxy0121-concord316-validation-20261022/README.md)
+records original receipts, artifact digests and causal limits. Results belong to
+the immutable tested source above; later TODO/documentation changes do not supply
+new acceptance. The default machine ledger remains historical C7, with no
+successor clause promotion. **v0.7.0 has not been dispatched or published.**
+
+The earlier failed run
 [39786495034](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39786495034)
-at `976c5e0bc8ca6192516908d7311f844e2f47fbca`, executable fingerprint
-`5f379ef7609af682cf2dabbc73cdd7ae3516980b6844f0980e22658df1a7a167`.
-Daily and eight extended lanes passed. Standalone, index and resources failed;
-the aggregate did not run its verifier because the required lanes failed.
-
-Standalone's retained server exited before readiness without a public root-cause
-receipt. A28 stopped at the 10k post-growth listing's 512-message trace mailbox
-bound; the mandatory 100k fixture never started. Resource coverage failed at
-standalone group 46/56 (temporary probe) and cluster group 8/20 (BEAM queue scan).
-Numeric resource envelopes passed for executed groups; incomplete 100 ms coverage
-and unexecuted groups remain failures. These observations establish no production
-or Gaoxy defect.
-
-Follow-up validation adds bounded private-log startup diagnostics, isolates A28's
-trace collector from the fixture caller, and reviews the published Concord /
-VSR / ExTurso 3.1.6 fixes before a fresh complete run. Prior passes do not certify
-the changed checkout. The default machine ledger still describes historical C7;
-no successor clause is promoted and no v0.7.0 release has been published.
+at `976c5e0bc8ca6192516908d7311f844e2f47fbca` remains historical. Its startup and
+A28 trace-mailbox failures preceded the tested harness repairs and dependency
+update; they are not the current failure diagnoses.
 
 ## Historical ESS-S3-HARDENING-CLOSEOUT-002 C7 status
 

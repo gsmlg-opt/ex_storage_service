@@ -1,27 +1,33 @@
 ## Gaoxy migration — current verification
 
-Gaoxy 0.12.1 serves Phoenix, S3 and internal cluster HTTP. Full run
-[39786495034](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39786495034)
-tested `976c5e0bc8ca6192516908d7311f844e2f47fbca` with executable fingerprint
-`5f379ef7609af682cf2dabbc73cdd7ae3516980b6844f0980e22658df1a7a167`.
-Daily, correctness, gateway, cluster, faults, crashes, resilience, restore and
-release-artifact lanes passed. Standalone, index and resources failed. No full
-aggregate or publication acceptance is claimed.
+Gaoxy 0.12.1 serves Phoenix, S3 and internal cluster HTTP. With HTTP 0.21.16 and
+Concord / VSR / ExTurso 3.1.6, full run
+[39795784957](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/39795784957)
+failed on `6a356c3c90bee76ee6338774efa848b30390b215`, executable fingerprint
+`129879f910d5c9c22d6504574b150f85c3e5209f5e619fad7a08ea0712debe09`.
+Daily's 14 groups and extended correctness's 4,543 application tests passed.
+Eight extended lane command receipts passed; cluster, index and resources failed.
+The aggregate guard exited 1 before the stock verifier could run. No aggregate
+or publication-verification artifact was produced.
 
-The retained standalone child exited before readiness; its original exception
-was not retained publicly. A28 failed the unchanged trace mailbox bound after
-10k fixture growth; 100k was unexecuted. Standalone resources completed 45 clean
-groups then failed group 46/56, and cluster resources completed seven clean groups
-then failed group 8/20. The resource failures were conservative probe coverage
-gaps above 100 ms, despite passing numeric envelopes and body assertions for
-executed groups. A slow filesystem probe and a slow BEAM queue scan are separate
-observations, without an established common cause.
+Cluster failed with HTTP 503. A28 timed out while growing the unrelated 100k
+fixture; its final 100k measurements remain unexecuted. Independent A29 passed.
+Resources stopped after 25 clean standalone groups and six clean cluster groups,
+with coverage gaps above the original 100 ms bound. Executed operations and
+numeric envelopes passing does not complete these matrices.
 
-The successor adds tested startup receipts and an isolated A28 collector, and
-reviews Concord / VSR / ExTurso 3.1.6 before fresh acceptance. The detailed
-[status](../plans/s3-hardening-status.md) records the remaining gates. The default
-ledger and all C7 results below are historical; they do not certify Gaoxy or the
-new dependency cohort. **v0.7.0 has not been published.**
+Independently reviewed legal VSR runtime probes reproduce full-history rebuilding
+on multi-voter events and singleton heartbeat timers in published 3.1.6.
+[Concord #105](https://github.com/gsmlg-dev/concord/issues/105) records the blocker
+and complete reproductions. Causation of the separate HTTP failures, A28 timeout
+and resource delays remains unproven. No local dependency workaround was added.
+
+The [current evidence report](s3-hardening/gaoxy0121-concord316-validation-20261022/README.md)
+and [status](../plans/s3-hardening-status.md) retain identities, incomplete modes
+and next gates. All results are bound to the tested candidate, rather than later
+TODO/documentation changes. The default ledger and C7 sections below remain
+historical; no successor acceptance is certified. **v0.7.0 has not been
+dispatched or published.**
 
 ## Historical ESS-S3-HARDENING-CLOSEOUT-002 C7 verification
 

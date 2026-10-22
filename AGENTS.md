@@ -274,7 +274,9 @@ enforces decoded object size.
   `ESS_RA_ROOT` is retained as a legacy embedding compatibility value but is
   not used by Concord 3. Require Concord `~> 3.1.4` with matching VSR/ExTurso
   packages; the umbrella lock selects 3.1.6 with bounded ready-singleton runtime
-  writes and restored transient local PID rebinding. New backup checksums use
+  writes and restored transient local PID rebinding. Normal multi-voter events
+  and singleton heartbeats still rebuild retained history (Concord #105);
+  full acceptance and publication remain blocked. New backup checksums use
   the declared deterministic ETF scheme;
   preserve legacy validation, reject unknown schemes, and verify restore on the
   same OTP major before a runtime upgrade. Concord/VSR is shared application infrastructure;

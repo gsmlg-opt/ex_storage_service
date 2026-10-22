@@ -92,6 +92,7 @@ defmodule ExStorageService.Metadata.Backend.Concord do
   @impl true
   def transaction(spec, opts \\ []) do
     # TODO(upstream): gsmlg-dev/concord#104 avoid rescanning retained VSR history on writes.
+    # TODO(upstream): gsmlg-dev/concord#105 bound replication and heartbeat history rebuilding.
     Concord.Txn.commit(spec, opts)
     |> normalize_availability_error()
   end
