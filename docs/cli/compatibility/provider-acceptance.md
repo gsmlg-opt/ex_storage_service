@@ -2,6 +2,22 @@
 
 The actual standalone ESS escript was exercised against published ESS 0.6.7 and RustFS 1.0.1 on 2026-10-15. Independent AWS CLI 2.31.18 verified uploaded/downloaded bytes, listings, and configuration. This is bounded provider evidence, not proof that either server implements every modeled S3 operation.
 
+## Server follow-up — 2026-10-23
+
+The provider results below remain evidence for the pinned ESS 0.6.7 image. On
+current `main`, the earlier hardening change `e2060c3` already preserves standard
+Content-Encoding metadata ([#21](https://github.com/gsmlg-opt/ex_storage_service/issues/21))
+and correctly encodes literal plus signs in URL listings
+([#22](https://github.com/gsmlg-opt/ex_storage_service/issues/22)). The remaining
+Unicode DeleteObjects defect ([#20](https://github.com/gsmlg-opt/ex_storage_service/issues/20))
+is corrected by passing UTF-8 bytes to xmerl rather than decoded character codepoints.
+
+Authenticated HTTP regressions in `internal_request_keys_http_test.exs` and
+`internal_request_encoding_http_test.exs` now cover exact Unicode/version deletion,
+malformed XML rejection, plain and URL-encoded key identity, and gzip/deflate
+Content-Encoding with byte-exact GET bodies. These source checks do not replace
+the historical provider report or establish publication of a new server image.
+
 ## Executables and providers
 
 - ESS CLI escript SHA256: `832080b5f9fe283360005f4faa7d8fd0966f076e5b216ed6b5080e3f69b2eba0`. This private test snapshot contains the CLI implementation, including raw stdout handling, at uncommitted work based on `9b8661e58107eddb24cb8f15495cee4ac979219a`.

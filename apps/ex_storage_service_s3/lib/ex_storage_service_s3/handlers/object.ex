@@ -752,7 +752,7 @@ defmodule ExStorageServiceS3.Handlers.Object do
 
   defp do_parse_delete_objects_xml(xml_body) do
     try do
-      {doc, remaining} = :xmerl_scan.string(String.to_charlist(xml_body), quiet: true)
+      {doc, remaining} = :xmerl_scan.string(:erlang.binary_to_list(xml_body), quiet: true)
       entries = :xmerl_xpath.string(~c"/Delete/Object", doc)
       root = :xmerl_xpath.string(~c"/Delete", doc)
       unknown = :xmerl_xpath.string(~c"/Delete/*[not(self::Object or self::Quiet)]", doc)
