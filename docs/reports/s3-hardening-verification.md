@@ -1,4 +1,14 @@
-## Gaoxy migration — current verification
+## Concord 3.1.8 refresh — 2026-10-25
+
+The current candidate updates Concord, Viewstamped Replication and ExTurso to
+3.1.8, which includes the published fix for Concord #105 and the key-only
+Turso-engine metadata-page optimization from #106. Turso-store projection backfill is
+documented in the README. Fresh source-bound lane receipts and semantic audits
+must establish acceptance; earlier failed or successful receipts retain their
+original scope. The historical ledger is not automatically promoted by a
+dependency update.
+
+## Historical Gaoxy migration verification
 
 Gaoxy 0.12.1 serves Phoenix, S3 and internal cluster HTTP. With HTTP 0.21.16 and
 Concord / VSR / ExTurso 3.1.6, full run

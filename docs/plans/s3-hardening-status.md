@@ -1,4 +1,16 @@
-## Gaoxy migration — current validation status
+## Concord 3.1.8 refresh — 2026-10-25
+
+The new candidate uses the coordinated Concord/VSR/ExTurso 3.1.8 family.
+Concord #105 is closed and its normal-runtime fix is published. Version 3.1.8
+also supplies covering-index key-only pages and an automatic one-time internal
+projection backfill for existing Turso-engine stores. ESS defaults to file-backed
+VSR with unchanged storage/wire formats. Neither upstream release nor the
+earlier ESS receipts certify this candidate. Full current-source lane execution,
+all 158 clause audits and the final aggregate remain required before publication.
+
+The records below preserve the earlier tested revisions and failures.
+
+## Historical Gaoxy migration validation
 
 Phoenix, public S3 and private cluster HTTP now use Gaoxy 0.12.1. The umbrella
 locks HTTP 0.21.16 and Concord / VSR / ExTurso 3.1.6. The latest full run,

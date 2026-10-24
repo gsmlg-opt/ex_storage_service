@@ -12,7 +12,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent / "scripts"))
 import index_dependency_preflight as preflight
 
 
-def lock(version="3.1.6"):
+def lock(version="3.1.8"):
     return "\n".join(
         f'  "{name}": {{:hex, :{name}, "{version}", "{inner}", '
         f'[:mix], [], "hexpm", "{outer}"}},'
@@ -50,11 +50,11 @@ class IndexDependencyPreflightTest(unittest.TestCase):
         self.assertIn("#104", self.blocker(lock("3.1.5")))
 
     def test_unknown_and_uncoordinated_releases_require_validation(self):
-        for version in ("3.1.7", "3.2.0", "4.0.0"):
+        for version in ("3.1.6", "3.1.7", "3.2.0", "4.0.0"):
             with self.subTest(version=version):
                 self.assertIn("Unvalidated", self.blocker(lock(version)))
         self.assertIn("Unvalidated", self.blocker(lock().replace(
-            ':ex_turso, "3.1.6"', ':ex_turso, "3.1.5"')))
+            ':ex_turso, "3.1.8"', ':ex_turso, "3.1.5"')))
 
     def test_missing_or_duplicate_lock_entries_fail_closed(self):
         self.assertIn("Cannot identify", self.blocker(""))
@@ -71,7 +71,7 @@ class IndexDependencyPreflightTest(unittest.TestCase):
         for malformed in (lock().replace('"hexpm"', '"private"', 1),
                           lock().replace(':hex, :concord', ':git, :concord', 1),
                           lock().replace('"concord": {', '"concord": invalid {', 1),
-                          lock().replace('"3.1.6",', '"3.1.6", "extra",', 1)):
+                          lock().replace('"3.1.8",', '"3.1.8", "extra",', 1)):
             with self.subTest(lock=malformed):
                 self.assertIn("Cannot validate", self.blocker(malformed))
 

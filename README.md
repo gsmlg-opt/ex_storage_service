@@ -625,14 +625,14 @@ mutations are rejected instead of falling back to the unsafe legacy
 multi-write sequence.
 
 Concord 3.0 replaces Ra with Viewstamped Replication and does not read or
-migrate Concord 2.x Ra storage. This application performs no destructive or
-automatic metadata migration. Before upgrading an installation with existing
-metadata, retain a complete backup of the old metadata state and plan an
+migrate Concord 2.x Ra storage. This application does not automatically migrate
+ESS metadata schemas or Concord command formats. Before upgrading an installation
+with existing metadata, retain a complete backup of the old metadata state and plan an
 explicit export/restore boundary; starting the new binary creates or recovers
 only the VSR state under `ESS_METADATA_ROOT`.
 
-The core requires Concord `~> 3.1.4`; the lockfile selects matching Concord,
-Viewstamped Replication and ExTurso 3.1.6 packages. They retain the 3.1.2 fixes for
+The core requires Concord `~> 3.1.8`; the lockfile selects matching Concord,
+Viewstamped Replication and ExTurso 3.1.8 packages. They retain the 3.1.2 fixes for
 committed-prefix transition validation, primary-discovery read deadlines, native
 range pagination and new-backup checksum portability. Version 3.1.4 makes supported
 direct put/delete compatibility-view and observer updates incremental and bounds
@@ -640,8 +640,24 @@ ready singleton read allocation. Version 3.1.5 extends incremental view updates
 to supported atomic transactions and avoids revalidating an unchanged retained
 log on ready single-node reads. Version 3.1.6 bounds ready singleton runtime
 writes through owned protocol transitions and an indexed retained log, and
-rebinds transient local process identities when restoring backups. Recovery,
-snapshots, state changes and multi-node quorum paths retain validation.
+rebinds transient local process identities when restoring backups. Version 3.1.7
+extends owned transitions to normal multi-voter events and singleton heartbeats,
+avoiding full retained-history rebuilding. Recovery, snapshots, state changes
+and exceptional fallbacks retain validation.
+
+Version 3.1.8's Turso engine serves key-only prefix/range pages from a covering
+metadata index without fetching or decoding stored values after readiness.
+Existing Turso-engine stores automatically backfill this projection in a one-time
+transaction that reads current records; plan an upgrade window for large stores
+and retain a verified backup. Original record/history blobs and revision counters
+remain unchanged. The projection adds metadata storage and write work. For direct
+Turso-engine consumers, before serving traffic,
+`Concord.Turso.list(prefix: "", limit: 1, keys_only: true, timeout: :infinity)`
+can finish the backfill without a finite deadline; a busy pool can still return
+`{:error, :timeout}`. This internal projection update does not change ESS metadata
+schemas or `ESS_CONCORD_COMMAND_VERSION`. ESS defaults to file-backed VSR, whose
+storage and wire formats remain unchanged by these releases.
+
 Version-one command admission still checks
 representations. New backups declare deterministic ETF checksums;
 verify restoration on the same OTP major before changing runtimes. Existing

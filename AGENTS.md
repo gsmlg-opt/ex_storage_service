@@ -272,11 +272,16 @@ enforces decoded object size.
   Defaults must start the existing standalone instance and both listeners.
   `ESS_DATA_ROOT` remains the compatibility fallback for split roots.
   `ESS_RA_ROOT` is retained as a legacy embedding compatibility value but is
-  not used by Concord 3. Require Concord `~> 3.1.4` with matching VSR/ExTurso
-  packages; the umbrella lock selects 3.1.6 with bounded ready-singleton runtime
-  writes and restored transient local PID rebinding. Normal multi-voter events
-  and singleton heartbeats still rebuild retained history (Concord #105);
-  full acceptance and publication remain blocked. New backup checksums use
+  not used by Concord 3. Require Concord `~> 3.1.8` with matching VSR/ExTurso
+  packages; the umbrella lock selects 3.1.8, including owned normal multi-voter
+  and singleton-heartbeat transitions (Concord #105). Concord's Turso engine
+  serves value-free key-only pages through a covering metadata index (#106).
+  Existing Turso-engine stores automatically backfill this projection once by
+  reading current records; plan an upgrade window and retain verified backups.
+  The projection adds metadata storage and write work. ESS defaults to file-backed
+  VSR; its storage/wire formats and ESS command formats remain unchanged.
+  Full current-source acceptance remains
+  a publication prerequisite. New backup checksums use
   the declared deterministic ETF scheme;
   preserve legacy validation, reject unknown schemes, and verify restore on the
   same OTP major before a runtime upgrade. Concord/VSR is shared application infrastructure;

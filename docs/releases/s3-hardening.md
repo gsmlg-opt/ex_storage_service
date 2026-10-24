@@ -1,4 +1,19 @@
-# Unreleased — S3 hardening closeout
+# Unreleased v0.7.0 — Concord 3.1.8 and S3 hardening
+
+The candidate updates Concord, Viewstamped Replication and ExTurso together to
+3.1.8. It includes the normal-runtime retained-history fix for Concord #105 and
+the Turso-engine key-only metadata-page optimization from #106. Existing
+Turso-engine stores perform a one-time internal metadata-index backfill; plan an
+upgrade window and retain verified backups. ESS defaults to file-backed VSR;
+its storage/wire formats, metadata schemas and command formats are unchanged.
+
+The candidate also retains the Gaoxy listener migration and authenticated S3
+regressions for Unicode bulk deletion, literal key listings and compressed
+object metadata. Publication requires fresh complete acceptance and independent
+verification of the server image, both Hex packages and CLI release assets.
+The earlier closeout records below retain their original source boundaries.
+
+## Historical closeout candidate C7
 
 Candidate `fcc02e148ae31f00022d563ebce2b039be5d32dd` fixes coherent latest-version
 selection and root ListBuckets SDK query dispatch, with deterministic domain,
