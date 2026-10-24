@@ -537,6 +537,14 @@ These variables do not configure production behavior. Workflow-local
 optionally enables scheduler accounting on the disposable hosted VM and retains
 readback. See [the diagnostic guide](e2e/diagnostics/resource_cadence/README.md).
 
+The manual `completion-stage-diagnostic.yml` workflow runs original Phase 1 and
+IAM checks on a disposable cluster, tracing only the second 32-request completion
+race. Each node's trace is capped at 20 seconds and 4,096 events, with fixed stage
+names and allowlisted error classifications. It excludes arguments, connection
+data and arbitrary results, and retains drained shutdown receipts. The private
+launcher reuses `ESS_DIAGNOSTIC_PINNED_PYTHON` and `ESS_DIAGNOSTIC_EVIDENCE` above.
+This diagnostic cannot certify acceptance. See [the completion diagnostic guide](e2e/diagnostics/completion_stage/README.md).
+
 Retained standalone startup failures keep the child exit status and bounded
 allowlisted markers in `startup-failure.json`; full runtime logs remain private.
 These markers are diagnostic observations, not a root-cause or acceptance claim.

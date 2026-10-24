@@ -1,0 +1,135 @@
+name: Incomplete completion stage diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: completion-stage-diagnostic-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PAGER: cat
+  MIX_ENV: prod
+  ERL_FLAGS: '+S 4:4 +SDcpu 2 +SDio 2'
+  ESS_MASTER_KEY: disposable-hardening-ci-master-key
+  ESS_ADMIN_PASSWORD_HASH: c89aca9f1fbfa8dc9383ff1f97a9c0f64a9bb6c1f456f00f2888c2e2fb733d14
+  SECRET_KEY_BASE: disposable-hardening-ci-secret-key-base-must-have-sixty-four-bytes-12345
+  DIAGNOSTIC_LABEL: completion-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
+
+jobs:
+  diagnostic:
+    name: Original Phase 1 / bounded completion trace / not acceptance
+    runs-on: ubuntu-24.04
+    env:
+      # This isolated job runs Mix sequentially; avoid elixir-lang/elixir#15761.
+      MIX_OS_CONCURRENCY_LOCK: '0'
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Initialize incomplete diagnostic metadata before prerequisites
+        run: |
+          umask 077
+          python3 - <<'PY'
+          import json, os, pathlib, runpy, subprocess
+          root = pathlib.Path(os.environ['GITHUB_WORKSPACE']) / 'docs/reports/s3-hardening' / os.environ['DIAGNOSTIC_LABEL']
+          root.mkdir(parents=True, exist_ok=False, mode=0o700)
+          with open(os.environ['GITHUB_ENV'], 'a') as environment:
+              environment.write(f'ESS_DIAGNOSTIC_EVIDENCE={root}\n')
+              environment.write(f"ESS_DIAGNOSTIC_PINNED_PYTHON={os.environ['RUNNER_TEMP']}/hardening-venv/bin/python\n")
+          acceptance = runpy.run_path('e2e/hardening_acceptance.py')
+          record = dict(kind='incomplete-completion-stage-diagnostic', acceptance=False,
+                        status='incomplete',
+                        source_sha=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+                        source_sha256=acceptance['source_fingerprint'](),
+                        cpu_count=os.cpu_count(), cpu_affinity=sorted(os.sched_getaffinity(0)),
+                        original_profile='e2e/s3_hardening_phase1.py',
+                        instrumented_race=2, requests=32, trace_seconds=20, trace_events=4096)
+          (root / 'identity.json').write_text(json.dumps(record, indent=2) + '\n')
+          PY
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: '1.19'
+          otp-version: '28'
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: '1.91.1'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-completion-diagnostic-prod-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-hardening-cluster-${{ hashFiles('mix.lock') }}
+      - name: Install original harness prerequisites
+        run: |
+          umask 077
+          python3 e2e/scripts/ci_isolation.py --output "$ESS_DIAGNOSTIC_EVIDENCE/isolation"
+          sudo -n apt-get install --yes ripgrep
+          python3 -m venv "$RUNNER_TEMP/hardening-venv"
+          "$ESS_DIAGNOSTIC_PINNED_PYTHON" -m pip install -r e2e/hardening-requirements.txt
+          python3 scripts/release/reserve_journal_ports.py
+          mix deps.get
+          npm ci
+      - name: Validate isolated trace filtering and compile production source
+        run: |
+          "$ESS_DIAGNOSTIC_PINNED_PYTHON" -B e2e/diagnostics/completion_stage/test_output.py
+          elixir --erl '-logger handle_otp_reports true handle_sasl_reports true level debug' \
+            e2e/diagnostics/completion_stage/test_trace.exs
+          mix compile --force --warnings-as-errors
+      - name: Run original Phase 1 with a bounded runtime trace
+        shell: bash
+        env:
+          ESS_HARDENING_PHASE2: 'false'
+          ESS_HARDENING_FAILURES: 'false'
+        run: |
+          umask 077
+          diagnostic_status=0
+          timeout --signal=TERM --kill-after=20s 240s \
+            bash e2e/run_hardening_phase1_cluster.sh \
+              "$GITHUB_WORKSPACE/e2e/diagnostics/completion_stage/python-launcher" \
+              "$DIAGNOSTIC_LABEL" 2>&1 \
+            | "$ESS_DIAGNOSTIC_PINNED_PYTHON" -B e2e/diagnostics/completion_stage/retain_output.py \
+                "$ESS_DIAGNOSTIC_EVIDENCE/workload.log" \
+            || diagnostic_status=$?
+          printf '%s\n' "$diagnostic_status" > "$ESS_DIAGNOSTIC_EVIDENCE/workload-exit.txt"
+          test "$diagnostic_status" -eq 0
+      - name: Record reserved-node registration after original harness cleanup
+        if: always()
+        run: |
+          umask 077
+          python3 - <<'PY'
+          import json, os, pathlib, re, subprocess
+          root = pathlib.Path(os.environ['ESS_DIAGNOSTIC_EVIDENCE'])
+          try:
+              result = subprocess.run(['epmd', '-names'], capture_output=True, text=True, timeout=5)
+              active = re.findall(r'^name (ess_(?:meta|data_a|data_b)|ess_completion_probe_\w+) at port',
+                                  result.stdout, re.M)
+              record = dict(coverage='epmd-registration-only', exit_code=result.returncode,
+                            active_reserved_nodes=active,
+                            stopped=result.returncode == 0 and not active)
+          except (OSError, subprocess.TimeoutExpired):
+              record = dict(coverage='epmd-registration-only', stopped=False, unavailable=True)
+          (root / 'registration-after-cleanup.json').write_text(json.dumps(record, indent=2) + '\n')
+          if not record['stopped']:
+              raise SystemExit('Reserved-node shutdown registration check failed')
+          PY
+      - name: Retain incomplete diagnostic on success or failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: incomplete-completion-stage-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
+          path: docs/reports/s3-hardening/${{ env.DIAGNOSTIC_LABEL }}/
+          if-no-files-found: error
+          retention-days: 14

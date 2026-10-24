@@ -178,6 +178,13 @@ enforces decoded object size.
   These do not configure production behavior. Workflow-local `DIAGNOSTIC_LABEL`
   selects evidence paths; `ENABLE_SCHEDULER_ACCOUNTING` optionally enables
   scheduler accounting on the disposable hosted VM and retains readback.
+- The manual `completion-stage-diagnostic.yml` workflow runs original Phase 1
+  and IAM checks on a disposable cluster. Only its second, 32-request completion
+  race receives a runtime trace capped at 20 seconds and 4,096 events per node.
+  Output retains fixed stages and allowlisted error classifications; arguments,
+  connection data and arbitrary results are excluded. Trace sessions drain and
+  close before stopped receipts. It reuses `ESS_DIAGNOSTIC_PINNED_PYTHON` and
+  `ESS_DIAGNOSTIC_EVIDENCE` for private instrumentation and cannot certify acceptance.
 - Index diagnostics use test-only `ESS_INDEX_PROGRESS` for a bounded JSONL
   progress path and `ESS_INDEX_SOURCE_SHA256` / `ESS_INDEX_SOURCE_HEAD` for the
   recorded source identity. They do not configure production reads or writes.

@@ -8,6 +8,111 @@ must establish acceptance; earlier failed or successful receipts retain their
 original scope. The historical ledger is not automatically promoted by a
 dependency update.
 
+The latest full-acceptance attempt tested `45aa26eb16c6b23b7de2314aa34596b722949dc1`, executable
+fingerprint `a22306fca957a504ee1ac58e240019ec0b5af814ff00f745e68638202cc17439`.
+Fresh full acceptance in
+[40129407270](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/40129407270)
+passed daily checks and nine extended lanes, including index. Cluster and
+resources failed. The final aggregate failed its lane-success prerequisite,
+before invoking the stock verifier. Publication remains blocked.
+The preceding candidate's hosted compilation and formatting passed in
+[40127644819](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/40127644819).
+That dependency set also passed strict local compilation, formatting, all 24 web
+tests and the real production asset build. The updated Docker recipe and lock
+then passed a complete local container build, liveness/readiness and operator
+RPC smoke. This preflight used the preceding source SHA and version 0.6.10;
+it is not a release artifact or full acceptance receipt. Five Phase 1 fixture
+tests passed after adding filtered error diagnostics. The earlier complete local
+application run executed 4,548 tests with zero failures before the native
+dependency refresh; the fresh hosted result is recorded below.
+
+Fresh hosted correctness now executed all 4,548 selected Elixir tests with zero
+failures and no skips. Its two declared heavy exclusions remain in their separate
+lanes. The Python harness discovered 161 tests and executed 160 with one unnamed
+skip. All four correctness commands exited zero. Unit backfill fixtures use
+injected backends and do not establish live cluster or scale acceptance.
+
+The independent fresh-index audit recomputed all 3,600 samples across the original
+10k/100k datasets and before/after growth checks. Original read, byte, page and
+native-count bounds passed, with no forbidden calls. Interruption, retained-root
+restart, fencing and atomic cutover checks also passed. The original A28.4
+published-cohort/before-and-after probes and complete runner provenance remain
+separate prerequisites; this audit does not promote the historical ledger.
+
+The fresh cluster lane reproduced the 32-way conditional MPU completion failure:
+1 HTTP 200, 2 HTTP 412 and 29 HTTP 503 responses, instead of 1 success and 31
+precondition failures. All 29 filtered diagnostics report `ServiceUnavailable`
+after 4.262–4.383 seconds; the underlying ESS reason is not retained. A later
+eight-worker versioned PUT exercise reached its unchanged ten-second read
+timeout, before the failure/election/persistence sequence. No upstream cause has
+been established.
+
+Fresh resources again failed the original 100 ms observation coverage at local
+group 15/56 and cluster group 6/20, both 64 MiB concurrency-four PUTs. Retained
+temporary-observation gaps reached 251.790 ms locally and 239.891 ms on cluster
+data-a. Observed numeric envelopes, all four export hashes, contiguous generations
+and stopped observer identities passed; both workload matrices remain incomplete.
+The separate actual 2 GiB transport test passed. Slow temporary probes preceded
+serialized sample delays, but their CPU, scheduling or filesystem cause remains
+unproven. The bounded
+[observer diagnostic](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/40130453892)
+retains the original limits and cannot certify acceptance.
+
+That probe-only observer diagnostic completed the selected groups 1–6 with zero
+dropped events and verified exports and stopped identities. It did not reproduce
+the 100 ms coverage violation and omits groups 7–20. Its intentional
+`DiagnosticScopeComplete` result and wrapper success do not replace the failed
+full resource matrices. Two local original Phase 1 diagnostics, including one
+restricted to four CPUs like the hosted runner's recorded affinity, also passed.
+Their bounded traces observed one successful completion and 31 precondition
+failures, with all stage calls captured and both trace sessions stopped. They
+did not reproduce the hosted 503s. A separate manual completion-stage diagnostic
+captures the original reason on the hosted runner without treating its result
+as acceptance.
+
+Current automatic push correctness
+[40129397470](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/40129397470)
+executed 1,057 server tests and 11 retained CLI contracts with zero failures.
+Two declared heavy exclusions remain assigned to separate lanes. The Python
+harness executed 160 tests with one unnamed skip (161 discovered); the raw
+nonverbose output does not identify that skip. Current strict compile/format
+[40129397503](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/40129397503)
+and CLI compatibility
+[40129397511](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/40129397511)
+passed. The shared push/PR job graph was reviewed; PR execution is unobserved.
+Current daily checks passed all 14 groups and the standalone lane passed all
+three commands. Both restore submodes passed their original checks, including
+command-format fences and negative cases. The clause-level audit remains pending;
+these scoped results do not promote the historical acceptance ledger.
+
+The preceding full run
+[40127652908](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/40127652908)
+passed eight extended lanes and daily checks. Cluster failed: the 32-way MPU
+race returned 1 success, 20 precondition failures and 11 HTTP 503s, instead of
+1 success and 31 precondition failures. A later eight-worker versioned PUT
+exercise hit its existing ten-second read timeout. Both resource topologies
+failed original 100 ms observation coverage: local group 15 had a 136.091 ms
+temporary-observation gap; cluster group 6 had a 112.237 ms gap on data-b.
+Only 15/56 and 6/20 groups executed, respectively. Retained numeric envelopes,
+export hashes and stopped observer identities passed; the incomplete matrices
+remain failed. These observations do not establish an ESS or upstream cause.
+The source refresh cancelled the remaining index lane; the aggregate failed.
+Filtered diagnostics now retain operation, status, allowlisted error code and
+elapsed time when the Phase 1 SDK helper receives a server error.
+
+Initial runs 40125618553 and 40126527391 failed native dependency prerequisites
+before workload assertions. The published fixes are `rustler_precompiled`
+0.10.1 and the coordinated DuskMoon 10.0.4 packages. DuskMoon 10.0.5's Vize GNU
+artifact requires GLIBC_2.43 and failed the real production asset build; the
+compatible pin is tracked in
+[Bundler #9](https://github.com/duskmoon-dev/duskmoon-bundler/issues/9).
+The dependency refresh also includes `plug_crypto` 2.2.1 for CVE-2026-105963.
+The preceding automatic image build failed when `lazy_html` fell back to source
+compilation without CMake. The builder now includes CMake, and `elixir_make`
+0.10.1 includes the published expanded-header and preserved-download-error fixes.
+The masked original download error is unknown.
+All 158 original clause decisions and the actual aggregate remain mandatory.
+
 ## Historical Gaoxy migration verification
 
 Gaoxy 0.12.1 serves Phoenix, S3 and internal cluster HTTP. With HTTP 0.21.16 and

@@ -10,7 +10,7 @@ Concord 2.x Ra state is a separate compatibility boundary. Do not point
 Concord 3 at a Concord 2 state directory. Export through a binary that supports
 the source format before following this runbook.
 
-The current core requires Concord `~> 3.1.4` with matching VSR and ExTurso
+The current core requires Concord `~> 3.1.8` with matching VSR and ExTurso
 packages. New native backups declare `:sha256_deterministic_etf_v1`; ESS verifies
 that encoding before using snapshot entries. Verify recovery on the same OTP
 major before a runtime-major upgrade. Legacy backups keep their original

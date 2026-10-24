@@ -5,13 +5,65 @@ ESS-S3-HARDENING-001. Hosted standalone remains RF=1/W=1; cluster remains RF=2/W
 The operation matrix below describes implemented behavior and its named tests.
 It does not claim complete AWS parity or production validation.
 
-Concord, VSR and ExTurso are installed and locked at published 3.1.4, including
-the upstream #94–#97 fixes. Backup validation supports the declared deterministic
-checksum scheme and legacy checks. Fresh restore targets require command version 1
+Concord, VSR and ExTurso are installed and locked at published 3.1.8, including
+the upstream #94–#97 and #101/#102/#104/#105 fixes. Backup validation supports the
+declared deterministic checksum scheme and legacy checks. Fresh restore targets require command version 1
 on every voter through quarantine, restarts and activation; existing databases
 retain compatibility default 0 and must never switch automatically.
 
-Current closeout candidate C7 is `fcc02e148ae31f00022d563ebce2b039be5d32dd`, source
+## Concord 3.1.8 acceptance attempt
+
+Candidate `45aa26eb16c6b23b7de2314aa34596b722949dc1` has executable-input
+fingerprint `a22306fca957a504ee1ac58e240019ec0b5af814ff00f745e68638202cc17439`.
+Before the native dependency refresh, the full local application run executed
+4,548 tests with zero failures; two existing heavy tags remain assigned to
+separate acceptance lanes. Both unchanged dependency-admission probes and all
+12 admission-guard tests passed. With the preceding native dependency set, strict
+compilation, formatting, all 24 web tests and the production asset build passed.
+The updated Docker build and runtime smoke also passed before the final test
+diagnostics change; five fixture regression tests passed afterward.
+These checks do not establish full acceptance. The fresh eleven-lane run is
+[40129407270](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/40129407270).
+Daily checks and nine extended lanes passed, including index and full correctness:
+4,548 executed Elixir tests, zero failures, no skips and two declared heavy
+exclusions; Python executed 160 tests with one unnamed skip. Cluster failed the
+32-way conditional completion race with 29 `ServiceUnavailable` responses, then
+a later versioned PUT read timed out. Both resource topologies failed the
+original 100 ms observation coverage before completing their matrices. The final
+aggregate failed its lane-success prerequisite. These failures block publication; their underlying cause remains
+unproven. All 158 original clause decisions and the final aggregate remain
+required. Earlier results below retain their tested sources.
+
+The preceding run
+[40127652908](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/40127652908)
+failed cluster concurrency and both resource observation-coverage checks.
+Its unfinished index lane was cancelled by this source refresh. Eight extended
+lanes and daily checks passed for that earlier source. See the verification
+report for the exact failures; they are not attributed to an upstream cause.
+
+The initial run [40125618553](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/40125618553)
+failed every lane prerequisite while `rustler_precompiled` 0.10.0 downloaded
+the Markdown NIF; workloads did not execute. Version 0.10.1 includes the published
+fix for expanded GitHub release-response headers. The failed attempt remains
+failed evidence and does not certify any acceptance clause.
+
+The second run [40126527391](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/40126527391)
+failed all eleven lane prerequisites on QuickBEAM's separate native downloader
+before workload assertions. The current candidate selects the official DuskMoon
+10.0.4 cohort, which includes that downloader fix and compatible GNU artifacts.
+The 10.0.5 Vize GNU artifact failed the real production asset build because it
+requires GLIBC_2.43; its temporary exclusion is tracked in
+[Bundler #9](https://github.com/duskmoon-dev/duskmoon-bundler/issues/9).
+
+Version 3.1.7 removes full retained-history rebuilding from owned normal
+multi-voter events and singleton heartbeats. Version 3.1.8 adds value-free key-only
+pages to Concord's Turso engine and a one-time projection backfill for existing
+Turso stores. ESS defaults to file-backed VSR with unchanged storage/wire and
+command formats. See the README for the Turso upgrade window and backup boundary.
+
+## Historical C7 evidence
+
+Closeout candidate C7 is `fcc02e148ae31f00022d563ebce2b039be5d32dd`, source
 fingerprint `ee754b0345b3198e84abd78e898b121e966787c1faa563642097ca3151653913`.
 The full entry point exited 1: ten lanes passed, including complete resources,
 restore and local release/container checks; index remains blocked by A28.
@@ -111,7 +163,8 @@ return retryable availability errors. A stable missing referenced version is an
 integrity error. Explicit version requests retain their own absence/marker errors
 and never fall back to the newest version. Body, attributes, ETag and version ID
 refer to the same selected immutable version. This adds bounded metadata reads;
-the separate native whole-history limitation remains the A28 blocker.
+native 10k/100k scale acceptance must be established separately for the current
+candidate.
 
 In this table H means standalone hosted,C means hosted cluster,G means gateway
 object path. Metadata/configuration rows concern ESS-local bucket state. Actions
@@ -123,7 +176,7 @@ where they define behavior. Named test modules run in the corresponding app's
 | Operation / method | Controls and response contract | AWS IAM action | Modes | Specific errors / evidence |
 |---|---|---|---|---|
 | ListBuckets GET `/`; bucket PUT/HEAD/DELETE | Bucket deletion includes all history/markers/uploads and serializes with writers under generation fencing | ListAllMyBuckets; CreateBucket; ListBucket; DeleteBucket | H,C; ESS-local bucket state for G | BucketNotEmpty,NoSuchBucket; BucketAndControlHTTPTest,BucketLifecycleTest; Phase1 cluster races |
-| ListObjects GET bucket; v2 `list-type=2` | prefix,delimiter,max-keys0..1000,marker,start-after,opaque continuation-token,encoding-type=url; common prefixes count toward page capacity | ListBucket | H,C,G; G delegates tokens upstream | InvalidArgument for malformed/context-mismatched tokens; ListingProfileHTTPTest; versions/lists probe |
+| ListObjects GET bucket; v2 `list-type=2` | H,C: prefix,delimiter,max-keys0..1000,marker,start-after,opaque continuation-token,encoding-type=url; common prefixes count toward page capacity. G delegates listing upstream | ListBucket | H,C; G basic listing verified separately | H,C: InvalidArgument for malformed/context-mismatched tokens; ListingProfileHTTPTest; versions/lists probe. G: basic list/copied-key presence in gateway probe; continuation behavior lacks a specific assertion |
 | Versioning GET/PUT `?versioning` | Enabled/Suspended; never-enabled overwrite has one null slot; Suspended replaces only null; retains numbered history | GetBucketVersioning / PutBucketVersioning | H,C; G501 | InvalidRequest/MalformedXML; VersioningProfileTest,ExtendedFeaturesTest; versions/lists probe |
 | ListObjectVersions GET `?versions` | key/version markers,IsLatest,delete markers,prefix/delimiter,max0..1000,URL fields | ListBucketVersions | H,C; G501 | InvalidArgument; VersionListingTest,VersionListingHTTPTest; versions/lists and tag/CORS probes |
 | Object GET/HEAD | Current or `versionId`; single Range; ETag/date conditions; signed response overrides; served version ID | GetObject or GetObjectVersion; scoped legacy HEAD alias retained | H,C; G current only | NoSuchKey/NoSuchVersion; current marker404,explicit marker405+LastModified; InvalidRange416,304/412; VersionProfileHTTPTest,ReadSemanticsHTTPTest,ChecksumRangeHTTPTest |
@@ -176,11 +229,11 @@ transactional per-bucket index. New buckets publish ready descriptors; legacy
 buckets require explicit verified backfill/cutover and fail closed until ready.
 Offline capture still materializes one Concord export and is separately budgeted;
 it is never a request-path fallback. See [index operations](operations/listing-index.md).
-The locked Concord 3.1.4 includes the released #94–#97 fixes, but its native read
-and transaction paths retain the scale blockers #101/#102. Mandatory 10k/100k
-scale acceptance remains unexecuted; the separate current cluster backfill,
-interruption, rejoin and cutover fixture passed. Implementation and scoped tests
-do not establish full acceptance. Hosted tokens
+Concord 3.1.8 includes the released repairs for the earlier native read,
+transaction and normal-runtime history blockers. Mandatory 10k/100k scale and
+cluster backfill/interruption/rejoin/cutover acceptance require fresh receipts
+for the current candidate. Implementation and scoped tests do not establish full
+acceptance. Hosted tokens
 are bound to bucket/prefix/delimiter and do not promise an immutable snapshot
 across concurrent writes. Complete C7 transfer-resource evidence and independent
 analysis are in `reports/s3-hardening/closeout-002/candidate-c7/` and adjacent
@@ -204,7 +257,7 @@ Follow the [recovery operations guide](operations/cluster-upgrade.md#independent
 
 ## Independent profiles and deliberate exclusions
 
-Current C7 complete business profile receipts are under
+Historical C7 complete business profile receipts are under
 `docs/reports/s3-hardening/closeout-002/candidate-c7/` at the candidate and
 the explicitly stated C7 fingerprint above. Adjacent `closeout002-c7-*` receipts
 retain profile details; earlier candidate evidence retains its original source.

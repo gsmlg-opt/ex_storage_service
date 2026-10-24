@@ -6,12 +6,29 @@ the Turso-engine key-only metadata-page optimization from #106. Existing
 Turso-engine stores perform a one-time internal metadata-index backfill; plan an
 upgrade window and retain verified backups. ESS defaults to file-backed VSR;
 its storage/wire formats, metadata schemas and command formats are unchanged.
+The build also selects `rustler_precompiled` 0.10.1 so clean native-artifact
+downloads accept the expanded GitHub release-response headers. DuskMoon Bundler's
+coordinated packages use 10.0.4 for the corresponding Zigler downloader fix.
+They remain pinned while the 10.0.5 Vize GNU artifact's GLIBC_2.43 regression is
+tracked in [Bundler #9](https://github.com/duskmoon-dev/duskmoon-bundler/issues/9).
+Remove the pin after a published cohort retains the downloader fix, restores the
+compatible GNU baseline and passes the production asset build on supported Linux.
+`plug_crypto` 2.2.1 includes the published secret-bearing stacktrace fix for
+CVE-2026-105963.
+The builder includes CMake for native source fallbacks and `elixir_make` 0.10.1
+for expanded download headers and retained error diagnostics.
 
 The candidate also retains the Gaoxy listener migration and authenticated S3
 regressions for Unicode bulk deletion, literal key listings and compressed
 object metadata. Publication requires fresh complete acceptance and independent
 verification of the server image, both Hex packages and CLI release assets.
 The earlier closeout records below retain their original source boundaries.
+
+The latest full-acceptance attempt passed daily checks and full correctness but
+failed cluster completion concurrency and the original resource observation
+coverage checks. Version 0.7.0 remains unreleased; see the
+[verification report](../reports/s3-hardening-verification.md) for the exact source
+and retained failures.
 
 ## Historical closeout candidate C7
 

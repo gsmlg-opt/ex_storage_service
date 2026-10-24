@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export PAGER=cat
+exec "${ESS_DIAGNOSTIC_PINNED_PYTHON:?absolute pinned virtualenv Python required}" -B \
+  "$(dirname -- "${BASH_SOURCE[0]}")/dispatch.py" "$@"
