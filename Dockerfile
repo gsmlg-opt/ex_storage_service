@@ -3,8 +3,8 @@ FROM rust:1.91.1-slim-trixie AS rust_toolchain
 
 FROM elixir:1.19.5-otp-28-slim AS builder
 
-# Install build tools, git, curl, openssl, node, npm
-RUN apt-get update && apt-get install -y build-essential git curl openssl && \
+# Install native build tools, git, curl, openssl, node, npm
+RUN apt-get update && apt-get install -y build-essential cmake git curl openssl && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
