@@ -10,7 +10,7 @@ import json
 import threading
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 import urllib.parse
 
 import boto3
@@ -209,6 +209,47 @@ class ProductionContract:
                 pass
 
         return Connection()
+
+
+class Phase1StatusDiagnosticsTest(unittest.TestCase):
+    def test_server_error_retains_status_and_only_allowlisted_diagnostics(self):
+        error = ClientError({
+            "Error": {"Code": "ServiceUnavailable", "Message": "private-message"},
+            "ResponseMetadata": {"HTTPStatusCode": 503, "RequestId": "private-request-id",
+                                 "HTTPHeaders": {"authorization": "private-authorization"}},
+        }, "CompleteMultipartUpload")
+        operation = Mock(side_effect=error)
+        output = io.StringIO()
+        with redirect_stdout(output), patch.object(fixture.time, "monotonic", side_effect=[100, 100.05]):
+            self.assertEqual(503, fixture.status(operation))
+        operation.assert_called_once_with()
+        self.assertEqual({"event": "s3-server-error", "operation": "CompleteMultipartUpload",
+                          "http_status": 503, "error_code": "ServiceUnavailable", "elapsed_ms": 50.0},
+                         json.loads(output.getvalue()))
+
+    def test_unknown_error_fields_are_not_logged(self):
+        error = ClientError({"Error": {"Code": "private-code"},
+                             "ResponseMetadata": {"HTTPStatusCode": 503}}, "private-operation")
+        output = io.StringIO()
+        with redirect_stdout(output):
+            self.assertEqual(503, fixture.status(Mock(side_effect=error)))
+        record = json.loads(output.getvalue())
+        self.assertEqual("other", record["error_code"])
+        self.assertEqual("other", record["operation"])
+        self.assertNotIn("private", output.getvalue())
+
+    def test_success_expected_rejection_and_transport_failure_keep_their_behavior(self):
+        rejection = ClientError({"Error": {"Code": "PreconditionFailed"},
+                                 "ResponseMetadata": {"HTTPStatusCode": 412}}, "PutObject")
+        output = io.StringIO()
+        with redirect_stdout(output):
+            self.assertEqual(200, fixture.status(lambda: {"ResponseMetadata": {"HTTPStatusCode": 200}}))
+            self.assertEqual(412, fixture.status(Mock(side_effect=rejection)))
+            failure = OSError("transport failed")
+            with self.assertRaises(OSError) as caught:
+                fixture.status(Mock(side_effect=failure))
+            self.assertIs(failure, caught.exception)
+        self.assertEqual("", output.getvalue())
 
 
 class Phase1AdmissionTest(unittest.TestCase):

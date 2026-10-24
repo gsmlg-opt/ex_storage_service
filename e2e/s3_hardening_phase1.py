@@ -62,10 +62,26 @@ def check(condition, message):
 
 
 def status(operation):
+    started = time.monotonic()
     try:
         return operation()["ResponseMetadata"]["HTTPStatusCode"]
     except ClientError as error:
-        return error.response["ResponseMetadata"]["HTTPStatusCode"]
+        code = error.response["ResponseMetadata"]["HTTPStatusCode"]
+        if code >= 500:
+            # Keep provider messages, headers, request IDs and credentials private.
+            error_code = error.response.get("Error", {}).get("Code")
+            operation_name = error.operation_name
+            print(json.dumps({
+                "event": "s3-server-error",
+                "operation": operation_name if operation_name in (
+                    "PutObject", "GetObject", "DeleteObject", "DeleteBucket",
+                    "CompleteMultipartUpload", "UploadPart", "ListParts", "AbortMultipartUpload") else "other",
+                "http_status": code,
+                "error_code": error_code if error_code in (
+                    "ServiceUnavailable", "SlowDown", "InternalError", "NotImplemented") else "other",
+                "elapsed_ms": round((time.monotonic() - started) * 1000, 3),
+            }), flush=True)
+        return code
 
 
 def raw(endpoint, credentials, method, path, body=b"", headers=None, admission=None):
