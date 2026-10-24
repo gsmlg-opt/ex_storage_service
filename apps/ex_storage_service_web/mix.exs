@@ -41,7 +41,10 @@ defmodule ExStorageServiceWeb.MixProject do
       {:phoenix_live_dashboard, "~> 0.9"},
       {:jason, "~> 1.4"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:duskmoon_bundler, "~> 10.0"},
+      # TODO(upstream): duskmoon-dev/duskmoon-bundler#9
+      # WORKAROUND(upstream): duskmoon-dev/duskmoon-bundler#9
+      # Retain the downloader fix without 10.0.5's GLIBC_2.43 Vize requirement.
+      {:duskmoon_bundler, "10.0.4"},
       {:phoenix_duskmoon, "~> 10.0"}
     ]
   end
