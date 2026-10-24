@@ -35,8 +35,9 @@ injected backends and do not establish live cluster or scale acceptance.
 The independent fresh-index audit recomputed all 3,600 samples across the original
 10k/100k datasets and before/after growth checks. Original read, byte, page and
 native-count bounds passed, with no forbidden calls. Interruption, retained-root
-restart, fencing and atomic cutover checks also passed. The original A28.4
-published-cohort/before-and-after probes and complete runner provenance remain
+restart, fencing and atomic cutover checks also passed. The actual index job log
+corroborates its source and OS/toolchain; CPU hardware, affinity and quotas were
+not recorded. The original A28.4 published-cohort/before-and-after probes remain
 separate prerequisites; this audit does not promote the historical ledger.
 
 The fresh cluster lane reproduced the 32-way conditional MPU completion failure:
@@ -66,9 +67,19 @@ full resource matrices. Two local original Phase 1 diagnostics, including one
 restricted to four CPUs like the hosted runner's recorded affinity, also passed.
 Their bounded traces observed one successful completion and 31 precondition
 failures, with all stage calls captured and both trace sessions stopped. They
-did not reproduce the hosted 503s. A separate manual completion-stage diagnostic
-captures the original reason on the hosted runner without treating its result
-as acceptance.
+did not reproduce the hosted 503s.
+
+The hosted completion-stage diagnostic
+[40133535985](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/40133535985)
+tested `85efd5f2ab6acb5c315ac11f74b71aff935a9347`, fingerprint
+`2936154b99592135101cf43e30b79c4a52e8799b63c21e6363e9edd9ad9ceb84`.
+Original Phase 1 and IAM checks passed, including one successful completion and
+31 precondition failures. Its 410 sanitized stage rows contained no unexpected
+error; both sessions drained and closed with zero unmatched returns, without
+reaching either event cap. No mask commands were retained. Reserved EPMD
+registrations were absent afterward; independent final OS identities were not
+recorded. This diagnostic did not reproduce the full-run 503s, cannot establish
+their cause and does not replace the failed cluster or resource acceptance lanes.
 
 Current automatic push correctness
 [40129397470](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/40129397470)
