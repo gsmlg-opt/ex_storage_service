@@ -1,3 +1,101 @@
+## Concord 3.1.11 acceptance follow-up — 2026-11-05
+
+The full acceptance run
+[41970212160](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/41970212160)
+tests `a1cd9d303f109a82d7b988003dea7025b9f834b5`, fingerprint
+`6206bb61398cf6d95b83610f66c4514d78b276c689c6ef8f8e9db0c3f7224ddf`.
+Daily, correctness, gateway, restore, crashes, faults, resilience and release
+preflight passed. Standalone, cluster, index and resources failed. The aggregate
+failed its lane-success prerequisite, before running the stock verifier. This
+attempt cannot authorize publication.
+
+The resource job ended at 05:57:12 UTC with GitHub's annotation that the hosted
+runner lost communication with the server. No resource artifact was uploaded;
+the job-log endpoint returns 404. There is no retained current-run evidence to
+classify the operation, sampling coverage, memory, runner-loss cause or cleanup.
+The earlier 3.1.8 resource cadence failures remain separate historical evidence.
+
+Standalone failed before any client checks because the listener port was already
+in use. The launcher now uses the existing allocator that excludes ephemeral and
+native-journal ports, instead of closing an ephemeral probe before listener startup.
+The original standalone workflow then passed all profiles and retained-root
+multipart restart locally. The conflicting hosted port owner was not recorded;
+the artifact does not establish a dependency cause.
+
+The tagged minority-write test now accepts both documented deadline outcomes,
+`:quorum_unavailable` and `:timeout`, within the original 500 ms budget. It also
+proves the rejected key is absent through strong reads on every healed voter and
+after retained-storage restart. The tagged test passed locally; quorum and durable
+bootstrap rejection checks remain unchanged.
+
+The original cluster exercise independently reproduces a ten-second read timeout
+during its eight-worker, 32-request versioned PUT pool, after all earlier profiles
+and retained-root multipart restart passed. A bounded private trace found 33
+submitted transactions already containing contradictory head-revision comparisons;
+all returned compare-false. Their preceding index work consumed 22.22 seconds of
+aggregate concurrent call time. The planner now rejects observed stale guards
+before radix planning, while retaining every authoritative transaction comparison
+and the existing retry budgets. Three reproducing tests failed before the change;
+79 focused metadata/multipart tests pass with it, as does strict production
+compilation. The complete cluster replay still times out at the same stage, so
+this optimization is not a resolved cluster acceptance result. No dependency fault
+is established by these traces.
+
+A separate legal pure-protocol probe confirms a distinct upstream blocker:
+[Concord #112](https://github.com/gsmlg-dev/concord/issues/112). In published
+3.1.11, normal multi-voter read requests, follower barriers and primary barrier
+acknowledgements, including a late acknowledgement, take the exhaustive owned
+fallback. Each transition makes 1,001 versus 10,001 applied-request-index calls
+at 1k versus 10k retained entries, and 2,002 versus 20,002 contiguous-log and
+applied-request validation calls. Legal write controls make zero history calls.
+Every read transition matches public-kernel state/effects, completes only after
+quorum and leaves history unchanged. No applications, persistence or network are
+started. These counts establish history-dependent protocol work, not the cause
+of the HTTP timeouts, hosted index timeout or runner loss. The typed internal Bug
+contains the complete executed reproduction and source hashes. A published repair
+must be adopted and verified before the affected release acceptance resumes;
+there is no local workaround.
+
+The hosted A28 lane completed the 10k cohort and the initial 100k listings, then
+returned `{:error, :timeout}` during unrelated growth after its last confirmed
+60,000 writes. The old receipt only bounds the failing ordinal to 60,001–60,100;
+it does not identify the failed backend stage or establish a GC, storage or
+quorum cause. Independent A29 passed. The setup observer incorrectly used an
+unsanitized replica directory, so its null WAL/checkpoint sizes were invalid
+observations. It now follows the configured file-storage path, records runner
+provenance before startup and emits bounded, redacted failure classifications
+with exact ordinals. All nine diagnostic fixtures pass. The complete original
+10k/100k workload then passed locally with unchanged deadlines, all 3,600 samples,
+both before/after inventories and identical exact-read work after unrelated
+growth. Its working-source fingerprint remained
+`16067e1d31c3b3b2b106ca25d7c32aaa903965406cd30e2f28a561c6ef2ec40f`;
+the final result SHA256 is
+`52a0f0c02e7e5fdef79200a31ad7fc01dbafcf389b567c0542e8588af6d19562`.
+All three recorded runtime identities stopped and the disposable fixture root
+was removed. This 64 GiB local runner differs from the hosted runner; the pass
+does not explain that timeout or satisfy the full hosted acceptance gate.
+
+Additional contracts cover the 1000/1001 listing-limit clamp, actual 5 MiB multipart
+minimum with final-part exemption, and declared aggregate-size rejection before
+publication. The aggregate-size fixture contains two actual bytes with synthetic
+declared sizes; it is not a multi-terabyte transfer result. The default C7 ledger
+remains historical. Full acceptance, all 158 current-source clause verdicts and
+the stock aggregate remain required.
+
+Final formatting, strict test/production compilation, all 161 Python harness
+tests and all nine index-diagnostic fixtures pass. The first integrated extended
+run executed 4,589 application tests with one failure: a Req transport timeout
+during the new real 5 MiB replacement-part upload (seed `636069`). All other
+application tests passed, with no skips and the two declared heavy exclusions.
+The unchanged multipart case passes in isolation, and both complete 387-case S3
+runs pass, including the original failing seed. The unchanged combined-suite
+replay with seed `636069` then passed all 4,589 executed tests, with zero failures
+or skips and the same two heavy exclusions. The first timeout remains
+unclassified; a passing replay does not establish its cause or repair. No deadline
+or assertion was changed. Current executable fingerprint:
+`22800ed1d16bf77718449c6db063b94339d3d91d12d5d918012d63c4c8373486`.
+**v0.7.0 has not been dispatched or published.**
+
 ## Concord 3.1.11 update — 2026-11-05
 
 The core now requires Concord `~> 3.1.11`, with only Concord, VSR and ExTurso

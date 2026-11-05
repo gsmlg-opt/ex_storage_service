@@ -1,3 +1,24 @@
+## Current Concord 3.1.11 acceptance — 2026-11-05
+
+Full run [41970212160](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/41970212160)
+at `a1cd9d3` passed daily and seven extended lanes; standalone, cluster, index
+and resources failed. The resource runner lost communication and uploaded no
+artifact, so current resource coverage and cleanup are unverified. The aggregate
+failed before the stock verifier. Local launcher and minority-deadline test
+repairs pass. The index observer now follows the actual persistence path and
+retains precise, redacted failure observations. A trace-supported optimization
+rejects stale metadata plans earlier, but the original concurrent PUT replay still
+times out. The complete original 10k/100k A28 replay passed locally with all 3,600
+samples; it does not explain the hosted timeout. A separate legal pure-protocol
+probe confirms normal multi-voter read/barrier history rebuilding in 3.1.11,
+tracked by [Concord #112](https://github.com/gsmlg-dev/concord/issues/112).
+Release work is blocked until a published repair is adopted and verified.
+Final local compilation, harness and diagnostic checks pass. The full same-seed
+replay passed 4,589 application tests; the first attempt's multipart HTTP timeout
+remains unclassified. No historical clause was promoted and v0.7.0 remains
+unpublished. See the
+[integrated evidence report](../reports/s3-hardening-verification.md).
+
 ## Concord 3.1.11 refresh — 2026-11-05
 
 The candidate now requires the coordinated Concord/VSR/ExTurso 3.1.11 family.

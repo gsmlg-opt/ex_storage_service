@@ -5,13 +5,26 @@ ESS-S3-HARDENING-001. Hosted standalone remains RF=1/W=1; cluster remains RF=2/W
 The operation matrix below describes implemented behavior and its named tests.
 It does not claim complete AWS parity or production validation.
 
-Concord, VSR and ExTurso are installed and locked at published 3.1.8, including
+Concord, VSR and ExTurso are installed and locked at published 3.1.11, including
 the upstream #94–#97 and #101/#102/#104/#105 fixes. Backup validation supports the
 declared deterministic checksum scheme and legacy checks. Fresh restore targets require command version 1
 on every voter through quarantine, restarts and activation; existing databases
 retain compatibility default 0 and must never switch automatically.
 
-## Concord 3.1.8 acceptance attempt
+Version 3.1.11 preserves command-admission and Turso-operation deadlines. ESS
+keeps file-backed VSR, its existing transaction API and command formats 0/1;
+the new revision-CAS and queued-list APIs remain opt-in. Full current-source
+acceptance is still required before publication. See the
+[current verification report](reports/s3-hardening-verification.md).
+
+Normal multi-voter read/barrier transitions still rebuild and validate retained
+history in 3.1.11, independently reproduced in
+[Concord #112](https://github.com/gsmlg-dev/concord/issues/112). Singleton reads
+and normal owned write/apply paths have their earlier repairs. Release acceptance
+remains blocked pending a published, adopted and verified read-path repair;
+the reproduction does not establish the cause of the separate HTTP timeouts.
+
+## Historical Concord 3.1.8 acceptance attempt
 
 Candidate `45aa26eb16c6b23b7de2314aa34596b722949dc1` has executable-input
 fingerprint `a22306fca957a504ee1ac58e240019ec0b5af814ff00f745e68638202cc17439`.
@@ -56,7 +69,7 @@ requires GLIBC_2.43; its temporary exclusion is tracked in
 [Bundler #9](https://github.com/duskmoon-dev/duskmoon-bundler/issues/9).
 
 Version 3.1.7 removes full retained-history rebuilding from owned normal
-multi-voter events and singleton heartbeats. Version 3.1.8 adds value-free key-only
+multi-voter write/apply events and singleton heartbeats. Version 3.1.8 adds value-free key-only
 pages to Concord's Turso engine and a one-time projection backfill for existing
 Turso stores. ESS defaults to file-backed VSR with unchanged storage/wire and
 command formats. See the README for the Turso upgrade window and backup boundary.

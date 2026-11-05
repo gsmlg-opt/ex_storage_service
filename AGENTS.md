@@ -281,7 +281,11 @@ enforces decoded object size.
   `ESS_RA_ROOT` is retained as a legacy embedding compatibility value but is
   not used by Concord 3. Require Concord `~> 3.1.11` with matching VSR/ExTurso
   packages; the umbrella lock selects 3.1.11, including owned normal multi-voter
-  and singleton-heartbeat transitions (Concord #105). Concord's Turso engine
+  write/apply and singleton-heartbeat transitions (Concord #105). Normal
+  multi-voter reads/barriers still rebuild retained history (Concord #112).
+  Publication remains blocked until a released repair is adopted and verified;
+  do not patch dependencies or weaken validation, quorum or deadlines.
+  Concord's Turso engine
   serves value-free key-only pages through a covering metadata index (#106).
   Existing Turso-engine stores automatically backfill this projection once by
   reading current records; plan an upgrade window and retain verified backups.
