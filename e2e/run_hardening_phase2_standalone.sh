@@ -16,7 +16,7 @@ export ESS_METADATA_ROOT="$ESS_DATA_ROOT/metadata" ESS_RA_ROOT="$ESS_DATA_ROOT/r
 export ESS_MASTER_KEY=hardening-disposable-standalone-key
 export E2E_GITHUB_ENV="$ESS_DATA_ROOT/credentials.env"
 export ESS_S3_PORT
-ESS_S3_PORT="$("$python" -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1]); s.close()')"
+ESS_S3_PORT="$("$python" -B -c 'import sys; sys.path.insert(0, "e2e"); from hardening_ports import free_port; print(free_port())')"
 export E2E_S3_ENDPOINTS="http://127.0.0.1:$ESS_S3_PORT"
 logs=docs/reports/s3-hardening
 mkdir -p "$logs"

@@ -35,4 +35,20 @@ export ESS_REPAIR_ENABLED=false ESS_SCRUB_ENABLED=false
 export ESS_MASTER_KEY=disposable-index-acceptance-key
 export ESS_INDEX_EVIDENCE="docs/reports/s3-hardening/$label-index.json"
 [[ ! -e "$ESS_INDEX_EVIDENCE" ]] || exit 1
+"$python" - "$ESS_DATA_ROOT" "docs/reports/s3-hardening/$label-index-runner.json" <<'PY'
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+sys.path.insert(0, "e2e")
+from hardening_acceptance import source_fingerprint
+from resource_cases import runner_details
+
+with Path(sys.argv[2]).open("x") as output:
+    json.dump({"starting_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+               "source_sha256": source_fingerprint(), "runner": runner_details(sys.argv[1])},
+              output, indent=2)
+    output.write("\n")
+PY
 MIX_ENV=prod mix run --no-compile --no-start e2e/scripts/index_resource.exs

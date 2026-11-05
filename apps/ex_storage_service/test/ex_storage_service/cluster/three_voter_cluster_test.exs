@@ -113,8 +113,14 @@ defmodule ExStorageService.Cluster.ThreeVoterClusterTest do
     isolate(node_c, [node_a, node_b])
     await_partition!(node_c, [node_a, node_b])
 
-    assert {:error, :quorum_unavailable} =
-             call(node_c, Concord, :put, ["phase4:minority:#{suffix}", "rejected", [timeout: 500]])
+    minority_key = "phase4:minority:#{suffix}"
+
+    assert {:error, minority_failure} =
+             call(node_c, Concord, :put, [minority_key, "rejected", [timeout: 500]])
+
+    # Concord's command admission deadline and the VSR client deadline share
+    # the same budget. Either can report first; neither permits a minority write.
+    assert minority_failure in [:quorum_unavailable, :timeout]
 
     majority_key = "phase4:majority:#{suffix}"
     assert :ok = call(node_a, Concord, :put, [majority_key, "committed", [timeout: 2_000]])
@@ -123,6 +129,14 @@ defmodule ExStorageService.Cluster.ThreeVoterClusterTest do
     resume_discovery(nodes)
 
     await_value!(node_c, majority_key, "committed", 10_000)
+
+    Enum.each(nodes, fn peer ->
+      assert {:error, :not_found} =
+               call(peer, Concord, :get, [
+                 minority_key,
+                 [consistency: :strong, timeout: 2_000]
+               ])
+    end)
 
     stop_peer(node_c.pid)
 
@@ -166,7 +180,7 @@ defmodule ExStorageService.Cluster.ThreeVoterClusterTest do
     assert {:error, write_failure} =
              call(restarted_c, Concord, :put, [rejected_key, "rejected", [timeout: 500]])
 
-    assert write_failure in [:cluster_not_ready, :quorum_unavailable]
+    assert write_failure in [:cluster_not_ready, :quorum_unavailable, :timeout]
 
     Enum.each([:ex_storage_service, :concord], fn app ->
       assert call(restarted_c, Application, :stop, [app]) in [:ok, {:error, {:not_started, app}}]
@@ -180,6 +194,12 @@ defmodule ExStorageService.Cluster.ThreeVoterClusterTest do
     await_ready!(restarted_c, 20_000)
     await_value!(restarted_c, key, "written-on-a", 10_000)
     await_value!(restarted_c, survivor_key, "two-voter-majority", 10_000)
+
+    assert {:error, :not_found} =
+             call(restarted_c, Concord, :get, [
+               minority_key,
+               [consistency: :strong, timeout: 2_000]
+             ])
 
     assert {:error, :not_found} =
              call(restarted_c, Concord, :get, [

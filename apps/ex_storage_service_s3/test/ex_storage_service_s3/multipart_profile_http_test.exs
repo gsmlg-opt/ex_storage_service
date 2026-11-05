@@ -142,6 +142,71 @@ defmodule ExStorageServiceS3.MultipartProfileHTTPTest do
     assert Req.put!(path <> "&partNumber=1", body: "late", retry: false).status == 404
   end
 
+  test "the five MiB minimum excludes final parts and failed completion remains retryable", %{
+    bucket: bucket
+  } do
+    minimum = 5 * 1024 * 1024
+    previous = Application.fetch_env!(:ex_storage_service, :min_part_size)
+    Application.put_env(:ex_storage_service, :min_part_size, minimum)
+    on_exit(fn -> Application.put_env(:ex_storage_service, :min_part_size, previous) end)
+    :ok = Versioning.set_versioning(bucket, :enabled)
+    {:ok, upload} = Multipart.init_upload(bucket, "minimum")
+    path = @base <> "/#{bucket}/minimum?uploadId=#{upload}"
+
+    complete = fn target, parts ->
+      xml =
+        Enum.map_join(parts, fn {number, etag} ->
+          "<Part><PartNumber>#{number}</PartNumber><ETag>#{etag}</ETag></Part>"
+        end)
+
+      Req.post!(target,
+        retry: false,
+        body: "<CompleteMultipartUpload>#{xml}</CompleteMultipartUpload>"
+      )
+    end
+
+    short = :binary.copy("a", minimum - 1)
+    first = Req.put!(path <> "&partNumber=1", retry: false, body: short)
+    final = Req.put!(path <> "&partNumber=2", retry: false, body: "z")
+    assert first.status == 200
+    assert final.status == 200
+    [first_etag] = Req.Response.get_header(first, "etag")
+    [final_etag] = Req.Response.get_header(final, "etag")
+    assert {:ok, parts_before} = Multipart.list_parts(bucket, upload)
+
+    rejected = complete.(path, [{1, first_etag}, {2, final_etag}])
+    assert rejected.status == 400
+    assert rejected.body =~ "<Code>EntityTooSmall</Code>"
+    assert {:ok, %{status: :initiated} = active} = Multipart.get_upload(bucket, upload)
+    refute Map.has_key?(active, :completion)
+    assert {:ok, ^parts_before} = Multipart.list_parts(bucket, upload)
+    assert {:error, :object_not_found} = ObjectService.head(bucket, "minimum")
+    assert {:ok, []} = Versioning.list_versions(bucket, "minimum")
+
+    boundary = short <> "a"
+    replacement = Req.put!(path <> "&partNumber=1", retry: false, body: boundary)
+    assert replacement.status == 200
+    [replacement_etag] = Req.Response.get_header(replacement, "etag")
+    completed = complete.(path, [{1, replacement_etag}, {2, final_etag}])
+    assert completed.status == 200
+    [version] = Req.Response.get_header(completed, "x-amz-version-id")
+    assert {:ok, [%{version_id: ^version}]} = Versioning.list_versions(bucket, "minimum")
+    received = Req.get!(@base <> "/#{bucket}/minimum", retry: false, decode_body: false)
+    assert received.status == 200
+    assert byte_size(received.body) == minimum + 1
+    assert :crypto.hash(:sha256, received.body) == :crypto.hash(:sha256, boundary <> "z")
+    assert Req.Response.get_header(received, "x-amz-version-id") == [version]
+
+    {:ok, single_upload} = Multipart.init_upload(bucket, "single-final")
+    single_path = @base <> "/#{bucket}/single-final?uploadId=#{single_upload}"
+    single = Req.put!(single_path <> "&partNumber=1", retry: false, body: "q")
+    assert single.status == 200
+    [single_etag] = Req.Response.get_header(single, "etag")
+    assert complete.(single_path, [{1, single_etag}]).status == 200
+    assert Req.get!(@base <> "/#{bucket}/single-final", retry: false).body == "q"
+    assert {:ok, [_]} = Versioning.list_versions(bucket, "single-final")
+  end
+
   test "bad negotiated completion checksum leaves no object and permits valid retry", %{
     bucket: bucket
   } do

@@ -122,6 +122,23 @@ def main():
             first.put_object(Bucket=bucket, Key=key, Body=key.encode())
         for s3 in clients:
             for operation in ("list_objects", "list_objects_v2"):
+                for delimiter in ({}, {"Delimiter": "/"}):
+                    boundary = getattr(s3, operation)(Bucket=bucket, MaxKeys=1000, **delimiter)
+                    clamped = getattr(s3, operation)(Bucket=bucket, MaxKeys=1001, **delimiter)
+                    check(boundary["MaxKeys"] == clamped["MaxKeys"] == 1000,
+                          f"{operation} maximum clamp")
+                    check(not boundary["IsTruncated"] and not clamped["IsTruncated"],
+                          f"{operation} maximum page is terminal")
+                    expected = ["m +雪", "versioned", "z&<"] if delimiter else sorted(keys + ["versioned"])
+                    for response in (boundary, clamped):
+                        check([item["Key"] for item in response.get("Contents", [])] == expected,
+                              f"{operation} maximum page retains exact keys")
+                        check([item["Prefix"] for item in response.get("CommonPrefixes", [])] ==
+                              (["a/", "b/"] if delimiter else []),
+                              f"{operation} maximum page retains exact prefixes")
+                    for field in ("Contents", "CommonPrefixes", "IsTruncated", "KeyCount"):
+                        check(boundary.get(field) == clamped.get(field),
+                              f"{operation} clamp changes {field}")
                 result = getattr(s3, operation)(Bucket=bucket, MaxKeys=0)
                 check(not result.get("Contents") and not result["IsTruncated"], "zero page")
                 result = getattr(s3, operation)(Bucket=bucket, Delimiter="/", MaxKeys=2)

@@ -4,7 +4,7 @@ defmodule ExStorageService.Storage.MultipartHardeningTest do
   alias ExStorageService.{Metadata, ObjectService}
   alias ExStorageService.BlobStore.Source
   alias ExStorageService.Metadata.{Backend.Concord, BucketLifecycle, ListIndex}
-  alias ExStorageService.Storage.{Multipart, Versioning}
+  alias ExStorageService.Storage.{CAS, Multipart, Versioning}
 
   setup do
     bucket = "mpu-hardening-#{System.unique_integer([:positive])}"
@@ -253,6 +253,53 @@ defmodule ExStorageService.Storage.MultipartHardeningTest do
              Multipart.prepare_complete_upload(bucket, upload, [{2, etag}, {1, etag}])
 
     assert {:ok, %{status: :initiated}} = Multipart.get_upload(bucket, upload)
+  end
+
+  test "an oversized declared completion rejects without freezing the upload", %{
+    bucket: bucket
+  } do
+    {:ok, upload} = Multipart.init_upload(bucket, "aggregate-limit")
+    {:ok, first_etag} = Multipart.store_part(bucket, upload, 1, "a")
+    {:ok, final_etag} = Multipart.store_part(bucket, upload, 2, "b")
+    first_key = "mpu_part:#{bucket}:#{upload}:1"
+    final_key = "mpu_part:#{bucket}:#{upload}:2"
+    assert {:ok, %{value: first_part}} = Concord.get(first_key, consistency: :linearizable)
+    assert {:ok, %{value: final_part}} = Concord.get(final_key, consistency: :linearizable)
+    assert {:ok, upload_before} = Multipart.get_upload(bucket, upload)
+
+    # Only the declared size is synthetic. The disposable CAS fixtures contain two bytes;
+    # this verifies preflight rejection, not acceptance of a multi-terabyte body.
+    oversized = Map.put(first_part, :size, 5 * 1024 * 1024 * 1024 * 1024)
+
+    try do
+      assert :ok = Concord.put(first_key, oversized, [])
+
+      assert {:error, :entity_too_large} =
+               Multipart.prepare_complete_upload(bucket, upload, [
+                 {1, first_etag},
+                 {2, final_etag}
+               ])
+
+      assert {:ok, ^upload_before} = Multipart.get_upload(bucket, upload)
+      assert upload_before.status == :initiated
+      refute Map.has_key?(upload_before, :completion)
+      assert {:ok, %{value: ^oversized}} = Concord.get(first_key, consistency: :linearizable)
+      assert {:ok, %{value: ^final_part}} = Concord.get(final_key, consistency: :linearizable)
+      assert File.read!(CAS.blob_path(first_part.hash)) == "a"
+      assert File.read!(CAS.blob_path(final_part.hash)) == "b"
+      assert {:error, :object_not_found} = ObjectService.head(bucket, "aggregate-limit")
+      assert {:ok, []} = Versioning.list_versions(bucket, "aggregate-limit")
+    after
+      :ok = Concord.put(first_key, first_part, [])
+    end
+
+    assert {:ok, %{value: ^first_part}} = Concord.get(first_key, consistency: :linearizable)
+
+    assert {:ok, prepared} =
+             Multipart.prepare_complete_upload(bucket, upload, [{1, first_etag}, {2, final_etag}])
+
+    assert prepared.size == 2
+    assert File.read!(CAS.blob_path(prepared.content_hash)) == "ab"
   end
 
   test "a reader started before completion cannot replace the frozen part", %{bucket: bucket} do

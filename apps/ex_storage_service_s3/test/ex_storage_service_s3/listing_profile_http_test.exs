@@ -54,6 +54,37 @@ defmodule ExStorageServiceS3.ListingProfileHTTPTest do
     end
   end
 
+  test "v1 and v2 clamp limits above one thousand without changing the page", ctx do
+    for version <- [%{}, %{"list-type" => "2"}], delimiter <- [%{}, %{"delimiter" => "/"}] do
+      params = Map.merge(version, delimiter)
+      boundary = get(ctx, Map.put(params, "max-keys", "1000"))
+      clamped = get(ctx, Map.put(params, "max-keys", "1001"))
+
+      assert boundary.status == 200
+      assert clamped.status == 200
+      assert boundary.body =~ "<MaxKeys>1000</MaxKeys>"
+      assert boundary.body =~ "<IsTruncated>false</IsTruncated>"
+      assert clamped.body == boundary.body
+
+      expected =
+        if delimiter == %{},
+          do: ["a/1", "a/2", "b/1", "m +雪", "z&amp;&lt;"],
+          else: ["m +雪", "z&amp;&lt;"]
+
+      assert Regex.scan(~r/<Key>([^<]+)<\/Key>/, clamped.body, capture: :all_but_first) ==
+               Enum.map(expected, &[&1])
+
+      prefixes =
+        Regex.scan(
+          ~r/<CommonPrefixes><Prefix>([^<]+)<\/Prefix><\/CommonPrefixes>/,
+          clamped.body,
+          capture: :all_but_first
+        )
+
+      assert prefixes == if(delimiter == %{}, do: [], else: [["a/"], ["b/"]])
+    end
+  end
+
   test "v1 markers and v2 opaque context-bound continuation paginate prefixes", ctx do
     first = get(ctx, %{"delimiter" => "/", "max-keys" => "2"})
     assert first.status == 200
