@@ -1,7 +1,7 @@
 defmodule ExStorageService.CloudCache.DeleteThroughTest do
   use ExUnit.Case, async: true
   alias ExStorageService.CloudCache.{Config, DeleteThrough}
-  alias ExStorageService.Metadata.Keys
+  alias ExStorageService.Metadata.{Keys, ListIndex}
 
   defmodule Backend do
     def put(key, value, _opts) do
@@ -118,6 +118,55 @@ defmodule ExStorageService.CloudCache.DeleteThroughTest do
              Backend.get("cloud_cache_index:local", [])
 
     assert {:ok, %{results: []}} = reconcile(context)
+  end
+
+  test "converted gateway DELETE retains history and atomically indexes an absence marker",
+       context do
+    old = converted_version()
+    assert :ok = delete(context)
+    assert {:ok, %{value: ^old}} = Backend.get(Keys.object_version("local", "key", "legacy"), [])
+
+    assert {:ok, %{value: %{version_id: id, delete_marker: true}}} =
+             Backend.get(Keys.object_head("local", "key"), [])
+
+    refute id == "legacy"
+
+    assert {:ok,
+            %{value: %{cloud_backed: true, delete_marker: true, parent_version_id: "legacy"}}} =
+             Backend.get(Keys.object_version("local", "key", id), [])
+
+    assert {:ok, %{entries: []}} = ListIndex.page("local", :current, "", backend: Backend)
+
+    assert {:ok, %{version_count: 2, visible_count: 0}} =
+             ListIndex.status("local", backend: Backend)
+
+    assert {:ok, %{entries: []}} = Backend.list_page("ess:v2:blob:", nil, 10, [])
+    assert {:ok, nil} = Backend.get("obj:local:key", [])
+  end
+
+  test "changed converted version fences DELETE reconciliation without another upstream mutation",
+       context do
+    old = converted_version()
+    Process.put(:delete_result, {:error, :timeout})
+    assert {:error, {:upstream_unknown, :timeout}} = delete(context)
+
+    :ok =
+      Backend.put(
+        Keys.object_version("local", "key", "legacy"),
+        Map.put(old, :etag, "changed"),
+        []
+      )
+
+    assert {:ok,
+            %{
+              results: [
+                {"operation",
+                 {:error, {:local_reconciliation_required, :local_metadata_conflict}}}
+              ]
+            }} = reconcile(context)
+
+    assert Process.get(:deletes) == 1
+    assert {:ok, %{value: %{etag: "original"}}} = Backend.get("obj:local:key", [])
   end
 
   test "known upstream rejection preserves both metadata and cache", context do
@@ -254,6 +303,37 @@ defmodule ExStorageService.CloudCache.DeleteThroughTest do
              DeleteThrough.reconcile_page(nil, 10, opts)
 
     assert Process.get(:deletes) == 1
+  end
+
+  defp converted_version do
+    version = %{
+      schema: 2,
+      bucket: "local",
+      key: "key",
+      version_id: "legacy",
+      parent_version_id: nil,
+      cloud_backed: true,
+      delete_marker: false,
+      content_hash: String.duplicate("a", 64),
+      etag: "original",
+      size: 3,
+      created_at: "2026-11-01T00:00:00Z"
+    }
+
+    spec = %{
+      compare: [],
+      failure: [],
+      success: [
+        {:put, Keys.object_version("local", "key", "legacy"), version, %{}},
+        {:put, Keys.object_head("local", "key"),
+         %{schema: 2, bucket: "local", key: "key", version_id: "legacy", delete_marker: false},
+         %{}}
+      ]
+    }
+
+    assert {:ok, spec} = ListIndex.augment(Backend, "local", spec)
+    assert {:ok, %{succeeded: true}} = Backend.transaction(spec, [])
+    version
   end
 
   defp delete(context),

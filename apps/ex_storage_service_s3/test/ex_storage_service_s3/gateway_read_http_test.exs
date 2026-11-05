@@ -181,6 +181,36 @@ defmodule ExStorageServiceS3.GatewayReadHTTPTest do
     end
   end
 
+  test "internal cloud absence markers preserve NoSuchKey and upstream-authoritative reads",
+       context do
+    Agent.update(context.agent, &%{&1 | status: 404})
+    {:ok, config} = Config.get_active_config(context.bucket)
+
+    assert :ok =
+             ExStorageService.CloudCache.DeleteThrough.delete(
+               context.bucket,
+               "object",
+               config,
+               "gateway-marker-#{System.unique_integer([:positive])}"
+             )
+
+    assert {:ok, missing} = Req.get(context.url, retry: false)
+    assert missing.status == 404
+    assert missing.body =~ "<Code>NoSuchKey</Code>"
+    assert {:ok, %{status: 404, body: ""}} = Req.head(context.url, retry: false)
+
+    Agent.update(context.agent, &%{&1 | status: 503})
+    assert {:ok, %{status: 503}} = Req.get(context.url, retry: false)
+
+    Agent.update(
+      context.agent,
+      &%{&1 | status: 200, body: "externally-recreated", etag: "\"recreated\""}
+    )
+
+    assert {:ok, %{status: 200, body: "externally-recreated"}} =
+             Req.get(context.url, retry: false)
+  end
+
   test "truncated upstream download returns framed XML without stale object checksum or cache",
        context do
     :ok = ExStorageService.Metrics.setup()

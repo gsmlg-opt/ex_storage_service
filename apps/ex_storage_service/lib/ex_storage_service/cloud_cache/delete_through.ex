@@ -4,11 +4,12 @@ defmodule ExStorageService.CloudCache.DeleteThrough do
 
   An uncertain DELETE is never repeated. Recovery requires a HEAD confirming
   absence and compares the original local object and bucket identities before
-  atomically removing metadata and its cache entry. Shared cache files are left
+  atomically publishing an absence marker and removing current metadata plus its cache entry.
+  Shared cache files are left
   for safe garbage collection rather than unlinked underneath concurrent readers.
   """
-  alias ExStorageService.CloudCache.{Client, Config}
-  alias ExStorageService.Metadata.{BucketLifecycle, Keys}
+  alias ExStorageService.CloudCache.{Client, Config, MetadataPublication}
+  alias ExStorageService.Metadata.{BucketLifecycle, ListIndex}
   alias ExStorageService.Metadata.Backend.Concord, as: Backend
 
   @prefix "ess:gateway-delete:"
@@ -104,18 +105,17 @@ defmodule ExStorageService.CloudCache.DeleteThrough do
              opts
            ),
          {:ok, local} <- backend.get("obj:#{bucket}:#{key}", consistency: :linearizable),
-         {:ok, nil} <- backend.get(Keys.object_head(bucket, key), consistency: :linearizable),
+         {:ok, publication} <- MetadataPublication.snapshot(backend, bucket, key, opts),
          {:ok, cache} <- backend.get("cloud_cache_index:#{bucket}", consistency: :linearizable) do
       {:ok,
-       %{
+       Map.merge(publication, %{
          bucket_generation: BucketLifecycle.generation(bucket_meta),
          local_revision: revision(local),
          cache_entry: cache_entry(cache, key)
-       }}
+       })}
     else
       false -> {:error, :bucket_generation_changed}
       {:ok, nil} -> {:error, :bucket_not_found}
-      {:ok, %{}} -> {:error, :gateway_hosted_history_unsupported}
       {:error, _} = error -> error
     end
   end
@@ -160,12 +160,15 @@ defmodule ExStorageService.CloudCache.DeleteThrough do
              bucket_generation: record.bucket_generation
            ),
          {:ok, local} <- backend.get(local_key, consistency: :linearizable),
-         {:ok, head} <-
-           backend.get(Keys.object_head(record.bucket, record.key), consistency: :linearizable),
          {:ok, cache} <- backend.get(cache_key, consistency: :linearizable),
-         {:ok, journal} <- backend.get(journal_key, consistency: :linearizable) do
+         {:ok, journal} <- backend.get(journal_key, consistency: :linearizable),
+         {:ok, publication} <-
+           MetadataPublication.plan(backend, record, :delete, %{}, local, opts) do
       cond do
-        revision(local) != record.local_revision or head != nil or
+        publication.committed ->
+          :ok
+
+        revision(local) != record.local_revision or
             cache_entry(cache, record.key) != record.cache_entry ->
           {:error, :local_metadata_conflict}
 
@@ -176,23 +179,26 @@ defmodule ExStorageService.CloudCache.DeleteThrough do
           spec = %{
             compare:
               guard.compare ++
+                publication.compare ++
                 [
                   compare(local_key, revision(local)),
-                  compare(Keys.object_head(record.bucket, record.key), nil),
                   compare(cache_key, revision(cache)),
                   compare(journal_key, revision(journal))
                 ],
             success:
               guard.success ++
-                [{:delete, {:key, local_key}, %{}}, {:delete, {:key, journal_key}, %{}}] ++
+                publication.success ++
+                [{:delete, {:key, journal_key}, %{}}] ++
                 cache_delete(cache_key, cache, record.key),
             failure: []
           }
 
-          case backend.transaction(spec, []) do
-            {:ok, %{succeeded: true}} -> :ok
-            {:ok, %{succeeded: false}} -> commit(record, opts, attempts - 1)
-            {:error, _} = error -> error
+          with {:ok, spec} <- ListIndex.augment(backend, record.bucket, spec, opts) do
+            case backend.transaction(spec, []) do
+              {:ok, %{succeeded: true}} -> :ok
+              {:ok, %{succeeded: false}} -> commit(record, opts, attempts - 1)
+              {:error, _} = error -> error
+            end
           end
       end
     end

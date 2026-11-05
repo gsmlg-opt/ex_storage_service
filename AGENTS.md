@@ -307,6 +307,17 @@ enforces decoded object size.
   restoring the unsafe legacy multi-write sequence. Keep v1 reads, never
   migrate destructively at startup, and document that rollback after v2 writes
   requires a metadata restore for old binaries.
+- Offline listing-index conversion classifies `cloud_backed: true` per immutable
+  record. Verify selected current cloud bodies with authenticated HEAD plus a
+  conditional bounded raw GET; verify selected cloud markers against upstream
+  absence. Retain historical metadata without inventing hosted CAS/RF/location
+  evidence, and retain all hosted checks in mixed histories. Freeze the gateway
+  configuration revision through cutover; unfenced older builds cannot cut over.
+  Gateway PUT/COPY/DELETE publish immutable internal cloud versions, v2 heads,
+  legacy current values, journals and listing indexes atomically. Internal IDs
+  do not enable public upstream version APIs. New backup manifests declare
+  `hosted-and-pinned-v1` reference coverage; missing policy fields keep legacy
+  all-body semantics, and null/unknown policies fail verification.
 
 ### Standalone CLI configuration and packaging
 

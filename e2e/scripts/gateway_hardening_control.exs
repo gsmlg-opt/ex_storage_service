@@ -31,6 +31,83 @@ case #{inspect(action)} do
     {:ok, config} = Config.get_config(request["bucket"])
     :ok = Config.set_config(request["bucket"], Map.put(Map.from_struct(config), :cache_max_bytes, 6 * 1024 * 1024 * 1024))
     %{configured: true, cache_max_bytes: 6 * 1024 * 1024 * 1024}
+  "legacy-gateway-seed" ->
+    backend = ExStorageService.Metadata.Backend.Concord
+    alias ExStorageService.Metadata.{BucketLifecycle, Keys, ListIndex}
+    {:ok, config} = Config.get_active_config(request["bucket"])
+    {:ok, context} = ExStorageService.Context.default()
+    for fixture <- request["objects"] do
+      bytes = Base.decode64!(fixture["body_base64"])
+      hash = :crypto.hash(:sha256, bytes) |> Base.encode16(case: :lower)
+      metadata = %{
+        cloud_backed: true, content_hash: hash, size: byte_size(bytes),
+        etag: :crypto.hash(:md5, bytes) |> Base.encode16(case: :lower),
+        content_type: "application/octet-stream", created_at: "2026-11-02T00:00:00Z",
+        upstream_etag: fixture["etag"], upstream_version_id: fixture["version_id"]
+      }
+      :ok = backend.put("obj:" <> request["bucket"] <> ":" <> fixture["key"], metadata, [])
+      {:error, :not_found} = LocalCAS.stat(hash, ExStorageService.Context.direct_blob_store_options(context))
+      if fixture["cached"] do
+        {:ok, staged} = LocalCAS.stage(bytes)
+        {:ok, _path} = ExStorageService.CloudCache.LocalStore.put_file(request["bucket"], fixture["key"],
+          staged.path, staged.hash, staged.size, config)
+        :ok = LocalCAS.discard(staged)
+      end
+    end
+    old = %{cloud_backed: true, version_id: "old-cloud", size: 8,
+      content_hash: :crypto.hash(:sha256, "old-body") |> Base.encode16(case: :lower),
+      etag: "old", metadata: %{"retained" => "history"}, created_at: "2026-10-01T00:00:00Z"}
+    marker = %{cloud_backed: true, version_id: "old-marker", is_delete_marker: true,
+      created_at: "2026-10-02T00:00:00Z"}
+    :ok = backend.put("obj_ver:" <> request["bucket"] <> ":conversion-cold:old-cloud", old, [])
+    :ok = backend.put("obj_ver:" <> request["bucket"] <> ":conversion-cold:old-marker", marker, [])
+    {:ok, bucket} = Metadata.get_bucket(request["bucket"])
+    :ok = backend.delete(ListIndex.root_key(request["bucket"], BucketLifecycle.generation(bucket)), [])
+    {:error, :listing_index_migration_required} = Metadata.check_object_mutation(request["bucket"])
+    %{seeded: true, cached_and_upstream_only: true}
+  "legacy-gateway-convert" ->
+    alias ExStorageService.Operations.{Backup, ListingIndex}
+    {:ok, context} = ExStorageService.Context.default()
+    {:ok, _} = Backup.quiesce(context)
+    :ok = Backup.assert_quiesced(context)
+    {:ok, _} = Backup.create(context, request["backup"])
+    {:ok, %{upstream_only_bodies_included: false}} = Backup.verify(request["backup"])
+    opts = [sources: [context], backup: request["backup"], batch_size: 2]
+    {:ok, build} = ListingIndex.begin(request["bucket"], opts)
+    {:ok, _} = ListingIndex.capture(request["bucket"], build.owner_token, request["manifest"], opts)
+    for {phase, terminal} <- [{:resume, :validating}, {:validate, :validated}] do
+      result = Enum.reduce_while(1..256, :incomplete, fn _, _ ->
+        {:ok, progress} = apply(ListingIndex, phase, [request["bucket"], build.owner_token, request["manifest"], opts])
+        if progress.phase == terminal, do: {:halt, :complete}, else: {:cont, :incomplete}
+      end)
+      :complete = result
+    end
+    {:ok, %{phase: :ready}} = ListingIndex.cutover(request["bucket"], build.owner_token, opts)
+    {:ok, %{ready: true, counts: counts}} = ListingIndex.readiness(request["bucket"])
+    %{backup_verified: true, quiescence_verified: true, ready: true, counts: counts}
+  "legacy-gateway-inspect" ->
+    alias ExStorageService.Metadata.{Keys, ListIndex}
+    backend = ExStorageService.Metadata.Backend.Concord
+    {:ok, %{entries: versions}} = ListIndex.page(request["bucket"], :versions, "")
+    {:ok, %{entries: current}} = ListIndex.page(request["bucket"], :current, "")
+    retained = for id <- ["old-cloud", "old-marker"] do
+      {:ok, %{value: original}} = backend.get("obj_ver:" <> request["bucket"] <> ":conversion-cold:" <> id, consistency: :linearizable)
+      {:ok, %{value: converted}} = backend.get(Keys.object_version(request["bucket"], "conversion-cold", id), consistency: :linearizable)
+      true = Enum.all?(original, fn {key, value} -> converted[key] == value end)
+      id
+    end
+    cloud_versions = Enum.map(versions, fn {_encoded, summary} ->
+      {:ok, %{value: version}} = backend.get(summary.metadata_key, consistency: :linearizable)
+      true = version.cloud_backed
+      if not Map.get(version, :delete_marker, false) do
+        {:ok, nil} = backend.get(Keys.blob(version.content_hash), consistency: :linearizable)
+        {:ok, %{entries: []}} = backend.list_page(Keys.blob_location_prefix(version.content_hash), nil, 1, [])
+      end
+      %{key: summary.key, version_id: summary.version_id, latest: summary.is_latest,
+        marker: summary.delete_marker}
+    end)
+    %{retained: retained, versions: cloud_versions, current: Enum.map(current, fn {key, _} -> key end),
+      no_hosted_durability: true}
   "fail-local-commit" ->
     {:ok, config} = Config.get_active_config(request["bucket"])
     options = [before_local_commit: fn -> {:error, :acceptance_local_commit_failure} end]

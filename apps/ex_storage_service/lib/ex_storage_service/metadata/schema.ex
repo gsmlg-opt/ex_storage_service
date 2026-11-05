@@ -305,15 +305,23 @@ defmodule ExStorageService.Metadata.Schema do
     delete_marker =
       field(value, :delete_marker, field(value, :is_delete_marker, false)) == true
 
-    if delete_marker do
-      :ok
-    else
-      hash = field(value, :content_hash)
-      size = field(value, :size)
+    cond do
+      delete_marker ->
+        :ok
 
-      if is_binary(hash) and hash != "" and is_integer(size) and size >= 0,
-        do: validate_version_blob_descriptor(hash, size, opts),
-        else: {:invalid, :invalid_version_blob_identity}
+      field(value, :cloud_backed) == true ->
+        case ExStorageService.Metadata.GatewayIndex.validate_version(value) do
+          :ok -> :ok
+          {:error, reason} -> {:invalid, reason}
+        end
+
+      true ->
+        hash = field(value, :content_hash)
+        size = field(value, :size)
+
+        if is_binary(hash) and hash != "" and is_integer(size) and size >= 0,
+          do: validate_version_blob_descriptor(hash, size, opts),
+          else: {:invalid, :invalid_version_blob_identity}
     end
   end
 

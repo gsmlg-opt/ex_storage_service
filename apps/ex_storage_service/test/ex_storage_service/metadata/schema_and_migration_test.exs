@@ -301,6 +301,51 @@ defmodule ExStorageService.Metadata.SchemaAndMigrationTest do
              )
   end
 
+  test "schema distinguishes upstream-owned versions from hosted blob durability" do
+    {:ok, engine} = TestBackend.start_link()
+    hash = String.duplicate("a", 64)
+
+    cloud = %{
+      schema: 2,
+      bucket: "gateway",
+      key: "key",
+      version_id: "current",
+      cloud_backed: true,
+      content_hash: hash,
+      size: 5
+    }
+
+    TestBackend.seed(engine, Keys.object_version("gateway", "key", "current"), cloud)
+    opts = [backend: TestBackend, engine: engine, metadata_schema: :v2, replication_factor: 2]
+
+    assert {:ok,
+            %{
+              validation: %{invalid_record_count: 0},
+              v2: %{versions: 1, blobs: 0, blob_locations: 0}
+            }} = Schema.status(opts)
+
+    TestBackend.seed(engine, Keys.object_version("gateway", "key", "current"), %{
+      cloud
+      | cloud_backed: false
+    })
+
+    assert {:ok,
+            %{validation: %{invalid_records: [%{reason: {:missing_blob_descriptor, ^hash}}]}}} =
+             Schema.status(opts)
+
+    TestBackend.seed(engine, Keys.object_version("gateway", "key", "current"), %{
+      cloud
+      | content_hash: "invalid"
+    })
+
+    assert {:ok, %{validation: %{invalid_records: [%{reason: :invalid_gateway_blob_identity}]}}} =
+             Schema.status(opts)
+
+    marker = cloud |> Map.drop([:content_hash, :size]) |> Map.put(:delete_marker, true)
+    TestBackend.seed(engine, Keys.object_version("gateway", "key", "current"), marker)
+    assert {:ok, %{validation: %{invalid_record_count: 0}, v2: %{blobs: 0}}} = Schema.status(opts)
+  end
+
   test "schema status reports malformed records and blocks migration readiness" do
     {:ok, engine} = TestBackend.start_link()
 

@@ -403,6 +403,7 @@ defmodule ExStorageService.Operations.Backup do
   defp build_manifest(context, sources, started, refs, artifacts) do
     %{
       "format" => Manifest.format(),
+      "reference_policy" => Manifest.reference_policy(),
       "backup_id" => Manifest.random_id(),
       "application_version" => to_string(Application.spec(:ex_storage_service, :vsn)),
       "metadata_schema" => Atom.to_string(context.config.metadata_schema),

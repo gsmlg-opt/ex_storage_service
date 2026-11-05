@@ -86,18 +86,9 @@ defmodule ExStorageServiceS3.Handlers.Object.CloudBackend do
   end
 
   defp read_ready_object(conn, bucket, key, request_id, head?) do
-    case latest_delete_marker(bucket, key) do
+    case hosted_delete_marker(bucket, key) do
       {:ok, version_id} ->
         delete_marker_response(conn, version_id, request_id)
-
-      :no_such_bucket ->
-        error_response(
-          conn,
-          "NoSuchBucket",
-          "The specified bucket does not exist.",
-          "/#{bucket}/#{key}",
-          request_id
-        )
 
       {:error, reason} ->
         storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
@@ -134,6 +125,18 @@ defmodule ExStorageServiceS3.Handlers.Object.CloudBackend do
           {:error, reason} ->
             storage_error_response(conn, reason, "/#{bucket}/#{key}", request_id)
         end
+    end
+  end
+
+  # Internal cloud markers describe local metadata history. Upstream remains
+  # authoritative, including absence, availability and external recreation.
+  defp hosted_delete_marker(bucket, key) do
+    case ExStorageService.Storage.Versioning.get_version(bucket, key, nil) do
+      {:ok, %{cloud_backed: true}} -> :not_found
+      {:ok, %{is_delete_marker: true, version_id: id}} -> {:ok, id}
+      {:ok, _} -> :not_found
+      {:error, :not_found} -> :not_found
+      {:error, _} = error -> error
     end
   end
 

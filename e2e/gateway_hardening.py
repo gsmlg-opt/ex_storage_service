@@ -315,6 +315,51 @@ def main():
             "proxy_endpoint": proxy.endpoint, "remote_access": remote_access, "remote_secret": remote_secret})
         s3 = client(endpoint, credentials["access_key"], credentials["secret_key"])
         signing = Credentials(credentials["access_key"], credentials["secret_key"])
+        conversion_objects = []
+        for key, body, cached in [
+                ("conversion-cold", gzip.compress(b"upstream-only-conversion" * 64, mtime=0), False),
+                ("conversion-cached", b"cached-conversion-body", True)]:
+            created = upstream.put_object(Bucket=remote_bucket, Key=key, Body=body,
+                                          ContentEncoding="gzip" if key.endswith("cold") else "identity")
+            conversion_objects.append({"key": key, "body_base64": base64.b64encode(body).decode(),
+                                       "cached": cached, "etag": created["ETag"].strip('"'),
+                                       "version_id": created.get("VersionId")})
+        runtime.control("legacy-gateway-seed", {"bucket": bucket, "objects": conversion_objects})
+        error(lambda: s3.get_object(Bucket=bucket, Key="conversion-cold"), 503)
+        converted = runtime.control("legacy-gateway-convert", {
+            "bucket": bucket, "backup": str(root / "conversion-backup"),
+            "manifest": str(root / "conversion-manifest")})
+        check(converted["ready"] and converted["backup_verified"] and converted["quiescence_verified"]
+              and converted["counts"]["version_count"] == 4, "offline gateway conversion did not validate")
+        runtime.stop()
+        runtime.start()
+        for fixture in conversion_objects:
+            actual = s3.get_object(Bucket=bucket, Key=fixture["key"])["Body"].read()
+            check(actual == base64.b64decode(fixture["body_base64"]), "converted gateway GET changed raw bytes")
+        s3.put_object(Bucket=bucket, Key="conversion-cold", Body=b"post-conversion-put")
+        s3.copy_object(Bucket=bucket, Key="conversion-copy",
+                       CopySource={"Bucket": bucket, "Key": "conversion-cold"})
+        check(s3.get_object(Bucket=bucket, Key="conversion-copy")["Body"].read() == b"post-conversion-put",
+              "converted gateway COPY did not publish the new current object")
+        s3.delete_object(Bucket=bucket, Key="conversion-cached")
+        error(lambda: s3.get_object(Bucket=bucket, Key="conversion-cached"), 404)
+        inspection = runtime.control("legacy-gateway-inspect", {"bucket": bucket})
+        check("conversion-cached" not in inspection["current"]
+              and any(item["key"] == "conversion-cached" and item["latest"] and item["marker"]
+                      for item in inspection["versions"]), "converted gateway DELETE left a stale index")
+        upstream.put_object(Bucket=remote_bucket, Key="conversion-cached", Body=b"external-recreation")
+        check(s3.get_object(Bucket=bucket, Key="conversion-cached")["Body"].read() == b"external-recreation",
+              "internal gateway marker hid an externally recreated object")
+        upstream.delete_object(Bucket=remote_bucket, Key="conversion-cached")
+        error(lambda: s3.get_object(Bucket=bucket, Key="conversion-cached"), 404, "NoSuchKey")
+        s3.put_object(Bucket=bucket, Key="conversion-cached", Body=b"post-marker-put")
+        check(s3.get_object(Bucket=bucket, Key="conversion-cached")["Body"].read() == b"post-marker-put",
+              "converted gateway marker prevented a later PUT")
+        inspection = runtime.control("legacy-gateway-inspect", {"bucket": bucket})
+        check(inspection["no_hosted_durability"] and len(inspection["retained"]) == 2
+              and len(inspection["versions"]) == 8, "gateway mutations changed retained history or durability")
+        passed("legacy-gateway-backup-conversion-raw-get-put-copy-delete-history-and-index", {
+            "initial_versions": 4, "final_versions": 8, "retained_historical_versions": 2})
         payload = b"verified-original"
         s3.put_object(Bucket=bucket, Key="protected", Body=payload)
         path = f"/{remote_bucket}/protected"

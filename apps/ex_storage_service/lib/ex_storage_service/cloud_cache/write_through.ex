@@ -8,8 +8,8 @@ defmodule ExStorageService.CloudCache.WriteThrough do
   marker is missing or has been replaced by another writer.
   """
   alias ExStorageService.BlobStore.LocalCAS
-  alias ExStorageService.CloudCache.{Client, Config, LocalStore}
-  alias ExStorageService.Metadata.{BucketLifecycle, Keys}
+  alias ExStorageService.CloudCache.{Client, Config, LocalStore, MetadataPublication}
+  alias ExStorageService.Metadata.{BucketLifecycle, ListIndex}
   alias ExStorageService.Metadata.Backend.Concord, as: ConcordBackend
   @prefix "ess:gateway-write:"
 
@@ -155,11 +155,11 @@ defmodule ExStorageService.CloudCache.WriteThrough do
     # Each concurrent writer can advance the bucket for publication and cache
     # admission. Keep retries bounded while accommodating both revision changes.
     with :ok <- before_commit.(),
-         :ok <- commit_metadata(backend, record, meta, opts, 8),
+         {:ok, published} <- commit_metadata(backend, record, meta, opts, 8),
          :ok <- cache(record, config, opts),
          :ok <- normalize(backend.delete(journal_key(record.operation_id), [])) do
       _ = File.rm(record.path)
-      {:ok, meta}
+      {:ok, published}
     else
       {:error, reason} ->
         ExStorageService.Telemetry.uncertain_operation(:gateway_write, :reconciliation_required)
@@ -181,13 +181,12 @@ defmodule ExStorageService.CloudCache.WriteThrough do
              opts
            ),
          {:ok, local} <- backend.get("obj:#{bucket}:#{key}", consistency: :linearizable),
-         {:ok, head} <- backend.get(Keys.object_head(bucket, key), consistency: :linearizable) do
+         {:ok, publication} <- MetadataPublication.snapshot(backend, bucket, key, opts) do
       {:ok,
-       %{
+       Map.merge(publication, %{
          bucket_generation: BucketLifecycle.generation(bucket_meta),
-         local_revision: revision(local),
-         head_revision: revision(head)
-       }}
+         local_revision: revision(local)
+       })}
     else
       {:ok, nil} -> {:error, :bucket_not_found}
       false -> {:error, :bucket_generation_changed}
@@ -206,14 +205,13 @@ defmodule ExStorageService.CloudCache.WriteThrough do
              bucket_generation: record.bucket_generation
            ),
          {:ok, local} <- backend.get(local_key, consistency: :linearizable),
-         {:ok, head} <-
-           backend.get(Keys.object_head(record.bucket, record.key), consistency: :linearizable),
-         {:ok, journal} <- backend.get(journal_key, consistency: :linearizable) do
+         {:ok, journal} <- backend.get(journal_key, consistency: :linearizable),
+         {:ok, publication} <- MetadataPublication.plan(backend, record, :put, meta, local, opts) do
       cond do
-        local != nil and Map.get(local.value, :gateway_operation_id) == record.operation_id ->
-          :ok
+        publication.committed ->
+          {:ok, publication.metadata}
 
-        revision(local) != record.local_revision or revision(head) != record.head_revision ->
+        revision(local) != record.local_revision ->
           {:error, :local_metadata_conflict}
 
         journal == nil ->
@@ -223,29 +221,31 @@ defmodule ExStorageService.CloudCache.WriteThrough do
           spec = %{
             compare:
               guard.compare ++
+                publication.compare ++
                 [
                   compare(local_key, record.local_revision),
-                  compare(Keys.object_head(record.bucket, record.key), record.head_revision),
                   {:mod_revision, journal_key, :==, journal.mod_revision}
                 ],
             success:
               guard.success ++
+                publication.success ++
                 [
-                  {:put, local_key, meta, %{}},
                   {:put, journal_key, %{record | state: :local_committed}, %{}}
                 ],
             failure: []
           }
 
-          case backend.transaction(spec, []) do
-            {:ok, %{succeeded: true}} ->
-              :ok
+          with {:ok, spec} <- ListIndex.augment(backend, record.bucket, spec, opts) do
+            case backend.transaction(spec, []) do
+              {:ok, %{succeeded: true}} ->
+                {:ok, publication.metadata}
 
-            {:ok, %{succeeded: false}} ->
-              commit_metadata(backend, record, meta, opts, attempts - 1)
+              {:ok, %{succeeded: false}} ->
+                commit_metadata(backend, record, meta, opts, attempts - 1)
 
-            {:error, _} = error ->
-              error
+              {:error, _} = error ->
+                error
+            end
           end
       end
     end

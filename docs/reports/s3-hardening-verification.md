@@ -1,3 +1,39 @@
+## Legacy gateway index conversion (#24) — 2026-11-05
+
+The main-branch fix supports the existing quiesced, backup-verified conversion
+for upstream-only and cached cloud records. Selected current cloud bodies pass
+authenticated HEAD plus conditional raw GET verification; historical metadata
+and markers are retained without creating hosted CAS/RF/location evidence.
+Gateway configuration revisions remain fenced through cutover. Converted
+PUT/COPY/DELETE now publish immutable cloud history, v2 heads, legacy current
+metadata and listing indexes in their existing journal transactions. Cloud
+absence markers preserve upstream-authoritative reads and `NoSuchKey` XML.
+See the [operator procedure](../operations/listing-index.md).
+
+Local preflight passed 102 focused backup/conversion/schema/journal tests,
+then the complete extended correctness selection: 4,582 executed tests, zero
+failures, zero skips and the two declared heavy exclusions. After the final
+malformed-metadata guard and removal of an unreachable read clause, the 35
+gateway journal and nine HTTP contracts passed again. Strict test/production
+compilation, repository formatting and all 161 Python harness tests passed.
+
+The complete real RustFS 1.0.1 gateway lane passed all 18 groups, including
+verified backup/quiescence, conversion, retained-root restart, signed raw gzip
+and cached GET, PUT/COPY/DELETE, external recreation, exact historical metadata,
+index counts, no hosted durability claims, real 60-second socket inactivity,
+four restart/reconciliation cases and the independent mc compatibility suite.
+Independent cleanup confirmed five recorded BEAM identities stopped, the exact
+fixture container removed and both fixture ports closed. Private local evidence
+is under `/tmp/ess-s3-hardening-issue24-r3-20261105/`; the first run exposed the
+now-fixed empty-404 regression, and the second was interrupted by SIGTERM after
+11 groups. Neither incomplete run is a passing receipt.
+
+These are preflight results, not full current-source hardening acceptance.
+Concord/VSR/ExTurso remain at 3.1.8. The historical C7 ledger and older lane
+receipts are not promoted by this fix. Publication still requires a successful
+full acceptance workflow and every original scenario/clause audit for the
+release candidate. No production bucket has been converted by this work.
+
 ## Concord 3.1.8 refresh — 2026-10-25
 
 The current candidate updates Concord, Viewstamped Replication and ExTurso to

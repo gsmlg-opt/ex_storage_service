@@ -32,7 +32,7 @@ descriptor cannot commit through that fence. After this succeeds, compatible
 services may restart: another bucket may mutate, but this bucket's namespace
 writes, MPU transitions and deletion remain gated until cutover.
 
-Every converted non-marker version passes the existing migration identity,
+Every converted hosted non-marker version passes the existing migration identity,
 descriptor, location and actual CAS checksum/size checks. Peer probes verify
 source-node CAS roots through RPC. Fewer verified source locations than the
 build's target RF blocks that version's publication; metadata cannot invent
@@ -42,6 +42,51 @@ Validation rechecks the evidence and requires the committed descriptor and
 ready location metadata. The target RF is frozen at begin and cannot be below
 the source configuration. Repair missing replicas through the documented repair
 procedure before retrying; do not lower RF/W or substitute unverified probes.
+
+## Cloud-backed buckets
+
+The same backup, quiescence, capture, replay, validation and cutover sequence
+supports legacy gateway buckets. Classification is per immutable record:
+`cloud_backed: true` retains upstream-owned metadata without creating a hosted
+blob descriptor, location, RF claim or repair intent. Hosted versions in mixed
+histories still require their original CAS and replication evidence. Original
+version IDs, unindexed history, custom metadata and delete markers are retained.
+
+Validation checks each selected current cloud object with an authenticated
+upstream HEAD and a conditional, bounded raw GET. It compares the recorded
+SHA-256 and size, plus HEAD/GET ETag and upstream version identity. Stored
+`upstream_etag` and `upstream_version_id`, when present, must also match; the
+ordinary metadata `etag` is not interpreted as an upstream version identity.
+An existing cache is preserved but cannot replace this verification. The GET
+stage is private, discarded after verification and never published as a CAS
+replica. A selected cloud delete marker requires upstream HEAD to confirm
+absence. Historical cloud records receive metadata, manifest and index checks;
+the current upstream object does not prove that old remote bodies still exist.
+
+The gateway configuration revision is frozen at begin and compared through
+cutover. Missing or invalid configuration, unavailable upstreams, identity or
+content mismatches and configuration changes keep the bucket gated. Verification
+establishes the upstream state observed during validation; it cannot fence
+independent writers at the upstream service. Quiesce those writers as part of
+the operator window when a stable cutover is required.
+
+New backups declare `reference_policy: hosted-and-pinned-v1`: upstream-only
+bodies are excluded, while hosted bodies and pending journal/job/intent/MPU pins
+remain required. Existing cache artifacts are still captured and verified.
+Bundles without this field retain the original all-object-body requirements;
+null or unknown policies are rejected. Keep verified backups of both metadata
+and available local artifacts, and separately protect upstream data.
+
+After cutover, gateway PUT/COPY and DELETE atomically publish a fresh immutable
+cloud version or absence marker, its v2 head, legacy current value, journal state
+and listing index. Internal version IDs do not identify upstream versions.
+Gateway explicit-version requests and version listings remain unsupported.
+Internal cloud absence markers preserve local history; gateway reads still
+revalidate upstream absence, errors and externally recreated current objects.
+A live hosted current version is rejected before upstream mutation. Interrupted
+builds created by binaries without the configuration fence cannot cut over;
+restore their verified pre-build backup into isolated roots and start a new
+build with a compatible binary. Never edit the build record to bypass the fence.
 
 ## Release RPC entrypoints
 

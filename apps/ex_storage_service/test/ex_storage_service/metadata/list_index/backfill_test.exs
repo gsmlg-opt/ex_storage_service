@@ -81,6 +81,26 @@ defmodule ExStorageService.Metadata.ListIndex.BackfillTest do
     def verify(_, _opts), do: {:error, :invalid_backup}
   end
 
+  defmodule GatewayClient do
+    def head_object(_config, key) do
+      send(self(), {:gateway_head, key})
+
+      case Process.get({__MODULE__, key}) do
+        {_bytes, headers} -> {:ok, headers}
+        nil -> {:error, :not_found}
+      end
+    end
+
+    def get_file(_config, key, opts) do
+      send(self(), {:gateway_get, key, opts[:if_match]})
+      if hook = Process.delete(:gateway_before_get), do: hook.()
+      {bytes, headers} = Process.get({__MODULE__, key})
+
+      with {:ok, staged} <- ExStorageService.BlobStore.LocalCAS.stage(bytes, opts),
+           do: {:ok, staged, headers}
+    end
+  end
+
   setup do
     generation = "backfill-generation"
 
@@ -251,6 +271,260 @@ defmodule ExStorageService.Metadata.ListIndex.BackfillTest do
     assert {:ok, nil} = ExactBackend.get(Keys.object_version("bucket", "key", "null"), opts)
     assert {:ok, %{processed: 1}} = Backfill.status("bucket", opts)
     complete(context, token)
+  end
+
+  test "upstream-only cloud history converts without claiming hosted blob durability", context do
+    bytes = "upstream current bytes"
+    hash = Base.encode16(:crypto.hash(:sha256, bytes), case: :lower)
+    cloud = %{cloud_backed: true, content_hash: hash, size: byte_size(bytes), etag: "remote"}
+    put(context, "cloud_cache:bucket", gateway_config())
+    put(context, "obj:bucket:key", Map.put(cloud, :created_at, "2026-01-03"))
+
+    put(
+      context,
+      "obj_ver:bucket:key:old",
+      Map.merge(cloud, %{version_id: "old", created_at: "2026-01-01"})
+    )
+
+    put(context, "obj_ver:bucket:key:marker", %{
+      cloud_backed: true,
+      version_id: "marker",
+      is_delete_marker: true,
+      created_at: "2026-01-02"
+    })
+
+    Process.put(
+      {GatewayClient, "key"},
+      {bytes, %{etag: "remote", content_length: byte_size(bytes), version_id: "upstream-current"}}
+    )
+
+    opts =
+      context.opts
+      |> Keyword.put(:local_blob_probe, fn _, _ ->
+        flunk("cloud metadata must not probe hosted CAS")
+      end)
+      |> Keyword.put(:gateway_client, GatewayClient)
+
+    context = %{context | opts: opts}
+    token = capture(context)
+    complete(context, token)
+    assert {:ok, %{entries: [{"key", _}]}} = ListIndex.page("bucket", :current, <<>>, opts)
+    assert {:ok, %{entries: versions}} = ListIndex.page("bucket", :versions, <<>>, opts)
+    assert length(versions) == 3
+    assert Enum.any?(versions, fn {_, metadata} -> metadata.delete_marker end)
+    assert {:ok, nil} = ExactBackend.get(Keys.blob(hash), opts)
+
+    refute Enum.any?(
+             Agent.get(context.engine, &Map.keys(&1.records)),
+             &String.starts_with?(&1, "ess:v2:blob_location:")
+           )
+
+    assert_received {:gateway_head, "key"}
+    assert_received {:gateway_get, "key", "\"remote\""}
+    refute_received {:gateway_head, _}
+  end
+
+  test "cached cloud history and a selected marker preserve metadata while checking absence",
+       context do
+    bytes = "cached upstream bytes"
+    cache = Path.join(Path.dirname(context.path), "retained-cache")
+    File.write!(cache, bytes)
+
+    cloud = %{
+      cloud_backed: true,
+      content_hash: Base.encode16(:crypto.hash(:sha256, bytes), case: :lower),
+      size: byte_size(bytes),
+      etag: "cache-etag",
+      version_id: "old",
+      created_at: "2026-01-01"
+    }
+
+    put(context, "cloud_cache:bucket", gateway_config())
+    put(context, "cloud_cache_index:bucket", %{key: %{path: cache}})
+    put(context, "obj_ver:bucket:key:old", cloud)
+
+    put(context, "obj:bucket:key", %{
+      cloud_backed: true,
+      is_delete_marker: true,
+      created_at: "2026-01-02"
+    })
+
+    opts =
+      context.opts
+      |> Keyword.put(:gateway_client, GatewayClient)
+      |> Keyword.put(:local_blob_probe, fn _, _ ->
+        flunk("cached cloud data is not hosted durability")
+      end)
+
+    context = %{context | opts: opts}
+    token = capture(context)
+    complete(context, token)
+    assert {:ok, %{entries: []}} = ListIndex.page("bucket", :current, <<>>, opts)
+    assert {:ok, %{entries: versions}} = ListIndex.page("bucket", :versions, <<>>, opts)
+    assert length(versions) == 2
+    assert Enum.any?(versions, fn {_, value} -> value.is_latest and value.delete_marker end)
+    assert File.read!(cache) == bytes
+
+    assert {:ok, %{value: %{key: %{path: ^cache}}}} =
+             ExactBackend.get("cloud_cache_index:bucket", opts)
+
+    assert_received {:gateway_head, "key"}
+    refute_received {:gateway_get, _, _}
+    assert {:ok, nil} = ExactBackend.get(Keys.blob(cloud.content_hash), opts)
+  end
+
+  test "cloud exemption never admits a missing hosted body in a mixed bucket", context do
+    cloud = %{cloud_backed: true, content_hash: String.duplicate("a", 64), size: 1}
+    hosted = %{content_hash: String.duplicate("b", 64), size: 1}
+    put(context, "cloud_cache:bucket", gateway_config())
+    put(context, "obj:bucket:a-cloud", cloud)
+    put(context, "obj:bucket:z-hosted", hosted)
+    opts = Keyword.put(context.opts, :local_blob_probe, fn _, _ -> :missing end)
+    context = %{context | opts: opts}
+    token = capture(context)
+
+    assert {:error, {:insufficient_verified_blob_sources, _, 1}} =
+             Backfill.resume("bucket", token, context.path, opts)
+
+    assert {:error, :listing_index_unavailable} = ListIndex.page("bucket", :current, <<>>, opts)
+    assert {:ok, nil} = ExactBackend.get(Keys.blob(hosted.content_hash), opts)
+    assert {:ok, nil} = ExactBackend.get(Keys.blob(cloud.content_hash), opts)
+  end
+
+  test "cloud replay requires enabled configuration and cannot upgrade an older unfenced build",
+       context do
+    put(context, "obj:bucket:key", %{
+      cloud_backed: true,
+      content_hash: String.duplicate("a", 64),
+      size: 1
+    })
+
+    token = capture(context)
+
+    assert {:error, {:gateway_index_verification_failed, :gateway_configuration_unavailable}} =
+             Backfill.resume("bucket", token, context.path, context.opts)
+
+    assert {:ok, nil} =
+             ExactBackend.get(Keys.object_version("bucket", "key", "null"), context.opts)
+
+    build_key = Backfill.build_key("bucket", context.generation)
+    {:ok, build} = ExactBackend.get(build_key, context.opts)
+    put(context, build_key, Map.delete(build.value, :cloud_cache_revision))
+    put(context, "cloud_cache:bucket", gateway_config())
+
+    assert {:error, :legacy_gateway_build_requires_restart} =
+             Backfill.resume("bucket", token, context.path, context.opts)
+
+    assert {:error, :listing_index_unavailable} =
+             ListIndex.page("bucket", :current, <<>>, context.opts)
+  end
+
+  test "gateway configuration revision is frozen before capture", context do
+    config = gateway_config()
+    put(context, "cloud_cache:bucket", config)
+    {:ok, started} = Backfill.begin("bucket", context.opts)
+    put(context, "cloud_cache:bucket", config)
+
+    assert {:error, :gateway_configuration_changed} =
+             Backfill.capture("bucket", started.owner_token, context.path, context.opts)
+
+    assert {:ok, %{phase: :capturing}} = Backfill.status("bucket", context.opts)
+  end
+
+  test "gateway configuration changes race the publication fence without advancing its checkpoint",
+       context do
+    config = gateway_config()
+    put(context, "cloud_cache:bucket", config)
+    put(context, "obj:bucket:key", %{etag: "one", size: 1})
+    token = capture(context)
+    {:ok, before} = Backfill.status("bucket", context.opts)
+
+    Agent.update(
+      context.engine,
+      &%{
+        &1
+        | before_transaction: fn spec ->
+            assert Enum.any?(spec.compare, fn
+                     {:mod_revision, "cloud_cache:bucket", :==, _} -> true
+                     _ -> false
+                   end)
+
+            put(context, "cloud_cache:bucket", config)
+          end
+      }
+    )
+
+    assert {:error, :build_conflict} =
+             Backfill.resume("bucket", token, context.path, context.opts)
+
+    assert {:ok, ^before} = Backfill.status("bucket", context.opts)
+
+    assert {:error, :gateway_configuration_changed} =
+             Backfill.resume("bucket", token, context.path, context.opts)
+  end
+
+  test "configuration changes during upstream verification cannot commit validation", context do
+    bytes = "current bytes"
+    config = gateway_config()
+    put(context, "cloud_cache:bucket", config)
+
+    put(context, "obj:bucket:key", %{
+      cloud_backed: true,
+      content_hash: Base.encode16(:crypto.hash(:sha256, bytes), case: :lower),
+      size: byte_size(bytes)
+    })
+
+    Process.put(
+      {GatewayClient, "key"},
+      {bytes, %{etag: "remote", content_length: byte_size(bytes), version_id: nil}}
+    )
+
+    context = %{context | opts: Keyword.put(context.opts, :gateway_client, GatewayClient)}
+    token = capture(context)
+    advance(context, token, :build)
+    Process.put(:gateway_before_get, fn -> put(context, "cloud_cache:bucket", config) end)
+
+    assert {:error, :build_conflict} =
+             Backfill.validate("bucket", token, context.path, context.opts)
+
+    assert {:error, :gateway_configuration_changed} =
+             Backfill.cutover("bucket", token, context.opts)
+
+    assert {:error, :listing_index_unavailable} =
+             ListIndex.page("bucket", :current, <<>>, context.opts)
+  end
+
+  test "cutover retains the frozen gateway configuration fence", context do
+    config = gateway_config()
+    put(context, "cloud_cache:bucket", config)
+    put(context, "obj:bucket:key", %{etag: "one", size: 1})
+    token = capture(context)
+    advance(context, token, :build)
+    advance(context, token, :validate)
+    put(context, "cloud_cache:bucket", config)
+
+    assert {:error, :gateway_configuration_changed} =
+             Backfill.cutover("bucket", token, context.opts)
+
+    assert {:error, :listing_index_unavailable} =
+             ListIndex.page("bucket", :current, <<>>, context.opts)
+  end
+
+  test "an already validated build from an older binary cannot release an unfenced gate",
+       context do
+    put(context, "obj:bucket:key", %{etag: "one", size: 1})
+    token = capture(context)
+    advance(context, token, :build)
+    advance(context, token, :validate)
+    build_key = Backfill.build_key("bucket", context.generation)
+    {:ok, build} = ExactBackend.get(build_key, context.opts)
+    put(context, build_key, Map.delete(build.value, :cloud_cache_revision))
+
+    assert {:error, :legacy_gateway_build_requires_restart} =
+             Backfill.cutover("bucket", token, context.opts)
+
+    assert {:error, :listing_index_unavailable} =
+             ListIndex.page("bucket", :current, <<>>, context.opts)
   end
 
   test "real CAS probes reject missing or corrupt replicas and preserve descriptor RF", context do
@@ -536,6 +810,18 @@ defmodule ExStorageService.Metadata.ListIndex.BackfillTest do
       hash: "hash-#{number}",
       uploaded_at: "2020-01-01"
     }
+
+  defp gateway_config do
+    %{
+      enabled: true,
+      provider: :s3_compat,
+      endpoint: "http://isolated.invalid",
+      bucket: "upstream",
+      region: "us-east-1",
+      access_key_id: "fixture-access",
+      encrypted_secret: ExStorageService.CloudCache.Config.encrypt_secret("fixture-secret")
+    }
+  end
 
   defp put(context, key, value) do
     value =

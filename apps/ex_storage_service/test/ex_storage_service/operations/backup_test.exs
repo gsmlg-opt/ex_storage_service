@@ -347,6 +347,110 @@ defmodule ExStorageService.Operations.BackupTest do
     assert {:ok, %{^content_hash => 8}} = BackupManifest.references(entries)
   end
 
+  test "gateway metadata does not require upstream-only bodies while hosted and pinned bodies do" do
+    upstream_hash = hash("upstream-only")
+    hosted_hash = hash("hosted")
+    pinned_hash = hash("pending-gateway-upload")
+
+    entries = [
+      {"obj:gateway:checkpoint", %{cloud_backed: true, content_hash: upstream_hash, size: 13}},
+      {"obj_ver:gateway:checkpoint:old",
+       %{cloud_backed: true, content_hash: upstream_hash, size: 13}},
+      {"ess:v2:object_version:gateway:checkpoint:old",
+       %{cloud_backed: true, content_hash: upstream_hash, size: 13}},
+      {"obj:hosted:object", %{content_hash: hosted_hash, size: 6}},
+      {"ess:gateway-write:pending", %{hash: pinned_hash, size: 22}}
+    ]
+
+    assert {:ok, %{^hosted_hash => 6, ^pinned_hash => 22} = references} =
+             BackupManifest.references(entries)
+
+    refute Map.has_key?(references, upstream_hash)
+  end
+
+  test "declared hosted-and-pinned policy verifies upstream-only metadata without a local body",
+       %{
+         root: root
+       } do
+    {bundle, manifest} =
+      bundle(root,
+        cloud_backed: true,
+        multipart: false,
+        body: false,
+        reference_policy: BackupManifest.reference_policy()
+      )
+
+    assert manifest["reference_policy"] == "hosted-and-pinned-v1"
+    assert manifest["references"] == %{}
+    assert {:ok, %{referenced_blobs: 0, artifacts: 1}} = Backup.verify(bundle, master_key: @key)
+  end
+
+  test "legacy cloud manifests still require and verify their original local bodies", %{
+    root: root
+  } do
+    {bundle, manifest} = bundle(root, cloud_backed: true, multipart: false)
+    refute Map.has_key?(manifest, "reference_policy")
+    path = Path.join(bundle, "manifest.json")
+    original = File.read!(path)
+
+    assert {:ok, %{referenced_blobs: 1, artifacts: 2}} = Backup.verify(bundle, master_key: @key)
+    assert File.read!(path) == original
+
+    rewrite_manifest(bundle, Map.put(manifest, "reference_policy", "all-object-bodies-v1"))
+    assert {:ok, %{referenced_blobs: 1, artifacts: 2}} = Backup.verify(bundle, master_key: @key)
+  end
+
+  test "legacy cloud manifests cannot omit a formerly required local body", %{root: root} do
+    {bundle, manifest} = bundle(root, cloud_backed: true, multipart: false, body: false)
+    [{content_hash, _size}] = Map.to_list(manifest["references"])
+
+    assert {:error, {:referenced_blob_missing, ^content_hash}} =
+             Backup.verify(bundle, master_key: @key)
+  end
+
+  test "unknown and null reference policies never select either supported policy", %{root: root} do
+    {bundle, manifest} = bundle(root)
+
+    for policy <- ["future-reference-policy", nil] do
+      rewrite_manifest(bundle, Map.put(manifest, "reference_policy", policy))
+
+      assert {:error, :unsupported_reference_policy} = Backup.verify(bundle, master_key: @key)
+      assert {:error, :unsupported_reference_policy} = BackupManifest.references([], policy)
+    end
+  end
+
+  test "hosted bodies and every active pin remain required under the declared policy", %{
+    root: root
+  } do
+    content_hash = hash("required")
+    size = byte_size("required")
+
+    records = [
+      {"obj:hosted:object", %{content_hash: content_hash, size: size}},
+      {"obj:hosted:non-boolean", %{cloud_backed: "true", content_hash: content_hash, size: size}},
+      {"ess:v2:multipart_part:upload:1", %{cloud_backed: true, hash: content_hash, size: size}},
+      {"ess:v2:operation_intent:pending",
+       %{cloud_backed: true, state: :pending, hash: content_hash, size: size}},
+      {"ess:v2:job:running",
+       %{cloud_backed: true, state: :running, payload: %{content_hash: content_hash, size: size}}},
+      {"ess:gateway-write:pending", %{cloud_backed: true, hash: content_hash, size: size}}
+    ]
+
+    for {record, index} <- Enum.with_index(records) do
+      {bundle, manifest} =
+        bundle(Path.join(root, "required-#{index}"),
+          entries: [record],
+          body: false,
+          reference_policy: BackupManifest.reference_policy()
+        )
+
+      assert manifest["references"] == %{content_hash => size}
+
+      assert {:error, {:referenced_blob_missing, ^content_hash}} =
+               Backup.verify(bundle, master_key: @key)
+    end
+  end
+
   defp context(root) do
     {:ok, config} =
       InstanceConfig.new(
@@ -385,10 +489,15 @@ defmodule ExStorageService.Operations.BackupTest do
       size: size
     }
 
-    entries = [
-      {"ess:v2:object_version:b:k:old", object},
-      {"ess:v2:multipart_part:upload:1", %{hash: content_hash, size: size}}
-    ]
+    object = if opts[:cloud_backed], do: Map.put(object, :cloud_backed, true), else: object
+
+    entries =
+      [{"ess:v2:object_version:b:k:old", object}] ++
+        if Keyword.get(opts, :multipart, true),
+          do: [{"ess:v2:multipart_part:upload:1", %{hash: content_hash, size: size}}],
+          else: []
+
+    entries = Keyword.get(opts, :entries, entries)
 
     {entries, files} =
       if opts[:packed] do
@@ -422,9 +531,13 @@ defmodule ExStorageService.Operations.BackupTest do
            file_artifact(directory, pack <> ".idx", "pack-index")
          ]}
       else
-        path = Path.join(directory, "body")
-        File.write!(path, body)
-        {entries, [file_artifact(directory, path, "blob")]}
+        if Keyword.get(opts, :body, true) do
+          path = Path.join(directory, "body")
+          File.write!(path, body)
+          {entries, [file_artifact(directory, path, "blob")]}
+        else
+          {entries, []}
+        end
       end
 
     snapshot = %{version: 2, kv_data: entries, indexes: %{}}
@@ -436,6 +549,12 @@ defmodule ExStorageService.Operations.BackupTest do
 
     File.write!(metadata, :erlang.term_to_binary(backup, [:compressed]))
 
+    {:ok, references} =
+      BackupManifest.references(
+        entries,
+        Keyword.get(opts, :reference_policy, "all-object-bodies-v1")
+      )
+
     manifest = %{
       "format" => BackupManifest.format(),
       "backup_id" => "fixture-backup",
@@ -446,9 +565,14 @@ defmodule ExStorageService.Operations.BackupTest do
       "master_key_sha256" => hash(@key),
       "metadata" => "metadata.backup",
       "consistency_point" => "quiesced-test-fixture",
-      "references" => %{content_hash => size},
+      "references" => references,
       "artifacts" => [file_artifact(directory, metadata, "metadata") | files]
     }
+
+    manifest =
+      if Keyword.has_key?(opts, :reference_policy),
+        do: Map.put(manifest, "reference_policy", opts[:reference_policy]),
+        else: manifest
 
     rewrite_manifest(directory, manifest)
     {directory, manifest}

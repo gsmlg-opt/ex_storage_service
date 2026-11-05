@@ -24,6 +24,7 @@ defmodule ExStorageService.Metadata.ListIndex.Backfill do
   alias ExStorageService.Metadata.ListIndex.{Codec, Manifest, Radix, Source}
   alias ExStorageService.Metadata.ListIndex.Multipart
   alias ExStorageService.Metadata.Migration
+  alias ExStorageService.Metadata.GatewayIndex
   alias ExStorageService.Operations.Backup
 
   @zero <<0::256>>
@@ -44,6 +45,7 @@ defmodule ExStorageService.Metadata.ListIndex.Backfill do
          key = build_key(bucket, generation),
          {:ok, previous} <- backend.get(root_key, read_opts(opts)),
          :ok <- startable(previous, generation),
+         {:ok, gateway_config} <- backend.get("cloud_cache:#{bucket}", read_opts(opts)),
          {:ok, previous_build} <- backend.get(key, read_opts(opts)) do
       token = random()
 
@@ -54,6 +56,7 @@ defmodule ExStorageService.Metadata.ListIndex.Backfill do
       build = %{
         schema: 1,
         replication_factor: replication_factor,
+        cloud_cache_revision: record_revision(gateway_config),
         bucket_generation: generation,
         epoch: root.epoch,
         owner_token: token,
@@ -81,7 +84,8 @@ defmodule ExStorageService.Metadata.ListIndex.Backfill do
         compare: [
           compare("bucket:#{bucket}", bucket_record),
           compare(root_key, previous),
-          compare(key, previous_build)
+          compare(key, previous_build),
+          compare("cloud_cache:#{bucket}", gateway_config)
         ],
         success: [{:put, root_key, root, %{}}, {:put, key, build, %{}}],
         failure: []
@@ -153,6 +157,7 @@ defmodule ExStorageService.Metadata.ListIndex.Backfill do
   def cutover(bucket, token, opts \\ []) do
     with {:ok, state} <- state(bucket, token, opts),
          true <- state.build.value.phase == :validated,
+         :ok <- require_config_fence(state),
          :ok <- manifest(state, state.build.value.source_manifest),
          true <- counts(state.root.value) == state.build.value.validation_counts,
          true <- state.build.value.tree_counts == state.build.value.validation_counts do
@@ -273,7 +278,8 @@ defmodule ExStorageService.Metadata.ListIndex.Backfill do
           end
 
         :version ->
-          with {:ok, blobs} <-
+          with :ok <- gateway_permission(state, action.value),
+               {:ok, blobs} <-
                  Migration.prepare_index_version(action.value, build_opts(state, opts)) do
             spec = %{
               spec
@@ -350,6 +356,7 @@ defmodule ExStorageService.Metadata.ListIndex.Backfill do
     metadata = action.value
 
     with {:ok, %{value: ^metadata}} <- existing(backend(opts), action.key, opts),
+         :ok <- gateway_permission(state, metadata),
          {:ok, _} <-
            Migration.prepare_index_version(
              metadata,
@@ -376,7 +383,9 @@ defmodule ExStorageService.Metadata.ListIndex.Backfill do
 
   defp validate_action(state, %{type: :head} = action, opts) do
     with {:ok, %{value: head}} <- existing(backend(opts), action.key, opts),
-         true <- head == action.value do
+         true <- head == action.value,
+         {:ok, selected} <- selected_version(state, head, opts),
+         :ok <- verify_gateway_head(state, selected || head, opts) do
       id = Map.get(head, :version_id)
 
       if id == nil or Map.get(head, :delete_marker, false) do
@@ -457,6 +466,42 @@ defmodule ExStorageService.Metadata.ListIndex.Backfill do
       error -> error
     end
   end
+
+  defp selected_version(state, %{version_id: id, key: key}, opts) when is_binary(id) do
+    with {:ok, record} <- existing(backend(opts), Keys.object_version(state.name, key, id), opts),
+         do: {:ok, record.value}
+  end
+
+  defp selected_version(_state, _head, _opts), do: {:ok, nil}
+
+  defp verify_gateway_head(state, metadata, opts) do
+    if cloud_version?(metadata) do
+      with :ok <- gateway_permission(state, metadata),
+           do:
+             GatewayIndex.verify_current(
+               state.name,
+               metadata,
+               state.gateway_config,
+               build_opts(state, opts)
+             )
+    else
+      :ok
+    end
+  end
+
+  defp gateway_permission(state, metadata) do
+    cond do
+      not cloud_version?(metadata) -> :ok
+      not state.gateway_config_fenced -> {:error, :legacy_gateway_build_requires_restart}
+      true -> GatewayIndex.validate_configuration(state.gateway_config)
+    end
+  end
+
+  defp require_config_fence(%{gateway_config_fenced: true}), do: :ok
+  defp require_config_fence(_), do: {:error, :legacy_gateway_build_requires_restart}
+
+  defp cloud_version?(value),
+    do: Map.get(value, :cloud_backed, Map.get(value, "cloud_backed")) == true
 
   defp validate_parts_shape(state, upload, expected, opts) do
     namespace = Multipart.parts_namespace(state.name, state.root.value, upload.upload_id)
@@ -619,7 +664,8 @@ defmodule ExStorageService.Metadata.ListIndex.Backfill do
          true <-
            build.value.schema == 1 and build.value.bucket_generation == generation and
              build.value.owner_token == token and root.value.epoch == build.value.epoch and
-             (build.value.phase == :ready or Map.get(root.value, :build_token) == token) do
+             (build.value.phase == :ready or Map.get(root.value, :build_token) == token),
+         {:ok, gateway_config} <- frozen_gateway_config(backend(opts), bucket, build.value, opts) do
       {:ok,
        %{
          name: bucket,
@@ -628,11 +674,25 @@ defmodule ExStorageService.Metadata.ListIndex.Backfill do
          root_key: root_key,
          root: root,
          build_key: key,
-         build: build
+         build: build,
+         gateway_config: gateway_config,
+         gateway_config_fenced: Map.has_key?(build.value, :cloud_cache_revision)
        }}
     else
       false -> {:error, :obsolete_build_owner}
       error -> error
+    end
+  end
+
+  defp frozen_gateway_config(backend, bucket, build, opts) do
+    if Map.has_key?(build, :cloud_cache_revision) do
+      with {:ok, record} <- backend.get("cloud_cache:#{bucket}", read_opts(opts)) do
+        if record_revision(record) == build.cloud_cache_revision,
+          do: {:ok, record},
+          else: {:error, :gateway_configuration_changed}
+      end
+    else
+      {:ok, nil}
     end
   end
 
@@ -648,11 +708,16 @@ defmodule ExStorageService.Metadata.ListIndex.Backfill do
   end
 
   defp fences(state),
-    do: [
-      compare("bucket:#{state.name}", state.bucket),
-      compare(state.root_key, state.root),
-      compare(state.build_key, state.build)
-    ]
+    do:
+      [
+        compare("bucket:#{state.name}", state.bucket),
+        compare(state.root_key, state.root),
+        compare(state.build_key, state.build)
+      ] ++
+        if(state.gateway_config_fenced,
+          do: [compare("cloud_cache:#{state.name}", state.gateway_config)],
+          else: []
+        )
 
   defp commit(backend, spec, opts) do
     # A failed compare is a completed transaction outcome. A later explicit
@@ -785,6 +850,8 @@ defmodule ExStorageService.Metadata.ListIndex.Backfill do
 
   defp value(nil), do: nil
   defp value(record), do: record.value
+  defp record_revision(nil), do: nil
+  defp record_revision(record), do: record.mod_revision
   defp random, do: Base.url_encode64(:crypto.strong_rand_bytes(24), padding: false)
   defp backend(opts), do: Keyword.get(opts, :backend, Backend)
   defp read_opts(opts), do: Keyword.put(write_opts(opts), :consistency, :linearizable)
@@ -795,6 +862,7 @@ defmodule ExStorageService.Metadata.ListIndex.Backfill do
       opts
       |> Keyword.put(:index_build_token, state.build.value.owner_token)
       |> Keyword.put(:replication_factor, state.build.value.replication_factor)
+      |> Keyword.put_new(:gateway_tmp_dir, Path.dirname(state.build.value.source_manifest))
 
   defp target_rf(opts) do
     configured =

@@ -16,6 +16,7 @@ defmodule ExStorageService.Metadata.Migration do
   alias ExStorageService.Context
   alias ExStorageService.Metadata.Backend.Concord, as: ConcordBackend
   alias ExStorageService.Metadata.Keys
+  alias ExStorageService.Metadata.GatewayIndex
   alias ExStorageService.Metadata.Models.BlobLocation
 
   @default_page_size 100
@@ -28,48 +29,57 @@ defmodule ExStorageService.Metadata.Migration do
   The caller must include these comparisons and operations in its existing
   gated version/checkpoint transaction. Actual source contexts are probed for
   checksum-verified local CAS evidence; fewer than the target RF fails closed.
+  Upstream-owned cloud records retain metadata only; the index builder verifies
+  their selected current object separately without inventing hosted durability.
   The existing test-only `local_blob_probe` injection remains available.
   """
   def prepare_index_version(version, opts) do
     with {:ok, target} <- target_replication_factor(opts) do
-      if field(version, :delete_marker, false) do
-        {:ok, %{compare: [], success: []}}
-      else
-        with {:ok, {hash, size}} <- blob_identity(version),
-             opts = index_probe_options(opts),
-             {:ok, blob} <- prepare_blob(hash, size, field(version, :created_at), opts),
-             {:ok, locations} <- index_locations(blob, hash, size, opts),
-             true <- length(locations) >= target,
-             :ok <- index_existing(blob, locations, target, opts) do
-          descriptor =
-            if blob.descriptor_record,
-              do:
-                put_descriptor_replication_factor(
-                  blob.descriptor_record.value,
-                  max(target, field(blob.descriptor_record.value, :desired_replication_factor))
-                ),
-              else: blob.descriptor
+      cond do
+        field(version, :delete_marker, false) ->
+          {:ok, %{compare: [], success: []}}
 
-          compare = [revision_compare(blob.descriptor_key, blob.descriptor_record)]
-          success = [{:put, blob.descriptor_key, descriptor, %{}}]
+        field(version, :cloud_backed) == true ->
+          with :ok <- GatewayIndex.validate_version(version),
+               do: {:ok, %{compare: [], success: []}}
 
-          {compare, success} =
-            Enum.reduce(locations, {compare, success}, fn {location, observed},
-                                                          {compare, success} ->
-              key = Keys.blob_location(hash, location.node_id)
+        true ->
+          with {:ok, {hash, size}} <- blob_identity(version),
+               opts = index_probe_options(opts),
+               {:ok, blob} <- prepare_blob(hash, size, field(version, :created_at), opts),
+               {:ok, locations} <- index_locations(blob, hash, size, opts),
+               true <- length(locations) >= target,
+               :ok <- index_existing(blob, locations, target, opts) do
+            descriptor =
+              if blob.descriptor_record,
+                do:
+                  put_descriptor_replication_factor(
+                    blob.descriptor_record.value,
+                    max(target, field(blob.descriptor_record.value, :desired_replication_factor))
+                  ),
+                else: blob.descriptor
 
-              {[revision_compare(key, observed) | compare],
-               [{:put, key, Map.from_struct(location), %{}} | success]}
-            end)
+            compare = [revision_compare(blob.descriptor_key, blob.descriptor_record)]
+            success = [{:put, blob.descriptor_key, descriptor, %{}}]
 
-          {:ok, %{compare: Enum.reverse(compare), success: Enum.reverse(success)}}
-        else
-          false ->
-            {:error, {:insufficient_verified_blob_sources, field(version, :content_hash), target}}
+            {compare, success} =
+              Enum.reduce(locations, {compare, success}, fn {location, observed},
+                                                            {compare, success} ->
+                key = Keys.blob_location(hash, location.node_id)
 
-          error ->
-            error
-        end
+                {[revision_compare(key, observed) | compare],
+                 [{:put, key, Map.from_struct(location), %{}} | success]}
+              end)
+
+            {:ok, %{compare: Enum.reverse(compare), success: Enum.reverse(success)}}
+          else
+            false ->
+              {:error,
+               {:insufficient_verified_blob_sources, field(version, :content_hash), target}}
+
+            error ->
+              error
+          end
       end
     end
   end

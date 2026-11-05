@@ -2,6 +2,7 @@ defmodule ExStorageService.CloudCache.WriteThroughTest do
   use ExUnit.Case, async: true
   alias ExStorageService.CloudCache.{Config, WriteThrough}
   alias ExStorageService.BlobStore.StagedBlob
+  alias ExStorageService.Metadata.{Keys, ListIndex}
 
   defmodule Backend do
     def put(key, record, _opts) do
@@ -47,7 +48,10 @@ defmodule ExStorageService.CloudCache.WriteThroughTest do
         end)
 
       if passes do
-        Enum.each(spec.success, fn {:put, key, value, _} -> put(key, value, []) end)
+        Enum.each(spec.success, fn
+          {:put, key, value, _} -> put(key, value, [])
+          {:delete, {:key, key}, _} -> delete(key, [])
+        end)
       end
 
       {:ok, %{succeeded: passes}}
@@ -161,6 +165,171 @@ defmodule ExStorageService.CloudCache.WriteThroughTest do
   end
 
   @moduletag :tmp_dir
+
+  test "PUT advances converted gateway metadata and index without overwriting history", context do
+    old = converted_version(context, "legacy", true)
+    assert {:ok, meta} = put(context)
+    assert meta.version_id != old.version_id
+    assert meta.cloud_backed
+    assert {:ok, %{value: ^old}} = Backend.get(Keys.object_version("local", "key", "legacy"), [])
+    assert {:ok, %{value: head}} = Backend.get(Keys.object_head("local", "key"), [])
+    assert head.version_id == meta.version_id
+
+    assert {:ok, %{value: ^meta}} =
+             Backend.get(Keys.object_version("local", "key", head.version_id), [])
+
+    assert meta.parent_version_id == "legacy"
+
+    assert {:ok, %{entries: [{"key", current}]}} =
+             ListIndex.page("local", :current, "", backend: Backend)
+
+    assert current.version_id == meta.version_id
+    assert current.size == context.staged.size
+
+    assert {:ok, %{version_count: 2, visible_count: 1}} =
+             ListIndex.status("local", backend: Backend)
+
+    assert {:ok, %{entries: []}} = Backend.list_page("ess:v2:blob:", nil, 10, [])
+  end
+
+  test "PUT after a converted absence marker preserves the marker", context do
+    marker = converted_version(context, "marker", true, true)
+    assert {:ok, meta} = put(context)
+    assert meta.parent_version_id == marker.version_id
+
+    assert {:ok, %{value: ^marker}} =
+             Backend.get(Keys.object_version("local", "key", "marker"), [])
+
+    assert {:ok, %{version_count: 2, visible_count: 1}} =
+             ListIndex.status("local", backend: Backend)
+  end
+
+  test "hosted current versions cannot initiate an upstream PUT", context do
+    converted_version(context, "hosted", false)
+    assert {:error, :gateway_hosted_history_unsupported} = put(context)
+    refute Process.get(:upstream_calls)
+    assert {:ok, %{entries: []}} = Backend.list_page("ess:gateway-write:", nil, 10, [])
+  end
+
+  test "malformed selected metadata fails before an upstream mutation", context do
+    converted_version(context, "corrupt", true)
+    :ok = Backend.put(Keys.object_version("local", "key", "corrupt"), "invalid", [])
+    assert {:error, :gateway_hosted_history_unsupported} = put(context)
+    refute Process.get(:upstream_calls)
+  end
+
+  test "changed immutable version fences reconciliation even when the head is unchanged",
+       context do
+    old = converted_version(context, "legacy", true)
+    Process.put(:upstream_result, {:error, :timeout})
+    assert {:error, {:upstream_unknown, :timeout}} = put(context)
+
+    :ok =
+      Backend.put(
+        Keys.object_version("local", "key", "legacy"),
+        Map.put(old, :tags, %{"new" => "value"}),
+        []
+      )
+
+    assert {:ok,
+            %{
+              results: [
+                {"operation",
+                 {:error, {:local_reconciliation_required, :local_metadata_conflict}}}
+              ]
+            }} =
+             WriteThrough.reconcile_page(nil, 10, context.opts)
+
+    assert Process.get(:upstream_calls) == 1
+  end
+
+  test "legacy-only publication is not mistaken for coherent v2 reconciliation", context do
+    Process.put(:metadata_result, {:error, :injected_commit_failure})
+    assert {:error, {:local_reconciliation_required, :injected_commit_failure}} = put(context)
+
+    :ok =
+      Backend.put(
+        "obj:local:key",
+        %{gateway_operation_id: "operation", content_hash: context.staged.hash},
+        []
+      )
+
+    Process.put(:metadata_result, :ok)
+
+    assert {:ok,
+            %{
+              results: [
+                {"operation",
+                 {:error, {:local_reconciliation_required, :local_metadata_conflict}}}
+              ]
+            }} =
+             WriteThrough.reconcile_page(nil, 10, context.opts)
+
+    assert {:ok, nil} = Backend.get(Keys.object_head("local", "key"), [])
+  end
+
+  test "old prepared journals retain their absent-head recovery contract", context do
+    Process.put(:upstream_result, {:error, :timeout})
+    assert {:error, {:upstream_unknown, :timeout}} = put(context)
+    remove_gateway_snapshot()
+
+    assert {:ok, %{results: [{"operation", {:ok, meta}}]}} =
+             WriteThrough.reconcile_page(nil, 10, context.opts)
+
+    assert {:ok, %{value: ^meta}} =
+             Backend.get(Keys.object_version("local", "key", meta.version_id), [])
+
+    assert Process.get(:upstream_calls) == 1
+  end
+
+  test "old prepared journals cannot overwrite a subsequently converted head", context do
+    Process.put(:upstream_result, {:error, :timeout})
+    assert {:error, {:upstream_unknown, :timeout}} = put(context)
+    remove_gateway_snapshot()
+    old = converted_version(context, "converted-after-prepare", true)
+
+    assert {:ok,
+            %{
+              results: [
+                {"operation",
+                 {:error, {:local_reconciliation_required, :local_metadata_conflict}}}
+              ]
+            }} =
+             WriteThrough.reconcile_page(nil, 10, context.opts)
+
+    assert {:ok, %{value: ^old}} =
+             Backend.get(Keys.object_version("local", "key", old.version_id), [])
+
+    assert Process.get(:upstream_calls) == 1
+  end
+
+  test "cache recovery rejects a changed published version instead of trusting the legacy operation ID",
+       context do
+    config = %{context.config | cache_enabled: true}
+
+    opts =
+      context.opts
+      |> Keyword.put(:cache, FailedCache)
+      |> Keyword.put(:get_config, fn _ -> {:ok, config} end)
+
+    context = %{context | config: config, opts: opts}
+    assert {:error, {:local_reconciliation_required, :injected_cache_failure}} = put(context)
+    {:ok, %{value: head}} = Backend.get(Keys.object_head("local", "key"), [])
+    version_key = Keys.object_version("local", "key", head.version_id)
+    {:ok, %{value: version}} = Backend.get(version_key, [])
+    :ok = Backend.put(version_key, Map.put(version, :size, version.size + 1), [])
+
+    assert {:ok,
+            %{
+              results: [
+                {"operation",
+                 {:error, {:local_reconciliation_required, :local_metadata_conflict}}}
+              ]
+            }} =
+             WriteThrough.reconcile_page(nil, 10, opts)
+
+    assert Process.get(:upstream_calls) == 1
+  end
 
   test "busy optional cache cannot fail a durably acknowledged upstream write", context do
     context = %{
@@ -486,6 +655,44 @@ defmodule ExStorageService.CloudCache.WriteThroughTest do
         ExStorageService.Storage.StagingRecovery.close(state)
         flunk("recovery did not complete")
     end
+  end
+
+  defp remove_gateway_snapshot do
+    {:ok, %{entries: [%{key: key, value: journal}]}} =
+      Backend.list_page("ess:gateway-write:", nil, 10, [])
+
+    :ok = Backend.put(key, Map.delete(journal, :gateway_snapshot), [])
+  end
+
+  defp converted_version(context, id, cloud?, marker? \\ false) do
+    version = %{
+      schema: 2,
+      bucket: "local",
+      key: "key",
+      version_id: id,
+      parent_version_id: nil,
+      cloud_backed: cloud?,
+      delete_marker: marker?,
+      is_delete_marker: marker?,
+      content_hash: context.staged.hash,
+      etag: "old",
+      size: context.staged.size,
+      created_at: "2026-11-01T00:00:00Z"
+    }
+
+    spec = %{
+      compare: [],
+      failure: [],
+      success: [
+        {:put, Keys.object_version("local", "key", id), version, %{}},
+        {:put, Keys.object_head("local", "key"),
+         %{schema: 2, bucket: "local", key: "key", version_id: id, delete_marker: marker?}, %{}}
+      ]
+    }
+
+    assert {:ok, spec} = ListIndex.augment(Backend, "local", spec)
+    assert {:ok, %{succeeded: true}} = Backend.transaction(spec, [])
+    version
   end
 
   defp put(context),

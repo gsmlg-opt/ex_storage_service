@@ -5,9 +5,12 @@ defmodule ExStorageService.Operations.BackupManifest do
   # sequential and bounded independently of object size; no object is read whole.
   @chunk 262_144
   @format "ess-quiesced-backup-v1"
+  @reference_policy "hosted-and-pinned-v1"
+  @legacy_reference_policy "all-object-bodies-v1"
   @hash ~r/^[a-f0-9]{64}$/
 
   def format, do: @format
+  def reference_policy, do: @reference_policy
 
   def digest(path), do: digest(path, 0, nil)
 
@@ -251,7 +254,9 @@ defmodule ExStorageService.Operations.BackupManifest do
   defp unwrap({value, expiry}) when is_integer(expiry), do: value
   defp unwrap(value), do: value
 
-  def references(entries) do
+  def references(entries, policy \\ @reference_policy)
+
+  def references(entries, policy) when policy in [@reference_policy, @legacy_reference_policy] do
     sizes =
       Map.new(
         for {key, value} <- entries,
@@ -282,7 +287,7 @@ defmodule ExStorageService.Operations.BackupManifest do
           value
         end
 
-      case reference(key, value) do
+      case reference(key, value, policy) do
         nil ->
           {:cont, {:ok, refs}}
 
@@ -299,10 +304,13 @@ defmodule ExStorageService.Operations.BackupManifest do
     end)
   end
 
-  defp reference(key, value) when is_binary(key) and is_map(value) do
+  def references(_entries, _policy), do: {:error, :unsupported_reference_policy}
+
+  defp reference(key, value, policy) when is_binary(key) and is_map(value) do
     cond do
       String.starts_with?(key, ["obj:", "obj_ver:", "ess:v2:object_version:"]) and
-          not Map.get(value, :is_delete_marker, false) ->
+        not Map.get(value, :is_delete_marker, false) and
+          (policy == @legacy_reference_policy or Map.get(value, :cloud_backed) != true) ->
         ref(Map.get(value, :content_hash), Map.get(value, :size))
 
       String.starts_with?(key, "ess:v2:multipart_part:") ->
@@ -326,7 +334,7 @@ defmodule ExStorageService.Operations.BackupManifest do
     end
   end
 
-  defp reference(_, _), do: nil
+  defp reference(_, _, _), do: nil
 
   defp ref("sha256:" <> hash, size), do: ref(hash, size)
 
@@ -370,7 +378,8 @@ defmodule ExStorageService.Operations.BackupManifest do
          true <- Enum.any?(manifest["artifacts"], &(&1["path"] == manifest["metadata"])),
          {:ok, _snapshot, entries} <- read_snapshot(metadata),
          :ok <- validate_boundary(entries, manifest["mode"]),
-         {:ok, refs} <- references(entries),
+         {:ok, refs} <-
+           references(entries, Map.get(manifest, "reference_policy", @legacy_reference_policy)),
          true <- manifest["references"] == refs,
          :ok <- verify_references(root, manifest, entries, refs),
          :ok <- verify_journals(manifest, entries) do

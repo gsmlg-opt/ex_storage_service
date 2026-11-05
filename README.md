@@ -513,6 +513,14 @@ are documented in
 Public listings require a ready transactional listing index. Existing buckets
 need the quiesced, backup-verified [resumable index build](docs/operations/listing-index.md)
 before writers resume; legacy records and rollback artifacts are retained.
+This procedure also converts legacy cloud-backed buckets: it verifies the
+selected current object against the upstream service without requiring an
+upstream-only body in local CAS. Historical cloud metadata and markers are
+retained; hosted records keep their CAS/RF checks. Gateway configuration changes
+or failed upstream verification keep the bucket gated. New backups declare
+`hosted-and-pinned-v1` reference coverage; existing bundles retain their original
+verification policy. See the runbook for the upgrade window and upstream-data
+backup boundary.
 The [S3 compatibility profile](docs/s3-compatibility.md) describes supported modes;
 [hardening verification](docs/reports/s3-hardening-verification.md) records current
 results and unresolved acceptance blockers.
