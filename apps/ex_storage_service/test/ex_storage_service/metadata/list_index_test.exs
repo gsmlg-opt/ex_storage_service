@@ -7,7 +7,7 @@ defmodule ExStorageService.Metadata.ListIndexTest do
   defmodule ExactBackend do
     def get(key, opts) do
       Agent.get_and_update(Keyword.fetch!(opts, :engine), fn state ->
-        state = %{state | reads: state.reads + 1}
+        state = %{state | reads: state.reads + 1, read_keys: [key | state.read_keys]}
 
         state =
           if state.churn and String.contains?(key, ":node:") do
@@ -60,7 +60,14 @@ defmodule ExStorageService.Metadata.ListIndexTest do
 
     {:ok, engine} =
       Agent.start_link(fn ->
-        %{records: records, revision: 1, reads: 0, churn: false, root_key: root_key}
+        %{
+          records: records,
+          revision: 1,
+          reads: 0,
+          read_keys: [],
+          churn: false,
+          root_key: root_key
+        }
       end)
 
     %{engine: engine, opts: [backend: ExactBackend, engine: engine], root_key: root_key}
@@ -82,6 +89,46 @@ defmodule ExStorageService.Metadata.ListIndexTest do
     assert root.visible_count == 1
     assert root.version_count == 1
     assert root.commit_sequence == 1
+  end
+
+  test "a stale bucket guard rejects before reading or planning index nodes", context do
+    %{engine: engine, opts: opts} = context
+    publish(engine, opts, publication("key", "first"))
+    spec = %{publication("key", "second") | compare: [{:mod_revision, "bucket:bucket", :==, 0}]}
+    Agent.update(engine, &%{&1 | read_keys: []})
+    before = Agent.get(engine, & &1.records)
+
+    assert {:error, :conflict} = ListIndex.augment(ExactBackend, "bucket", spec, opts)
+    assert Agent.get(engine, & &1.records) == before
+    refute Enum.any?(Agent.get(engine, & &1.read_keys), &String.contains?(&1, ":node:"))
+  end
+
+  test "a head changed during preparation rejects before planning its radix mutations", context do
+    %{engine: engine, opts: opts} = context
+    publish(engine, opts, publication("key", "first"))
+    head_key = Keys.object_head("bucket", "key")
+    %{mod_revision: revision} = Agent.get(engine, & &1.records[head_key])
+    publish(engine, opts, publication("key", "concurrent"))
+    spec = %{publication("key", "second") | compare: [{:mod_revision, head_key, :==, revision}]}
+    Agent.update(engine, &%{&1 | read_keys: []})
+    before = Agent.get(engine, & &1.records)
+
+    assert {:error, :conflict} = ListIndex.augment(ExactBackend, "bucket", spec, opts)
+    assert Agent.get(engine, & &1.records) == before
+    refute Enum.any?(Agent.get(engine, & &1.read_keys), &String.contains?(&1, ":node:"))
+  end
+
+  test "a newly present head rejects an absence guard before planning index nodes", context do
+    %{engine: engine, opts: opts} = context
+    publish(engine, opts, publication("key", "concurrent"))
+    head_key = Keys.object_head("bucket", "key")
+    spec = %{publication("key", "second") | compare: [{:exists, head_key, :==, false}]}
+    Agent.update(engine, &%{&1 | read_keys: []})
+    before = Agent.get(engine, & &1.records)
+
+    assert {:error, :conflict} = ListIndex.augment(ExactBackend, "bucket", spec, opts)
+    assert Agent.get(engine, & &1.records) == before
+    refute Enum.any?(Agent.get(engine, & &1.read_keys), &String.contains?(&1, ":node:"))
   end
 
   test "overwrite, historical removal and null replacement retain exact index membership",

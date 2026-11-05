@@ -42,7 +42,7 @@ defmodule ExStorageService.Metadata.ListIndex do
 
   @doc "Adds index changes to an uncommitted metadata specification."
   def augment(backend, bucket, spec, opts \\ []),
-    do: augment_attempt(backend, bucket, spec, opts, 16)
+    do: augment_attempt(backend, bucket, spec, opts, 16, spec.compare)
 
   @doc false
   def transaction(backend, bucket, spec, opts \\ []) do
@@ -53,36 +53,42 @@ defmodule ExStorageService.Metadata.ListIndex do
     end
   end
 
-  defp augment_attempt(_backend, _bucket, _spec, _opts, 0), do: {:error, :conflict}
+  defp augment_attempt(_backend, _bucket, _spec, _opts, 0, _comparisons),
+    do: {:error, :conflict}
 
-  defp augment_attempt(backend, bucket, spec, opts, attempts) do
+  defp augment_attempt(backend, bucket, spec, opts, attempts, comparisons) do
     with {:ok, bucket_record} <- bucket_record(backend, bucket, opts),
          generation = BucketLifecycle.generation(bucket_record.value),
          key = root_key(bucket, generation),
          {:ok, before} <- backend.get(key, read_opts(opts)) do
-      result = do_augment(backend, bucket, spec, opts)
+      result = do_augment(backend, bucket, spec, opts, comparisons)
 
       case result do
         {:ok, _} ->
           result
 
+        {:error, :stale_plan} ->
+          {:error, :conflict}
+
         {:error, _} ->
           with {:ok, after_record} <- backend.get(key, read_opts(opts)) do
             if before == after_record,
               do: result,
-              else: augment_attempt(backend, bucket, spec, opts, attempts - 1)
+              else: augment_attempt(backend, bucket, spec, opts, attempts - 1, [])
           end
       end
     end
   end
 
-  defp do_augment(backend, bucket, spec, opts) do
+  defp do_augment(backend, bucket, spec, opts, comparisons) do
     with {:ok, bucket_record} <- bucket_record(backend, bucket, opts),
+         :ok <- observed_comparisons(comparisons, "bucket:#{bucket}", bucket_record),
          generation = BucketLifecycle.generation(bucket_record.value),
          key = root_key(bucket, generation),
          {:ok, record} <- backend.get(key, read_opts(opts)),
          :ok <- writable(record, generation, opts),
-         {:ok, changes} <- object_changes(backend, bucket, spec.success, opts),
+         :ok <- observed_comparisons(comparisons, key, record),
+         {:ok, changes} <- object_changes(backend, bucket, spec, comparisons, opts),
          {:ok, planned} <- plan_objects(backend, bucket, record.value, changes, opts),
          {:ok, multipart} <-
            ExStorageService.Metadata.ListIndex.Multipart.augment(
@@ -216,7 +222,8 @@ defmodule ExStorageService.Metadata.ListIndex do
     end
   end
 
-  defp object_changes(backend, bucket, operations, opts) do
+  defp object_changes(backend, bucket, spec, comparisons, opts) do
+    operations = spec.success
     writes = Map.new(operations, &operation_entry/1)
 
     objects =
@@ -227,7 +234,7 @@ defmodule ExStorageService.Metadata.ListIndex do
       |> Enum.uniq()
 
     Enum.reduce_while(objects, {:ok, %{objects: [], compare: []}}, fn key, {:ok, acc} ->
-      case observe_object(backend, bucket, key, writes, opts) do
+      case observe_object(backend, bucket, key, writes, comparisons, opts) do
         {:ok, change} ->
           {:cont,
            {:ok,
@@ -242,10 +249,11 @@ defmodule ExStorageService.Metadata.ListIndex do
     end)
   end
 
-  defp observe_object(backend, bucket, key, writes, opts) do
+  defp observe_object(backend, bucket, key, writes, comparisons, opts) do
     head_key = Keys.object_head(bucket, key)
 
-    with {:ok, head} <- backend.get(head_key, read_opts(opts)) do
+    with {:ok, head} <- backend.get(head_key, read_opts(opts)),
+         :ok <- observed_comparisons(comparisons, head_key, head) do
       old_head = value(head)
       new_head = Map.get(writes, head_key, old_head)
 
@@ -292,6 +300,22 @@ defmodule ExStorageService.Metadata.ListIndex do
           error
       end
     end
+  end
+
+  # Reject a plan already invalidated during preparation before walking its
+  # radix trees. These observations are only an early conflict check; the
+  # authoritative transaction retains every original and index comparison.
+  # Existing retries after a changing tree still consume their original budget.
+  defp observed_comparisons(comparisons, key, record) do
+    revision = if record, do: record.mod_revision, else: 0
+
+    if Enum.all?(comparisons, fn
+         {:mod_revision, ^key, :==, expected} -> revision == expected
+         {:exists, ^key, :==, expected} -> record != nil == expected
+         _ -> true
+       end),
+       do: :ok,
+       else: {:error, :stale_plan}
   end
 
   defp plan_objects(backend, bucket, root, changes, opts) do
