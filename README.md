@@ -647,8 +647,8 @@ with existing metadata, retain a complete backup of the old metadata state and p
 explicit export/restore boundary; starting the new binary creates or recovers
 only the VSR state under `ESS_METADATA_ROOT`.
 
-The core requires Concord `~> 3.1.8`; the lockfile selects matching Concord,
-Viewstamped Replication and ExTurso 3.1.8 packages. They retain the 3.1.2 fixes for
+The core requires Concord `~> 3.1.11`; the lockfile selects matching Concord,
+Viewstamped Replication and ExTurso 3.1.11 packages. They retain the 3.1.2 fixes for
 committed-prefix transition validation, primary-discovery read deadlines, native
 range pagination and new-backup checksum portability. Version 3.1.4 makes supported
 direct put/delete compatibility-view and observer updates incremental and bounds
@@ -673,6 +673,12 @@ can finish the backfill without a finite deadline; a busy pool can still return
 `{:error, :timeout}`. This internal projection update does not change ESS metadata
 schemas or `ESS_CONCORD_COMMAND_VERSION`. ESS defaults to file-backed VSR, whose
 storage and wire formats remain unchanged by these releases.
+
+Versions 3.1.9 and 3.1.10 preserve admission and readiness deadlines for VSR
+commands and Turso operations. Revision CAS and queued Turso lists remain opt-in;
+ESS keeps its existing transaction API and command versions 0/1. Version 3.1.11
+updates embedded Turso from 0.8.2 to 0.8.3. These dependency updates do not certify
+ESS cluster, resource or listing acceptance; fresh full acceptance is required.
 
 Version-one command admission still checks
 representations. New backups declare deterministic ETF checksums;

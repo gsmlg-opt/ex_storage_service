@@ -1,4 +1,16 @@
-## Concord 3.1.8 refresh — 2026-10-25
+## Concord 3.1.11 refresh — 2026-11-05
+
+The candidate now requires the coordinated Concord/VSR/ExTurso 3.1.11 family.
+Published-source review and both fresh admission probes passed; full acceptance
+and the original clause audits remain required before publication. The gateway
+conversion request #24 is fixed on main. The prior Concord 3.1.8 full attempt
+41965401679 passed daily and eight extended lanes but failed index, cluster and
+resources. Those receipts retain their tested source and cannot certify this
+update. See the [current evidence report](../reports/s3-hardening-verification.md).
+
+The records below preserve the earlier tested revisions and failures.
+
+## Historical Concord 3.1.8 refresh — 2026-10-25
 
 The new candidate uses the coordinated Concord/VSR/ExTurso 3.1.8 family.
 Concord #105 is closed and its normal-runtime fix is published. Version 3.1.8

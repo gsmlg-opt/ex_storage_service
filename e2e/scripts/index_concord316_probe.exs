@@ -1,4 +1,4 @@
-# Positive admission diagnostics for the published 3.1.6 cohort, never A28 acceptance.
+# Positive admission diagnostics for reviewed published Concord cohorts, never A28 acceptance.
 Code.require_file("index_setup_diagnostics.exs", __DIR__)
 Code.require_file("index_acceptance_bounds.exs", __DIR__)
 

@@ -1,4 +1,61 @@
-## Legacy gateway index conversion (#24) — 2026-11-05
+## Concord 3.1.11 update — 2026-11-05
+
+The core now requires Concord `~> 3.1.11`, with only Concord, VSR and ExTurso
+changed in the lockfile. The three published Hex checksums and 21 critical
+dependency source files match the upstream v3.1.11 tag. Source/API review covers
+VSR command admission deadlines, Turso readiness/read budgets and the optional
+revision-CAS/queued-list APIs. ESS keeps its existing transaction API, file-backed
+VSR and command formats 0/1. Embedded Turso changes from 0.8.2 to 0.8.3.
+
+Strict production/test compilation and both fresh admission diagnostics passed.
+The minimal probe retains its 1k/10k histories, normal owned transitions and cold
+fallback sensitivity. The production probe uses normal ObjectCommit writes,
+native exact-read instrumentation, version deletion/markers and exact inventories;
+its reads leave the retained log unchanged. Both identify the coordinated 3.1.11
+cohort and are diagnostic-only. The index preflight now pins this reviewed cohort,
+including the new deadline/admission sources; its 12 fail-closed tests passed.
+The full local extended suite executed 4,583 application tests with zero failures
+or skips and the two declared heavy exclusions. All 161 Python harness tests,
+repository formatting and diff checks passed. Candidate executable fingerprint:
+`6206bb61398cf6d95b83610f66c4514d78b276c689c6ef8f8e9db0c3f7224ddf`.
+Full current-source acceptance and all original clause audits remain required.
+
+The preceding full run
+[41965401679](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/41965401679)
+tested `609795bcbd473fcb1e8ea3b28d89593273d4df6c` with Concord 3.1.8 and fingerprint
+`5ee0d5ba72a2a876b44ee2375c3dec764dd365c88350b9ad1297c311972d413e`.
+Daily and eight extended lanes passed, including 4,583 executed application tests
+with no failures/skips, the two separately run heavy cases and release/container
+preflight. The Python harness ran 161 tests with one skip. Index, cluster and
+resources failed, so the aggregate stopped before the stock verifier and produced
+no verification artifact. None of those receipts certify the dependency update.
+
+That index attempt completed the 10k fixture, then failed its unchanged trace
+mailbox stop condition during listing; the 100k cohort did not run. Independent
+A29 passed. A separate bounded local 10k diagnostic completed all 1,800 samples
+without reproducing the failure; it omits 100k and cannot satisfy A28. The cluster
+attempt passed the earlier profiles and retained-root restart, then timed out on
+the original eight-worker/32-request versioned PUT exercise before the later
+failure/election/persistence checks. Simultaneous outbox timeout warnings do not
+establish a cause: the metadata adapter also maps quorum-unavailable to timeout.
+
+Resource acceptance failed local group 15/56 and cluster group 6/20, both 64 MiB
+concurrency-four PUTs. Raw samples reproduce maximum temporary-observation gaps
+of 161.010 ms locally and 131.539 ms on cluster data-a, above the unchanged 100 ms
+limit. All executed numeric envelopes passed; all four export hashes, generation
+chains and observer stop receipts verified. The unexecuted groups remain missing.
+No speculative dependency patch, scheduler repair or relaxed limit was applied.
+
+The separate old-source probe-only diagnostic
+[41967814424](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/41967814424)
+completed the original six-group cluster prefix without reproducing a violation;
+its maximum active gap was 87.136 ms. All sample exports and eight stopped
+identities verified. A recorded export write blocked in the filesystem, but this
+different operation/run does not explain the earlier temporary-scan gaps. The
+remaining 14 groups were omitted, and the receipt explicitly forbids acceptance
+or publication promotion. It does not validate Concord 3.1.11.
+
+## Legacy gateway index conversion (#24), Concord 3.1.8 — 2026-11-05
 
 The main-branch fix supports the existing quiesced, backup-verified conversion
 for upstream-only and cached cloud records. Selected current cloud bodies pass

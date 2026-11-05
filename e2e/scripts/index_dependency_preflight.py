@@ -13,14 +13,14 @@ PACKAGES = ("concord", "viewstamped_replication", "ex_turso")
 # Hex inner/package checksums for the independently verified published cohort.
 VERIFIED_CHECKSUMS = {
     "concord": (
-        "7a941b40ca14468b8b70a9d008bae778d5b0ecb18036e9fe9a98b19a9ae80059",
-        "77e9956c2371b07fa0a5f2af9d6a60ea3e069c019b87b06bde0468006bb7d646"),
+        "a12a231363ab9e152a29d50767706521ee5c598a0a761540c59e1a2dbba2e0c8",
+        "402e0415849bad9f58476a25a5179eb2885055ec9629431aab3de76c5c43aaa2"),
     "viewstamped_replication": (
-        "d24aa27721c3ece5b87e8ff8bd3d15374748322cdcf7eca3439790796c4c7292",
-        "6ee3a55639d88dcf72c6c14038f246164e48526f1078bd350e6106f264e08e63"),
+        "093bfff86fc3ce79edefbe7f1fdf1b5fefb72529d1860dc05654f4648065cde6",
+        "35bda3a0ec60bcdc5026c07ec3b7ac15f0310912b073bb6def1bbef400fe3fc2"),
     "ex_turso": (
-        "e64494c4b8ab29a039c398361b5f529656530bcd143f546547a9493030f4241d",
-        "8b29934f107e0dafa35dcb232fa60390cbdd64fce17afdd0ae01632a1d11896f"),
+        "774cb3893871c56136774395254c7a90c3b67ca20a4ed275bee0a5bba78d9ce7",
+        "d8b0168ae2d711724fdf8705902f3ca7e229edea31c93742c2810860f5120e37"),
 }
 VERIFIED_SOURCES = {
     "viewstamped_replication/lib/viewstamped_replication/replica.ex":
@@ -38,23 +38,33 @@ VERIFIED_SOURCES = {
     "viewstamped_replication/lib/viewstamped_replication/storage/file.ex":
         "9a3c2a8bf45bd0220b930a4907f9e128cfc8e28b9dffd3bf04d3df5086aaae96",
     "concord/lib/concord/state_machine/core.ex":
-        "85eed0f6afa87c52e239f2f8b36671338dce8ad56ad22637520248c8262b9f72",
+        "656271d2fa12a3141fbf706c6c110df5fad5c68f9651d2975381a51021b3771c",
     "concord/lib/concord/engine/vsr/state_machine.ex":
-        "76da3884a9c779b0311507c2da3c9ed8dae390fd51438c71a850933a2c1fa306",
+        "6f83999ab0283639fd8f8265b0d89f67b8898d9678e17d9af650674a2c823f78",
     "concord/lib/concord/state_machine.ex":
         "fb417d9970ded983b25fdd459e46d13b5c8c28a37f2d275dcb349164ce422699",
     "concord/lib/concord/state_machine/observer.ex":
         "f23fac22c4b17a4a8e66e60ad86da759455e671f93b396084c71026c965da668",
     "concord/lib/concord/engine/turso.ex":
-        "8f53f2f400c17ba7b6da388b1aef83399f5edbe01940511ef275cd31b5bbaa5f",
+        "1685bfdbd4cd35a05d5ed367725849304999497318f11604b1b24984f9002df5",
     "concord/lib/concord/turso/migrations.ex":
-        "5b94751a61879f439e5ed4f6f33376739c9a98daf46c015e142fac617c5eff71",
+        "30ab10730f8e17910223e18c99249adf04a6ca048697c83340b44150bfe558ad",
     "concord/lib/concord/turso/codec.ex":
         "de4a0dbc3983432d6a10d2f79db1ca11845d3bb1ac52326145d32e885fc1f34d",
     "concord/lib/concord/kv.ex":
-        "1804cf3e650164acc83ac7b91f767f2eb5d430cde847baefc78a5213768bf9a4",
+        "416671eae00a7e2a355e18b8a0c1166891bf523f096da26c0dc0c68a738dc3e4",
     "concord/lib/concord/turso.ex":
-        "1a2c72daea3eabd779c13a5ba3171e32f8ec4c6636a65b276994ff3715160c30",
+        "228247ffaa427a09bdb4e4351a32910dc885c9dee431ceebe0a709bcc2219f95",
+    "concord/lib/concord/engine/vsr.ex":
+        "9d19de390234847c8ee885a3ee64939dc111078a650af43e01e3d190d85095e6",
+    "concord/lib/concord/deadline.ex":
+        "e64b777fb4749016e8bacc4354728bbead16e31d0c7218d019b9b6b1a9d34e72",
+    "concord/lib/concord/command_schema.ex":
+        "15b17e48e67e0f1b9e216269f1a26b1b7bc8126d2b31fa9282b291ba2606664e",
+    "concord/lib/concord/command_envelope.ex":
+        "9b334d24522585a8467bde86ba77a7fba7116f8cd2ec0b7ac0fd8bf6254f5a1c",
+    "concord/lib/concord/turso/list_queue.ex":
+        "5f6f02131b70de1ecb81d658a361f097a7710cdba712f2ed0b24089257d53d68",
 }
 
 
@@ -82,14 +92,14 @@ def blocker(lock, dependencies_root=pathlib.Path("deps")):
     if set(versions.values()) == {"3.1.5"}:
         return ("BLOCKED A28: gsmlg-dev/concord#104 (singleton write history traversal); "
                 "coordinated 3.1.5 is not admissible.")
-    if set(versions.values()) != {"3.1.8"}:
+    if set(versions.values()) != {"3.1.11"}:
         return (f"Unvalidated index dependency versions {versions}; require released upstream fixes "
                 "for gsmlg-dev/concord#101/#102/#104/#105/#106, source/API review and both diagnostic probes "
                 "before updating this gate. Refusing expensive acceptance workload.")
 
     for package in PACKAGES:
         if checksums[package] != VERIFIED_CHECKSUMS[package]:
-            return f"Unverified {package} 3.1.8 Hex checksums; refusing index workload."
+            return f"Unverified {package} 3.1.11 Hex checksums; refusing index workload."
     for relative, expected in VERIFIED_SOURCES.items():
         try:
             actual = hashlib.sha256((pathlib.Path(dependencies_root) / relative).read_bytes()).hexdigest()
@@ -108,7 +118,7 @@ def main():
     if reason:
         print(reason, file=sys.stderr)
         return 1
-    print("Verified Concord/VSR/ExTurso 3.1.8; entering the unchanged A28 workload, not acceptance.")
+    print("Verified Concord/VSR/ExTurso 3.1.11; entering the unchanged A28 workload, not acceptance.")
     return 0
 
 
