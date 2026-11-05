@@ -96,6 +96,31 @@ or assertion was changed. Current executable fingerprint:
 `22800ed1d16bf77718449c6db063b94339d3d91d12d5d918012d63c4c8373486`.
 **v0.7.0 has not been dispatched or published.**
 
+Post-push hosted [Test 41985305567](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/41985305567)
+at `73e0c7d6f32996fb195469bf318ae4ccf8ff56a4` reproduces the same replacement-part
+timeout. CI, daily S3 checks and the edge image build pass; the hosted correctness
+failure remains unresolved. The automatic full matrix is skipped on push.
+
+A private bounded trace of the unchanged case records three fast passes followed
+by the same timeout. At the fifteen-second client deadline, only 2,287,389 bytes
+of the replacement's 5,242,880-byte body have returned from Gaoxy's body reader;
+body staging is still pending and CAS commit has not started. One completed
+1 MiB Plug read took 7.07 seconds; completed native read steps reach 209 ms.
+The trace remains below its 4,096-event/20-second caps, drains and destroys every
+session, and retains only fixed stages, byte counts, timings and classifications.
+An earlier trace reached its event cap and is only an incomplete prefix.
+
+Four Gaoxy-only controls omit Concord and ESS metadata: forty requests without
+pauses, forty with a 25 ms pre-read pause, forty with 5 ms pauses per 1 MiB, and
+fifty with empty upload responses plus a reused-connection 5 MiB download. All
+pass with exact byte/hash checks. These controls do not reproduce the failure or
+establish a Gaoxy, Finch, kernel, CAS or scheduling cause. Published Gaoxy 0.14.1
+keeps the body receive algorithm unchanged and documents a separate polling fix;
+no unsupported dependency upgrade or local workaround is applied. All four sink
+servers stop and all five diagnostic listener ports are closed. The body-transfer
+failure must be resolved under the original fixture/deadline, in addition to the
+Concord repair and full current-source acceptance, before publication.
+
 ## Concord 3.1.11 update — 2026-11-05
 
 The core now requires Concord `~> 3.1.11`, with only Concord, VSR and ExTurso

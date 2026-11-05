@@ -14,8 +14,10 @@ probe confirms normal multi-voter read/barrier history rebuilding in 3.1.11,
 tracked by [Concord #112](https://github.com/gsmlg-dev/concord/issues/112).
 Release work is blocked until a published repair is adopted and verified.
 Final local compilation, harness and diagnostic checks pass. The full same-seed
-replay passed 4,589 application tests; the first attempt's multipart HTTP timeout
-remains unclassified. No historical clause was promoted and v0.7.0 remains
+replay passed 4,589 application tests, but hosted Test 41985305567 reproduces the
+multipart HTTP timeout. A bounded trace locates slow body progress before CAS
+commit; standalone sink controls pass, so the cause remains unclassified. No
+historical clause was promoted and v0.7.0 remains
 unpublished. See the
 [integrated evidence report](../reports/s3-hardening-verification.md).
 
