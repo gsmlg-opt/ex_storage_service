@@ -1,0 +1,720 @@
+{
+  "scope": "Concord 3.1.12 reviewed admission only; no scale or full-acceptance promotion",
+  "status": "passed",
+  "acceptance": false,
+  "source_head": "b8f49a550a9aab8a61e2b25aaa3e40b097520e48",
+  "probe_source_sha256": "568bcb87b7836999f6b05441f727a6e4e8a18f6754fa7e2feb1cc5f8fa71d8dc",
+  "reviewed_package_checksums": {
+    "concord": [
+      "a7083d6272642655e11c476a238fb2304aa9cf48212780e5f651ded0edd4e902",
+      "0a34ffd0851a7fa2a619c2f39d82962ddd978e086295499474de77f534b191f5"
+    ],
+    "viewstamped_replication": [
+      "af5c0976555aad63ffb30c102e5246fa7c446afa6b2dad195ceb00552333b930",
+      "2086c3573532ce5e6a62bffb3f3654828678121f4bdcda468e13190f0167a08e"
+    ],
+    "ex_turso": [
+      "62f27bb9948923dac9e78a0bc3a371e166a6f2fb9ffff59acaac038c16488283",
+      "aa8b50e3d05e70392309024bbd287c61cd15b440a2be53144cd0542213a18ac0"
+    ]
+  },
+  "reviewed_source_sha256": {
+    "viewstamped_replication/lib/viewstamped_replication/replica.ex": "bb62a681344538fee05a357082d0e87721deb5a3614c1344f07b4e2aa4e16541",
+    "viewstamped_replication/lib/viewstamped_replication/protocol.ex": "14b79d1bbbe8423398bb69a33cbd2d6a8d350457ab8cee69df18b995f4544f4e",
+    "viewstamped_replication/lib/viewstamped_replication/protocol/state.ex": "b97e99e709823e37d243b22e7203398eb9f5302ec2e1c4e266f8d4be26d12142",
+    "viewstamped_replication/lib/viewstamped_replication/log.ex": "26e992fcad95826b75ca5beeb1adc0acc9a2e223904e68142696b4ce45d34a87",
+    "viewstamped_replication/lib/viewstamped_replication/log/indexed.ex": "2d3b160486489a6b73ce7d4d1076abffaa902ef896230f67b625f423bee49164",
+    "viewstamped_replication/lib/viewstamped_replication/storage/memory.ex": "241e2d793ac385c8b3a92d5e88b59f9a05ee65f41bf2a62404fa8213813d850e",
+    "viewstamped_replication/lib/viewstamped_replication/storage/file.ex": "9a3c2a8bf45bd0220b930a4907f9e128cfc8e28b9dffd3bf04d3df5086aaae96",
+    "concord/lib/concord/state_machine/core.ex": "656271d2fa12a3141fbf706c6c110df5fad5c68f9651d2975381a51021b3771c",
+    "concord/lib/concord/engine/vsr/state_machine.ex": "6f83999ab0283639fd8f8265b0d89f67b8898d9678e17d9af650674a2c823f78",
+    "concord/lib/concord/state_machine.ex": "fb417d9970ded983b25fdd459e46d13b5c8c28a37f2d275dcb349164ce422699",
+    "concord/lib/concord/state_machine/observer.ex": "f23fac22c4b17a4a8e66e60ad86da759455e671f93b396084c71026c965da668",
+    "concord/lib/concord/engine/turso.ex": "6e0a7e752e4c8eb2891abec2ea6337158d4e35baebb88f3ffad8b6237d974d16",
+    "concord/lib/concord/turso/migrations.ex": "82373ca14c7b4433a9eb1a052270472edd0287517c550cc3878fae4ffff5d8d2",
+    "concord/lib/concord/turso/codec.ex": "de4a0dbc3983432d6a10d2f79db1ca11845d3bb1ac52326145d32e885fc1f34d",
+    "concord/lib/concord/kv.ex": "78b486e59932bc045c32ff4847436e4ad0c1f5fff07fd8d683da1a3d3e335a4d",
+    "concord/lib/concord/turso.ex": "c333ef13fa066239363c1e821603c8e82257777182070e530cec8e4b2bc59033",
+    "concord/lib/concord/engine/vsr.ex": "9d19de390234847c8ee885a3ee64939dc111078a650af43e01e3d190d85095e6",
+    "concord/lib/concord/deadline.ex": "e64b777fb4749016e8bacc4354728bbead16e31d0c7218d019b9b6b1a9d34e72",
+    "concord/lib/concord/command_schema.ex": "15b17e48e67e0f1b9e216269f1a26b1b7bc8126d2b31fa9282b291ba2606664e",
+    "concord/lib/concord/command_envelope.ex": "9b334d24522585a8467bde86ba77a7fba7116f8cd2ec0b7ac0fd8bf6254f5a1c",
+    "concord/lib/concord/turso/list_queue.ex": "5f6f02131b70de1ecb81d658a361f097a7710cdba712f2ed0b24089257d53d68"
+  },
+  "execution": [
+    {
+      "mode": "minimal",
+      "argv": [
+        "mix",
+        "run",
+        "--no-compile",
+        "--no-start",
+        "e2e/scripts/index_concord316_probe.exs",
+        "minimal",
+        "/tmp/ess-concord3112-adoption-20261106-r1/admission-minimal-r2.json"
+      ],
+      "exit_status": 0,
+      "seconds": 0.784,
+      "process_stopped": true,
+      "acceptance": false
+    },
+    {
+      "mode": "production",
+      "argv": [
+        "mix",
+        "run",
+        "--no-compile",
+        "--no-start",
+        "e2e/scripts/index_concord316_probe.exs",
+        "production",
+        "/tmp/ess-concord3112-adoption-20261106-r1/admission-production-r2.json"
+      ],
+      "exit_status": 0,
+      "seconds": 3.035,
+      "process_stopped": true,
+      "acceptance": false
+    }
+  ],
+  "minimal": {
+    "status": "diagnostic_completed",
+    "mode": "minimal",
+    "otp_release": "28",
+    "rows": [
+      {
+        "samples": [
+          {
+            "reductions": 2480,
+            "microseconds": 630
+          },
+          {
+            "reductions": 396,
+            "microseconds": 6
+          },
+          {
+            "reductions": 396,
+            "microseconds": 4
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 7
+          },
+          {
+            "reductions": 396,
+            "microseconds": 4
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 1636,
+            "microseconds": 60
+          },
+          {
+            "reductions": 396,
+            "microseconds": 4
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 555,
+            "microseconds": 13
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 397,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 513,
+            "microseconds": 9
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          }
+        ],
+        "retained_before": 1000,
+        "retained_after": 1030,
+        "forbidden_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 0,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 0
+        },
+        "owned_read_forbidden_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 0,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 0
+        },
+        "exhaustive_public_read_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 1,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 1,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 1,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 1
+        },
+        "invariants_verified_outside_measurement": true
+      },
+      {
+        "samples": [
+          {
+            "reductions": 396,
+            "microseconds": 28
+          },
+          {
+            "reductions": 396,
+            "microseconds": 4
+          },
+          {
+            "reductions": 396,
+            "microseconds": 4
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 4
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 5
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 4
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 396,
+            "microseconds": 10
+          },
+          {
+            "reductions": 396,
+            "microseconds": 4
+          },
+          {
+            "reductions": 396,
+            "microseconds": 3
+          },
+          {
+            "reductions": 2566,
+            "microseconds": 565
+          },
+          {
+            "reductions": 396,
+            "microseconds": 5
+          },
+          {
+            "reductions": 396,
+            "microseconds": 5
+          },
+          {
+            "reductions": 396,
+            "microseconds": 6
+          },
+          {
+            "reductions": 396,
+            "microseconds": 4
+          },
+          {
+            "reductions": 396,
+            "microseconds": 5
+          },
+          {
+            "reductions": 396,
+            "microseconds": 5
+          },
+          {
+            "reductions": 396,
+            "microseconds": 6
+          }
+        ],
+        "retained_before": 10000,
+        "retained_after": 10030,
+        "forbidden_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 0,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 0
+        },
+        "owned_read_forbidden_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 0,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 0
+        },
+        "exhaustive_public_read_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 1,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 1,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 1,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 1
+        },
+        "invariants_verified_outside_measurement": true
+      }
+    ],
+    "elixir_version": "1.18.5",
+    "versions": {
+      "concord": "3.1.12",
+      "ex_turso": "3.1.12",
+      "viewstamped_replication": "3.1.12"
+    },
+    "applications_unchanged": true,
+    "transaction_change_tracking": "exact_changes",
+    "transaction_store_equal": true,
+    "diagnostic_only": true,
+    "acceptance_promotion": false
+  },
+  "production": {
+    "status": "diagnostic_completed",
+    "mode": "production",
+    "otp_release": "28",
+    "setup": [
+      {
+        "phase": "admission-target",
+        "backend": {
+          "get:bucket": {
+            "microseconds": 6191,
+            "calls": 512,
+            "maximum_us": 679,
+            "returned_bytes": 78336,
+            "conflicts": 0
+          },
+          "get:head": {
+            "microseconds": 1890,
+            "calls": 256,
+            "maximum_us": 21,
+            "returned_bytes": 3072,
+            "conflicts": 0
+          },
+          "get:index_node": {
+            "microseconds": 4431,
+            "calls": 506,
+            "maximum_us": 82,
+            "returned_bytes": 119947,
+            "conflicts": 0
+          },
+          "get:index_root": {
+            "microseconds": 4242,
+            "calls": 512,
+            "maximum_us": 37,
+            "returned_bytes": 170368,
+            "conflicts": 0
+          },
+          "get:other": {
+            "microseconds": 3900,
+            "calls": 512,
+            "maximum_us": 32,
+            "returned_bytes": 6144,
+            "conflicts": 0
+          },
+          "get:version": {
+            "microseconds": 2101,
+            "calls": 256,
+            "maximum_us": 98,
+            "returned_bytes": 3072,
+            "conflicts": 0
+          },
+          "transaction:specification": {
+            "microseconds": 977205,
+            "calls": 128,
+            "maximum_us": 10460,
+            "returned_bytes": 167041,
+            "conflicts": 0
+          }
+        },
+        "event": "complete",
+        "planned": 128,
+        "completed": 128,
+        "elapsed_us": 1028241,
+        "outside_backend_us": 28281
+      },
+      {
+        "phase": "admission-unrelated",
+        "backend": {
+          "get:bucket": {
+            "microseconds": 5564,
+            "calls": 512,
+            "maximum_us": 40,
+            "returned_bytes": 79908,
+            "conflicts": 0
+          },
+          "get:head": {
+            "microseconds": 1934,
+            "calls": 256,
+            "maximum_us": 70,
+            "returned_bytes": 3072,
+            "conflicts": 0
+          },
+          "get:index_node": {
+            "microseconds": 4273,
+            "calls": 506,
+            "maximum_us": 75,
+            "returned_bytes": 120069,
+            "conflicts": 0
+          },
+          "get:index_root": {
+            "microseconds": 4147,
+            "calls": 512,
+            "maximum_us": 23,
+            "returned_bytes": 170404,
+            "conflicts": 0
+          },
+          "get:other": {
+            "microseconds": 5236,
+            "calls": 512,
+            "maximum_us": 817,
+            "returned_bytes": 6144,
+            "conflicts": 0
+          },
+          "get:version": {
+            "microseconds": 1950,
+            "calls": 256,
+            "maximum_us": 25,
+            "returned_bytes": 3072,
+            "conflicts": 0
+          },
+          "transaction:specification": {
+            "microseconds": 999223,
+            "calls": 128,
+            "maximum_us": 9773,
+            "returned_bytes": 171525,
+            "conflicts": 0
+          }
+        },
+        "event": "complete",
+        "planned": 128,
+        "completed": 128,
+        "elapsed_us": 1041942,
+        "outside_backend_us": 19615
+      }
+    ],
+    "bounds": {
+      "encoded_key_bytes": 160,
+      "height": 16,
+      "hydrated_bytes": 4096,
+      "hydrated_heap_bytes": 16384,
+      "fixture_node_bytes": 2048,
+      "fixture_node_heap_bytes": 8192,
+      "production_node_bytes": 32768,
+      "production_terminal_bytes": 8192,
+      "production_max_children": 256,
+      "request_heap_bytes": 134217728,
+      "stable_attempts": 1,
+      "query_boundaries": [
+        "Concord.Engine.query/2",
+        "Concord.Engine.VSR.query/2"
+      ],
+      "native_scope": "owned request PID and single configured local VSR Replica PID; every Core query must be get_record",
+      "heap_derivation": {
+        "input": 32768,
+        "page": 20520960,
+        "seek_path": 262144,
+        "fixed": 1048576,
+        "transient_gc_multiplier": 3,
+        "runtime_reserve": 33554432,
+        "derived_maximum": 99147776
+      },
+      "peak_heap_method": "isolated process total_heap_size plus GC block sizes and 1ms sampling"
+    },
+    "elixir_version": "1.18.5",
+    "versions": {
+      "concord": "3.1.12",
+      "ex_turso": "3.1.12",
+      "viewstamped_replication": "3.1.12"
+    },
+    "command_version": 0,
+    "pages": [
+      {
+        "kind": "first",
+        "sample": {
+          "bytes": 21598,
+          "duration": 2306,
+          "gc_events": 58,
+          "reads": 70,
+          "output_bytes": 3869,
+          "output_heap_bytes": 6112,
+          "output_entries": 10,
+          "index_stats": {
+            "depth": 14,
+            "bytes": 14521,
+            "visited": 55,
+            "reads": 55
+          },
+          "final_heap_bytes": 33632,
+          "peak_heap_bytes": 33800,
+          "sampled_process_memory_bytes": 0,
+          "trace_events": 338,
+          "native_exact_counts": {
+            "engine_query": 70,
+            "vsr_query": 70,
+            "core_query": 70,
+            "core_dispatch": 70
+          },
+          "forbidden_native_calls": 0
+        }
+      },
+      {
+        "kind": "delimiter",
+        "sample": {
+          "bytes": 2278,
+          "duration": 302,
+          "gc_events": 14,
+          "reads": 9,
+          "output_bytes": 157,
+          "output_heap_bytes": 288,
+          "output_entries": 1,
+          "index_stats": {
+            "depth": 14,
+            "bytes": 1136,
+            "visited": 5,
+            "reads": 5
+          },
+          "final_heap_bytes": 25664,
+          "peak_heap_bytes": 25664,
+          "sampled_process_memory_bytes": 0,
+          "trace_events": 50,
+          "native_exact_counts": {
+            "engine_query": 9,
+            "vsr_query": 9,
+            "core_query": 9,
+            "core_dispatch": 9
+          },
+          "forbidden_native_calls": 0
+        }
+      },
+      {
+        "kind": "absent",
+        "sample": {
+          "bytes": 1126,
+          "duration": 156,
+          "gc_events": 12,
+          "reads": 5,
+          "output_bytes": 138,
+          "output_heap_bytes": 208,
+          "output_entries": 0,
+          "index_stats": {
+            "depth": 11,
+            "bytes": 120,
+            "visited": 1,
+            "reads": 1
+          },
+          "final_heap_bytes": 17712,
+          "peak_heap_bytes": 17712,
+          "sampled_process_memory_bytes": 0,
+          "trace_events": 32,
+          "native_exact_counts": {
+            "engine_query": 5,
+            "vsr_query": 5,
+            "core_query": 5,
+            "core_dispatch": 5
+          },
+          "forbidden_native_calls": 0
+        }
+      }
+    ],
+    "inventories": [
+      {
+        "visible": 129,
+        "versions": 130,
+        "fixture": {
+          "nodes": 293,
+          "encoded_key_bytes": 84,
+          "height": 5,
+          "node_bytes": 370,
+          "hydrated_bytes": 351,
+          "terminals": 259
+        },
+        "bucket": "admission-target",
+        "commits": 132
+      },
+      {
+        "visible": 128,
+        "versions": 128,
+        "fixture": {
+          "nodes": 288,
+          "encoded_key_bytes": 80,
+          "height": 4,
+          "node_bytes": 374,
+          "hydrated_bytes": 354,
+          "terminals": 256
+        },
+        "bucket": "admission-unrelated",
+        "commits": 128
+      }
+    ],
+    "native_before_reads": {
+      "op_number": 259,
+      "applied_number": 259,
+      "retained_entries": 259,
+      "log_base": 0
+    },
+    "native_log_unchanged_during_reads": true,
+    "native_final": {
+      "op_number": 264,
+      "applied_number": 264,
+      "retained_entries": 264,
+      "log_base": 0
+    },
+    "diagnostic_only": true,
+    "acceptance_promotion": false
+  },
+  "harness": {
+    "tests": 163,
+    "failures": 0,
+    "skips": 0,
+    "log_sha256": "08d4abd0a3e2f00127552099c3a6adc62a4b6434f81154fe7027397c643ab3e7"
+  },
+  "regressions": [
+    "repository lock remains coordinated with reviewed cohort",
+    "3.1.11 multi-voter read rebuilding is rejected"
+  ],
+  "unchanged": [
+    "10k/100k workload",
+    "30 samples per query",
+    "resource and history-call limits",
+    "command versions 0/1"
+  ]
+}

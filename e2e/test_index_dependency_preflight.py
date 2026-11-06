@@ -12,7 +12,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent / "scripts"))
 import index_dependency_preflight as preflight
 
 
-def lock(version="3.1.11"):
+def lock(version="3.1.12"):
     return "\n".join(
         f'  "{name}": {{:hex, :{name}, "{version}", "{inner}", '
         f'[:mix], [], "hexpm", "{outer}"}},'
@@ -38,6 +38,10 @@ class IndexDependencyPreflightTest(unittest.TestCase):
     def test_verified_cohort_enters_unchanged_workload(self):
         self.assertIsNone(self.blocker(lock()))
 
+    def test_repository_lock_and_reviewed_cohort_stay_coordinated(self):
+        repository_lock = pathlib.Path(__file__).resolve().parents[1] / "mix.lock"
+        self.assertIsNone(self.blocker(repository_lock.read_text()))
+
     def test_reproduced_release_identifies_both_blockers(self):
         result = self.blocker(lock("3.1.4"))
         self.assertIn("#101", result)
@@ -49,13 +53,16 @@ class IndexDependencyPreflightTest(unittest.TestCase):
     def test_runtime_write_regression_is_not_readmitted(self):
         self.assertIn("#104", self.blocker(lock("3.1.5")))
 
+    def test_multi_voter_read_regression_is_not_readmitted(self):
+        self.assertIn("#112", self.blocker(lock("3.1.11")))
+
     def test_unknown_and_uncoordinated_releases_require_validation(self):
         for version in ("3.1.6", "3.1.7", "3.1.8", "3.1.9", "3.1.10",
-                        "3.1.12", "3.2.0", "4.0.0"):
+                        "3.1.13", "3.2.0", "4.0.0"):
             with self.subTest(version=version):
                 self.assertIn("Unvalidated", self.blocker(lock(version)))
         self.assertIn("Unvalidated", self.blocker(lock().replace(
-            ':ex_turso, "3.1.11"', ':ex_turso, "3.1.5"')))
+            ':ex_turso, "3.1.12"', ':ex_turso, "3.1.5"')))
 
     def test_missing_or_duplicate_lock_entries_fail_closed(self):
         self.assertIn("Cannot identify", self.blocker(""))
@@ -72,7 +79,7 @@ class IndexDependencyPreflightTest(unittest.TestCase):
         for malformed in (lock().replace('"hexpm"', '"private"', 1),
                           lock().replace(':hex, :concord', ':git, :concord', 1),
                           lock().replace('"concord": {', '"concord": invalid {', 1),
-                          lock().replace('"3.1.11",', '"3.1.11", "extra",', 1)):
+                          lock().replace('"3.1.12",', '"3.1.12", "extra",', 1)):
             with self.subTest(lock=malformed):
                 self.assertIn("Cannot validate", self.blocker(malformed))
 

@@ -1,0 +1,457 @@
+{
+  "scope": "Concord 3.1.12 adoption hosted full-acceptance follow-up; publication remains blocked",
+  "run_id": 42149523486,
+  "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42149523486",
+  "head_sha": "b8f49a550a9aab8a61e2b25aaa3e40b097520e48",
+  "source_sha256": "d378197d9629cf6d3adbf39573c78da09e5d06689b45748b74838b87a6b213ef",
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "name": "Sequential daily-use S3 checks",
+      "conclusion": "success"
+    },
+    {
+      "name": "Extended audit / correctness",
+      "conclusion": "success"
+    },
+    {
+      "name": "Extended audit / gateway",
+      "conclusion": "success"
+    },
+    {
+      "name": "Extended audit / standalone",
+      "conclusion": "success"
+    },
+    {
+      "name": "Extended audit / restore",
+      "conclusion": "success"
+    },
+    {
+      "name": "Extended audit / faults",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Extended audit / cluster",
+      "conclusion": "success"
+    },
+    {
+      "name": "Extended audit / crashes",
+      "conclusion": "success"
+    },
+    {
+      "name": "Extended audit / index",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Extended audit / release",
+      "conclusion": "success"
+    },
+    {
+      "name": "Extended audit / resilience",
+      "conclusion": "success"
+    },
+    {
+      "name": "Extended audit / resources",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Extended audit of all 38 scenarios and every lane",
+      "conclusion": "failure"
+    }
+  ],
+  "correctness": {
+    "app_counts": {
+      "ex_storage_service": {
+        "tests": 645,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 644
+      },
+      "ex_storage_service_cluster": {
+        "tests": 44,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 43
+      },
+      "ex_storage_service_cli": {
+        "tests": 3491,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 3491
+      },
+      "ex_storage_service_s3": {
+        "tests": 387,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 387
+      },
+      "ex_storage_service_web": {
+        "tests": 24,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 24
+      }
+    },
+    "artifact": {
+      "artifact_path": "hosted-correctness/ci-42149523486-1/suite-selection/correctness.json",
+      "sha256": "f90ab2f523cba2383fc2f273f42e46b1333e5c3ad5f84146691a01a9758f9df2"
+    }
+  },
+  "index": {
+    "status": "failed",
+    "reason": "Pinned preflight still admitted only 3.1.11; 10k/100k not started",
+    "independent_A29": "passed",
+    "artifact": {
+      "artifact_path": "hosted-index/ci-42149523486-1/index.json",
+      "sha256": "3a31132b249670b1bc0307e249679fc17cd38ca7108458a8d21e99fbfcb2bd9b"
+    }
+  },
+  "resources": {
+    "status": "failed",
+    "required_standalone_groups": 56,
+    "recorded_standalone_groups": 15,
+    "passed_standalone_groups": 14,
+    "failed_group": {
+      "name": "local-put",
+      "size": 67108864,
+      "concurrency": 4,
+      "failures": [
+        "cadence:binary:interval_over100ms",
+        "cadence:total:interval_over100ms",
+        "cadence:rss:interval_over100ms",
+        "cadence:queue_max:interval_over100ms",
+        "cadence:queue_total:interval_over100ms",
+        "cadence:temporary:interval_over100ms"
+      ],
+      "cadence": {
+        "binary": {
+          "samples": 67,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 11876802,
+          "end_edge_ns": 12244784,
+          "maximum_probe_ns": 5625930,
+          "maximum_gap_ns": 100074982,
+          "intervals_over100ms": 1,
+          "sampler_ids": [
+            "1793931974970704266"
+          ]
+        },
+        "total": {
+          "samples": 67,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 11876802,
+          "end_edge_ns": 12244784,
+          "maximum_probe_ns": 5625930,
+          "maximum_gap_ns": 100074982,
+          "intervals_over100ms": 1,
+          "sampler_ids": [
+            "1793931974970704266"
+          ]
+        },
+        "rss": {
+          "samples": 67,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 12319000,
+          "end_edge_ns": 11953654,
+          "maximum_probe_ns": 265621,
+          "maximum_gap_ns": 100160677,
+          "intervals_over100ms": 1,
+          "sampler_ids": [
+            "1793931974970704266"
+          ]
+        },
+        "queue_max": {
+          "samples": 67,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 6250752,
+          "end_edge_ns": 13207166,
+          "maximum_probe_ns": 3961694,
+          "maximum_gap_ns": 100609709,
+          "intervals_over100ms": 1,
+          "sampler_ids": [
+            "1793931974970704266"
+          ]
+        },
+        "queue_total": {
+          "samples": 67,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 6250752,
+          "end_edge_ns": 13207166,
+          "maximum_probe_ns": 3961694,
+          "maximum_gap_ns": 100609709,
+          "intervals_over100ms": 1,
+          "sampler_ids": [
+            "1793931974970704266"
+          ]
+        },
+        "temporary": {
+          "samples": 67,
+          "max_interval_ns": 100000000,
+          "start_edge_ns": 12492852,
+          "end_edge_ns": 11789406,
+          "maximum_probe_ns": 75123848,
+          "maximum_gap_ns": 100177613,
+          "intervals_over100ms": 2,
+          "sampler_ids": [
+            "1793931974970704266"
+          ]
+        }
+      }
+    },
+    "standalone_gap_audit": {
+      "binary": {
+        "maximum_gap_ns": 100074982,
+        "sequence": [
+          2813,
+          2814
+        ],
+        "temporary_probe_ns": [
+          75123848,
+          175786
+        ],
+        "observer_process_cpu_delta_ns": 998000
+      },
+      "total": {
+        "maximum_gap_ns": 100074982,
+        "sequence": [
+          2813,
+          2814
+        ],
+        "temporary_probe_ns": [
+          75123848,
+          175786
+        ],
+        "observer_process_cpu_delta_ns": 998000
+      },
+      "rss": {
+        "maximum_gap_ns": 100160677,
+        "sequence": [
+          2813,
+          2814
+        ],
+        "temporary_probe_ns": [
+          75123848,
+          175786
+        ],
+        "observer_process_cpu_delta_ns": 998000
+      },
+      "queue_max": {
+        "maximum_gap_ns": 100609709,
+        "sequence": [
+          2813,
+          2814
+        ],
+        "temporary_probe_ns": [
+          75123848,
+          175786
+        ],
+        "observer_process_cpu_delta_ns": 998000
+      },
+      "queue_total": {
+        "maximum_gap_ns": 100609709,
+        "sequence": [
+          2813,
+          2814
+        ],
+        "temporary_probe_ns": [
+          75123848,
+          175786
+        ],
+        "observer_process_cpu_delta_ns": 998000
+      },
+      "temporary": {
+        "maximum_gap_ns": 100177613,
+        "sequence": [
+          2813,
+          2814
+        ],
+        "temporary_probe_ns": [
+          75123848,
+          175786
+        ],
+        "observer_process_cpu_delta_ns": 998000
+      }
+    },
+    "cluster": {
+      "status": "passed",
+      "groups": 20,
+      "final_staging": {
+        "meta": {
+          "files": 0,
+          "bytes": 0
+        },
+        "data-a": {
+          "files": 0,
+          "bytes": 0
+        },
+        "data-b": {
+          "files": 0,
+          "bytes": 0
+        }
+      }
+    },
+    "large_stream": "passed",
+    "independently_verified_exports": [
+      {
+        "root": "hosted-resources/ci-42149523486-1-resources",
+        "status": "passed",
+        "contiguous_generation_rows": true,
+        "export_hashes_match": true,
+        "export_count": 1,
+        "recorded_observers_stopped": true
+      },
+      {
+        "root": "hosted-resources/ci-42149523486-1-resources-cluster/samples/meta",
+        "status": "passed",
+        "contiguous_generation_rows": true,
+        "export_hashes_match": true,
+        "export_count": 1,
+        "recorded_observers_stopped": true
+      },
+      {
+        "root": "hosted-resources/ci-42149523486-1-resources-cluster/samples/data-a",
+        "status": "passed",
+        "contiguous_generation_rows": true,
+        "export_hashes_match": true,
+        "export_count": 1,
+        "recorded_observers_stopped": true
+      },
+      {
+        "root": "hosted-resources/ci-42149523486-1-resources-cluster/samples/data-b",
+        "status": "passed",
+        "contiguous_generation_rows": true,
+        "export_hashes_match": true,
+        "export_count": 1,
+        "recorded_observers_stopped": true
+      }
+    ],
+    "artifacts": [
+      {
+        "artifact_path": "hosted-resources/ci-42149523486-1-resources/results.json",
+        "sha256": "ce2214aa4c35f51af5dce36ed8a8e8a4cfe3d1356a6160aafc2620977c710e0e"
+      },
+      {
+        "artifact_path": "hosted-resources/ci-42149523486-1-resources-cluster/results.json",
+        "sha256": "f8640e623b880616a4b9cfcd881e32319f36acc9137bc78a0e901fbafafecbfa"
+      }
+    ]
+  },
+  "faults": {
+    "status": "failed",
+    "passed_operation_checks": 7,
+    "failed_envelope_check": "continuous-mailbox-envelope; online coverage failed",
+    "coverage_failures": [
+      "local-gateway:generation1:cadence:binary:interval_over100ms",
+      "local-gateway:generation1:cadence:total:interval_over100ms",
+      "local-gateway:generation1:cadence:rss:interval_over100ms",
+      "local-gateway:generation1:cadence:queue_max:interval_over100ms",
+      "local-gateway:generation1:cadence:queue_total:interval_over100ms",
+      "local-gateway:generation1:cadence:temporary:interval_over100ms"
+    ],
+    "local_gateway_gap_audit": {
+      "binary": {
+        "maximum_gap_ns": 100398485,
+        "sequence": [
+          259,
+          260
+        ],
+        "temporary_probe_ns": [
+          89204591,
+          114293
+        ],
+        "observer_process_cpu_delta_ns": 698000
+      },
+      "total": {
+        "maximum_gap_ns": 100398485,
+        "sequence": [
+          259,
+          260
+        ],
+        "temporary_probe_ns": [
+          89204591,
+          114293
+        ],
+        "observer_process_cpu_delta_ns": 698000
+      },
+      "rss": {
+        "maximum_gap_ns": 100396757,
+        "sequence": [
+          259,
+          260
+        ],
+        "temporary_probe_ns": [
+          89204591,
+          114293
+        ],
+        "observer_process_cpu_delta_ns": 698000
+      },
+      "queue_max": {
+        "maximum_gap_ns": 101232346,
+        "sequence": [
+          259,
+          260
+        ],
+        "temporary_probe_ns": [
+          89204591,
+          114293
+        ],
+        "observer_process_cpu_delta_ns": 698000
+      },
+      "queue_total": {
+        "maximum_gap_ns": 101232346,
+        "sequence": [
+          259,
+          260
+        ],
+        "temporary_probe_ns": [
+          89204591,
+          114293
+        ],
+        "observer_process_cpu_delta_ns": 698000
+      },
+      "temporary": {
+        "maximum_gap_ns": 114131864,
+        "sequence": [
+          258,
+          259
+        ],
+        "temporary_probe_ns": [
+          131329,
+          89204591
+        ],
+        "observer_process_cpu_delta_ns": 775000
+      }
+    },
+    "artifact": {
+      "artifact_path": "hosted-faults/ci-42149523486-1-faults/results.json",
+      "sha256": "b3f8102c3e3e57be4f6f5611a609d8f089dc79b2da5aef99c136ce109310d9b6"
+    }
+  },
+  "release_preflight": {
+    "status": "passed",
+    "publication": false,
+    "artifact": {
+      "artifact_path": "hosted-release/ci-42149523486-1/release.json",
+      "sha256": "0db5044177bbccce73030eb8b43032c0d7da928b37d0c8f65dfcb69cb8d93374"
+    }
+  },
+  "causal_limit": "Slow temporary probes precede both failed coverage gaps. Process CPU deltas do not identify filesystem, kernel, scheduler or dependency cause.",
+  "aggregate": {
+    "status": "failed",
+    "stock_verifier_executed": false,
+    "reason": "Lane-success prerequisite failed; no successful acceptance verification artifact"
+  },
+  "historical_ledger": {
+    "scenarios_passed": 36,
+    "scenarios_total": 38,
+    "clauses_passed": 149,
+    "clauses_total": 158,
+    "current_source_promotion": false
+  },
+  "publication": false
+}

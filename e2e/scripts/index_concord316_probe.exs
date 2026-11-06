@@ -109,15 +109,23 @@ defmodule ESSIndexConcord316Probe do
         ^final_count = map_size(final.applied_request_index.writer)
         ^final = Protocol.assert_invariants!(final)
 
-        # A direct closure read is a cold fallback, not Replica's ready read path.
-        # Keep it outside the hot-write measurement and prove trace sensitivity.
-        {{read_state, [{:read, :read, {:get, "constant"}}], _}, control} =
+        {_owned, read_next} = Protocol.runtime(final)
+
+        {{^final, [{:read, :read, {:get, "constant"}}], _}, owned_read} =
           profile(@history_specs, [self()], fn ->
-            {_owned, next} = Protocol.runtime(final)
-            next.({:read_request, :read, {:get, "constant"}})
+            read_next.({:read_request, :read, {:get, "constant"}})
           end)
 
-        ^final = read_state
+        true = Enum.all?(owned_read, fn {_mfa, calls} -> calls == 0 end)
+
+        # Normal owned reads are bounded too. The exhaustive public kernel
+        # remains the reference and proves the history counters are sensitive.
+        {{read_state, [{:read, :read, {:get, "constant"}}]}, control} =
+          profile(@history_specs, [self()], fn ->
+            Protocol.step(final, {:read_request, :read, {:get, "constant"}})
+          end)
+
+        ^read_state = %{final | log: Log.canonical(final.log)}
         true = control["ViewstampedReplication.Protocol.step/2"] > 0
         true = control["ViewstampedReplication.Log.canonical/1"] > 0
 
@@ -126,7 +134,8 @@ defmodule ESSIndexConcord316Probe do
           retained_after: final_count,
           samples: Enum.reverse(samples),
           forbidden_history_calls: profile,
-          cold_read_control_history_calls: control,
+          owned_read_forbidden_history_calls: owned_read,
+          exhaustive_public_read_history_calls: control,
           invariants_verified_outside_measurement: true
         }
       end

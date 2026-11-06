@@ -33,6 +33,75 @@ establish its repair. Executable-input fingerprint:
 Complete current-source acceptance and all 158 clause
 audits remain required before publication. **v0.7.0 remains unpublished.**
 
+The exact adoption commit `b8f49a550a9aab8a61e2b25aaa3e40b097520e48` completed
+[full acceptance 42149523486](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42149523486).
+Daily and eight extended lanes passed: correctness, standalone, gateway, cluster,
+crashes, resilience, restore and release preflight. Index, resources and faults
+failed. The aggregate stopped at its lane-success prerequisite before executing
+the stock verifier and produced no successful verification artifact. The hosted
+extended application artifact independently records all 4,589 executed tests,
+zero failures/skips and the same two heavy exclusions. Its Python harness passed
+161 tests with one existing skip. This is separate from the updated local harness,
+which passes all 163 tests without skips.
+
+Index failed its pinned dependency admission check before any scale workload:
+the gate still admitted only 3.1.11. Independent A29 passed real backup,
+interruption/rejoin, fencing and cutover checks. The gate update admits the exact
+reviewed 3.1.12 checksums and 21 source hashes after both fresh admission probes
+pass. It explicitly rejects the 3.1.11 read regression and retains rejection of
+unknown, uncoordinated, malformed or modified inputs. A new repository-lock test
+prevents this missed update. The minimal probe asserts zero history calls for
+owned reads as well as writes and retains the exhaustive public kernel as its
+positive trace control. The production probe completes 128 target and 128 unrelated
+ObjectCommit puts, exact inventories and bounded pages with command version 0.
+The [admission receipt](s3-hardening/concord3112-admission-20261106.json) retains
+both executed probes, reviewed inputs and the harness result. Neither probe
+certifies A28. The original local 10k/100k replay exits 1 after 124.430 seconds:
+10k fixture creation and inventory complete, then the first listing phase hits
+`A28 trace_mailbox_bound`. The existing collector rejects more than 512 queued
+trace messages; its guard, trace-event/heap limits and workloads are unchanged.
+No complete listing result is exported and 100k does not run. This observation
+does not identify a dependency or application cause. The earlier local attempt
+completed the 10k progress phases and confirmed 31,200 primary writes at 100k,
+but its process/session disappeared without an available exit status or terminal
+receipt. It is incomplete, not a successful scale result. The supervised replay
+retains its real exit status and unchanged three-hour command deadline. Both
+attempts use executable fingerprint
+`6bbcbb93653ecd0090e5b5d6a29e3b4b5a078f0b3debd480dded47f8aab46459`.
+The [local scale receipt](s3-hardening/concord3112-index-20261106.json) preserves
+both outcomes and cleanup observations. A28 remains unpassed; no unchanged
+replay is used to promote this failure.
+
+The original hosted cluster lane passed both its tagged three-voter test and the
+complete original Phase 1 exercise, including retained-root restart and
+election/rejoin checks. All twenty separate cluster resource groups passed,
+including 64 MiB/1 GiB at concurrency 1/4; final staging is empty on every node.
+The separate large-stream test passed. Standalone resources completed fourteen
+groups, then failed observation coverage in the 64 MiB concurrency-four PUT
+(group 15/56); later groups remain missing. Six metric gaps exceed 100 ms, with
+the largest 100.610 ms. Its preceding temporary-file probe took 75.124 ms.
+All recorded numeric resource envelopes passed. Independent artifact inspection
+recomputes those coverage verdicts and verifies all four resource export hashes,
+contiguous generation rows and retained stopped-observer receipts.
+
+Faults passed seven operation checks, including real isolated ENOSPC/recovery
+and restart. Its continuous-mailbox check fails because the first local/gateway
+online generation exceeds coverage for all six metrics, reaching 114.132 ms.
+The corresponding temporary-file probe took 89.205 ms. The second online
+generation and isolated ENOSPC coverage passed. Recorded observer process CPU
+increments are below 1 ms across both slow-probe intervals; these counters do
+not establish a filesystem, kernel, scheduler or dependency cause. Original
+25 ms sampling, conservative 100 ms coverage, workloads and limits remain
+unchanged. No unchanged rerun is used to promote either failure. The compact
+[hosted follow-up receipt](s3-hardening/concord3112-hosted-20261106.json) retains
+the independently checked observations and original artifact hashes.
+
+Push CI and the edge image build pass. The downloaded artifact from
+[hosted correctness 42149470956](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42149470956)
+independently records 1,098 server tests plus 11 daily CLI contracts, zero failures
+or skips and the two existing heavy exclusions. These 11 CLI contracts are
+separate from the full 3,491-case local CLI suite.
+
 The dependency resolver also reports the existing Phoenix.HTML 4.3.0 advisory
 EEF-CVE-2026-117645. That unrelated dependency is unchanged in this scoped update.
 

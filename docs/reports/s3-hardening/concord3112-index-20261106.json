@@ -1,0 +1,204 @@
+{
+  "scope": "Original unchanged local A28 workload; not full acceptance",
+  "status": "failed",
+  "acceptance": false,
+  "publication": false,
+  "first_attempt": {
+    "status": "incomplete",
+    "exit_status": null,
+    "cause": "Process/session disappeared without a terminal status; no cause established",
+    "last_progress": {
+      "event": "progress",
+      "phase": "index-100000:primary",
+      "completed": 31200,
+      "planned": 100000
+    },
+    "completed_progress_phases": [
+      "index-10000:primary",
+      "index-10000:special-versions-and-deletion",
+      "index-10000:build",
+      "index-10000:inventory-before",
+      "index-10000:listing-before",
+      "index-10000:unrelated",
+      "index-10000:inventory-after",
+      "index-10000:listing-after"
+    ],
+    "artifacts": [
+      {
+        "path": "scale.log",
+        "sha256": "7ab9238bdba938a7fd3a9017371db9943dfa56149192d5d26d4f2f7cf015d6aa"
+      },
+      {
+        "path": "scale-progress.jsonl",
+        "sha256": "6758532522c4a44fbd629dfcd13137c324ced255279a81c2ee441650999b74c3"
+      }
+    ]
+  },
+  "supervised_attempt": {
+    "status": "failed",
+    "terminal": true,
+    "argv": [
+      "bash",
+      "e2e/run_hardening_index.sh",
+      "/tmp/ess-issue24-python-yi8y3xmw/bin/python",
+      "concord3112-admission-gate-r2-20261106"
+    ],
+    "supervisor_pid": 177638,
+    "deadline_seconds": 10800,
+    "starting_sha": "b8f49a550a9aab8a61e2b25aaa3e40b097520e48",
+    "source_sha256": "6bbcbb93653ecd0090e5b5d6a29e3b4b5a078f0b3debd480dded47f8aab46459",
+    "publication": false,
+    "exit_status": 1,
+    "ending_sha": "b8f49a550a9aab8a61e2b25aaa3e40b097520e48",
+    "ending_source_sha256": "6bbcbb93653ecd0090e5b5d6a29e3b4b5a078f0b3debd480dded47f8aab46459",
+    "elapsed_seconds": 124.43,
+    "failure": "A28 trace_mailbox_bound",
+    "original_trace_mailbox_limit": 512,
+    "last_progress": {
+      "event": "start",
+      "phase": "index-10000:listing-before",
+      "completed": null,
+      "planned": null
+    },
+    "completed_progress_phases": [
+      "index-10000:primary",
+      "index-10000:special-versions-and-deletion",
+      "index-10000:build",
+      "index-10000:inventory-before"
+    ],
+    "complete_listing_result_exported": false,
+    "hundred_thousand_cohort_started": false,
+    "artifacts": [
+      {
+        "path": "scale-r2.log",
+        "sha256": "a6f599c9cc118755ea0d33bb502c1e5fc69cd0d4606fc781c73f24f6fde7f267"
+      },
+      {
+        "path": "scale-r2-progress.jsonl",
+        "sha256": "3f15e3f8667cd66927c06d9f160548aaf75cd2a13fa422c4af61caa822493073"
+      }
+    ],
+    "runner": {
+      "uname": [
+        "Linux",
+        "ms04",
+        "6.18.48",
+        "#1-NixOS SMP PREEMPT_DYNAMIC Fri Aug 28 06:22:54 UTC 2026",
+        "x86_64",
+        ""
+      ],
+      "cpu_count": 16,
+      "affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "load": [
+        10.06005859375,
+        3.37939453125,
+        1.52099609375
+      ],
+      "monotonic_clock": {
+        "implementation": "clock_gettime(CLOCK_MONOTONIC)",
+        "monotonic": true,
+        "adjustable": false,
+        "resolution": 1e-09
+      },
+      "disk": {
+        "device": 66308,
+        "path": "/tmp/ess-hardening-index-4AU9ua4z",
+        "block_bytes": 4096,
+        "available_bytes": 342814457856
+      },
+      "meminfo": "MemTotal:       65679072 kB\nMemFree:        32601564 kB\nMemAvailable:   53139940 kB\nBuffers:         4234180 kB\nCached:         15886132 kB\nSwapCached:            0 kB\nActive:         12673404 kB\nInactive:       16915432 kB\nActive(anon):   10101412 kB\nInactive(anon):        0 kB\nActive(file):    2571992 kB\nInactive(file): 16915432 kB\nUnevictable:          68 kB\nMlocked:              32 kB\nSwapTotal:      72248812 kB\nSwapFree:       72248812 kB\nZswap:                 0 kB\nZswapped:              0 kB\nDirty:            141012 kB\nWriteback:             0 kB\nAnonPages:       9464544 kB\nMapped:          2389916 kB\nShmem:            633096 kB\nKReclaimable:    1780348 kB\nSlab:            2206296 kB\nSReclaimable:    1780348 kB\nSUnreclaim:       425948 kB\nKernelStack:       22840 kB\nPageTables:       109956 kB\nSecPageTables:      1028 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    105088348 kB\nCommitted_AS:   21258304 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:      389780 kB\nVmallocChunk:          0 kB\nPercpu:            15680 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:    172032 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:    106496 kB\nFilePmdMapped:      2048 kB\nCmaTotal:              0 kB\nCmaFree:               0 kB\nUnaccepted:            0 kB\nBalloon:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:      785144 kB\nDirectMap2M:     8484864 kB\nDirectMap1G:    59768832 kB\n",
+      "pressure/cpu": "some avg10=4.00 avg60=4.12 avg300=1.44 total=17148444\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n",
+      "pressure/io": "some avg10=0.00 avg60=0.20 avg300=0.18 total=211243497\nfull avg10=0.00 avg60=0.18 avg300=0.16 total=202902105\n",
+      "pressure/memory": "some avg10=0.00 avg60=0.00 avg300=0.00 total=57\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=57\n",
+      "self/cgroup": "0::/user.slice/user-1000.slice/session-7.scope\n",
+      "cgroups": {
+        "/sys/fs/cgroup/user.slice/user-1000.slice/session-7.scope": {
+          "cpu.max": "max 100000",
+          "memory.max": "max",
+          "io.max": ""
+        },
+        "/sys/fs/cgroup/user.slice/user-1000.slice": {
+          "cpu.max": "max 100000",
+          "memory.max": "max",
+          "io.max": ""
+        },
+        "/sys/fs/cgroup/user.slice": {
+          "cpu.max": "max 100000",
+          "memory.max": "max",
+          "cpuset.cpus.effective": "0-15",
+          "io.max": ""
+        },
+        "/sys/fs/cgroup": {
+          "cpuset.cpus.effective": "0-15"
+        }
+      },
+      "dependencies": {
+        "concord": "3.1.12",
+        "ex_turso": "3.1.12",
+        "http_fetch": "0.21.16",
+        "viewstamped_replication": "3.1.12"
+      },
+      "python": "3.13.15",
+      "client_checksum_environment": {
+        "AWS_REQUEST_CHECKSUM_CALCULATION": null,
+        "AWS_RESPONSE_CHECKSUM_VALIDATION": null
+      },
+      "toolchain": "Erlang/OTP 28 [erts-16.4.0.5] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.18.5 (compiled with Erlang/OTP 28)\n"
+    }
+  },
+  "cleanup": {
+    "recorded_identities": [
+      {
+        "pid": 16691,
+        "start_ticks": 150858037,
+        "stopped": true
+      },
+      {
+        "pid": 16730,
+        "start_ticks": 150858067,
+        "stopped": true
+      },
+      {
+        "pid": 16747,
+        "start_ticks": 150858070,
+        "stopped": true
+      },
+      {
+        "pid": 177638,
+        "start_ticks": 466847,
+        "stopped": true
+      }
+    ],
+    "remaining_observable_index_runtimes_or_root_handles": [],
+    "other_unreadable_process_count": 8,
+    "workload_reaped_by_supervisor": true,
+    "roots": [
+      {
+        "root": "/tmp/ess-hardening-index-edUeXTjb",
+        "removed": true
+      },
+      {
+        "root": "/tmp/ess-hardening-index-4AU9ua4z",
+        "removed": true
+      }
+    ]
+  },
+  "causal_limit": "The collector guard rejected a queued trace backlog. No query/data limit was changed and no dependency or application cause was established."
+}

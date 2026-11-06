@@ -10,10 +10,24 @@ Formatting, strict test/production compilation and the original actual 5 MiB
 multipart minimum/retry test pass. Full application verification executes 4,589
 tests with zero failures or skips and the two declared heavy exclusions.
 
-The intermittent multipart timeout is not declared repaired. The original cluster,
-index, resource and other full-acceptance lanes plus all 158 clause audits remain
-publication prerequisites. No historical clause is promoted; v0.7.0 remains
-unpublished. See the
+Exact adoption commit `b8f49a5` completed
+[full acceptance 42149523486](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42149523486).
+Daily and eight extended lanes passed, including cluster, restore, release
+preflight and all 4,589 application tests. Index, faults and resources failed;
+the aggregate stopped before the stock verifier. The index preflight still
+admitted only 3.1.11. Its update now passes both admission probes and all 163
+Python harness tests. The original local scale replay built 10k objects, then
+failed `A28 trace_mailbox_bound` during listing; 100k did not run. An earlier
+attempt has no terminal receipt and cannot certify the workload.
+Independent A29 and all twenty cluster resource groups passed on the hosted run.
+Standalone resource group 15/56 and the fault lane failed the original 100 ms
+observation coverage. Both retain slow temporary-file probe windows without an
+established filesystem, scheduler or dependency cause.
+
+The intermittent multipart timeout is not declared repaired. Complete
+current-source acceptance and all 158 clause audits remain publication
+prerequisites. No historical clause is promoted; v0.7.0 remains unpublished.
+Push CI, daily correctness and the edge image build pass. See the
 [integrated evidence report](../reports/s3-hardening-verification.md).
 
 ## Historical Concord 3.1.11 acceptance — 2026-11-05
