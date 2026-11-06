@@ -282,7 +282,7 @@ Runtime services:
 | Admin portal | 4900 | Phoenix + LiveView + Gaoxy | Web dashboard and management |
 | Internal cluster transport | 9100 | Gaoxy + HMAC + optional TLS | Private data-plane between cluster data nodes (never expose publicly) |
 
-The umbrella locks all listeners to `gaoxy_http` 0.12.1. Phoenix uses
+The umbrella locks all listeners to `gaoxy_http` 0.12.2. Phoenix uses
 `Gaoxy.PhoenixAdapter` and `gaoxy_websock_adapter` for LiveView upgrades.
 Phoenix and S3 retain HTTP/1 and cleartext HTTP/2 prior-knowledge support;
 the private cluster transport uses HTTP/1.
@@ -294,7 +294,7 @@ budget for HTTP/2. Object and blob sizes remain separately bounded.
 The S3 wire-body ceiling also accounts for AWS chunk framing and trailers.
 
 Outbound HTTP clients use [`http_fetch`](https://github.com/gsmlg-dev/http_fetch)
-0.21.16 for the CLI, cloud cache, remote inventory synchronization, webhooks,
+0.21.19 for the CLI, cloud cache, remote inventory synchronization, webhooks,
 internal cluster transport, and cross-cluster replication. Signed requests do
 not follow redirects. Cluster and replication uploads use bounded streams with
 an explicit Content-Length and upload chunks of at most 64 KiB. Cluster downloads
@@ -304,8 +304,9 @@ Webhook retries remain controlled by the notification worker.
 
 The core package accepts HTTP 0.17.2 or later in the 0.17 series, 0.18.x,
 and `~> 0.21.12`. The CLI requires `http_fetch ~> 0.21.13` for its validated
-transport API. The umbrella locks the coordinated 0.21.16 HTTP family without
-dependency overrides.
+transport API. The umbrella locks the coordinated 0.21.19 HTTP family without
+dependency overrides. HTTP 1.0 RC adoption awaits compatible Bundler dependency
+constraints, tracked in [DuskMoon Bundler #17](https://github.com/duskmoon-dev/duskmoon-bundler/issues/17).
 
 Storage requests set `decode_body: false` to preserve stored gzip/deflate object
 bytes and their Content-Encoding metadata. This uses the raw response support

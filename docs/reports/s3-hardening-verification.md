@@ -1,4 +1,41 @@
-## Concord 3.1.14 adoption — 2026-11-07
+## Current dependency refresh — 2026-11-07
+
+The requested HTTP `1.0.0-rc.4` adoption is blocked by
+[DuskMoon Bundler #17](https://github.com/duskmoon-dev/duskmoon-bundler/issues/17).
+A fresh Mix project with Bundler 10.1.1 and HTTP RC4 fails dependency resolution:
+both installed 10.0.4 and published 10.1.1 NPM/QuickBEAM packages restrict their
+HTTP clients to 0.20/0.21. Gaoxy 0.15.0 also requires HTTP RC4. No dependency
+override or source patch bypasses this blocker; adopting the RC requires a
+compatible upstream release and the existing transfer and asset checks.
+
+Independent compatible updates advance 18 locked packages: the eight-package
+HTTP family to 0.21.19, Gaoxy/HTTP/WebSockAdapter to 0.12.2, Phoenix.HTML to
+4.4.0, Phoenix DuskMoon to 10.0.12, LazyHTML/Fine to 0.1.14/0.2.0,
+MDEx/MDExNative to 0.14.6/0.3.1 and NimbleOptions to 1.2.0. The stable HTTP
+patch does not fulfill the RC request. Phoenix.HTML now rejects attribute-name
+injection; MDExNative includes the upstream table-rendering complexity fix.
+Bundler retains the existing 10.0.4 native ABI pin tracked by #9. Concord stays
+at 3.1.14 with its reviewed admission gate and existing command formats.
+
+Formatting, strict test/production compilation, production assets, all 4,589
+application tests and all 14 authenticated daily S3 checks pass. No application
+test fails or skips; the two declared heavy exclusions retain separate lanes.
+Native Phoenix.HTML validation, LazyHTML parsing and MDEx rendering pass. All
+18 registry checksums match the lockfile, and `mix hex.audit` reports no retired
+or advisory packages. Final `mix hex.outdated --all` has only constraint-blocked
+stable updates; `--pre` confirms HTTP RC4 remains unavailable to this graph.
+Unrequested Jason/Req prereleases are not selected. The daily server stops,
+its listener closes and its disposable root is removed.
+
+The [refresh receipt](s3-hardening/dependency-refresh-20261107.json) records exact
+versions, checksums, counts and executable-input fingerprint
+`8dbba313170964dfc43ef98406ad6e21b05720b32d4207af0bda8718014e5a3b`.
+Full acceptance has not run for this dependency set. The unresolved index,
+resource-observation and replica-repair failures remain publication blockers;
+successful full current-source acceptance and all original clause audits are
+still required. No historical evidence is promoted. **v0.7.0 remains unpublished.**
+
+## Historical Concord 3.1.14 adoption — 2026-11-07
 
 Concord 3.1.14 was published while the preceding full acceptance run was in
 progress. The candidate now requires Concord `~> 3.1.14` and locks the matching

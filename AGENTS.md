@@ -88,7 +88,9 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
   0.21.x from 0.21.12. The CLI requires `~> 0.21.13` for true infinity,
   socket inactivity, request-scoped response-stream policies and completed
   fixed-length upload finalization. The umbrella lock uses the coordinated
-  0.21.16 family.
+  0.21.19 family. HTTP 1.0 RC adoption is blocked by Bundler's HTTP constraints
+  (duskmoon-dev/duskmoon-bundler#17); resume only after a compatible published
+  release resolves without overrides and passes the existing transfer contracts.
 - Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
 
 ### File Organization

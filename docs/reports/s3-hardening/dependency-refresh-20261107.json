@@ -1,0 +1,696 @@
+{
+  "scope": "Compatible dependency refresh; requested HTTP 1.0 RC adoption remains blocked upstream",
+  "date": "2026-11-07",
+  "status": "passed_for_compatible_updates",
+  "acceptance": false,
+  "base_commit": "a649ceab2b13bbc56d8587d78933414c33b4be9c",
+  "source_sha256": "8dbba313170964dfc43ef98406ad6e21b05720b32d4207af0bda8718014e5a3b",
+  "lockfile_sha256": "b97631b440adb5eb0b1a169e78fb0dfb7c10e886d937a54d7afbee6b2e68d6c1",
+  "requested_http_version": "1.0.0-rc.4",
+  "requested_http_adoption_complete": false,
+  "installed_http_version": "0.21.19",
+  "upgraded_package_count": 18,
+  "packages": {
+    "elixir_quic": {
+      "before": {
+        "package": "elixir_quic",
+        "version": "0.21.16",
+        "inner_sha256": "2941817ce7cdb5da31f4577dffb0f9dc5c487ff540c5368c34ff720ce7b77939",
+        "outer_sha256": "72eb18c49b091755945cbe0ea47a0b9610b4348b0f4d2d34994a57bb6b6faf19"
+      },
+      "after": {
+        "package": "elixir_quic",
+        "version": "0.21.19",
+        "inner_sha256": "390b291102fd6cf537600246187e2cfc62d38e4f7112aff103c21fd774da0003",
+        "outer_sha256": "16ed4d76a29ce716f0b8ae6fc294e5865e6c2f891f966d9a18039b5cb67837d8"
+      }
+    },
+    "elixir_quic_http3": {
+      "before": {
+        "package": "elixir_quic_http3",
+        "version": "0.21.16",
+        "inner_sha256": "a963b62c6229863f914c65ac388cc979f158ff0ebb8006b9190b5cb508a2e14d",
+        "outer_sha256": "395b607bae7374e312c9afbd1b67a738785a18b8988688e0cb40e0a7f2ce03bc"
+      },
+      "after": {
+        "package": "elixir_quic_http3",
+        "version": "0.21.19",
+        "inner_sha256": "558a1a685214390f077df316ebb13a07c95b4abddbfa233be37f6806b75fa3cb",
+        "outer_sha256": "038e74e2a648cb1a36ce3c37c937797bda0f3d80b1eb120e2c9320c10bef8423"
+      }
+    },
+    "ex_ssl": {
+      "before": {
+        "package": "ex_ssl",
+        "version": "0.21.16",
+        "inner_sha256": "c3549c2e2846aaff9208e862a716fe5e233c26c9b4df69aceb1a30d147bc6677",
+        "outer_sha256": "80603cff9d7d3734259faa572fcded609722404e5d23461a8e5075d90cc74678"
+      },
+      "after": {
+        "package": "ex_ssl",
+        "version": "0.21.19",
+        "inner_sha256": "c76715abfd36984eb8ebff0ceb49e667d0c9b83d2ceb2052796acc4ab6d52f56",
+        "outer_sha256": "46c97e66e8993f31cf0c1d6229d8e741763e72b7b873ffd9cf9fbdb961aa5cbe"
+      }
+    },
+    "fine": {
+      "before": {
+        "package": "fine",
+        "version": "0.1.6",
+        "inner_sha256": "4bf7151493443c454aac9f2fa2f34f5fefd0346a83fb5586a016c4a135c63247",
+        "outer_sha256": "5638eb4495488e885ebec167fa57973e5c35e1a50c344eb7666c90ec1c4e3b12"
+      },
+      "after": {
+        "package": "fine",
+        "version": "0.2.0",
+        "inner_sha256": "71d9ff9fa69a4167cff1f6e9fd3350ab8e45d26b52f484c6d6514194b594df02",
+        "outer_sha256": "6f69a9e8dadbfd017b27f611b000362870683ae65f28aec904f36ec4c5058db5"
+      }
+    },
+    "gaoxy": {
+      "before": {
+        "package": "gaoxy",
+        "version": "0.12.1",
+        "inner_sha256": "515f8a9f13673e43f531d890daacf93bc2a393c0ec669da1acfa8a9f45cdd87f",
+        "outer_sha256": "6cc1547cbaf0c8ff6aad424ae876ec9600cd3330d494a3fcc43fedf46207f6d7"
+      },
+      "after": {
+        "package": "gaoxy",
+        "version": "0.12.2",
+        "inner_sha256": "e5bac43b662ecb9163ee89e16667de8d3e1ce882c3ba60f3547be787d01365d1",
+        "outer_sha256": "19dae54b79418d040f07b797b0f1af0f4d2345203769cc10414dca63ff3d8e93"
+      }
+    },
+    "gaoxy_http": {
+      "before": {
+        "package": "gaoxy_http",
+        "version": "0.12.1",
+        "inner_sha256": "fd8f3962a4a6f6c45842b73fcfcf239ea07c43c82b84bb5c06d9ed8013f1c32b",
+        "outer_sha256": "a7751fc67c24fa15c6a21f56a646c6c4ff1e3db7d92991dc511ce99399ed5017"
+      },
+      "after": {
+        "package": "gaoxy_http",
+        "version": "0.12.2",
+        "inner_sha256": "5a1b38a797c9ff6fd37b385d5322047053af258bd53e7bc4a971b5e3783f26cd",
+        "outer_sha256": "ff0883687c735a1ab3ac6c783e77b22e78b5db565a1676143426f5e3091d045c"
+      }
+    },
+    "http_core": {
+      "before": {
+        "package": "http_core",
+        "version": "0.21.16",
+        "inner_sha256": "5978dced2e7273815553d50a899d840e96a9b288bcd2542e5ba532080328bf3d",
+        "outer_sha256": "9026633974dcb2c26d0bc838df8178ffb80f316e6940866fcf799c9373b71caf"
+      },
+      "after": {
+        "package": "http_core",
+        "version": "0.21.19",
+        "inner_sha256": "bb99afa34b6cdfde2237d33d5d30f0f7fccb4cac761b4681ce8150c5894ff7ee",
+        "outer_sha256": "5a12ad093c5d75f99f908066b23e66ba25e308369abb00f8f418fc77efdc8e8e"
+      }
+    },
+    "http_event_source": {
+      "before": {
+        "package": "http_event_source",
+        "version": "0.21.16",
+        "inner_sha256": "0c5fc8abe759cae6697c2c3cadfa62c0e27f03d00ddfd9405f3252dd761b905d",
+        "outer_sha256": "fa9a2ebf217c5692714b088014a86186be77270cd1f905f1ce3f8f767f30b29e"
+      },
+      "after": {
+        "package": "http_event_source",
+        "version": "0.21.19",
+        "inner_sha256": "b10be21d8db154619582231a0a2b54c6c2def2fcaa914307d0989396a9e5251f",
+        "outer_sha256": "447a7981c42ee107a6bfdb38c4532e4b7f4655b25ead8fd24eccf42640b3d793"
+      }
+    },
+    "http_fetch": {
+      "before": {
+        "package": "http_fetch",
+        "version": "0.21.16",
+        "inner_sha256": "05443e5a528e41d03db153291bef54e29d1dc0ee0a5f6fa3ac2cd2d094ad3f13",
+        "outer_sha256": "910925b88b0843075b20726d36f6cb80a1a38100132c50ce4a033c8b525b4415"
+      },
+      "after": {
+        "package": "http_fetch",
+        "version": "0.21.19",
+        "inner_sha256": "986a1d8271dbd6100f513f90281ac1fb87abf9afd831cc7e622d25f1fccd4c8b",
+        "outer_sha256": "0a9947312418b21bc50a7ab192d3c8cd7c1f82b7483034133dd097b2f45e9119"
+      }
+    },
+    "http_runtime": {
+      "before": {
+        "package": "http_runtime",
+        "version": "0.21.16",
+        "inner_sha256": "d0b48e8df8cee9ce6f44e871d1e10b542c83b4322d86f23eba9f2677f6379a7e",
+        "outer_sha256": "af3ab5dbd34f594d3515bc738aa3a7dcc69de8c16448883cfe1c56b7f1029f88"
+      },
+      "after": {
+        "package": "http_runtime",
+        "version": "0.21.19",
+        "inner_sha256": "ae0aa19824424820e32c7e8919ec98e0ac087bc9c823c6ef53eaf1a36e2f666a",
+        "outer_sha256": "f6a8b7437fe89226c90760cab5ec34aa2cf68b9b6017d16086b9dac8806e23ae"
+      }
+    },
+    "http_web_socket": {
+      "before": {
+        "package": "http_web_socket",
+        "version": "0.21.16",
+        "inner_sha256": "5b05c4627ee91812b1c04f62f40459565e30d10a9182e5960c498ff8f49d7981",
+        "outer_sha256": "7e815194146d44453bea70e92ff2d41c072f47a19c19548ea87715cb80158dba"
+      },
+      "after": {
+        "package": "http_web_socket",
+        "version": "0.21.19",
+        "inner_sha256": "c3a16c390e1411049bd7d45252a34b6c4e92ab2022881a82f6374892b745d4af",
+        "outer_sha256": "dbe5df8871e4ecd0892713abdf6ebc33d1bdc9045d9fa8bf15dac9217ef7ef01"
+      }
+    },
+    "lazy_html": {
+      "before": {
+        "package": "lazy_html",
+        "version": "0.1.13",
+        "inner_sha256": "860ea816f5bc7936d1ab5ccebc388f9d1031ba9c35ed81a4db9a1c3a50737704",
+        "outer_sha256": "9a8405d6785fe6f8423b86e0ec5f21806ef79941fe853eac3d14fbbb173c34e9"
+      },
+      "after": {
+        "package": "lazy_html",
+        "version": "0.1.14",
+        "inner_sha256": "d733120403d0e6cce25eae8cf03800b5be47f28c40d1fe44a2a0850d33f9f0a2",
+        "outer_sha256": "99210889b0cc591398d006def761f2faef438d1ac77d045a527791733571dc0c"
+      }
+    },
+    "mdex": {
+      "before": {
+        "package": "mdex",
+        "version": "0.14.2",
+        "inner_sha256": "8d2b376f3de8f9f03a2ba0992eeb4f76d58fa790b0ed78dc90bcb5422ce7ff5d",
+        "outer_sha256": "7003e60b8621ab1c9b3671221a8dcc27dee9f9086026c25ea7aed4057d07978f"
+      },
+      "after": {
+        "package": "mdex",
+        "version": "0.14.6",
+        "inner_sha256": "a4012b962b03ade59e29e41f02eea734da62be24044bf1d424aa019f822c46f9",
+        "outer_sha256": "43d90e75c5e9c3c7317b8db1dcd344f72d4336a4f225ec259d42aa3deb5b122e"
+      }
+    },
+    "mdex_native": {
+      "before": {
+        "package": "mdex_native",
+        "version": "0.2.12",
+        "inner_sha256": "867912ab5675e0a315e44ea5eb9ec22ac09c12559cc89fc1ba71afd7d95bf96a",
+        "outer_sha256": "c9557b4e576515b01edc5bc48f6ac0a6e13c25a0bd3bf4a6e0a2ccd2199d747b"
+      },
+      "after": {
+        "package": "mdex_native",
+        "version": "0.3.1",
+        "inner_sha256": "74caa243d3460747d716e65bd3d2c6df8d1ee9ada77275e80d68b5a3923a67f9",
+        "outer_sha256": "9354f08278d0f557d6eeabade28190360a9494511bb4637dc19fce53a636fe6d"
+      }
+    },
+    "nimble_options": {
+      "before": {
+        "package": "nimble_options",
+        "version": "1.1.1",
+        "inner_sha256": "e3a492d54d85fc3fd7c5baf411d9d2852922f66e69476317787a7b2bb000a61b",
+        "outer_sha256": "821b2470ca9442c4b6984882fe9bb0389371b8ddec4d45a9504f00a66f650b44"
+      },
+      "after": {
+        "package": "nimble_options",
+        "version": "1.2.0",
+        "inner_sha256": "73e5c5fecb08e59f390e0f59c2320b585d72470dbdd9230a469e06881b9dd4a8",
+        "outer_sha256": "3a784a75ef9e407619c8c9e98239b1acd29216deb737044a8c1063e2671ce6d9"
+      }
+    },
+    "phoenix_duskmoon": {
+      "before": {
+        "package": "phoenix_duskmoon",
+        "version": "10.0.11",
+        "inner_sha256": "a0dcbee0335883bbad052fa5d448da0ae854419a94a064ef217e17cc3a2f6ab9",
+        "outer_sha256": "32013db0d8487f33cd58e7b60280e0645cf440076462e9e862a60710a0d3da37"
+      },
+      "after": {
+        "package": "phoenix_duskmoon",
+        "version": "10.0.12",
+        "inner_sha256": "41f7a3521a4f20ce30c4914ab7c24e021c7803060ba2d70540701846fa6ce617",
+        "outer_sha256": "47ff2baf9d8bf7192f2996b0ade427c8d88ec59eca159118864419df124d63c4"
+      }
+    },
+    "phoenix_html": {
+      "before": {
+        "package": "phoenix_html",
+        "version": "4.3.0",
+        "inner_sha256": "d3577a5df4b6954cd7890c84d955c470b5310bb49647f0a114a6eeecc850f7ad",
+        "outer_sha256": "3eaa290a78bab0f075f791a46a981bbe769d94bc776869f4f3063a14f30497ad"
+      },
+      "after": {
+        "package": "phoenix_html",
+        "version": "4.4.0",
+        "inner_sha256": "d4007bc52fee85af48c30a0d541a5b0590e4f1f12f2f9c227bb004620090c0e3",
+        "outer_sha256": "94832038da7ab8f86d4c0d36f7797a269fd06fe611f25c69f55108c075505228"
+      }
+    },
+    "websock_adapter": {
+      "before": {
+        "package": "gaoxy_websock_adapter",
+        "version": "0.12.1",
+        "inner_sha256": "2abfa66cfc4f474ed2a4838ab989a06be008f1787c9cda0c9360ecaad004a682",
+        "outer_sha256": "947f1b2bdabd716f0f76d8be731dc09c6221788a1e79aa799e05a7b288053aff"
+      },
+      "after": {
+        "package": "gaoxy_websock_adapter",
+        "version": "0.12.2",
+        "inner_sha256": "d2ede03fcdb4aae199b6c93a75e5dab66826d80141ee93424b42b7e1bf9fe6bb",
+        "outer_sha256": "61e8d13e397cac6bcdbbb822a4b3f2b573c4736a2d42e2bbf5fd2374a005e2aa"
+      }
+    }
+  },
+  "registry_verification": {
+    "elixir_quic": {
+      "version": "0.21.19",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "elixir_quic_http3": {
+      "version": "0.21.19",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "ex_ssl": {
+      "version": "0.21.19",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "fine": {
+      "version": "0.2.0",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "gaoxy": {
+      "version": "0.12.2",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "gaoxy_http": {
+      "version": "0.12.2",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "http_core": {
+      "version": "0.21.19",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "http_event_source": {
+      "version": "0.21.19",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "http_fetch": {
+      "version": "0.21.19",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "http_runtime": {
+      "version": "0.21.19",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "http_web_socket": {
+      "version": "0.21.19",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "lazy_html": {
+      "version": "0.1.14",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "mdex": {
+      "version": "0.14.6",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "mdex_native": {
+      "version": "0.3.1",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "nimble_options": {
+      "version": "1.2.0",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "phoenix_duskmoon": {
+      "version": "10.0.12",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "phoenix_html": {
+      "version": "4.4.0",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    },
+    "websock_adapter": {
+      "version": "0.12.2",
+      "registry_checksum_matches": true,
+      "security_advisories": []
+    }
+  },
+  "upstream_blocker": {
+    "issue": "https://github.com/duskmoon-dev/duskmoon-bundler/issues/17",
+    "type": "Feature",
+    "label": "internal request",
+    "severity": "blocker",
+    "reproduced": "Fresh Mix resolution of duskmoon_bundler 10.1.1 and http_fetch ~> 1.0.0-rc.4 fails because duskmoon_npm requires HTTP 0.20/0.21; duskmoon_quickbeam also restricts Fetch, SSE and WebSocket clients to those families.",
+    "unblock": "Adopt a published compatible Bundler release without overrides or dependency-source patches, then update the HTTP/Gaoxy constraints and verify existing transfer and asset contracts.",
+    "workaround": null
+  },
+  "constraints": [
+    "HTTP 0.21.19 is the compatible stable patch update, not fulfillment of HTTP 1.0 RC adoption.",
+    "Gaoxy 0.12.2 is the compatible patch update; Gaoxy 0.15.0 requires HTTP RC4.",
+    "Bundler 10.0.4 retains the existing native ABI pin tracked by duskmoon-dev/duskmoon-bundler#9.",
+    "Jason 1.5.0-alpha.2 and Req 0.8.0-rc.0 were not selected; prerelease adoption was requested for HTTP only.",
+    "No new direct dependency, dependency-source patch, override, or relaxed test deadline/resource/quorum/TLS setting was added."
+  ],
+  "verification": {
+    "status": "passed",
+    "checks": [
+      {
+        "name": "format",
+        "command": [
+          "mix",
+          "format",
+          "--check-formatted"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 18.847
+      },
+      {
+        "name": "test-strict-compile",
+        "command": [
+          "mix",
+          "compile",
+          "--force",
+          "--warnings-as-errors"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 48.225
+      },
+      {
+        "name": "extended-correctness",
+        "command": [
+          "python3",
+          "e2e/run_correctness_tests.py",
+          "--extended",
+          "--output",
+          "/tmp/ess-http1rc4-dependencies-20261107-r1/correctness"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 552.507
+      },
+      {
+        "name": "production-strict-compile",
+        "command": [
+          "mix",
+          "compile",
+          "--force",
+          "--warnings-as-errors"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 29.52
+      },
+      {
+        "name": "production-assets",
+        "command": [
+          "mix",
+          "assets.deploy"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 5.59
+      },
+      {
+        "name": "daily-http",
+        "command": [
+          "bash",
+          "e2e/run_hardening_daily.sh",
+          "/tmp/ess-issue24-python-yi8y3xmw/bin/python",
+          "dependencies-20261107-r1"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 3.97
+      },
+      {
+        "name": "index-admission",
+        "command": [
+          "python3",
+          "e2e/scripts/index_dependency_preflight.py"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 0.022
+      },
+      {
+        "name": "whitespace",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 0.007
+      }
+    ]
+  },
+  "post_verification": {
+    "status": "passed",
+    "checks": [
+      {
+        "name": "ui-native-smoke",
+        "command": [
+          "mix",
+          "run",
+          "--no-start",
+          "--no-compile",
+          "--no-deps-check",
+          "/tmp/ess-http1rc4-dependencies-20261107-r1/ui-native-probe.exs"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 0.483
+      },
+      {
+        "name": "hex-audit",
+        "command": [
+          "mix",
+          "hex.audit"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 14.821
+      },
+      {
+        "name": "outdated-all",
+        "command": [
+          "mix",
+          "hex.outdated",
+          "--all"
+        ],
+        "status": "passed",
+        "exit_status": 1,
+        "elapsed_seconds": 14.302
+      },
+      {
+        "name": "outdated-help",
+        "command": [
+          "mix",
+          "help",
+          "hex.outdated"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 0.409
+      },
+      {
+        "name": "outdated-prereleases",
+        "command": [
+          "mix",
+          "hex.outdated",
+          "--all",
+          "--pre"
+        ],
+        "status": "passed",
+        "exit_status": 1,
+        "elapsed_seconds": 15.428
+      }
+    ]
+  },
+  "correctness": {
+    "command": [
+      "mix",
+      "test",
+      "--max-cases",
+      "1",
+      "--no-color",
+      "apps/ex_storage_service/test",
+      "apps/ex_storage_service_cluster/test",
+      "apps/ex_storage_service_s3/test",
+      "apps/ex_storage_service_web/test",
+      "apps/ex_storage_service_cli/test"
+    ],
+    "status": "passed",
+    "app_counts": {
+      "ex_storage_service": {
+        "tests": 645,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 644
+      },
+      "ex_storage_service_cluster": {
+        "tests": 44,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 43
+      },
+      "ex_storage_service_cli": {
+        "tests": 3491,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 3491
+      },
+      "ex_storage_service_s3": {
+        "tests": 387,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 387
+      },
+      "ex_storage_service_web": {
+        "tests": 24,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 24
+      }
+    },
+    "exit_status": 0,
+    "errors": []
+  },
+  "selected_test_file_counts": {
+    "ex_storage_service": 93,
+    "ex_storage_service_cluster": 6,
+    "ex_storage_service_s3": 50,
+    "ex_storage_service_web": 4,
+    "ex_storage_service_cli": 146
+  },
+  "daily_http": {
+    "status": "passed",
+    "source_sha256": "8dbba313170964dfc43ef98406ad6e21b05720b32d4207af0bda8718014e5a3b",
+    "ending_source_sha256": "8dbba313170964dfc43ef98406ad6e21b05720b32d4207af0bda8718014e5a3b",
+    "scope": {
+      "mode": "standalone",
+      "client_concurrency": 1,
+      "largest_part_bytes": 5242880,
+      "multipart_parts": 2,
+      "authentication": true,
+      "sdk_checksum_defaults": true,
+      "extended_acceptance_executed": false
+    },
+    "sdk_checksum_policy": {
+      "request": "when_supported",
+      "response": "when_supported"
+    },
+    "versions": {
+      "python": "3.13.15",
+      "boto3": "1.43.114",
+      "botocore": "1.43.114",
+      "beam": "Erlang/OTP 28 [erts-16.4.0.5] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.18.5 (compiled with Erlang/OTP 28)",
+      "concord": "3.1.14",
+      "viewstamped_replication": "3.1.14",
+      "ex_turso": "3.1.14",
+      "http_fetch": "0.21.19"
+    },
+    "server_stopped": true,
+    "listener_closed": true,
+    "disposable_root_removed": true
+  },
+  "daily_http_check_count": 14,
+  "outdated": {
+    "outdated-all": [
+      "abyss                           0.9.0    0.10.0   Update not possible",
+      "duskmoon_bundler                10.0.4   10.1.1   Update not possible",
+      "duskmoon_bundler_runtime        10.0.4   10.1.1   Update not possible",
+      "duskmoon_hex_solver             10.0.4   10.1.1   Update not possible",
+      "duskmoon_npm                    10.0.4   10.1.1   Update not possible",
+      "duskmoon_oxc                    10.0.4   10.1.1   Update not possible",
+      "duskmoon_oxide                  10.0.4   10.1.1   Update not possible",
+      "duskmoon_quickbeam              10.0.4   10.1.1   Update not possible",
+      "duskmoon_vize                   10.0.4   10.1.1   Update not possible",
+      "gaoxy                           0.12.2   0.15.0   Update not possible",
+      "gaoxy_http                      0.12.2   0.15.0   Update not possible",
+      "hell                            0.1.2    0.1.3    Update not possible",
+      "websock_adapter                 0.12.2   0.15.0   Update not possible"
+    ],
+    "outdated-prereleases": [
+      "abyss                           0.9.0    1.0.0-rc.4     Update not possible",
+      "duskmoon_bundler                10.0.4   10.1.1         Update not possible",
+      "duskmoon_bundler_runtime        10.0.4   10.1.1         Update not possible",
+      "duskmoon_hex_solver             10.0.4   10.1.1         Update not possible",
+      "duskmoon_npm                    10.0.4   10.1.1         Update not possible",
+      "duskmoon_oxc                    10.0.4   10.1.1         Update not possible",
+      "duskmoon_oxide                  10.0.4   10.1.1         Update not possible",
+      "duskmoon_quickbeam              10.0.4   10.1.1         Update not possible",
+      "duskmoon_vize                   10.0.4   10.1.1         Update not possible",
+      "elixir_quic                     0.21.19  1.0.0-rc.4     Update not possible",
+      "elixir_quic_http3               0.21.19  1.0.0-rc.4     Update not possible",
+      "ex_ssl                          0.21.19  1.0.0-rc.4     Update not possible",
+      "gaoxy                           0.12.2   0.15.0         Update not possible",
+      "gaoxy_http                      0.12.2   0.15.0         Update not possible",
+      "hell                            0.1.2    1.0.0-rc.4     Update not possible",
+      "http_core                       0.21.19  1.0.0-rc.4     Update not possible",
+      "http_event_source               0.21.19  1.0.0-rc.4     Update not possible",
+      "http_fetch                      0.21.19  1.0.0-rc.4     Update not possible",
+      "http_runtime                    0.21.19  1.0.0-rc.4     Update not possible",
+      "http_web_socket                 0.21.19  1.0.0-rc.4     Update not possible",
+      "jason                           1.4.5    1.5.0-alpha.2  Update possible",
+      "req                       test  0.7.5    0.8.0-rc.0     Update possible",
+      "websock_adapter                 0.12.2   0.15.0         Update not possible"
+    ]
+  },
+  "verification_log_sha256": {
+    "format": "e536bfef7d800b9468ba5e0b741d2c30e1487499a21319797f6383fae1c3a607",
+    "test-strict-compile": "992adddb7de27b92805614e14dab3e1478ac8303ea23a9f85f3cb4ee656ee2e1",
+    "extended-correctness": "485233d6c31a4bd44369ff5ac7312177d4da6bda47db55fb02ab1152e040c86d",
+    "production-strict-compile": "cdc2b7d19b7a6a1bab3ecab518cc235cc09371fc043eca5a59d749da1dc18b23",
+    "production-assets": "7f516c983b63ed954366b229e4668fc2b12b534f211e5e84a8b1e2c44f83045c",
+    "daily-http": "16153211c85dfe3a2f40340e918a0e831bef549128f5a68485cd096f8a5932a7",
+    "index-admission": "fb699cbb0ddc2d0f296e7c36aed765b31b2b0bd12807e00ed5a1fb8672093c4f",
+    "whitespace": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ui-native-smoke": "76c044db13c28ab0228a3804d0514275f74c2043a4fcc3b0e5cfbf39f4dacc45",
+    "hex-audit": "25ce35312da15695b9ab9e466ebdba2c1460f780ca6a14e164646fee228030d6",
+    "outdated-all": "0b8771838c5bbfa620cb26d3c6822c3455cedb6a38c67f43777590616b07845f",
+    "outdated-help": "a124cef0d8047a8f8f4e7b491bf875d79ce5dd2a9841ef5d67be35965ea367e4",
+    "outdated-prereleases": "6d217816f915a94d47789f6cac603c895fe5a5f6253d1c04d9f962b12fe4ee74"
+  },
+  "publication": {
+    "published": false,
+    "requested_version": "0.7.0",
+    "full_acceptance": "not_run_for_this_dependency_set",
+    "historical_evidence_promoted": false,
+    "remaining_blockers": [
+      "Unresolved index timeout",
+      "Resource observation coverage failures",
+      "Replica repair acceptance failure",
+      "Successful full current-source acceptance and all original clause audits"
+    ]
+  }
+}

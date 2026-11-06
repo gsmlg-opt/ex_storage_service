@@ -1,4 +1,24 @@
-## Current Concord 3.1.14 adoption — 2026-11-07
+## Current dependency refresh — 2026-11-07
+
+Eighteen compatible packages are updated, including HTTP 0.21.19, Gaoxy 0.12.2,
+Phoenix.HTML 4.4.0, Phoenix DuskMoon 10.0.12 and the current stable HTML/Markdown
+support packages. Registry checksums, formatting, strict test/production
+compilation, production assets, all 4,589 application tests, native UI dependency
+smokes and all 14 authenticated daily S3 checks pass. The two declared heavy
+exclusions retain their separate lanes. `mix hex.audit` is clear; the final
+stable outdated check has only constraint-blocked updates.
+
+HTTP 1.0.0-rc.4 and coupled Gaoxy 0.15.0 adoption remain blocked by the confirmed
+[Bundler #17](https://github.com/duskmoon-dev/duskmoon-bundler/issues/17)
+dependency conflict. The stable HTTP patch is not completion of the RC request.
+No override or dependency-source patch bypasses the blocker. Full acceptance
+has not run for this dependency set; the unresolved index, resource-observation
+and replica-repair failures plus all original clause audits remain publication
+prerequisites. v0.7.0 remains unpublished. See the
+[integrated report](../reports/s3-hardening-verification.md) and
+[refresh receipt](../reports/s3-hardening/dependency-refresh-20261107.json).
+
+## Historical Concord 3.1.14 adoption — 2026-11-07
 
 The candidate now requires the matching published Concord/VSR/ExTurso 3.1.14
 family, released while 3.1.13 acceptance was running. Public archive and lockfile
