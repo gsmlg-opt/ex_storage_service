@@ -38,6 +38,61 @@ publication. The update does not establish repairs for earlier trace-backlog,
 coverage or intermittent multipart failures. No historical clause is promoted.
 **v0.7.0 remains unpublished.**
 
+Exact adoption commit `6b25da4d9fd8f2f75b9adddd551e770cc3518115` completed
+[full acceptance 42259381466](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42259381466).
+Daily's 14 checks and eight extended lanes passed: correctness, standalone,
+gateway, cluster, faults, crashes, restore and release preflight. Index,
+resources and resilience failed. The aggregate exited at its lane-success
+prerequisite before invoking the stock verifier; it produced no successful
+verification artifact. The hosted correctness artifact records all 4,589
+application tests, zero application failures/skips and the same two heavy
+exclusions. Its Python harness reports 163 selected tests with one skip, whose
+identity is absent from the non-verbose log. The separate local pinned harness
+executes all 163 without skips.
+
+A28 completed the 10k build, inventories and before/after listing phases. It
+then built all 100k primary objects and completed the initial inventory/listing,
+but unrelated growth failed at put 4,700 after 4,699 successes. The allowlisted
+backend observation records a bucket metadata `get` returning `timeout` after
+5.160019 seconds. The original 5-second metadata deadline and three-hour command
+deadline remain unchanged. Later 100k phases did not execute, and no terminal
+A28 measurements artifact was exported. Progress alone does not certify A28;
+the retained runtime observations do not establish the timeout cause. Independent
+A29 backup, interruption/rejoin, fencing and atomic cutover passed.
+
+Standalone resources recorded 15/56 groups: the first fourteen passed, then
+64 MiB concurrency-four local PUT failed the original 100 ms observation bound.
+Its maximum gap was 154.200576 ms and its longest temporary-file probe was
+128.486012 ms. Cluster resources recorded 6/20 groups: the first five passed,
+then 64 MiB concurrency-four strict-quorum PUT failed coverage on data-a with a
+208.227866 ms gap and 183.946630 ms probe. Other nodes passed that group.
+Recorded numeric envelopes passed; later groups and final whole-lane staging
+remain unverified. Independent recomputation matches every retained cadence,
+peak and failure. All four exports have matching hashes, contiguous generations,
+complete rows and verified stopped observers. The separate large-stream test
+passed. Slow probes do not establish a filesystem, scheduler, kernel or
+dependency cause. The faults lane passed all eight checks and its original
+coverage bounds.
+
+Resilience passed seed and public read-repair, then failed the original
+30-second maintenance wait: `real CAS repair did not restore both replicas`.
+Later outage/rejoin/election stages and the separate replication-backlog command
+did not run. The hosted last repair-state response and private control outputs
+were not retained, so no cause is established. One bounded local diagnostic at
+the exact candidate completed the unchanged seed/read-repair/maintenance prefix
+in 10.444 seconds with RF=2/W=2, no degraded writes and both replica checksums
+verified. It did not reproduce or repair the hosted failure and cannot replace
+acceptance. An initial diagnostic startup failure came from stale compiled
+build metadata; the receipt preserves it and the strict production rebuild.
+All owned diagnostic node identities stopped before their disposable roots
+were removed.
+
+The [hosted follow-up receipt](s3-hardening/concord3113-hosted-20261107.json)
+retains exact source identities, independently checked artifacts and diagnostics.
+The historical ledger stays at 36/38 scenarios and 149/158 clauses, with no
+current-source promotion. No dependency patch, unchanged acceptance retry or
+relaxed validation limit was used. **v0.7.0 was not dispatched or published.**
+
 The resolver again reports the existing Phoenix.HTML 4.3.0 advisory
 EEF-CVE-2026-117645; this unrelated dependency is unchanged.
 

@@ -14,7 +14,17 @@ Records, its existing transaction/list APIs and command formats 0/1. Optional
 Turso prefix replacement is not enabled. The update does not establish a repair
 for the preceding trace backlog or resource-observation failures.
 
-Full acceptance for the exact current candidate and all 158 clause audits remain
+Exact adoption commit `6b25da4` completed
+[full acceptance 42259381466](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42259381466).
+Daily and eight extended lanes passed; index, resources and resilience failed.
+A28 built all 100k primary objects but timed out on a bucket metadata read after
+4,699 unrelated puts, leaving no terminal measurements artifact. Independent A29
+passed. Standalone group 15/56 and cluster group 6/20 failed the unchanged 100 ms
+observation bound; all recorded numeric envelopes passed. Resilience passed
+public read-repair, then failed the original 30-second replica-repair wait. A
+bounded local maintenance prefix passed without reproducing that hosted failure.
+No cause is established for these failures. The aggregate stopped before the
+stock verifier. Full current-source acceptance and all 158 clause audits remain
 publication prerequisites. No historical result is promoted and v0.7.0 remains
 unpublished. See the [integrated evidence report](../reports/s3-hardening-verification.md).
 

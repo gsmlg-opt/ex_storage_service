@@ -1,0 +1,2004 @@
+{
+  "scope": "Concord 3.1.13 exact-candidate hosted full-acceptance follow-up",
+  "run_id": 42259381466,
+  "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42259381466",
+  "head_sha": "6b25da4d9fd8f2f75b9adddd551e770cc3518115",
+  "source_sha256": "c4a7dab8e59c9d520be4304ea2aad8387820b19b3d30ec5d6a052ac6afde2681",
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 128035026880,
+      "name": "Extended audit / faults",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-06T17:11:53Z",
+      "completed_at": "2026-11-06T17:19:23Z"
+    },
+    {
+      "id": 128035027150,
+      "name": "Extended audit / resilience",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-11-06T17:11:54Z",
+      "completed_at": "2026-11-06T17:22:53Z"
+    },
+    {
+      "id": 128035027176,
+      "name": "Extended audit / crashes",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-06T17:11:53Z",
+      "completed_at": "2026-11-06T17:18:46Z"
+    },
+    {
+      "id": 128035027356,
+      "name": "Sequential daily-use S3 checks",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-06T17:11:53Z",
+      "completed_at": "2026-11-06T17:17:43Z"
+    },
+    {
+      "id": 128035027362,
+      "name": "Extended audit / cluster",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-06T17:11:53Z",
+      "completed_at": "2026-11-06T17:22:10Z"
+    },
+    {
+      "id": 128035027386,
+      "name": "Extended audit / resources",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-11-06T17:11:53Z",
+      "completed_at": "2026-11-06T17:25:40Z"
+    },
+    {
+      "id": 128035027397,
+      "name": "Extended audit / restore",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-06T17:11:54Z",
+      "completed_at": "2026-11-06T17:23:29Z"
+    },
+    {
+      "id": 128035027453,
+      "name": "Extended audit / correctness",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-06T17:11:53Z",
+      "completed_at": "2026-11-06T17:32:11Z"
+    },
+    {
+      "id": 128035027462,
+      "name": "Extended audit / release",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-06T17:11:53Z",
+      "completed_at": "2026-11-06T17:24:10Z"
+    },
+    {
+      "id": 128035027588,
+      "name": "Extended audit / gateway",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-06T17:11:54Z",
+      "completed_at": "2026-11-06T17:23:59Z"
+    },
+    {
+      "id": 128035027640,
+      "name": "Extended audit / standalone",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-06T17:11:53Z",
+      "completed_at": "2026-11-06T17:18:36Z"
+    },
+    {
+      "id": 128035027944,
+      "name": "Extended audit / index",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-11-06T17:11:54Z",
+      "completed_at": "2026-11-06T17:44:20Z"
+    },
+    {
+      "id": 128052285557,
+      "name": "Extended audit of all 38 scenarios and every lane",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-11-06T17:44:23Z",
+      "completed_at": "2026-11-06T17:44:36Z"
+    }
+  ],
+  "lanes": {
+    "cluster": {
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "mix",
+            "compile",
+            "--force",
+            "--warnings-as-errors"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 372.838,
+          "log_sha256": "11cc9f4909b698e5db93e4be5574745575e8c59fc77d60c2ca5871df79eab60c"
+        },
+        {
+          "argv": [
+            "mix",
+            "test",
+            "apps/ex_storage_service/test/ex_storage_service/cluster/three_voter_cluster_test.exs",
+            "--include",
+            "cluster"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 91.787,
+          "log_sha256": "d223dac3df1cd22478f52ae44738eab399d49780710915a97d9c794cf6ded9be"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_phase1_cluster.sh",
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "ci-42259381466-1-cluster"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 83.38,
+          "log_sha256": "5f01b1144ab64e9049d830a124843dc8590d519d4b68d69b15e21acdfe78055d"
+        }
+      ],
+      "record_sha256": "50e7cc1ff748661b1bf090b948e8d5ba4e44e08d5c4b34dfb2eee3ff048fb8e1"
+    },
+    "correctness": {
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "mix",
+            "format",
+            "--check-formatted"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 455.281,
+          "log_sha256": "100c4bfb8ae53d6df2b4cd1323e37d469bb19b2779e0b6db4167aefb5eaa2d45"
+        },
+        {
+          "argv": [
+            "mix",
+            "compile",
+            "--force",
+            "--warnings-as-errors"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 16.791,
+          "log_sha256": "343c85cf3f1109d4e93ceb3ecd9bb0c6ca7f49dd6ea089cbdff5871e802e4188"
+        },
+        {
+          "argv": [
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "e2e/run_correctness_tests.py",
+            "--extended",
+            "--output",
+            "/home/runner/work/ex_storage_service/ex_storage_service/docs/reports/s3-hardening/ci-42259381466-1/suite-selection"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 653.819,
+          "log_sha256": "8b24789284cef827774d507b1125b326c6e5a7e5dbd4d327fbd37604873c83c3"
+        },
+        {
+          "argv": [
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "e2e",
+            "-p",
+            "test_*.py"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 26.675,
+          "log_sha256": "36638bb997cafe147a5d21d6f1a3eaaddb19830a3a7714b9b6a9045130826766"
+        }
+      ],
+      "record_sha256": "29cf60579b146ea77a87513cecfde64d19a04edf9d239ed5e3fe78cc491c7981"
+    },
+    "crashes": {
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "mix",
+            "compile",
+            "--force",
+            "--warnings-as-errors"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 328.723,
+          "log_sha256": "f7bda19d25cbdb37ade5f4dc4a75d7255b3aa1fc36badb537b4c757a94d530f3"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_crashes.sh",
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "ci-42259381466-1-crashes"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 19.67,
+          "log_sha256": "c3b4f32bddb02d060941d5194d091e1a292aab61561c0be3752d9228b7b048de"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_replication_crash.sh",
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "ci-42259381466-1-crashes-replication"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 11.249,
+          "log_sha256": "171a59a4985e47663c90d3c0d3cf23427a19fa3fcfb7b85b2d54c678375a1586"
+        }
+      ],
+      "record_sha256": "862a2901d27f4f23f16e1de8bb6f77996a67e8d5b1470d1d2f43c371a9137ece"
+    },
+    "faults": {
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "mix",
+            "compile",
+            "--force",
+            "--warnings-as-errors"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 369.229,
+          "log_sha256": "1153d301111d9e09a5853c3a4eb852bda1814ee0fb7f5ffa917a54c28ee1db0c"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_faults.sh",
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "ci-42259381466-1-faults"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 20.356,
+          "log_sha256": "72e2321cff47d3b6187866ba00c8eda15f84ebae80549db3a208d176fe31e6a2"
+        }
+      ],
+      "record_sha256": "f9587bc8db9d84f342a9f43324f4a18d2289018427194c62e267fb89671a04bd"
+    },
+    "gateway": {
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "mix",
+            "compile",
+            "--force",
+            "--warnings-as-errors"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 482.793,
+          "log_sha256": "216084667bf55d44aa534f9bf9c9819e54bb4c0a7681f1e7d72e47f59887f5dd"
+        },
+        {
+          "argv": [
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "e2e/gateway_hardening.py",
+            "--root",
+            "/tmp/ess-s3-hardening-ci-42259381466-1-gateway",
+            "--mc",
+            "/home/runner/work/_temp/mc"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 171.706,
+          "log_sha256": "1e5e9385e8252527af7da505cd1faabe08e8369555cc231eaa11cd02c0cb8a2b"
+        }
+      ],
+      "record_sha256": "980dfc0f7f6c84a8d3bb14e04ee2bc3764029629af44f323cf2ba27a019c80b2"
+    },
+    "index": {
+      "status": "blocked",
+      "commands": [
+        {
+          "argv": [
+            "mix",
+            "compile",
+            "--force",
+            "--warnings-as-errors"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 531.595,
+          "log_sha256": "3ce8e924ce1b825d8a0f3d7436f7530d096990a870aa5666b28c60f905df3ef4"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_index.sh",
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "ci-42259381466-1-index"
+          ],
+          "exit_status": 1,
+          "duration_seconds": 1320.349,
+          "log_sha256": "935bc76c900dce2e2301c56d5b1d8d561aa0d29e348f4957472ce9078f4422f5"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_index_cluster.sh",
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "ci-42259381466-1-index-cluster"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 23.44,
+          "log_sha256": "ec794633f64e267ce3f7c074b01539038863af0645e59e1ea4c23fff636eaadb"
+        }
+      ],
+      "record_sha256": "1ccac5346f3646f9c888543e17098b197a681ee6dad1733891a888c9defdddf5"
+    },
+    "release": {
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_release.sh",
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "ci-42259381466-1-release"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 685.407,
+          "log_sha256": "eb162d3869cf3b990c4c22eab7dabc1dbd1445e216bb6dc3c486b4b4071e2823"
+        }
+      ],
+      "record_sha256": "bc7f57b26aadfc01ccd14e9f2b06f5e26271e1c5d806f1bd0099d3a5f9cdbca0"
+    },
+    "resilience": {
+      "status": "blocked",
+      "commands": [
+        {
+          "argv": [
+            "mix",
+            "compile",
+            "--force",
+            "--warnings-as-errors"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 369.381,
+          "log_sha256": "cfa4d3d94d1768203d0b1e8507e07e7f99b26d8af9191762aea9fbc139640979"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_resilience.sh",
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "ci-42259381466-1-resilience"
+          ],
+          "exit_status": 1,
+          "duration_seconds": 42.269,
+          "log_sha256": "6709cceb029c81e0e5c456e263337ba976e9ac0e8a519a4539d9dd3b1cf8ffd0"
+        }
+      ],
+      "record_sha256": "3267b8cb459ae763ca755c18196f39db524fa9673b58390c5a497438f6e684a7"
+    },
+    "resources": {
+      "status": "blocked",
+      "commands": [
+        {
+          "argv": [
+            "mix",
+            "compile",
+            "--force",
+            "--warnings-as-errors"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 367.659,
+          "log_sha256": "00c069bb356f4ce7275fd3efbcc5ac0064c4a1ea1afb0608bfbe70fe74e6e0dd"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_resources.sh",
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "ci-42259381466-1-resources"
+          ],
+          "exit_status": 1,
+          "duration_seconds": 83.701,
+          "log_sha256": "f53d80b81963e920c6f8cf23d798975383ec6f8f8a714fd24640afe709c61258"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_cluster_resources.sh",
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "ci-42259381466-1-resources-cluster"
+          ],
+          "exit_status": 1,
+          "duration_seconds": 56.254,
+          "log_sha256": "c951ce86ac9bfcdb5b4bd67232acbf020ecf219f8f67e5eb0b4e29fc8c2258e0"
+        },
+        {
+          "argv": [
+            "mix",
+            "test",
+            "apps/ex_storage_service_cluster/test/ex_storage_service_cluster/large_stream_test.exs",
+            "--include",
+            "large_stream",
+            "--max-cases",
+            "1",
+            "--no-color"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 91.395,
+          "log_sha256": "06685ce4ec0f8536a1b94656e7892cbdd54eb86c506e3a558f42aea3b9f2c837"
+        }
+      ],
+      "record_sha256": "4dabcda40f44cc97bb3876e6a48d41d9eb0fadcb9a4f14e841eed702b24e3cd4"
+    },
+    "restore": {
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "mix",
+            "compile",
+            "--force",
+            "--warnings-as-errors"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 388.499,
+          "log_sha256": "c03647cc965b0c14462fe5f410e820bb51f4b917e6a9eac9d1b777ef9ef8d0d8"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_restore.sh",
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "ci-42259381466-1-restore",
+            "all"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 78.438,
+          "log_sha256": "c237513885787750b7bfbaf17f119647c9f1be7bc9bde7150170a07aad14c7f7"
+        }
+      ],
+      "record_sha256": "8989d35d04f8fde1db6f460004b4e8ad37a3762efd97c38b0b2521433028ece9"
+    },
+    "standalone": {
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "mix",
+            "compile",
+            "--force",
+            "--warnings-as-errors"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 311.676,
+          "log_sha256": "8b877fb9a7ead551361ff7b4d16132ffadd5b7dac1d15d4441864ed4f8550318"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_phase2_standalone.sh",
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "ci-42259381466-1-standalone"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 27.28,
+          "log_sha256": "67695d025fa23324a819cd3896b06e33205514c66aabe003f7630a01bab68145"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_retained_standalone.sh",
+            "/home/runner/work/_temp/hardening-venv/bin/python",
+            "ci-42259381466-1-standalone-retained"
+          ],
+          "exit_status": 0,
+          "duration_seconds": 12.695,
+          "log_sha256": "de3b096c148fe500a7a2e0bd9637d08d0442abe1b6d01a7ce048314231091af0"
+        }
+      ],
+      "record_sha256": "57eda6db01b0b533fbf1c89f5a8d49e8bcebe88450788e6580f8d5bd9f9bf457"
+    }
+  },
+  "daily": {
+    "status": "passed",
+    "checks": 14,
+    "artifact": {
+      "path": "hosted-artifacts/s3-hardening-daily/daily.json",
+      "sha256": "735610f006c92dec72a39e16daa3f2492dfc28a26dd9c175e99b526d65a6b392"
+    }
+  },
+  "correctness": {
+    "app_counts": {
+      "ex_storage_service": {
+        "tests": 645,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 644
+      },
+      "ex_storage_service_cluster": {
+        "tests": 44,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 43
+      },
+      "ex_storage_service_cli": {
+        "tests": 3491,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 3491
+      },
+      "ex_storage_service_s3": {
+        "tests": 387,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 387
+      },
+      "ex_storage_service_web": {
+        "tests": 24,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 24
+      }
+    },
+    "application_executed_tests": 4589,
+    "python_selected_tests": 163,
+    "python_skipped_tests": 1,
+    "python_skip_case": "not named in the retained non-verbose log; local pinned harness executes all 163 without skips",
+    "artifact": {
+      "path": "hosted-artifacts/s3-hardening-extended-correctness/ci-42259381466-1/suite-selection/correctness.json",
+      "sha256": "f90ab2f523cba2383fc2f273f42e46b1333e5c3ad5f84146691a01a9758f9df2"
+    }
+  },
+  "archive_verification": [
+    {
+      "id": 13527155340,
+      "name": "s3-hardening-extended-index",
+      "archive_sha256": "sha256:8545c122bad57b44511ce802f46594f9f6038f46b1b7d40bb179a9e704331136",
+      "bytes": 268657,
+      "digest_verified": true
+    },
+    {
+      "id": 13525540293,
+      "name": "s3-hardening-extended-standalone",
+      "archive_sha256": "sha256:8fc0d13da5a79ad634a6dec401c4b816f0dc2637c864e0cb9e59cee24823b5a4",
+      "bytes": 16189,
+      "digest_verified": true
+    },
+    {
+      "id": 13525261412,
+      "name": "s3-hardening-extended-cluster",
+      "archive_sha256": "sha256:af96af0c64d4e31492fd1ec39fa497d95a0af2f03980292a0bc461220b1827e3",
+      "bytes": 23490,
+      "digest_verified": true
+    },
+    {
+      "id": 13525235919,
+      "name": "s3-hardening-extended-faults",
+      "archive_sha256": "sha256:dec7980a381c2237f03b24499fe3ac1fbe480b5c52ae5424d8d0f04797b5bc71",
+      "bytes": 309573,
+      "digest_verified": true
+    },
+    {
+      "id": 13525056850,
+      "name": "s3-hardening-extended-resilience",
+      "archive_sha256": "sha256:cd66f8602871f4457fcc55caf114b861d394d70a944ee605b01ea5d3ef7d6954",
+      "bytes": 14021,
+      "digest_verified": true
+    },
+    {
+      "id": 13524818911,
+      "name": "s3-hardening-extended-correctness",
+      "archive_sha256": "sha256:01dea35cd9ae67470a753506ae9cf348bfce09e16157b4850b6d3bd3a5af2ed9",
+      "bytes": 20780,
+      "digest_verified": true
+    },
+    {
+      "id": 13524458513,
+      "name": "s3-hardening-extended-resources",
+      "archive_sha256": "sha256:cbb97790efb1a38c9476f23f98eee950460b66c5c456605fcc1ec805c0696a7f",
+      "bytes": 2340057,
+      "digest_verified": true
+    },
+    {
+      "id": 13524222585,
+      "name": "s3-hardening-daily",
+      "archive_sha256": "sha256:614aa92c9a336a6c76cfa92b06a99c99b65d43ae2d32c97ae93565be7f085904",
+      "bytes": 12527,
+      "digest_verified": true
+    },
+    {
+      "id": 13524173925,
+      "name": "s3-hardening-extended-release",
+      "archive_sha256": "sha256:e23489ed0bc3607eafad6c4ccc702cbd1d020a6dd0c7aed605cfa50091deda99",
+      "bytes": 38400,
+      "digest_verified": true
+    },
+    {
+      "id": 13523858865,
+      "name": "s3-hardening-extended-crashes",
+      "archive_sha256": "sha256:21dbbbd06a32e2af7864bd72f7ee0954943cf537d8f1128676fcc9cc4894ad16",
+      "bytes": 15531,
+      "digest_verified": true
+    },
+    {
+      "id": 13523734665,
+      "name": "s3-hardening-extended-restore",
+      "archive_sha256": "sha256:b71361003739f5f2aca643e353a0d58080eaa47f13d4f9a8b4e62dcdc9ebeeaa",
+      "bytes": 47097,
+      "digest_verified": true
+    },
+    {
+      "id": 13523689775,
+      "name": "s3-hardening-extended-gateway",
+      "archive_sha256": "sha256:5dc26fc0b68de46cb41d805322df9d03e8c28c550ba7736e7aef8a342646a1c0",
+      "bytes": 19466,
+      "digest_verified": true
+    }
+  ],
+  "resources": {
+    "status": "failed",
+    "standalone": {
+      "required_groups": 56,
+      "recorded_groups": 15,
+      "failed_groups": [
+        {
+          "name": "local-put",
+          "size": 67108864,
+          "concurrency": 4,
+          "failures": [
+            "cadence:binary:interval_over100ms",
+            "cadence:total:interval_over100ms",
+            "cadence:rss:interval_over100ms",
+            "cadence:queue_max:interval_over100ms",
+            "cadence:queue_total:interval_over100ms",
+            "cadence:temporary:probe_too_slow",
+            "cadence:temporary:interval_over100ms"
+          ],
+          "cadence": {
+            "binary": {
+              "samples": 76,
+              "max_interval_ns": 100000000,
+              "start_edge_ns": 14643428,
+              "end_edge_ns": 4241465,
+              "maximum_probe_ns": 4288700,
+              "maximum_gap_ns": 150253319,
+              "intervals_over100ms": 1,
+              "sampler_ids": [
+                "1793985710427202107"
+              ]
+            },
+            "total": {
+              "samples": 76,
+              "max_interval_ns": 100000000,
+              "start_edge_ns": 14643428,
+              "end_edge_ns": 4241465,
+              "maximum_probe_ns": 4288700,
+              "maximum_gap_ns": 150253319,
+              "intervals_over100ms": 1,
+              "sampler_ids": [
+                "1793985710427202107"
+              ]
+            },
+            "rss": {
+              "samples": 76,
+              "max_interval_ns": 100000000,
+              "start_edge_ns": 14999454,
+              "end_edge_ns": 3982623,
+              "maximum_probe_ns": 341795,
+              "maximum_gap_ns": 150312246,
+              "intervals_over100ms": 1,
+              "sampler_ids": [
+                "1793985710427202107"
+              ]
+            },
+            "queue_max": {
+              "samples": 76,
+              "max_interval_ns": 100000000,
+              "start_edge_ns": 12305562,
+              "end_edge_ns": 5819279,
+              "maximum_probe_ns": 3853157,
+              "maximum_gap_ns": 151567789,
+              "intervals_over100ms": 1,
+              "sampler_ids": [
+                "1793985710427202107"
+              ]
+            },
+            "queue_total": {
+              "samples": 76,
+              "max_interval_ns": 100000000,
+              "start_edge_ns": 12305562,
+              "end_edge_ns": 5819279,
+              "maximum_probe_ns": 3853157,
+              "maximum_gap_ns": 151567789,
+              "intervals_over100ms": 1,
+              "sampler_ids": [
+                "1793985710427202107"
+              ]
+            },
+            "temporary": {
+              "samples": 76,
+              "max_interval_ns": 100000000,
+              "start_edge_ns": 15161583,
+              "end_edge_ns": 3842055,
+              "maximum_probe_ns": 128486012,
+              "maximum_gap_ns": 154200576,
+              "intervals_over100ms": 2,
+              "sampler_ids": [
+                "1793985710427202107"
+              ]
+            }
+          }
+        }
+      ],
+      "gap_audit": {
+        "binary": {
+          "maximum_gap_ns": 150253319,
+          "sequence": [
+            2939,
+            2940
+          ],
+          "temporary_probe_ns": [
+            128486012,
+            206775
+          ],
+          "observer_process_cpu_delta_ns": 1000000
+        },
+        "total": {
+          "maximum_gap_ns": 150253319,
+          "sequence": [
+            2939,
+            2940
+          ],
+          "temporary_probe_ns": [
+            128486012,
+            206775
+          ],
+          "observer_process_cpu_delta_ns": 1000000
+        },
+        "rss": {
+          "maximum_gap_ns": 150312246,
+          "sequence": [
+            2939,
+            2940
+          ],
+          "temporary_probe_ns": [
+            128486012,
+            206775
+          ],
+          "observer_process_cpu_delta_ns": 1000000
+        },
+        "queue_max": {
+          "maximum_gap_ns": 151567789,
+          "sequence": [
+            2939,
+            2940
+          ],
+          "temporary_probe_ns": [
+            128486012,
+            206775
+          ],
+          "observer_process_cpu_delta_ns": 1000000
+        },
+        "queue_total": {
+          "maximum_gap_ns": 151567789,
+          "sequence": [
+            2939,
+            2940
+          ],
+          "temporary_probe_ns": [
+            128486012,
+            206775
+          ],
+          "observer_process_cpu_delta_ns": 1000000
+        },
+        "temporary": {
+          "maximum_gap_ns": 154200576,
+          "sequence": [
+            2938,
+            2939
+          ],
+          "temporary_probe_ns": [
+            160227,
+            128486012
+          ],
+          "observer_process_cpu_delta_ns": 1202000
+        }
+      }
+    },
+    "cluster": {
+      "required_groups": 20,
+      "recorded_groups": 6,
+      "failed_groups": [
+        {
+          "name": "strict-quorum-replica-put",
+          "size": 67108864,
+          "concurrency": 4,
+          "failures": [
+            "data-a:cadence:binary:interval_over100ms",
+            "data-a:cadence:total:interval_over100ms",
+            "data-a:cadence:rss:interval_over100ms",
+            "data-a:cadence:queue_max:interval_over100ms",
+            "data-a:cadence:queue_total:interval_over100ms",
+            "data-a:cadence:temporary:probe_too_slow",
+            "data-a:cadence:temporary:interval_over100ms"
+          ],
+          "cadence": {
+            "meta": {
+              "binary": {
+                "samples": 402,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 13205316,
+                "end_edge_ns": 877716,
+                "maximum_probe_ns": 4561112,
+                "maximum_gap_ns": 31881435,
+                "intervals_over100ms": 0,
+                "sampler_ids": [
+                  "1793985791093088114"
+                ]
+              },
+              "total": {
+                "samples": 402,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 13205316,
+                "end_edge_ns": 877716,
+                "maximum_probe_ns": 4561112,
+                "maximum_gap_ns": 31881435,
+                "intervals_over100ms": 0,
+                "sampler_ids": [
+                  "1793985791093088114"
+                ]
+              },
+              "rss": {
+                "samples": 402,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 13470352,
+                "end_edge_ns": 543307,
+                "maximum_probe_ns": 276499,
+                "maximum_gap_ns": 31028541,
+                "intervals_over100ms": 0,
+                "sampler_ids": [
+                  "1793985791093088114"
+                ]
+              },
+              "queue_max": {
+                "samples": 402,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 13111177,
+                "end_edge_ns": 3154036,
+                "maximum_probe_ns": 9343061,
+                "maximum_gap_ns": 35465626,
+                "intervals_over100ms": 0,
+                "sampler_ids": [
+                  "1793985791093088114"
+                ]
+              },
+              "queue_total": {
+                "samples": 402,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 13111177,
+                "end_edge_ns": 3154036,
+                "maximum_probe_ns": 9343061,
+                "maximum_gap_ns": 35465626,
+                "intervals_over100ms": 0,
+                "sampler_ids": [
+                  "1793985791093088114"
+                ]
+              },
+              "temporary": {
+                "samples": 402,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 13551122,
+                "end_edge_ns": 441487,
+                "maximum_probe_ns": 257670,
+                "maximum_gap_ns": 31004055,
+                "intervals_over100ms": 0,
+                "sampler_ids": [
+                  "1793985791093088114"
+                ]
+              }
+            },
+            "data-a": {
+              "binary": {
+                "samples": 395,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 2273963,
+                "end_edge_ns": 12432983,
+                "maximum_probe_ns": 5533107,
+                "maximum_gap_ns": 200058236,
+                "intervals_over100ms": 1,
+                "sampler_ids": [
+                  "1793985791166507430"
+                ]
+              },
+              "total": {
+                "samples": 395,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 2273963,
+                "end_edge_ns": 12432983,
+                "maximum_probe_ns": 5533107,
+                "maximum_gap_ns": 200058236,
+                "intervals_over100ms": 1,
+                "sampler_ids": [
+                  "1793985791166507430"
+                ]
+              },
+              "rss": {
+                "samples": 395,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 2616989,
+                "end_edge_ns": 12187085,
+                "maximum_probe_ns": 1803547,
+                "maximum_gap_ns": 200080104,
+                "intervals_over100ms": 1,
+                "sampler_ids": [
+                  "1793985791166507430"
+                ]
+              },
+              "queue_max": {
+                "samples": 395,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 2128738,
+                "end_edge_ns": 14970248,
+                "maximum_probe_ns": 11454924,
+                "maximum_gap_ns": 202494062,
+                "intervals_over100ms": 1,
+                "sampler_ids": [
+                  "1793985791166507430"
+                ]
+              },
+              "queue_total": {
+                "samples": 395,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 2128738,
+                "end_edge_ns": 14970248,
+                "maximum_probe_ns": 11454924,
+                "maximum_gap_ns": 202494062,
+                "intervals_over100ms": 1,
+                "sampler_ids": [
+                  "1793985791166507430"
+                ]
+              },
+              "temporary": {
+                "samples": 395,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 2722395,
+                "end_edge_ns": 12076502,
+                "maximum_probe_ns": 183946630,
+                "maximum_gap_ns": 208227866,
+                "intervals_over100ms": 2,
+                "sampler_ids": [
+                  "1793985791166507430"
+                ]
+              }
+            },
+            "data-b": {
+              "binary": {
+                "samples": 402,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 7146581,
+                "end_edge_ns": 7010643,
+                "maximum_probe_ns": 4454115,
+                "maximum_gap_ns": 41019103,
+                "intervals_over100ms": 0,
+                "sampler_ids": [
+                  "1793985791222003519"
+                ]
+              },
+              "total": {
+                "samples": 402,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 7146581,
+                "end_edge_ns": 7010643,
+                "maximum_probe_ns": 4454115,
+                "maximum_gap_ns": 41019103,
+                "intervals_over100ms": 0,
+                "sampler_ids": [
+                  "1793985791222003519"
+                ]
+              },
+              "rss": {
+                "samples": 402,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 7450730,
+                "end_edge_ns": 6751987,
+                "maximum_probe_ns": 497745,
+                "maximum_gap_ns": 39998532,
+                "intervals_over100ms": 0,
+                "sampler_ids": [
+                  "1793985791222003519"
+                ]
+              },
+              "queue_max": {
+                "samples": 402,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 7036278,
+                "end_edge_ns": 9479638,
+                "maximum_probe_ns": 18409034,
+                "maximum_gap_ns": 46084630,
+                "intervals_over100ms": 0,
+                "sampler_ids": [
+                  "1793985791222003519"
+                ]
+              },
+              "queue_total": {
+                "samples": 402,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 7036278,
+                "end_edge_ns": 9479638,
+                "maximum_probe_ns": 18409034,
+                "maximum_gap_ns": 46084630,
+                "intervals_over100ms": 0,
+                "sampler_ids": [
+                  "1793985791222003519"
+                ]
+              },
+              "temporary": {
+                "samples": 402,
+                "max_interval_ns": 100000000,
+                "start_edge_ns": 7552580,
+                "end_edge_ns": 6645319,
+                "maximum_probe_ns": 7116730,
+                "maximum_gap_ns": 39997089,
+                "intervals_over100ms": 0,
+                "sampler_ids": [
+                  "1793985791222003519"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "gap_audit": {
+        "meta": {
+          "binary": {
+            "maximum_gap_ns": 31881435,
+            "sequence": [
+              1837,
+              1838
+            ],
+            "temporary_probe_ns": [
+              88620,
+              85056
+            ],
+            "observer_process_cpu_delta_ns": 735000
+          },
+          "total": {
+            "maximum_gap_ns": 31881435,
+            "sequence": [
+              1837,
+              1838
+            ],
+            "temporary_probe_ns": [
+              88620,
+              85056
+            ],
+            "observer_process_cpu_delta_ns": 735000
+          },
+          "rss": {
+            "maximum_gap_ns": 31028541,
+            "sequence": [
+              1742,
+              1743
+            ],
+            "temporary_probe_ns": [
+              78196,
+              82672
+            ],
+            "observer_process_cpu_delta_ns": 702000
+          },
+          "queue_max": {
+            "maximum_gap_ns": 35465626,
+            "sequence": [
+              1837,
+              1838
+            ],
+            "temporary_probe_ns": [
+              88620,
+              85056
+            ],
+            "observer_process_cpu_delta_ns": 735000
+          },
+          "queue_total": {
+            "maximum_gap_ns": 35465626,
+            "sequence": [
+              1837,
+              1838
+            ],
+            "temporary_probe_ns": [
+              88620,
+              85056
+            ],
+            "observer_process_cpu_delta_ns": 735000
+          },
+          "temporary": {
+            "maximum_gap_ns": 31004055,
+            "sequence": [
+              1742,
+              1743
+            ],
+            "temporary_probe_ns": [
+              78196,
+              82672
+            ],
+            "observer_process_cpu_delta_ns": 702000
+          }
+        },
+        "data-a": {
+          "binary": {
+            "maximum_gap_ns": 200058236,
+            "sequence": [
+              1807,
+              1808
+            ],
+            "temporary_probe_ns": [
+              183946630,
+              153686
+            ],
+            "observer_process_cpu_delta_ns": 791000
+          },
+          "total": {
+            "maximum_gap_ns": 200058236,
+            "sequence": [
+              1807,
+              1808
+            ],
+            "temporary_probe_ns": [
+              183946630,
+              153686
+            ],
+            "observer_process_cpu_delta_ns": 791000
+          },
+          "rss": {
+            "maximum_gap_ns": 200080104,
+            "sequence": [
+              1807,
+              1808
+            ],
+            "temporary_probe_ns": [
+              183946630,
+              153686
+            ],
+            "observer_process_cpu_delta_ns": 791000
+          },
+          "queue_max": {
+            "maximum_gap_ns": 202494062,
+            "sequence": [
+              1807,
+              1808
+            ],
+            "temporary_probe_ns": [
+              183946630,
+              153686
+            ],
+            "observer_process_cpu_delta_ns": 791000
+          },
+          "queue_total": {
+            "maximum_gap_ns": 202494062,
+            "sequence": [
+              1807,
+              1808
+            ],
+            "temporary_probe_ns": [
+              183946630,
+              153686
+            ],
+            "observer_process_cpu_delta_ns": 791000
+          },
+          "temporary": {
+            "maximum_gap_ns": 208227866,
+            "sequence": [
+              1806,
+              1807
+            ],
+            "temporary_probe_ns": [
+              141398,
+              183946630
+            ],
+            "observer_process_cpu_delta_ns": 1217000
+          }
+        },
+        "data-b": {
+          "binary": {
+            "maximum_gap_ns": 41019103,
+            "sequence": [
+              1831,
+              1832
+            ],
+            "temporary_probe_ns": [
+              108871,
+              124644
+            ],
+            "observer_process_cpu_delta_ns": 877000
+          },
+          "total": {
+            "maximum_gap_ns": 41019103,
+            "sequence": [
+              1831,
+              1832
+            ],
+            "temporary_probe_ns": [
+              108871,
+              124644
+            ],
+            "observer_process_cpu_delta_ns": 877000
+          },
+          "rss": {
+            "maximum_gap_ns": 39998532,
+            "sequence": [
+              1831,
+              1832
+            ],
+            "temporary_probe_ns": [
+              108871,
+              124644
+            ],
+            "observer_process_cpu_delta_ns": 877000
+          },
+          "queue_max": {
+            "maximum_gap_ns": 46084630,
+            "sequence": [
+              1831,
+              1832
+            ],
+            "temporary_probe_ns": [
+              108871,
+              124644
+            ],
+            "observer_process_cpu_delta_ns": 877000
+          },
+          "queue_total": {
+            "maximum_gap_ns": 46084630,
+            "sequence": [
+              1831,
+              1832
+            ],
+            "temporary_probe_ns": [
+              108871,
+              124644
+            ],
+            "observer_process_cpu_delta_ns": 877000
+          },
+          "temporary": {
+            "maximum_gap_ns": 39997089,
+            "sequence": [
+              1831,
+              1832
+            ],
+            "temporary_probe_ns": [
+              108871,
+              124644
+            ],
+            "observer_process_cpu_delta_ns": 877000
+          }
+        }
+      }
+    },
+    "exports": [
+      {
+        "root": "hosted-artifacts/s3-hardening-extended-resources/ci-42259381466-1-resources",
+        "status": "passed",
+        "contiguous_generation_rows": true,
+        "export_hashes_match": true,
+        "export_count": 1,
+        "recorded_observers_stopped": true
+      },
+      {
+        "root": "hosted-artifacts/s3-hardening-extended-resources/ci-42259381466-1-resources-cluster/samples/meta",
+        "status": "passed",
+        "contiguous_generation_rows": true,
+        "export_hashes_match": true,
+        "export_count": 1,
+        "recorded_observers_stopped": true
+      },
+      {
+        "root": "hosted-artifacts/s3-hardening-extended-resources/ci-42259381466-1-resources-cluster/samples/data-a",
+        "status": "passed",
+        "contiguous_generation_rows": true,
+        "export_hashes_match": true,
+        "export_count": 1,
+        "recorded_observers_stopped": true
+      },
+      {
+        "root": "hosted-artifacts/s3-hardening-extended-resources/ci-42259381466-1-resources-cluster/samples/data-b",
+        "status": "passed",
+        "contiguous_generation_rows": true,
+        "export_hashes_match": true,
+        "export_count": 1,
+        "recorded_observers_stopped": true
+      }
+    ],
+    "causal_limit": "Observed slow probes and gaps do not establish a filesystem, scheduler, kernel or dependency cause."
+  },
+  "faults": {
+    "status": "passed",
+    "passed_checks": 8,
+    "coverage_failures": [],
+    "windows": [
+      {
+        "name": "local-gateway",
+        "generation": 1,
+        "samples": 239,
+        "maximum_gap_ns": 29419603,
+        "failures": []
+      },
+      {
+        "name": "local-gateway",
+        "generation": 2,
+        "samples": 150,
+        "maximum_gap_ns": 29111039,
+        "failures": []
+      },
+      {
+        "name": "isolated-enospc",
+        "generation": 1,
+        "samples": 131,
+        "maximum_gap_ns": 33438646,
+        "failures": []
+      }
+    ],
+    "limits": {
+      "queue_max": 128,
+      "queue_total": 2048,
+      "process_delta": 32
+    },
+    "samples_sequences_contiguous": true
+  },
+  "resilience": {
+    "status": "failed",
+    "failure": {
+      "action": "maintenance",
+      "type": "AssertionError"
+    },
+    "passed_prefix": [
+      "seed",
+      "read-repair"
+    ],
+    "failure_message": "real CAS repair did not restore both replicas",
+    "original_repair_wait_seconds": 30,
+    "later_outage_rejoin_and_backlog": "not executed after maintenance failure",
+    "retained_hosted_state_limit": "Last repair-state response and private control outputs are not retained; no cause established.",
+    "artifact": {
+      "path": "hosted-artifacts/s3-hardening-extended-resilience/ci-42259381466-1-resilience-result.json",
+      "sha256": "85b6aae6ad90ae438cdaf893184d5666974717c370d275f31f6a65c5a077bd1a"
+    }
+  },
+  "maintenance_diagnostic": {
+    "scope": "One bounded local maintenance diagnostic after hosted timeout; no acceptance promotion",
+    "diagnostic_only": true,
+    "acceptance": false,
+    "source_head": "6b25da4d9fd8f2f75b9adddd551e770cc3518115",
+    "source_sha256": "c4a7dab8e59c9d520be4304ea2aad8387820b19b3d30ec5d6a052ac6afde2681",
+    "execution": {
+      "diagnostic_only": true,
+      "acceptance": false,
+      "exit_status": 0,
+      "seconds": 10.444,
+      "argv": [
+        "bash",
+        "/tmp/ess-concord3113-adoption-20261107-r1/run_maintenance_diagnostic.sh",
+        "/tmp/ess-issue24-python-yi8y3xmw/bin/python",
+        "concord3113-maintenance-diagnostic-r2-20261107"
+      ],
+      "after_current_commit_strict_production_compile": true
+    },
+    "initial_startup_failure": {
+      "diagnostic_only": true,
+      "acceptance": false,
+      "exit_status": 1,
+      "seconds": 90.862,
+      "argv": [
+        "bash",
+        "/tmp/ess-concord3113-adoption-20261107-r1/run_maintenance_diagnostic.sh",
+        "/tmp/ess-issue24-python-yi8y3xmw/bin/python",
+        "concord3113-maintenance-diagnostic-20261107"
+      ]
+    },
+    "startup_correction": "Recompile production at pushed commit to resolve compile-time build_info SHA mismatch; no workload executed in initial attempt.",
+    "retained_original_limits": {
+      "repair_wait_seconds": 30,
+      "replication_factor": 2,
+      "write_quorum": 2,
+      "degraded_writes": false
+    },
+    "result": "completed seed/read-repair/maintenance prefix without reproducing hosted timeout",
+    "groups": [
+      {
+        "action": "seed",
+        "evidence": {
+          "acknowledged_versions": 2,
+          "pending_multipart": true,
+          "shared_keys": 2
+        },
+        "status": "passed"
+      },
+      {
+        "action": "read-repair",
+        "evidence": {
+          "full_public_get": true,
+          "object_version_unchanged": true,
+          "range_did_not_publish": true,
+          "removal": {
+            "expected_size": 884736,
+            "peer_checksum_verified": true,
+            "removed_local_replica": true
+          },
+          "repair": {
+            "generations": [
+              1,
+              1
+            ],
+            "local_checksum_verified": true,
+            "local_exists": true,
+            "ready": true,
+            "ready_count": 2
+          }
+        },
+        "status": "passed"
+      },
+      {
+        "action": "maintenance",
+        "evidence": {
+          "attempts": 2,
+          "bounded_shard_plan": {
+            "actual_replicas": 1,
+            "blobs": 1,
+            "next_cursor": null,
+            "planned": 1,
+            "unavailable": 0,
+            "under_replicated": 1
+          },
+          "corruption_detected": true,
+          "duplicate_job_id": true,
+          "durable_scrub_completed": true,
+          "expired_lease_takeover": true,
+          "fencing_token": 2,
+          "gc": {
+            "active_reader_hash_verified": true,
+            "cluster_packer_disabled": true,
+            "local_sweeps": 3,
+            "peer": {
+              "all_fixture_checksums_verified": true,
+              "sweeps": 3
+            },
+            "shared_keys_versions_and_parts_retained": true,
+            "unknown_intent_blob_retained": true
+          },
+          "object_versions_unchanged": true,
+          "repair": {
+            "local_checksum_verified": true,
+            "ready": true,
+            "ready_count": 2,
+            "scrub_job_completed": true
+          },
+          "stale_renew_complete_and_mutation_rejected": true
+        },
+        "status": "passed"
+      }
+    ],
+    "after_maintenance_observation": {
+      "bounded_events_complete": true,
+      "bounded_jobs_complete": true,
+      "events": [
+        {
+          "kind": "scrub",
+          "state": "dispatched"
+        },
+        {
+          "kind": "repair_blob",
+          "state": "dispatched"
+        },
+        {
+          "kind": "repair_blob",
+          "state": "dispatched"
+        }
+      ],
+      "jobs": [
+        {
+          "attempts": 1,
+          "error_class": "other",
+          "fencing_token": 1,
+          "kind": "repair_blob",
+          "lease_until_ms": 0,
+          "max_attempts": 3,
+          "next_attempt_at_ms": 1793986272280,
+          "owner_generation": null,
+          "owner_node": null,
+          "state": "pending"
+        },
+        {
+          "attempts": 2,
+          "error_class": "none",
+          "fencing_token": 2,
+          "kind": "scrub",
+          "lease_until_ms": 0,
+          "max_attempts": 3,
+          "next_attempt_at_ms": 1793986270632,
+          "owner_generation": 1,
+          "owner_node": "data-a",
+          "state": "completed"
+        },
+        {
+          "attempts": 1,
+          "error_class": "none",
+          "fencing_token": 1,
+          "kind": "repair_blob",
+          "lease_until_ms": 0,
+          "max_attempts": 3,
+          "next_attempt_at_ms": 1793986270804,
+          "owner_generation": 1,
+          "owner_node": "data-a",
+          "state": "completed"
+        }
+      ],
+      "local_checksum_verified": true,
+      "locations": [
+        {
+          "node_generation": 1,
+          "node_id": "data-a",
+          "size": 1325,
+          "state": "ready"
+        },
+        {
+          "node_generation": 1,
+          "node_id": "data-b",
+          "size": 1325,
+          "state": "ready"
+        }
+      ]
+    },
+    "cleanup": {
+      "identities": [
+        {
+          "node": "data-a",
+          "pid": 1718447,
+          "start_ticks": 4855928,
+          "stopped": true
+        },
+        {
+          "node": "data-b",
+          "pid": 1718460,
+          "start_ticks": 4855928,
+          "stopped": true
+        },
+        {
+          "node": "meta",
+          "pid": 1718438,
+          "start_ticks": 4855928,
+          "stopped": true
+        }
+      ],
+      "owned_root_removed": true
+    },
+    "causal_limit": "The original hosted failure remains. This prefix diagnostic omits later resilience stages and cannot establish a repair or authorize publication.",
+    "private_script_sha256": {
+      "resilience_diagnostic.py": "c29fd198dc0884f8c58d32b3af16966bbaf65041c6a17e2f4160a2c243e16568",
+      "resilience_diagnostic_control.exs": "2a9132368b14be1b23e29d0f1691699cb1e03b94fa187821c2a2633ff2e603a0",
+      "run_maintenance_diagnostic.sh": "f5034a7a298a8946bc1185a623710655bcee20be02908f7a6be5410806fd0c75"
+    }
+  },
+  "maintenance_diagnostic_cleanup": {
+    "identities": [
+      {
+        "node": "data-a",
+        "pid": 1718447,
+        "start_ticks": 4855928,
+        "stopped": true
+      },
+      {
+        "node": "data-b",
+        "pid": 1718460,
+        "start_ticks": 4855928,
+        "stopped": true
+      },
+      {
+        "node": "meta",
+        "pid": 1718438,
+        "start_ticks": 4855928,
+        "stopped": true
+      }
+    ],
+    "owned_root_removed": true
+  },
+  "index": {
+    "status": "blocked",
+    "artifacts": [
+      {
+        "path": "hosted-artifacts/s3-hardening-extended-index/ci-42259381466-1-index-cluster/results.json",
+        "sha256": "99d2011a95a708378ac741e3045ba6bdb9fc549faf34b19bb6cd99929b3e535a"
+      }
+    ],
+    "scale": {
+      "status": "failed",
+      "required_sizes": [
+        10000,
+        100000
+      ],
+      "progress_rows": 1275,
+      "completed_phases": [
+        {
+          "phase": "index-10000:primary",
+          "event": "complete",
+          "planned": 10000,
+          "completed": 10000,
+          "elapsed_us": 58288259
+        },
+        {
+          "phase": "index-10000:special-versions-and-deletion",
+          "event": "complete",
+          "elapsed_us": 335463
+        },
+        {
+          "phase": "index-10000:build",
+          "event": "complete",
+          "elapsed_us": 58625261
+        },
+        {
+          "phase": "index-10000:inventory-before",
+          "event": "complete",
+          "elapsed_us": 540993
+        },
+        {
+          "phase": "index-10000:listing-before",
+          "event": "complete",
+          "elapsed_us": 34774098
+        },
+        {
+          "phase": "index-10000:unrelated",
+          "event": "complete",
+          "planned": 10000,
+          "completed": 10000,
+          "elapsed_us": 100225139
+        },
+        {
+          "phase": "index-10000:inventory-after",
+          "event": "complete",
+          "elapsed_us": 614220
+        },
+        {
+          "phase": "index-10000:listing-after",
+          "event": "complete",
+          "elapsed_us": 25206430
+        },
+        {
+          "phase": "index-100000:primary",
+          "event": "complete",
+          "planned": 100000,
+          "completed": 100000,
+          "elapsed_us": 1007347452
+        },
+        {
+          "phase": "index-100000:special-versions-and-deletion",
+          "event": "complete",
+          "elapsed_us": 51013
+        },
+        {
+          "phase": "index-100000:build",
+          "event": "complete",
+          "elapsed_us": 1007399538
+        },
+        {
+          "phase": "index-100000:inventory-before",
+          "event": "complete",
+          "elapsed_us": 3737738
+        },
+        {
+          "phase": "index-100000:listing-before",
+          "event": "complete",
+          "elapsed_us": 26655374
+        }
+      ],
+      "failures": [
+        {
+          "phase": "index-100000:unrelated",
+          "event": "backend_error",
+          "duration_us": 5160019,
+          "error": {
+            "reason": "timeout",
+            "class": "error"
+          },
+          "kind": "get",
+          "category": "bucket",
+          "runtime": {
+            "run_queue_lengths": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "engine": {
+              "memory": 47368,
+              "message_queue_len": 0,
+              "reductions": 2580582610,
+              "status": "waiting",
+              "total_heap_size": 5795
+            },
+            "client": {
+              "memory": 445639944,
+              "message_queue_len": 0,
+              "reductions": 5894991570,
+              "status": "running",
+              "total_heap_size": 55704706
+            },
+            "replica": {
+              "memory": 2153795896,
+              "message_queue_len": 0,
+              "reductions": 18635586698,
+              "status": "waiting",
+              "total_heap_size": 269224355
+            },
+            "vm_total_bytes": 5044837368,
+            "vm_binary_bytes": 803876136,
+            "gc_collections": 1735909,
+            "gc_reclaimed_words": 29889899539,
+            "persistence": {
+              "checkpoint.vsr": null,
+              "replica.wal": 978296853
+            }
+          }
+        },
+        {
+          "phase": "index-100000:unrelated",
+          "event": "error",
+          "planned": 100000,
+          "ordinal": 4700,
+          "completed": 4699,
+          "duration_us": 5160771,
+          "elapsed_us": 59403642,
+          "error": {
+            "reason": "timeout",
+            "class": "error"
+          },
+          "runtime": {
+            "run_queue_lengths": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "engine": {
+              "memory": 47368,
+              "message_queue_len": 0,
+              "reductions": 2580582611,
+              "status": "waiting",
+              "total_heap_size": 5795
+            },
+            "client": {
+              "memory": 445664744,
+              "message_queue_len": 0,
+              "reductions": 5894996107,
+              "status": "running",
+              "total_heap_size": 55707806
+            },
+            "replica": {
+              "memory": 2153795896,
+              "message_queue_len": 0,
+              "reductions": 18635586699,
+              "status": "waiting",
+              "total_heap_size": 269224355
+            },
+            "vm_total_bytes": 5044847536,
+            "vm_binary_bytes": 803861752,
+            "gc_collections": 1735911,
+            "gc_reclaimed_words": 29889902304,
+            "persistence": {
+              "checkpoint.vsr": null,
+              "replica.wal": 978296853
+            }
+          }
+        }
+      ],
+      "progress_log": {
+        "path": "hosted-artifacts/s3-hardening-extended-index/ci-42259381466-1/index-1.log",
+        "sha256": "935bc76c900dce2e2301c56d5b1d8d561aa0d29e348f4957472ce9078f4422f5"
+      },
+      "original_command_timeout_seconds": 10800,
+      "existing_metadata_operation_timeout_ms": 5000,
+      "remaining": "100k unrelated growth, final inventory and listing-after did not complete",
+      "measurement_limit": "No terminal A28 measurements artifact was exported; completed progress phases do not certify A28.",
+      "causal_limit": "A bucket metadata get returned timeout; retained observations do not establish the cause."
+    },
+    "cluster_A29": {
+      "status": "passed",
+      "checks": [
+        {
+          "action": "seed",
+          "result": "passed",
+          "details": {
+            "acknowledged_versions": 11,
+            "marker": true,
+            "active_part": true
+          }
+        },
+        {
+          "action": "prepare",
+          "result": "passed",
+          "details": {
+            "backup_id": "68df381e52c9b0a18418f81e",
+            "actual_quiescence": true,
+            "verified_backup": true,
+            "checkpoint_processed": 1,
+            "checkpoint_offset": 556,
+            "prior_epoch_retained": true,
+            "actual_source_replication_factor": 2
+          }
+        },
+        {
+          "action": "gated",
+          "result": "passed",
+          "details": {
+            "both_endpoints_gated": true,
+            "other_bucket_writes": true,
+            "explicit_bytes_retained": true
+          }
+        },
+        {
+          "action": "gated",
+          "result": "passed",
+          "details": {
+            "both_endpoints_gated": true,
+            "other_bucket_writes": true,
+            "explicit_bytes_retained": true
+          }
+        },
+        {
+          "action": "rejoin",
+          "result": "passed",
+          "details": {
+            "topology": {
+              "statuses": [
+                {
+                  "status": "normal",
+                  "primary": "data-a",
+                  "bootstrap": false,
+                  "commit": 53,
+                  "applied": 53,
+                  "view": 1,
+                  "configuration": "EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207",
+                  "node_id": "meta"
+                },
+                {
+                  "status": "normal",
+                  "primary": "data-a",
+                  "bootstrap": true,
+                  "commit": 53,
+                  "applied": 53,
+                  "view": 1,
+                  "configuration": "EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207",
+                  "node_id": "data-a"
+                },
+                {
+                  "status": "normal",
+                  "primary": "data-a",
+                  "bootstrap": true,
+                  "commit": 53,
+                  "applied": 53,
+                  "view": 1,
+                  "configuration": "EB9EC151A9E0CCD5F0BFD624B71BA955D59D73BC73E121A2E5B2355448CFB207",
+                  "node_id": "data-b"
+                }
+              ],
+              "ready": true
+            },
+            "checkpoint": {
+              "processed": 1,
+              "checkpoint_survived_coordinator_sigkill": true,
+              "exact_manifest_and_offset": true,
+              "former_owner_resume_and_cutover_fenced": true
+            },
+            "gate_survives_restart": true
+          }
+        },
+        {
+          "action": "finish",
+          "result": "passed",
+          "details": {
+            "resumed": {
+              "processed": 41,
+              "validated": true,
+              "resumed_bounded_batches": true,
+              "atomic_cutover": true,
+              "new_epoch": true
+            },
+            "revision_barrier": {
+              "actual_native_page": true,
+              "mutation_after_initial_descriptor": true,
+              "successful_page_contains_new_revision": true
+            },
+            "retained": {
+              "v1_sources_unchanged": 4,
+              "prior_epoch_nodes_unchanged": 28,
+              "verified_backup_id": "68df381e52c9b0a18418f81e",
+              "backup_manifest_unchanged": true,
+              "rollback_artifacts_retained": true
+            },
+            "concurrent_other_bucket_writes": 8,
+            "both_endpoint_inventories": true,
+            "raw_bytes_versions_and_multipart": true,
+            "source_unchanged": true
+          }
+        }
+      ],
+      "artifact": {
+        "path": "hosted-artifacts/s3-hardening-extended-index/ci-42259381466-1-index-cluster/results.json",
+        "sha256": "99d2011a95a708378ac741e3045ba6bdb9fc549faf34b19bb6cd99929b3e535a"
+      }
+    }
+  },
+  "push_workflows": [
+    {
+      "id": 42259361954,
+      "name": "CLI compatibility",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 42259361858,
+      "name": "Build Docker Image",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 42259361778,
+      "name": "CI",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 42259361612,
+      "name": "Test",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 42259361533,
+      "name": "S3 interoperability and full hardening acceptance",
+      "status": "completed",
+      "conclusion": "cancelled"
+    }
+  ],
+  "aggregate": {
+    "job": {
+      "id": 128052285557,
+      "name": "Extended audit of all 38 scenarios and every lane",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-11-06T17:44:23Z",
+      "completed_at": "2026-11-06T17:44:36Z"
+    },
+    "stock_verifier_executed": false,
+    "reason": "Mandatory lane-success prerequisite failed before the stock verifier.",
+    "verification_artifact": false,
+    "log": {
+      "path": "aggregate-job.log",
+      "sha256": "ce2547d85ce5c181e8bea0e823591d5650591c4996dc023da92be76e8e7335ff"
+    }
+  },
+  "historical_ledger": {
+    "scenarios_passed": 36,
+    "scenarios_total": 38,
+    "clauses_passed": 149,
+    "clauses_total": 158,
+    "current_source_promotion": false
+  },
+  "full_acceptance": false,
+  "publication": false,
+  "requested_version": "0.7.0"
+}
