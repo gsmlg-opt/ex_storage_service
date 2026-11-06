@@ -1,3 +1,46 @@
+## Concord 3.1.13 adoption — 2026-11-07
+
+The candidate requires Concord `~> 3.1.13` and locks Concord, VSR and ExTurso
+at published 3.1.13. Only those three dependency lock entries change. All archive
+checksums match Hex and the lockfile; 159 installed Elixir source/test/project
+files and three ExTurso native source/manifest files match upstream commit
+`a20e4892ffd9b51042c268d1b1f170f5ded1cf1a`, the exact `v3.1.13` tag.
+VSR and ExTurso runtime sources are unchanged from 3.1.12. Concord's point-read
+changes clarify existing revision/metadata precedence; its runtime change admits
+501 total puts in optional Turso prefix replacement, retaining lower configured
+limits and generic batches' 500-pair ceiling. ESS keeps file-backed VSR, current
+point Records, existing list/transaction APIs and command formats 0/1, without
+enabling optional Turso APIs or migrating existing stores.
+
+Both fresh admission probes pass unchanged. The minimal probe checks owned
+1k/10k-history transitions and retains its exhaustive positive trace control.
+The production probe executes the real ObjectCommit path with 128 target and
+128 unrelated puts, bounded listings and inventory checks using command version
+0. The dependency preflight now pins the exact 3.1.13 archive checksums and 22
+reviewed source hashes, including the changed prefix-replacement implementation.
+Its tests retain rejection of unreviewed, mixed, malformed and modified inputs.
+Neither probe certifies the original 10k/100k A28 workload.
+
+Formatting and strict test/production compilation pass. Full application
+verification with seed `184258` executes 4,589 tests without failures or skips:
+core 644, transport 43, CLI 3,491, S3 387 and web 24. The two existing heavy
+exclusions remain assigned to separate lanes. The Python harness passes all 163
+tests with the pinned Boto3/Botocore 1.43.114 interpreter. An initial invocation
+with system Python encountered four missing-SDK import errors; the receipt
+preserves that environment failure and the corrected harness invocation without
+repeating the successful application suite.
+
+The [adoption receipt](s3-hardening/concord3113-adoption-20261107.json) records
+provenance, fresh probes, exact test counts and executable-input fingerprint
+`c4a7dab8e59c9d520be4304ea2aad8387820b19b3d30ec5d6a052ac6afde2681`.
+Current-source full acceptance and all 158 clause audits remain required before
+publication. The update does not establish repairs for earlier trace-backlog,
+coverage or intermittent multipart failures. No historical clause is promoted.
+**v0.7.0 remains unpublished.**
+
+The resolver again reports the existing Phoenix.HTML 4.3.0 advisory
+EEF-CVE-2026-117645; this unrelated dependency is unchanged.
+
 ## Concord 3.1.12 adoption — 2026-11-06
 
 The candidate requires Concord `~> 3.1.12` and locks Concord, VSR and ExTurso

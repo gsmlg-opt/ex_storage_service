@@ -42,7 +42,7 @@ defmodule ExStorageService.MixProject do
 
   defp deps do
     [
-      {:concord, "~> 3.1.12"},
+      {:concord, "~> 3.1.13"},
       {:http_fetch, "~> 0.17.2 or ~> 0.18.0 or ~> 0.21.12"},
       {:telemetry_metrics, "~> 1.2"},
       {:telemetry_poller, "~> 1.1"},

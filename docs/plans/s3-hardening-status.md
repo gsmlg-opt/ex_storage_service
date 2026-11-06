@@ -1,4 +1,24 @@
-## Current Concord 3.1.12 adoption — 2026-11-06
+## Current Concord 3.1.13 adoption — 2026-11-07
+
+Concord, VSR and ExTurso are updated together to published 3.1.13. Registry,
+archive and lockfile checksums agree; 159 installed Elixir source/test/project
+files and three native source/manifest files match the exact upstream tag.
+The reviewed dependency gate pins the new package checksums and 22 source
+hashes after both fresh admission probes pass. Existing rejection checks and
+the original scale workload limits remain intact.
+
+Formatting, strict test/production compilation, all 4,589 application tests and
+all 163 Python harness tests pass. The two declared heavy exclusions retain
+their separate acceptance lanes. ESS keeps file-backed VSR, current point
+Records, its existing transaction/list APIs and command formats 0/1. Optional
+Turso prefix replacement is not enabled. The update does not establish a repair
+for the preceding trace backlog or resource-observation failures.
+
+Full acceptance for the exact current candidate and all 158 clause audits remain
+publication prerequisites. No historical result is promoted and v0.7.0 remains
+unpublished. See the [integrated evidence report](../reports/s3-hardening-verification.md).
+
+## Historical Concord 3.1.12 adoption — 2026-11-06
 
 The coordinated Concord/VSR/ExTurso 3.1.12 update is installed. Registry and
 lockfile checksums match all three public archives; 157 installed source files
