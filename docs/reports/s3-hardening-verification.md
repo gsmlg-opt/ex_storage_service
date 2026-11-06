@@ -102,6 +102,22 @@ independently records 1,098 server tests plus 11 daily CLI contracts, zero failu
 or skips and the two existing heavy exclusions. These 11 CLI contracts are
 separate from the full 3,491-case local CLI suite.
 
+Follow-up commit `72711254d981e1c6bc8174fd2ffb34d2adc1c675` delivers the reviewed
+admission gate. Its push CI, daily S3, Test and edge-image workflows all pass.
+The downloaded Test receipt independently verifies 1,098 executed server tests
+plus 11 daily CLI contracts, zero failures/skips and two heavy exclusions. Daily
+skips the extended matrix and cannot authorize publication.
+
+A single private, bounded 10k diagnostic adds a failure-only collector observation
+without changing the original 512-message guard, trace targets, sample limits or
+30 samples per query. It completes all 900 first-listing samples without hitting
+the guard. Unrelated growth and 100k are omitted; no backlog observation or cause
+is established. This non-reproduction cannot promote the failed original lane.
+Both recorded runtime identities stopped and its disposable data root was removed.
+No further unchanged replay is used to obtain a pass. The
+[follow-up receipt](s3-hardening/concord3112-followup-20261106.json) records these
+results. All original failures, missing clauses and publication gates remain.
+
 The dependency resolver also reports the existing Phoenix.HTML 4.3.0 advisory
 EEF-CVE-2026-117645. That unrelated dependency is unchanged in this scoped update.
 

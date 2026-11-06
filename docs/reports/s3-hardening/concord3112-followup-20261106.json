@@ -1,0 +1,132 @@
+{
+  "scope": "Report-only follow-up to tested executable candidate 7271125; no acceptance promotion",
+  "candidate_sha": "72711254d981e1c6bc8174fd2ffb34d2adc1c675",
+  "source_sha256": "6bbcbb93653ecd0090e5b5d6a29e3b4b5a078f0b3debd480dded47f8aab46459",
+  "push_workflows": [
+    {
+      "name": "CI",
+      "run_id": 42168437075,
+      "conclusion": "success"
+    },
+    {
+      "name": "Test",
+      "run_id": 42168437069,
+      "conclusion": "success"
+    },
+    {
+      "name": "Daily S3",
+      "run_id": 42168437051,
+      "conclusion": "success",
+      "extended_matrix": "skipped"
+    },
+    {
+      "name": "Edge image build",
+      "run_id": 42168437153,
+      "conclusion": "success",
+      "release_publication": false
+    }
+  ],
+  "downloaded_correctness": {
+    "app_counts": {
+      "ex_storage_service": {
+        "tests": 645,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 644
+      },
+      "ex_storage_service_cluster": {
+        "tests": 44,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 43
+      },
+      "ex_storage_service_s3": {
+        "tests": 387,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 387
+      },
+      "ex_storage_service_web": {
+        "tests": 24,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 24
+      }
+    },
+    "executed_server_tests": 1098,
+    "daily_cli_contracts": 11,
+    "failures": 0,
+    "skips": 0,
+    "heavy_exclusions": 2
+  },
+  "bounded_index_diagnostic": {
+    "status": "non_reproduction",
+    "acceptance": false,
+    "dataset_keys": 10000,
+    "listing_phases": 1,
+    "samples": 900,
+    "unrelated_growth": false,
+    "hundred_thousand_cohort": false,
+    "execution": {
+      "scope": "bounded 10k first-listing diagnostic; never acceptance",
+      "status": "completed",
+      "terminal": true,
+      "deadline_seconds": 900,
+      "starting_sha": "72711254d981e1c6bc8174fd2ffb34d2adc1c675",
+      "source_sha256": "6bbcbb93653ecd0090e5b5d6a29e3b4b5a078f0b3debd480dded47f8aab46459",
+      "supervisor": {
+        "pid": 219689,
+        "start_ticks": 580471
+      },
+      "workload": {
+        "pid": 219704,
+        "start_ticks": 580480
+      },
+      "exit_status": 0,
+      "ending_sha": "72711254d981e1c6bc8174fd2ffb34d2adc1c675",
+      "ending_source_sha256": "6bbcbb93653ecd0090e5b5d6a29e3b4b5a078f0b3debd480dded47f8aab46459",
+      "elapsed_seconds": 111.664
+    },
+    "inputs": {
+      "scope": "one 10k first-listing diagnostic; never acceptance",
+      "original_bounds_sha256": "5a4db373529e8f885b019c70b8a8bf4da7ad096fba3eaad23351c6da8dc50db6",
+      "original_resource_sha256": "1760b7220056166bd55cc68502201ed189b64acfceb4cd0f090f1de0b4c5e021",
+      "instrumented_bounds_sha256": "0cca290a2d5b94442ad7093fef076b6887d477b9581d4b44d7920111ada197f2",
+      "private_resource_sha256": "6760afa1ede98b2690dc157524b10d1aada037f82f3c4501ed168cda3261a3d5",
+      "unchanged": [
+        "512 trace queue stop",
+        "per-sample heap/read/byte/output/event limits",
+        "native trace targets and delivery barriers",
+        "30 samples per query",
+        "original 10k fixture and inventory"
+      ]
+    },
+    "first_listing_sha256": "c3b92a2d02d75396c941dbb44715499a5aaffa5ef89a8b98d78318367b9635f5",
+    "guard_failure_captured": false,
+    "causal_conclusion": null,
+    "cleanup": {
+      "recorded_identities": [
+        {
+          "role": "supervisor",
+          "pid": 219689,
+          "start_ticks": 580471,
+          "stopped": true
+        },
+        {
+          "role": "workload",
+          "pid": 219704,
+          "start_ticks": 580480,
+          "stopped": true
+        }
+      ],
+      "data_root_removed": true
+    }
+  },
+  "repository_self_hosted_runners": 0,
+  "release_publication": false,
+  "original_A28_fault_and_resource_failures_promoted": false
+}
