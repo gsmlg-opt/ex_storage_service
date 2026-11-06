@@ -647,8 +647,8 @@ with existing metadata, retain a complete backup of the old metadata state and p
 explicit export/restore boundary; starting the new binary creates or recovers
 only the VSR state under `ESS_METADATA_ROOT`.
 
-The core requires Concord `~> 3.1.11`; the lockfile selects matching Concord,
-Viewstamped Replication and ExTurso 3.1.11 packages. They retain the 3.1.2 fixes for
+The core requires Concord `~> 3.1.12`; the lockfile selects matching Concord,
+Viewstamped Replication and ExTurso 3.1.12 packages. They retain the 3.1.2 fixes for
 committed-prefix transition validation, primary-discovery read deadlines, native
 range pagination and new-backup checksum portability. Version 3.1.4 makes supported
 direct put/delete compatibility-view and observer updates incremental and bounds
@@ -657,8 +657,8 @@ to supported atomic transactions and avoids revalidating an unchanged retained
 log on ready single-node reads. Version 3.1.6 bounds ready singleton runtime
 writes through owned protocol transitions and an indexed retained log, and
 rebinds transient local process identities when restoring backups. Version 3.1.7
-extends owned transitions to normal multi-voter events and singleton heartbeats,
-avoiding full retained-history rebuilding. Recovery, snapshots, state changes
+extends owned transitions to normal multi-voter write/apply events and singleton
+heartbeats, avoiding full retained-history rebuilding. Recovery, snapshots, state changes
 and exceptional fallbacks retain validation.
 
 Version 3.1.8's Turso engine serves key-only prefix/range pages from a covering
@@ -679,6 +679,16 @@ commands and Turso operations. Revision CAS and queued Turso lists remain opt-in
 ESS keeps its existing transaction API and command versions 0/1. Version 3.1.11
 updates embedded Turso from 0.8.2 to 0.8.3. These dependency updates do not certify
 ESS cluster, resource or listing acceptance; fresh full acceptance is required.
+
+Version 3.1.12 also bounds normal owned multi-voter reads, barriers and late
+acknowledgements without rebuilding retained history (Concord #112). Recovery,
+state transfer and different-view paths retain exhaustive validation. Turso adds
+revision-pinned prefix/range pages and atomic prefix replacement; ESS does not
+enable these APIs in this upgrade. Existing Turso stores backfill historical
+metadata projections and byte-seek indexes during readiness. Plan an upgrade
+window and retain verified backups. Pre-3.1.12 touches discarded prior versions
+that cannot be reconstructed; capture a snapshot revision only after all writers
+upgrade. TTL visibility remains based on the current wall clock.
 
 Version-one command admission still checks
 representations. New backups declare deterministic ETF checksums;

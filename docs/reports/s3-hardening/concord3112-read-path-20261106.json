@@ -1,0 +1,276 @@
+{
+  "status": "protocol_fix_verified",
+  "version": "3.1.12",
+  "upstream_commit": "014a4d79c470102a970cc4f681cfd8619e4e9be6",
+  "source_sha256": "d378197d9629cf6d3adbf39573c78da09e5d06689b45748b74838b87a6b213ef",
+  "acceptance_promotion": false,
+  "probe_source_sha256": "60882cfa71ed2b303fb1b7f8e920fd1d76594c7a803cc85368af8e08dba6a714",
+  "raw_probe_sha256": "17c745f37ebe973944ee53148704fa615b8bbe8bdde71dfedc2eef7b554e4b1e",
+  "packages": {
+    "concord": {
+      "inner_sha256": "a7083d6272642655e11c476a238fb2304aa9cf48212780e5f651ded0edd4e902",
+      "outer_sha256": "0a34ffd0851a7fa2a619c2f39d82962ddd978e086295499474de77f534b191f5",
+      "matched_source_count": 117
+    },
+    "ex_turso": {
+      "inner_sha256": "62f27bb9948923dac9e78a0bc3a371e166a6f2fb9ffff59acaac038c16488283",
+      "outer_sha256": "aa8b50e3d05e70392309024bbd287c61cd15b440a2be53144cd0542213a18ac0",
+      "matched_source_count": 12
+    },
+    "viewstamped_replication": {
+      "inner_sha256": "af5c0976555aad63ffb30c102e5246fa7c446afa6b2dad195ceb00552333b930",
+      "outer_sha256": "2086c3573532ce5e6a62bffb3f3654828678121f4bdcda468e13190f0167a08e",
+      "matched_source_count": 28
+    }
+  },
+  "probe": {
+    "status": "diagnostic_completed",
+    "otp_release": "28",
+    "elixir_version": "1.18.5",
+    "limits": {
+      "history_sizes": [
+        1000,
+        10000
+      ],
+      "untraced_samples_per_size": 5,
+      "traced_samples_per_size": 1,
+      "overall_internal_deadline_ms": 60000,
+      "output_bytes": 131072
+    },
+    "source_sha256": {
+      "deps/viewstamped_replication/lib/viewstamped_replication/log.ex": "26e992fcad95826b75ca5beeb1adc0acc9a2e223904e68142696b4ce45d34a87",
+      "deps/viewstamped_replication/lib/viewstamped_replication/protocol.ex": "14b79d1bbbe8423398bb69a33cbd2d6a8d350457ab8cee69df18b995f4544f4e"
+    },
+    "fixture": "published pure bootstrap plus owned normal write/quorum/apply transitions; in-memory effect interpretation only",
+    "diagnostic_only": true,
+    "acceptance_promotion": false,
+    "applications_unchanged": true,
+    "topology": "ordered three voters; view zero primary a; quorum a+b; late c acknowledgement",
+    "transport_executed": false,
+    "latency_scope": "pure protocol transitions only; no process mailboxes, RPC, persistence, network or HTTP",
+    "timing_caveat": "Public-kernel parity and unchanged-history checks run outside each measurement/counter bracket, but same-process canonicalization/parity allocations may affect later GC and wall timings.",
+    "trace_policy": "fixed MFA call counters; silent process tracing; zero argument/return/event payloads; session destroyed and tracer stopped"
+  },
+  "rows": [
+    {
+      "retained_entries": 1000,
+      "write_control_history_calls_zero": true,
+      "read_completed": true,
+      "late_ack_no_effects": true,
+      "public_parity": true,
+      "unchanged_history": true,
+      "stages": [
+        {
+          "reductions": 102,
+          "microseconds": 14,
+          "stage": "read_request",
+          "history_call_counts": {
+            "ViewstampedReplication.Log.canonical/1": 0,
+            "ViewstampedReplication.Log.indexed/1": 0,
+            "ViewstampedReplication.Protocol.applied_requests_indexed?/3": 0,
+            "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+            "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+            "ViewstampedReplication.Protocol.assert_contiguous_log!/2": 0,
+            "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+            "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+            "ViewstampedReplication.Protocol.exhaustive_runtime_step/2": 0,
+            "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+            "ViewstampedReplication.Protocol.runtime_state/1": 0,
+            "ViewstampedReplication.Protocol.step/2": 0
+          },
+          "public_parity": true
+        },
+        {
+          "reductions": 130,
+          "microseconds": 34,
+          "stage": "read_barrier_b",
+          "history_call_counts": {
+            "ViewstampedReplication.Log.canonical/1": 0,
+            "ViewstampedReplication.Log.indexed/1": 0,
+            "ViewstampedReplication.Protocol.applied_requests_indexed?/3": 0,
+            "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+            "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+            "ViewstampedReplication.Protocol.assert_contiguous_log!/2": 0,
+            "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+            "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+            "ViewstampedReplication.Protocol.exhaustive_runtime_step/2": 0,
+            "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+            "ViewstampedReplication.Protocol.runtime_state/1": 0,
+            "ViewstampedReplication.Protocol.step/2": 0
+          },
+          "public_parity": true
+        },
+        {
+          "reductions": 110,
+          "microseconds": 30,
+          "stage": "read_barrier_ok_b",
+          "history_call_counts": {
+            "ViewstampedReplication.Log.canonical/1": 0,
+            "ViewstampedReplication.Log.indexed/1": 0,
+            "ViewstampedReplication.Protocol.applied_requests_indexed?/3": 0,
+            "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+            "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+            "ViewstampedReplication.Protocol.assert_contiguous_log!/2": 0,
+            "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+            "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+            "ViewstampedReplication.Protocol.exhaustive_runtime_step/2": 0,
+            "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+            "ViewstampedReplication.Protocol.runtime_state/1": 0,
+            "ViewstampedReplication.Protocol.step/2": 0
+          },
+          "public_parity": true
+        },
+        {
+          "reductions": 130,
+          "microseconds": 28,
+          "stage": "read_barrier_c",
+          "history_call_counts": {
+            "ViewstampedReplication.Log.canonical/1": 0,
+            "ViewstampedReplication.Log.indexed/1": 0,
+            "ViewstampedReplication.Protocol.applied_requests_indexed?/3": 0,
+            "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+            "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+            "ViewstampedReplication.Protocol.assert_contiguous_log!/2": 0,
+            "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+            "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+            "ViewstampedReplication.Protocol.exhaustive_runtime_step/2": 0,
+            "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+            "ViewstampedReplication.Protocol.runtime_state/1": 0,
+            "ViewstampedReplication.Protocol.step/2": 0
+          },
+          "public_parity": true
+        },
+        {
+          "reductions": 89,
+          "microseconds": 22,
+          "stage": "late_read_barrier_ok_c",
+          "history_call_counts": {
+            "ViewstampedReplication.Log.canonical/1": 0,
+            "ViewstampedReplication.Log.indexed/1": 0,
+            "ViewstampedReplication.Protocol.applied_requests_indexed?/3": 0,
+            "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+            "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+            "ViewstampedReplication.Protocol.assert_contiguous_log!/2": 0,
+            "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+            "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+            "ViewstampedReplication.Protocol.exhaustive_runtime_step/2": 0,
+            "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+            "ViewstampedReplication.Protocol.runtime_state/1": 0,
+            "ViewstampedReplication.Protocol.step/2": 0
+          },
+          "public_parity": true
+        }
+      ]
+    },
+    {
+      "retained_entries": 10000,
+      "write_control_history_calls_zero": true,
+      "read_completed": true,
+      "late_ack_no_effects": true,
+      "public_parity": true,
+      "unchanged_history": true,
+      "stages": [
+        {
+          "reductions": 102,
+          "microseconds": 33,
+          "stage": "read_request",
+          "history_call_counts": {
+            "ViewstampedReplication.Log.canonical/1": 0,
+            "ViewstampedReplication.Log.indexed/1": 0,
+            "ViewstampedReplication.Protocol.applied_requests_indexed?/3": 0,
+            "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+            "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+            "ViewstampedReplication.Protocol.assert_contiguous_log!/2": 0,
+            "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+            "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+            "ViewstampedReplication.Protocol.exhaustive_runtime_step/2": 0,
+            "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+            "ViewstampedReplication.Protocol.runtime_state/1": 0,
+            "ViewstampedReplication.Protocol.step/2": 0
+          },
+          "public_parity": true
+        },
+        {
+          "reductions": 130,
+          "microseconds": 33,
+          "stage": "read_barrier_b",
+          "history_call_counts": {
+            "ViewstampedReplication.Log.canonical/1": 0,
+            "ViewstampedReplication.Log.indexed/1": 0,
+            "ViewstampedReplication.Protocol.applied_requests_indexed?/3": 0,
+            "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+            "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+            "ViewstampedReplication.Protocol.assert_contiguous_log!/2": 0,
+            "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+            "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+            "ViewstampedReplication.Protocol.exhaustive_runtime_step/2": 0,
+            "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+            "ViewstampedReplication.Protocol.runtime_state/1": 0,
+            "ViewstampedReplication.Protocol.step/2": 0
+          },
+          "public_parity": true
+        },
+        {
+          "reductions": 110,
+          "microseconds": 26,
+          "stage": "read_barrier_ok_b",
+          "history_call_counts": {
+            "ViewstampedReplication.Log.canonical/1": 0,
+            "ViewstampedReplication.Log.indexed/1": 0,
+            "ViewstampedReplication.Protocol.applied_requests_indexed?/3": 0,
+            "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+            "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+            "ViewstampedReplication.Protocol.assert_contiguous_log!/2": 0,
+            "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+            "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+            "ViewstampedReplication.Protocol.exhaustive_runtime_step/2": 0,
+            "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+            "ViewstampedReplication.Protocol.runtime_state/1": 0,
+            "ViewstampedReplication.Protocol.step/2": 0
+          },
+          "public_parity": true
+        },
+        {
+          "reductions": 130,
+          "microseconds": 25,
+          "stage": "read_barrier_c",
+          "history_call_counts": {
+            "ViewstampedReplication.Log.canonical/1": 0,
+            "ViewstampedReplication.Log.indexed/1": 0,
+            "ViewstampedReplication.Protocol.applied_requests_indexed?/3": 0,
+            "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+            "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+            "ViewstampedReplication.Protocol.assert_contiguous_log!/2": 0,
+            "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+            "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+            "ViewstampedReplication.Protocol.exhaustive_runtime_step/2": 0,
+            "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+            "ViewstampedReplication.Protocol.runtime_state/1": 0,
+            "ViewstampedReplication.Protocol.step/2": 0
+          },
+          "public_parity": true
+        },
+        {
+          "reductions": 89,
+          "microseconds": 13,
+          "stage": "late_read_barrier_ok_c",
+          "history_call_counts": {
+            "ViewstampedReplication.Log.canonical/1": 0,
+            "ViewstampedReplication.Log.indexed/1": 0,
+            "ViewstampedReplication.Protocol.applied_requests_indexed?/3": 0,
+            "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+            "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+            "ViewstampedReplication.Protocol.assert_contiguous_log!/2": 0,
+            "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+            "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+            "ViewstampedReplication.Protocol.exhaustive_runtime_step/2": 0,
+            "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+            "ViewstampedReplication.Protocol.runtime_state/1": 0,
+            "ViewstampedReplication.Protocol.step/2": 0
+          },
+          "public_parity": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,22 @@
-## Current Concord 3.1.11 acceptance — 2026-11-05
+## Current Concord 3.1.12 adoption — 2026-11-06
+
+The coordinated Concord/VSR/ExTurso 3.1.12 update is installed. Registry and
+lockfile checksums match all three public archives; 157 installed source files
+match the exact upstream release. The legal 1k/10k multi-voter probe verifies
+zero history rebuilding on normal reads/barriers, exact public-kernel parity,
+unchanged history and late-acknowledgement behavior, resolving the reproduced
+[Concord #112](https://github.com/gsmlg-dev/concord/issues/112) protocol blocker.
+Formatting, strict test/production compilation and the original actual 5 MiB
+multipart minimum/retry test pass. Full application verification executes 4,589
+tests with zero failures or skips and the two declared heavy exclusions.
+
+The intermittent multipart timeout is not declared repaired. The original cluster,
+index, resource and other full-acceptance lanes plus all 158 clause audits remain
+publication prerequisites. No historical clause is promoted; v0.7.0 remains
+unpublished. See the
+[integrated evidence report](../reports/s3-hardening-verification.md).
+
+## Historical Concord 3.1.11 acceptance — 2026-11-05
 
 Full run [41970212160](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/41970212160)
 at `a1cd9d3` passed daily and seven extended lanes; standalone, cluster, index

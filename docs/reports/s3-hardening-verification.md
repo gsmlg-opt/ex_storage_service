@@ -1,3 +1,41 @@
+## Concord 3.1.12 adoption — 2026-11-06
+
+The candidate requires Concord `~> 3.1.12` and locks Concord, VSR and ExTurso
+at published 3.1.12. Only those three lock entries change. All three archive
+checksums match the registry and lockfile; 157 installed source files match the
+upstream release commit `014a4d79c470102a970cc4f681cfd8619e4e9be6`.
+ESS retains file-backed VSR, its transaction API and command versions 0/1.
+Revision-pinned Turso pages and prefix replacement are not enabled. Existing Turso
+stores backfill historical metadata projections and byte-seek indexes during
+readiness; retain verified backups and plan an upgrade window. Prior versions
+discarded by older touches cannot be reconstructed.
+
+The legal 1k/10k-history fixture from
+[Concord #112](https://github.com/gsmlg-dev/concord/issues/112) now asserts zero
+history calls rather than the reproduced rebuilding. Every normal read request,
+follower barrier, primary acknowledgement and late acknowledgement passes those
+counters with exact public-kernel state/effect parity and unchanged history.
+Write controls also retain zero history calls. No application, storage or network
+is started; these results verify the protocol repair, not HTTP or full acceptance.
+The obsolete callsite TODO is removed. The original probe, limits and public
+parity checks are retained; only its regression expectation changes to zero calls.
+The compact [read-path receipt](s3-hardening/concord3112-read-path-20261106.json)
+retains source hashes, all measured counters and package provenance.
+
+Formatting and strict test/production compilation pass. The original actual 5 MiB multipart
+minimum/retry regression passes with seed `636069`, without changing its fixture,
+assertions or deadline. Full application verification with seed `819037` executes
+4,589 tests with zero failures or skips: core 644, transport 43, CLI 3,491, S3 387
+and web 24. The two existing heavy exclusions remain assigned to separate lanes.
+The intermittent multipart timeout remains unclassified; passing runs do not
+establish its repair. Executable-input fingerprint:
+`d378197d9629cf6d3adbf39573c78da09e5d06689b45748b74838b87a6b213ef`.
+Complete current-source acceptance and all 158 clause
+audits remain required before publication. **v0.7.0 remains unpublished.**
+
+The dependency resolver also reports the existing Phoenix.HTML 4.3.0 advisory
+EEF-CVE-2026-117645. That unrelated dependency is unchanged in this scoped update.
+
 ## Concord 3.1.11 acceptance follow-up — 2026-11-05
 
 The full acceptance run

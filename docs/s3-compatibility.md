@@ -5,24 +5,28 @@ ESS-S3-HARDENING-001. Hosted standalone remains RF=1/W=1; cluster remains RF=2/W
 The operation matrix below describes implemented behavior and its named tests.
 It does not claim complete AWS parity or production validation.
 
-Concord, VSR and ExTurso are installed and locked at published 3.1.11, including
-the upstream #94–#97 and #101/#102/#104/#105 fixes. Backup validation supports the
+Concord, VSR and ExTurso are installed and locked at published 3.1.12, including
+the upstream #94–#97 and #101/#102/#104/#105/#112 fixes. Backup validation supports the
 declared deterministic checksum scheme and legacy checks. Fresh restore targets require command version 1
 on every voter through quarantine, restarts and activation; existing databases
 retain compatibility default 0 and must never switch automatically.
 
-Version 3.1.11 preserves command-admission and Turso-operation deadlines. ESS
+Version 3.1.12 preserves command-admission and Turso-operation deadlines. ESS
 keeps file-backed VSR, its existing transaction API and command formats 0/1;
-the new revision-CAS and queued-list APIs remain opt-in. Full current-source
-acceptance is still required before publication. See the
+the revision-CAS, queued-list, revision-pinned Turso page and prefix-replacement
+APIs remain opt-in. Full current-source acceptance is still required before
+publication. See the
 [current verification report](reports/s3-hardening-verification.md).
 
-Normal multi-voter read/barrier transitions still rebuild and validate retained
-history in 3.1.11, independently reproduced in
-[Concord #112](https://github.com/gsmlg-dev/concord/issues/112). Singleton reads
-and normal owned write/apply paths have their earlier repairs. Release acceptance
-remains blocked pending a published, adopted and verified read-path repair;
-the reproduction does not establish the cause of the separate HTTP timeouts.
+Version 3.1.12 repairs the normal multi-voter read/barrier history rebuilding
+reported in [Concord #112](https://github.com/gsmlg-dev/concord/issues/112), including
+late acknowledgements. Recovery, state-transfer and different-view paths retain
+exhaustive validation. Dependency adoption does not establish a repair for the
+separate multipart HTTP timeout or certify release acceptance. Turso readiness
+backfills historical metadata projections and byte-seek indexes; plan an upgrade
+window and retain verified backups. Historical versions discarded by older
+touches cannot be reconstructed; capture any revision-pinned snapshot only after
+all writers upgrade, and retain current-wall-clock TTL semantics.
 
 ## Historical Concord 3.1.8 acceptance attempt
 
