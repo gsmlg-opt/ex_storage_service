@@ -1,4 +1,26 @@
-## Current Concord 3.1.13 adoption — 2026-11-07
+## Current Concord 3.1.14 adoption — 2026-11-07
+
+The candidate now requires the matching published Concord/VSR/ExTurso 3.1.14
+family, released while 3.1.13 acceptance was running. Public archive and lockfile
+checksums match; 163 packaged Elixir source/test/project files and three native
+source/manifest files match the exact upstream tag. The dependency gate pins 24
+reviewed source hashes after both fresh admission probes pass unchanged.
+Formatting, strict test/production compilation, all 4,589 application tests and
+all 163 pinned Python harness tests pass, with no failures or skips. The two
+declared heavy exclusions retain their separate lanes.
+
+The new conditional bulk-put API is optional Turso functionality; ESS retains
+file-backed VSR and its existing APIs and command formats 0/1. VSR and ExTurso
+runtime sources are unchanged. The update does not establish a repair for the
+preceding index timeout, resource-observation gaps or replica-repair failure.
+The last completed full run below belongs to 3.1.13 and cannot certify this
+candidate; full 3.1.14 acceptance has not been run. Diagnosis of those failures,
+successful full current-source acceptance and all 158 clause audits remain
+publication prerequisites. No historical result
+is promoted and v0.7.0 remains unpublished. See the
+[integrated evidence report](../reports/s3-hardening-verification.md).
+
+## Historical Concord 3.1.13 adoption — 2026-11-07
 
 Concord, VSR and ExTurso are updated together to published 3.1.13. Registry,
 archive and lockfile checksums agree; 159 installed Elixir source/test/project

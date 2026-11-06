@@ -647,8 +647,8 @@ with existing metadata, retain a complete backup of the old metadata state and p
 explicit export/restore boundary; starting the new binary creates or recovers
 only the VSR state under `ESS_METADATA_ROOT`.
 
-The core requires Concord `~> 3.1.13`; the lockfile selects matching Concord,
-Viewstamped Replication and ExTurso 3.1.13 packages. They retain the 3.1.2 fixes for
+The core requires Concord `~> 3.1.14`; the lockfile selects matching Concord,
+Viewstamped Replication and ExTurso 3.1.14 packages. They retain the 3.1.2 fixes for
 committed-prefix transition validation, primary-discovery read deadlines, native
 range pagination and new-backup checksum portability. Version 3.1.4 makes supported
 direct put/delete compatibility-view and observer updates incremental and bounds
@@ -696,6 +696,12 @@ from revision-bound lists. ESS continues to use current point Records and its
 existing list API. Turso prefix replacement now permits 501 total puts, while
 generic batches remain capped at 500 and lower configured limits still apply.
 ESS does not enable prefix replacement or change command formats in this update.
+
+Version 3.1.14 adds optional node-local Turso conditional bulk puts, with 500
+total pairs, shared publication revisions and one operation deadline. Its VSR
+and ExTurso runtime sources are unchanged from 3.1.13. ESS retains file-backed
+VSR and does not enable this API. This release does not establish repairs for
+the unresolved index, resource-observation or replica-repair acceptance failures.
 
 Version-one command admission still checks
 representations. New backups declare deterministic ETF checksums;

@@ -1,0 +1,1319 @@
+{
+  "scope": "Concord 3.1.14 dependency adoption and reviewed admission; full acceptance remains separate",
+  "status": "passed",
+  "acceptance": false,
+  "date": "2026-11-07",
+  "base_head": "dd296723d62dfc60338e92e020bb8de10d1717c7",
+  "source_sha256": "8af97e6eaddfa5b5c3651f58eaee0d93a2ad06ef278cef11d9cd3380703167c6",
+  "version": "3.1.14",
+  "upstream_tag": "v3.1.14",
+  "upstream_commit": "a68380585d391653b782e7c5262a177ee8552645",
+  "packages": {
+    "concord": {
+      "inner_sha256": "e557594b982fe2eff6e42f45ad0311ad714c0ebd4856decb3807ee65d17cb1d8",
+      "outer_sha256": "b678caf2c32df633aba46c04f268f7c3541e0e4d9cf0ac8adaffa0eb78325fb6",
+      "matched_installed_source_count": 123,
+      "checked_native_sources": {},
+      "requirements": {
+        "db_connection": {
+          "app": "db_connection",
+          "optional": false,
+          "requirement": "~> 2.10"
+        },
+        "ex_doc": {
+          "app": "ex_doc",
+          "optional": false,
+          "requirement": "~> 0.29"
+        },
+        "ex_turso": {
+          "app": "ex_turso",
+          "optional": false,
+          "requirement": "3.1.14"
+        },
+        "jason": {
+          "app": "jason",
+          "optional": false,
+          "requirement": "~> 1.4"
+        },
+        "telemetry": {
+          "app": "telemetry",
+          "optional": false,
+          "requirement": "~> 1.0"
+        },
+        "telemetry_poller": {
+          "app": "telemetry_poller",
+          "optional": false,
+          "requirement": "~> 1.0"
+        },
+        "viewstamped_replication": {
+          "app": "viewstamped_replication",
+          "optional": false,
+          "requirement": "3.1.14"
+        }
+      },
+      "changed_sources_since_3_1_13": {
+        "lib/concord/engine/turso.ex": "727e760a64213a11f81ff5bac30b93a6098a345606f5c81894e8519b7b939714",
+        "lib/concord/turso.ex": "91c61bc854035cd1435ef0d1c7e76f996274be41271a086f1ab7ee7fca55e34b",
+        "lib/concord/turso/bulk_put.ex": "68ebd7321c95526d82d8a3aebed53e0a1ea4625a205ec7a574334d4ad447eb41",
+        "lib/concord/turso/conditional_put.ex": "b4d66c8dbad2f663da779e7f5c082b2d1a71c069d6b0b5d630cc3b134ce4154a",
+        "lib/concord/turso/prefix_replacement.ex": "b73db7a5da053c4118c771c7d88b5fcf7d3b64e06ab4f36d3f814057efae4829",
+        "mix.exs": "a04d1b4b5de21dec3d1d95bf8ba1e16780191a6df53e10a041086663e9fd3e8f",
+        "test/concord/turso_conditional_put_test.exs": "494c2028624f6e7cf80cda763510322a4f4ec78051d8b906f82b8302abb920a3",
+        "test/concord/turso_conditional_put_validation_test.exs": "2a05a2088d85fe5e8bece129139653bb3e37df9e79bcce5d1d6a18dbe2b039c9"
+      }
+    },
+    "ex_turso": {
+      "inner_sha256": "1cbd79c05f8c15f42f340f1343c83bf663f983483afda4d05a9559a1c8a6fd61",
+      "outer_sha256": "09dafdd6928a359cf2d4de1a810076bcf20e2c2185ac5e076659123be179bcc4",
+      "matched_installed_source_count": 12,
+      "checked_native_sources": {
+        "native/ex_turso/Cargo.lock": "1ef65802438fff0bdee95ce7240b09b124aae40dde661bc059d635525463b342",
+        "native/ex_turso/Cargo.toml": "d01f1ebeba8ffe4155b00b0af6e9bff2e8f7e6e9f8be5f5e4ffc9c2499318400",
+        "native/ex_turso/src/lib.rs": "e229323378841270a513320686f00c3feeb13fd603b5cf4b3cf2747bc382445c"
+      },
+      "requirements": {
+        "db_connection": {
+          "app": "db_connection",
+          "optional": false,
+          "requirement": "~> 2.7"
+        },
+        "ecto_sql": {
+          "app": "ecto_sql",
+          "optional": true,
+          "requirement": "~> 3.14"
+        },
+        "jason": {
+          "app": "jason",
+          "optional": true,
+          "requirement": "~> 1.4"
+        },
+        "rustler": {
+          "app": "rustler",
+          "optional": false,
+          "requirement": "~> 0.38"
+        },
+        "rustler_precompiled": {
+          "app": "rustler_precompiled",
+          "optional": false,
+          "requirement": "~> 0.9"
+        }
+      },
+      "changed_sources_since_3_1_13": {
+        "mix.exs": "682b71e8278e9cde33dda61ed27e89433baa2a9581fe0e9a1946cc9fd40d7a5a"
+      }
+    },
+    "viewstamped_replication": {
+      "inner_sha256": "96f3d3a786f9a6822e6a7f72f3c2fec20aa5c6e2424cd98127b13ca53a2fbb48",
+      "outer_sha256": "58220d9a262d01ca0dd7ab4442672bf5dec1d893607a5049ab4fac89b738d8d6",
+      "matched_installed_source_count": 28,
+      "checked_native_sources": {},
+      "requirements": {
+        "telemetry": {
+          "app": "telemetry",
+          "optional": false,
+          "requirement": "~> 1.0"
+        }
+      },
+      "changed_sources_since_3_1_13": {
+        "mix.exs": "940b4717f768b0ae1a252c680afbe5bd07e2d9c3427fe51a55058a0e10f70406"
+      }
+    }
+  },
+  "source_api_review": [
+    "Concord 3.1.14 adds optional node-local Turso put_many_if/2 with revision-fenced comparisons and shared publication revisions.",
+    "Its 500 total-pair, 16 MiB value and 64 MiB command envelopes honor lower configured caps and one preparation/acquisition/readiness/SQL deadline.",
+    "Prefix replacement shares extracted bulk-put validation and preparation; its separate 501 total-pair contract is unchanged.",
+    "VSR and ExTurso runtime source is unchanged from 3.1.13; only their package versions change.",
+    "ESS retains file-backed VSR, current point Records, its existing list and transaction APIs, and command versions 0/1.",
+    "No optional Turso API, command-format migration, dependency patch or relaxed workload limit is enabled.",
+    "No reviewed source change establishes a repair for the 3.1.13 index timeout, resource-observation or replica-repair acceptance failures."
+  ],
+  "reviewed_source_sha256": {
+    "viewstamped_replication/lib/viewstamped_replication/replica.ex": "bb62a681344538fee05a357082d0e87721deb5a3614c1344f07b4e2aa4e16541",
+    "viewstamped_replication/lib/viewstamped_replication/protocol.ex": "14b79d1bbbe8423398bb69a33cbd2d6a8d350457ab8cee69df18b995f4544f4e",
+    "viewstamped_replication/lib/viewstamped_replication/protocol/state.ex": "b97e99e709823e37d243b22e7203398eb9f5302ec2e1c4e266f8d4be26d12142",
+    "viewstamped_replication/lib/viewstamped_replication/log.ex": "26e992fcad95826b75ca5beeb1adc0acc9a2e223904e68142696b4ce45d34a87",
+    "viewstamped_replication/lib/viewstamped_replication/log/indexed.ex": "2d3b160486489a6b73ce7d4d1076abffaa902ef896230f67b625f423bee49164",
+    "viewstamped_replication/lib/viewstamped_replication/storage/memory.ex": "241e2d793ac385c8b3a92d5e88b59f9a05ee65f41bf2a62404fa8213813d850e",
+    "viewstamped_replication/lib/viewstamped_replication/storage/file.ex": "9a3c2a8bf45bd0220b930a4907f9e128cfc8e28b9dffd3bf04d3df5086aaae96",
+    "concord/lib/concord/state_machine/core.ex": "656271d2fa12a3141fbf706c6c110df5fad5c68f9651d2975381a51021b3771c",
+    "concord/lib/concord/engine/vsr/state_machine.ex": "6f83999ab0283639fd8f8265b0d89f67b8898d9678e17d9af650674a2c823f78",
+    "concord/lib/concord/state_machine.ex": "fb417d9970ded983b25fdd459e46d13b5c8c28a37f2d275dcb349164ce422699",
+    "concord/lib/concord/state_machine/observer.ex": "f23fac22c4b17a4a8e66e60ad86da759455e671f93b396084c71026c965da668",
+    "concord/lib/concord/engine/turso.ex": "727e760a64213a11f81ff5bac30b93a6098a345606f5c81894e8519b7b939714",
+    "concord/lib/concord/turso/migrations.ex": "82373ca14c7b4433a9eb1a052270472edd0287517c550cc3878fae4ffff5d8d2",
+    "concord/lib/concord/turso/codec.ex": "de4a0dbc3983432d6a10d2f79db1ca11845d3bb1ac52326145d32e885fc1f34d",
+    "concord/lib/concord/kv.ex": "69fc31f1d7f085a655643f7d608664c3e20d301691f2034a6b4a2a48c5c57383",
+    "concord/lib/concord/turso.ex": "91c61bc854035cd1435ef0d1c7e76f996274be41271a086f1ab7ee7fca55e34b",
+    "concord/lib/concord/turso/prefix_replacement.ex": "b73db7a5da053c4118c771c7d88b5fcf7d3b64e06ab4f36d3f814057efae4829",
+    "concord/lib/concord/engine/vsr.ex": "9d19de390234847c8ee885a3ee64939dc111078a650af43e01e3d190d85095e6",
+    "concord/lib/concord/deadline.ex": "e64b777fb4749016e8bacc4354728bbead16e31d0c7218d019b9b6b1a9d34e72",
+    "concord/lib/concord/command_schema.ex": "15b17e48e67e0f1b9e216269f1a26b1b7bc8126d2b31fa9282b291ba2606664e",
+    "concord/lib/concord/command_envelope.ex": "9b334d24522585a8467bde86ba77a7fba7116f8cd2ec0b7ac0fd8bf6254f5a1c",
+    "concord/lib/concord/turso/list_queue.ex": "5f6f02131b70de1ecb81d658a361f097a7710cdba712f2ed0b24089257d53d68",
+    "concord/lib/concord/turso/bulk_put.ex": "68ebd7321c95526d82d8a3aebed53e0a1ea4625a205ec7a574334d4ad447eb41",
+    "concord/lib/concord/turso/conditional_put.ex": "b4d66c8dbad2f663da779e7f5c082b2d1a71c069d6b0b5d630cc3b134ce4154a"
+  },
+  "package_audit_sha256": "0031febdb89a8c8167c1826cba4811c66d3c7f9f63a8b3a742532c76db06c12f",
+  "probe_source_sha256": "568bcb87b7836999f6b05441f727a6e4e8a18f6754fa7e2feb1cc5f8fa71d8dc",
+  "admission_execution": [
+    {
+      "mode": "minimal",
+      "argv": [
+        "mix",
+        "run",
+        "--no-compile",
+        "--no-start",
+        "e2e/scripts/index_concord316_probe.exs",
+        "minimal",
+        "/tmp/ess-concord3114-adoption-20261107-r1/admission-minimal-r1.json"
+      ],
+      "exit_status": 0,
+      "seconds": 0.837,
+      "process_stopped": true,
+      "acceptance": false
+    },
+    {
+      "mode": "production",
+      "argv": [
+        "mix",
+        "run",
+        "--no-compile",
+        "--no-start",
+        "e2e/scripts/index_concord316_probe.exs",
+        "production",
+        "/tmp/ess-concord3114-adoption-20261107-r1/admission-production-r1.json"
+      ],
+      "exit_status": 0,
+      "seconds": 2.97,
+      "process_stopped": true,
+      "acceptance": false
+    }
+  ],
+  "admission_cleanup": {
+    "owned_data_root": "/tmp/ess-concord3114-adoption-20261107-r1/admission-production-data",
+    "probe_subprocesses_exited": true,
+    "removed": true
+  },
+  "admission_minimal": {
+    "status": "diagnostic_completed",
+    "mode": "minimal",
+    "otp_release": "28",
+    "rows": [
+      {
+        "samples": [
+          {
+            "reductions": 2480,
+            "microseconds": 1013
+          },
+          {
+            "reductions": 396,
+            "microseconds": 12
+          },
+          {
+            "reductions": 396,
+            "microseconds": 8
+          },
+          {
+            "reductions": 396,
+            "microseconds": 8
+          },
+          {
+            "reductions": 396,
+            "microseconds": 7
+          },
+          {
+            "reductions": 396,
+            "microseconds": 13
+          },
+          {
+            "reductions": 396,
+            "microseconds": 8
+          },
+          {
+            "reductions": 396,
+            "microseconds": 7
+          },
+          {
+            "reductions": 396,
+            "microseconds": 15
+          },
+          {
+            "reductions": 396,
+            "microseconds": 7
+          },
+          {
+            "reductions": 396,
+            "microseconds": 7
+          },
+          {
+            "reductions": 396,
+            "microseconds": 7
+          },
+          {
+            "reductions": 1636,
+            "microseconds": 93
+          },
+          {
+            "reductions": 396,
+            "microseconds": 8
+          },
+          {
+            "reductions": 396,
+            "microseconds": 6
+          },
+          {
+            "reductions": 396,
+            "microseconds": 6
+          },
+          {
+            "reductions": 396,
+            "microseconds": 7
+          },
+          {
+            "reductions": 396,
+            "microseconds": 6
+          },
+          {
+            "reductions": 396,
+            "microseconds": 6
+          },
+          {
+            "reductions": 555,
+            "microseconds": 21
+          },
+          {
+            "reductions": 396,
+            "microseconds": 7
+          },
+          {
+            "reductions": 396,
+            "microseconds": 6
+          },
+          {
+            "reductions": 397,
+            "microseconds": 7
+          },
+          {
+            "reductions": 396,
+            "microseconds": 7
+          },
+          {
+            "reductions": 396,
+            "microseconds": 6
+          },
+          {
+            "reductions": 396,
+            "microseconds": 7
+          },
+          {
+            "reductions": 513,
+            "microseconds": 17
+          },
+          {
+            "reductions": 396,
+            "microseconds": 7
+          },
+          {
+            "reductions": 396,
+            "microseconds": 6
+          },
+          {
+            "reductions": 396,
+            "microseconds": 6
+          }
+        ],
+        "retained_before": 1000,
+        "retained_after": 1030,
+        "forbidden_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 0,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 0
+        },
+        "owned_read_forbidden_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 0,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 0
+        },
+        "exhaustive_public_read_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 1,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 1,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 1,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 1
+        },
+        "invariants_verified_outside_measurement": true
+      },
+      {
+        "samples": [
+          {
+            "reductions": 396,
+            "microseconds": 51
+          },
+          {
+            "reductions": 396,
+            "microseconds": 15
+          },
+          {
+            "reductions": 396,
+            "microseconds": 12
+          },
+          {
+            "reductions": 396,
+            "microseconds": 10
+          },
+          {
+            "reductions": 396,
+            "microseconds": 11
+          },
+          {
+            "reductions": 396,
+            "microseconds": 11
+          },
+          {
+            "reductions": 396,
+            "microseconds": 12
+          },
+          {
+            "reductions": 396,
+            "microseconds": 13
+          },
+          {
+            "reductions": 396,
+            "microseconds": 10
+          },
+          {
+            "reductions": 3702,
+            "microseconds": 855
+          },
+          {
+            "reductions": 396,
+            "microseconds": 32
+          },
+          {
+            "reductions": 396,
+            "microseconds": 14
+          },
+          {
+            "reductions": 396,
+            "microseconds": 10
+          },
+          {
+            "reductions": 396,
+            "microseconds": 12
+          },
+          {
+            "reductions": 396,
+            "microseconds": 10
+          },
+          {
+            "reductions": 396,
+            "microseconds": 9
+          },
+          {
+            "reductions": 396,
+            "microseconds": 15
+          },
+          {
+            "reductions": 396,
+            "microseconds": 10
+          },
+          {
+            "reductions": 396,
+            "microseconds": 9
+          },
+          {
+            "reductions": 396,
+            "microseconds": 13
+          },
+          {
+            "reductions": 396,
+            "microseconds": 11
+          },
+          {
+            "reductions": 396,
+            "microseconds": 10
+          },
+          {
+            "reductions": 396,
+            "microseconds": 11
+          },
+          {
+            "reductions": 396,
+            "microseconds": 11
+          },
+          {
+            "reductions": 396,
+            "microseconds": 9
+          },
+          {
+            "reductions": 396,
+            "microseconds": 12
+          },
+          {
+            "reductions": 396,
+            "microseconds": 11
+          },
+          {
+            "reductions": 396,
+            "microseconds": 9
+          },
+          {
+            "reductions": 396,
+            "microseconds": 12
+          },
+          {
+            "reductions": 396,
+            "microseconds": 14
+          }
+        ],
+        "retained_before": 10000,
+        "retained_after": 10030,
+        "forbidden_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 0,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 0
+        },
+        "owned_read_forbidden_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 0,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 0
+        },
+        "exhaustive_public_read_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 1,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 1,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 1,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 1
+        },
+        "invariants_verified_outside_measurement": true
+      }
+    ],
+    "elixir_version": "1.18.5",
+    "versions": {
+      "concord": "3.1.14",
+      "ex_turso": "3.1.14",
+      "viewstamped_replication": "3.1.14"
+    },
+    "applications_unchanged": true,
+    "transaction_change_tracking": "exact_changes",
+    "transaction_store_equal": true,
+    "diagnostic_only": true,
+    "acceptance_promotion": false
+  },
+  "admission_production": {
+    "status": "diagnostic_completed",
+    "mode": "production",
+    "otp_release": "28",
+    "setup": [
+      {
+        "phase": "admission-target",
+        "backend": {
+          "get:bucket": {
+            "microseconds": 5727,
+            "calls": 512,
+            "maximum_us": 629,
+            "returned_bytes": 78336,
+            "conflicts": 0
+          },
+          "get:head": {
+            "microseconds": 1810,
+            "calls": 256,
+            "maximum_us": 23,
+            "returned_bytes": 3072,
+            "conflicts": 0
+          },
+          "get:index_node": {
+            "microseconds": 3924,
+            "calls": 506,
+            "maximum_us": 65,
+            "returned_bytes": 119947,
+            "conflicts": 0
+          },
+          "get:index_root": {
+            "microseconds": 4052,
+            "calls": 512,
+            "maximum_us": 81,
+            "returned_bytes": 170368,
+            "conflicts": 0
+          },
+          "get:other": {
+            "microseconds": 3660,
+            "calls": 512,
+            "maximum_us": 25,
+            "returned_bytes": 6144,
+            "conflicts": 0
+          },
+          "get:version": {
+            "microseconds": 1854,
+            "calls": 256,
+            "maximum_us": 64,
+            "returned_bytes": 3072,
+            "conflicts": 0
+          },
+          "transaction:specification": {
+            "microseconds": 963813,
+            "calls": 128,
+            "maximum_us": 8832,
+            "returned_bytes": 167041,
+            "conflicts": 0
+          }
+        },
+        "event": "complete",
+        "planned": 128,
+        "completed": 128,
+        "elapsed_us": 1011281,
+        "outside_backend_us": 26441
+      },
+      {
+        "phase": "admission-unrelated",
+        "backend": {
+          "get:bucket": {
+            "microseconds": 5091,
+            "calls": 512,
+            "maximum_us": 28,
+            "returned_bytes": 79908,
+            "conflicts": 0
+          },
+          "get:head": {
+            "microseconds": 1779,
+            "calls": 256,
+            "maximum_us": 20,
+            "returned_bytes": 3072,
+            "conflicts": 0
+          },
+          "get:index_node": {
+            "microseconds": 4723,
+            "calls": 506,
+            "maximum_us": 763,
+            "returned_bytes": 120069,
+            "conflicts": 0
+          },
+          "get:index_root": {
+            "microseconds": 3863,
+            "calls": 512,
+            "maximum_us": 88,
+            "returned_bytes": 170404,
+            "conflicts": 0
+          },
+          "get:other": {
+            "microseconds": 5625,
+            "calls": 512,
+            "maximum_us": 1208,
+            "returned_bytes": 6144,
+            "conflicts": 0
+          },
+          "get:version": {
+            "microseconds": 2445,
+            "calls": 256,
+            "maximum_us": 647,
+            "returned_bytes": 3072,
+            "conflicts": 0
+          },
+          "transaction:specification": {
+            "microseconds": 991455,
+            "calls": 128,
+            "maximum_us": 9636,
+            "returned_bytes": 171525,
+            "conflicts": 0
+          }
+        },
+        "event": "complete",
+        "planned": 128,
+        "completed": 128,
+        "elapsed_us": 1032955,
+        "outside_backend_us": 17974
+      }
+    ],
+    "bounds": {
+      "encoded_key_bytes": 160,
+      "height": 16,
+      "hydrated_bytes": 4096,
+      "hydrated_heap_bytes": 16384,
+      "fixture_node_bytes": 2048,
+      "fixture_node_heap_bytes": 8192,
+      "production_node_bytes": 32768,
+      "production_terminal_bytes": 8192,
+      "production_max_children": 256,
+      "request_heap_bytes": 134217728,
+      "stable_attempts": 1,
+      "query_boundaries": [
+        "Concord.Engine.query/2",
+        "Concord.Engine.VSR.query/2"
+      ],
+      "native_scope": "owned request PID and single configured local VSR Replica PID; every Core query must be get_record",
+      "heap_derivation": {
+        "input": 32768,
+        "page": 20520960,
+        "seek_path": 262144,
+        "fixed": 1048576,
+        "transient_gc_multiplier": 3,
+        "runtime_reserve": 33554432,
+        "derived_maximum": 99147776
+      },
+      "peak_heap_method": "isolated process total_heap_size plus GC block sizes and 1ms sampling"
+    },
+    "elixir_version": "1.18.5",
+    "versions": {
+      "concord": "3.1.14",
+      "ex_turso": "3.1.14",
+      "viewstamped_replication": "3.1.14"
+    },
+    "command_version": 0,
+    "pages": [
+      {
+        "kind": "first",
+        "sample": {
+          "bytes": 21598,
+          "duration": 2184,
+          "gc_events": 58,
+          "reads": 70,
+          "output_bytes": 3869,
+          "output_heap_bytes": 6112,
+          "output_entries": 10,
+          "index_stats": {
+            "depth": 14,
+            "bytes": 14521,
+            "visited": 55,
+            "reads": 55
+          },
+          "final_heap_bytes": 33680,
+          "peak_heap_bytes": 33800,
+          "sampled_process_memory_bytes": 0,
+          "trace_events": 338,
+          "native_exact_counts": {
+            "engine_query": 70,
+            "vsr_query": 70,
+            "core_query": 70,
+            "core_dispatch": 70
+          },
+          "forbidden_native_calls": 0
+        }
+      },
+      {
+        "kind": "delimiter",
+        "sample": {
+          "bytes": 2278,
+          "duration": 228,
+          "gc_events": 14,
+          "reads": 9,
+          "output_bytes": 157,
+          "output_heap_bytes": 288,
+          "output_entries": 1,
+          "index_stats": {
+            "depth": 14,
+            "bytes": 1136,
+            "visited": 5,
+            "reads": 5
+          },
+          "final_heap_bytes": 25664,
+          "peak_heap_bytes": 25664,
+          "sampled_process_memory_bytes": 0,
+          "trace_events": 50,
+          "native_exact_counts": {
+            "engine_query": 9,
+            "vsr_query": 9,
+            "core_query": 9,
+            "core_dispatch": 9
+          },
+          "forbidden_native_calls": 0
+        }
+      },
+      {
+        "kind": "absent",
+        "sample": {
+          "bytes": 1126,
+          "duration": 356,
+          "gc_events": 12,
+          "reads": 5,
+          "output_bytes": 138,
+          "output_heap_bytes": 208,
+          "output_entries": 0,
+          "index_stats": {
+            "depth": 11,
+            "bytes": 120,
+            "visited": 1,
+            "reads": 1
+          },
+          "final_heap_bytes": 17712,
+          "peak_heap_bytes": 17712,
+          "sampled_process_memory_bytes": 0,
+          "trace_events": 32,
+          "native_exact_counts": {
+            "engine_query": 5,
+            "vsr_query": 5,
+            "core_query": 5,
+            "core_dispatch": 5
+          },
+          "forbidden_native_calls": 0
+        }
+      }
+    ],
+    "inventories": [
+      {
+        "visible": 129,
+        "versions": 130,
+        "fixture": {
+          "nodes": 293,
+          "encoded_key_bytes": 84,
+          "height": 5,
+          "node_bytes": 370,
+          "hydrated_bytes": 351,
+          "terminals": 259
+        },
+        "bucket": "admission-target",
+        "commits": 132
+      },
+      {
+        "visible": 128,
+        "versions": 128,
+        "fixture": {
+          "nodes": 288,
+          "encoded_key_bytes": 80,
+          "height": 4,
+          "node_bytes": 374,
+          "hydrated_bytes": 354,
+          "terminals": 256
+        },
+        "bucket": "admission-unrelated",
+        "commits": 128
+      }
+    ],
+    "native_before_reads": {
+      "op_number": 259,
+      "applied_number": 259,
+      "retained_entries": 259,
+      "log_base": 0
+    },
+    "native_log_unchanged_during_reads": true,
+    "native_final": {
+      "op_number": 264,
+      "applied_number": 264,
+      "retained_entries": 264,
+      "log_base": 0
+    },
+    "diagnostic_only": true,
+    "acceptance_promotion": false
+  },
+  "verification": {
+    "status": "passed",
+    "checks": [
+      {
+        "name": "format",
+        "command": [
+          "mix",
+          "format",
+          "--check-formatted"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 0.796
+      },
+      {
+        "name": "production-strict-compile",
+        "command": [
+          "mix",
+          "compile",
+          "--force",
+          "--warnings-as-errors"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 9.287
+      },
+      {
+        "name": "fresh-admission-probes",
+        "command": [
+          "python3",
+          "/tmp/ess-concord3114-adoption-20261107-r1/run_admission.py"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 3.835
+      },
+      {
+        "name": "test-strict-compile",
+        "command": [
+          "mix",
+          "compile",
+          "--force",
+          "--warnings-as-errors"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 9.377
+      },
+      {
+        "name": "extended-correctness",
+        "command": [
+          "python3",
+          "e2e/run_correctness_tests.py",
+          "--extended",
+          "--output",
+          "docs/reports/s3-hardening/concord3114-adoption-20261107/correctness"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 509.19
+      },
+      {
+        "name": "python-harness",
+        "command": [
+          "/tmp/ess-issue24-python-yi8y3xmw/bin/python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "e2e",
+          "-p",
+          "test_*.py"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 21.876
+      },
+      {
+        "name": "index-admission",
+        "command": [
+          "python3",
+          "e2e/scripts/index_dependency_preflight.py"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 0.019
+      },
+      {
+        "name": "whitespace",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 0.006
+      }
+    ]
+  },
+  "python_harness": {
+    "selected_tests": 163,
+    "skipped_tests": 0,
+    "status": "passed"
+  },
+  "correctness": {
+    "command": [
+      "mix",
+      "test",
+      "--max-cases",
+      "1",
+      "--no-color",
+      "apps/ex_storage_service/test",
+      "apps/ex_storage_service_cluster/test",
+      "apps/ex_storage_service_s3/test",
+      "apps/ex_storage_service_web/test",
+      "apps/ex_storage_service_cli/test"
+    ],
+    "inventory": {
+      "ex_storage_service": [
+        "apps/ex_storage_service/test/ex_storage_service/blob_store/local_cas_io_failure_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/blob_store/local_cas_size_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/blob_store/local_cas_staging_recovery_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/blob_store/local_cas_telemetry_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/blob_store/local_cas_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/blob_store/read_repair_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/blob_store/source_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/bucket_validator_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cloud_cache/delete_through_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cloud_cache/local_store_concurrency_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cloud_cache/local_store_integrity_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cloud_cache/write_through_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/data_readiness_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/drain_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/health_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/membership_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/node_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/outbox/dispatcher_metrics_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/outbox/dispatcher_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/placement_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/read_coordinator_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/readiness_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/repair/handler_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/repair/planner_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/scrubber_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/status_provider_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/status_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/three_voter_cluster_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/topology_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/transport_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cluster/write_coordinator_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cross_cluster_replication/handler_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cross_cluster_replication/hooks_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/cross_cluster_replication/status_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/http_client_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/iam/policy_hardening_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/iam/policy_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/iam/user_and_key_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/instance_config_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/instance_supervisor_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/backend_concord_page_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/backend_concord_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/blob_catalog_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/blob_locations_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/bucket_config_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/bucket_lifecycle_fault_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/durable_jobs_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/gateway_index_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/index_mutation_gate_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/keys_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/legacy_object_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/list_index/backfill_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/list_index/codec_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/list_index/multipart_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/list_index/radix_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/list_index_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/multipart_abort_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/multipart_commit_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/object_commit_delete_index_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/object_commit_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/operation_intents_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/schema_and_migration_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata/v1_compatibility_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metadata_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/metrics_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/object_service_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/operations/backup_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/operations/capacity_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/operations/listing_index_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/operations/operation_status_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/operations/recovery_policy_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/operations_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/replication/job_queue_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/runtime_config_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/bucket_cors_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/cas_gc_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/cas_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/content_gc_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/engine_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/lifecycle_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/manifest_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/migration_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/multipart_completion_contention_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/multipart_hardening_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/multipart_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/pack_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/packer_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/staging_recovery_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/tag_cors_config_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/tags_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/version_listing_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/versioning_profile_test.exs",
+        "apps/ex_storage_service/test/ex_storage_service/storage/versioning_test.exs"
+      ],
+      "ex_storage_service_cluster": [
+        "apps/ex_storage_service_cluster/test/ex_storage_service_cluster/application_test.exs",
+        "apps/ex_storage_service_cluster/test/ex_storage_service_cluster/blob_handler_test.exs",
+        "apps/ex_storage_service_cluster/test/ex_storage_service_cluster/internal_auth_test.exs",
+        "apps/ex_storage_service_cluster/test/ex_storage_service_cluster/large_stream_test.exs",
+        "apps/ex_storage_service_cluster/test/ex_storage_service_cluster/replay_cache_test.exs",
+        "apps/ex_storage_service_cluster/test/ex_storage_service_cluster/transport/http_test.exs"
+      ],
+      "ex_storage_service_s3": [
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/application_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/attributes_profile_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/auth/sig_v4_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/authorization_hardening_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/authorization_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/bucket_and_control_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/bucket_configuration_hardening_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/bucket_lifecycle_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/checksum_range_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/coherent_latest_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/conditional_write_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/cors_location_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/error_framing_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/extended_features_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/gateway_attributes_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/gateway_delete_reconciliation_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/gateway_read_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/global_cas_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/handlers/control_xml_generated_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/handlers/control_xml_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/handlers/shared_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/hardening_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/health_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/internal_request_encoding_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/internal_request_keys_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/late_stream_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/list_buckets_operation_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/listing_profile_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/multipart_checksums_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/multipart_edge_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/multipart_profile_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/multipart_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/operation_routing_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/packed_objects_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/plugs/authorize_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/presigned_hardening_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/read_semantics_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/replica_availability_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/replication_worker_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/s3_api_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/storage_listener_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/tagging_authorization_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/tagging_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/upload_integrity_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/upload_integrity_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/upload_part_copy_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/version_listing_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/version_profile_http_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/versioned_objects_test.exs",
+        "apps/ex_storage_service_s3/test/ex_storage_service_s3/xml_test.exs"
+      ],
+      "ex_storage_service_web": [
+        "apps/ex_storage_service_web/test/ex_storage_service_web/application_test.exs",
+        "apps/ex_storage_service_web/test/ex_storage_service_web/endpoint_http_test.exs",
+        "apps/ex_storage_service_web/test/ex_storage_service_web/layouts_test.exs",
+        "apps/ex_storage_service_web/test/ex_storage_service_web/session_controller_test.exs"
+      ],
+      "ex_storage_service_cli": [
+        "apps/ex_storage_service_cli/test/aws_output_pagination_differential_test.exs",
+        "apps/ex_storage_service_cli/test/aws_read_deadline_test.exs",
+        "apps/ex_storage_service_cli/test/deadline_integration_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/aliases_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/api_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/auto_prompt_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_expected_size_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/aws_input_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/completion_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/credential_commands_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/debug_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/error_output_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/find_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_bounded_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/high_level_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/lifecycle_aliases_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/management_convenience_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/management_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/move_safety_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_anonymous_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_bucket_aliases_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_conditional_put_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_cp_rewind_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_diff_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_events_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_globals_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_governance_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_inspection_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_ls_options_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_no_color_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_pipe_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_policy_flags_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_put_options_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_put_parallel_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_replication_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_restore_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_rm_bypass_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_rm_selection_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_routes_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_share_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_sql_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_stat_options_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_tag_selection_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_transfer_selection_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/native_version_listing_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/output_session_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/parser_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/resolver_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/runner_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/runtime_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_options_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/s3_path_resolver_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/signals_native_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/signals_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/target_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/transfer_commands_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cli/watch_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/commands/handler_return_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/config_store_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/config_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/context_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/cp_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/credentials/assume_role_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/credentials/browser_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/credentials/directory_session_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/credentials/legacy_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/credentials/metadata_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/credentials/owner_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/credentials/process_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/credentials/provider_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/credentials/record_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/credentials/shared_config_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/credentials/sso_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_baseline_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_differential_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_highlevel_matrix_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_operation_matrix_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_optional_member_matrix_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_paginator_matrix_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_raw_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_same_paths_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_signal_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_waiter_matrix_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/executable_write_response_matrix_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/output_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/presenter_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/query/query_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/auth_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/capabilities_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/checksum_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/client_region_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/client_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/customizations_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/decoder_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/encoder_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/endpoint_rules_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/errors_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/event_stream_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/input_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/operation_catalog_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/paginator_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/region_redirect_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/request_checksum_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/retry_integration_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/retry_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/select_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/sharing_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/sigv4a_streaming_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/sigv4a_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/ssec_customizations_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/streaming_body_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/streaming_signature_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/upload_checksum_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/waiter_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/write_response_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3/xml_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/s3_client_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/sigv4_reference_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/sigv4_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/coordinator_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/copy_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/download_checksum_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/engine_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/filesystem_acceptance_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/inventory_policy_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/journal_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/multipart_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/planner_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/rate_limiter_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/reducer_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/remote_source_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/resource_acceptance_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/source_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/upload_verification_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/version_selection_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport/cancellation_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport/http_fetch_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport/rate_limits_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport/resolution_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport/response_ack_policy_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport/tls_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport_spike_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/tree_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/xml_parser_test.exs",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/yaml/yaml_test.exs",
+        "apps/ex_storage_service_cli/test/native_deadline_duration_test.exs"
+      ]
+    },
+    "minimum_tests": {
+      "ex_storage_service": 587,
+      "ex_storage_service_cluster": 40,
+      "ex_storage_service_s3": 357,
+      "ex_storage_service_web": 21,
+      "ex_storage_service_cli": 3491
+    },
+    "status": "passed",
+    "app_counts": {
+      "ex_storage_service": {
+        "tests": 645,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 644
+      },
+      "ex_storage_service_cluster": {
+        "tests": 44,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 43
+      },
+      "ex_storage_service_cli": {
+        "tests": 3491,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 3491
+      },
+      "ex_storage_service_s3": {
+        "tests": 387,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 387
+      },
+      "ex_storage_service_web": {
+        "tests": 24,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 24
+      }
+    },
+    "exit_status": 0,
+    "errors": []
+  },
+  "verification_log_sha256": {
+    "format": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "production-strict-compile": "1f6938b73add666412baa38b467a56fdaa8bceb19b8fa1ae68d036902e90a518",
+    "fresh-admission-probes": "a66b2dc42ccbb79a07cac2d8635718045a32dac093d6c9a35855729a8422114d",
+    "test-strict-compile": "7f1edc35c753d4c1f853ff5a3b2a0e4d5aa558b40e5d88885693583bb8d20f0e",
+    "extended-correctness": "5e7b024beedaac3646727fdc9788020bd6600c9d50822095dde0211a56eea214",
+    "python-harness": "3134d225591a2e73ca1c2c2430058a6557ef1bb407dc6770cde3ddf4e302c1c4",
+    "index-admission": "fb699cbb0ddc2d0f296e7c36aed765b31b2b0bd12807e00ed5a1fb8672093c4f",
+    "whitespace": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "publication": {
+    "requested_version": "0.7.0",
+    "published": false,
+    "full_acceptance": "not_run_for_this_candidate",
+    "preceding_failed_run": 42259381466,
+    "blocker": "The reviewed optional Turso changes do not establish repairs for unresolved index, resource-observation or replica-repair failures; current-source full acceptance remains required.",
+    "historical_evidence_promoted": false
+  }
+}

@@ -279,8 +279,8 @@ enforces decoded object size.
   Defaults must start the existing standalone instance and both listeners.
   `ESS_DATA_ROOT` remains the compatibility fallback for split roots.
   `ESS_RA_ROOT` is retained as a legacy embedding compatibility value but is
-  not used by Concord 3. Require Concord `~> 3.1.13` with matching VSR/ExTurso
-  packages; the umbrella lock selects 3.1.13, including owned normal multi-voter
+  not used by Concord 3. Require Concord `~> 3.1.14` with matching VSR/ExTurso
+  packages; the umbrella lock selects 3.1.14, including owned normal multi-voter
   write/apply and singleton-heartbeat transitions (Concord #105), plus normal
   multi-voter reads/barriers and late acknowledgements (Concord #112).
   Recovery, state-transfer and different-view paths retain exhaustive validation.
@@ -292,7 +292,7 @@ enforces decoded object size.
   reading current records; plan an upgrade window and retain verified backups.
   The projection adds metadata storage and write work. ESS defaults to file-backed
   VSR; its storage/wire formats and ESS command formats remain unchanged.
-  The coordinated 3.1.13 family preserves VSR command admission and Turso
+  The coordinated 3.1.14 family preserves VSR command admission and Turso
   operation deadlines and updates embedded Turso to 0.8.3. New revision CAS and
   queued Turso lists remain opt-in. Revision-pinned Turso pages and atomic prefix
   replacement are also not enabled by this upgrade; retain ESS command versions
@@ -306,6 +306,11 @@ enforces decoded object size.
   ESS retains current point Records and its existing list API. Optional Turso
   prefix replacement admits 501 total puts; generic batches remain capped at
   500 and lower configured limits still apply. ESS does not enable this API.
+  Version 3.1.14 adds optional node-local Turso conditional bulk puts with 500
+  total pairs, shared publication revisions and one operation deadline. VSR
+  and ExTurso runtime sources are unchanged from 3.1.13; ESS retains file-backed
+  VSR and does not enable the new API. The unresolved index, resource-observation
+  and replica-repair acceptance failures remain separate release blockers.
   Full current-source acceptance remains
   a publication prerequisite. New backup checksums use
   the declared deterministic ETF scheme;

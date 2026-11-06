@@ -1,4 +1,46 @@
-## Concord 3.1.13 adoption — 2026-11-07
+## Concord 3.1.14 adoption — 2026-11-07
+
+Concord 3.1.14 was published while the preceding full acceptance run was in
+progress. The candidate now requires Concord `~> 3.1.14` and locks the matching
+Concord/VSR/ExTurso family. Only those three dependency lock entries change.
+Registry, archive and lockfile checksums agree; all 163 packaged Elixir
+source/test/project files and three native source/manifest files match upstream
+commit `a68380585d391653b782e7c5262a177ee8552645`, the exact `v3.1.14` tag.
+
+The new optional `Concord.Turso.put_many_if/2` compares revision-fenced predicates
+and publishes supplied exact-key puts in one node-local transaction. It retains
+the 500 total-pair envelope, one shared publication revision and one operation
+deadline. Prefix replacement shares the extracted validation/preparation helper
+and retains its separate 501-pair contract. VSR and ExTurso runtime sources are
+unchanged from 3.1.13. ESS keeps file-backed VSR, current point Records, existing
+list/transaction APIs and command formats 0/1; it does not enable the new API.
+These changes do not establish a repair for the preceding index timeout,
+resource-observation gaps or replica-repair failure.
+
+The dependency gate pins the exact public checksums and 24 reviewed source
+hashes, including both new Turso modules. It retains rejection of previous,
+future, mixed, malformed and modified cohorts. Both fresh admission probes pass
+with their original workload and exhaustive positive trace control; neither
+certifies A28. Formatting and strict production/test compilation pass.
+
+Full application verification executes 4,589 tests with zero failures or skips:
+core 644, transport 43, CLI 3,491, S3 387 and web 24. The two declared heavy
+exclusions retain their separate lanes. All 163 Python harness tests pass with
+the pinned Boto3/Botocore 1.43.114 interpreter and no skips. The
+[adoption receipt](s3-hardening/concord3114-adoption-20261107.json) retains exact
+package provenance, source deltas, fresh probes, cleanup and verification hashes.
+
+Executable-input fingerprint:
+`8af97e6eaddfa5b5c3651f58eaee0d93a2ad06ef278cef11d9cd3380703167c6`.
+The preceding run below belongs to its exact 3.1.13 source and cannot certify
+this candidate. Full 3.1.14 acceptance has not been run; the reviewed changes
+do not establish a repair for the failed workloads, which were not retried for
+acceptance promotion. Publication remains blocked pending diagnosis of the
+unresolved index, resource and replica-repair failures and successful full current-source
+acceptance with all 158 clause audits. No historical result is promoted.
+**v0.7.0 remains unpublished.**
+
+## Historical Concord 3.1.13 adoption — 2026-11-07
 
 The candidate requires Concord `~> 3.1.13` and locks Concord, VSR and ExTurso
 at published 3.1.13. Only those three dependency lock entries change. All archive
