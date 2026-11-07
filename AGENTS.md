@@ -81,10 +81,10 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
 - All outbound clients use `http_fetch`, including cluster transport and
   cross-cluster replication. Keep upload/download streams bounded, preserve
   explicit Content-Length, and disable redirects on signed requests. Require
-  `http_fetch ~> 1.0.0-rc.5` and set `decode_body: false` on storage requests
+  `http_fetch ~> 1.0.0-rc.8` and set `decode_body: false` on storage requests
   to preserve Content-Encoding object bytes. Do not buffer blobs, rewrite
   headers, or re-compress objects to replace bounded raw-byte transfers.
-  Core and CLI use the coordinated HTTP 1.0.0-rc.5 client/engine family for
+  Core and CLI use the coordinated HTTP 1.0.0-rc.8 client/engine family for
   true infinity, socket inactivity, request-scoped response-stream policies
   and completed fixed-length upload finalization. HTTPS clients use ExSSL;
   retain certificate verification, custom CA, hostname/SNI and mTLS behavior
@@ -93,7 +93,7 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
   overrides. Its published GNU native libraries require glibc 2.43; umbrella
   Docker builds/runtimes and native CI jobs use Ubuntu 26.04. Do not force
   native source builds to support an older GNU baseline. Gaoxy 0.15.1 retains
-  its upstream Abyss/Hell RC4 pins alongside the RC5 client packages.
+  its upstream Abyss/Hell RC4 pins alongside the RC8 client packages.
 - Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
 
 ### File Organization
@@ -314,8 +314,9 @@ enforces decoded object size.
   Version 3.1.14 adds optional node-local Turso conditional bulk puts with 500
   total pairs, shared publication revisions and one operation deadline. VSR
   and ExTurso runtime sources are unchanged from 3.1.13; ESS retains file-backed
-  VSR and does not enable the new API. The unresolved index, resource-observation
-  and replica-repair acceptance failures remain separate release blockers.
+  VSR and does not enable the new API. The last full acceptance failed
+  correctness, index and resource observation. Passing local RC8 application
+  tests does not replace full current-source acceptance.
   Version 3.1.15 updates only the upstream E2E HTTP dependency and package
   versions; production Elixir/native sources are unchanged from 3.1.14.
   Full current-source acceptance remains

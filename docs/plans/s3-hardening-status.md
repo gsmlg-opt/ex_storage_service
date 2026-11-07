@@ -1,4 +1,23 @@
-## Current full acceptance and release diagnosis — 2026-11-08
+## Current HTTP RC8 candidate — 2026-11-08
+
+The coordinated HTTP client/engine family is updated to published 1.0.0-rc.8.
+Public registry/archive/lockfile checksums agree for all eight packages, and
+235 installed source/project files match their public archives. Formatting,
+strict test/production compilation, all 4,589 application tests and all 14
+authenticated daily HTTP checks pass. The two declared heavy exclusions retain
+their separate lanes. `mix hex.audit` is clear; `mix hex.outdated --all` retains
+only Gaoxy's exact Abyss/Hell RC4 pins, tracked by upstream #22.
+
+The same-seed full application replay passes under bounded diagnostic tracing;
+it does not establish a repair for the intermittent RC5 upload timeout. RC8
+changes cover TLS/QUIC behavior, with no HTTP/1 implementation change. Full
+current-source acceptance is pending. The resource diagnostic on `a4e1436`
+reached group nine and failed metadata-node queue coverage at 105.981 ms;
+its data-node probes cannot establish the metadata observer's cause. All owned
+processes stopped. **v0.7.0 remains unpublished.** See the
+[RC8 receipt](../reports/s3-hardening/http-rc8-adoption-20261108.json).
+
+## RC5 full acceptance and release diagnosis — 2026-11-08
 
 Exact source `abf6b05` completed [full run 42386733186](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42386733186).
 Daily and eight extended lanes passed. Correctness, index and resources failed;

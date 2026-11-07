@@ -1,0 +1,367 @@
+{
+  "date": "2026-11-08",
+  "scope": "HTTP RC8 local adoption checks; full release acceptance pending",
+  "status": "local_checks_passed_full_acceptance_pending",
+  "published": false,
+  "version_requested": "0.7.0",
+  "source_parent": "a4e14363f051b66240b4142f230e657041c0ced2",
+  "source_sha256": "bf911e91b563b4b17ac181110e1620812002fc87d6bd1a683c8c733b7580a78d",
+  "versions": {
+    "http_client_engine": "1.0.0-rc.8",
+    "concord_vsr_ex_turso": "3.1.15",
+    "gaoxy": "0.15.1",
+    "bundler": "10.1.2",
+    "phoenix_duskmoon": "10.1.0",
+    "gaoxy_abyss_hell": "1.0.0-rc.4"
+  },
+  "registry_audit": [
+    {
+      "package": "elixir_quic",
+      "version": "1.0.0-rc.8",
+      "outer_sha256": "d2177f54266ab22b2ecc333e3f0f9d72614fbb42749adf57ddb885e01c92f1d9",
+      "bytes": 100352,
+      "status": "registry_archive_lock_match"
+    },
+    {
+      "package": "elixir_quic_http3",
+      "version": "1.0.0-rc.8",
+      "outer_sha256": "435eaa3352548f2ac906434b41ff2ce50f250e39e6304f9c15e774547671123d",
+      "bytes": 34304,
+      "status": "registry_archive_lock_match"
+    },
+    {
+      "package": "ex_ssl",
+      "version": "1.0.0-rc.8",
+      "outer_sha256": "0ddbde26fa31d0c1b7a83c189ec54698bb3de221406a22512d50904295ec3b5b",
+      "bytes": 209408,
+      "status": "registry_archive_lock_match"
+    },
+    {
+      "package": "http_core",
+      "version": "1.0.0-rc.8",
+      "outer_sha256": "d752992c1bbcc4e9ff4df94e6ac23e349791f12b4bf8b2d2d89c1002334ab686",
+      "bytes": 78848,
+      "status": "registry_archive_lock_match"
+    },
+    {
+      "package": "http_event_source",
+      "version": "1.0.0-rc.8",
+      "outer_sha256": "b0206318d413749627c2548fcccfc9e517010f5dc70ee9d46dce735812ab13bb",
+      "bytes": 22528,
+      "status": "registry_archive_lock_match"
+    },
+    {
+      "package": "http_fetch",
+      "version": "1.0.0-rc.8",
+      "outer_sha256": "833fd12024903368758d426f8597280261ec81623df5e03ca25a8f448126ba58",
+      "bytes": 103936,
+      "status": "registry_archive_lock_match"
+    },
+    {
+      "package": "http_runtime",
+      "version": "1.0.0-rc.8",
+      "outer_sha256": "1ad705a7f8c0d18796a3b87a8d667df3af162c8d07e59f6747ebd1ccaffcb994",
+      "bytes": 82432,
+      "status": "registry_archive_lock_match"
+    },
+    {
+      "package": "http_web_socket",
+      "version": "1.0.0-rc.8",
+      "outer_sha256": "a879c08ff466b413d9130a3291d16e02eefa5a4fcc6436a81b7a67dab3b782a5",
+      "bytes": 32768,
+      "status": "registry_archive_lock_match"
+    }
+  ],
+  "installed_sources": {
+    "matched_files": 235,
+    "packages": [
+      {
+        "package": "elixir_quic",
+        "version": "1.0.0-rc.8",
+        "matched_files": 28,
+        "status": "installed_sources_match_published_archive"
+      },
+      {
+        "package": "elixir_quic_http3",
+        "version": "1.0.0-rc.8",
+        "matched_files": 14,
+        "status": "installed_sources_match_published_archive"
+      },
+      {
+        "package": "ex_ssl",
+        "version": "1.0.0-rc.8",
+        "matched_files": 92,
+        "status": "installed_sources_match_published_archive"
+      },
+      {
+        "package": "http_core",
+        "version": "1.0.0-rc.8",
+        "matched_files": 36,
+        "status": "installed_sources_match_published_archive"
+      },
+      {
+        "package": "http_event_source",
+        "version": "1.0.0-rc.8",
+        "matched_files": 9,
+        "status": "installed_sources_match_published_archive"
+      },
+      {
+        "package": "http_fetch",
+        "version": "1.0.0-rc.8",
+        "matched_files": 20,
+        "status": "installed_sources_match_published_archive"
+      },
+      {
+        "package": "http_runtime",
+        "version": "1.0.0-rc.8",
+        "matched_files": 25,
+        "status": "installed_sources_match_published_archive"
+      },
+      {
+        "package": "http_web_socket",
+        "version": "1.0.0-rc.8",
+        "matched_files": 11,
+        "status": "installed_sources_match_published_archive"
+      }
+    ]
+  },
+  "checks": {
+    "rc8-format": {
+      "command": [
+        "mix",
+        "format",
+        "apps/ex_storage_service/mix.exs",
+        "apps/ex_storage_service_cli/mix.exs"
+      ],
+      "exit_status": 0,
+      "seconds": 187.802,
+      "acceptance": false,
+      "log_sha256": "25aec6e756a2008932685a1a9a4e416683ccc31574867ef7d4298946d7a62980"
+    },
+    "rc8-test-compile-r2": {
+      "command": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "exit_status": 0,
+      "seconds": 7.969,
+      "acceptance": false,
+      "log_sha256": "343c85cf3f1109d4e93ceb3ecd9bb0c6ca7f49dd6ea089cbdff5871e802e4188"
+    },
+    "rc8-prod-compile": {
+      "command": [
+        "env",
+        "MIX_ENV=prod",
+        "ZIGLER_PRECOMPILED_GLOBAL_CACHE_PATH=/evidence/native-cache",
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "exit_status": 0,
+      "seconds": 21.812,
+      "acceptance": false,
+      "log_sha256": "170d06d3165bb03593f7274356aae952465695835a3850880499bcf7c7f6dd79"
+    },
+    "rc8-full-budget-suite": {
+      "command": [
+        "elixir",
+        "-r",
+        "/evidence/budget_suite_probe.exs",
+        "-S",
+        "mix",
+        "test",
+        "--max-cases",
+        "1",
+        "--seed",
+        "995638",
+        "--no-color",
+        "--formatter",
+        "ExUnit.CLIFormatter",
+        "--formatter",
+        "ESSReleaseBudgetSuiteProbe",
+        "apps/ex_storage_service/test",
+        "apps/ex_storage_service_cluster/test",
+        "apps/ex_storage_service_s3/test",
+        "apps/ex_storage_service_web/test",
+        "apps/ex_storage_service_cli/test"
+      ],
+      "exit_status": 0,
+      "seconds": 475.904,
+      "acceptance": false,
+      "log_sha256": "e77ba3bcc5e54d7a16b64ea3d1c8c66aec69c6f6fb2dfdddeb85122d75ba3e02"
+    },
+    "rc8-hex-outdated": {
+      "command": [
+        "mix",
+        "hex.outdated",
+        "--all"
+      ],
+      "exit_status": 1,
+      "seconds": 3.931,
+      "acceptance": false,
+      "log_sha256": "7178042ee934942767f5daadb97adac510efba21189594424d034fe7c5eebe3d"
+    },
+    "rc8-hex-audit": {
+      "command": [
+        "mix",
+        "hex.audit"
+      ],
+      "exit_status": 0,
+      "seconds": 1.996,
+      "acceptance": false,
+      "log_sha256": "25ce35312da15695b9ab9e466ebdba2c1460f780ca6a14e164646fee228030d6"
+    },
+    "rc8-daily-http": {
+      "command": [
+        "env",
+        "MIX_ENV=prod",
+        "bash",
+        "e2e/run_hardening_daily.sh",
+        "/opt/ess-verify/bin/python",
+        "http-rc8-20261108"
+      ],
+      "exit_status": 0,
+      "seconds": 3.894,
+      "acceptance": false,
+      "log_sha256": "56720eb859d5bb25f37a911c5d1f20eedf4ba1414f643ccf1d01871f0a2ea43a"
+    }
+  },
+  "application_tests": {
+    "executed": 4589,
+    "failures": 0,
+    "declared_heavy_exclusions": 2,
+    "seed": 995638,
+    "diagnostic_tracing": true,
+    "acceptance": false
+  },
+  "outdated": {
+    "exit_status": 1,
+    "constraint_blocked": [
+      "abyss",
+      "hell"
+    ],
+    "tracking": "https://github.com/gsmlg-dev/gaoxy/issues/22",
+    "other_installed_packages": "up-to-date",
+    "overrides_added": false
+  },
+  "security_audit": "No retired or security advisory packages found",
+  "resource_diagnostic": {
+    "run_id": 42391285411,
+    "head_sha": "a4e14363f051b66240b4142f230e657041c0ced2",
+    "status": "failed",
+    "groups_recorded": 9,
+    "active_group": {
+      "name": "fenced-repair-push",
+      "size": 67108864,
+      "concurrency": 4
+    },
+    "failures": [
+      "meta:cadence:queue_max:interval_over100ms",
+      "meta:cadence:queue_total:interval_over100ms"
+    ],
+    "maximum_queue_gap_ns": 105980760,
+    "observed_nodes": [
+      "data-a",
+      "data-b"
+    ],
+    "owned_identities_stopped": true,
+    "artifact_id": 13582400200,
+    "artifact_sha256": "ede4c7c9fbfb659c610851cc2474cb339389f522707c30a080b76b56635dfa27",
+    "artifact_bytes": 14323468,
+    "acceptance": false,
+    "limitation": "Data-node probes do not classify the metadata-node coverage failure."
+  },
+  "release_gate": {
+    "status": "blocked",
+    "required": "Successful exact-source extended acceptance and all 158 original clause audits",
+    "previous_failed_full_run": 42386733186,
+    "unresolved": [
+      "intermittent application upload timeout",
+      "A28 fixture bucket-read timeout",
+      "resource observation coverage over 100 ms"
+    ],
+    "http1_timeout_repair_established": false
+  },
+  "daily_http": {
+    "status": "passed",
+    "source_sha256": "bf911e91b563b4b17ac181110e1620812002fc87d6bd1a683c8c733b7580a78d",
+    "ending_source_sha256": "bf911e91b563b4b17ac181110e1620812002fc87d6bd1a683c8c733b7580a78d",
+    "scope": {
+      "mode": "standalone",
+      "client_concurrency": 1,
+      "largest_part_bytes": 5242880,
+      "multipart_parts": 2,
+      "authentication": true,
+      "sdk_checksum_defaults": true,
+      "extended_acceptance_executed": false
+    },
+    "sdk_checksum_policy": {
+      "request": "when_supported",
+      "response": "when_supported"
+    },
+    "server_stopped": true,
+    "listener_closed": true,
+    "disposable_root_removed": true,
+    "checks": [
+      {
+        "name": "production-compile",
+        "status": "passed"
+      },
+      {
+        "name": "server-health-and-readiness",
+        "status": "passed"
+      },
+      {
+        "name": "bucket-create-list-head-location-tags",
+        "status": "passed"
+      },
+      {
+        "name": "put-head-get-range-checksum-attributes",
+        "status": "passed"
+      },
+      {
+        "name": "default-sdk-checksum-gzip-bytes",
+        "status": "passed"
+      },
+      {
+        "name": "list-prefix-delimiter-pagination",
+        "status": "passed"
+      },
+      {
+        "name": "object-tags-copy-replace-delete-tags",
+        "status": "passed"
+      },
+      {
+        "name": "presigned-get-put-and-authentication",
+        "status": "passed"
+      },
+      {
+        "name": "cors-configuration-preflight-authenticated-read",
+        "status": "passed"
+      },
+      {
+        "name": "multipart-upload-list-parts-complete-and-abort",
+        "status": "passed"
+      },
+      {
+        "name": "multipart-part-copy",
+        "status": "passed"
+      },
+      {
+        "name": "batch-delete-and-single-delete",
+        "status": "passed"
+      },
+      {
+        "name": "versions-explicit-read-copy-delete-marker",
+        "status": "passed"
+      },
+      {
+        "name": "remove-created-versions-and-bucket",
+        "status": "passed"
+      }
+    ]
+  }
+}

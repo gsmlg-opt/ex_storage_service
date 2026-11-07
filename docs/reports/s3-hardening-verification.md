@@ -1,4 +1,26 @@
-## Current full acceptance and release diagnosis — 2026-11-08
+## Current HTTP RC8 candidate — 2026-11-08
+
+The eight coordinated HTTP client/engine packages now resolve to public
+1.0.0-rc.8. Registry/archive/lockfile checksums agree and 235 installed
+source/project files match the archives. Formatting, strict test/production
+compilation, all 4,589 application tests and all 14 authenticated daily HTTP
+checks pass. Two declared heavy exclusions retain their separate lanes.
+The full application replay uses seed 995638 and bounded diagnostic tracing;
+a passing replay does not establish a repair for the intermittent RC5 timeout.
+RC8 changes affect TLS/QUIC, without changing the HTTP/1 implementation.
+`mix hex.audit` is clear. `mix hex.outdated --all` retains only Gaoxy's exact
+Abyss/Hell RC4 constraints, tracked by gsmlg-dev/gaoxy#22; no override is used.
+
+The resource diagnostic [42391285411](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42391285411)
+on `a4e1436` reached group nine and retained a metadata-node queue gap of
+105.981 ms during the original four-way 64 MiB fenced repair push. Data-node
+instrumentation completed without dropped rows, but does not explain this
+metadata-node failure. All controller-owned identities stopped. Full RC8
+acceptance has not run; the prior full-run failures below remain unresolved.
+The [RC8 receipt](s3-hardening/http-rc8-adoption-20261108.json) records the local
+checks and diagnostic artifact identity. **v0.7.0 remains unpublished.**
+
+## RC5 full acceptance and release diagnosis — 2026-11-08
 
 Exact candidate `abf6b05e85cad5e4be59202606a3153ff76160c6` completed
 [full run 42386733186](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42386733186)

@@ -294,7 +294,7 @@ budget for HTTP/2. Object and blob sizes remain separately bounded.
 The S3 wire-body ceiling also accounts for AWS chunk framing and trailers.
 
 Outbound HTTP clients use [`http_fetch`](https://github.com/gsmlg-dev/http_fetch)
-1.0.0-rc.5 for the CLI, cloud cache, remote inventory synchronization, webhooks,
+1.0.0-rc.8 for the CLI, cloud cache, remote inventory synchronization, webhooks,
 internal cluster transport, and cross-cluster replication. Signed requests do
 not follow redirects. Cluster and replication uploads use bounded streams with
 an explicit Content-Length and upload chunks of at most 64 KiB. Cluster downloads
@@ -302,8 +302,8 @@ validate headers before
 forwarding bytes with acknowledged backpressure.
 Webhook retries remain controlled by the notification worker.
 
-The core and CLI packages require `http_fetch ~> 1.0.0-rc.5`. The coordinated
-client/engine family uses RC5 without HTTP dependency overrides; Gaoxy 0.15.1
+The core and CLI packages require `http_fetch ~> 1.0.0-rc.8`. The coordinated
+client/engine family uses RC8 without HTTP dependency overrides; Gaoxy 0.15.1
 retains its upstream Abyss/Hell RC4 pins. HTTPS clients use ExSSL with certificate
 verification enabled, retaining custom CA, hostname/SNI and client-certificate
 support through the existing `ssl:` options. Legacy `tls_backend: :ssl` is no
