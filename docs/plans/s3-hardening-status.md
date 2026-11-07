@@ -8,14 +8,37 @@ authenticated daily HTTP checks pass. The two declared heavy exclusions retain
 their separate lanes. `mix hex.audit` is clear; `mix hex.outdated --all` retains
 only Gaoxy's exact Abyss/Hell RC4 pins, tracked by upstream #22.
 
-The same-seed full application replay passes under bounded diagnostic tracing;
-it does not establish a repair for the intermittent RC5 upload timeout. RC8
-changes cover TLS/QUIC behavior, with no HTTP/1 implementation change. Full
-current-source acceptance is pending. The resource diagnostic on `a4e1436`
-reached group nine and failed metadata-node queue coverage at 105.981 ms;
-its data-node probes cannot establish the metadata observer's cause. All owned
-processes stopped. **v0.7.0 remains unpublished.** See the
-[RC8 receipt](../reports/s3-hardening/http-rc8-adoption-20261108.json).
+Exact RC8 source `eedd296` completed [full run 42394005449](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42394005449).
+Daily and nine extended lanes passed, including correctness and resilience.
+Index and resources failed; all eleven extended artifact digests and source
+identities are independently verified. A28 failed a native bucket get after
+5.432 seconds on unrelated put 43,227, following all 100k primary commits.
+Independent A29 passed. Full current-source acceptance is still required.
+
+The resource lane reproduced a stale local listing plan after a successful
+gateway PUT. The local repair retries only definite planning conflicts within
+the existing eight-attempt bound, never repeating the upstream PUT. Two new
+regressions fail before the repair; all 24 write-through tests and the complete
+Core suite pass after it (646 tests, zero failures, one declared heavy exclusion).
+The private A28 collector now drains trace bursts at high priority while keeping
+the 512-message rejection bound. The original 10k before/after and 100k baseline
+measurements pass; its 35-minute diagnostic cap leaves A28 incomplete.
+
+Bounded tracing confirms multi-second periodic Concord statistics and matching
+ordinary-read stalls. [Concord #119](https://github.com/gsmlg-dev/concord/issues/119)
+tracks the upstream blocker. The hosted 5-second timeout has no contemporaneous
+stats trace, so its precise direct cause remains unproven. No dependency patch,
+poller disablement or deadline increase is used. A released repair and unchanged
+scale acceptance are required before publication.
+
+The RC8 resource lane also retains a 102.710 ms data-a queue observation gap.
+Diagnostic [42395925484](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42395925484)
+passes all 16 selected business groups without reproducing that gap. Both probe
+streams have complete delivery, but both scheduler streams exhaust their 256 MiB
+retention caps, so diagnostic lifecycle coverage fails. All owned identities stop;
+this subset cannot certify acceptance. **v0.7.0 remains unpublished.** See the
+[adoption receipt](../reports/s3-hardening/http-rc8-adoption-20261108.json) and
+[full-run and repair receipt](../reports/s3-hardening/http-rc8-full-acceptance-20261108.json).
 
 ## RC5 full acceptance and release diagnosis — 2026-11-08
 

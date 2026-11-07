@@ -11,14 +11,43 @@ RC8 changes affect TLS/QUIC, without changing the HTTP/1 implementation.
 `mix hex.audit` is clear. `mix hex.outdated --all` retains only Gaoxy's exact
 Abyss/Hell RC4 constraints, tracked by gsmlg-dev/gaoxy#22; no override is used.
 
-The resource diagnostic [42391285411](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42391285411)
-on `a4e1436` reached group nine and retained a metadata-node queue gap of
-105.981 ms during the original four-way 64 MiB fenced repair push. Data-node
-instrumentation completed without dropped rows, but does not explain this
-metadata-node failure. All controller-owned identities stopped. Full RC8
-acceptance has not run; the prior full-run failures below remain unresolved.
-The [RC8 receipt](s3-hardening/http-rc8-adoption-20261108.json) records the local
-checks and diagnostic artifact identity. **v0.7.0 remains unpublished.**
+Exact source `eedd296` completed [full run 42394005449](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42394005449).
+Daily and nine extended lanes passed, including correctness and resilience;
+index and resources failed. All eleven artifact digests and source identities
+are independently verified. A28 fails a bucket read after 5.432 seconds on
+unrelated put 43,227; independent A29 passes. The prior RC5 correctness failure
+is not a current RC8 lane failure.
+
+Standalone resource group 22/56 reproduces a definite stale listing plan during
+local publication after an upstream PUT. The repair uses the existing eight
+attempts without repeating upstream mutation; uncertain journals/stages remain
+recoverable. The two new regressions fail before the repair, and all 24 scoped
+tests pass after it. The complete Core suite reports 646 tests, zero failures,
+and one separately required heavy exclusion. The A28 collector priority repair
+retains its 512-message bound; the original 10k before/after and 100k baseline
+measurements pass. Its separate 2,100-second diagnostic stops before the complete
+unrelated fixture and cannot certify A28.
+
+That diagnostic directly aligns a 2,497,491 us native statistics query with a
+2,497,694 us ordinary bucket read; the longest statistics query is 2,774,461 us.
+The default poller synchronously scans/serializes the store on the replica's
+critical path. [Concord #119](https://github.com/gsmlg-dev/concord/issues/119)
+tracks the upstream blocker. Its precise relationship to the untraced hosted
+5-second timeout remains unproven. The diagnostic cap causes application shutdown
+and an incomplete final trace barrier; shutdown errors are not a reproduced
+acceptance failure. No dependency patch, poller disablement or deadline increase
+is used. A released fix and unchanged scale acceptance remain required.
+
+Cluster resource group 6/20 retains the original 102.710 ms data-a queue gap,
+while all recorded numeric envelopes and all four objects/two ready replicas pass.
+Diagnostic [42395925484](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42395925484)
+passes all 16 selected groups and does not reproduce the gap. Both probe streams
+have zero drops and matching terminal counts; both scheduler streams exceed
+their fixed 256 MiB retention caps. Diagnostic lifecycle coverage therefore
+fails despite all owned identities stopping. It cannot establish the original
+scheduler/I/O cause or certify acceptance. The [adoption receipt](s3-hardening/http-rc8-adoption-20261108.json)
+and [full-run and repair receipt](s3-hardening/http-rc8-full-acceptance-20261108.json)
+retain the evidence and limitations. **v0.7.0 remains unpublished.**
 
 ## RC5 full acceptance and release diagnosis — 2026-11-08
 

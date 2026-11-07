@@ -182,6 +182,10 @@ defmodule ESSIndexAcceptance.Bounds do
     # collector heap or count against the private trace mailbox bound.
     {collector, monitor} =
       spawn_monitor(fn ->
+        # Drain native trace bursts before normal-priority producers refill the
+        # private mailbox. Keep its 512-message rejection bound unchanged.
+        Process.flag(:priority, :high)
+
         result =
           try do
             {:ok, measure_isolated(request, maximum, opts)}
