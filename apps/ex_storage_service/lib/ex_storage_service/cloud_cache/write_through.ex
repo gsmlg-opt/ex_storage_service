@@ -246,6 +246,12 @@ defmodule ExStorageService.CloudCache.WriteThrough do
               {:error, _} = error ->
                 error
             end
+          else
+            {:error, :conflict} ->
+              commit_metadata(backend, record, meta, opts, attempts - 1)
+
+            {:error, _} = error ->
+              error
           end
       end
     end

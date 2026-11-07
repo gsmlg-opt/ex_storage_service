@@ -113,6 +113,34 @@ defmodule ExStorageService.CloudCache.WriteThroughTest do
     end
   end
 
+  defmodule StalePlanBackend do
+    defdelegate put(key, value, opts), to: Backend
+    defdelegate delete(key, opts), to: Backend
+    defdelegate list_page(prefix, cursor, limit, opts), to: Backend
+    defdelegate transaction(spec, opts), to: Backend
+
+    def get("ess:gateway-write:" <> _ = key, opts) do
+      if Process.get(:stale_bucket_plans, 0) > 0,
+        do: Process.put(:advance_bucket_before_augmentation, true)
+
+      Backend.get(key, opts)
+    end
+
+    def get("bucket:local" = key, opts) do
+      if Process.delete(:advance_bucket_before_augmentation) do
+        {:ok, %{value: bucket, mod_revision: observed}} = Backend.get(key, opts)
+        :ok = Backend.put(key, bucket, [])
+        {:ok, %{mod_revision: changed}} = Backend.get(key, opts)
+        Process.put(:stale_bucket_plans, Process.get(:stale_bucket_plans) - 1)
+        send(self(), {:stale_bucket_plan, observed, changed})
+      end
+
+      Backend.get(key, opts)
+    end
+
+    def get(key, opts), do: Backend.get(key, opts)
+  end
+
   defmodule BusyCache do
     def put_file(_bucket, _key, _path, _hash, _size, _config, opts) do
       send(self(), {:cache_generation, opts[:bucket_generation]})
@@ -378,6 +406,42 @@ defmodule ExStorageService.CloudCache.WriteThroughTest do
 
     refute File.exists?(context.staged.path)
     assert {:ok, %{entries: []}} = Backend.list_page("ess:gateway-write:", nil, 10, [])
+  end
+
+  test "a stale listing plan retries only local publication after upstream success", context do
+    Process.put(:stale_bucket_plans, 1)
+    context = %{context | opts: Keyword.put(context.opts, :backend, StalePlanBackend)}
+
+    assert {:ok, meta} = put(context)
+    assert_received {:stale_bucket_plan, observed, changed}
+    assert changed > observed
+    assert Process.get(:upstream_calls) == 1
+    assert {:ok, %{value: ^meta}} = Backend.get("obj:local:key", [])
+
+    assert {:ok, %{entries: [{"key", current}]}} =
+             ListIndex.page("local", :current, "", backend: Backend)
+
+    assert current.version_id == meta.version_id
+    refute File.exists?(context.staged.path)
+    assert {:ok, %{entries: []}} = Backend.list_page("ess:gateway-write:", nil, 10, [])
+  end
+
+  test "repeated stale listing plans retain the bounded recoverable operation", context do
+    Process.put(:stale_bucket_plans, 8)
+    context = %{context | opts: Keyword.put(context.opts, :backend, StalePlanBackend)}
+
+    assert {:error, {:local_reconciliation_required, :local_metadata_conflict}} = put(context)
+    assert Process.get(:stale_bucket_plans) == 0
+    for _ <- 1..8, do: assert_received({:stale_bucket_plan, _, _})
+    assert Process.get(:upstream_calls) == 1
+    assert File.exists?(context.staged.path)
+
+    assert {:ok, %{results: [{"operation", {:ok, meta}}]}} =
+             WriteThrough.reconcile_page(nil, 10, context.opts)
+
+    assert {:ok, %{value: ^meta}} = Backend.get("obj:local:key", [])
+    assert Process.get(:upstream_calls) == 1
+    refute File.exists?(context.staged.path)
   end
 
   test "upstream success followed by local commit failure retains a recoverable stage", context do
