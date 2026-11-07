@@ -22,7 +22,7 @@ env:
 jobs:
   diagnostic:
     name: Original Phase 1 / bounded completion trace / not acceptance
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     env:
       # This isolated job runs Mix sequentially; avoid elixir-lang/elixir#15761.
       MIX_OS_CONCURRENCY_LOCK: '0'
@@ -69,9 +69,9 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-completion-diagnostic-prod-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-ubuntu-26.04-completion-diagnostic-prod-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-hardening-cluster-${{ hashFiles('mix.lock') }}
+            ${{ runner.os }}-ubuntu-26.04-hardening-cluster-${{ hashFiles('mix.lock') }}
       - name: Install original harness prerequisites
         run: |
           umask 077

@@ -32,8 +32,8 @@ defmodule ExStorageServiceWeb.MixProject do
     [
       {:ex_storage_service, in_umbrella: true},
       {:ex_storage_service_s3, in_umbrella: true},
-      {:gaoxy_http, "~> 0.12.0"},
-      {:websock_adapter, "~> 0.12.0", hex: :gaoxy_websock_adapter, override: true},
+      {:gaoxy_http, "~> 0.15.1"},
+      {:websock_adapter, "~> 0.15.1", hex: :gaoxy_websock_adapter, override: true},
       {:phoenix, "~> 1.8"},
       {:phoenix_live_view, "~> 1.0"},
       {:phoenix_html, "~> 4.4"},
@@ -41,12 +41,8 @@ defmodule ExStorageServiceWeb.MixProject do
       {:phoenix_live_dashboard, "~> 0.9"},
       {:jason, "~> 1.4"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      # TODO(upstream): duskmoon-dev/duskmoon-bundler#9
-      # WORKAROUND(upstream): duskmoon-dev/duskmoon-bundler#9
-      # Retain the downloader fix without 10.0.5's GLIBC_2.43 Vize requirement.
-      # TODO(upstream): duskmoon-dev/duskmoon-bundler#17
-      # HTTP 1.0 RC adoption also requires compatible Bundler HTTP constraints.
-      {:duskmoon_bundler, "10.0.4"},
+      # This published toolchain cohort supports the coordinated HTTP 1.0 RC clients.
+      {:duskmoon_bundler, "~> 10.1.2"},
       {:phoenix_duskmoon, "~> 10.0"}
     ]
   end

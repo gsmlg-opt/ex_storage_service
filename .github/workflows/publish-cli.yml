@@ -35,7 +35,7 @@ env:
 jobs:
   publish:
     name: Publish ess v${{ inputs.version }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     env:
       # This isolated job runs Mix sequentially; avoid elixir-lang/elixir#15761.
       MIX_OS_CONCURRENCY_LOCK: '0'

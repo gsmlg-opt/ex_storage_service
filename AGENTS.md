@@ -81,16 +81,19 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
 - All outbound clients use `http_fetch`, including cluster transport and
   cross-cluster replication. Keep upload/download streams bounded, preserve
   explicit Content-Length, and disable redirects on signed requests. Require
-  `http_fetch` 0.17.2 or newer and set `decode_body: false` on storage requests
+  `http_fetch ~> 1.0.0-rc.5` and set `decode_body: false` on storage requests
   to preserve Content-Encoding object bytes. Do not buffer blobs, rewrite
   headers, or re-compress objects to replace bounded raw-byte transfers.
-  Core package constraints support the 0.17 series from 0.17.2, 0.18.x and
-  0.21.x from 0.21.12. The CLI requires `~> 0.21.13` for true infinity,
-  socket inactivity, request-scoped response-stream policies and completed
-  fixed-length upload finalization. The umbrella lock uses the coordinated
-  0.21.19 family. HTTP 1.0 RC adoption is blocked by Bundler's HTTP constraints
-  (duskmoon-dev/duskmoon-bundler#17); resume only after a compatible published
-  release resolves without overrides and passes the existing transfer contracts.
+  Core and CLI use the coordinated HTTP 1.0.0-rc.5 client/engine family for
+  true infinity, socket inactivity, request-scoped response-stream policies
+  and completed fixed-length upload finalization. HTTPS clients use ExSSL;
+  retain certificate verification, custom CA, hostname/SNI and mTLS behavior
+  through `ssl:` options. Do not select the removed client `tls_backend: :ssl`.
+  Bundler 10.1.2 resolves duskmoon-dev/duskmoon-bundler#17 without HTTP
+  overrides. Its published GNU native libraries require glibc 2.43; umbrella
+  Docker builds/runtimes and native CI jobs use Ubuntu 26.04. Do not force
+  native source builds to support an older GNU baseline. Gaoxy 0.15.1 retains
+  its upstream Abyss/Hell RC4 pins alongside the RC5 client packages.
 - Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
 
 ### File Organization
@@ -103,7 +106,7 @@ The codebase is structured as an umbrella project with five apps:
 
 The Phoenix web endpoint uses `Gaoxy.PhoenixAdapter` from `gaoxy_http` with
 `gaoxy_websock_adapter` selected as the `:websock_adapter` dependency for
-LiveView upgrades. All listeners require `gaoxy_http` 0.12.0 or newer, which
+LiveView upgrades. All listeners require `gaoxy_http ~> 0.15.1`, which
 preserves HEAD representation lengths and supports `request_timeout: :infinity`
 for progressing storage transfers. Retain finite header/read/write inactivity
 limits, bounded Plug windows, and aggregate byte budgets (S3/Web 256 MiB,
@@ -281,8 +284,8 @@ enforces decoded object size.
   Defaults must start the existing standalone instance and both listeners.
   `ESS_DATA_ROOT` remains the compatibility fallback for split roots.
   `ESS_RA_ROOT` is retained as a legacy embedding compatibility value but is
-  not used by Concord 3. Require Concord `~> 3.1.14` with matching VSR/ExTurso
-  packages; the umbrella lock selects 3.1.14, including owned normal multi-voter
+  not used by Concord 3. Require Concord `~> 3.1.15` with matching VSR/ExTurso
+  packages; the umbrella lock selects 3.1.15, including owned normal multi-voter
   write/apply and singleton-heartbeat transitions (Concord #105), plus normal
   multi-voter reads/barriers and late acknowledgements (Concord #112).
   Recovery, state-transfer and different-view paths retain exhaustive validation.
@@ -294,7 +297,7 @@ enforces decoded object size.
   reading current records; plan an upgrade window and retain verified backups.
   The projection adds metadata storage and write work. ESS defaults to file-backed
   VSR; its storage/wire formats and ESS command formats remain unchanged.
-  The coordinated 3.1.14 family preserves VSR command admission and Turso
+  The coordinated 3.1.15 family preserves VSR command admission and Turso
   operation deadlines and updates embedded Turso to 0.8.3. New revision CAS and
   queued Turso lists remain opt-in. Revision-pinned Turso pages and atomic prefix
   replacement are also not enabled by this upgrade; retain ESS command versions
@@ -313,6 +316,8 @@ enforces decoded object size.
   and ExTurso runtime sources are unchanged from 3.1.13; ESS retains file-backed
   VSR and does not enable the new API. The unresolved index, resource-observation
   and replica-repair acceptance failures remain separate release blockers.
+  Version 3.1.15 updates only the upstream E2E HTTP dependency and package
+  versions; production Elixir/native sources are unchanged from 3.1.14.
   Full current-source acceptance remains
   a publication prerequisite. New backup checksums use
   the declared deterministic ETF scheme;

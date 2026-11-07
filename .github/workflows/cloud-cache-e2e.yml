@@ -32,7 +32,7 @@ env:
 jobs:
   cloud-cache-e2e:
     name: Cloud Cache E2E Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     steps:
       - uses: actions/checkout@v4
@@ -84,9 +84,9 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-mix-prod-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-ubuntu-26.04-mix-prod-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-prod-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-
+            ${{ runner.os }}-ubuntu-26.04-mix-prod-${{ env.ELIXIR_VERSION }}-${{ env.OTP_VERSION }}-
 
       - uses: oven-sh/setup-bun@v2
 

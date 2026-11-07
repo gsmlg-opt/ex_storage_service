@@ -6,7 +6,7 @@
  * DO NOT EDIT — regenerate with: mix duskmoon.bundle el-accordion el-alert el-autocomplete el-badge el-bottom-navigation el-bottom-sheet el-breadcrumbs el-button el-card el-cascader el-chart el-chip el-circle-menu el-code-block el-datepicker el-dialog el-drawer el-file-upload el-form el-form-group el-input el-menu el-navbar el-navigation el-nested-menu el-otp-input el-pagination el-pin-input el-popover el-progress el-segment-control el-select el-slider el-stepper el-switch el-table el-tabs el-theme-controller el-time-input el-tooltip
  */
 import "@duskmoon-dev/el-pin-input/register";
-//#region ../../node_modules/@duskmoon-dev/el-base/dist/esm/index.js
+// ../../node_modules/@duskmoon-dev/el-base/dist/esm/index.js
 var styleSheetCache = /* @__PURE__ */ new WeakMap();
 function css$30(strings, ...values) {
 	const cached = styleSheetCache.get(strings);
@@ -349,8 +349,7 @@ function validate(value, rules) {
 		message: void 0
 	};
 }
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/accordion.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/accordion.js
 const css$29 = `/**
  * Accordion Component Styles
  * DuskMoonUI - Material Design 3 inspired accordion/expansion panel system
@@ -622,8 +621,7 @@ const css$29 = `/**
 `;
 const sheet$29 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$29) sheet$29.replaceSync(css$29);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-accordion/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-accordion/dist/esm/register.js
 var coreStyles$31 = css$29.replace(/@layer\s+components\s*\{/, "").replace(/\}\s*$/, "");
 var styles$66 = css$30`
   :host {
@@ -679,8 +677,10 @@ var ElDmAccordion = class extends BaseElement {
 	}
 	open(itemId) {
 		const openItems = this.getOpenItems();
-		if (!openItems.includes(itemId)) if (this.multiple) this.setOpenItems([...openItems, itemId]);
-		else this.setOpenItems([itemId]);
+		if (!openItems.includes(itemId)) {
+			if (this.multiple) this.setOpenItems([...openItems, itemId]);
+			else this.setOpenItems([itemId]);
+		}
 	}
 	close(itemId) {
 		const openItems = this.getOpenItems();
@@ -825,8 +825,7 @@ function register$38() {
 	if (!customElements.get("el-dm-accordion-item")) customElements.define("el-dm-accordion-item", ElDmAccordionItem);
 }
 register$38();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/alert.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/alert.js
 const css$28 = `/**
  * Alert Component Styles
  * DuskMoonUI - Material Design 3 inspired alert system
@@ -1228,8 +1227,7 @@ const css$28 = `/**
 `;
 const sheet$28 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$28) sheet$28.replaceSync(css$28);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-alert/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-alert/dist/esm/register.js
 var TYPE_CLASSES = {
 	info: "alert-info",
 	success: "alert-success",
@@ -1332,8 +1330,7 @@ function register$37() {
 	if (!customElements.get("el-dm-alert")) customElements.define("el-dm-alert", ElDmAlert);
 }
 register$37();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/autocomplete.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/autocomplete.js
 const css$27 = `/**
  * Autocomplete Component Styles
  * DuskMoonUI - Material Design 3 inspired autocomplete system
@@ -1948,12 +1945,10 @@ var ElDmAutocomplete = class extends BaseElement {
 				e.preventDefault();
 				this._close();
 				break;
-			case "Backspace":
-				if (this.multiple && !this._searchValue && this._selectedValues.length > 0) {
-					const lastValue = this._selectedValues[this._selectedValues.length - 1];
-					this._removeValue(lastValue);
-				}
-				break;
+			case "Backspace": if (this.multiple && !this._searchValue && this._selectedValues.length > 0) {
+				const lastValue = this._selectedValues[this._selectedValues.length - 1];
+				this._removeValue(lastValue);
+			}
 		}
 	}
 	_selectOption(option) {
@@ -2185,8 +2180,7 @@ function register$36() {
 	if (!customElements.get("el-dm-autocomplete")) customElements.define("el-dm-autocomplete", ElDmAutocomplete);
 }
 register$36();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/badge.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/badge.js
 const css$26 = `/**
  * Badge Component Styles
  * DuskMoonUI - Material Design 3 inspired badge system
@@ -2454,8 +2448,7 @@ const css$26 = `/**
 `;
 const sheet$26 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$26) sheet$26.replaceSync(css$26);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-badge/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-badge/dist/esm/register.js
 var VARIANT_CLASSES$3 = {
 	filled: "",
 	outlined: "badge-outlined",
@@ -2568,8 +2561,7 @@ function register$35() {
 	if (!customElements.get("el-dm-badge")) customElements.define("el-dm-badge", ElDmBadge);
 }
 register$35();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/bottom-navigation.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/bottom-navigation.js
 const css$25 = `/**
  * Bottom Navigation Component Styles
  * DuskMoonUI - Material Design 3 inspired bottom navigation system
@@ -3232,8 +3224,7 @@ function register$34() {
 	if (!customElements.get("el-dm-bottom-navigation")) customElements.define("el-dm-bottom-navigation", ElDmBottomNavigation);
 }
 register$34();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/bottomsheet.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/bottomsheet.js
 const css$24 = `/**
  * Bottom Sheet Component Styles
  * DuskMoonUI - Material Design 3 inspired bottom sheet system
@@ -3984,8 +3975,7 @@ function register$33() {
 	if (!customElements.get("el-dm-bottom-sheet")) customElements.define("el-dm-bottom-sheet", ElDmBottomSheet);
 }
 register$33();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/navigation.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/navigation.js
 const css$23 = `/**
  * Navigation compatibility aggregate.
  *
@@ -5467,8 +5457,7 @@ function register$32() {
 	if (!customElements.get("el-dm-breadcrumbs")) customElements.define("el-dm-breadcrumbs", ElDmBreadcrumbs);
 }
 register$32();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/button.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/button.js
 const css$22 = `/**
  * Button Component Styles
  * DuskMoonUI - Material Design 3 inspired button system
@@ -6142,8 +6131,7 @@ const css$22 = `/**
 `;
 const sheet$22 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$22) sheet$22.replaceSync(css$22);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-button/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-button/dist/esm/register.js
 var VARIANT_CLASSES$2 = {
 	primary: "btn-primary",
 	secondary: "btn-secondary",
@@ -6344,8 +6332,7 @@ function register$31() {
 	if (!customElements.get("el-dm-button")) customElements.define("el-dm-button", ElDmButton);
 }
 register$31();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/card.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/card.js
 const css$21 = `/**
  * Card Component Styles
  * DuskMoonUI - Material Design 3 inspired card system
@@ -6651,8 +6638,7 @@ const css$21 = `/**
 `;
 const sheet$21 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$21) sheet$21.replaceSync(css$21);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-card/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-card/dist/esm/register.js
 var VARIANT_CLASSES$1 = {
 	elevated: "card-elevated",
 	outlined: "card-bordered",
@@ -6800,8 +6786,7 @@ function register$30() {
 	if (!customElements.get("el-dm-card")) customElements.define("el-dm-card", ElDmCard);
 }
 register$30();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/cascader.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/cascader.js
 const css$20 = `/**
  * Cascader Component Styles
  * DuskMoonUI - Multi-level dropdown selection with horizontal panels
@@ -7296,8 +7281,7 @@ const css$20 = `/**
 `;
 const sheet$20 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$20) sheet$20.replaceSync(css$20);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-cascader/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-cascader/dist/esm/register.js
 var chevronDownIcon$1 = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
 var chevronRightIcon$1 = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
 var checkIcon$1 = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
@@ -7787,8 +7771,6 @@ var ElDmCascader = class extends BaseElement {
 					this._activePath = this._activePath.slice(0, -1);
 					this.update();
 				}
-				break;
-			case "ArrowRight": break;
 		}
 	}
 	_open() {
@@ -8139,14 +8121,13 @@ function register$29() {
 	if (!customElements.get("el-dm-cascader")) customElements.define("el-dm-cascader", ElDmCascader);
 }
 register$29();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-chart/dist/esm/register.js
-var CHART_TYPES = new Set([
+// ../../node_modules/@duskmoon-dev/el-chart/dist/esm/register.js
+var CHART_TYPES = /* @__PURE__ */ new Set([
 	"bar",
 	"line",
 	"pie"
 ]);
-var CHART_COLORS = new Set([
+var CHART_COLORS = /* @__PURE__ */ new Set([
 	"primary",
 	"secondary",
 	"tertiary",
@@ -8156,12 +8137,12 @@ var CHART_COLORS = new Set([
 	"error",
 	"info"
 ]);
-var CHART_SIZES = new Set([
+var CHART_SIZES = /* @__PURE__ */ new Set([
 	"sm",
 	"md",
 	"lg"
 ]);
-var CHART_VARIANTS = new Set([
+var CHART_VARIANTS = /* @__PURE__ */ new Set([
 	"plain",
 	"outlined",
 	"filled"
@@ -8562,8 +8543,7 @@ function register$28() {
 	if (!customElements.get("el-dm-chart")) customElements.define("el-dm-chart", ElDmChart);
 }
 register$28();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/chip.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/chip.js
 const css$19 = `/**
  * Chip Component Styles
  * DuskMoonUI - Material Design 3 inspired chip system
@@ -8975,8 +8955,7 @@ const css$19 = `/**
 `;
 const sheet$19 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$19) sheet$19.replaceSync(css$19);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-chip/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-chip/dist/esm/register.js
 var VARIANT_CLASSES = {
 	filled: "",
 	outlined: "chip-outlined",
@@ -9330,8 +9309,7 @@ function register$27() {
 	if (!customElements.get("el-dm-chip")) customElements.define("el-dm-chip", ElDmChip);
 }
 register$27();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/circle-menu.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/circle-menu.js
 const css$18 = `/**
  * Circle Menu Component Styles
  * DuskMoonUI - Radial circular navigation menu with CSS-only checkbox toggle
@@ -9683,8 +9661,7 @@ const css$18 = `/**
 `;
 const sheet$18 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$18) sheet$18.replaceSync(css$18);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-circle-menu/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-circle-menu/dist/esm/register.js
 var COLOR_CLASSES$4 = {
 	primary: "circle-menu-primary",
 	secondary: "circle-menu-secondary",
@@ -9821,8 +9798,7 @@ function register$26() {
 	if (!customElements.get("el-dm-circle-menu")) customElements.define("el-dm-circle-menu", ElDmCircleMenu);
 }
 register$26();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-code-block/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-code-block/dist/esm/register.js
 var styles$42 = css$30`
   :host {
     display: block;
@@ -10012,8 +9988,7 @@ function register$25() {
 	if (!customElements.get("el-dm-code-block")) customElements.define("el-dm-code-block", ElDmCodeBlock);
 }
 register$25();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/datepicker.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/datepicker.js
 const css$17 = `/** Opt-in native presentation. Applications own errors, messages and announcements. */
 @layer components {
   /* Compatibility wrapper states are intentionally immediate. */
@@ -11358,18 +11333,19 @@ var ElDmDatepicker = class extends BaseElement {
 	}
 	_selectDate(date) {
 		if (this._isDateDisabled(date)) return;
-		if (this.range) if (!this._rangeStart || this._rangeStart && this._rangeEnd) {
-			this._rangeStart = date;
-			this._rangeEnd = null;
-		} else {
-			if (date < this._rangeStart) {
-				this._rangeEnd = this._rangeStart;
+		if (this.range) {
+			if (!this._rangeStart || this._rangeStart && this._rangeEnd) {
 				this._rangeStart = date;
-			} else this._rangeEnd = date;
-			this._updateValue();
-			if (!this.showTime) this._close();
-		}
-		else {
+				this._rangeEnd = null;
+			} else {
+				if (date < this._rangeStart) {
+					this._rangeEnd = this._rangeStart;
+					this._rangeStart = date;
+				} else this._rangeEnd = date;
+				this._updateValue();
+				if (!this.showTime) this._close();
+			}
+		} else {
 			this._selectedDate = date;
 			this._updateValue();
 			if (!this.showTime) this._close();
@@ -11548,9 +11524,7 @@ var ElDmDatepicker = class extends BaseElement {
 			case "months":
 				calendarContent = this._renderMonths();
 				break;
-			case "years":
-				calendarContent = this._renderYears();
-				break;
+			case "years": calendarContent = this._renderYears();
 		}
 		return `
       <div class="datepicker ${sizeClass} ${openClass}">
@@ -11617,8 +11591,7 @@ function register$24() {
 	if (!customElements.get("el-dm-datepicker")) customElements.define("el-dm-datepicker", ElDmDatepicker);
 }
 register$24();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/dialog.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/dialog.js
 const css$16 = `/**
  * Dialog Component Styles
  * DuskMoonUI - Material Design 3 inspired dialog system
@@ -11821,8 +11794,7 @@ const css$16 = `/**
 `;
 const sheet$16 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$16) sheet$16.replaceSync(css$16);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-dialog/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-dialog/dist/esm/register.js
 var SIZE_CLASSES$5 = {
 	sm: "dialog-sm",
 	md: "",
@@ -11934,16 +11906,15 @@ var ElDmDialog = class extends BaseElement {
 			case "request-close":
 				this._requestNativeClose(dialog);
 				break;
-			case "toggle":
-				if (dialog.open) dialog.close();
-				else this._openNativeDialog(dialog, !this.noBackdrop);
-				break;
-			default: break;
+			case "toggle": if (dialog.open) dialog.close();
+			else this._openNativeDialog(dialog, !this.noBackdrop);
 		}
 	};
 	_openNativeDialog(dialog, modal) {
-		if (!dialog.open) if (modal) dialog.showModal();
-		else dialog.show();
+		if (!dialog.open) {
+			if (modal) dialog.showModal();
+			else dialog.show();
+		}
 		if (!this.open) {
 			this.open = true;
 			this.emit("open");
@@ -11970,9 +11941,10 @@ var ElDmDialog = class extends BaseElement {
 	_syncNativeDialog() {
 		const dialog = this._getDialog();
 		if (!dialog) return;
-		if (this.open && !dialog.open) if (this.noBackdrop) dialog.show();
-		else dialog.showModal();
-		else if (!this.open && dialog.open) dialog.close();
+		if (this.open && !dialog.open) {
+			if (this.noBackdrop) dialog.show();
+			else dialog.showModal();
+		} else if (!this.open && dialog.open) dialog.close();
 	}
 	show() {
 		this.open = true;
@@ -12030,8 +12002,7 @@ function register$23() {
 	if (!customElements.get("el-dm-dialog")) customElements.define("el-dm-dialog", ElDmDialog);
 }
 register$23();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/drawer.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/drawer.js
 const css$15 = `/**
  * Drawer Component Styles
  * DuskMoonUI - Material Design 3 inspired navigation drawer system
@@ -12682,8 +12653,7 @@ function register$22() {
 	if (!customElements.get("el-dm-drawer")) customElements.define("el-dm-drawer", ElDmDrawer);
 }
 register$22();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/file-upload.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/file-upload.js
 const css$14 = `/**
  * File Upload Component Styles
  * DuskMoonUI - Material Design 3 inspired file upload system
@@ -13089,8 +13059,7 @@ const css$14 = `/**
 `;
 const sheet$14 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$14) sheet$14.replaceSync(css$14);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-file-upload/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-file-upload/dist/esm/register.js
 var SIZE_CLASSES$4 = {
 	sm: "file-upload-sm",
 	md: "",
@@ -13543,8 +13512,7 @@ function register$21() {
 	if (!customElements.get("el-dm-file-upload")) customElements.define("el-dm-file-upload", ElDmFileUpload);
 }
 register$21();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/form.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/form.js
 const css$13 = `/**
  * Legacy form entry: native controls and composition reuse canonical CSS.
  * No control state rules belong in this compatibility wrapper.
@@ -15481,8 +15449,7 @@ function register$20() {
 	if (!customElements.get("el-dm-form")) customElements.define("el-dm-form", ElDmForm);
 }
 register$20();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/form-group.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/form-group.js
 const css$12 = `/** Opt-in native presentation. Applications own errors, messages and announcements. */
 @layer components {
   /* Compatibility wrapper states are intentionally immediate. */
@@ -15912,8 +15879,7 @@ function register$19() {
 	if (!customElements.get("el-dm-form-group")) customElements.define("el-dm-form-group", ElDmFormGroup);
 }
 register$19();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/input.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/input.js
 const css$11 = `/** Opt-in native presentation. Applications own errors, messages and announcements. */
 @layer components {
   /* Compatibility wrapper states are intentionally immediate. */
@@ -16209,8 +16175,7 @@ const css$11 = `/** Opt-in native presentation. Applications own errors, message
 `;
 const sheet$11 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$11) sheet$11.replaceSync(css$11);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-input/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-input/dist/esm/register.js
 var SIZE_CLASSES$3 = {
 	sm: "input-sm",
 	md: "",
@@ -16786,9 +16751,7 @@ var ElDmMenu = class extends BaseElement {
 					if (!item.disabled) this._selectItem(item);
 				}
 				break;
-			case "Tab":
-				this.hide();
-				break;
+			case "Tab": this.hide();
 		}
 	}
 	_getMenuItems() {
@@ -17366,8 +17329,7 @@ function register$15() {
 	if (!customElements.get("el-dm-navigation")) customElements.define("el-dm-navigation", ElDmNavigation);
 }
 register$15();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/nested-menu.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/nested-menu.js
 const css$10 = `/**
  * Nested Menu Component Styles
  * DuskMoonUI - Sidebar navigation with collapsible cascading levels via <details>/<summary>
@@ -17677,8 +17639,7 @@ function register$14() {
 	if (!customElements.get("el-dm-nested-menu")) customElements.define("el-dm-nested-menu", ElDmNestedMenu);
 }
 register$14();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/otp-input.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/otp-input.js
 const css$9 = `/** Opt-in native presentation. Applications own errors, messages and announcements. */
 @layer components {
   /* Compatibility wrapper states are intentionally immediate. */
@@ -18268,8 +18229,7 @@ function register$13() {
 	if (!customElements.get("el-dm-otp-input")) customElements.define("el-dm-otp-input", ElDmOtpInput);
 }
 register$13();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-pagination/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-pagination/dist/esm/register.js
 var styles$21 = css$30`
   :host {
     display: inline-flex;
@@ -18560,7 +18520,6 @@ var ElDmPagination = class extends BaseElement {
 			case "End":
 				event.preventDefault();
 				this._goToPage(this.total);
-				break;
 		}
 	}
 	render() {
@@ -18632,8 +18591,7 @@ function register$12() {
 	if (!customElements.get("el-dm-pagination")) customElements.define("el-dm-pagination", ElDmPagination);
 }
 register$12();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/popover.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/popover.js
 const css$8 = `/**
  * Popover Component Styles
  * DuskMoonUI - Material Design 3 inspired popover system
@@ -19433,9 +19391,7 @@ var ElDmPopover = class extends BaseElement {
 			case "left":
 				x = triggerRect.left - panelRect.width - this.offset;
 				break;
-			case "right":
-				x = triggerRect.right + this.offset;
-				break;
+			case "right": x = triggerRect.right + this.offset;
 		}
 		if (mainAxis === "top" || mainAxis === "bottom") switch (alignment) {
 			case "start":
@@ -19496,8 +19452,7 @@ function register$11() {
 	if (!customElements.get("el-dm-popover")) customElements.define("el-dm-popover", ElDmPopover);
 }
 register$11();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/progress.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/progress.js
 const css$7 = `/**
  * Progress Component Styles
  * DuskMoonUI - Material Design 3 inspired progress system
@@ -19825,8 +19780,7 @@ const css$7 = `/**
 `;
 const sheet$7 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$7) sheet$7.replaceSync(css$7);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-progress/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-progress/dist/esm/register.js
 var COLOR_CLASSES$3 = {
 	primary: "progress-primary",
 	secondary: "progress-secondary",
@@ -20052,8 +20006,7 @@ function register$10() {
 	if (!customElements.get("el-dm-progress")) customElements.define("el-dm-progress", ElDmProgress);
 }
 register$10();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-segment-control/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-segment-control/dist/esm/register.js
 var styles$16 = css$30`
   :host {
     display: inline-flex;
@@ -20197,8 +20150,7 @@ function register$9() {
 	if (!customElements.get("el-dm-segment-control")) customElements.define("el-dm-segment-control", ElDmSegmentControl);
 }
 register$9();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-select/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-select/dist/esm/register.js
 var chevronDownIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
 var chevronRightIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
 var checkIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
@@ -20904,13 +20856,11 @@ var ElDmSelect = class extends BaseElement {
 				e.preventDefault();
 				this._close();
 				break;
-			case "Backspace":
-				if (this.multiple && !this._searchValue) {
-					e.preventDefault();
-					const selected = this._getSelectedValues();
-					if (selected.length > 0) this._removeTag(selected[selected.length - 1]);
-				}
-				break;
+			case "Backspace": if (this.multiple && !this._searchValue) {
+				e.preventDefault();
+				const selected = this._getSelectedValues();
+				if (selected.length > 0) this._removeTag(selected[selected.length - 1]);
+			}
 		}
 	}
 	_open() {
@@ -21284,8 +21234,7 @@ function register$8() {
 	if (!customElements.get("el-dm-select")) customElements.define("el-dm-select", ElDmSelect);
 }
 register$8();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/slider.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/slider.js
 const css$6 = `/**
  * Slider Component Styles
  * DuskMoonUI - Material Design 3 inspired slider system
@@ -21806,8 +21755,7 @@ const css$6 = `/**
 `;
 const sheet$6 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$6) sheet$6.replaceSync(css$6);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-slider/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-slider/dist/esm/register.js
 var SIZE_CLASSES$1 = {
 	sm: "slider-sm",
 	md: "",
@@ -22152,8 +22100,7 @@ function register$7() {
 	if (!customElements.get("el-dm-slider")) customElements.define("el-dm-slider", ElDmSlider);
 }
 register$7();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/stepper.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/stepper.js
 const css$5 = `/**
  * Stepper Component Styles
  * DuskMoonUI - Material Design 3 inspired stepper/wizard system
@@ -22484,8 +22431,7 @@ const css$5 = `/**
 `;
 const sheet$5 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$5) sheet$5.replaceSync(css$5);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-stepper/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-stepper/dist/esm/register.js
 var COLOR_MAP = {
 	primary: "var(--color-primary)",
 	secondary: "var(--color-secondary)",
@@ -22781,8 +22727,7 @@ function register$6() {
 	if (!customElements.get("el-dm-step")) customElements.define("el-dm-step", ElDmStep);
 }
 register$6();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/switch.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/switch.js
 const css$4 = `/** Opt-in native presentation. Applications own errors, messages and announcements. */
 @layer components {
   /* Compatibility wrapper states are intentionally immediate. */
@@ -23131,8 +23076,7 @@ const css$4 = `/** Opt-in native presentation. Applications own errors, messages
 `;
 const sheet$4 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$4) sheet$4.replaceSync(css$4);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-switch/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-switch/dist/esm/register.js
 var SIZE_CLASSES = {
 	sm: "switch-sm",
 	md: "",
@@ -23263,8 +23207,7 @@ function register$5() {
 	if (!customElements.get("el-dm-switch")) customElements.define("el-dm-switch", ElDmSwitch);
 }
 register$5();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/table.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/table.js
 const css$3 = `/**
  * Table Component Styles
  * DuskMoonUI - Material Design 3 inspired table system
@@ -23527,8 +23470,7 @@ const css$3 = `/**
 `;
 const sheet$3 = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet$3) sheet$3.replaceSync(css$3);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-table/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-table/dist/esm/register.js
 var ElDmTableColumn = class extends BaseElement {
 	static properties = {
 		key: {
@@ -24043,9 +23985,7 @@ var ElDmTable = class extends BaseElement {
 			case "next":
 				this.goToPage(this.page + 1);
 				break;
-			case "last":
-				this.goToPage(this._getTotalPages());
-				break;
+			case "last": this.goToPage(this._getTotalPages());
 		}
 	};
 	_handlePageSizeChange = (e) => {
@@ -24841,8 +24781,7 @@ function register$3() {
 	if (!customElements.get("el-dm-tab-panel")) customElements.define("el-dm-tab-panel", ElDmTabPanel);
 }
 register$3();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/theme-controller.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/theme-controller.js
 const css$2 = `/**
  * Theme Controller Component Styles
  * DuskMoonUI - Two display modes for theme switching:
@@ -25194,8 +25133,7 @@ function register$2() {
 	if (!customElements.get("el-dm-theme-controller")) customElements.define("el-dm-theme-controller", ElDmThemeController);
 }
 register$2();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/time-input.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/time-input.js
 const css$1 = `/**
  * Time Input Component Styles
  * DuskMoonUI - Time selection input component
@@ -25570,8 +25508,7 @@ function register$1() {
 	if (!customElements.get("el-dm-time-input")) customElements.define("el-dm-time-input", ElDmTimeInput);
 }
 register$1();
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/core/dist/esm/components/tooltip.js
+// ../../node_modules/@duskmoon-dev/core/dist/esm/components/tooltip.js
 const css = `/**
  * Tooltip Component Styles
  * DuskMoonUI - Material Design 3 inspired tooltip system
@@ -25771,8 +25708,7 @@ const css = `/**
 `;
 const sheet = typeof CSSStyleSheet !== "undefined" ? new CSSStyleSheet() : null;
 if (sheet) sheet.replaceSync(css);
-//#endregion
-//#region ../../node_modules/@duskmoon-dev/el-tooltip/dist/esm/register.js
+// ../../node_modules/@duskmoon-dev/el-tooltip/dist/esm/register.js
 var POSITION_CLASSES = {
 	top: "tooltip-top",
 	bottom: "tooltip-bottom",
@@ -26163,4 +26099,3 @@ function register() {
 	if (!customElements.get("el-dm-tooltip")) customElements.define("el-dm-tooltip", ElDmTooltip);
 }
 register();
-//#endregion

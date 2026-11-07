@@ -1,0 +1,1162 @@
+{
+  "scope": "Requested HTTP 1.0 RC adoption and compatible dependency refresh; local verification only",
+  "date": "2026-11-07",
+  "status": "verified_dependency_adoption",
+  "acceptance": false,
+  "base_commit": "1fbc3c297cb07d1c66f36410ac1ec0473cd8534c",
+  "source_sha256": "4e956eca53ab99dccd99d412a8d6404a9479eb6636a1ad780be0811a901a5662",
+  "lockfile_sha256": "580921f9bcfdb272985dabeab5258acaea42528d2a01a9b92168ae05eaa2ff39",
+  "requested_http_adoption_complete": true,
+  "installed_http_version": "1.0.0-rc.5",
+  "registry_verification": {
+    "status": "passed",
+    "updated_existing": 25,
+    "added_transitive": 1,
+    "packages": [
+      {
+        "name": "abyss",
+        "previous": "0.9.0",
+        "package": "abyss",
+        "version": "1.0.0-rc.4",
+        "inner_sha256": "b04f2654c92165c8d2d32dd463c3bf3daec2b64a3eaec0b8c53c9557e4e8caac",
+        "outer_sha256": "6cf34d5036b6022b2f63cc75558c728a89733c5824b4f14432b69eaf8e3b6484",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "concord",
+        "previous": "3.1.14",
+        "package": "concord",
+        "version": "3.1.15",
+        "inner_sha256": "b9a889f6cc0b8730502b73963a1e49795a40012ebb21db54851091a1c969ce7c",
+        "outer_sha256": "231865c64787e9cf7393ff1840bf11c3aeeed84b1dfe1645cb22df4781f01f5d",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "duskmoon_bundler",
+        "previous": "10.0.4",
+        "package": "duskmoon_bundler",
+        "version": "10.1.2",
+        "inner_sha256": "0b23c6f94d7ca4f782ecc893a968ec4668f36f97519b78ab613a6aa91546d081",
+        "outer_sha256": "73b82f71deb73abb0e760469ab50042c6f0b18c8580cd00b6937a2fba093ffbb",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "duskmoon_bundler_runtime",
+        "previous": "10.0.4",
+        "package": "duskmoon_bundler_runtime",
+        "version": "10.1.2",
+        "inner_sha256": "db6731e704f0a50175e00ea8baf917cf72a42a8aeb38b03d481418470c12fd01",
+        "outer_sha256": "953251b0d78ede31e72e3936fa33e365cbc79c3a24f664566b7710a7c2c1817e",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "duskmoon_hex_solver",
+        "previous": "10.0.4",
+        "package": "duskmoon_hex_solver",
+        "version": "10.1.2",
+        "inner_sha256": "edb5e7522fad5bf99c18b83657efb2924a2a4d2f1857ed17952aa0fcb9579ac0",
+        "outer_sha256": "bdb6e1674a1a01dc7b3cccbf5c86bf8b4c7c59ea2cecb7f3c4f31e10e0c89977",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "duskmoon_npm",
+        "previous": "10.0.4",
+        "package": "duskmoon_npm",
+        "version": "10.1.2",
+        "inner_sha256": "9700de633816ea138b30c8f0685516e19caaae312d1b4a57c0a1ece50c7a011d",
+        "outer_sha256": "7a31a882cc31f46d300b6b5b8126d541ac281c4cb018c5832bd34f828f093e5f",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "duskmoon_oxc",
+        "previous": "10.0.4",
+        "package": "duskmoon_oxc",
+        "version": "10.1.2",
+        "inner_sha256": "0d20875bede687034e4aed18077030ad6ab1d8897981c41e4dbeacc9a22a6661",
+        "outer_sha256": "ebf436748a4e9513007889daca5fb61db99dea7e6e942fe56ac84c07f0080f9f",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "duskmoon_oxide",
+        "previous": "10.0.4",
+        "package": "duskmoon_oxide",
+        "version": "10.1.2",
+        "inner_sha256": "41146da2d2a271fffb586ce52f76f25c4fcb7ea09efaed421d553452d6582413",
+        "outer_sha256": "ee9e84ddd9e451e5deb41f4eee5f6c24185e416bb10b7b47de421d3d27faae04",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "duskmoon_quickbeam",
+        "previous": "10.0.4",
+        "package": "duskmoon_quickbeam",
+        "version": "10.1.2",
+        "inner_sha256": "777547a37c69dd9d7fb4161411f1f566e2b3f16d5fbb07792bf9b4543288aa73",
+        "outer_sha256": "733a6e07873e051e7b1930484899088cf2e140d56702c1c3718cf019def2ea9f",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "duskmoon_vize",
+        "previous": "10.0.4",
+        "package": "duskmoon_vize",
+        "version": "10.1.2",
+        "inner_sha256": "dc0567e8932c9f44ce818e6aafe032dccb45a8591ac452adfe7ee463e595d3f8",
+        "outer_sha256": "ddc7b11d228f463199823bb4e6c8860dadabdf166609d7f234539ff5f51622de",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "elixir_quic",
+        "previous": "0.21.19",
+        "package": "elixir_quic",
+        "version": "1.0.0-rc.5",
+        "inner_sha256": "ab2496671eeb05d6b3545c3836770b6a7e9e34f856c3a8c913d8238f2d0c394a",
+        "outer_sha256": "67ace2bffe0d8bba84565a3ab34bbf3881ee8b7ef7125d96c85f84638b3ef0d2",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "elixir_quic_http3",
+        "previous": "0.21.19",
+        "package": "elixir_quic_http3",
+        "version": "1.0.0-rc.5",
+        "inner_sha256": "9bbde386fe63e3938800e89f3115c3ed009901de5664914657b7f45f05f7bace",
+        "outer_sha256": "2d48e069836144320a69d9651af40aedff49777071fada57e165b02bf8feb1e5",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "ex_ssl",
+        "previous": "0.21.19",
+        "package": "ex_ssl",
+        "version": "1.0.0-rc.5",
+        "inner_sha256": "558b6f14e6759ef0d4e3cb606bd02539a3e41b15094f407b958df0fad958eb3e",
+        "outer_sha256": "87352b327b1d5d01d93f9a2ef75ce8bb42e57a0ae8faf2c502511a24e1b19054",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "ex_turso",
+        "previous": "3.1.14",
+        "package": "ex_turso",
+        "version": "3.1.15",
+        "inner_sha256": "8f6705e53809c3271b1eb9915e46c1b7fe814d92a16ca38a4ba96e22f9e269fb",
+        "outer_sha256": "b4894f03d2094fb1e4cf5e7bb80a387672f009642ecad67aeddd9a7c0f8afa21",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "gaoxy",
+        "previous": "0.12.2",
+        "package": "gaoxy",
+        "version": "0.15.1",
+        "inner_sha256": "b78a01011a30045b3663685090709e51cca5938f650c707b5eeaf9d5a461b354",
+        "outer_sha256": "2139cd4c6de2b99ce3916972e8a860cacb2c78abe4afcca27246bffcb7b932ca",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "gaoxy_http",
+        "previous": "0.12.2",
+        "package": "gaoxy_http",
+        "version": "0.15.1",
+        "inner_sha256": "0ca9aa136a3d7ae616b2f896da66e956413245106d7b0e1b34ed7ef27d4f17b7",
+        "outer_sha256": "c5be206df4ba8149ae6e40ab7919a90879420cb811385153d61306c9c2ceceed",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "hell",
+        "previous": "0.1.2",
+        "package": "hell",
+        "version": "1.0.0-rc.4",
+        "inner_sha256": "ce96516bb21c6051319e1552efd9b4fb65aa23bbc49a728657d60cfc9de7f674",
+        "outer_sha256": "2238449d0a174e31eb180b8110d189812da08ed5c5c26efc9aa985e769dc5085",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "http_core",
+        "previous": "0.21.19",
+        "package": "http_core",
+        "version": "1.0.0-rc.5",
+        "inner_sha256": "6e4483b3d5e67b2d054b0fba135d2d454557ba7566c96e500fd906e1994bfed8",
+        "outer_sha256": "f0c8f640b92ba21c02f6828516ba00c571d558988c98080fe25c0f868dd0b8d6",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "http_event_source",
+        "previous": "0.21.19",
+        "package": "http_event_source",
+        "version": "1.0.0-rc.5",
+        "inner_sha256": "d6bdeeed8075448dc1fe16abf1408d023edcdb1b52c506f6f69bfab084bddd53",
+        "outer_sha256": "50556dd36fa81563bba8944ad53d3c5077a34ddeb87add3954bfdb6af58d89e5",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "http_fetch",
+        "previous": "0.21.19",
+        "package": "http_fetch",
+        "version": "1.0.0-rc.5",
+        "inner_sha256": "45f71031e62d025cbdcf3a3e2cf64518159bd2dbbb21ae69b5730934aa4b3354",
+        "outer_sha256": "1630319d696207d420f77cf6aac870fc0928aedf6b79bf6f1d4d1860e50470da",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "http_runtime",
+        "previous": "0.21.19",
+        "package": "http_runtime",
+        "version": "1.0.0-rc.5",
+        "inner_sha256": "d9a03b354ce2dae9a760fda64042db5cf5b2d970e7286628bbe8f9d0bfee002c",
+        "outer_sha256": "15d5b15ae77cdd4a27f529a3dcdb2d007230a36a8706c891127facf106f37df0",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "http_web_socket",
+        "previous": "0.21.19",
+        "package": "http_web_socket",
+        "version": "1.0.0-rc.5",
+        "inner_sha256": "364af568e21a11350999310032e5cc0de13c1f7d690be5b352d7aa0419567036",
+        "outer_sha256": "d471251bfb70fca2601d053f1b66e67356b069fac29e95c65d33b30a06e5f8d5",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "phoenix_duskmoon",
+        "previous": "10.0.12",
+        "package": "phoenix_duskmoon",
+        "version": "10.1.0",
+        "inner_sha256": "6e9ac3c9ce936a2360e0dd99bd6dd9df8ff0b8602a2344810da7f7185cee903a",
+        "outer_sha256": "d6fb63f2a9fd68b478a22627b89628d39bb44689d8cbaf4bb8ed3a2c0d00a9ba",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "varint",
+        "previous": null,
+        "package": "varint",
+        "version": "1.6.0",
+        "inner_sha256": "7bced828599b2eb84491a9f067f8a5a67fc35a946d3b7582278083c7fd434b00",
+        "outer_sha256": "2b4f4a20650aeebe993a70b03bb99571bcbddc27c361322c28b586d8a772ce4e",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "viewstamped_replication",
+        "previous": "3.1.14",
+        "package": "viewstamped_replication",
+        "version": "3.1.15",
+        "inner_sha256": "ae1f4c9301f36603e6fd81ed2cd0275eb549344bbd859cecd4ee7d03d399375b",
+        "outer_sha256": "4dda0edc25ac8d3cdabd5bf70190bd9d904fa8dc935d9bac38e0512b80a465d3",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      },
+      {
+        "name": "websock_adapter",
+        "previous": "0.12.2",
+        "package": "gaoxy_websock_adapter",
+        "version": "0.15.1",
+        "inner_sha256": "8aab331416e56cf2c1046307a2d74acaa6bc06919e704626e98512da268d8774",
+        "outer_sha256": "9516b97558dbce022557e02d3d11c1c5ff2b20e706a84f68d745d01f66237682",
+        "registry_archive_and_lock_match": true,
+        "retired": null
+      }
+    ]
+  },
+  "constraints": {
+    "http_dependency_override": false,
+    "dependency_source_patch": false,
+    "websock_adapter_alias_override": "Existing gaoxy_websock_adapter alias retained",
+    "gaoxy_cohort": "0.15.1",
+    "abyss_hell": "1.0.0-rc.4, exact upstream Gaoxy pins retained",
+    "unrequested_prereleases_not_selected": [
+      "jason 1.5.0-alpha.2",
+      "req 0.8.0-rc.0"
+    ]
+  },
+  "native_platform": {
+    "platform": {
+      "glibc": "glibc 2.43",
+      "beam": "Erlang/OTP 28 [erts-16.4.0.6] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.19.5 (compiled with Erlang/OTP 28)",
+      "rust": "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+      "node": "v20.20.2",
+      "python": "Python 3.14.4"
+    },
+    "bundler_version": "10.1.2",
+    "gnu_minimum_glibc": "2.43",
+    "docker_build_and_runtime": "ubuntu:26.04",
+    "native_ci_runner": "ubuntu-26.04",
+    "published_native_artifacts": {
+      "status": "passed",
+      "published_vize_archive_matches_loaded_archive": true,
+      "precompiled_cache_sha256": {
+        "liboxide_ex_nif-v10.1.2-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz": "d42decc6f3c323147671fd593299f4d579a82180158f90ff1ff4a135de8e554f",
+        "liboxc_ex_nif-v10.1.2-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz": "b229dd6b593f9b93e0f52dfb1f1835d0e5396f279ff55a80bb44b51e83967df1",
+        "libvize_ex_nif-v10.1.2-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz": "59d4d444f76e343ca1f81e6d95509efdaceff03cde9dcf73eb33f9f01798a990",
+        "liboxc_fmt_nif-v10.1.2-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz": "97bad089465cc7897efe490d8da2d864c3c0a0b20552d82f02f4fe6a10d51be5",
+        "liboxc_lint_nif-v10.1.2-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz": "ca60280d6aee6ff766e6ef81fdd4b3a33dac2a395a333372eafbb79749650400"
+      }
+    },
+    "vize_archive_digest_and_elf_verified": {
+      "version": "10.1.2",
+      "archive_digest_verified": true,
+      "glibc_versions": [
+        "GLIBC_2.2.5",
+        "GLIBC_2.3",
+        "GLIBC_2.3.4",
+        "GLIBC_2.4",
+        "GLIBC_2.9",
+        "GLIBC_2.14",
+        "GLIBC_2.15",
+        "GLIBC_2.16",
+        "GLIBC_2.17",
+        "GLIBC_2.18",
+        "GLIBC_2.25",
+        "GLIBC_2.27",
+        "GLIBC_2.28",
+        "GLIBC_2.29",
+        "GLIBC_2.30",
+        "GLIBC_2.32",
+        "GLIBC_2.33",
+        "GLIBC_2.34",
+        "GLIBC_2.35",
+        "GLIBC_2.39",
+        "GLIBC_2.43"
+      ]
+    },
+    "forced_bundler_source_build": false,
+    "ex_turso_source_build": "Unchanged upstream default",
+    "upstream_issue_17": "Fixed in published Bundler 10.1.2",
+    "upstream_issue_9": "Closed not planned; older GNU compatibility is not claimed"
+  },
+  "concord": {
+    "version": "3.1.15",
+    "upstream_tag": "v3.1.15",
+    "upstream_commit": "65c3b161a91f8c343ac3d2fadbb99ad20a0b502e",
+    "matched_elixir_source_test_project_files": 163,
+    "matched_native_source_manifest_files": 3,
+    "package_audit_sha256": "d105e36c2bc39dc5f4090ee5561bb77a7c5cc303b9d75f3df6abecc59100993e",
+    "production_sources_unchanged_from": "3.1.14",
+    "reviewed_source_sha256": {
+      "viewstamped_replication/lib/viewstamped_replication/replica.ex": "bb62a681344538fee05a357082d0e87721deb5a3614c1344f07b4e2aa4e16541",
+      "viewstamped_replication/lib/viewstamped_replication/protocol.ex": "14b79d1bbbe8423398bb69a33cbd2d6a8d350457ab8cee69df18b995f4544f4e",
+      "viewstamped_replication/lib/viewstamped_replication/protocol/state.ex": "b97e99e709823e37d243b22e7203398eb9f5302ec2e1c4e266f8d4be26d12142",
+      "viewstamped_replication/lib/viewstamped_replication/log.ex": "26e992fcad95826b75ca5beeb1adc0acc9a2e223904e68142696b4ce45d34a87",
+      "viewstamped_replication/lib/viewstamped_replication/log/indexed.ex": "2d3b160486489a6b73ce7d4d1076abffaa902ef896230f67b625f423bee49164",
+      "viewstamped_replication/lib/viewstamped_replication/storage/memory.ex": "241e2d793ac385c8b3a92d5e88b59f9a05ee65f41bf2a62404fa8213813d850e",
+      "viewstamped_replication/lib/viewstamped_replication/storage/file.ex": "9a3c2a8bf45bd0220b930a4907f9e128cfc8e28b9dffd3bf04d3df5086aaae96",
+      "concord/lib/concord/state_machine/core.ex": "656271d2fa12a3141fbf706c6c110df5fad5c68f9651d2975381a51021b3771c",
+      "concord/lib/concord/engine/vsr/state_machine.ex": "6f83999ab0283639fd8f8265b0d89f67b8898d9678e17d9af650674a2c823f78",
+      "concord/lib/concord/state_machine.ex": "fb417d9970ded983b25fdd459e46d13b5c8c28a37f2d275dcb349164ce422699",
+      "concord/lib/concord/state_machine/observer.ex": "f23fac22c4b17a4a8e66e60ad86da759455e671f93b396084c71026c965da668",
+      "concord/lib/concord/engine/turso.ex": "727e760a64213a11f81ff5bac30b93a6098a345606f5c81894e8519b7b939714",
+      "concord/lib/concord/turso/migrations.ex": "82373ca14c7b4433a9eb1a052270472edd0287517c550cc3878fae4ffff5d8d2",
+      "concord/lib/concord/turso/codec.ex": "de4a0dbc3983432d6a10d2f79db1ca11845d3bb1ac52326145d32e885fc1f34d",
+      "concord/lib/concord/kv.ex": "69fc31f1d7f085a655643f7d608664c3e20d301691f2034a6b4a2a48c5c57383",
+      "concord/lib/concord/turso.ex": "91c61bc854035cd1435ef0d1c7e76f996274be41271a086f1ab7ee7fca55e34b",
+      "concord/lib/concord/turso/prefix_replacement.ex": "b73db7a5da053c4118c771c7d88b5fcf7d3b64e06ab4f36d3f814057efae4829",
+      "concord/lib/concord/engine/vsr.ex": "9d19de390234847c8ee885a3ee64939dc111078a650af43e01e3d190d85095e6",
+      "concord/lib/concord/deadline.ex": "e64b777fb4749016e8bacc4354728bbead16e31d0c7218d019b9b6b1a9d34e72",
+      "concord/lib/concord/command_schema.ex": "15b17e48e67e0f1b9e216269f1a26b1b7bc8126d2b31fa9282b291ba2606664e",
+      "concord/lib/concord/command_envelope.ex": "9b334d24522585a8467bde86ba77a7fba7116f8cd2ec0b7ac0fd8bf6254f5a1c",
+      "concord/lib/concord/turso/list_queue.ex": "5f6f02131b70de1ecb81d658a361f097a7710cdba712f2ed0b24089257d53d68",
+      "concord/lib/concord/turso/bulk_put.ex": "68ebd7321c95526d82d8a3aebed53e0a1ea4625a205ec7a574334d4ad447eb41",
+      "concord/lib/concord/turso/conditional_put.ex": "b4d66c8dbad2f663da779e7f5c082b2d1a71c069d6b0b5d630cc3b134ce4154a"
+    },
+    "metadata_backend": "file-backed VSR",
+    "command_versions": [
+      0,
+      1
+    ],
+    "optional_turso_apis_enabled": false,
+    "admission_execution": [
+      {
+        "mode": "minimal",
+        "argv": [
+          "mix",
+          "run",
+          "--no-compile",
+          "--no-start",
+          "e2e/scripts/index_concord316_probe.exs",
+          "minimal",
+          "/tmp/ess-http-rc-refresh-20261107-r2/final/admission-minimal.json"
+        ],
+        "exit_status": 0,
+        "seconds": 0.795,
+        "process_stopped": true,
+        "acceptance": false
+      },
+      {
+        "mode": "production",
+        "argv": [
+          "mix",
+          "run",
+          "--no-compile",
+          "--no-start",
+          "e2e/scripts/index_concord316_probe.exs",
+          "production",
+          "/tmp/ess-http-rc-refresh-20261107-r2/final/admission-production.json"
+        ],
+        "exit_status": 0,
+        "seconds": 3.114,
+        "process_stopped": true,
+        "acceptance": false
+      }
+    ],
+    "minimal": {
+      "status": "diagnostic_completed",
+      "mode": "minimal",
+      "otp_release": "28",
+      "elixir_version": "1.19.5",
+      "versions": {
+        "concord": "3.1.15",
+        "ex_turso": "3.1.15",
+        "viewstamped_replication": "3.1.15"
+      },
+      "applications_unchanged": true,
+      "transaction_change_tracking": "exact_changes",
+      "transaction_store_equal": true,
+      "diagnostic_only": true,
+      "acceptance_promotion": false
+    },
+    "minimal_rows": [
+      {
+        "retained_before": 1000,
+        "retained_after": 1030,
+        "forbidden_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 0,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 0
+        },
+        "owned_read_forbidden_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 0,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 0
+        },
+        "exhaustive_public_read_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 1,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 1,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 1,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 1
+        },
+        "invariants_verified_outside_measurement": true,
+        "samples": 30
+      },
+      {
+        "retained_before": 10000,
+        "retained_after": 10030,
+        "forbidden_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 0,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 0
+        },
+        "owned_read_forbidden_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 0,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 0,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 0,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 0
+        },
+        "exhaustive_public_read_history_calls": {
+          "ViewstampedReplication.Log.canonical/1": 1,
+          "ViewstampedReplication.Log.indexed/1": 0,
+          "ViewstampedReplication.Protocol.assert_applied_requests_are_unique!/1": 1,
+          "ViewstampedReplication.Protocol.assert_committed_prefix!/2": 0,
+          "ViewstampedReplication.Protocol.assert_invariants!/1": 1,
+          "ViewstampedReplication.Protocol.assert_transition!/2": 0,
+          "ViewstampedReplication.Protocol.index_applied_requests/3": 0,
+          "ViewstampedReplication.Protocol.step/2": 1
+        },
+        "invariants_verified_outside_measurement": true,
+        "samples": 30
+      }
+    ],
+    "production": {
+      "status": "diagnostic_completed",
+      "mode": "production",
+      "otp_release": "28",
+      "elixir_version": "1.19.5",
+      "versions": {
+        "concord": "3.1.15",
+        "ex_turso": "3.1.15",
+        "viewstamped_replication": "3.1.15"
+      },
+      "command_version": 0,
+      "native_before_reads": {
+        "op_number": 259,
+        "applied_number": 259,
+        "retained_entries": 259,
+        "log_base": 0
+      },
+      "native_log_unchanged_during_reads": true,
+      "native_final": {
+        "op_number": 264,
+        "applied_number": 264,
+        "retained_entries": 264,
+        "log_base": 0
+      },
+      "diagnostic_only": true,
+      "acceptance_promotion": false
+    },
+    "production_puts": [
+      {
+        "phase": "admission-target",
+        "planned": 128,
+        "completed": 128
+      },
+      {
+        "phase": "admission-unrelated",
+        "planned": 128,
+        "completed": 128
+      }
+    ],
+    "probe_receipt_sha256": {
+      "admission-minimal.json": "61ef4548d8128f702d07a71a1fe5dfe568bca7f55063a8b4dae8cee8a0aaab15",
+      "admission-production.json": "87d7699b24ab077719017b5dba7e20806588a2f5b0b5b7574a210e694ea18b69"
+    },
+    "admission_cleanup": {
+      "status": "passed",
+      "owned_probe_processes_stopped": true,
+      "roots": [
+        {
+          "path": "admission-production-data",
+          "existed": true,
+          "removed": true
+        },
+        {
+          "path": "admission-production-data-r3",
+          "existed": true,
+          "removed": true
+        },
+        {
+          "path": "final/admission-production-data",
+          "existed": true,
+          "removed": true
+        }
+      ]
+    }
+  },
+  "verification": {
+    "status": "passed",
+    "checks": [
+      {
+        "name": "update-all-retry",
+        "command": [
+          "mix",
+          "deps.update",
+          "--all"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 21.035
+      },
+      {
+        "name": "format-manifests",
+        "command": [
+          "mix",
+          "format",
+          "apps/ex_storage_service/mix.exs",
+          "apps/ex_storage_service_cli/mix.exs",
+          "apps/ex_storage_service_cluster/mix.exs",
+          "apps/ex_storage_service_s3/mix.exs",
+          "apps/ex_storage_service_web/mix.exs"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 6.689
+      },
+      {
+        "name": "format",
+        "command": [
+          "mix",
+          "format",
+          "--check-formatted"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 0.79
+      },
+      {
+        "name": "test-strict-compile",
+        "command": [
+          "mix",
+          "compile",
+          "--force",
+          "--warnings-as-errors"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 7.65
+      },
+      {
+        "name": "production-strict-compile",
+        "command": [
+          "mix",
+          "compile",
+          "--force",
+          "--warnings-as-errors"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 13.833
+      },
+      {
+        "name": "hex-audit",
+        "command": [
+          "mix",
+          "hex.audit"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 3.587
+      },
+      {
+        "name": "outdated-all",
+        "command": [
+          "mix",
+          "hex.outdated",
+          "--all"
+        ],
+        "status": "passed",
+        "exit_status": 1,
+        "elapsed_seconds": 2.013
+      },
+      {
+        "name": "outdated-prereleases",
+        "command": [
+          "mix",
+          "hex.outdated",
+          "--all",
+          "--pre"
+        ],
+        "status": "passed",
+        "exit_status": 1,
+        "elapsed_seconds": 3.671
+      },
+      {
+        "name": "namespace-prerequisites",
+        "command": [
+          "python3",
+          "-c",
+          "import subprocess; subprocess.run([\"mount\", \"-o\", \"remount,rw\", \"/proc/sys\"], check=True); subprocess.run([\"bwrap\", \"--die-with-parent\", \"--ro-bind\", \"/\", \"/\", \"--proc\", \"/proc\", \"true\"], check=True); subprocess.run([\"unshare\", \"--user\", \"--map-root-user\", \"--net\", \"true\"], check=True)"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 0.019
+      },
+      {
+        "name": "extended-correctness",
+        "command": [
+          "python3",
+          "e2e/run_correctness_tests.py",
+          "--extended",
+          "--output",
+          "/tmp/ess-http-rc-refresh-20261107-r2/final/correctness"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 480.035
+      },
+      {
+        "name": "python-harness",
+        "command": [
+          "runuser",
+          "--user",
+          "ubuntu",
+          "--",
+          "/opt/ess-verify/bin/python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "e2e",
+          "-p",
+          "test_*.py"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 21.814
+      },
+      {
+        "name": "index-admission",
+        "command": [
+          "python3",
+          "e2e/scripts/index_dependency_preflight.py"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 0.019
+      },
+      {
+        "name": "production-assets",
+        "command": [
+          "mix",
+          "assets.deploy"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 11.921
+      },
+      {
+        "name": "daily-http",
+        "command": [
+          "bash",
+          "e2e/run_hardening_daily.sh",
+          "/opt/ess-verify/bin/python",
+          "http-rc5-final-20261107"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 3.714
+      },
+      {
+        "name": "local-release-assemble",
+        "command": [
+          "mix",
+          "release",
+          "ess",
+          "--no-compile",
+          "--overwrite"
+        ],
+        "status": "passed",
+        "exit_status": 0,
+        "elapsed_seconds": 1.233
+      }
+    ]
+  },
+  "outdated": {
+    "stable_remaining": [
+      "abyss                           1.0.0-rc.4  1.0.0-rc.5  Update not possible",
+      "hell                            1.0.0-rc.4  1.0.0-rc.5  Update not possible"
+    ],
+    "including_prereleases": [
+      "abyss                           1.0.0-rc.4  1.0.0-rc.5     Update not possible",
+      "hell                            1.0.0-rc.4  1.0.0-rc.5     Update not possible",
+      "jason                           1.4.5       1.5.0-alpha.2  Update possible",
+      "req                       test  0.7.5       0.8.0-rc.0     Update possible"
+    ],
+    "hex_audit": "No retired or security advisory packages found"
+  },
+  "generated_web_elements_sha256": "19c23b3c5a97ccfe0eb8b2453ee5975e72898d96e66a0c7d39ceccdc1943be0e",
+  "correctness": {
+    "command": [
+      "mix",
+      "test",
+      "--max-cases",
+      "1",
+      "--no-color",
+      "apps/ex_storage_service/test",
+      "apps/ex_storage_service_cluster/test",
+      "apps/ex_storage_service_s3/test",
+      "apps/ex_storage_service_web/test",
+      "apps/ex_storage_service_cli/test"
+    ],
+    "minimum_tests": {
+      "ex_storage_service": 587,
+      "ex_storage_service_cluster": 40,
+      "ex_storage_service_s3": 357,
+      "ex_storage_service_web": 21,
+      "ex_storage_service_cli": 3491
+    },
+    "status": "passed",
+    "app_counts": {
+      "ex_storage_service": {
+        "tests": 645,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 644
+      },
+      "ex_storage_service_cluster": {
+        "tests": 44,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 43
+      },
+      "ex_storage_service_cli": {
+        "tests": 3491,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 3491
+      },
+      "ex_storage_service_s3": {
+        "tests": 387,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 387
+      },
+      "ex_storage_service_web": {
+        "tests": 24,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 24
+      }
+    },
+    "exit_status": 0,
+    "errors": []
+  },
+  "selected_test_file_counts": {
+    "ex_storage_service": 93,
+    "ex_storage_service_cluster": 6,
+    "ex_storage_service_s3": 50,
+    "ex_storage_service_web": 4,
+    "ex_storage_service_cli": 146
+  },
+  "python_harness": {
+    "tests": 163,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "status": "passed"
+  },
+  "daily_http": {
+    "status": "passed",
+    "profile": "daily",
+    "source_sha256": "4e956eca53ab99dccd99d412a8d6404a9479eb6636a1ad780be0811a901a5662",
+    "ending_source_sha256": "4e956eca53ab99dccd99d412a8d6404a9479eb6636a1ad780be0811a901a5662",
+    "checks": [
+      {
+        "name": "production-compile",
+        "status": "passed",
+        "seconds": 0.716
+      },
+      {
+        "name": "server-health-and-readiness",
+        "status": "passed",
+        "seconds": 0.834
+      },
+      {
+        "name": "bucket-create-list-head-location-tags",
+        "status": "passed",
+        "seconds": 0.051
+      },
+      {
+        "name": "put-head-get-range-checksum-attributes",
+        "status": "passed",
+        "seconds": 0.042
+      },
+      {
+        "name": "default-sdk-checksum-gzip-bytes",
+        "status": "passed",
+        "seconds": 0.012
+      },
+      {
+        "name": "list-prefix-delimiter-pagination",
+        "status": "passed",
+        "seconds": 0.045
+      },
+      {
+        "name": "object-tags-copy-replace-delete-tags",
+        "status": "passed",
+        "seconds": 0.037
+      },
+      {
+        "name": "presigned-get-put-and-authentication",
+        "status": "passed",
+        "seconds": 0.014
+      },
+      {
+        "name": "cors-configuration-preflight-authenticated-read",
+        "status": "passed",
+        "seconds": 0.014
+      },
+      {
+        "name": "multipart-upload-list-parts-complete-and-abort",
+        "status": "passed",
+        "seconds": 0.201
+      },
+      {
+        "name": "multipart-part-copy",
+        "status": "passed",
+        "seconds": 0.037
+      },
+      {
+        "name": "batch-delete-and-single-delete",
+        "status": "passed",
+        "seconds": 0.024
+      },
+      {
+        "name": "versions-explicit-read-copy-delete-marker",
+        "status": "passed",
+        "seconds": 0.059
+      },
+      {
+        "name": "remove-created-versions-and-bucket",
+        "status": "passed",
+        "seconds": 0.047
+      }
+    ],
+    "versions": {
+      "python": "3.14.4",
+      "boto3": "1.43.114",
+      "botocore": "1.43.114",
+      "beam": "Erlang/OTP 28 [erts-16.4.0.6] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.19.5 (compiled with Erlang/OTP 28)",
+      "concord": "3.1.15",
+      "viewstamped_replication": "3.1.15",
+      "ex_turso": "3.1.15",
+      "http_fetch": "1.0.0-rc.5"
+    },
+    "sdk_checksum_policy": {
+      "request": "when_supported",
+      "response": "when_supported"
+    },
+    "readiness_http_status": 200,
+    "server_stopped": true,
+    "listener_closed": true,
+    "disposable_root_removed": true
+  },
+  "runtime_export": {
+    "status": "passed",
+    "scope": "Temporary release export ownership only; content and permissions preserved",
+    "files": 4439,
+    "aggregate_content_sha256": "dd4a4137ed47c5672cdd92094ae6864fb65de10aade242a0bab41194e7d79e9a",
+    "source_and_export_identical": true,
+    "runtime_config_bytes": 13767,
+    "runtime_config_sha256": "b623a8fe3fbc1f74c43940bdd7c9a11ebf24f09a7f2b9098b6e48de2a73086bb",
+    "runtime_config_mode": "0600",
+    "uid": 1000,
+    "gid": 100
+  },
+  "runtime_stage_build": {
+    "command": [
+      "docker",
+      "build",
+      "--file",
+      "/tmp/ess-http-rc-refresh-20261107-r2/Dockerfile.runtime",
+      "--tag",
+      "ess-http-rc-candidate:20261107-final",
+      "/tmp/ess-http-rc-refresh-20261107-r2/runtime-context"
+    ],
+    "exit_status": 0,
+    "status": "passed",
+    "seconds": 7.925,
+    "scope": "Repository runtime stage, with its COPY source supplied by the locally assembled candidate release",
+    "full_dockerfile_build": false,
+    "publication": false,
+    "dockerfile_sha256": "350521247ac75d9a59781c07b5fd21794a05ea2917f29a4a6ed79af9b02740a3",
+    "original_runtime_stage_sha256": "ad0830ff0ebcb130de6135787e5e8e9be57cd6453e2aadece77221c619772e3c",
+    "local_recipe_sha256": "2ca001a36897f060f8a1916525472433801530394da2d63184b09f3bff3547ec"
+  },
+  "runtime_verification": {
+    "status": "passed",
+    "image": "ess-http-rc-candidate:20261107-final",
+    "checks": [
+      {
+        "name": "bucket-create-list-head-location-tags",
+        "status": "passed",
+        "seconds": 0.023
+      },
+      {
+        "name": "put-head-get-range-checksum-attributes",
+        "status": "passed",
+        "seconds": 0.018
+      },
+      {
+        "name": "default-sdk-checksum-gzip-bytes",
+        "status": "passed",
+        "seconds": 0.013
+      },
+      {
+        "name": "list-prefix-delimiter-pagination",
+        "status": "passed",
+        "seconds": 0.042
+      },
+      {
+        "name": "object-tags-copy-replace-delete-tags",
+        "status": "passed",
+        "seconds": 0.037
+      },
+      {
+        "name": "presigned-get-put-and-authentication",
+        "status": "passed",
+        "seconds": 0.014
+      },
+      {
+        "name": "cors-configuration-preflight-authenticated-read",
+        "status": "passed",
+        "seconds": 0.014
+      },
+      {
+        "name": "multipart-upload-list-parts-complete-and-abort",
+        "status": "passed",
+        "seconds": 0.194
+      },
+      {
+        "name": "multipart-part-copy",
+        "status": "passed",
+        "seconds": 0.032
+      },
+      {
+        "name": "batch-delete-and-single-delete",
+        "status": "passed",
+        "seconds": 0.014
+      },
+      {
+        "name": "versions-explicit-read-copy-delete-marker",
+        "status": "passed",
+        "seconds": 0.053
+      },
+      {
+        "name": "remove-created-versions-and-bucket",
+        "status": "passed",
+        "seconds": 0.047
+      }
+    ],
+    "publication": false,
+    "boto3": "1.43.114",
+    "botocore": "1.43.114",
+    "image_id": "sha256:c5f263f4f7dc4471750d85eb21da31e3d28ea8c04cda8ea21b58ccf6cfa9d76d",
+    "readiness_http_status": 200,
+    "runtime_config_sha256": "b623a8fe3fbc1f74c43940bdd7c9a11ebf24f09a7f2b9098b6e48de2a73086bb",
+    "glibc": "glibc 2.43",
+    "versions": {
+      "http_fetch": "1.0.0-rc.5",
+      "concord": "3.1.15",
+      "tls_backend": "ex_ssl",
+      "gaoxy_http": "0.15.1",
+      "phoenix_duskmoon": "10.1.0",
+      "duskmoon_bundler": "10.1.2"
+    },
+    "web_assets": [
+      {
+        "path": "/assets/css/app-7c959004-93b297273591d260faefa258212d2d92.css?vsn=d",
+        "bytes": 473648,
+        "content_type": "text/css",
+        "sha256": "7c959004c9ab4e620c2d76a531acc986d4ae04e678e48b8022571c865cca8f93"
+      },
+      {
+        "path": "/assets/js/app-c1acafd1-0c472ee00fa45a451528a24df70fa8aa.js?vsn=d",
+        "bytes": 793547,
+        "content_type": "text/javascript",
+        "sha256": "753b50ee779d6173f9491d352cc2ca5de294623baaaacf98ba1b9a409a09b4f1"
+      }
+    ],
+    "container_and_volume_removed": true,
+    "container_absent": true
+  },
+  "browser_verification": {
+    "status": "passed",
+    "scope": "Guest login page browser startup",
+    "path": "/login",
+    "document_ready": "complete",
+    "live_socket_initialized": true,
+    "css_loaded": true,
+    "script_count": 1,
+    "console_warnings_and_errors": 0,
+    "successful_document_stylesheet_script_requests": 3,
+    "page_closed": true,
+    "container_and_volume_removed": true,
+    "container_absent": true
+  },
+  "environment_observations": [
+    {
+      "stage": "initial admission",
+      "result": "failed before workload",
+      "cause": "Compile-time Git metadata was nil in the initial untrusted container checkout",
+      "resolution": "Strict test and production recompilation in the Git-trusted verification image; final probes passed"
+    },
+    {
+      "stage": "initial Python harness",
+      "result": "failed",
+      "cause": "Container-root nested user namespace could not traverse the existing owner-only workspace",
+      "resolution": "Run the unchanged harness as the workspace owner with the normal user environment"
+    },
+    {
+      "stage": "second Python harness",
+      "result": "failed",
+      "cause": "Bare setpriv inherited root Erlang configuration paths, adding permission errors to stdout",
+      "resolution": "Use runuser with the workspace owner and normal user environment; all 163 tests passed"
+    },
+    {
+      "stage": "initial assets",
+      "result": "interrupted and invalidated despite exit status 0",
+      "cause": "Observed Mix build-lock self-deadlock; child explicitly terminated",
+      "resolution": "Fresh sequential verification container completed full assets and phx.digest; OS concurrency locks remained enabled"
+    },
+    {
+      "stage": "initial local runtime image",
+      "result": "startup failed and image invalidated",
+      "cause": "Host Docker build-context reader could not read root-owned mode-0600 runtime configuration; the image contained an empty file",
+      "resolution": "Export an identical 4439-file release copy owned by the workspace user, preserve all file modes, rebuild the runtime stage, and assert the runtime configuration SHA256 in the running image"
+    },
+    {
+      "stage": "final package fetch",
+      "result": "timeout",
+      "resolution": "Official HEX_HTTP_CONCURRENCY=1 and HEX_HTTP_TIMEOUT=120 retry succeeded"
+    }
+  ],
+  "evidence_sha256": {
+    "final/admission-minimal.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final/admission-production.log": "65cdfccded50ce7b4856edd0b599c33264f723c9c16ae24f9e39edb06cc7ad6e",
+    "final/daily-http.log": "a6cad524782ca55f34494e456886cfb4c7bda3c38fd2e7a57ad2ec8e5825ba27",
+    "final/extended-correctness.log": "e80e6d079d573920cb469994e1aa7dcf6b7e162d06a4c03dfacbacfff2d92e08",
+    "final/format-manifests.log": "50a76d035d205fc505a0bdc1f522caa0fd6ec96a4c0acf0f841d59f3754aa99b",
+    "final/format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final/hex-audit.log": "25ce35312da15695b9ab9e466ebdba2c1460f780ca6a14e164646fee228030d6",
+    "final/index-admission.log": "0dbae884c326e030c742fb58f9831e178c1ce1d1009237df486061800d44dd0c",
+    "final/local-release-assemble.log": "d428e5fa2ebae548cac6f49fb5b43efd92df02b8506d972ab2f81adb3af7b7a4",
+    "final/namespace-prerequisites.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final/outdated-all.log": "6da50f2f6c8d2a3460292f56528f76ace9dc4796140b548900c981879741842d",
+    "final/outdated-prereleases.log": "fa24f304b2140f8f9dacdb4feb65935a11558a06c38a77ee800e02cfb8e03727",
+    "final/production-assets.log": "57c32d98e2edb0180960fedc9c021948d730f6cac671f24d9e5b024201478aff",
+    "final/production-strict-compile.log": "860ea0e161542e90224b2a6a76cda72f4911207870af7f5f65adc837edb1c776",
+    "final/python-harness.log": "dc2118446968550f0df25e4da1c2fd1b443702527bb336c6841e15663d7aef76",
+    "final/test-strict-compile.log": "343c85cf3f1109d4e93ceb3ecd9bb0c6ca7f49dd6ea089cbdff5871e802e4188",
+    "final/update-all-retry.log": "659a762639e7ffd9f43cbbe7161eb4a70d51aa49e0179e5842b61818d2778db4",
+    "final/update-all.log": "8aba0ff5a41d5cacbd61517b9642c24da1c2933c360c9e834330051beff17903"
+  },
+  "publication": {
+    "performed": false,
+    "version": "0.7.0",
+    "full_current_source_acceptance": "not run",
+    "last_full_acceptance_run_id": 42259381466,
+    "last_full_acceptance_concord": "3.1.13",
+    "blockers": [
+      "index timeout after unrelated growth",
+      "original 100 ms resource observation coverage gaps",
+      "original 30-second replica-repair failure",
+      "successful full current-source acceptance and all 158 clause audits"
+    ],
+    "historical_acceptance_promoted": false,
+    "local_runtime_stage_is_full_dockerfile_build": false,
+    "hosted_full_dockerfile_build": "Verified separately after pushing the candidate; local runtime-stage success does not certify it"
+  }
+}

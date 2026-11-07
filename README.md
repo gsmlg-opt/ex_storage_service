@@ -282,7 +282,7 @@ Runtime services:
 | Admin portal | 4900 | Phoenix + LiveView + Gaoxy | Web dashboard and management |
 | Internal cluster transport | 9100 | Gaoxy + HMAC + optional TLS | Private data-plane between cluster data nodes (never expose publicly) |
 
-The umbrella locks all listeners to `gaoxy_http` 0.12.2. Phoenix uses
+The umbrella locks all listeners to `gaoxy_http` 0.15.1. Phoenix uses
 `Gaoxy.PhoenixAdapter` and `gaoxy_websock_adapter` for LiveView upgrades.
 Phoenix and S3 retain HTTP/1 and cleartext HTTP/2 prior-knowledge support;
 the private cluster transport uses HTTP/1.
@@ -294,7 +294,7 @@ budget for HTTP/2. Object and blob sizes remain separately bounded.
 The S3 wire-body ceiling also accounts for AWS chunk framing and trailers.
 
 Outbound HTTP clients use [`http_fetch`](https://github.com/gsmlg-dev/http_fetch)
-0.21.19 for the CLI, cloud cache, remote inventory synchronization, webhooks,
+1.0.0-rc.5 for the CLI, cloud cache, remote inventory synchronization, webhooks,
 internal cluster transport, and cross-cluster replication. Signed requests do
 not follow redirects. Cluster and replication uploads use bounded streams with
 an explicit Content-Length and upload chunks of at most 64 KiB. Cluster downloads
@@ -302,11 +302,20 @@ validate headers before
 forwarding bytes with acknowledged backpressure.
 Webhook retries remain controlled by the notification worker.
 
-The core package accepts HTTP 0.17.2 or later in the 0.17 series, 0.18.x,
-and `~> 0.21.12`. The CLI requires `http_fetch ~> 0.21.13` for its validated
-transport API. The umbrella locks the coordinated 0.21.19 HTTP family without
-dependency overrides. HTTP 1.0 RC adoption awaits compatible Bundler dependency
-constraints, tracked in [DuskMoon Bundler #17](https://github.com/duskmoon-dev/duskmoon-bundler/issues/17).
+The core and CLI packages require `http_fetch ~> 1.0.0-rc.5`. The coordinated
+client/engine family uses RC5 without HTTP dependency overrides; Gaoxy 0.15.1
+retains its upstream Abyss/Hell RC4 pins. HTTPS clients use ExSSL with certificate
+verification enabled, retaining custom CA, hostname/SNI and client-certificate
+support through the existing `ssl:` options. Legacy `tls_backend: :ssl` is no
+longer supported by the upstream client.
+
+Bundler 10.1.2 resolves the HTTP constraints tracked in
+[DuskMoon Bundler #17](https://github.com/duskmoon-dev/duskmoon-bundler/issues/17).
+Its published GNU native libraries require glibc 2.43. GNU umbrella development
+and CI therefore require Ubuntu 26.04 or a compatible newer environment; Docker
+uses Ubuntu 26.04 for both build and runtime stages. Use Bundler's published
+native libraries without forcing source builds. Standalone CLI platform acceptance
+remains separate from the web toolchain's native requirements.
 
 Storage requests set `decode_body: false` to preserve stored gzip/deflate object
 bytes and their Content-Encoding metadata. This uses the raw response support
@@ -648,8 +657,8 @@ with existing metadata, retain a complete backup of the old metadata state and p
 explicit export/restore boundary; starting the new binary creates or recovers
 only the VSR state under `ESS_METADATA_ROOT`.
 
-The core requires Concord `~> 3.1.14`; the lockfile selects matching Concord,
-Viewstamped Replication and ExTurso 3.1.14 packages. They retain the 3.1.2 fixes for
+The core requires Concord `~> 3.1.15`; the lockfile selects matching Concord,
+Viewstamped Replication and ExTurso 3.1.15 packages. They retain the 3.1.2 fixes for
 committed-prefix transition validation, primary-discovery read deadlines, native
 range pagination and new-backup checksum portability. Version 3.1.4 makes supported
 direct put/delete compatibility-view and observer updates incremental and bounds
@@ -703,6 +712,10 @@ total pairs, shared publication revisions and one operation deadline. Its VSR
 and ExTurso runtime sources are unchanged from 3.1.13. ESS retains file-backed
 VSR and does not enable this API. This release does not establish repairs for
 the unresolved index, resource-observation or replica-repair acceptance failures.
+
+Version 3.1.15 updates Concord's E2E-only HTTP client requirement to the 1.0 RC
+series. Its production Elixir and native sources are unchanged from 3.1.14;
+ESS retains its existing metadata APIs, command formats and release blockers.
 
 Version-one command admission still checks
 representations. New backups declare deterministic ETF checksums;

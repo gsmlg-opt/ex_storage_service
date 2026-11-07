@@ -1,4 +1,72 @@
-## Current dependency refresh — 2026-11-07
+## Current HTTP RC5 dependency adoption — 2026-11-07
+
+The requested `http_fetch 1.0.0-rc.5` adoption is complete. Twenty-five existing
+packages are upgraded and `varint 1.6.0` is added transitively. The eight installed
+HTTP client/engine packages use RC5, Concord/VSR/ExTurso use 3.1.15, Gaoxy/HTTP/
+WebSockAdapter use 0.15.1, the eight installed Bundler packages use 10.1.2, and
+Phoenix DuskMoon uses 10.1.0. All 26 public registry/archive/lockfile checksum
+sets agree. Final `mix hex.outdated --all` retains only Gaoxy's exact upstream
+Abyss/Hell RC4 pins; `--pre` additionally lists the unrequested Jason alpha and
+Req RC. `mix hex.audit` reports no retired or advisory packages. The existing
+WebSock adapter alias is retained without adding HTTP overrides or patching
+upstream sources.
+
+Published Bundler 10.1.2 resolves
+[Bundler #17](https://github.com/duskmoon-dev/duskmoon-bundler/issues/17).
+Its public Vize GNU archive matches the declared digest and requires glibc 2.43.
+Docker build/runtime stages and native CI runners now use Ubuntu 26.04, with
+separate cache keys for that baseline. Older GNU compatibility remains unsupported
+upstream (#9 was closed not planned). Published OXC, Oxide, Vize and QuickBEAM
+native loaders pass; ExTurso retains its upstream default source compilation.
+The 40-element JS bundle is regenerated through the adopted toolchain.
+
+All 163 packaged Concord-family Elixir source/test/project files and three native
+source/manifest files match upstream tag `v3.1.15` at
+`65c3b161a91f8c343ac3d2fadbb99ad20a0b502e`. Production sources are unchanged from
+3.1.14. ESS retains file-backed VSR, current metadata APIs, command formats 0/1
+and disabled optional Turso APIs. The admission gate retains its 24 reviewed
+source hashes with updated public checksums; fresh minimal and production probes
+pass unchanged. The production probe retains command version 0, 128 target plus
+128 unrelated puts, original bounds and trace assertions. These are diagnostic
+probes, separate from A28 acceptance.
+
+Formatting and strict test/production compilation pass. Full application
+verification with seed `525828` executes 4,589 tests with zero failures or skips:
+core 644, transport 43, CLI 3,491, S3 387 and Web 24. The two declared heavy
+exclusions keep their separate lanes. All 163 Python harness tests pass.
+Production assets and all 14 authenticated daily S3 checks pass with pinned
+Boto3/Botocore 1.43.114 and default SDK checksum policies. The daily server stops,
+its listener closes and its disposable data root is removed.
+
+A locally assembled release is exercised through the repository's runtime Docker
+stage. The running image confirms glibc 2.43, the exact installed dependency
+versions and default ExSSL backend; all 12 daily business groups, Web page and
+JS/CSS asset checks pass. Browser login initialization succeeds with LiveSocket,
+CSS and JS loaded and no console warnings/errors. Owned containers, anonymous
+volumes, browser page and admission data roots are removed. This local runtime
+stage does not certify a complete Dockerfile build; that is verified separately
+by the hosted build workflow after pushing the candidate.
+
+The [adoption receipt](s3-hardening/http-rc5-adoption-20261107.json) records
+provenance, original failures and environment corrections, verification counts,
+cleanup and allowlisted artifact hashes. The initial interrupted asset command
+is explicitly invalidated despite its zero exit status. The first local runtime
+image is also invalidated: the host build-context reader could not read root-owned
+0600 runtime configuration. The corrected export preserves all 4,439 files and
+file modes, changes only temporary-copy ownership, and verifies the installed
+runtime configuration checksum. No application workaround is introduced.
+
+Executable-input fingerprint:
+`4e956eca53ab99dccd99d412a8d6404a9479eb6636a1ad780be0811a901a5662`.
+The latest completed full acceptance remains
+[42259381466](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42259381466),
+which belongs to Concord 3.1.13 and failed index, resources and resilience.
+This upgrade does not establish repairs for the index timeout, original 100 ms
+observation gaps or original 30-second replica-repair failure. Full current-source
+acceptance and all 158 clause audits remain publication prerequisites. Historical
+receipts are not promoted. **v0.7.0 remains unpublished.**
+
+## Historical compatible dependency refresh — 2026-11-07
 
 The requested HTTP `1.0.0-rc.4` adoption is blocked by
 [DuskMoon Bundler #17](https://github.com/duskmoon-dev/duskmoon-bundler/issues/17).

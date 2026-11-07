@@ -1,10 +1,15 @@
 # Stage 1: Build Elixir release
 FROM rust:1.91.1-slim-trixie AS rust_toolchain
 
-FROM elixir:1.19.5-otp-28-slim AS builder
+FROM elixir:1.19.5-otp-28-slim AS beam_toolchain
+
+# Published Bundler GNU NIFs require Ubuntu 26.04 / glibc 2.43.
+# Reuse the official BEAM toolchain on the supported native-library baseline.
+FROM ubuntu:26.04 AS build_toolchain
+COPY --from=beam_toolchain /usr/local /usr/local
 
 # Install native build tools, git, curl, openssl, node, npm
-RUN apt-get update && apt-get install -y build-essential cmake git curl openssl && \
+RUN apt-get update && apt-get install -y ca-certificates libncurses6 build-essential cmake git curl openssl && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -14,6 +19,7 @@ COPY --from=rust_toolchain /usr/local/cargo /usr/local/cargo
 COPY --from=rust_toolchain /usr/local/rustup /usr/local/rustup
 ENV CARGO_HOME=/usr/local/cargo \
     RUSTUP_HOME=/usr/local/rustup \
+    LANG=C.UTF-8 \
     PATH=/usr/local/cargo/bin:$PATH
 
 WORKDIR /app
@@ -22,6 +28,8 @@ ENV MIX_ENV=prod
 
 # Install hex + rebar
 RUN mix local.hex --force && mix local.rebar --force
+
+FROM build_toolchain AS builder
 
 # Fetch Elixir deps
 COPY mix.exs mix.lock ./
@@ -69,7 +77,7 @@ RUN ESS_MASTER_KEY=$(openssl rand -base64 32) \
 # Stage 2: Lean runtime image
 # IMPORTANT: must use a base OS with a glibc version compatible with the
 # builder image's bundled ERTS.
-FROM debian:trixie-slim AS runtime
+FROM ubuntu:26.04 AS runtime
 
 RUN apt-get update && apt-get install -y openssl libncurses6 wget && rm -rf /var/lib/apt/lists/*
 

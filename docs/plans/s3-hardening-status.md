@@ -1,4 +1,31 @@
-## Current dependency refresh — 2026-11-07
+## Current HTTP RC5 dependency adoption — 2026-11-07
+
+The requested `http_fetch 1.0.0-rc.5` upgrade is complete. The coordinated HTTP
+client/engine packages use RC5, Concord/VSR/ExTurso use 3.1.15, Gaoxy uses 0.15.1,
+Bundler uses 10.1.2 and Phoenix DuskMoon uses 10.1.0. Twenty-five existing
+packages are upgraded and one transitive package is added. Published checksums
+match all 26 changed packages. The final stable outdated check retains only
+Abyss/Hell RC4, which Gaoxy pins exactly; no HTTP override or source patch is used.
+
+Bundler 10.1.2 resolves upstream #17. Its published GNU native libraries require
+glibc 2.43, so Docker build/runtime stages and native CI jobs now use Ubuntu
+26.04. Older GNU compatibility remains unsupported upstream. Formatting, strict
+test/production compilation, all 4,589 application tests, all 163 Python harness
+tests, production assets and all 14 authenticated daily S3 checks pass. Two
+heavy exclusions retain their separate lanes. Fresh Concord admission probes
+pass without changing the original assertions. A locally assembled runtime
+image passes readiness, dependency/version checks, all 12 daily business groups,
+Web assets and browser login initialization; this runtime-stage build is separate
+from the hosted full Dockerfile build.
+
+Concord 3.1.15 retains the same production Elixir/native sources as 3.1.14.
+The unresolved index, resource-observation and replica-repair failures remain
+publication blockers. Full current-source acceptance and all 158 original clause
+audits are still required; v0.7.0 remains unpublished. See the
+[integrated report](../reports/s3-hardening-verification.md) and
+[adoption receipt](../reports/s3-hardening/http-rc5-adoption-20261107.json).
+
+## Historical compatible dependency refresh — 2026-11-07
 
 Eighteen compatible packages are updated, including HTTP 0.21.19, Gaoxy 0.12.2,
 Phoenix.HTML 4.4.0, Phoenix DuskMoon 10.0.12 and the current stable HTML/Markdown
