@@ -1,0 +1,589 @@
+{
+  "scope": "Full HTTP RC5 candidate acceptance and bounded failure diagnosis; not a formal release",
+  "date": "2026-11-08",
+  "status": "blocked",
+  "published": false,
+  "version_requested": "0.7.0",
+  "run": {
+    "id": 42386733186,
+    "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42386733186",
+    "head_sha": "abf6b05e85cad5e4be59202606a3153ff76160c6",
+    "source_sha256": "f27b798af6d71c0a4bd18afec1f8f3ed9b7e8e07a915939d3088959da6468a4e",
+    "conclusion": "failure",
+    "daily": "passed",
+    "aggregate": "stopped_at_lane_result_gate_before_stock_verifier",
+    "extended_lanes": {
+      "standalone": {
+        "workflow_conclusion": "success",
+        "status": "passed",
+        "exit_statuses": [
+          0,
+          0,
+          0
+        ],
+        "artifact": {
+          "id": 13580406171,
+          "digest": "sha256:a6c24fd365f7fb08ca5f0e4aabd3206bb6a307d4a8b0acd4e0c333db93ce4afe",
+          "size_in_bytes": 16479
+        }
+      },
+      "correctness": {
+        "workflow_conclusion": "failure",
+        "artifact": {
+          "id": 13579799963,
+          "digest": "sha256:974523cd6e1bfc3d6206289d5e8b92bf67548592a3a11d2595701b6383953f99",
+          "size_in_bytes": 19618
+        }
+      },
+      "gateway": {
+        "workflow_conclusion": "success",
+        "status": "passed",
+        "exit_statuses": [
+          0,
+          0
+        ],
+        "artifact": {
+          "id": 13580088348,
+          "digest": "sha256:eb2f7e24fa359a0f7b601c5bc09d9a34ca1d5b1c8a943deb46a7e2d29ec4ff9d",
+          "size_in_bytes": 19877
+        }
+      },
+      "cluster": {
+        "workflow_conclusion": "success",
+        "status": "passed",
+        "exit_statuses": [
+          0,
+          0,
+          0
+        ],
+        "artifact": {
+          "id": 13579917784,
+          "digest": "sha256:53652f8ebd5aa1e22884155bb97d1ae0aa6d4e86ad5c9cd822fa73498160adad",
+          "size_in_bytes": 23845
+        }
+      },
+      "faults": {
+        "workflow_conclusion": "success",
+        "status": "passed",
+        "exit_statuses": [
+          0,
+          0
+        ],
+        "artifact": {
+          "id": 13579799077,
+          "digest": "sha256:abc7c4f1aaf41dc62cf928f8094c46f84b265f517a07ee55dce9c2c58c01b32e",
+          "size_in_bytes": 375567
+        }
+      },
+      "crashes": {
+        "workflow_conclusion": "success",
+        "status": "passed",
+        "exit_statuses": [
+          0,
+          0,
+          0
+        ],
+        "artifact": {
+          "id": 13579318344,
+          "digest": "sha256:cc9f1e40868fca26fbddbc8edb5b65eab6d603b86d3d86fac60923714520dfb7",
+          "size_in_bytes": 15972
+        }
+      },
+      "index": {
+        "workflow_conclusion": "failure",
+        "status": "blocked",
+        "exit_statuses": [
+          0,
+          1,
+          0
+        ],
+        "artifact": {
+          "id": 13580526772,
+          "digest": "sha256:d7afaec0eefacf3b3ba06b5aaf3df51f5583e53c8819569149e197c6a8c349df",
+          "size_in_bytes": 337960
+        }
+      },
+      "resources": {
+        "workflow_conclusion": "failure",
+        "status": "blocked",
+        "exit_statuses": [
+          0,
+          1,
+          1,
+          0
+        ],
+        "artifact": {
+          "id": 13580184701,
+          "digest": "sha256:aae6ede91e54bc5d062903c8b98e7f63d4cc18a44283ac156dd9716e0fd91d27",
+          "size_in_bytes": 23836086
+        }
+      },
+      "resilience": {
+        "workflow_conclusion": "success",
+        "status": "passed",
+        "exit_statuses": [
+          0,
+          0,
+          0
+        ],
+        "artifact": {
+          "id": 13579812507,
+          "digest": "sha256:41201deffa775057b76a8135300f4d09a416bcff51d86a726b93eb90089443f8",
+          "size_in_bytes": 18243
+        }
+      },
+      "restore": {
+        "workflow_conclusion": "success",
+        "status": "passed",
+        "exit_statuses": [
+          0,
+          0
+        ],
+        "artifact": {
+          "id": 13579963156,
+          "digest": "sha256:6095ecd3b54083119d1fdbcaa0925f930d8544b513b5a1add2a32dece597b44f",
+          "size_in_bytes": 47170
+        }
+      },
+      "release": {
+        "workflow_conclusion": "success",
+        "status": "passed",
+        "exit_statuses": [
+          0
+        ],
+        "artifact": {
+          "id": 13580148895,
+          "digest": "sha256:0443f4137a322e879e7203c07855751a48994fd5ea0bf4556f5edbd61161d29a",
+          "size_in_bytes": 38551
+        }
+      }
+    }
+  },
+  "correctness": {
+    "executed_tests": 4589,
+    "passed": 4588,
+    "failures": 1,
+    "declared_heavy_exclusions": 2,
+    "failure": "Five MiB multipart replacement request timed out at Req.put!/2.",
+    "seed": 995638,
+    "isolated_case": "passed",
+    "complete_s3_suite_same_seed": "passed",
+    "local_replays": [
+      {
+        "command": [
+          "mix",
+          "test",
+          "--max-cases",
+          "1",
+          "--seed",
+          "995638",
+          "--no-color",
+          "apps/ex_storage_service/test",
+          "apps/ex_storage_service_cluster/test",
+          "apps/ex_storage_service_s3/test",
+          "apps/ex_storage_service_web/test",
+          "apps/ex_storage_service_cli/test"
+        ],
+        "exit_status": 2,
+        "seconds": 501.9,
+        "acceptance": false,
+        "observation": "Original five MiB replacement timeout with a budget/accounting stack; cause not established.",
+        "log_sha256": "4cf418cbb9b7c8a3edf7d55f287fd61863a414dfc29fc9d650de234498776cc6"
+      },
+      {
+        "command": [
+          "elixir",
+          "-r",
+          "/evidence/budget_sequence_probe.exs",
+          "-S",
+          "mix",
+          "test",
+          "--max-cases",
+          "1",
+          "--seed",
+          "995638",
+          "--no-color",
+          "--formatter",
+          "ExUnit.CLIFormatter",
+          "--formatter",
+          "ESSReleaseBudgetProbe",
+          "apps/ex_storage_service/test",
+          "apps/ex_storage_service_cluster/test",
+          "apps/ex_storage_service_s3/test",
+          "apps/ex_storage_service_web/test",
+          "apps/ex_storage_service_cli/test"
+        ],
+        "exit_status": 2,
+        "seconds": 516.365,
+        "acceptance": false,
+        "observation": "The minimum-part retry case passed; the nine MiB storage-listener upload timed out. This separate failure is not evidence of a fixed replacement request.",
+        "log_sha256": "3d9af65c4e88572665bae4fb842eeda7e1b1e5d1a98a94c80424bb7125ce53f2"
+      }
+    ],
+    "cause": "unclassified; the observed stack alone does not establish a Gaoxy defect"
+  },
+  "index": {
+    "status": "blocked",
+    "original_required_sizes": [
+      10000,
+      100000
+    ],
+    "primary_100k": "completed",
+    "unrelated_completed": 42103,
+    "failure_ordinal": 42104,
+    "operation": "bucket metadata get",
+    "operation_microseconds": 5077904,
+    "terminal_a28_measurements_present": false,
+    "a29_cluster_migration_rejoin_cutover": "passed",
+    "cause": "unclassified; periodic Concord stats work is a hypothesis pending causal tracing"
+  },
+  "resources": {
+    "acceptance": false,
+    "source_head": "abf6b05e85cad5e4be59202606a3153ff76160c6",
+    "run_id": 42386733186,
+    "status": "passed_export_audit_with_original_coverage_failures_retained",
+    "exports": [
+      {
+        "node": "standalone",
+        "manifest": "ci-42386733186-1-resources/resource-export-1794066010833234579.json",
+        "sha256": "593d1f964ca38de74f16c576c598a2480d837df7c832765fae07ae69c624d430",
+        "rows": 3768,
+        "bytes": 7112002,
+        "status": "digest_sequence_and_failed_group_measurements_match",
+        "metrics": {
+          "binary": {
+            "samples": 413,
+            "maximum_gap_ns": 99851788,
+            "maximum_probe_ns": 3279729,
+            "intervals_over100ms": 0
+          },
+          "total": {
+            "samples": 413,
+            "maximum_gap_ns": 99851788,
+            "maximum_probe_ns": 3279729,
+            "intervals_over100ms": 0
+          },
+          "rss": {
+            "samples": 413,
+            "maximum_gap_ns": 99897389,
+            "maximum_probe_ns": 273774,
+            "intervals_over100ms": 0
+          },
+          "queue_max": {
+            "samples": 413,
+            "maximum_gap_ns": 100930742,
+            "maximum_probe_ns": 2333978,
+            "intervals_over100ms": 1
+          },
+          "queue_total": {
+            "samples": 413,
+            "maximum_gap_ns": 100930742,
+            "maximum_probe_ns": 2333978,
+            "intervals_over100ms": 1
+          },
+          "temporary": {
+            "samples": 413,
+            "maximum_gap_ns": 113472532,
+            "maximum_probe_ns": 88423191,
+            "intervals_over100ms": 1
+          }
+        },
+        "worst_gap_observations": {
+          "queue_max": {
+            "sequences": [
+              3665,
+              3666
+            ],
+            "gap_ns": 100930742,
+            "previous_duration_ns": 1202997,
+            "current_duration_ns": 1025473,
+            "observer_cpu_delta_ns": 1041000,
+            "collection_duration_ns": 1840857,
+            "schedule_lateness_ns": 96551,
+            "beam_exchange_ns": 1408317,
+            "previous_temporary_probe_ns": 88423191,
+            "temporary_probe_ns": 210394
+          },
+          "temporary": {
+            "sequences": [
+              3664,
+              3665
+            ],
+            "gap_ns": 113472532,
+            "previous_duration_ns": 3729725,
+            "current_duration_ns": 88423191,
+            "observer_cpu_delta_ns": 1437000,
+            "collection_duration_ns": 90408647,
+            "schedule_lateness_ns": 126188,
+            "beam_exchange_ns": 1626443,
+            "previous_temporary_probe_ns": 3729725,
+            "temporary_probe_ns": 88423191
+          }
+        }
+      },
+      {
+        "node": "data-a",
+        "manifest": "ci-42386733186-1-resources-cluster/samples/data-a/resource-export-1794066111452512573.json",
+        "sha256": "bfc1dfb9db5e68e08cba1489dcc4951c04274cd0376e4de9e06fdf3cb11f25d8",
+        "rows": 30279,
+        "bytes": 57395150,
+        "status": "digest_sequence_and_failed_group_measurements_match",
+        "metrics": {
+          "binary": {
+            "samples": 12569,
+            "maximum_gap_ns": 38323611,
+            "maximum_probe_ns": 3453797,
+            "intervals_over100ms": 0
+          },
+          "total": {
+            "samples": 12569,
+            "maximum_gap_ns": 38323611,
+            "maximum_probe_ns": 3453797,
+            "intervals_over100ms": 0
+          },
+          "rss": {
+            "samples": 12569,
+            "maximum_gap_ns": 39764954,
+            "maximum_probe_ns": 2582750,
+            "intervals_over100ms": 0
+          },
+          "queue_max": {
+            "samples": 12570,
+            "maximum_gap_ns": 42461591,
+            "maximum_probe_ns": 14971271,
+            "intervals_over100ms": 0
+          },
+          "queue_total": {
+            "samples": 12570,
+            "maximum_gap_ns": 42461591,
+            "maximum_probe_ns": 14971271,
+            "intervals_over100ms": 0
+          },
+          "temporary": {
+            "samples": 12569,
+            "maximum_gap_ns": 39831659,
+            "maximum_probe_ns": 1668128,
+            "intervals_over100ms": 0
+          }
+        },
+        "worst_gap_observations": {
+          "queue_max": {
+            "sequences": [
+              27511,
+              27512
+            ],
+            "gap_ns": 42461591,
+            "previous_duration_ns": 9312656,
+            "current_duration_ns": 14971271,
+            "observer_cpu_delta_ns": 1059000,
+            "collection_duration_ns": 17349409,
+            "schedule_lateness_ns": 2530779,
+            "beam_exchange_ns": 16869048,
+            "previous_temporary_probe_ns": 192832,
+            "temporary_probe_ns": 214281
+          },
+          "temporary": {
+            "sequences": [
+              29150,
+              29151
+            ],
+            "gap_ns": 39831659,
+            "previous_duration_ns": 165811,
+            "current_duration_ns": 201969,
+            "observer_cpu_delta_ns": 1015000,
+            "collection_duration_ns": 20718028,
+            "schedule_lateness_ns": 102307,
+            "beam_exchange_ns": 20251594,
+            "previous_temporary_probe_ns": 165811,
+            "temporary_probe_ns": 201969
+          }
+        }
+      },
+      {
+        "node": "data-b",
+        "manifest": "ci-42386733186-1-resources-cluster/samples/data-b/resource-export-1794066111513099023.json",
+        "sha256": "d130e8a585398b97702b4728432687e9e0b60e9895b8ef1c7a66f6ca9514b598",
+        "rows": 30226,
+        "bytes": 57192945,
+        "status": "digest_sequence_and_failed_group_measurements_match",
+        "metrics": {
+          "binary": {
+            "samples": 12567,
+            "maximum_gap_ns": 98894681,
+            "maximum_probe_ns": 4919894,
+            "intervals_over100ms": 0
+          },
+          "total": {
+            "samples": 12567,
+            "maximum_gap_ns": 98894681,
+            "maximum_probe_ns": 4919894,
+            "intervals_over100ms": 0
+          },
+          "rss": {
+            "samples": 12567,
+            "maximum_gap_ns": 98860204,
+            "maximum_probe_ns": 3020203,
+            "intervals_over100ms": 0
+          },
+          "queue_max": {
+            "samples": 12567,
+            "maximum_gap_ns": 103571441,
+            "maximum_probe_ns": 11195389,
+            "intervals_over100ms": 1
+          },
+          "queue_total": {
+            "samples": 12567,
+            "maximum_gap_ns": 103571441,
+            "maximum_probe_ns": 11195389,
+            "intervals_over100ms": 1
+          },
+          "temporary": {
+            "samples": 12567,
+            "maximum_gap_ns": 109253512,
+            "maximum_probe_ns": 83557419,
+            "intervals_over100ms": 1
+          }
+        },
+        "worst_gap_observations": {
+          "queue_max": {
+            "sequences": [
+              29683,
+              29684
+            ],
+            "gap_ns": 103571441,
+            "previous_duration_ns": 4796484,
+            "current_duration_ns": 3421506,
+            "observer_cpu_delta_ns": 885000,
+            "collection_duration_ns": 4632987,
+            "schedule_lateness_ns": 92584,
+            "beam_exchange_ns": 4287088,
+            "previous_temporary_probe_ns": 83557419,
+            "temporary_probe_ns": 127168
+          },
+          "temporary": {
+            "sequences": [
+              29682,
+              29683
+            ],
+            "gap_ns": 109253512,
+            "previous_duration_ns": 112461,
+            "current_duration_ns": 83557419,
+            "observer_cpu_delta_ns": 1442000,
+            "collection_duration_ns": 89356664,
+            "schedule_lateness_ns": 104254,
+            "beam_exchange_ns": 5534067,
+            "previous_temporary_probe_ns": 112461,
+            "temporary_probe_ns": 83557419
+          }
+        }
+      },
+      {
+        "node": "meta",
+        "manifest": "ci-42386733186-1-resources-cluster/samples/meta/resource-export-1794066111390947608.json",
+        "sha256": "3b182011d1b5ebcf2d1ca2f4faa09f50b66bf08202e3ca4cddd26111ecbac4b9",
+        "rows": 30329,
+        "bytes": 57338439,
+        "status": "digest_sequence_and_failed_group_measurements_match",
+        "metrics": {
+          "binary": {
+            "samples": 12569,
+            "maximum_gap_ns": 37250340,
+            "maximum_probe_ns": 6352741,
+            "intervals_over100ms": 0
+          },
+          "total": {
+            "samples": 12569,
+            "maximum_gap_ns": 37250340,
+            "maximum_probe_ns": 6352741,
+            "intervals_over100ms": 0
+          },
+          "rss": {
+            "samples": 12569,
+            "maximum_gap_ns": 36844000,
+            "maximum_probe_ns": 3413832,
+            "intervals_over100ms": 0
+          },
+          "queue_max": {
+            "samples": 12569,
+            "maximum_gap_ns": 40425493,
+            "maximum_probe_ns": 15467882,
+            "intervals_over100ms": 0
+          },
+          "queue_total": {
+            "samples": 12569,
+            "maximum_gap_ns": 40425493,
+            "maximum_probe_ns": 15467882,
+            "intervals_over100ms": 0
+          },
+          "temporary": {
+            "samples": 12569,
+            "maximum_gap_ns": 36788006,
+            "maximum_probe_ns": 3120070,
+            "intervals_over100ms": 0
+          }
+        },
+        "worst_gap_observations": {
+          "queue_max": {
+            "sequences": [
+              26758,
+              26759
+            ],
+            "gap_ns": 40425493,
+            "previous_duration_ns": 4224651,
+            "current_duration_ns": 15239723,
+            "observer_cpu_delta_ns": 856000,
+            "collection_duration_ns": 17249652,
+            "schedule_lateness_ns": 98539,
+            "beam_exchange_ns": 16928320,
+            "previous_temporary_probe_ns": 123622,
+            "temporary_probe_ns": 102843
+          },
+          "temporary": {
+            "sequences": [
+              26758,
+              26759
+            ],
+            "gap_ns": 36788006,
+            "previous_duration_ns": 123622,
+            "current_duration_ns": 102843,
+            "observer_cpu_delta_ns": 856000,
+            "collection_duration_ns": 17249652,
+            "schedule_lateness_ns": 98539,
+            "beam_exchange_ns": 16928320,
+            "previous_temporary_probe_ns": 123622,
+            "temporary_probe_ns": 102843
+          }
+        }
+      }
+    ]
+  },
+  "resilience": {
+    "status": "passed",
+    "prior_replica_repair_failure_reproduced": false,
+    "note": "The previous replica-repair failure is not a current failed lane."
+  },
+  "diagnostic_change": {
+    "cluster_prefix_groups": 16,
+    "target": {
+      "name": "strict-quorum-replica-put",
+      "size": 1073741824,
+      "concurrency": 4
+    },
+    "tests_passed": 19,
+    "unchanged": {
+      "sampling_ms": 25,
+      "coverage_limit_ms": 100,
+      "rf": 2,
+      "w": 2,
+      "controller_seconds": 900,
+      "monitor_seconds": 960
+    },
+    "publication_eligible": false
+  },
+  "requirements_retained": [
+    "Full exact-source successful acceptance",
+    "All 158 original clause audits",
+    "No relaxed timeout, sampling, resource or quorum limits",
+    "Root release.yml only; no new tags, Hex versions or latest image have been published"
+  ]
+}
