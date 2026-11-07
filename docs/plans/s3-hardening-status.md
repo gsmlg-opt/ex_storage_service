@@ -18,6 +18,16 @@ image passes readiness, dependency/version checks, all 12 daily business groups,
 Web assets and browser login initialization; this runtime-stage build is separate
 from the hosted full Dockerfile build.
 
+The first pushed dependency candidate passes hosted CI, CLI compatibility,
+daily S3 interoperability and the full Dockerfile build. Its Test job stops
+before workloads because the existing isolation prerequisite admits only Ubuntu
+24.04. The follow-up admits Ubuntu 26.04's separately reviewed, digest-pinned
+AppArmor profile while retaining unprivileged workloads and global namespace
+restrictions. All 165 Python harness tests pass locally, including two new
+platform/profile regressions. Actual hosted profile loading and the private-tmpfs
+probe remain pending for this follow-up; see the
+[platform receipt](../reports/s3-hardening/http-rc5-ci-platform-20261107.json).
+
 Concord 3.1.15 retains the same production Elixir/native sources as 3.1.14.
 The unresolved index, resource-observation and replica-repair failures remain
 publication blockers. Full current-source acceptance and all 158 original clause

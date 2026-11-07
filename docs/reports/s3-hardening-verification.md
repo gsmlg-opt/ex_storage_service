@@ -56,6 +56,24 @@ image is also invalidated: the host build-context reader could not read root-own
 file modes, changes only temporary-copy ownership, and verifies the installed
 runtime configuration checksum. No application workaround is introduced.
 
+The pushed dependency checkpoint `485ccf1` passes hosted CI, CLI compatibility,
+daily S3 interoperability and the full Dockerfile build. Its Test job
+[42366081107](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42366081107)
+stops at the isolation prerequisite before running workloads: only Ubuntu 24.04
+was admitted. The follow-up selects the separately reviewed Ubuntu 26.04 ABI5
+profile from `apparmor 5.0.2-0ubuntu1~26.04.1` at
+`/etc/apparmor.d/bwrap-userns-restrict`, pinned to SHA256
+`d61facde27707b9c47ffe47921b7273e788784484cb5530eb819e6daac1f1990`.
+Package membership and profile contents are verified. Child profile stacking and
+capability denial remain required; the existing hosted-only guard, AppArmor
+requirement, package provenance checks, normal-user workload/probe and unchanged
+global namespace policy remain intact. Eight targeted isolation tests and all
+165 Python harness tests pass locally. Actual hosted policy loading and the real
+private-tmpfs probe are still pending. The
+[platform receipt](s3-hardening/http-rc5-ci-platform-20261107.json) records this
+separate executable-input fingerprint; the original dependency checkpoint below
+is preserved without promoting its results to the follow-up.
+
 Executable-input fingerprint:
 `4e956eca53ab99dccd99d412a8d6404a9479eb6636a1ad780be0811a901a5662`.
 The latest completed full acceptance remains

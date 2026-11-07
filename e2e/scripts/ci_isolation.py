@@ -17,9 +17,14 @@ import subprocess
 import sys
 import tempfile
 
-PROFILE = Path("/usr/share/apparmor/extra-profiles/bwrap-userns-restrict")
-# Reviewed Noble ABI4 profile from apparmor-profiles 4.0.1really4.0.1-0ubuntu0.24.04.9.
-PROFILE_SHA256 = "11d39094f044f0cda0febb3ad517b830301da6b2ce929664af09ee9e4dd264f9"
+VERIFIED_PROFILES = {
+    # Noble ABI4, apparmor-profiles 4.0.1really4.0.1-0ubuntu0.24.04.9.
+    "24.04": (Path("/usr/share/apparmor/extra-profiles/bwrap-userns-restrict"),
+              "11d39094f044f0cda0febb3ad517b830301da6b2ce929664af09ee9e4dd264f9"),
+    # Resolute ABI5, apparmor 5.0.2-0ubuntu1~26.04.1. Children still lose capabilities.
+    "26.04": (Path("/etc/apparmor.d/bwrap-userns-restrict"),
+              "d61facde27707b9c47ffe47921b7273e788784484cb5530eb819e6daac1f1990"),
+}
 PROBE_SHA256 = hashlib.sha256(b"x" * 1_048_576).hexdigest()
 CHILD_PROBE = """
 import hashlib,json,os,sys
@@ -40,23 +45,24 @@ def prepare_runner(run):
     if os.environ.get("GITHUB_ACTIONS") != "true" or os.environ.get("RUNNER_ENVIRONMENT") != "github-hosted":
         raise RuntimeError("privileged policy setup is limited to ephemeral GitHub-hosted CI")
     release = platform.freedesktop_os_release()
-    if release.get("ID") != "ubuntu" or release.get("VERSION_ID") != "24.04":
-        raise RuntimeError("the packaged isolation policy is verified only for Ubuntu 24.04")
+    if release.get("ID") != "ubuntu" or release.get("VERSION_ID") not in VERIFIED_PROFILES:
+        raise RuntimeError("the packaged isolation policy is verified only for Ubuntu 24.04 and 26.04")
+    profile, profile_sha256 = VERIFIED_PROFILES[release["VERSION_ID"]]
     run(["sudo", "-n", "apt-get", "update"])
     run(["sudo", "-n", "apt-get", "install", "--yes", "apparmor",
          "apparmor-profiles", "bubblewrap", "zsh"])
-    if not PROFILE.is_file() or Path(shutil.which("bwrap") or "").resolve() != Path("/usr/bin/bwrap"):
+    if not profile.is_file() or Path(shutil.which("bwrap") or "").resolve() != Path("/usr/bin/bwrap"):
         raise RuntimeError("the distro-packaged bwrap and restricted AppArmor profile are required")
-    if hashlib.sha256(PROFILE.read_bytes()).hexdigest() != PROFILE_SHA256:
+    if hashlib.sha256(profile.read_bytes()).hexdigest() != profile_sha256:
         raise RuntimeError("the packaged AppArmor profile changed; inspect it before admitting this runner")
     if Path("/sys/module/apparmor/parameters/enabled").read_text().strip() != "Y":
         raise RuntimeError("AppArmor must be enabled for this runner's isolation policy")
     run(["uname", "-a"])
     run(["dpkg-query", "-W", "apparmor", "apparmor-profiles", "bubblewrap", "zsh"])
-    run(["dpkg-query", "-S", str(PROFILE), "/usr/bin/bwrap"])
-    run(["sha256sum", str(PROFILE), "/usr/bin/bwrap"])
+    run(["dpkg-query", "-S", str(profile), "/usr/bin/bwrap"])
+    run(["sha256sum", str(profile), "/usr/bin/bwrap"])
     run(["sudo", "-n", "apparmor_parser", "--version"])
-    run(["sudo", "-n", "apparmor_parser", "-r", str(PROFILE)])
+    run(["sudo", "-n", "apparmor_parser", "-r", str(profile)])
     run(["sudo", "-n", "aa-status"])
 
 

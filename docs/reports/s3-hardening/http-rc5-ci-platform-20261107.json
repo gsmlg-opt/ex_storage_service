@@ -1,0 +1,117 @@
+{
+  "scope": "CI isolation admission for the Ubuntu 26.04 native dependency baseline",
+  "date": "2026-11-07",
+  "status": "local_checks_passed_hosted_verification_pending",
+  "acceptance": false,
+  "base_commit": "485ccf10342d859faee1f9d52a0ab7ab9872ad2c",
+  "source_sha256": "f27b798af6d71c0a4bd18afec1f8f3ed9b7e8e07a915939d3088959da6468a4e",
+  "prior_dependency_adoption_source_sha256": "4e956eca53ab99dccd99d412a8d6404a9479eb6636a1ad780be0811a901a5662",
+  "prior_dependency_adoption_receipt": "http-rc5-adoption-20261107.json",
+  "reproduction": {
+    "hosted_run_id": 42366081107,
+    "conclusion": "failure",
+    "stage": "isolation prerequisite before workloads",
+    "error": "the packaged isolation policy is verified only for Ubuntu 24.04"
+  },
+  "profile": {
+    "distribution": "ubuntu",
+    "version_id": "26.04",
+    "path": "/etc/apparmor.d/bwrap-userns-restrict",
+    "owning_package": "apparmor",
+    "package_version": "5.0.2-0ubuntu1~26.04.1",
+    "bytes": 3028,
+    "sha256": "d61facde27707b9c47ffe47921b7273e788784484cb5530eb819e6daac1f1990",
+    "abi": "5.0",
+    "reviewed_rules": [
+      "bwrap setup capabilities and user namespaces",
+      "child execution stacked through bwrap and unpriv_bwrap",
+      "recursive children retain unpriv_bwrap",
+      "audit deny capability in unpriv_bwrap"
+    ],
+    "package_membership_verified": true
+  },
+  "package_sha256": {
+    "apparmor-profiles_5.0.2-0ubuntu1~26.04.1_all.deb": "3777ee6c2bb2ddda4c3b7d072809451a729c5d4a80be5d8c9341555924cc7448",
+    "apparmor_5.0.2-0ubuntu1~26.04.1_amd64.deb": "8621170a44534ef32ab4f7e26a5cacabb2077a5a95bcb5236c0652f118032820",
+    "bubblewrap_0.11.1-1ubuntu0.3_amd64.deb": "d3a6c1b6b0e0474eaed6dbd055c0d601fd875af153976a0dc4aae75f4ea10868"
+  },
+  "preserved_guards": [
+    "unprivileged runner and workload",
+    "ephemeral GitHub-hosted setup only",
+    "reviewed Ubuntu release and exact profile path/digest",
+    "distro /usr/bin/bwrap and package ownership diagnostics",
+    "AppArmor enabled",
+    "real unprivileged private 8 MiB tmpfs probe",
+    "no global namespace sysctl changes",
+    "Ubuntu 24.04 profile unchanged",
+    "unknown distributions/releases and swapped profiles rejected"
+  ],
+  "verification": {
+    "targeted_isolation_tests": {
+      "status": "passed",
+      "executed": 8,
+      "failures": 0,
+      "skipped": 0
+    },
+    "python_harness": {
+      "status": "passed",
+      "executed": 165,
+      "failures": 0,
+      "skipped": 0,
+      "new_methods": 2
+    },
+    "container_checks": {
+      "phase": "ci-platform",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "namespace-prerequisites-ci-platform",
+          "command": [
+            "python3",
+            "-c",
+            "import subprocess; subprocess.run([\"mount\", \"-o\", \"remount,rw\", \"/proc/sys\"], check=True); subprocess.run([\"bwrap\", \"--die-with-parent\", \"--ro-bind\", \"/\", \"/\", \"--proc\", \"/proc\", \"true\"], check=True)"
+          ],
+          "status": "passed",
+          "exit_status": 0,
+          "elapsed_seconds": 0.02
+        },
+        {
+          "name": "python-harness-ci-platform",
+          "command": [
+            "runuser",
+            "--user",
+            "ubuntu",
+            "--",
+            "/opt/ess-verify/bin/python",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "e2e",
+            "-p",
+            "test_*.py"
+          ],
+          "status": "passed",
+          "exit_status": 0,
+          "elapsed_seconds": 21.656
+        }
+      ]
+    },
+    "local_privileged_hosted_setup_executed": false,
+    "hosted_profile_loading": "pending",
+    "hosted_private_tmpfs_probe": "pending"
+  },
+  "evidence_sha256": {
+    "ci-platform-targeted.log": "5d3532a2222ab8fa9e1a5e974c31fe8d4d70ccd0512b26e4f2e5f224137a9ff6",
+    "verification-ci-platform.json": "5b630d9e3236b085265af323c6a0f94a8dd2227622a639a6e15fe7e7d71b4568",
+    "python-harness-ci-platform.log": "9baa62fb3350ae0b0482233ebf8934ac6e4939a6bf97192b4f05497c118cf3a9",
+    "namespace-prerequisites-ci-platform.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "publication": {
+    "performed": false,
+    "version": "0.7.0",
+    "full_current_source_acceptance": "not run",
+    "release_blockers_unchanged": true,
+    "historical_acceptance_promoted": false
+  }
+}

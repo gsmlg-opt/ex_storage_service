@@ -31,8 +31,12 @@ class HostedIsolationTest(unittest.TestCase):
             mock = patch.object(getattr(isolation, owner), name, return_value=value)
             mock.start()
             self.addCleanup(mock.stop)
-        digest = patch.object(isolation, "PROFILE_SHA256",
-                              isolation.hashlib.sha256(b"reviewed profile").hexdigest())
+        digest = patch.object(isolation, "VERIFIED_PROFILES", {
+            "24.04": (isolation.VERIFIED_PROFILES["24.04"][0],
+                      isolation.hashlib.sha256(b"reviewed profile").hexdigest()),
+            "26.04": (isolation.VERIFIED_PROFILES["26.04"][0],
+                      isolation.hashlib.sha256(b"reviewed Resolute profile").hexdigest()),
+        })
         digest.start()
         self.addCleanup(digest.stop)
         env = patch.dict(os.environ, GITHUB_ACTIONS="true", RUNNER_ENVIRONMENT="github-hosted")
@@ -43,7 +47,7 @@ class HostedIsolationTest(unittest.TestCase):
         self.prepare()
         self.assertIn(["sudo", "-n", "apt-get", "install", "--yes", "apparmor",
                        "apparmor-profiles", "bubblewrap", "zsh"], self.commands)
-        load = ["sudo", "-n", "apparmor_parser", "-r", str(isolation.PROFILE)]
+        load = ["sudo", "-n", "apparmor_parser", "-r", str(isolation.VERIFIED_PROFILES["24.04"][0])]
         self.assertIn(load, self.commands)
         self.assertLess(self.commands.index(load),
                         self.commands.index(["sudo", "-n", "aa-status"]))
@@ -53,7 +57,8 @@ class HostedIsolationTest(unittest.TestCase):
 
     def test_refuses_privileged_nonhosted_and_unknown_distribution_before_mutation(self):
         for target, value in (("os.geteuid", 0),
-                              ("platform.freedesktop_os_release", {"ID": "ubuntu", "VERSION_ID": "26.04"})):
+                              ("platform.freedesktop_os_release", {"ID": "ubuntu", "VERSION_ID": "28.04"}),
+                              ("platform.freedesktop_os_release", {"ID": "debian", "VERSION_ID": "26.04"})):
             owner, name = target.split(".")
             with self.subTest(target=target), \
                     patch.object(getattr(isolation, owner), name, return_value=value):
@@ -65,6 +70,27 @@ class HostedIsolationTest(unittest.TestCase):
                 with self.assertRaises(RuntimeError):
                     self.prepare()
                 self.assertEqual([], self.commands)
+
+    def test_ubuntu_26_04_loads_its_reviewed_packaged_profile(self):
+        with patch.object(isolation.platform, "freedesktop_os_release",
+                          return_value={"ID": "ubuntu", "VERSION_ID": "26.04"}), \
+                patch.object(isolation.Path, "read_bytes", return_value=b"reviewed Resolute profile"):
+            self.prepare()
+        profile = "/etc/apparmor.d/bwrap-userns-restrict"
+        self.assertIn(["sudo", "-n", "apparmor_parser", "-r", profile], self.commands)
+        self.assertIn(["dpkg-query", "-S", profile, "/usr/bin/bwrap"], self.commands)
+
+    def test_reviewed_profiles_cannot_be_substituted_between_distributions(self):
+        for version, content in (("24.04", b"reviewed Resolute profile"),
+                                 ("26.04", b"reviewed profile")):
+            with self.subTest(version=version), \
+                    patch.object(isolation.platform, "freedesktop_os_release",
+                                 return_value={"ID": "ubuntu", "VERSION_ID": version}), \
+                    patch.object(isolation.Path, "read_bytes", return_value=content):
+                self.commands.clear()
+                with self.assertRaisesRegex(RuntimeError, "packaged AppArmor profile changed"):
+                    self.prepare()
+                self.assertFalse(any(command[2:3] == ["apparmor_parser"] for command in self.commands))
 
     def test_missing_profile_or_different_bwrap_is_a_hard_prerequisite_failure(self):
         for target, value in (("Path.is_file", False), ("shutil.which", "/custom/bin/bwrap"),
