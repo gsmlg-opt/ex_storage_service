@@ -1,0 +1,505 @@
+{
+  "scope": "Hosted HTTP RC5 adoption, Ubuntu 26.04 isolation and actual edge image execution",
+  "date": "2026-11-07",
+  "status": "verified_daily_delivery",
+  "acceptance": false,
+  "candidate_commit": "6a115124dce2dab20c9aba017eda423b26a87670",
+  "source_sha256": "f27b798af6d71c0a4bd18afec1f8f3ed9b7e8e07a915939d3088959da6468a4e",
+  "dependency_adoption_commit": "485ccf10342d859faee1f9d52a0ab7ab9872ad2c",
+  "hosted_runs": [
+    {
+      "conclusion": "success",
+      "databaseId": 42367175556,
+      "event": "push",
+      "headSha": "6a115124dce2dab20c9aba017eda423b26a87670",
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42367175556"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 42367175547,
+      "event": "push",
+      "headSha": "6a115124dce2dab20c9aba017eda423b26a87670",
+      "name": "Test",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42367175547"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 42367175646,
+      "event": "push",
+      "headSha": "6a115124dce2dab20c9aba017eda423b26a87670",
+      "name": "S3 interoperability and full hardening acceptance",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42367175646"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 42367175371,
+      "event": "push",
+      "headSha": "6a115124dce2dab20c9aba017eda423b26a87670",
+      "name": "Build Docker Image",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42367175371"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 42366081108,
+      "event": "push",
+      "headSha": "485ccf10342d859faee1f9d52a0ab7ab9872ad2c",
+      "name": "CLI compatibility",
+      "status": "completed",
+      "url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42366081108"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 13571871119,
+      "name": "cli-package-ubuntu-latest-elixir-1.19-otp28",
+      "size_in_bytes": 6827913,
+      "digest": "sha256:20744ebba274958559136f22ada797c4a2946139ce4d705ea98066687c32b4d4",
+      "workflow_run": {
+        "id": 42366081108,
+        "repository_id": 1179937546,
+        "head_repository_id": 1179937546,
+        "head_branch": "main",
+        "head_sha": "485ccf10342d859faee1f9d52a0ab7ab9872ad2c"
+      }
+    },
+    {
+      "id": 13571827106,
+      "name": "correctness-isolation-prerequisite",
+      "size_in_bytes": 3821,
+      "digest": "sha256:4e1a6e9407f5d9b7df2cf121dd8a83ecaa729cd5bb2677365db4a7fb340ad297",
+      "workflow_run": {
+        "id": 42367175547,
+        "repository_id": 1179937546,
+        "head_repository_id": 1179937546,
+        "head_branch": "main",
+        "head_sha": "6a115124dce2dab20c9aba017eda423b26a87670"
+      }
+    },
+    {
+      "id": 13572500981,
+      "name": "correctness-selection-and-results",
+      "size_in_bytes": 3429,
+      "digest": "sha256:f4492b3a1c0789b3bf69e4519348bd274c07aac764b27e1dca6ced48c91db97d",
+      "workflow_run": {
+        "id": 42367175547,
+        "repository_id": 1179937546,
+        "head_repository_id": 1179937546,
+        "head_branch": "main",
+        "head_sha": "6a115124dce2dab20c9aba017eda423b26a87670"
+      }
+    },
+    {
+      "id": 13572182425,
+      "name": "s3-hardening-daily",
+      "size_in_bytes": 6248,
+      "digest": "sha256:9c1dc70f7d602e91ac1ab55d8fe9c042e9abe30d9ea43ceac9619f0a32a12de7",
+      "workflow_run": {
+        "id": 42367175646,
+        "repository_id": 1179937546,
+        "head_repository_id": 1179937546,
+        "head_branch": "main",
+        "head_sha": "6a115124dce2dab20c9aba017eda423b26a87670"
+      }
+    }
+  ],
+  "artifact_archive_digests_verified": true,
+  "correctness": {
+    "status": "passed",
+    "app_counts": {
+      "ex_storage_service": {
+        "tests": 645,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 644
+      },
+      "ex_storage_service_cluster": {
+        "tests": 44,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 43
+      },
+      "ex_storage_service_s3": {
+        "tests": 387,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 387
+      },
+      "ex_storage_service_web": {
+        "tests": 24,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 24
+      }
+    },
+    "cli_counts": {
+      "ex_storage_service_cli": {
+        "tests": 11,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 11
+      }
+    },
+    "total_executed": 1109,
+    "discovered_file_inventory_matches_checkout": true,
+    "two_declared_heavy_exclusions_retained": true
+  },
+  "python_harness": {
+    "status": "passed_with_existing_environment_skip",
+    "discovered": 165,
+    "executed": 164,
+    "failures": 0,
+    "skipped": 1,
+    "skip": "Retained direct-unshare isolated network namespace check; host namespace restrictions remain enabled",
+    "skip_method": "e2e/test_hardening_ports.py:test_ci_reserved_range_in_isolated_network_namespace",
+    "local_same_suite": {
+      "discovered": 165,
+      "executed": 165,
+      "failures": 0,
+      "skipped": 0
+    },
+    "hosted_log_sha256": "3c4b7c7b6c7aec181db69f42ae4af2729ef2064eb07d04906adc27058897f7c4"
+  },
+  "hosted_isolation": {
+    "status": "passed",
+    "uid": 1001,
+    "namespace_policy": {
+      "apparmor_restrict_unprivileged_userns": "1",
+      "unprivileged_userns_clone": "1"
+    },
+    "private_tmpfs": {
+      "uid": 1001,
+      "namespace": "mnt:[4026532261]",
+      "device": 59,
+      "capacity": 8388608,
+      "bytes": 1048576,
+      "sha256": "8f990ba0b577b51cf009ea049368c16bbda1b21e1b93be07a824758bb253c39b",
+      "host": {
+        "uid": 1001,
+        "namespace": "mnt:[4026531832]",
+        "device": 2049
+      },
+      "command": [
+        "bwrap",
+        "--die-with-parent",
+        "--ro-bind",
+        "/",
+        "/",
+        "--dev",
+        "/dev",
+        "--proc",
+        "/proc",
+        "--bind",
+        "/tmp/ess-ci-isolation-1d0obt_d",
+        "/tmp/ess-ci-isolation-1d0obt_d",
+        "--size",
+        "8388608",
+        "--tmpfs",
+        "/tmp/ess-ci-isolation-1d0obt_d/tmp",
+        "/opt/hostedtoolcache/Python/3.12.16/x64/bin/python3"
+      ]
+    },
+    "profile_digest_and_distro_package_provenance_verified": true
+  },
+  "daily_http": {
+    "status": "passed",
+    "profile": "daily",
+    "source_sha256": "f27b798af6d71c0a4bd18afec1f8f3ed9b7e8e07a915939d3088959da6468a4e",
+    "ending_source_sha256": "f27b798af6d71c0a4bd18afec1f8f3ed9b7e8e07a915939d3088959da6468a4e",
+    "checks": [
+      {
+        "name": "production-compile",
+        "status": "passed",
+        "seconds": 3.477
+      },
+      {
+        "name": "server-health-and-readiness",
+        "status": "passed",
+        "seconds": 2.835
+      },
+      {
+        "name": "bucket-create-list-head-location-tags",
+        "status": "passed",
+        "seconds": 0.046
+      },
+      {
+        "name": "put-head-get-range-checksum-attributes",
+        "status": "passed",
+        "seconds": 0.047
+      },
+      {
+        "name": "default-sdk-checksum-gzip-bytes",
+        "status": "passed",
+        "seconds": 0.013
+      },
+      {
+        "name": "list-prefix-delimiter-pagination",
+        "status": "passed",
+        "seconds": 0.078
+      },
+      {
+        "name": "object-tags-copy-replace-delete-tags",
+        "status": "passed",
+        "seconds": 0.04
+      },
+      {
+        "name": "presigned-get-put-and-authentication",
+        "status": "passed",
+        "seconds": 0.016
+      },
+      {
+        "name": "cors-configuration-preflight-authenticated-read",
+        "status": "passed",
+        "seconds": 0.017
+      },
+      {
+        "name": "multipart-upload-list-parts-complete-and-abort",
+        "status": "passed",
+        "seconds": 0.24
+      },
+      {
+        "name": "multipart-part-copy",
+        "status": "passed",
+        "seconds": 0.03
+      },
+      {
+        "name": "batch-delete-and-single-delete",
+        "status": "passed",
+        "seconds": 0.024
+      },
+      {
+        "name": "versions-explicit-read-copy-delete-marker",
+        "status": "passed",
+        "seconds": 0.054
+      },
+      {
+        "name": "remove-created-versions-and-bucket",
+        "status": "passed",
+        "seconds": 0.042
+      }
+    ],
+    "versions": {
+      "python": "3.12.16",
+      "boto3": "1.43.114",
+      "botocore": "1.43.114",
+      "beam": "Erlang/OTP 28 [erts-16.4.0.7] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.19.7 (compiled with Erlang/OTP 28)",
+      "concord": "3.1.15",
+      "viewstamped_replication": "3.1.15",
+      "ex_turso": "3.1.15",
+      "http_fetch": "1.0.0-rc.5"
+    },
+    "sdk_checksum_policy": {
+      "request": "when_supported",
+      "response": "when_supported"
+    },
+    "readiness_http_status": 200,
+    "server_stopped": true,
+    "listener_closed": true,
+    "disposable_root_removed": true
+  },
+  "cli_package": {
+    "manifest": {
+      "version": "0.6.10",
+      "verification_profile": "daily",
+      "source_sha": "485ccf10342d859faee1f9d52a0ab7ab9872ad2c",
+      "source_dirty": false,
+      "probe_source_sha": "485ccf10342d859faee1f9d52a0ab7ab9872ad2c",
+      "package_sha256": "424b1b1aef8bd0d45b5327efe86bc80af6bbdf36a54e5d04db6716429d50a48d",
+      "hex_inner_checksum": "982268d9f8fcc6a288671ab1160ba0eb220d7ac37e115379d018fda939c756f6",
+      "escript_sha256": "27360cc4f0b4c9b9ce9f8932b095129bbfa1bafed5be49987833ebe51daed76f",
+      "escript_entries": 1422,
+      "os": "Linux",
+      "architecture": "x86_64",
+      "runtime": "Erlang/OTP 28 [erts-16.4.0.7] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]\n\nElixir 1.19.7 (compiled with Erlang/OTP 28)",
+      "package_source": "local-source-tar",
+      "credential_process": {
+        "total": 1,
+        "os": "linux",
+        "otp": "28",
+        "verification_profile": "daily",
+        "module_source": "installed-escript",
+        "architecture": "x86_64-pc-linux-gnu",
+        "failures": 0,
+        "skipped": 0,
+        "excluded": 0,
+        "checks": [
+          "literal-argv",
+          "typed-credentials",
+          "stderr-discard",
+          "record-redaction"
+        ]
+      },
+      "checks": [
+        "source-assets",
+        "published-dependencies",
+        "strict-compile",
+        "escript-assets",
+        "local-install",
+        "source-independent-runtime",
+        "model-skeleton",
+        "actual-http-unicode",
+        "actual-http-binary-stdout",
+        "hex-payload-integrity",
+        "installed-credential-process",
+        "installed-pager-pty"
+      ]
+    },
+    "actual_command_records": 14,
+    "all_command_exit_statuses_zero": true,
+    "tar_and_escript_hashes_match_manifest": true,
+    "retained_dependency_candidate_run": true,
+    "unchanged_cli_inputs_git_objects": {
+      "apps/ex_storage_service_cli": "a7d3780352f194324b5d0c11a63d53c596ba4047",
+      "scripts/cli_compatibility": "ddceaa597a24c1243b723fa136f275ba01bf93b6",
+      "scripts/release": "c05714b2e10942bfbc5d97de4870efe867323eca",
+      "mix.lock": "b2fc62e8ff8f4cbc7e21327a31d04f44c09dc24b",
+      ".github/workflows/cli-compatibility.yml": "fdbffd50848a8bdd5f976df6e65dea9b6d84b859",
+      ".github/workflows/publish-cli.yml": "29dd7b0e5983bdca4fc5e7526eae8f1bd5f65017"
+    }
+  },
+  "published_image_runtime": {
+    "status": "passed",
+    "image": "ghcr.io/gsmlg-dev/ess@sha256:1f161b21381507bc729cef922fbd8cfef5086548b64af7afcb19e04e82a27775",
+    "checks": [
+      {
+        "name": "bucket-create-list-head-location-tags",
+        "status": "passed",
+        "seconds": 0.021
+      },
+      {
+        "name": "put-head-get-range-checksum-attributes",
+        "status": "passed",
+        "seconds": 0.016
+      },
+      {
+        "name": "default-sdk-checksum-gzip-bytes",
+        "status": "passed",
+        "seconds": 0.011
+      },
+      {
+        "name": "list-prefix-delimiter-pagination",
+        "status": "passed",
+        "seconds": 0.043
+      },
+      {
+        "name": "object-tags-copy-replace-delete-tags",
+        "status": "passed",
+        "seconds": 0.035
+      },
+      {
+        "name": "presigned-get-put-and-authentication",
+        "status": "passed",
+        "seconds": 0.012
+      },
+      {
+        "name": "cors-configuration-preflight-authenticated-read",
+        "status": "passed",
+        "seconds": 0.011
+      },
+      {
+        "name": "multipart-upload-list-parts-complete-and-abort",
+        "status": "passed",
+        "seconds": 0.195
+      },
+      {
+        "name": "multipart-part-copy",
+        "status": "passed",
+        "seconds": 0.033
+      },
+      {
+        "name": "batch-delete-and-single-delete",
+        "status": "passed",
+        "seconds": 0.014
+      },
+      {
+        "name": "versions-explicit-read-copy-delete-marker",
+        "status": "passed",
+        "seconds": 0.052
+      },
+      {
+        "name": "remove-created-versions-and-bucket",
+        "status": "passed",
+        "seconds": 0.047
+      }
+    ],
+    "publication": false,
+    "boto3": "1.43.114",
+    "botocore": "1.43.114",
+    "oci_source_revision": "6a115124dce2dab20c9aba017eda423b26a87670",
+    "image_id": "sha256:e82915b224cc4a3f8c6f385cf83e722ac1a3a29ec1c6bc18ef3f84d761b9b4a8",
+    "readiness_http_status": 200,
+    "runtime_config_sha256": "b623a8fe3fbc1f74c43940bdd7c9a11ebf24f09a7f2b9098b6e48de2a73086bb",
+    "glibc": "glibc 2.43",
+    "versions": {
+      "http_fetch": "1.0.0-rc.5",
+      "concord": "3.1.15",
+      "tls_backend": "ex_ssl",
+      "gaoxy_http": "0.15.1",
+      "phoenix_duskmoon": "10.1.0",
+      "duskmoon_bundler": "10.1.2"
+    },
+    "build_info": {
+      "version": "0.6.10",
+      "environment": "prod",
+      "git_ref": "main",
+      "git_sha": "6a115124dce2dab20c9aba017eda423b26a87670",
+      "build_time": "2026-11-07T11:12:34Z"
+    },
+    "web_assets": [
+      {
+        "path": "/assets/css/app-7c959004-93b297273591d260faefa258212d2d92.css?vsn=d",
+        "bytes": 473648,
+        "content_type": "text/css",
+        "sha256": "7c959004c9ab4e620c2d76a531acc986d4ae04e678e48b8022571c865cca8f93"
+      },
+      {
+        "path": "/assets/js/app-c1acafd1-0c472ee00fa45a451528a24df70fa8aa.js?vsn=d",
+        "bytes": 793547,
+        "content_type": "text/javascript",
+        "sha256": "753b50ee779d6173f9491d352cc2ca5de294623baaaacf98ba1b9a409a09b4f1"
+      }
+    ],
+    "container_and_volume_removed": true,
+    "container_absent": true
+  },
+  "published_image_resolution": {
+    "tag": "ghcr.io/gsmlg-dev/ess:sha-6a11512",
+    "immutable_image": "ghcr.io/gsmlg-dev/ess@sha256:1f161b21381507bc729cef922fbd8cfef5086548b64af7afcb19e04e82a27775",
+    "image_id": "sha256:e82915b224cc4a3f8c6f385cf83e722ac1a3a29ec1c6bc18ef3f84d761b9b4a8",
+    "oci_source_revision": "6a115124dce2dab20c9aba017eda423b26a87670",
+    "build_run_id": 42367175371,
+    "digest_found_in_hosted_build_log": true,
+    "hosted_build_log_sha256": "a9da06cc59fed5a8d50a006fa91d26e6aacd4373095d7c57201255953cce2741"
+  },
+  "publication": {
+    "formal_release_performed": false,
+    "edge_image_published": true,
+    "versions_unchanged": "0.6.10",
+    "next_version": "0.7.0",
+    "full_current_source_acceptance": "not run",
+    "last_full_acceptance_run_id": 42259381466,
+    "blockers": [
+      "index timeout after unrelated growth",
+      "original 100 ms resource observation coverage gaps",
+      "original 30-second replica-repair failure",
+      "successful full current-source acceptance and all 158 clause audits"
+    ],
+    "historical_acceptance_promoted": false
+  },
+  "reviewed_evidence_sha256": {
+    "cli-manifest-reviewed.json": "969e10421cf5ab1f1496f7119209d04f5d91409f6747bea4b7beaba367c779a1",
+    "correctness-reviewed.json": "5b3090375813371d42bc6bce27218d3aa990f7040a2ed1bf90ff5d9866f64535",
+    "daily-reviewed.json": "22fe24ea48c7c6dae54a7bb1d68e3e7cae4ca6af0bde995b7e8bcd61532a9478",
+    "isolation-reviewed.json": "8c82a8e42298e1ad60ac24ff8ec37615063049eabc73b79440cb9c52c45b1e66",
+    "python-harness-reviewed.json": "1a35c73cd03afabdaaabc76527e52bd807239fc288f0be8b6d053d1ff6813567"
+  }
+}

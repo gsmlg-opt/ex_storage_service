@@ -1,7 +1,7 @@
 {
   "scope": "CI isolation admission for the Ubuntu 26.04 native dependency baseline",
   "date": "2026-11-07",
-  "status": "local_checks_passed_hosted_verification_pending",
+  "status": "local_and_hosted_checks_passed",
   "acceptance": false,
   "base_commit": "485ccf10342d859faee1f9d52a0ab7ab9872ad2c",
   "source_sha256": "f27b798af6d71c0a4bd18afec1f8f3ed9b7e8e07a915939d3088959da6468a4e",
@@ -98,8 +98,8 @@
       ]
     },
     "local_privileged_hosted_setup_executed": false,
-    "hosted_profile_loading": "pending",
-    "hosted_private_tmpfs_probe": "pending"
+    "hosted_profile_loading": "passed",
+    "hosted_private_tmpfs_probe": "passed"
   },
   "evidence_sha256": {
     "ci-platform-targeted.log": "5d3532a2222ab8fa9e1a5e974c31fe8d4d70ccd0512b26e4f2e5f224137a9ff6",
@@ -113,5 +113,26 @@
     "full_current_source_acceptance": "not run",
     "release_blockers_unchanged": true,
     "historical_acceptance_promoted": false
+  },
+  "hosted_verification": {
+    "run_id": 42367175547,
+    "candidate_commit": "6a115124dce2dab20c9aba017eda423b26a87670",
+    "receipt": "http-rc5-hosted-20261107.json",
+    "hosted_harness": {
+      "status": "passed_with_existing_environment_skip",
+      "discovered": 165,
+      "executed": 164,
+      "failures": 0,
+      "skipped": 1,
+      "skip": "Retained direct-unshare isolated network namespace check; host namespace restrictions remain enabled",
+      "skip_method": "e2e/test_hardening_ports.py:test_ci_reserved_range_in_isolated_network_namespace",
+      "local_same_suite": {
+        "discovered": 165,
+        "executed": 165,
+        "failures": 0,
+        "skipped": 0
+      },
+      "hosted_log_sha256": "3c4b7c7b6c7aec181db69f42ae4af2729ef2064eb07d04906adc27058897f7c4"
+    }
   }
 }

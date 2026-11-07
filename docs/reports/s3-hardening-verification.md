@@ -45,7 +45,7 @@ JS/CSS asset checks pass. Browser login initialization succeeds with LiveSocket,
 CSS and JS loaded and no console warnings/errors. Owned containers, anonymous
 volumes, browser page and admission data roots are removed. This local runtime
 stage does not certify a complete Dockerfile build; that is verified separately
-by the hosted build workflow after pushing the candidate.
+by the hosted build and actual image execution recorded below.
 
 The [adoption receipt](s3-hardening/http-rc5-adoption-20261107.json) records
 provenance, original failures and environment corrections, verification counts,
@@ -68,13 +68,42 @@ Package membership and profile contents are verified. Child profile stacking and
 capability denial remain required; the existing hosted-only guard, AppArmor
 requirement, package provenance checks, normal-user workload/probe and unchanged
 global namespace policy remain intact. Eight targeted isolation tests and all
-165 Python harness tests pass locally. Actual hosted policy loading and the real
-private-tmpfs probe are still pending. The
+165 Python harness tests pass locally. Hosted Test
+[42367175547](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42367175547)
+passes actual policy loading and the real private-tmpfs probe as UID 1001 while
+the global AppArmor user-namespace restriction remains enabled. It executes
+1,109 application tests with zero failures/skips and the two declared heavy
+exclusions. Discovered server test files match the checkout inventory. Its Python
+harness discovers 165 tests, executes 164 without failures and retains one
+existing direct-unshare network-namespace environment skip. The same check passes
+in the local isolated environment with all 165 tests and zero skips. The
 [platform receipt](s3-hardening/http-rc5-ci-platform-20261107.json) records this
-separate executable-input fingerprint; the original dependency checkpoint below
-is preserved without promoting its results to the follow-up.
+separate executable-input fingerprint
+`f27b798af6d71c0a4bd18afec1f8f3ed9b7e8e07a915939d3088959da6468a4e`.
 
-Executable-input fingerprint:
+Candidate `6a11512` also passes hosted CI, all 14 authenticated daily S3 checks
+and the full Dockerfile build. Digest-verified daily evidence matches that exact
+executable-input fingerprint and confirms server, listener and data-root cleanup.
+The dependency candidate's CLI tar/escript hashes match its retained manifest;
+all 14 actual command records succeed, including source-independent installation,
+HTTP, credential-process and pager execution. CLI source, lockfile, scripts and
+workflows are unchanged by the isolation follow-up, as verified by Git objects.
+
+The actual GHCR image is pulled and executed at immutable digest
+`sha256:1f161b21381507bc729cef922fbd8cfef5086548b64af7afcb19e04e82a27775`,
+which also appears in the successful hosted build log. OCI and runtime metadata
+both identify full source `6a115124dce2dab20c9aba017eda423b26a87670`, ref `main`
+and the production build with a UTC build-start timestamp. The running image
+confirms glibc 2.43, the adopted dependency versions and default ExSSL backend.
+All 12 authenticated daily S3 business groups and Web page/JS/CSS checks pass.
+The owned container and anonymous volume are removed. This verifies the automatic
+`edge` image; no formal version, `latest` image or Hex release is published.
+The [hosted delivery receipt](s3-hardening/http-rc5-hosted-20261107.json) retains
+workflow identities, verified artifact digests, actual counts, the installed CLI
+manifest and allowlisted runtime results. The original dependency checkpoint
+below remains preserved without promoting historical acceptance.
+
+Dependency-adoption checkpoint executable-input fingerprint:
 `4e956eca53ab99dccd99d412a8d6404a9479eb6636a1ad780be0811a901a5662`.
 The latest completed full acceptance remains
 [42259381466](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42259381466),

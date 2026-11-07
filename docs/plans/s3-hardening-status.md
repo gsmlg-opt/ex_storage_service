@@ -18,15 +18,24 @@ image passes readiness, dependency/version checks, all 12 daily business groups,
 Web assets and browser login initialization; this runtime-stage build is separate
 from the hosted full Dockerfile build.
 
-The first pushed dependency candidate passes hosted CI, CLI compatibility,
-daily S3 interoperability and the full Dockerfile build. Its Test job stops
-before workloads because the existing isolation prerequisite admits only Ubuntu
-24.04. The follow-up admits Ubuntu 26.04's separately reviewed, digest-pinned
-AppArmor profile while retaining unprivileged workloads and global namespace
-restrictions. All 165 Python harness tests pass locally, including two new
-platform/profile regressions. Actual hosted profile loading and the private-tmpfs
-probe remain pending for this follow-up; see the
-[platform receipt](../reports/s3-hardening/http-rc5-ci-platform-20261107.json).
+The first pushed dependency candidate's Test job stops before workloads because
+the existing isolation prerequisite admits only Ubuntu 24.04. Follow-up `6a11512`
+admits Ubuntu 26.04's separately reviewed, digest-pinned AppArmor profile while
+retaining unprivileged workloads and global namespace restrictions. Hosted CI,
+Test, daily S3 interoperability and the full Dockerfile build pass. The real
+hosted profile load and private-tmpfs probe pass; 1,109 application tests pass
+with the two declared heavy exclusions. All 165 Python harness tests pass locally;
+the hosted run executes 164 and retains one existing direct-unshare environment
+skip. The dependency candidate's CLI installation artifact is digest-verified,
+and its CLI inputs are unchanged by this follow-up.
+
+The actual GHCR image at immutable digest
+`sha256:1f161b21381507bc729cef922fbd8cfef5086548b64af7afcb19e04e82a27775`
+confirms the exact source/build metadata, installed dependency versions, glibc
+2.43 and default ExSSL backend. All 12 authenticated daily business groups and
+Web page/asset checks pass. Its temporary container and volume are removed.
+See the [platform receipt](../reports/s3-hardening/http-rc5-ci-platform-20261107.json)
+and [hosted delivery receipt](../reports/s3-hardening/http-rc5-hosted-20261107.json).
 
 Concord 3.1.15 retains the same production Elixir/native sources as 3.1.14.
 The unresolved index, resource-observation and replica-repair failures remain
