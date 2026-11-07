@@ -184,7 +184,12 @@ defmodule ExStorageServiceS3.MultipartProfileHTTPTest do
     assert {:ok, []} = Versioning.list_versions(bucket, "minimum")
 
     boundary = short <> "a"
-    replacement = Req.put!(path <> "&partNumber=1", retry: false, body: boundary)
+
+    replacement =
+      observe_replacement(fn ->
+        Req.put!(path <> "&partNumber=1", retry: false, body: boundary)
+      end)
+
     assert replacement.status == 200
     [replacement_etag] = Req.Response.get_header(replacement, "etag")
     completed = complete.(path, [{1, replacement_etag}, {2, final_etag}])
@@ -371,5 +376,34 @@ defmodule ExStorageServiceS3.MultipartProfileHTTPTest do
     assert empty.body =~ "InvalidPart"
     assert {:ok, %{status: :initiated}} = Multipart.get_upload(bucket, upload)
     assert {:error, :object_not_found} = ObjectService.head(bucket, "key")
+  end
+
+  defp observe_replacement(request) do
+    request.()
+  rescue
+    exception ->
+      # Retain only function identities and queue counts, never request arguments,
+      # process dictionaries, mailbox contents or connection/credential data.
+      prefixes =
+        ~w(Elixir.Gaoxy Elixir.Hell Elixir.ExStorageService Elixir.Concord Elixir.ViewstampedReplication)
+
+      observations =
+        for pid <- Process.list(),
+            info = Process.info(pid, [:current_stacktrace, :message_queue_len, :status]),
+            info != nil,
+            frames =
+              Enum.map(info[:current_stacktrace], fn {module, function, arity, _location} ->
+                {Atom.to_string(module), function,
+                 if(is_list(arity), do: length(arity), else: arity)}
+              end),
+            Enum.any?(frames, fn {module, _, _} -> String.starts_with?(module, prefixes) end) do
+          %{pid: pid, status: info[:status], queue: info[:message_queue_len], stack: frames}
+        end
+
+      IO.warn(
+        "Multipart replacement failure observations: #{inspect(observations, limit: :infinity)}"
+      )
+
+      reraise exception, __STACKTRACE__
   end
 end
