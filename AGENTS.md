@@ -169,8 +169,8 @@ enforces decoded object size.
   observer's OS identity has stopped before fixture cleanup. These variables
   configure test instrumentation only.
 - The manual `resource-cadence-diagnostic.yml` workflow instruments both data
-  observers for an incomplete cluster-resource prefix. It retains the original
-  sampling, coverage, quorum and resource limits; its artifacts cannot satisfy
+  observers for the incomplete cluster-resource prefix through group 16. It
+  retains the original sampling, coverage, quorum and resource limits; its artifacts cannot satisfy
   acceptance or publication gates. Private instrumentation uses
   `ESS_DIAGNOSTIC_PINNED_PYTHON` for the absolute pinned interpreter,
   `ESS_DIAGNOSTIC_EVIDENCE` for unique diagnostic output, and

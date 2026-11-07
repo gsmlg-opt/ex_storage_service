@@ -13,6 +13,7 @@ import sys
 import time
 
 from common import alive, diagnostic_mode, identity, write_json
+from subset import PREFIX_GROUPS
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
@@ -34,7 +35,7 @@ def initialize(label):
     sys.path.insert(0, str(REPO / "e2e"))
     from hardening_acceptance import source_fingerprint
     write(output / "diagnostic.json", dict(status="prepared", label=label, mode=mode,
-        selected_prefix_groups=6, observed_nodes=["data-a", "data-b"],
+        selected_prefix_groups=PREFIX_GROUPS, observed_nodes=["data-a", "data-b"],
         traced_nodes=["data-a", "data-b"] if mode == "syscall-trace" else [],
         timeout_seconds=TIMEOUT_SECONDS, sampling_ms=25, coverage_limit_ms=100,
         source_head=subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO, text=True).strip(),

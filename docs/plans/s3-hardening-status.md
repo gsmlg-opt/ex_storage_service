@@ -1,4 +1,31 @@
-## Current HTTP RC5 dependency adoption — 2026-11-07
+## Current full acceptance and release diagnosis — 2026-11-08
+
+Exact source `abf6b05` completed [full run 42386733186](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42386733186).
+Daily and eight extended lanes passed. Correctness, index and resources failed;
+the aggregate stopped at the lane gate before the stock verifier. Resilience,
+including the previously failing replica-repair check, passed this run.
+
+Correctness ran all 4,589 application tests: 4,588 passed and the original 5 MiB
+multipart replacement request timed out. The isolated case and complete S3 suite
+pass with the same seed; a complete local replay reproduces the timeout. A second
+complete replay passes that case but times out during the signed 9 MiB storage
+listener upload. The captured budget/accounting stack does not establish a cause.
+
+A28 completed the 100k primary fixture and failed a bucket read on unrelated put
+42,104 after 5.078 seconds. No terminal A28 measurements artifact exists.
+Independent A29 passed. All recorded resource envelopes passed, while standalone
+group 15 and cluster group 16 failed the original 100 ms coverage bound. A raw
+export audit verifies all four SHA256 digests, every sequence and the failed-group
+measurements. Slow temporary probes spend 84–88 ms wall time with only about
+1.4 ms observer CPU; scheduler versus syscall waiting remains unclassified.
+
+The manual resource diagnostic now reaches original group 16 with unchanged
+assertions, sampling, bounds and lifecycle deadlines. Its 19 pure tests pass.
+Diagnostics cannot certify acceptance. Full current-source acceptance and all
+158 clause audits remain required; **v0.7.0 is not published**. See the
+[full-run receipt](../reports/s3-hardening/http-rc5-full-acceptance-20261108.json).
+
+## HTTP RC5 dependency adoption — 2026-11-07
 
 The requested `http_fetch 1.0.0-rc.5` upgrade is complete. The coordinated HTTP
 client/engine packages use RC5, Concord/VSR/ExTurso use 3.1.15, Gaoxy uses 0.15.1,
@@ -38,8 +65,8 @@ See the [platform receipt](../reports/s3-hardening/http-rc5-ci-platform-20261107
 and [hosted delivery receipt](../reports/s3-hardening/http-rc5-hosted-20261107.json).
 
 Concord 3.1.15 retains the same production Elixir/native sources as 3.1.14.
-The unresolved index, resource-observation and replica-repair failures remain
-publication blockers. Full current-source acceptance and all 158 original clause
+The subsequent full run is recorded above; its current failures are correctness,
+index and resource observation. Full current-source acceptance and all 158 original clause
 audits are still required; v0.7.0 remains unpublished. See the
 [integrated report](../reports/s3-hardening-verification.md) and
 [adoption receipt](../reports/s3-hardening/http-rc5-adoption-20261107.json).

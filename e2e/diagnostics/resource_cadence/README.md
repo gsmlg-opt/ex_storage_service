@@ -1,11 +1,13 @@
 # Incomplete resource cadence diagnostic
 
-This manually dispatched Ubuntu 24.04 diagnostic executes the original cluster
-resource prefix (groups 1–6), stopping after the 64 MiB, concurrency-four strict
+This manually dispatched Ubuntu 26.04 diagnostic executes the original cluster
+resource prefix (groups 1–16), stopping after the 1 GiB, concurrency-four strict
 RF2/W2 PUT. It cannot certify acceptance or authorize publication, even when the
 selected groups and diagnostic lifecycle pass. It changes no default acceptance
 workflow, resource envelope, quorum, 25 ms sampling or conservative 100 ms coverage
 calculation. An original failed group remains failed and stops the prefix.
+The prefix includes the failed case in full run 42386733186; the earlier six-group
+prefix did not reach that case.
 
 The launcher transparently forwards ordinary Python invocations, and runs the
 original resource program with one AST-inserted stop after its existing measured

@@ -16,7 +16,7 @@ import common
 import dispatch
 import instrument_observer
 import run
-from subset import prepare
+from subset import PREFIX_GROUPS, TARGET, prepare
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
@@ -51,6 +51,14 @@ class DiagnosticFixtures(unittest.TestCase):
         self.assertEqual(ast.dump(prepared, include_attributes=False), ast.dump(original, include_attributes=False))
         with self.assertRaises(AssertionError):
             prepare("def main():\n def measured():\n  pass\n", "changed.py")
+
+    def test_prefix_reaches_latest_failed_original_case(self):
+        with patch.object(sys, "path", [str(REPO / "e2e"), *sys.path]):
+            from resource_cases import manifest
+        cases = manifest("cluster")
+        self.assertEqual(PREFIX_GROUPS, 16)
+        self.assertEqual(tuple(cases[PREFIX_GROUPS - 1].values()), TARGET)
+        self.assertEqual(len(cases) - PREFIX_GROUPS, 4)
 
     def test_dispatch_targets_both_original_data_nodes_only(self):
         root = Path("/tmp/ess-s3-hardening-cluster-" + uuid.uuid4().hex[:8])

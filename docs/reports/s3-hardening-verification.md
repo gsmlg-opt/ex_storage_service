@@ -1,4 +1,37 @@
-## Current HTTP RC5 dependency adoption — 2026-11-07
+## Current full acceptance and release diagnosis — 2026-11-08
+
+Exact candidate `abf6b05e85cad5e4be59202606a3153ff76160c6` completed
+[full run 42386733186](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42386733186)
+with executable-input fingerprint
+`f27b798af6d71c0a4bd18afec1f8f3ed9b7e8e07a915939d3088959da6468a4e`.
+Daily and eight extended lanes passed. Correctness, index and resources failed;
+the aggregate stopped at its lane-result gate before running the stock verifier.
+The resilience lane passed, including the previously failing replica-repair check.
+
+All 4,589 application tests executed: 4,588 passed and the 5 MiB multipart
+replacement request timed out. Isolated and full-S3 same-seed controls pass; a
+complete local replay reproduces the original failure and captures safe
+budget/accounting stacks. A second complete replay passes the minimum-part retry
+case and times out in the separate signed 9 MiB listener upload. Neither stack
+sampling nor a non-reproduction establishes a root cause or repair.
+
+A28 completed 10k and all 100k primary objects, initial inventory and initial
+listing, then failed a bucket metadata read on unrelated put 42,104 after
+5,077,904 microseconds. It produced no terminal A28 measurements artifact.
+Independent A29 migration/rejoin/cutover passed. Standalone resource group 15/56
+and cluster group 16/20 failed the unchanged 100 ms coverage bound; all recorded
+numeric envelopes passed. Four raw export SHA256 digests, all 94,602 sequences
+and the failed-group cadence values are independently verified. The slow temporary
+probes take 84–88 ms wall time with about 1.4 ms observer CPU; this distinguishes
+elapsed delay from Python execution without attributing it to scheduling or I/O.
+
+The manual diagnostic prefix now includes group 16; 19 pure fixtures pass while
+the original assertions, 25 ms sampling, 100 ms bound and RF2/W2 remain intact.
+Its output remains ineligible for publication. The [full-run receipt](s3-hardening/http-rc5-full-acceptance-20261108.json)
+retains artifact digests and bounded observations. Full exact-source acceptance
+and all 158 clause audits remain required. **v0.7.0 is not published.**
+
+## HTTP RC5 dependency adoption — 2026-11-07
 
 The requested `http_fetch 1.0.0-rc.5` adoption is complete. Twenty-five existing
 packages are upgraded and `varint 1.6.0` is added transitively. The eight installed
@@ -105,11 +138,11 @@ below remains preserved without promoting historical acceptance.
 
 Dependency-adoption checkpoint executable-input fingerprint:
 `4e956eca53ab99dccd99d412a8d6404a9479eb6636a1ad780be0811a901a5662`.
-The latest completed full acceptance remains
+The previous completed full acceptance was
 [42259381466](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42259381466),
 which belongs to Concord 3.1.13 and failed index, resources and resilience.
-This upgrade does not establish repairs for the index timeout, original 100 ms
-observation gaps or original 30-second replica-repair failure. Full current-source
+The newer full run recorded above passes resilience and fails correctness,
+index and resource observation. Full current-source
 acceptance and all 158 clause audits remain publication prerequisites. Historical
 receipts are not promoted. **v0.7.0 remains unpublished.**
 
