@@ -5,18 +5,22 @@ import resource
 from pathlib import Path
 import time
 
-MODES = ("probe-only", "syscall-trace")
+MODES = ("probe-only", "syscall-trace", "filesystem-trace")
 
 
 def diagnostic_mode(value=None):
     mode = os.environ.get("ESS_DIAGNOSTIC_MODE", "probe-only") if value is None else value
     if mode not in MODES:
-        raise ValueError("ESS_DIAGNOSTIC_MODE must be probe-only or syscall-trace")
+        raise ValueError("ESS_DIAGNOSTIC_MODE must be " + ", ".join(MODES))
     return mode
 
 
+def traces_syscalls(mode):
+    return diagnostic_mode(mode) in ("syscall-trace", "filesystem-trace")
+
+
 def datagram_limit(mode):
-    return 2048 if diagnostic_mode(mode) == "probe-only" else 32768
+    return 32768 if diagnostic_mode(mode) == "syscall-trace" else 2048
 
 
 def compact_thread_snapshot():
@@ -42,7 +46,7 @@ def compact_thread_delta(before, after):
 
 def delivery_errors(mode, trace_seen, tracers, discarded, instrument, socket_rows):
     errors = set()
-    if diagnostic_mode(mode) == "syscall-trace":
+    if traces_syscalls(mode):
         if not trace_seen:
             errors.add("no_syscall_trace")
         if not tracers:

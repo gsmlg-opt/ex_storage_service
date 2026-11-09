@@ -21,8 +21,13 @@ functions and returned windows remain authoritative. The manual mode choice is:
   datagrams are bounded at 2 KiB and serialized/sent after the original window.
 - `syscall-trace`: retains `strace -D -f`, full per-probe snapshots and the
   original raw syscall stream. This is an intrusive diagnostic mode.
+- `filesystem-trace`: uses the same compact brackets as `probe-only`, plus
+  `strace -D -f` restricted to `openat`, `openat2`, `close`, `newfstatat`,
+  `statx`, `fstat`, `getdents64`, `lseek`, `statfs` and `fstatfs`. It excludes
+  read/write, synchronization and futex calls. Trace arguments remain raw
+  addresses/numbers; paths and payloads are never decoded.
 
-Both modes use a separate bounded monitor for contemporaneous scheduler, cgroup
+All modes use a separate bounded monitor for contemporaneous scheduler, cgroup
 CPU/throttling, pressure and aggregate host CPU (including steal) observations.
 Its full snapshots run outside the observer process. Extra diagnostic CPU, GIL,
 procfs and output overhead remains included in the unchanged resource evaluation.
@@ -48,23 +53,24 @@ and retains observer/tracer/monitor cleanup receipts. Fixture roots are retained
 the artifact excludes FIFOs/sockets and credential files. Workflow artifacts are
 uploaded on success or failure, beginning with an incomplete marker before setup.
 
-In syscall-trace mode, each observer monitor continuously drains the full-lifetime
+In either traced mode, each observer monitor continuously drains the full-lifetime
 trace without detaching at a syscall count. Retention caps per observer are 1 GiB
 syscalls (absent in probe-only), 512 MiB probe boundaries and 256 MiB scheduler
 rows. After exhaustion, draining continues but discarded bytes are counted and
 diagnostic coverage fails. Probe
-datagrams are bounded at 2 KiB in probe-only and 32 KiB in syscall-trace; any drop
+datagrams are bounded at 2 KiB in probe-only/filesystem-trace and 32 KiB in syscall-trace; any drop
 or count/mode mismatch fails coverage. Probe-only omits syscall/tracer-presence
 expectations and fails if an unexpected tracer is observed. The monitor's
 fail-closed safety lifetime is 960 seconds; the controller owns earlier
 900-second workload cancellation. Full-lifetime coverage requires both monitor
 terminal receipts, complete datagram delivery, original export verification and
-stopped original identities; syscall-trace also requires natural trace completion.
+stopped original identities; both traced modes also require natural trace completion.
 
 Internal instrumentation variables, set by the controller/dispatcher only:
 
-- `ESS_DIAGNOSTIC_MODE`: manual workflow choice `probe-only` (default) or
-  `syscall-trace`, fenced across initialization, launch and terminal receipts.
+- `ESS_DIAGNOSTIC_MODE`: manual workflow choice `probe-only` (default),
+  `syscall-trace` or `filesystem-trace`, fenced across initialization, launch
+  and terminal receipts.
 - `ESS_DIAGNOSTIC_PINNED_PYTHON`: absolute pinned virtualenv Python forwarded by
   the transparent launcher, also used as the original observer's Python.
 - `ESS_DIAGNOSTIC_EVIDENCE`: unique disposable diagnostic report directory,

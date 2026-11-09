@@ -9,7 +9,7 @@ import subprocess
 import sys
 import time
 
-from common import alive, diagnostic_mode, identity, write_json
+from common import alive, diagnostic_mode, identity, traces_syscalls, write_json
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
@@ -17,6 +17,7 @@ DATA_NODES = {"data-a", "data-b"}
 SYSCALLS = ("read,write,readv,writev,pread64,pwrite64,openat,openat2,close,newfstatat,"
             "statx,fstat,getdents64,lseek,fsync,fdatasync,statfs,fstatfs,futex,"
             "pselect6,select,poll,ppoll,clock_nanosleep,nanosleep")
+FILESYSTEM_SYSCALLS = "openat,openat2,close,newfstatat,statx,fstat,getdents64,lseek,statfs,fstatfs"
 
 
 def observer_target(args):
@@ -49,21 +50,24 @@ def observer_target(args):
     return normalized, flags, sample_root.name, cluster
 
 
-def trace_command(strace, fifo, python, observer, args):
+def trace_command(strace, fifo, python, observer, args, mode="syscall-trace"):
     # -D preserves BEAM's original Port PID and pipes. No pathname, buffer,
     # protocol, environment or credential values are decoded by raw=all.
+    if not traces_syscalls(mode):
+        raise ValueError("traced diagnostic mode required")
+    syscalls = FILESYSTEM_SYSCALLS if mode == "filesystem-trace" else SYSCALLS
     return [strace, "-D", "-f", "-I", "1", "-qq", "-ttt", "-T",
-            "-e", "trace=" + SYSCALLS, "-e", "raw=all", "-e", "signal=none", "-o", str(fifo),
+            "-e", "trace=" + syscalls, "-e", "raw=all", "-e", "signal=none", "-o", str(fifo),
             python, "-B", str(HERE / "instrument_observer.py"), str(observer), *args]
 
 
 def observer_command(mode, python, observer, args, fifo):
-    if diagnostic_mode(mode) == "probe-only":
+    if not traces_syscalls(mode):
         return [python, "-B", str(HERE / "instrument_observer.py"), str(observer), *args]
     strace = shutil.which("strace")
     if strace is None:
         raise RuntimeError("strace unavailable; do not change ptrace policy")
-    return trace_command(strace, fifo, python, observer, args)
+    return trace_command(strace, fifo, python, observer, args, mode)
 
 
 def main():
@@ -88,19 +92,21 @@ def main():
         while not terminal.is_file() and time.monotonic() < deadline:
             time.sleep(.025)
         receipt = json.loads(terminal.read_text())
-        monitor = json.loads((diagnostic / "monitor-ready.json").read_text())["monitor"]
+        ready = json.loads((diagnostic / "monitor-ready.json").read_text())
+        monitor = ready["monitor"]
         deadline = time.monotonic() + 2
         while alive(monitor) and time.monotonic() < deadline:
             time.sleep(.025)
         shutil.copytree(diagnostic, evidence / diagnostic.name,
                         ignore=shutil.ignore_patterns("*.fifo", "*.sock"))
-        if alive(monitor) or receipt["status"] != "complete":
+        if (alive(monitor) or receipt["status"] != "complete"
+                or receipt["mode"] != mode or ready["mode"] != mode):
             raise RuntimeError("diagnostic delivery/scheduler coverage or monitor cleanup incomplete")
         return
     observer = REPO / "e2e/scripts/resource_observer.py"
     diagnostic.mkdir(mode=0o700)
     fifo = diagnostic / "syscalls.fifo"
-    if mode == "syscall-trace":
+    if traces_syscalls(mode):
         os.mkfifo(fifo, 0o600)
     launch = dict(observer=identity(os.getpid()), beam=identity(int(flags["--beam-pid"])),
                   generation=flags["--generation"], mode=mode, original_argv=[python, *args],
@@ -119,7 +125,7 @@ def main():
     os.environ["ESS_OBSERVER_DIAGNOSTIC_ROOT"] = str(diagnostic)
     argv = observer_command(mode, python, observer, normalized[1:], fifo)
     write_json(diagnostic / "observer-command.json", dict(mode=mode, argv=argv))
-    if mode == "syscall-trace":
+    if traces_syscalls(mode):
         write_json(diagnostic / "strace-command.json", argv)
     # Both paths exec in place, retaining the original Port PID and pipes.
     os.execv(argv[0], argv)

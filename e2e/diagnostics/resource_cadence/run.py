@@ -12,7 +12,7 @@ import subprocess
 import sys
 import time
 
-from common import alive, diagnostic_mode, identity, write_json
+from common import alive, diagnostic_mode, identity, traces_syscalls, write_json
 from subset import PREFIX_GROUPS
 
 HERE = Path(__file__).resolve().parent
@@ -36,7 +36,7 @@ def initialize(label):
     from hardening_acceptance import source_fingerprint
     write(output / "diagnostic.json", dict(status="prepared", label=label, mode=mode,
         selected_prefix_groups=PREFIX_GROUPS, observed_nodes=["data-a", "data-b"],
-        traced_nodes=["data-a", "data-b"] if mode == "syscall-trace" else [],
+        traced_nodes=["data-a", "data-b"] if traces_syscalls(mode) else [],
         timeout_seconds=TIMEOUT_SECONDS, sampling_ms=25, coverage_limit_ms=100,
         source_head=subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO, text=True).strip(),
         source_fingerprint=source_fingerprint(),
@@ -60,7 +60,7 @@ def discover(output, owned):
             monitor = json.loads(ready.read_text())["monitor"]
             owned[(monitor["pid"], monitor["start_ticks"])] = monitor
         observer = launch["observer"]
-        if launch["mode"] == "syscall-trace" and alive(observer):
+        if traces_syscalls(launch["mode"]) and alive(observer):
             try:
                 status = Path(f"/proc/{observer['pid']}/status").read_text()
                 tracer_pid = next(int(line.split()[1]) for line in status.splitlines()
@@ -203,7 +203,7 @@ def execute(python, label, output):
                 returncode=status, errors=errors, elapsed_seconds=time.monotonic() - started,
                 owned_identities=identities, remaining_group_members=group,
                 roots=[str(root) for root in roots], observed_nodes=sorted(terminals),
-                traced_nodes=sorted(terminals) if mode == "syscall-trace" else [],
+                traced_nodes=sorted(terminals) if traces_syscalls(mode) else [],
                 provenance=json.loads((output / "started.json").read_text()) if child else None))
     return 0 if status == 0 and not errors else 1
 

@@ -8,7 +8,7 @@ import sys
 import time
 from common import (Retention, alive, cgroups, clocks, counter_delta, datagram_limit,
                     delivery_errors, diagnostic_mode, identity, read, thread_delta,
-                    thread_snapshot, write_json)
+                    thread_snapshot, traces_syscalls, write_json)
 
 ROOT = Path(sys.argv[1]).resolve()
 launch = json.loads((ROOT / "launch.json").read_text())
@@ -17,7 +17,7 @@ expected = launch["observer"]
 pid = expected["pid"]
 caps = {"syscalls": 1024 * 1024 * 1024, "probes": 512 * 1024 * 1024,
         "scheduler": 256 * 1024 * 1024}
-if mode == "probe-only":
+if not traces_syscalls(mode):
     del caps["syscalls"]
 files = {key: (ROOT / (key + (".log" if key == "syscalls" else ".jsonl"))).open("xb")
          for key in caps}
@@ -79,7 +79,7 @@ def snapshot():
 
 selector = selectors.DefaultSelector()
 fifo = None
-if mode == "syscall-trace":
+if traces_syscalls(mode):
     fifo = os.open(ROOT / "syscalls.fifo", os.O_RDWR | os.O_NONBLOCK)
     selector.register(fifo, selectors.EVENT_READ, "trace")
 channel = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)

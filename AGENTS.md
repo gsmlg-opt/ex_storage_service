@@ -177,9 +177,11 @@ enforces decoded object size.
   `ESS_OBSERVER_DIAGNOSTIC_ROOT` for private per-observer trace/socket files.
   `ESS_DIAGNOSTIC_MODE` selects `probe-only` (default: compact thread CPU,
   context-switch and schedstat brackets without ptrace or full per-probe
-  snapshots) or the retained intrusive `syscall-trace` mode. Both require
-  complete delivery, original export verification and stopped identities;
-  neither certifies acceptance.
+  snapshots) or the retained intrusive `syscall-trace` mode. `filesystem-trace`
+  combines compact brackets with a raw filesystem syscall filter, excluding
+  read/write and futex tracing without decoding paths or payloads. All modes
+  require complete delivery, original export verification and stopped identities;
+  both traced modes require natural trace completion. None certifies acceptance.
   These do not configure production behavior. Workflow-local `DIAGNOSTIC_LABEL`
   selects evidence paths; `ENABLE_SCHEDULER_ACCOUNTING` optionally enables
   scheduler accounting on the disposable hosted VM and retains readback.

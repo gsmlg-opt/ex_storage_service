@@ -94,6 +94,10 @@ class DiagnosticFixtures(unittest.TestCase):
         self.assertNotIn("execve", dispatch.SYSCALLS.split(","))
         self.assertNotIn("network", dispatch.SYSCALLS)
         self.assertEqual(argv[-1], "sample")
+        selected = next(value for value in argv if value.startswith("trace="))
+        self.assertEqual(selected, "trace=" + dispatch.SYSCALLS)
+        self.assertTrue({"read", "write", "futex", "fsync", "fdatasync"}.issubset(
+            selected.removeprefix("trace=").split(",")))
 
     def test_probe_only_default_and_strict_mode_selection(self):
         with patch.dict(common.os.environ, {}, clear=True):
@@ -105,6 +109,36 @@ class DiagnosticFixtures(unittest.TestCase):
                 common.diagnostic_mode(mode)
         self.assertEqual(common.datagram_limit("probe-only"), 2048)
         self.assertEqual(common.datagram_limit("syscall-trace"), 32768)
+        self.assertEqual(common.datagram_limit("filesystem-trace"), 2048)
+
+    def test_filesystem_trace_keeps_only_raw_filesystem_operations(self):
+        with patch.object(dispatch.shutil, "which", return_value="/usr/bin/strace"):
+            argv = dispatch.observer_command("filesystem-trace", "/venv/bin/python",
+                                            Path("/repo/observer.py"), ["sample"], Path("/trace.fifo"))
+        selected = next(value.removeprefix("trace=") for value in argv if value.startswith("trace="))
+        self.assertEqual(set(selected.split(",")), {
+            "openat", "openat2", "close", "newfstatat", "statx", "fstat",
+            "getdents64", "lseek", "statfs", "fstatfs"})
+        self.assertEqual(argv[1:4], ["-D", "-f", "-I"])
+        self.assertIn("raw=all", argv)
+        self.assertIn("signal=none", argv)
+        self.assertFalse(any("syscall-limit" in value or value == "-yy" for value in argv))
+        self.assertEqual(argv[-1], "sample")
+
+    def test_traced_modes_require_trace_identity_and_complete_delivery(self):
+        self.assertFalse(common.traces_syscalls("probe-only"))
+        for mode in ("syscall-trace", "filesystem-trace"):
+            self.assertTrue(common.traces_syscalls(mode))
+            instrument = dict(mode=mode, counts=dict(sent=4, dropped=0))
+            self.assertEqual(common.delivery_errors(mode, False, {}, {}, instrument, 4),
+                             {"no_syscall_trace", "no_fenced_tracer_identity"})
+            self.assertEqual(common.delivery_errors(mode, True, {123: {}}, {}, instrument, 4), set())
+            self.assertIn("incomplete_probe_delivery", common.delivery_errors(
+                mode, True, {123: {}}, {}, dict(mode="probe-only", counts=instrument["counts"]), 4))
+            self.assertIn("incomplete_probe_delivery", common.delivery_errors(
+                mode, True, {123: {}}, {}, dict(mode=mode, counts=dict(sent=4, dropped=1)), 4))
+            self.assertIn("retention_cap_exhausted", common.delivery_errors(
+                mode, True, {123: {}}, {"syscalls": 1}, instrument, 4))
 
     def test_probe_only_execs_python_without_finding_or_launching_strace(self):
         with patch.object(dispatch.shutil, "which", side_effect=AssertionError("no tracer lookup")):
@@ -129,7 +163,31 @@ class DiagnosticFixtures(unittest.TestCase):
         self.assertNotIn("status", result)
         self.assertNotIn("sched", result)
 
-    def test_probe_only_preserves_original_window_and_sends_after_brackets(self):
+    def test_full_syscall_mode_retains_full_probe_snapshots(self):
+        before = dict(schedstat="100 200 3", status="voluntary_ctxt_switches: 3")
+        after = dict(schedstat="130 900 5", status="voluntary_ctxt_switches: 5")
+        window = dict(start_ns=1, end_ns=2)
+        channel = unittest.mock.Mock()
+        counts = dict(sent=0, dropped=0)
+        with patch.object(instrument_observer, "thread_snapshot", side_effect=[before, after]) as snapshots, \
+                patch.object(instrument_observer, "compact_thread_snapshot", side_effect=AssertionError("full mode")):
+            value, actual_window = instrument_observer.decorate_probe(
+                lambda _function: (42, window), "syscall-trace", channel, counts)(lambda: None)
+        self.assertEqual(snapshots.call_count, 2)
+        self.assertEqual(value, 42)
+        self.assertIs(actual_window, window)
+        event = json.loads(channel.send.call_args.args[0])
+        self.assertEqual(event["before"], before)
+        self.assertEqual(event["after"], after)
+        self.assertEqual(event["scheduling_delta"]["schedstat"]["runqueue_wait_ns"], 700)
+        self.assertEqual(counts, dict(sent=1, dropped=0))
+
+    def test_compact_modes_preserve_original_window_and_send_after_brackets(self):
+        for mode in ("probe-only", "filesystem-trace"):
+            with self.subTest(mode=mode):
+                self.assert_compact_brackets(mode)
+
+    def assert_compact_brackets(self, mode):
         before = dict(window=dict(start=dict(wall_ns=1792672998047514496, monotonic_ns=816671699625,
                                              thread_cpu_ns=1000),
                                   end=dict(wall_ns=1792672998047514500, monotonic_ns=816671699629,
@@ -157,7 +215,7 @@ class DiagnosticFixtures(unittest.TestCase):
         counts = dict(sent=0, dropped=0)
         with patch.object(instrument_observer, "compact_thread_snapshot", side_effect=snapshot), \
                 patch.object(instrument_observer, "thread_snapshot", side_effect=AssertionError("no full snapshot")):
-            probe = instrument_observer.decorate_probe(original, "probe-only", channel, counts)
+            probe = instrument_observer.decorate_probe(original, mode, channel, counts)
             observed_value, observed_window = probe(lambda: "fixture")
         self.assertIs(observed_value, value)
         self.assertIs(observed_window, window)
@@ -165,7 +223,7 @@ class DiagnosticFixtures(unittest.TestCase):
         encoded = channel.send.call_args.args[0]
         self.assertLessEqual(len(encoded), 2048)
         event = json.loads(encoded)
-        self.assertEqual(event["mode"], "probe-only")
+        self.assertEqual(event["mode"], mode)
         self.assertEqual(event["original_window"], window)
         self.assertEqual(event["scheduling_delta"], dict(
             schedstat=dict(executing_ns=30, runqueue_wait_ns=700, timeslices=2),
@@ -223,6 +281,34 @@ class DiagnosticFixtures(unittest.TestCase):
                     run.execute(sys.executable, "fixture", output)
                 launch.assert_not_called()
 
+    def test_dispatch_stop_verification_fences_ready_and_terminal_modes(self):
+        for mode in common.MODES:
+            for ready_mode, terminal_mode in ((mode, mode), ("foreign", mode), (mode, "foreign")):
+                with self.subTest(mode=mode, ready_mode=ready_mode, terminal_mode=terminal_mode), \
+                        tempfile.TemporaryDirectory(prefix="ess-cadence-pure-") as directory:
+                    root = Path(directory)
+                    diagnostic = root / "observer-diagnostic-data-a"
+                    diagnostic.mkdir()
+                    evidence = root / "evidence"
+                    evidence.mkdir()
+                    common.write_json(diagnostic / "monitor-ready.json",
+                                      dict(mode=ready_mode, monitor=dict(pid=123, start_ticks=4)))
+                    common.write_json(diagnostic / "monitor-terminal.json",
+                                      dict(mode=terminal_mode, status="complete"))
+                    target = (["observer.py", "verify-stopped"], {}, "data-a", root)
+                    with patch.dict(dispatch.os.environ, ESS_DIAGNOSTIC_MODE=mode,
+                                    ESS_DIAGNOSTIC_PINNED_PYTHON=sys.executable,
+                                    ESS_DIAGNOSTIC_EVIDENCE=str(evidence)), \
+                            patch.object(sys, "argv", ["dispatch.py"]), \
+                            patch.object(dispatch, "observer_target", return_value=target), \
+                            patch.object(dispatch.subprocess, "run", return_value=SimpleNamespace(returncode=0)), \
+                            patch.object(dispatch, "alive", return_value=False):
+                        if ready_mode == terminal_mode == mode:
+                            dispatch.main()
+                        else:
+                            with self.assertRaisesRegex(RuntimeError, "coverage or monitor cleanup incomplete"):
+                                dispatch.main()
+
     def test_caps_continue_draining_and_reject_later_smaller_chunks(self):
         stream = io.BytesIO()
         retention = common.Retention({"trace": stream}, {"trace": 4})
@@ -267,7 +353,7 @@ class DiagnosticFixtures(unittest.TestCase):
             self.assertEqual(list(Path(directory).iterdir()), [path])
 
     def test_zero_child_exit_without_both_traces_still_fails(self):
-        for mode in ("probe-only", "syscall-trace"):
+        for mode in common.MODES:
             with self.subTest(mode=mode), patch.dict(run.os.environ, ESS_DIAGNOSTIC_MODE=mode), \
                     tempfile.TemporaryDirectory(prefix="ess-cadence-pure-") as directory:
                 repo = Path(directory)
@@ -299,6 +385,50 @@ class DiagnosticFixtures(unittest.TestCase):
         self.assertIn("return value, window", instrument)
         self.assertNotIn("module.sample =", instrument)
         self.assertNotIn("module.temporary_bytes =", instrument)
+
+    def test_controller_requires_matching_terminal_modes_for_both_nodes(self):
+        for mode in common.MODES:
+            for terminal_mode in common.MODES:
+                with self.subTest(mode=mode, terminal_mode=terminal_mode), \
+                        patch.dict(run.os.environ, ESS_DIAGNOSTIC_MODE=mode), \
+                        tempfile.TemporaryDirectory(prefix="ess-cadence-pure-") as directory:
+                    repo = Path(directory)
+                    output = repo / "reports"
+                    output.mkdir()
+                    root = repo / "cluster"
+                    for node in ("data-a", "data-b"):
+                        diagnostic = root / ("observer-diagnostic-" + node)
+                        diagnostic.mkdir(parents=True)
+                        run.write(diagnostic / "monitor-terminal.json",
+                                  dict(status="complete", mode=terminal_mode))
+                    run.write(output / "diagnostic.json", dict(status="prepared", mode=mode))
+                    child = unittest.mock.Mock(pid=123, returncode=0)
+                    child.poll.return_value = 0
+                    with patch.object(run, "REPO", repo), patch.object(run.subprocess, "Popen", return_value=child), \
+                            patch.object(run, "identity", return_value=dict(pid=123, start_ticks=4, state="Z")), \
+                            patch.object(run, "alive", return_value=False), patch.object(run, "group_members", return_value=[]), \
+                            patch.object(run, "discover", return_value={root}):
+                        self.assertEqual(run.execute(sys.executable, "fixture", output),
+                                         0 if mode == terminal_mode else 1)
+                    receipt = json.loads((output / "diagnostic.json").read_text())
+                    self.assertEqual(receipt["traced_nodes"],
+                                     [] if mode == "probe-only" else ["data-a", "data-b"])
+                    self.assertTrue(all(row["stopped"] for row in receipt["owned_identities"]))
+                    self.assertFalse(receipt["publication_eligible"])
+
+    def test_workflow_exposes_all_modes_and_installs_trace_prerequisite(self):
+        workflow = (REPO / ".github/workflows/resource-cadence-diagnostic.yml").read_text()
+        self.assertIn("default: probe-only", workflow)
+        for mode in common.MODES:
+            self.assertIn("- " + mode, workflow)
+        self.assertIn('"$ESS_DIAGNOSTIC_MODE" == syscall-trace || "$ESS_DIAGNOSTIC_MODE" == filesystem-trace', workflow)
+        self.assertIn("sudo -n apt-get install --yes strace", workflow)
+        monitor = (HERE / "monitor.py").read_text()
+        self.assertIn('if traces_syscalls(mode):', monitor)
+        self.assertIn('"syscalls": 1024 * 1024 * 1024', monitor)
+        self.assertIn('"probes": 512 * 1024 * 1024', monitor)
+        self.assertIn('"scheduler": 256 * 1024 * 1024', monitor)
+        self.assertIn('not any(alive(value) for value in tracers.values())', monitor)
 
 
 if __name__ == "__main__":

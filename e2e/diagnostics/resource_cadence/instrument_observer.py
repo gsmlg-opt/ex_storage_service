@@ -19,13 +19,13 @@ def decorate_probe(original_probe, mode, channel, counts):
         ordinal = getattr(local, "ordinal", 0)
         local.ordinal = ordinal + 1
         tid = threading.get_native_id()
-        if mode == "probe-only":
+        if mode != "syscall-trace":
             before = compact_thread_snapshot()
         else:
             before = thread_snapshot(os.getpid(), tid)
         # Neither snapshots nor serialization alter the original probe window.
         value, window = original_probe(function)
-        if mode == "probe-only":
+        if mode != "syscall-trace":
             after = compact_thread_snapshot()
             delta = compact_thread_delta(before, after)
         else:
