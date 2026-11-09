@@ -267,23 +267,26 @@ class DiagnosticFixtures(unittest.TestCase):
             self.assertEqual(list(Path(directory).iterdir()), [path])
 
     def test_zero_child_exit_without_both_traces_still_fails(self):
-        with tempfile.TemporaryDirectory(prefix="ess-cadence-pure-") as directory:
-            repo = Path(directory)
-            output = repo / "reports"
-            output.mkdir()
-            run.write(output / "diagnostic.json", dict(status="prepared", source_head="fixture", mode="probe-only"))
-            child = unittest.mock.Mock(pid=123, returncode=0)
-            child.poll.return_value = 0
-            with patch.object(run, "REPO", repo), patch.object(run.subprocess, "Popen", return_value=child), \
-                    patch.object(run, "identity", return_value=dict(pid=123, start_ticks=4, state="Z")), \
-                    patch.object(run, "alive", return_value=False), patch.object(run, "group_members", return_value=[]):
-                self.assertEqual(run.execute(sys.executable, "fixture", output), 1)
-            row = json.loads((output / "diagnostic.json").read_text())
-            self.assertEqual(row["status"], "failed")
-            self.assertIn("both_observer_full_lifetime_receipts_required", row["errors"])
-            self.assertTrue(all(value["stopped"] for value in row["owned_identities"]))
-            self.assertEqual(row["source_head"], "fixture")
-            self.assertFalse(row["publication_eligible"])
+        for mode in ("probe-only", "syscall-trace"):
+            with self.subTest(mode=mode), patch.dict(run.os.environ, ESS_DIAGNOSTIC_MODE=mode), \
+                    tempfile.TemporaryDirectory(prefix="ess-cadence-pure-") as directory:
+                repo = Path(directory)
+                output = repo / "reports"
+                output.mkdir()
+                run.write(output / "diagnostic.json", dict(status="prepared", source_head="fixture", mode=mode))
+                child = unittest.mock.Mock(pid=123, returncode=0)
+                child.poll.return_value = 0
+                with patch.object(run, "REPO", repo), patch.object(run.subprocess, "Popen", return_value=child), \
+                        patch.object(run, "identity", return_value=dict(pid=123, start_ticks=4, state="Z")), \
+                        patch.object(run, "alive", return_value=False), patch.object(run, "group_members", return_value=[]):
+                    self.assertEqual(run.execute(sys.executable, "fixture", output), 1)
+                row = json.loads((output / "diagnostic.json").read_text())
+                self.assertEqual(row["mode"], mode)
+                self.assertEqual(row["status"], "failed")
+                self.assertIn("both_observer_full_lifetime_receipts_required", row["errors"])
+                self.assertTrue(all(value["stopped"] for value in row["owned_identities"]))
+                self.assertEqual(row["source_head"], "fixture")
+                self.assertFalse(row["publication_eligible"])
 
     def test_controller_deadline_and_monitor_do_not_detach(self):
         self.assertEqual(run.TIMEOUT_SECONDS, 900)

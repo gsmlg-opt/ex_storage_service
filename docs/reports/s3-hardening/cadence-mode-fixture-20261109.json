@@ -1,0 +1,65 @@
+{
+  "acceptance": false,
+  "scope": "Pure diagnostic fixture repair; no service or acceptance policy changes",
+  "original_source_head": "0c8b315837260022fe62f3b1a51b04a5828b3663",
+  "failed_hosted_run": 42562707231,
+  "failed_hosted_url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42562707231",
+  "failure": {
+    "stage": "Validate pure fixtures and compile production source",
+    "test": "DiagnosticFixtures.test_zero_child_exit_without_both_traces_still_fails",
+    "exception": "ValueError: diagnostic mode changed after initialization",
+    "workload_started": false
+  },
+  "local_red": {
+    "command": [
+      "python3",
+      "-B",
+      "e2e/diagnostics/resource_cadence/test_diagnostic.py",
+      "DiagnosticFixtures.test_zero_child_exit_without_both_traces_still_fails"
+    ],
+    "environment": {
+      "PAGER": "cat",
+      "ESS_DIAGNOSTIC_MODE": "syscall-trace"
+    },
+    "exit_status": 1,
+    "tests": 1,
+    "errors": 1
+  },
+  "fix": "Exercise both modes with explicitly matched fixture and environment, preserving every original missing-evidence, cleanup and no-publication assertion. The separate mode-change rejection test remains unchanged.",
+  "fixed_source_sha256": "6ffc26daa110a4b9915157813926daedced689b54b5082878cc193a04d0b87c1",
+  "local_green": [
+    {
+      "command": [
+        "python3",
+        "-B",
+        "e2e/diagnostics/resource_cadence/test_diagnostic.py"
+      ],
+      "environment": {
+        "PAGER": "cat",
+        "ESS_DIAGNOSTIC_MODE": "probe-only"
+      },
+      "exit_status": 0,
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "e2e/diagnostics/resource_cadence/test_diagnostic.py"
+      ],
+      "environment": {
+        "PAGER": "cat",
+        "ESS_DIAGNOSTIC_MODE": "syscall-trace"
+      },
+      "exit_status": 0,
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "downstream_status": "Fresh hosted trace and complete candidate acceptance remain required; no release inferred"
+}
