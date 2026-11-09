@@ -194,7 +194,24 @@ defmodule ESSIndexAcceptance do
 
       {:ok, _} = request.()
 
-      samples = for _ <- 1..30, do: Bounds.measure(request, maximum)
+      samples =
+        for ordinal <- 1..30 do
+          try do
+            Bounds.measure(request, maximum)
+          rescue
+            exception ->
+              IO.puts(
+                JSON.encode!(%{
+                  event: "a28_sample_failed",
+                  maximum: maximum,
+                  kind: kind,
+                  sample_ordinal: ordinal
+                })
+              )
+
+              reraise exception, __STACKTRACE__
+          end
+        end
 
       times = Enum.sort(Enum.map(samples, & &1.duration))
 

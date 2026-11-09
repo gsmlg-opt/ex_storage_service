@@ -1,0 +1,102 @@
+{
+  "date": "2026-11-09",
+  "acceptance": false,
+  "publication_eligible": false,
+  "scope": "Bounded diagnostic refinement for the original resource observation failures",
+  "base_head": "44dd2f2a44aa66f11ef9b1992aa6044dcfc9e32a",
+  "full_trace_run": 42564715632,
+  "full_trace_url": "https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42564715632",
+  "full_trace_result": {
+    "lifecycle": "complete on both data observers with no discarded bytes and stopped identities",
+    "selected_groups_completed": 1,
+    "failed_group": {
+      "name": "strict-quorum-replica-put",
+      "size": 67108864,
+      "concurrency": 1
+    },
+    "failure": "data-a memory/RSS/queue observation gaps exceed original 100ms bound",
+    "maximum_temporary_probe_ms": {
+      "data-a": 19.769301,
+      "data-b": 9.982112
+    },
+    "limitation": "Full trace does not reproduce the original 75ms temporary scan wait; original c4 failure cause remains unproven"
+  },
+  "new_mode": "filesystem-trace",
+  "compact_brackets": true,
+  "syscalls": [
+    "openat",
+    "openat2",
+    "close",
+    "newfstatat",
+    "statx",
+    "fstat",
+    "getdents64",
+    "lseek",
+    "statfs",
+    "fstatfs"
+  ],
+  "retained_guards": [
+    "Original probe return values and windows",
+    "25ms scheduling and conservative 100ms coverage",
+    "Original groups through cluster group16 and original RF2/W2",
+    "900s controller and 960s monitor bounds",
+    "Raw syscall arguments and no decoded paths or buffers",
+    "Original per-stream retention caps with continuous drainage",
+    "Mode-fenced complete delivery and actual stopped OS identities"
+  ],
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "-B",
+        "e2e/diagnostics/resource_cadence/test_diagnostic.py"
+      ],
+      "mode": "probe-only",
+      "tests": 25,
+      "failures": 0,
+      "skips": 0,
+      "exit_status": 0
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "e2e/diagnostics/resource_cadence/test_diagnostic.py"
+      ],
+      "mode": "syscall-trace",
+      "tests": 25,
+      "failures": 0,
+      "skips": 0,
+      "exit_status": 0
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "e2e/diagnostics/resource_cadence/test_diagnostic.py"
+      ],
+      "mode": "filesystem-trace",
+      "tests": 25,
+      "failures": 0,
+      "skips": 0,
+      "exit_status": 0
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "e2e.test_hardening_acceptance",
+        "e2e.test_release_hardening_gate",
+        "e2e.test_correctness_selection"
+      ],
+      "tests": 36,
+      "failures": 0,
+      "skips": 0,
+      "exit_status": 0
+    }
+  ],
+  "source_sha256": "67e6c1a6e3a6a27777837dce91cd75e230a574dba5113b6cf5879949b6ea40ba",
+  "status": "pure_fixtures_passed_hosted_filesystem_trace_pending"
+}

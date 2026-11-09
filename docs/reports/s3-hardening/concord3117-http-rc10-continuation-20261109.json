@@ -1,0 +1,279 @@
+{
+  "acceptance": false,
+  "publication_eligible": false,
+  "dependency_blocker": {
+    "issue": "https://github.com/duskmoon-dev/duskmoon-bundler/issues/22",
+    "affected_cohort": "10.1.5",
+    "cause_confirmed": false,
+    "observed_failure": "Native artifact redirect returned HTTP 504",
+    "hosted_run": 42566510496,
+    "attempts": [
+      {
+        "attempt": 1,
+        "module": "OXC.NativeURL",
+        "pure_tests": 25,
+        "workload_executed": false
+      },
+      {
+        "attempt": 2,
+        "module": "QuickBEAM.NativeURL",
+        "pure_tests": 25,
+        "workload_executed": false
+      }
+    ],
+    "latest_normal_delivery_check": {
+      "checked_at": "2026-11-09T05:55:43.390074+00:00",
+      "assets": [
+        {
+          "name": "liboxc_ex_nif-v10.1.5-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz",
+          "normal_url": "https://github.com/duskmoon-dev/duskmoon-bundler/releases/download/v10.1.5/liboxc_ex_nif-v10.1.5-nif-2.15-x86_64-unknown-linux-gnu.so.tar.gz",
+          "failed_http_status": 504
+        },
+        {
+          "name": "Elixir.QuickBEAM.Native-v10.1.5-x86_64-linux-gnu.so.tar.gz",
+          "normal_url": "https://github.com/duskmoon-dev/duskmoon-bundler/releases/download/v10.1.5/Elixir.QuickBEAM.Native-v10.1.5-x86_64-linux-gnu.so.tar.gz",
+          "head_status": 200,
+          "get_status": 200,
+          "bytes": 9156835,
+          "sha256": "2e156c6d0d545be970fbe1b6a16f4a6f4214d8a2a1f302832acbc78aae5dbb41",
+          "digest_matches": true
+        }
+      ]
+    },
+    "artifacts": [
+      {
+        "id": 13650774351,
+        "name": "incomplete-resource-cadence-diagnostic-42566510496-1",
+        "digest": "sha256:67e644ffa92e67cf9fafddb8416e638e97fb525750d9dcd7d6dfc5b11fbe9265",
+        "verified_zip_sha256": "67e644ffa92e67cf9fafddb8416e638e97fb525750d9dcd7d6dfc5b11fbe9265",
+        "files": [
+          {
+            "path": "cadence-diagnostic-42566510496-1/diagnostic.json",
+            "bytes": 1311,
+            "sha256": "a22831d1b54179ec86f485a5d330617146461e5fb7423471811ac2c1e9fbd4ed"
+          },
+          {
+            "path": "cadence-diagnostic-42566510496-1/isolation/isolation.json",
+            "bytes": 2369,
+            "sha256": "53e5ae01ddcec851c9ab834bcf3dac389a7def174db0d07b7ae5597e5d2f8739"
+          },
+          {
+            "path": "cadence-diagnostic-42566510496-1/isolation/setup.log",
+            "bytes": 9225,
+            "sha256": "c681034103a12ebec851fadecf178bd586213ac7c990146782ce98ad69614c2e"
+          },
+          {
+            "path": "cadence-diagnostic-42566510496-1/scheduler-accounting.txt",
+            "bytes": 84,
+            "sha256": "f0b7118f5f42d417ddae3651632c16b63d21a18053f4bf3311976ef104c7e2e0"
+          },
+          {
+            "path": "cadence-diagnostic-42566510496-1/strace-version.txt",
+            "bytes": 327,
+            "sha256": "ad6ab5ec84c6b4547b18865da3bd0597852266a391b21b0d6191ac0f76f19828"
+          }
+        ]
+      },
+      {
+        "id": 13652726411,
+        "name": "incomplete-resource-cadence-diagnostic-42566510496-2",
+        "digest": "sha256:3c5ec9f8931c91e917dec733d8df5112e40a565f5c93575c6541bb9a86779ecb",
+        "verified_zip_sha256": "3c5ec9f8931c91e917dec733d8df5112e40a565f5c93575c6541bb9a86779ecb",
+        "files": [
+          {
+            "path": "cadence-diagnostic-42566510496-2/diagnostic.json",
+            "bytes": 1311,
+            "sha256": "f5870af816e734d43d6c5aae9bb7b4115ea6ee98e551a5e0cb1c49ae8a3e162b"
+          },
+          {
+            "path": "cadence-diagnostic-42566510496-2/isolation/setup.log",
+            "bytes": 9225,
+            "sha256": "9416f1e273522f818072e9e71604f394ce1a955f889ebd263ac00843369c1233"
+          },
+          {
+            "path": "cadence-diagnostic-42566510496-2/isolation/isolation.json",
+            "bytes": 2369,
+            "sha256": "b9b35b6190cb63a8868bf5348c24880938122b9e2bcbd137124bc596a077e642"
+          },
+          {
+            "path": "cadence-diagnostic-42566510496-2/scheduler-accounting.txt",
+            "bytes": 84,
+            "sha256": "f0b7118f5f42d417ddae3651632c16b63d21a18053f4bf3311976ef104c7e2e0"
+          },
+          {
+            "path": "cadence-diagnostic-42566510496-2/strace-version.txt",
+            "bytes": 327,
+            "sha256": "ad6ab5ec84c6b4547b18865da3bd0597852266a391b21b0d6191ac0f76f19828"
+          }
+        ]
+      }
+    ],
+    "additional_local_observation": {
+      "command": "mix format e2e/scripts/index_acceptance_bounds.exs e2e/scripts/index_acceptance_bounds_probe.exs e2e/scripts/index_resource.exs",
+      "exit_status": 1,
+      "failure": "Native artifact redirect returned HTTP 504",
+      "file": "deps/duskmoon_oxc/lib/oxc/lint/native.ex",
+      "scope": "Formatter plugin prerequisite compilation; no application test executed"
+    }
+  },
+  "independent_local_resources": {
+    "profile": {
+      "profile": "resources",
+      "status": "blocked",
+      "starting_sha": "bd149f81b42824b847cae50fe6dac77b36bbb614",
+      "ending_sha": "bd149f81b42824b847cae50fe6dac77b36bbb614",
+      "source_sha256": "67e6c1a6e3a6a27777837dce91cd75e230a574dba5113b6cf5879949b6ea40ba",
+      "commands": [
+        {
+          "argv": [
+            "mix",
+            "compile",
+            "--force",
+            "--warnings-as-errors"
+          ],
+          "mix_env": "prod",
+          "exit_status": 0,
+          "duration_seconds": 7.982,
+          "log": "docs/reports/s3-hardening/local-resource-current-20261109/resources-0.log"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_resources.sh",
+            "/opt/ess-verify/bin/python",
+            "local-resource-current-20261109-resources"
+          ],
+          "mix_env": "prod",
+          "exit_status": 1,
+          "duration_seconds": 0.465,
+          "log": "docs/reports/s3-hardening/local-resource-current-20261109/resources-1.log"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_cluster_resources.sh",
+            "/opt/ess-verify/bin/python",
+            "local-resource-current-20261109-resources-cluster"
+          ],
+          "mix_env": "prod",
+          "exit_status": 0,
+          "duration_seconds": 722.467,
+          "log": "docs/reports/s3-hardening/local-resource-current-20261109/resources-2.log"
+        },
+        {
+          "argv": [
+            "mix",
+            "test",
+            "apps/ex_storage_service_cluster/test/ex_storage_service_cluster/large_stream_test.exs",
+            "--include",
+            "large_stream",
+            "--max-cases",
+            "1",
+            "--no-color"
+          ],
+          "mix_env": "test",
+          "exit_status": 1,
+          "duration_seconds": 59.345,
+          "log": "docs/reports/s3-hardening/local-resource-current-20261109/resources-3.log"
+        }
+      ],
+      "started_at": "2026-11-09T05:23:48.963215+00:00",
+      "reason": "command exited 1; inspect retained log"
+    },
+    "standalone": {
+      "status": "not_executed",
+      "reason": "Docker executable absent inside test container"
+    },
+    "cluster": {
+      "status": "passed",
+      "groups": 20,
+      "raw_rows_verified": 85012,
+      "audit_path": "docs/reports/s3-hardening/concord3117-http-rc10-local-cluster-resource-audit-20261109.json",
+      "audit_sha256": "951712e9fe1a2b5beb4ff07ed673b22c222a987fafa97d41d8ee772b6a173791"
+    },
+    "large_stream": {
+      "status": "not_executed",
+      "reason": "dependency compilation HTTP504"
+    }
+  },
+  "independent_current_index": {
+    "profile": {
+      "profile": "index",
+      "status": "blocked",
+      "starting_sha": "6861d8fe5b35c7f5b389222730d921cacc2244a5",
+      "ending_sha": "6861d8fe5b35c7f5b389222730d921cacc2244a5",
+      "source_sha256": "6c4ba6db5790489b87f271d368a6fa1a5b12b4f35d06cee598f1044ea245fbbf",
+      "commands": [
+        {
+          "argv": [
+            "mix",
+            "compile",
+            "--force",
+            "--warnings-as-errors"
+          ],
+          "mix_env": "prod",
+          "exit_status": 0,
+          "duration_seconds": 8.431,
+          "log": "docs/reports/s3-hardening/local-index-current-20261109/index-0.log",
+          "log_sha256": "6820ee14d5a89b47a466c8dfe283d2110fb882c1666c43dca1beb89dd8f23202"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_index.sh",
+            "/opt/ess-verify/bin/python",
+            "local-index-current-20261109-index"
+          ],
+          "mix_env": "prod",
+          "exit_status": 1,
+          "duration_seconds": 180.988,
+          "log": "docs/reports/s3-hardening/local-index-current-20261109/index-1.log",
+          "log_sha256": "4ce612d7391dd242ede9d86ee82461351e0d68114f16dbc46089ac826b5bb992"
+        },
+        {
+          "argv": [
+            "bash",
+            "e2e/run_hardening_index_cluster.sh",
+            "/opt/ess-verify/bin/python",
+            "local-index-current-20261109-index-cluster"
+          ],
+          "mix_env": "prod",
+          "exit_status": 0,
+          "duration_seconds": 28.193,
+          "log": "docs/reports/s3-hardening/local-index-current-20261109/index-2.log",
+          "log_sha256": "5c25c889bb4401a59d5e4dc55533ccbae9ceb68bea24eb6e29e21611f1838c14"
+        }
+      ],
+      "started_at": "2026-11-09T05:45:12.205831+00:00",
+      "reason": "command exited 1; inspect retained log"
+    },
+    "observed_failure": "A28 trace_mailbox_bound",
+    "phase": "index-10000:listing-after",
+    "both_10k_inventory_acquisitions_passed": true,
+    "original_100k_stages_executed": false,
+    "cluster_index_command_passed": true,
+    "original_bounds_preserved": true,
+    "instrumentation_diagnosis": {
+      "path": "docs/reports/s3-hardening/index-trace-mailbox-diagnosis-20261109.json",
+      "sha256": "1f6a4fe6a09144e40628851c25c065c0cd9dead35f611e3f4ed67d4ac63168cd",
+      "valid_fix_recommended": false,
+      "sol_repair_rounds": 2,
+      "synthetic_probe_limit": "Not the unknown real failed maximum/kind/sample; scheduling sensitivity does not establish its exact root cause.",
+      "technical_review": {
+        "status": "completed_read_only",
+        "astra_repair_rounds": 0,
+        "conclusion": "512-message threshold is an explicit stop condition. Retain collector and all guards; no supported minimal correction was identified. No claim of actual failed sample or root cause."
+      }
+    }
+  },
+  "checked_at_utc": "2026-11-09T06:03:53.192054+00:00",
+  "public_release_observation": {
+    "github_latest_stable": "v0.6.10",
+    "hex_latest_stable": {
+      "ex_storage_service": "0.6.10",
+      "ex_storage_service_cli": "0.6.10"
+    },
+    "hex_v0_7_0_present": false,
+    "release_dispatched": false
+  }
+}

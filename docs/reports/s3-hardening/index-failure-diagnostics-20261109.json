@@ -1,0 +1,57 @@
+{
+  "recorded_at": "2026-11-09T06:13:16.215002+00:00",
+  "scope": "Bounded failure diagnostics only; not an overflow repair or acceptance",
+  "publication_eligible": false,
+  "source_files": {
+    "e2e/scripts/index_acceptance_bounds.exs": "d307d84f599d1f537af1efa3c26cdf479b55420c92ccfced75ef8f7bf2082326",
+    "e2e/scripts/index_acceptance_bounds_probe.exs": "426e43ea43f118575103fed7bc8484f73d426cd5c371378c14ee39962372a930",
+    "e2e/scripts/index_resource.exs": "e6eea965d8b9f6bc18fed043053aa7b0c7b777a25751142300e460d1f86a0732"
+  },
+  "guard_receipt_fields": [
+    "event",
+    "guard",
+    "queued_messages",
+    "processed_events"
+  ],
+  "sample_receipt_fields": [
+    "event",
+    "maximum",
+    "kind",
+    "sample_ordinal"
+  ],
+  "original_guard_limits_preserved": true,
+  "request_arguments_and_results_recorded": false,
+  "checks": [
+    {
+      "command": [
+        "elixir",
+        "e2e/scripts/index_acceptance_bounds_probe.exs"
+      ],
+      "exit_status": 0,
+      "result": "all sample bounds, four-field guard receipt and original rejection, caller isolation, session and worker cleanup pass",
+      "warning": "Standalone CPU probe intentionally has no ViewstampedReplication.Replica module; existing undefined-module warning remains visible."
+    },
+    {
+      "command": [
+        "elixir",
+        "e2e/scripts/index_offline_inventory_test.exs"
+      ],
+      "exit_status": 0,
+      "tests": 7,
+      "failures": 0
+    },
+    {
+      "command": [
+        "mix",
+        "format",
+        "--dot-formatter",
+        "/tmp/ess-release-20261107/latest-20261109/failure-diagnostics/formatter.exs",
+        "e2e/scripts/index_acceptance_bounds.exs",
+        "e2e/scripts/index_acceptance_bounds_probe.exs",
+        "e2e/scripts/index_resource.exs"
+      ],
+      "exit_status": 0,
+      "scope": "Pure Elixir files with empty formatter config; normal project formatter plugin compile is separately blocked by native download504"
+    }
+  ]
+}

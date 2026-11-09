@@ -207,7 +207,28 @@ defmodule ESSIndexAcceptance.Probe do
       {:ok, %{keys: [], common_prefixes: [], index_stats: %{reads: 200}}}
     end
 
-    must_fail!(fn -> Bounds.measure(overloaded, 1000, options) end, :trace_mailbox_bound)
+    leader = Process.group_leader()
+    {:ok, output} = StringIO.open("")
+
+    try do
+      true = Process.group_leader(self(), output)
+      must_fail!(fn -> Bounds.measure(overloaded, 1000, options) end, :trace_mailbox_bound)
+      {"", encoded} = StringIO.contents(output)
+
+      %{
+        "event" => "a28_trace_guard_failed",
+        "guard" => "trace_mailbox_bound",
+        "queued_messages" => queued,
+        "processed_events" => processed
+      } = diagnostic = JSON.decode!(encoded)
+
+      4 = map_size(diagnostic)
+      true = is_integer(queued) and queued > 512
+      true = is_integer(processed) and processed >= 0
+    after
+      true = Process.group_leader(self(), leader)
+      {:ok, _} = StringIO.close(output)
+    end
   end
 
   defp fixture! do

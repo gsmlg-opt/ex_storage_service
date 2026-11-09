@@ -41,11 +41,35 @@ pages, retaining the entire raw key/value map and original size accounting
 outside measured requests. Seven pure regressions pass. A separate fresh VSR
 probe verifies all 1,015 records against `get_all/1`, including compressed stored
 values, maximum-length and zero-byte keys, and continuity after intervening
-writes/deletes. The original full scale workload remains required.
+writes/deletes. The original full scale rerun at `6861d8f` completed both 10k
+write stages and both full inventories, then failed its unchanged 512-message
+trace-mailbox guard during `index-10000:listing-after`. It did not reach 100k.
+Its independent A29 cluster command passed. The failure is not evidence of
+incorrect pages; complete A28 measurements remain unavailable. Bounded
+[trace diagnosis](reports/s3-hardening/index-trace-mailbox-diagnosis-20261109.json)
+reproduces timing-sensitive collector overflow without pagination. Both proposed
+collector settings failed and were rejected. The 512-message stop condition is
+retained. Failure diagnostics now record queue/event counts and fixed query-kind,
+page-size and sample-ordinal fields before preserving the original exception;
+the CPU probe verifies the four-field guard receipt and rejection.
 
-Fresh compilation is separately blocked by the normal Bundler 10.1.5 OXC parser
-artifact URL returning HTTP 504 on a hosted runner and an independent local
-build. The published bytes remain available through the release-asset API;
+An independent local cluster resource run at `bd149f8` passed all 20 original
+64 MiB/1 GiB and concurrency 1/4 groups with strict RF=2/W=2. The
+[raw-export audit](reports/s3-hardening/concord3117-http-rc10-local-cluster-resource-audit-20261109.json)
+rehashes 85,012 contiguous rows, exactly recomputes all 60 node/group results,
+and verifies the retained stopped identities and zero staging. Its largest
+conservative observation gap is 36.748 ms. Exact baseline sequence ranges were
+not recorded; the audit corroborates retained medians with preceding raw windows.
+The local standalone runner lacked Docker and the separate 2 GiB test failed
+before execution during native compilation. This does not establish complete
+resource or current-source acceptance. See the
+[continuation receipt](reports/s3-hardening/concord3117-http-rc10-continuation-20261109.json).
+
+Fresh compilation is separately blocked by normal Bundler 10.1.5 native
+artifact URLs returning HTTP 504: the OXC parser on a hosted runner and an
+independent local build, then QuickBEAM on a second hosted attempt and OXC linter
+during a formatter prerequisite build. The OXC
+published bytes remain available through the release-asset API;
 those diagnostic downloads were not injected into builds. Track
 [Bundler #22](https://github.com/duskmoon-dev/duskmoon-bundler/issues/22) and verify
 normal artifact delivery plus fresh compilation before resuming affected

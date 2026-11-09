@@ -1,0 +1,241 @@
+{
+  "task_id": "audit_s3_contracts/A28-trace-mailbox-diagnosis",
+  "status": "ESCALATE_TO_ASTRA",
+  "assignment": "direct bounded read-only source investigation and temporary pure tracing probes",
+  "repository": "/home/gao/Workspace/gsmlg-opt/ex_storage_service",
+  "baseline": "6861d8fe5b35c7f5b389222730d921cacc2244a5",
+  "fingerprint": "6c4ba6db5790489b87f271d368a6fa1a5b12b4f35d06cee598f1044ea245fbbf",
+  "workspace": "clean main synchronized with origin/main throughout; no repository or dependency edits",
+  "actual_full_lane_evidence": {
+    "log": "docs/reports/s3-hardening/local-index-current-20261109/index-1.log",
+    "profile": "docs/reports/s3-hardening/local-index-current-20261109/index.json",
+    "failed_phase": "index-10000:listing-after",
+    "failure": "A28 trace_mailbox_bound at index_acceptance_bounds.exs:373",
+    "prior_success": "Both 10000 write phases and both full-map inventories completed; final inventory elapsed_us=878311.",
+    "unknown": "Failed maximum, query kind, sample ordinal, queued event count, and exact OS/scheduler trigger are not logged. Do not infer any of these from the pure probe.",
+    "independent_A29": "Original profile reports cluster lane passed in 28.193 seconds."
+  },
+  "finding": {
+    "classification": "pre-existing scheduling-sensitive instrumentation limitation; not a demonstrated pagination regression or application read/heap violation",
+    "source_identity": "git diff bd149f8..6861d8f -- e2e/scripts/index_acceptance_bounds.exs is empty. Current collector logic predates pagination; dd21d80 added high priority only.",
+    "mechanism_supported": "A high-priority collector on one scheduler can receive more than 512 asynchronous events while other schedulers continue producers. Priority and off-heap mailbox placement do not provide backpressure. Both GC/storage candidates still overflowed without read/event/worker-heap/60-second overruns.",
+    "mechanism_not_proven": "No direct evidence identifies whether original local full-lane overflow was OS descheduling, trace-delivery burst, collector GC, or another pause. Pure-control timing implicates scheduling sensitivity but does not isolate the underlying host mechanism."
+  },
+  "source_observations": [
+    "bounds.exs:179-211 creates isolated high-priority private collector; caller inventory/history and unrelated owner mailbox are not intentionally copied into it.",
+    "bounds.exs:223-271 creates request worker capped at 128 MiB; tracing is confined to request worker plus configured native PID.",
+    "bounds.exs:273-294 initializes exact counts/GC/heap and original 60000ms deadline.",
+    "bounds.exs:342-357 uses arity-only trace and constant token/label messages: keys, source values, command data and return values are not emitted.",
+    "bounds.exs:371-379 checks mailbox twice per loop at512, total events at4*read_limit+4096, sample deadline and heap.",
+    "bounds.exs:382-430 stops tracees in session and uses per-tracee delivered barriers before accepting sample.",
+    "bounds.exs:438-481 accounts every exact-call/GC event and rejects forbidden calls. GC start/end are each counted as events; native GC is not traced.",
+    "bounds.exs:485-512 samples worker memory only in receive after1ms path; it may not sample during continuous events, but worker GC blocks/final heap remain tracked. This is not established as the mailbox failure cause.",
+    "Existing CPU probe exercises one-read success; its explicit collector suspension produces600 trace events and confirms512 rejection. This task preserved but did not rerun that probe against rejected candidates."
+  ],
+  "probe_design": {
+    "files": [
+      "trace_burst_probe.exs",
+      "trace_payload_probe.exs"
+    ],
+    "runtime": "Host Elixir1.18.5 / OTP28, +S4:4. No Mix, Concord runtime, dependency compilation, server or native extension.",
+    "shape": "Synchronous request worker -> Engine -> VSR -> own native process -> Core -> dispatch. Four real exact-call trace events per logical read, plus actual worker GC events. Each completed request returns1000 entries and calls Bounds.record_read for every returned value.",
+    "read_cases": [
+      2500,
+      33041
+    ],
+    "original_limits": {
+      "mailbox": 512,
+      "worker_heap_bytes": 134217728,
+      "sample_deadline_ms": 60000,
+      "max_reads_for_1000": 33041,
+      "max_total_trace_events": 136260
+    },
+    "counts_checked_on_every_success": "Each of engine/vsr/core/dispatch equals actual reads; trace_events equals4*reads+gc_events; output_entries equals1000; original check_sample! and all original collector guards remain in use.",
+    "payloads": "Tiny record and second realistic map with32 child references, label and metadata key; raw payload/key data are never traced or logged.",
+    "failure_diagnostics": "bounds-observed.exs changes only overflow diagnostics before the original guard. It classifies messages by event type and reports numeric counts, fixed counters, process memory/priority, barriers and runqueue lengths. It does not change any original bound or guard."
+  },
+  "experiments": [
+    {
+      "case": "Exact repository Bounds, 2500 reads,30 samples,tiny payload",
+      "command": "PAGER=cat env ERL_FLAGS='+S 4:4' timeout55 elixir <probe> <repository Bounds> 2500 30 ordinary",
+      "outcome": "30 passed; every count check matched; ~12-18ms request durations; result available in tool output, no standalone log saved."
+    },
+    {
+      "case": "Diagnostic on-heap Bounds,33041 reads,30 samples,tiny payload,tool yields after1s",
+      "log": "observed-max-read-burst.log",
+      "outcome": "6 passed; sample7 mailbox rejection",
+      "queued": 1267,
+      "classes": {
+        "call": 1243,
+        "gc_minor_start": 12,
+        "gc_minor_end": 12
+      },
+      "sample_received": false,
+      "barriers": 0,
+      "worker_memory_bytes": 11824,
+      "collector_memory_bytes": 838104,
+      "processed_events": 80015,
+      "exact_counts": {
+        "engine": 19662,
+        "vsr": 19662,
+        "core": 19662,
+        "dispatch": 19661
+      }
+    },
+    {
+      "case": "Diagnostic on-heap Bounds,2500 reads,30 samples,realistic payload",
+      "log": "observed-payload-burst.log",
+      "outcome": "30 passed; final trace_events10928 =10000 exact calls+928 GC events,1000 output entries, peak_heap87680B."
+    },
+    {
+      "case": "Diagnostic on-heap Bounds,33041 reads,30 samples,tiny payload,no tool yield until completion",
+      "log": "observed-no-tool-yield.log",
+      "outcome": "30 passed in4.866s; final trace_events134296=132164 exact calls+2132 GC events. Only tool wait duration changed; scheduling correlation does not establish host root cause."
+    },
+    {
+      "case": "Repair round1: private collector message_queue_data off_heap only",
+      "log": "offheap-max-read-burst.log",
+      "outcome": "6 passed; sample7 mailbox rejection",
+      "queued": 1359,
+      "classes": {
+        "call": 1339,
+        "gc_minor_start": 10,
+        "gc_minor_end": 10
+      },
+      "processed_events": 34569,
+      "worker_memory_bytes": 11824,
+      "collector_memory_bytes": 754616,
+      "exact_counts": {
+        "engine": 8502,
+        "vsr": 8501,
+        "core": 8501,
+        "dispatch": 8501
+      }
+    },
+    {
+      "case": "Repair round2: off_heap plus collector fullsweep_after0 and min_heap_size32768words",
+      "log": "gc-local-max-read-burst.log",
+      "outcome": "8 passed; sample9 mailbox rejection",
+      "queued": 1223,
+      "classes": {
+        "call": 1205,
+        "gc_minor_start": 9,
+        "gc_minor_end": 9
+      },
+      "processed_events": 93199,
+      "worker_memory_bytes": 11824,
+      "collector_memory_bytes": 924920,
+      "collector_gc": {
+        "min_heap_size_words": 46422,
+        "fullsweep_after": 0,
+        "minor_gcs": 0
+      },
+      "exact_counts": {
+        "engine": 22885,
+        "vsr": 22884,
+        "core": 22884,
+        "dispatch": 22884
+      }
+    }
+  ],
+  "command_outcome_note": "Diagnostic VM commands exit0 after safely stopping owned native process even when a sample fails; success/failure is explicitly printed per sample and in all_passed. Exit0 is NOT reported as a passing candidate. All commands used timeout55s and each completed well below60s.",
+  "real_case_representativeness": "Pure probes demonstrate an instrumentation failure with the same4-call trace shape, real GC events,1000 output entries and allowed read budget. They do not identify the original failed maximum/kind/ordinal, do not run actual radix-tree reads or VSR persistence, and cannot certify the full lane.",
+  "rejected_candidates": [
+    "bounds-offheap.exs",
+    "bounds-gc-local.exs"
+  ],
+  "patch_recommendation": "No deployable patch. Neither process-local tuning candidate passed; do not integrate rejected variants or claim green regression evidence.",
+  "escalation": {
+    "astra_gate": "SOL_REPEATED_FAILURE",
+    "sol_repair_rounds": 2,
+    "received_astra_repair_counter": null,
+    "unresolved_question": "Can a process-local collector change reliably retain the original hard512 asynchronous-message rejection while fully accounting up to136260 events, without request pacing/acks, changed producer scheduling, dropped/batched-away evidence, retries or relaxed read/heap/deadline bounds?",
+    "why_another_sol_attempt_unlikely": "Both storage and generational-GC tuning fail with large asynchronous backlogs; even original code alternates fail/pass based on scheduling timing. More heuristic process flags would not establish bounded correctness or address an externally descheduled collector.",
+    "parent_action": "Validate gate and arrange bounded Astra technical recovery or identify a required instrumentation architecture decision. Child must not spawn or edit further.",
+    "accepted_by_parent": true,
+    "recovery_agent": "/root/a28_trace_recovery"
+  },
+  "repository_changed_files": [],
+  "remaining_risk": "A28/full acceptance remains blocked. No full index rerun or release action was performed.",
+  "command_shutdown": "All own commands finished; every launched pure VM stopped its own native process in after; no background process/resource remains.",
+  "decisions_needed": "Parent-managed escalation. Do not weaken existing limits to publish.",
+  "artifact_sha256": {
+    "observed-max-read-burst.log": "64bc42a44427bdacee6db24ac5143b0bae8384bf096aa82cdafd8a611288eff9",
+    "observed-no-tool-yield.log": "187931c0c90e6ad00081d07579387e3d9a0e5ff52fc1c0b0757961634c89a8db",
+    "bounds-observed.exs": "ff7c4877ea455c77f23b8cf92d6c63ae9f1f0d40a5713b9f3ddc0f887f22bd8d",
+    "gc-local-max-read-burst.log": "3591953c2a58ff34b76ac0aaa8c23b195b3dd46ae40fdfbd555c28a7e4c75e4b",
+    "observed-payload-burst.log": "8adadcded048c6fba8ad012cb359a5e332e17ad2c651352823dc4689c856aed4",
+    "offheap-max-read-burst.log": "1ba1731a1e9938d10d4593531a1a6c2b477c06361eb93b398427b3f1dee976b1",
+    "trace_burst_probe.exs": "dd0300d7cd7f8380c44871e2120a9d850cead15835dc9f37c7bd4828149f30f0",
+    "bounds-offheap.exs": "b5090412f5f07a2208a081239655998504172b66cded211e539a6423971f96b2",
+    "bounds-gc-local.exs": "3dcc7a550baf21453fe7c2fddaffd5a864088c490a284987f56929d45eb2bc48",
+    "trace_payload_probe.exs": "a619fd848afcbf92338295a89605553af70bc8cab9a2577f0b35243329de75a5"
+  },
+  "exact_experiment_commands": [
+    {
+      "cmd": "PAGER=cat env ERL_FLAGS='+S 4:4' timeout 55 elixir /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/trace_burst_probe.exs /home/gao/Workspace/gsmlg-opt/ex_storage_service/e2e/scripts/index_acceptance_bounds.exs 2500 30 ordinary",
+      "yield_time_ms": 1000,
+      "exit_status": 0,
+      "saved_log": null
+    },
+    {
+      "cmd": "PAGER=cat env ERL_FLAGS='+S 4:4' timeout 55 elixir /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/trace_burst_probe.exs /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/bounds-observed.exs 33041 30 ordinary > /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/observed-max-read-burst.log 2>&1",
+      "yield_time_ms": 1000,
+      "exit_status": 0,
+      "saved_log": "/tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/observed-max-read-burst.log",
+      "log_last_modified_utc": "2026-11-09T05:53:19.715748+00:00"
+    },
+    {
+      "cmd": "PAGER=cat env ERL_FLAGS='+S 4:4' timeout 55 elixir /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/trace_burst_probe.exs /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/bounds-offheap.exs 33041 30 ordinary > /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/offheap-max-read-burst.log 2>&1",
+      "yield_time_ms": 1000,
+      "exit_status": 0,
+      "saved_log": "/tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/offheap-max-read-burst.log",
+      "log_last_modified_utc": "2026-11-09T05:54:28.940887+00:00"
+    },
+    {
+      "cmd": "PAGER=cat env ERL_FLAGS='+S 4:4' timeout 55 elixir /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/trace_payload_probe.exs /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/bounds-observed.exs 2500 30 ordinary > /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/observed-payload-burst.log 2>&1",
+      "yield_time_ms": 1000,
+      "exit_status": 0,
+      "saved_log": "/tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/observed-payload-burst.log",
+      "log_last_modified_utc": "2026-11-09T05:55:01.543783+00:00"
+    },
+    {
+      "cmd": "PAGER=cat env ERL_FLAGS='+S 4:4' timeout 55 elixir /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/trace_burst_probe.exs /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/bounds-observed.exs 33041 30 ordinary > /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/observed-no-tool-yield.log 2>&1",
+      "yield_time_ms": 10000,
+      "exit_status": 0,
+      "saved_log": "/tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/observed-no-tool-yield.log",
+      "log_last_modified_utc": "2026-11-09T05:56:52.829685+00:00"
+    },
+    {
+      "cmd": "PAGER=cat env ERL_FLAGS='+S 4:4' timeout 55 elixir /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/trace_burst_probe.exs /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/bounds-gc-local.exs 33041 30 ordinary > /tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/gc-local-max-read-burst.log 2>&1",
+      "yield_time_ms": 1000,
+      "exit_status": 0,
+      "saved_log": "/tmp/ess-release-20261107/latest-20261109/a28-trace-mailbox-diagnosis/gc-local-max-read-burst.log",
+      "log_last_modified_utc": "2026-11-09T05:58:20.207476+00:00"
+    }
+  ],
+  "timestamp_limits": "Tool transcript records durations but no absolute start timestamps. Log mtime values above are filesystem-observed last-write times, not inferred command start times. No unsupported exact start timestamp is claimed.",
+  "reported_at_utc": "2026-11-09T06:01:15.257333+00:00",
+  "source_sha256": {
+    "e2e/scripts/index_acceptance_bounds.exs": "110513dc2071b0e6b06ee6513873ae8cd49ba4afba16d00033ae33f41f34a43b",
+    "e2e/scripts/index_acceptance_bounds_probe.exs": "c92be7d575c2098d86baa554865fce38f36550982920278332f3d71d27ad7fce",
+    "e2e/scripts/index_resource.exs": "96e3e9f54261a0c00e8145078bc2bfb5ce26d676e2e6560f19db16c71fd6c391",
+    "e2e/scripts/index_offline_inventory.exs": "283d6667be9e7a6bc8b8934237bb95a935f3d7ebbbd7f968ca1704c9739ab572",
+    "mix.lock": "f45fc70e45482ef6a49326f9b672df87465193f1d7ab7f5c395af5cbab6799d3"
+  },
+  "shutdown_identity_evidence": {
+    "probe_native": "Each VM creates own native pid and monitor; after sends :stop and receives {:DOWN, ^monitor, :process, ^native, :normal} before successful VM exit. Numeric PID not printed.",
+    "request_worker": "Existing Bounds after block destroys own trace session, kills only own worker if still alive and consumes its matching DOWN. No external runtime pid is stopped.",
+    "collector": "Existing measure receives both own sample result and matching collector DOWN, requiring :normal; failure is re-raised only after that completion.",
+    "os_commands": "All exec_command/write_stdin sessions completed with exit0; no running session IDs remain. The commands themselves are the owned OS identities; numeric OS PIDs were not persisted.",
+    "no_extra_experiments": "After second failed candidate, only source/status/log reads and report metadata/hash generation occurred."
+  },
+  "toolchain_details": {
+    "elixir": "1.18.5",
+    "erlang_otp": "28.5.0.5",
+    "schedulers_online": 4,
+    "version_evidence": "Pure probes print System.version/0 and System.otp_release/0; readlink resolves executable store package versions.",
+    "elixir_executable": "/nix/store/22fybrvpfzc2csw3n686x8nr486jsj0n-elixir-1.18.5/bin/elixir",
+    "erlang_executable": "/nix/store/5y0714j8czhkjbmjb6l6m46n5w5fyr6q-erlang-28.5.0.5/bin/erl"
+  }
+}

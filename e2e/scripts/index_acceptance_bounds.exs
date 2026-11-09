@@ -370,10 +370,20 @@ defmodule ESSIndexAcceptance.Bounds do
          deadline
        ) do
     {:message_queue_len, queued} = Process.info(self(), :message_queue_len)
+
+    if queued > 512 do
+      trace_mailbox_failure(queued, stats.events, :trace_mailbox_bound)
+    end
+
     ensure!(queued <= 512, :trace_mailbox_bound)
     ensure!(System.monotonic_time(:millisecond) < deadline, :sample_deadline)
     ensure!(stats.events <= 4 * limits.reads + 4_096, :trace_event_bound)
     {:message_queue_len, queued} = Process.info(self(), :message_queue_len)
+
+    if queued > 512 do
+      trace_mailbox_failure(queued, stats.events, :trace_mailbox_stop_condition)
+    end
+
     ensure!(queued <= 512, :trace_mailbox_stop_condition)
     ensure!(stats.peak_heap_bytes <= limits.heap, :peak_heap_bound)
 
@@ -510,6 +520,18 @@ defmodule ESSIndexAcceptance.Bounds do
           deadline
         )
     end
+  end
+
+  # Failure-only, value-free evidence; callers retain the original rejection.
+  defp trace_mailbox_failure(queued, events, guard) do
+    IO.puts(
+      JSON.encode!(%{
+        event: "a28_trace_guard_failed",
+        guard: guard,
+        queued_messages: queued,
+        processed_events: events
+      })
+    )
   end
 
   def check_sample!(sample, maximum) do
