@@ -5,7 +5,32 @@ ESS-S3-HARDENING-001. Hosted standalone remains RF=1/W=1; cluster remains RF=2/W
 The operation matrix below describes implemented behavior and its named tests.
 It does not claim complete AWS parity or production validation.
 
-Concord, VSR and ExTurso are installed and locked at published 3.1.12, including
+The current candidate locks published Concord/VSR/ExTurso 3.1.17, the coordinated
+HTTP 1.0.0-rc.10 family, Gaoxy 0.15.2, Bundler 10.1.5 and Phoenix DuskMoon 10.1.1.
+Concord 3.1.17 retains the bounded periodic-statistics repair for
+[Concord #119](https://github.com/gsmlg-dev/concord/issues/119). ESS keeps
+file-backed VSR, its existing transaction API and command versions 0/1; optional
+Turso APIs remain unused. Public package bytes and the exact upstream tag have
+been verified. See the
+[adoption receipt](reports/s3-hardening/concord3117-http-rc10-adoption-20261109.json).
+
+Exact source `0c8b315837260022fe62f3b1a51b04a5828b3663` has executable-input
+fingerprint `d829f709a2ffc32c824d5b2181fbbf323ea5617a54f660c585be89f47a0509be`.
+Its [full run](https://github.com/gsmlg-opt/ex_storage_service/actions/runs/42560068092)
+passes all 4,591 application tests, including the complete CLI suite, with no
+failures or skips; two declared heavy exclusions retain their separate lanes.
+Daily HTTP, standalone, gateway, cluster, faults, crashes, resilience, restore
+and local release/container checks pass. Resource acceptance fails the original
+100 ms observation-coverage bound in both topologies; completed groups retain
+their original numeric envelopes. The separate real 2 GiB transport case passes.
+Index acceptance and the fresh 158-clause audit are still pending. The hosted
+Python harness reports 166 total tests with one environment-dependent skip;
+the complete local harness passed all 166 without skips. These results do not
+certify full acceptance or publication. **v0.7.0 remains unpublished.**
+
+## Historical Concord 3.1.12 adoption
+
+Concord, VSR and ExTurso were installed and locked at published 3.1.12, including
 the upstream #94–#97 and #101/#102/#104/#105/#112 fixes. Backup validation supports the
 declared deterministic checksum scheme and legacy checks. Fresh restore targets require command version 1
 on every voter through quarantine, restarts and activation; existing databases
