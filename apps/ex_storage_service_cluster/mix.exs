@@ -29,7 +29,7 @@ defmodule ExStorageServiceCluster.MixProject do
   defp deps do
     [
       {:ex_storage_service, in_umbrella: true},
-      {:gaoxy_http, "~> 0.15.1"},
+      {:gaoxy_http, "~> 0.15.2"},
       {:plug, "~> 1.16"}
     ]
   end

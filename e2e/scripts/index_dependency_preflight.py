@@ -13,14 +13,14 @@ PACKAGES = ("concord", "viewstamped_replication", "ex_turso")
 # Hex inner/package checksums for the independently verified published cohort.
 VERIFIED_CHECKSUMS = {
     "concord": (
-        "b9a889f6cc0b8730502b73963a1e49795a40012ebb21db54851091a1c969ce7c",
-        "231865c64787e9cf7393ff1840bf11c3aeeed84b1dfe1645cb22df4781f01f5d"),
+        "938d7df72316ba3a6313aa8a3aad184167d36943fbe801a9de8da09fbc36d9e1",
+        "48ed837ad82145c5183b6ff1f77b4bbca88dfce69f4c00656453520b19922699"),
     "viewstamped_replication": (
-        "ae1f4c9301f36603e6fd81ed2cd0275eb549344bbd859cecd4ee7d03d399375b",
-        "4dda0edc25ac8d3cdabd5bf70190bd9d904fa8dc935d9bac38e0512b80a465d3"),
+        "93ab2b3efa6daa86dbad0c21c37b48ddca7a938647ee1b2ca5b54969c475080c",
+        "4ec2fa45ba26a74419344680130f3a5531682b61a5d68d72b4fc9489193ae8b1"),
     "ex_turso": (
-        "8f6705e53809c3271b1eb9915e46c1b7fe814d92a16ca38a4ba96e22f9e269fb",
-        "b4894f03d2094fb1e4cf5e7bb80a387672f009642ecad67aeddd9a7c0f8afa21"),
+        "27396f1adf4df9b8abef8adea2ea176b47690d5b90c71d7fb888270f3abd035e",
+        "814f55bd124623feb40455f5aa3abc902f85ec41e4fd4bea23caaa8626f84dd8"),
 }
 VERIFIED_SOURCES = {
     "viewstamped_replication/lib/viewstamped_replication/replica.ex":
@@ -38,7 +38,7 @@ VERIFIED_SOURCES = {
     "viewstamped_replication/lib/viewstamped_replication/storage/file.ex":
         "9a3c2a8bf45bd0220b930a4907f9e128cfc8e28b9dffd3bf04d3df5086aaae96",
     "concord/lib/concord/state_machine/core.ex":
-        "656271d2fa12a3141fbf706c6c110df5fad5c68f9651d2975381a51021b3771c",
+        "138104f39a38f0f9f5e5ab46c515dc124f7ab36a7775b60d479529fb0ac71f41",
     "concord/lib/concord/engine/vsr/state_machine.ex":
         "6f83999ab0283639fd8f8265b0d89f67b8898d9678e17d9af650674a2c823f78",
     "concord/lib/concord/state_machine.ex":
@@ -46,13 +46,13 @@ VERIFIED_SOURCES = {
     "concord/lib/concord/state_machine/observer.ex":
         "f23fac22c4b17a4a8e66e60ad86da759455e671f93b396084c71026c965da668",
     "concord/lib/concord/engine/turso.ex":
-        "727e760a64213a11f81ff5bac30b93a6098a345606f5c81894e8519b7b939714",
+        "bc0c01eeb190c21d10fa2329f685f06df8d6ec453fa1a3dc4dac75ae01fb667f",
     "concord/lib/concord/turso/migrations.ex":
-        "82373ca14c7b4433a9eb1a052270472edd0287517c550cc3878fae4ffff5d8d2",
+        "a21d0fd21a8eb10ba144494b435b4982a54cfaa840732efac60dd66e2ab4e7de",
     "concord/lib/concord/turso/codec.ex":
         "de4a0dbc3983432d6a10d2f79db1ca11845d3bb1ac52326145d32e885fc1f34d",
     "concord/lib/concord/kv.ex":
-        "69fc31f1d7f085a655643f7d608664c3e20d301691f2034a6b4a2a48c5c57383",
+        "1a51351c55712fe8d16f745ecc04ead8cbb2ac090318eddf468865c199e58145",
     "concord/lib/concord/turso.ex":
         "91c61bc854035cd1435ef0d1c7e76f996274be41271a086f1ab7ee7fca55e34b",
     "concord/lib/concord/turso/prefix_replacement.ex":
@@ -71,6 +71,10 @@ VERIFIED_SOURCES = {
         "68ebd7321c95526d82d8a3aebed53e0a1ea4625a205ec7a574334d4ad447eb41",
     "concord/lib/concord/turso/conditional_put.ex":
         "b4d66c8dbad2f663da779e7f5c082b2d1a71c069d6b0b5d630cc3b134ce4154a",
+    "concord/lib/concord/compression.ex":
+        "231918f309e27e3c1f55b8872556bb0da070fb5b722079ad77325118c6794358",
+    "concord/lib/concord/turso/cas_admission.ex":
+        "806a677251ebf3cb70976a38c32d3ebed662ca6ba5e0c9b2df126948f2df9f47",
 }
 
 
@@ -101,14 +105,17 @@ def blocker(lock, dependencies_root=pathlib.Path("deps")):
     if set(versions.values()) == {"3.1.11"}:
         return ("BLOCKED A28: gsmlg-dev/concord#112 (multi-voter read history rebuilding); "
                 "coordinated 3.1.11 is not admissible.")
-    if set(versions.values()) != {"3.1.15"}:
+    if set(versions.values()) == {"3.1.15"}:
+        return ("BLOCKED A28: gsmlg-dev/concord#119 (periodic VSR statistics traverse the store); "
+                "coordinated 3.1.15 is not admissible.")
+    if set(versions.values()) != {"3.1.17"}:
         return (f"Unvalidated index dependency versions {versions}; require released upstream fixes "
-                "for gsmlg-dev/concord#101/#102/#104/#105/#106/#112, source/API review and both diagnostic probes "
+                "for gsmlg-dev/concord#101/#102/#104/#105/#106/#112/#119, source/API review and both diagnostic probes "
                 "before updating this gate. Refusing expensive acceptance workload.")
 
     for package in PACKAGES:
         if checksums[package] != VERIFIED_CHECKSUMS[package]:
-            return f"Unverified {package} 3.1.15 Hex checksums; refusing index workload."
+            return f"Unverified {package} 3.1.17 Hex checksums; refusing index workload."
     for relative, expected in VERIFIED_SOURCES.items():
         try:
             actual = hashlib.sha256((pathlib.Path(dependencies_root) / relative).read_bytes()).hexdigest()
@@ -127,7 +134,7 @@ def main():
     if reason:
         print(reason, file=sys.stderr)
         return 1
-    print("Verified Concord/VSR/ExTurso 3.1.15; entering the unchanged A28 workload, not acceptance.")
+    print("Verified Concord/VSR/ExTurso 3.1.17; entering the unchanged A28 workload, not acceptance.")
     return 0
 
 

@@ -1,0 +1,615 @@
+{
+  "scope": "Concord 3.1.17 and latest compatible HTTP/UI dependency adoption; full acceptance and publication remain separate",
+  "date": "2026-11-09",
+  "acceptance": false,
+  "base_head": "dd21d80b4fe65910451c4b4c7519c3f405e07002",
+  "upstream_fix": {
+    "issue": "https://github.com/gsmlg-dev/concord/issues/119",
+    "first_fixed_version": "3.1.16",
+    "fix_commit": "f45fe9dcf81794c1ff3888d598190f0b68a06210",
+    "adopted_version": "3.1.17",
+    "adopted_tag_commit": "af4ab02892a06e487304bfc84c9a8508ffdebf44"
+  },
+  "packages": [
+    {
+      "dependency": "abyss",
+      "package": "abyss",
+      "version": "1.0.0-rc.10",
+      "inner_sha256": "4059466b910b47add30cbc8b4d4b27217fe73b8562b56c73ea15d5f9979feca9",
+      "outer_sha256": "13de516f2d4f8c3952ae48ad72986dba0640288bdbea94869f0c67e37d5d83d1",
+      "matched_files": 36
+    },
+    {
+      "dependency": "concord",
+      "package": "concord",
+      "version": "3.1.17",
+      "inner_sha256": "938d7df72316ba3a6313aa8a3aad184167d36943fbe801a9de8da09fbc36d9e1",
+      "outer_sha256": "48ed837ad82145c5183b6ff1f77b4bbca88dfce69f4c00656453520b19922699",
+      "matched_files": 127
+    },
+    {
+      "dependency": "duskmoon_bundler",
+      "package": "duskmoon_bundler",
+      "version": "10.1.5",
+      "inner_sha256": "c61a701987c229baaad42071632fd90465d470420c4c9924584bb03679e0a569",
+      "outer_sha256": "dcddfec60576ee3659c8bcd888e593175a40686b4495e5c7ccab051711dc0ec6",
+      "matched_files": 99
+    },
+    {
+      "dependency": "duskmoon_bundler_runtime",
+      "package": "duskmoon_bundler_runtime",
+      "version": "10.1.5",
+      "inner_sha256": "28fd7486e5028bee45a5970c78385713c6e93610df0bd3534dfd929bc0af64a1",
+      "outer_sha256": "76dc5b80d28c5f456157e26fc2d5788479f440be2474d5e034ea1a2cb0fd2573",
+      "matched_files": 10
+    },
+    {
+      "dependency": "duskmoon_hex_solver",
+      "package": "duskmoon_hex_solver",
+      "version": "10.1.5",
+      "inner_sha256": "6afb66d9c205c2989f91ac96078c878a4cce221f2d1596ff187b6723042d1035",
+      "outer_sha256": "0c17eebffed8618cc9b3ec6c9cbb11b4ada91992587100673881ab97c8255fe6",
+      "matched_files": 20
+    },
+    {
+      "dependency": "duskmoon_npm",
+      "package": "duskmoon_npm",
+      "version": "10.1.5",
+      "inner_sha256": "30d836d706da09c341986c05116121a55466b4908f78eea673b12973ffcc2f2f",
+      "outer_sha256": "ccefd8cd4f40c515eb5727895429dc74f4417a949c756bb4dec35bf62d4925ac",
+      "matched_files": 199
+    },
+    {
+      "dependency": "duskmoon_oxc",
+      "package": "duskmoon_oxc",
+      "version": "10.1.5",
+      "inner_sha256": "2a07514b2b978cc2f61226221f7fed3164f3e3e7f267634bd32cb9e7be565f78",
+      "outer_sha256": "0adb20791a998dd1d4cfcc7f4dcfbf6f0fdbd68d80cdbb48b1b63ae30d38991f",
+      "matched_files": 35
+    },
+    {
+      "dependency": "duskmoon_oxide",
+      "package": "duskmoon_oxide",
+      "version": "10.1.5",
+      "inner_sha256": "ca96092e78f16fc7adf2a67d54bcc23abd242a2017ced839f0f339ec218c7c59",
+      "outer_sha256": "078595c6ca094a09bd38ffd10b9616fa3232b4abd08db79773aa4b199d5c131c",
+      "matched_files": 9
+    },
+    {
+      "dependency": "duskmoon_quickbeam",
+      "package": "duskmoon_quickbeam",
+      "version": "10.1.5",
+      "inner_sha256": "4589bfda213a62625d92ddb1139f7684b0fb656ba524108207c524462800b424",
+      "outer_sha256": "a102ebfd30cd42f049abba1bc07a104731da8234b18776b3c1c45f7010c70e3c",
+      "matched_files": 211
+    },
+    {
+      "dependency": "duskmoon_vize",
+      "package": "duskmoon_vize",
+      "version": "10.1.5",
+      "inner_sha256": "af0556bea69a95c2ddc275eaa5b828d771f55f5a0d9a89d8d6a46d59f3b1c318",
+      "outer_sha256": "726feb9fb417e557f0d73b4ff9d915a9e5b1533e9421c33d10e52db59e8607cf",
+      "matched_files": 24
+    },
+    {
+      "dependency": "elixir_quic",
+      "package": "elixir_quic",
+      "version": "1.0.0-rc.10",
+      "inner_sha256": "f146c99db526f8a71d8f735e8a640dcbe24774479d72ee913976f0a6937410ad",
+      "outer_sha256": "f895a9a63271560af8dc11c947dcf2ef9a21a74980ca2f5e62d28f8a1da41e0f",
+      "matched_files": 30
+    },
+    {
+      "dependency": "elixir_quic_http3",
+      "package": "elixir_quic_http3",
+      "version": "1.0.0-rc.10",
+      "inner_sha256": "4af6ea425489ff0804515a24aaa143399d15f4f26ae2dd100cff76230e1d2d0d",
+      "outer_sha256": "fb722b803a22ee739382ce6e973b6987e59b5c438b8f51ba212bbca3f1fcf270",
+      "matched_files": 16
+    },
+    {
+      "dependency": "ex_ssl",
+      "package": "ex_ssl",
+      "version": "1.0.0-rc.10",
+      "inner_sha256": "0517cf718711b7e08b1b88b9875a1c54683738cca0a95e19c2cff39a2d50fe13",
+      "outer_sha256": "72ab5471b770454ec1ff5a931ba124c8039b51a9b1f4ecf45bc14f4f501b3931",
+      "matched_files": 94
+    },
+    {
+      "dependency": "ex_turso",
+      "package": "ex_turso",
+      "version": "3.1.17",
+      "inner_sha256": "27396f1adf4df9b8abef8adea2ea176b47690d5b90c71d7fb888270f3abd035e",
+      "outer_sha256": "814f55bd124623feb40455f5aa3abc902f85ec41e4fd4bea23caaa8626f84dd8",
+      "matched_files": 15
+    },
+    {
+      "dependency": "gaoxy",
+      "package": "gaoxy",
+      "version": "0.15.2",
+      "inner_sha256": "c61d0c1774cb932771dc2f4a8dc79196490e580f916257b03540d1fe7f205c32",
+      "outer_sha256": "ca9a8c3598daa3e0188f81cc531efd81f5d190f7f765a4b76ec7a21ae7d785cf",
+      "matched_files": 36
+    },
+    {
+      "dependency": "gaoxy_http",
+      "package": "gaoxy_http",
+      "version": "0.15.2",
+      "inner_sha256": "f35997ca6c2b62740df770d3acf4c6964f7a7338bbb692e8ac433a329c0996d6",
+      "outer_sha256": "92cfc043dbfdffc8f2462da65587e57b695bf0a8aed04eb50455aa77379ff070",
+      "matched_files": 46
+    },
+    {
+      "dependency": "hell",
+      "package": "hell",
+      "version": "1.0.0-rc.10",
+      "inner_sha256": "2b873654a92313411d9f6ce9e8c4324fecdde630e90d6e77874be0271d8532cb",
+      "outer_sha256": "bbb7cd543fc10286901ffe3d31ffcb4ee5e9e305b41c1675f25a82337450a08a",
+      "matched_files": 19
+    },
+    {
+      "dependency": "http_core",
+      "package": "http_core",
+      "version": "1.0.0-rc.10",
+      "inner_sha256": "d7c6606e6b3fd2b9d916123504749132d0f96d5f6a97adfacadeaea343dfa151",
+      "outer_sha256": "0ce6f808ac71b5f2d25c010d515d80850c1e8995ab9723e7f9bce084aedb9b98",
+      "matched_files": 39
+    },
+    {
+      "dependency": "http_event_source",
+      "package": "http_event_source",
+      "version": "1.0.0-rc.10",
+      "inner_sha256": "7ac6e185297e107e7e17b0df1bbe14cb91fb64b70bd2bfced129f9576cc4e71e",
+      "outer_sha256": "4df4ac12f8b8767748c8cc8b046702336e0d5f14ec586ac642c2d473c4e140c4",
+      "matched_files": 9
+    },
+    {
+      "dependency": "http_fetch",
+      "package": "http_fetch",
+      "version": "1.0.0-rc.10",
+      "inner_sha256": "f7e20f5fb30cbc6cdfd2fb2cbf303b7888a5ba8a874a45b9de13ad3fe2eb7a6e",
+      "outer_sha256": "daf6b3b8be736650e25da21e2adc664f00c354355967386a51ee5903f9d2bd0b",
+      "matched_files": 21
+    },
+    {
+      "dependency": "http_pool",
+      "package": "http_pool",
+      "version": "1.0.0-rc.10",
+      "inner_sha256": "da7410cd5a533add43f63dcbfe3c512eaadde43fc3ab337ecb00885b8d3addf9",
+      "outer_sha256": "41debd85be0ee99a46cae5b8ac312d2ae0bdac36b4542fa8838acf2a4791f7eb",
+      "matched_files": 6
+    },
+    {
+      "dependency": "http_runtime",
+      "package": "http_runtime",
+      "version": "1.0.0-rc.10",
+      "inner_sha256": "e1335e22c504329689eae297841f44389b9b43563c032ed98ea576523fa871fd",
+      "outer_sha256": "4d7c6c3518ff44c9b698d1b76d5c458d1759a96a2289f29f1b656bda8fde1b47",
+      "matched_files": 23
+    },
+    {
+      "dependency": "http_web_socket",
+      "package": "http_web_socket",
+      "version": "1.0.0-rc.10",
+      "inner_sha256": "890085b05d76c8827232492afc0f4a3c47841ef4aedebae8ed7e6eb326b46c25",
+      "outer_sha256": "8dbc1eb5338550879092769adc97ecf8a5defd39f1af20f1e9b43ebccf50db6f",
+      "matched_files": 11
+    },
+    {
+      "dependency": "phoenix_duskmoon",
+      "package": "phoenix_duskmoon",
+      "version": "10.1.1",
+      "inner_sha256": "58d75dd748e1cc77a1861c00a09ea6f48eef01ccc1ba29ecb28de30b89ec2313",
+      "outer_sha256": "99b6777c35b1d5eefaacc85998b6fcc4d8356e0c074b7412add28a08d0975f72",
+      "matched_files": 106
+    },
+    {
+      "dependency": "viewstamped_replication",
+      "package": "viewstamped_replication",
+      "version": "3.1.17",
+      "inner_sha256": "93ab2b3efa6daa86dbad0c21c37b48ddca7a938647ee1b2ca5b54969c475080c",
+      "outer_sha256": "4ec2fa45ba26a74419344680130f3a5531682b61a5d68d72b4fc9489193ae8b1",
+      "matched_files": 28
+    },
+    {
+      "dependency": "websock_adapter",
+      "package": "gaoxy_websock_adapter",
+      "version": "0.15.2",
+      "inner_sha256": "11c2045c14ce48cf4be244d9d25bb378482ac89aa08a6916d0bc07cd19dbf7ae",
+      "outer_sha256": "1500bb81dccdca66637fa1433478b830252c33ef6d693b520628a72c9815c43d",
+      "matched_files": 5
+    }
+  ],
+  "source_verification": {
+    "published_package_count": 26,
+    "installed_source_files": 1274,
+    "concord_exact_tag_source_files": 170,
+    "reviewed_gate_source_count": 26,
+    "published_package_audit_sha256": "465769f148bdeaf1442d2cfd291dab2f52a28bd162b6359645c9dbaf616f9dca",
+    "concord_tag_audit_sha256": "9775928d8b8b6a1065a4822cc09a43701f0d54b344e2ab83dfade8d2ffdbc956"
+  },
+  "source_api_review": [
+    "Concord 3.1.16 incrementally maintains exact ETF memory counts and an ordered conflict inventory for bounded ordinary statistics; 3.1.17 retains this repair.",
+    "Recovery, snapshots, reconciliation and command admission retain exhaustive validation; derived statistics are not persisted in the unchanged v4 snapshot format.",
+    "Concord 3.1.17 adds byte-ordered Turso indexes and optional node-local 32 MiB CAS admission. ESS retains file-backed VSR, 16 MiB replicated admission, its existing APIs and command versions 0/1.",
+    "Gaoxy 0.15.2 admits the RC10 Abyss/Hell family through its published requirements, without HTTP overrides.",
+    "HTTP RC10 adds a transitive http_pool package. ESS retains its existing bounded HTTP/1/HTTP/2 storage paths, raw response bytes, signing, redirect policy, ExSSL verification and stream timeouts.",
+    "Bundler 10.1.5 and Phoenix DuskMoon 10.1.1 use the published native toolchain on Ubuntu 26.04/glibc 2.43.",
+    "No dependency sources, resource bounds, quorum requirements, sampling coverage, original index workloads or runtime deadlines are changed."
+  ],
+  "reviewed_source_sha256": {
+    "viewstamped_replication/lib/viewstamped_replication/replica.ex": "bb62a681344538fee05a357082d0e87721deb5a3614c1344f07b4e2aa4e16541",
+    "viewstamped_replication/lib/viewstamped_replication/protocol.ex": "14b79d1bbbe8423398bb69a33cbd2d6a8d350457ab8cee69df18b995f4544f4e",
+    "viewstamped_replication/lib/viewstamped_replication/protocol/state.ex": "b97e99e709823e37d243b22e7203398eb9f5302ec2e1c4e266f8d4be26d12142",
+    "viewstamped_replication/lib/viewstamped_replication/log.ex": "26e992fcad95826b75ca5beeb1adc0acc9a2e223904e68142696b4ce45d34a87",
+    "viewstamped_replication/lib/viewstamped_replication/log/indexed.ex": "2d3b160486489a6b73ce7d4d1076abffaa902ef896230f67b625f423bee49164",
+    "viewstamped_replication/lib/viewstamped_replication/storage/memory.ex": "241e2d793ac385c8b3a92d5e88b59f9a05ee65f41bf2a62404fa8213813d850e",
+    "viewstamped_replication/lib/viewstamped_replication/storage/file.ex": "9a3c2a8bf45bd0220b930a4907f9e128cfc8e28b9dffd3bf04d3df5086aaae96",
+    "concord/lib/concord/state_machine/core.ex": "138104f39a38f0f9f5e5ab46c515dc124f7ab36a7775b60d479529fb0ac71f41",
+    "concord/lib/concord/engine/vsr/state_machine.ex": "6f83999ab0283639fd8f8265b0d89f67b8898d9678e17d9af650674a2c823f78",
+    "concord/lib/concord/state_machine.ex": "fb417d9970ded983b25fdd459e46d13b5c8c28a37f2d275dcb349164ce422699",
+    "concord/lib/concord/state_machine/observer.ex": "f23fac22c4b17a4a8e66e60ad86da759455e671f93b396084c71026c965da668",
+    "concord/lib/concord/engine/turso.ex": "bc0c01eeb190c21d10fa2329f685f06df8d6ec453fa1a3dc4dac75ae01fb667f",
+    "concord/lib/concord/turso/migrations.ex": "a21d0fd21a8eb10ba144494b435b4982a54cfaa840732efac60dd66e2ab4e7de",
+    "concord/lib/concord/turso/codec.ex": "de4a0dbc3983432d6a10d2f79db1ca11845d3bb1ac52326145d32e885fc1f34d",
+    "concord/lib/concord/kv.ex": "1a51351c55712fe8d16f745ecc04ead8cbb2ac090318eddf468865c199e58145",
+    "concord/lib/concord/turso.ex": "91c61bc854035cd1435ef0d1c7e76f996274be41271a086f1ab7ee7fca55e34b",
+    "concord/lib/concord/turso/prefix_replacement.ex": "b73db7a5da053c4118c771c7d88b5fcf7d3b64e06ab4f36d3f814057efae4829",
+    "concord/lib/concord/engine/vsr.ex": "9d19de390234847c8ee885a3ee64939dc111078a650af43e01e3d190d85095e6",
+    "concord/lib/concord/deadline.ex": "e64b777fb4749016e8bacc4354728bbead16e31d0c7218d019b9b6b1a9d34e72",
+    "concord/lib/concord/command_schema.ex": "15b17e48e67e0f1b9e216269f1a26b1b7bc8126d2b31fa9282b291ba2606664e",
+    "concord/lib/concord/command_envelope.ex": "9b334d24522585a8467bde86ba77a7fba7116f8cd2ec0b7ac0fd8bf6254f5a1c",
+    "concord/lib/concord/turso/list_queue.ex": "5f6f02131b70de1ecb81d658a361f097a7710cdba712f2ed0b24089257d53d68",
+    "concord/lib/concord/turso/bulk_put.ex": "68ebd7321c95526d82d8a3aebed53e0a1ea4625a205ec7a574334d4ad447eb41",
+    "concord/lib/concord/turso/conditional_put.ex": "b4d66c8dbad2f663da779e7f5c082b2d1a71c069d6b0b5d630cc3b134ce4154a",
+    "concord/lib/concord/compression.ex": "231918f309e27e3c1f55b8872556bb0da070fb5b722079ad77325118c6794358",
+    "concord/lib/concord/turso/cas_admission.ex": "806a677251ebf3cb70976a38c32d3ebed662ca6ba5e0c9b2df126948f2df9f47"
+  },
+  "statistics_regressions": {
+    "total": 10,
+    "failures": 0,
+    "excluded": 0,
+    "skipped": 0
+  },
+  "admission_probes": [
+    {
+      "status": "diagnostic_completed",
+      "mode": "minimal",
+      "versions": {
+        "concord": "3.1.17",
+        "ex_turso": "3.1.17",
+        "viewstamped_replication": "3.1.17"
+      },
+      "diagnostic_only": true,
+      "acceptance_promotion": false
+    },
+    {
+      "status": "diagnostic_completed",
+      "mode": "production",
+      "versions": {
+        "concord": "3.1.17",
+        "ex_turso": "3.1.17",
+        "viewstamped_replication": "3.1.17"
+      },
+      "diagnostic_only": true,
+      "acceptance_promotion": false
+    }
+  ],
+  "python_harness": {
+    "tests": 166,
+    "failures": 0,
+    "skips": 0
+  },
+  "admission_gate_regression": {
+    "old_3_1_15_admission_test_failed_before_change": true,
+    "tests_after_change": 15,
+    "failures_after_change": 0
+  },
+  "local_full_application_suite": {
+    "command": [
+      "mix",
+      "test",
+      "--max-cases",
+      "1",
+      "--no-color",
+      "apps/ex_storage_service/test",
+      "apps/ex_storage_service_cluster/test",
+      "apps/ex_storage_service_s3/test",
+      "apps/ex_storage_service_web/test",
+      "apps/ex_storage_service_cli/test"
+    ],
+    "app_counts": {
+      "ex_storage_service": {
+        "tests": 647,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 646
+      },
+      "ex_storage_service_cluster": {
+        "tests": 44,
+        "failures": 0,
+        "excluded": 1,
+        "skipped": 0,
+        "executed": 43
+      },
+      "ex_storage_service_cli": {
+        "tests": 3491,
+        "failures": 1,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 3491
+      },
+      "ex_storage_service_s3": {
+        "tests": 387,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 387
+      },
+      "ex_storage_service_web": {
+        "tests": 24,
+        "failures": 0,
+        "excluded": 0,
+        "skipped": 0,
+        "executed": 24
+      }
+    },
+    "exit_status": 2,
+    "errors": [
+      "ex_storage_service_cli: failing or skipped correctness tests"
+    ]
+  },
+  "local_environment_evidence": {
+    "journal_case": {
+      "log_sha256": "f3aa549f721994e33be6b648bd1e7662f2f13fafd2d44ead4adaa83303beb45b",
+      "actual_exunit_result": {
+        "passed": 1,
+        "excluded": 5,
+        "failures": 0
+      },
+      "command_exit_status": 0,
+      "toolchain": "Elixir 1.20.5 / OTP 28",
+      "parser_note": "The prior local wrapper expected the 1.19 summary. The retained 1.20 summary explicitly records one pass.",
+      "acceptance": false
+    },
+    "original_reserved_case_probe": {
+      "command": [
+        "mix",
+        "test",
+        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transfer/multipart_test.exs:71",
+        "--max-cases",
+        "1",
+        "--seed",
+        "524430",
+        "--no-color"
+      ],
+      "exit_status": 0,
+      "seconds": 118.448,
+      "acceptance": false,
+      "status": "interrupted_before_tests",
+      "termination": "Owned container stopped after observed Mix build-lock wait; BEAM SIGTERM returned zero without executing the selected test."
+    },
+    "notes": [
+      "The original full suite executed 4591 tests with one CLI journal mutex EADDRINUSE; all other tests passed. Its container ephemeral range overlapped the explicit journal range and had no reservations.",
+      "A subsequent old-toolchain probe was stopped before tests after the known Mix Sync.Lock wait; its SIGTERM zero exit does not certify a test pass.",
+      "The selected CLI case passed on the public Elixir 1.20.5 toolchain with journal ports reserved. The wrapper expected the old ExUnit summary; the actual retained result is one passed and five excluded.",
+      "Elixir 1.20 type warnings are outside this upgrade scope. Strict production compilation, production assets and daily HTTP pass on the original Elixir 1.19.5 runtime using fresh per-command temporary lock roots with locks enabled. Hosted final acceptance retains its existing isolated-job setup."
+    ]
+  },
+  "publication_prerequisites": [
+    "Successful exact-source full acceptance of all eleven lanes.",
+    "Fresh substantive audit of all 158 original A01-A38 clauses; the checked-in prior C7 ledger cannot certify this candidate.",
+    "Successful root release workflow and independent public artifact execution/verification."
+  ],
+  "status": "adoption_verified_full_acceptance_pending",
+  "source_sha256": "d829f709a2ffc32c824d5b2181fbbf323ea5617a54f660c585be89f47a0509be",
+  "local_checks": {
+    "test_compile": {
+      "command": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "exit_status": 0,
+      "seconds": 219.17,
+      "acceptance": false
+    },
+    "format_registry_checks": [
+      {
+        "check": "format",
+        "command": [
+          "mix",
+          "format",
+          "apps/ex_storage_service/mix.exs",
+          "apps/ex_storage_service_cli/mix.exs",
+          "apps/ex_storage_service_cluster/mix.exs",
+          "apps/ex_storage_service_s3/mix.exs",
+          "apps/ex_storage_service_web/mix.exs",
+          "apps/ex_storage_service/lib/ex_storage_service/metadata/backend/concord.ex"
+        ],
+        "exit_status": 0,
+        "seconds": 142.602,
+        "environment": {}
+      },
+      {
+        "check": "format-check",
+        "command": [
+          "mix",
+          "format",
+          "--check-formatted"
+        ],
+        "exit_status": 0,
+        "seconds": 0.879,
+        "environment": {}
+      },
+      {
+        "check": "outdated",
+        "command": [
+          "mix",
+          "hex.outdated",
+          "--all"
+        ],
+        "exit_status": 0,
+        "seconds": 8.021,
+        "environment": {}
+      },
+      {
+        "check": "hex-audit",
+        "command": [
+          "mix",
+          "hex.audit"
+        ],
+        "exit_status": 0,
+        "seconds": 15.891,
+        "environment": {}
+      }
+    ],
+    "production": {
+      "mix_os_concurrency_lock": "enabled",
+      "private_temp_directory_per_command": true,
+      "checks": [
+        {
+          "check": "production-compile",
+          "command": [
+            "mix",
+            "compile",
+            "--force",
+            "--warnings-as-errors"
+          ],
+          "exit_status": 0,
+          "seconds": 104.314,
+          "environment": {
+            "MIX_ENV": "prod",
+            "ZIGLER_PRECOMPILED_GLOBAL_CACHE_PATH": "/evidence/native-cache",
+            "TMPDIR": "/tmp/ess-rc10-production-compile-fresh-mix-locks"
+          }
+        },
+        {
+          "check": "assets",
+          "command": [
+            "mix",
+            "assets.deploy"
+          ],
+          "exit_status": 0,
+          "seconds": 19.566,
+          "environment": {
+            "MIX_ENV": "prod",
+            "ZIGLER_PRECOMPILED_GLOBAL_CACHE_PATH": "/evidence/native-cache",
+            "TMPDIR": "/tmp/ess-rc10-assets-fresh-mix-locks"
+          }
+        },
+        {
+          "check": "daily",
+          "command": [
+            "bash",
+            "e2e/run_hardening_daily.sh",
+            "/opt/ess-verify/bin/python",
+            "refresh-20261109-rc10"
+          ],
+          "exit_status": 0,
+          "seconds": 3.93,
+          "environment": {
+            "MIX_ENV": "prod",
+            "ZIGLER_PRECOMPILED_GLOBAL_CACHE_PATH": "/evidence/native-cache",
+            "TMPDIR": "/tmp/ess-rc10-daily-fresh-mix-locks"
+          }
+        }
+      ]
+    }
+  },
+  "daily_http": {
+    "status": "passed",
+    "starting_sha": "dd21d80b4fe65910451c4b4c7519c3f405e07002",
+    "ending_sha": "dd21d80b4fe65910451c4b4c7519c3f405e07002",
+    "source_sha256": "d829f709a2ffc32c824d5b2181fbbf323ea5617a54f660c585be89f47a0509be",
+    "ending_source_sha256": "d829f709a2ffc32c824d5b2181fbbf323ea5617a54f660c585be89f47a0509be",
+    "versions": {
+      "python": "3.14.4",
+      "boto3": "1.43.114",
+      "botocore": "1.43.114",
+      "beam": "Erlang/OTP 28 [erts-16.4.0.6] [source] [64-bit] [smp:4:4] [ds:2:2:2] [async-threads:1] [jit:ns]\n\nElixir 1.19.5 (compiled with Erlang/OTP 28)",
+      "concord": "3.1.17",
+      "viewstamped_replication": "3.1.17",
+      "ex_turso": "3.1.17",
+      "http_fetch": "1.0.0-rc.10"
+    },
+    "checks": [
+      {
+        "name": "production-compile",
+        "status": "passed",
+        "seconds": 0.815
+      },
+      {
+        "name": "server-health-and-readiness",
+        "status": "passed",
+        "seconds": 0.835
+      },
+      {
+        "name": "bucket-create-list-head-location-tags",
+        "status": "passed",
+        "seconds": 0.048
+      },
+      {
+        "name": "put-head-get-range-checksum-attributes",
+        "status": "passed",
+        "seconds": 0.046
+      },
+      {
+        "name": "default-sdk-checksum-gzip-bytes",
+        "status": "passed",
+        "seconds": 0.012
+      },
+      {
+        "name": "list-prefix-delimiter-pagination",
+        "status": "passed",
+        "seconds": 0.049
+      },
+      {
+        "name": "object-tags-copy-replace-delete-tags",
+        "status": "passed",
+        "seconds": 0.04
+      },
+      {
+        "name": "presigned-get-put-and-authentication",
+        "status": "passed",
+        "seconds": 0.016
+      },
+      {
+        "name": "cors-configuration-preflight-authenticated-read",
+        "status": "passed",
+        "seconds": 0.017
+      },
+      {
+        "name": "multipart-upload-list-parts-complete-and-abort",
+        "status": "passed",
+        "seconds": 0.223
+      },
+      {
+        "name": "multipart-part-copy",
+        "status": "passed",
+        "seconds": 0.038
+      },
+      {
+        "name": "batch-delete-and-single-delete",
+        "status": "passed",
+        "seconds": 0.027
+      },
+      {
+        "name": "versions-explicit-read-copy-delete-marker",
+        "status": "passed",
+        "seconds": 0.063
+      },
+      {
+        "name": "remove-created-versions-and-bucket",
+        "status": "passed",
+        "seconds": 0.052
+      }
+    ],
+    "server_stopped": true,
+    "listener_closed": true,
+    "disposable_root_removed": true,
+    "receipt_sha256": "45b0c72d5b75aeb9ccdfc2c0c4d7130e345e0e775caa3fefaf26efd71662b208"
+  }
+}

@@ -1,4 +1,35 @@
-## Current HTTP RC8 candidate — 2026-11-08
+## Concord 3.1.17 and HTTP RC10 candidate — 2026-11-09
+
+Published Concord/VSR/ExTurso 3.1.17 retains the periodic-statistics repair from
+3.1.16 for [Concord #119](https://github.com/gsmlg-dev/concord/issues/119).
+The candidate also updates the coordinated HTTP family to RC10, Gaoxy to 0.15.2,
+Bundler to 10.1.5 and Phoenix DuskMoon to 10.1.1. All 26 changed package checksum
+sets agree. The 1,274 installed source files match public archives, and 170
+Concord-family files match tag `v3.1.17` at `af4ab02892a06e487304bfc84c9a8508ffdebf44`.
+Both fresh admission probes, all ten upstream statistics regressions and all
+166 Python harness tests pass. The reviewed gate pins 26 source hashes and
+retains its checksum/source tamper rejection. The old #119 marker is removed.
+
+Strict test/production compilation, formatting, production assets and all 14
+authenticated daily HTTP checks pass. The complete local application run executes
+4,591 tests with one CLI journal mutex `EADDRINUSE` failure; all other tests pass.
+Its namespace has an overlapping ephemeral range and no journal reservations.
+The selected case passes with the explicit journal range reserved. A stopped
+Mix-lock probe and its zero-on-SIGTERM exit are retained as incomplete evidence.
+The selected pass uses public Elixir 1.20.5; strict production compilation and
+daily HTTP use the original Elixir 1.19.5 with private temporary Mix lock roots
+and concurrency locks enabled. No product workaround or test relaxation is used.
+The two existing heavy exclusions remain in their separate acceptance lanes.
+`mix hex.outdated --all` is clear and `mix hex.audit` reports no retired/advisory
+packages.
+
+The [adoption receipt](s3-hardening/concord3117-http-rc10-adoption-20261109.json)
+retains the original outcomes and exact executable-input fingerprint. It does
+not certify full acceptance. All eleven current-source lanes and a fresh
+substantive audit of all 158 original clauses are required before publication;
+the prior C7 ledger remains historical evidence. **v0.7.0 is not published.**
+
+## Historical HTTP RC8 candidate — 2026-11-08
 
 The eight coordinated HTTP client/engine packages now resolve to public
 1.0.0-rc.8. Registry/archive/lockfile checksums agree and 235 installed

@@ -1,4 +1,31 @@
-## Current HTTP RC8 candidate — 2026-11-08
+## Concord 3.1.17 and HTTP RC10 candidate — 2026-11-09
+
+The candidate adopts published Concord/VSR/ExTurso 3.1.17, HTTP 1.0.0-rc.10,
+Gaoxy 0.15.2, Bundler 10.1.5 and Phoenix DuskMoon 10.1.1. All 26 changed
+packages have matching registry/archive/lockfile checksums; 1,274 installed
+source files match their archives and 170 Concord-family files match the exact
+upstream tag. The two fresh admission probes and all ten packaged statistics
+regressions pass. The dependency gate pins 26 reviewed source hashes and rejects
+the old periodic-statistics regression. Concord #119's obsolete marker is removed.
+ESS retains file-backed VSR, existing APIs and command formats 0/1.
+
+Formatting, strict test/production compilation, production assets, 166 Python
+harness tests and all 14 authenticated daily HTTP checks pass. The complete local
+application run executes 4,591 tests: one CLI case hits a journal mutex port
+collision, and the other 4,590 pass. That case passes with the journal port range
+reserved in a disposable container. The original failure and an interrupted
+old-toolchain Mix-lock probe remain recorded; neither is reported as a passing
+complete replay. Two existing heavy exclusions retain their separate lanes.
+`mix hex.outdated --all` reports every package up to date, and `mix hex.audit`
+reports no retired or advisory packages.
+
+Full exact-source acceptance and a fresh substantive audit of all 158 original
+clauses remain publication prerequisites. The prior C7 ledger cannot certify
+this candidate. Index and resource acceptance must execute their original
+workloads and limits. **v0.7.0 remains unpublished.** See the
+[adoption receipt](../reports/s3-hardening/concord3117-http-rc10-adoption-20261109.json).
+
+## Historical HTTP RC8 candidate — 2026-11-08
 
 The coordinated HTTP client/engine family is updated to published 1.0.0-rc.8.
 Public registry/archive/lockfile checksums agree for all eight packages, and
