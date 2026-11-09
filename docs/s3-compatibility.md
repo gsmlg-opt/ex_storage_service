@@ -23,10 +23,34 @@ Daily HTTP, standalone, gateway, cluster, faults, crashes, resilience, restore
 and local release/container checks pass. Resource acceptance fails the original
 100 ms observation-coverage bound in both topologies; completed groups retain
 their original numeric envelopes. The separate real 2 GiB transport case passes.
-Index acceptance and the fresh 158-clause audit are still pending. The hosted
+Index acceptance completed both original 10k stages and both 100k write stages,
+then failed at the final offline inventory's legacy `Concord.get_all/1` call
+with `:quorum_unavailable`. This result does not establish quorum loss. The
+fixture's full-map inventory needs supported revision-pinned pagination before
+the unchanged scale lane is rerun; the independent A29 cluster/index command
+passed. The fresh 158-clause audit remains incomplete. The hosted
 Python harness reports 166 total tests with one environment-dependent skip;
-the complete local harness passed all 166 without skips. These results do not
-certify full acceptance or publication. **v0.7.0 remains unpublished.**
+the complete local harness passed all 166 without skips. The
+[terminal full-run receipt](reports/s3-hardening/concord3117-http-rc10-full-run-20261109.json)
+retains the source identity, command outcomes and verified artifact digests.
+These results do not certify full acceptance or publication.
+**v0.7.0 remains unpublished.**
+
+The offline inventory helper now uses one linearizable revision and descending
+pages, retaining the entire raw key/value map and original size accounting
+outside measured requests. Seven pure regressions pass. A separate fresh VSR
+probe verifies all 1,015 records against `get_all/1`, including compressed stored
+values, maximum-length and zero-byte keys, and continuity after intervening
+writes/deletes. The original full scale workload remains required.
+
+Fresh compilation is separately blocked by the normal Bundler 10.1.5 OXC parser
+artifact URL returning HTTP 504 on a hosted runner and an independent local
+build. The published bytes remain available through the release-asset API;
+those diagnostic downloads were not injected into builds. Track
+[Bundler #22](https://github.com/duskmoon-dev/duskmoon-bundler/issues/22) and verify
+normal artifact delivery plus fresh compilation before resuming affected
+acceptance/publication work. No dependency patch or download override is used.
+<!-- TODO(upstream): duskmoon-dev/duskmoon-bundler#22; remove after normal native artifact delivery and fresh compilation are verified. -->
 
 ## Historical Concord 3.1.12 adoption
 

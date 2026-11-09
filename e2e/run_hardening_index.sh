@@ -10,6 +10,7 @@ label="${2:?unique evidence label required}"
 # but the production-path diagnostic reproduced two distinct residual blockers.
 # This version gate requires explicit source/API and probe validation to change.
 "$python" e2e/scripts/index_dependency_preflight.py
+elixir e2e/scripts/index_offline_inventory_test.exs
 # The documented blocker must be fixed in a released dependency before this
 # mandatory expensive lane resumes. Never patch or disable protocol assertions.
 protocol_source=deps/viewstamped_replication/lib/viewstamped_replication/protocol.ex

@@ -1,5 +1,6 @@
 Code.require_file("index_acceptance_bounds.exs", __DIR__)
 Code.require_file("index_setup_diagnostics.exs", __DIR__)
+Code.require_file("index_offline_inventory.exs", __DIR__)
 
 # Actual native Concord exact-read instrumentation, after transactional publication.
 defmodule ESSIndexAcceptance.Backend do
@@ -124,7 +125,7 @@ defmodule ESSIndexAcceptance do
   # Full inventory is deliberate fixture validation and size accounting. It ends
   # before the request closure is created; no snapshot is captured by a sample.
   defp offline_inventory(bucket) do
-    {:ok, snapshot} = Concord.get_all(consistency: :linearizable)
+    {:ok, snapshot} = ESSIndexAcceptance.Inventory.snapshot()
     bucket_record = Map.fetch!(snapshot, "bucket:#{bucket}")
     generation = BucketLifecycle.generation(bucket_record)
     root = Map.fetch!(snapshot, ListIndex.root_key(bucket, generation))

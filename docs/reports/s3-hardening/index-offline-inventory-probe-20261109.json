@@ -1,0 +1,61 @@
+{
+  "scope": "A28 offline inventory helper regression; not complete scale or release acceptance",
+  "commands": [
+    {
+      "command": [
+        "mix",
+        "format",
+        "e2e/scripts/index_resource.exs",
+        "e2e/scripts/index_offline_inventory.exs",
+        "e2e/scripts/index_offline_inventory_test.exs",
+        "e2e/scripts/index_offline_inventory_probe.exs"
+      ],
+      "exit_status": 0,
+      "duration_seconds": 0.489
+    },
+    {
+      "command": [
+        "mix",
+        "run",
+        "--no-compile",
+        "--no-start",
+        "e2e/scripts/index_offline_inventory_probe.exs",
+        "/evidence/latest-20261109/a28-native-current/native-probe.json"
+      ],
+      "exit_status": 0,
+      "duration_seconds": 2.455
+    }
+  ],
+  "native_probe": {
+    "scope": "small native VSR inventory API equivalence; not full A28 acceptance",
+    "status": "passed",
+    "otp": "28",
+    "elixir": "1.19.5",
+    "data_root": "/tmp/ess-inventory-probe-4_shxtl3",
+    "source_sha256": {
+      "index_offline_inventory.exs": "283d6667be9e7a6bc8b8934237bb95a935f3d7ebbbd7f968ca1704c9739ab572",
+      "index_offline_inventory_probe.exs": "6e6fe94f776dbac0b9576b0b9bd9190d11a5e638bd9179e52ea3ed5659d0d693"
+    },
+    "records": 1015,
+    "source_head": "bd149f81b42824b847cae50fe6dac77b36bbb614",
+    "pinned_revision": 1020,
+    "pinned_pages": 2,
+    "inventory_sizes": {
+      "source_serialized_bytes": 41936,
+      "index_serialized_bytes": 59,
+      "index_records": 1
+    },
+    "raw_stored_value_equivalence": true,
+    "quiescent_map_equivalence": true,
+    "fixed_revision_after_mutations": true,
+    "current_map_after_mutations": true,
+    "default_operation_deadlines": true,
+    "runtime_stopped": true
+  },
+  "pure_regressions": {
+    "tests": 7,
+    "failures": 0
+  },
+  "full_original_scale_required": true,
+  "publication_eligible": false
+}
