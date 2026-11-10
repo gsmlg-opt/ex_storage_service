@@ -38,7 +38,11 @@ defmodule ExStorageServiceCli.AwsOutputPaginationDifferentialTest do
     assert @oracle["aws_sha256"] ==
              "87630ec5232080b737502f4098f4c9adbf820c01d23c63b62affcad50059ad0a"
 
-    model = File.read!(Path.expand("../priv/compatibility/aws/service-2.json", __DIR__))
+    model =
+      File.read!(
+        Application.app_dir(:ex_storage_service_sdk, "priv/compatibility/aws/service-2.json")
+      )
+
     assert digest(model) == @oracle["model_sha256"]
 
     assert Enum.sort(Enum.uniq(Enum.map(@oracle["cases"], & &1["output"]))) ==

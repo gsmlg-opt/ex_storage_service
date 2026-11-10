@@ -271,7 +271,7 @@ def main():
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
     assert hashlib.sha256(args.aws.read_bytes()).hexdigest() == AWS_SHA256, "Unpinned AWS executable"
-    model = ROOT / "priv/compatibility/aws/service-2.json"
+    model = ROOT.parent / "ex_storage_service_sdk" / "priv/compatibility/aws/service-2.json"
     report = {"schema_version": 1, "aws_sha256": AWS_SHA256,
               "model_sha256": hashlib.sha256(model.read_bytes()).hexdigest(),
               "scope": "32 explicit representative operations; optional member variants, not exhaustive model coverage",

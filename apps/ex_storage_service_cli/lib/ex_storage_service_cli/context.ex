@@ -1,33 +1,19 @@
 defmodule ExStorageServiceCli.Context do
-  @moduledoc "Immutable settings for one endpoint; remote transfer targets resolve independently."
-  alias ExStorageServiceCli.{Aliases, Config, Error, Target}
-  alias ExStorageServiceCli.Credentials.{Owner, Provider, Record}
+  @moduledoc """
+  Builds immutable `ExStorageServiceSdk.Config` values for one endpoint from CLI
+  configuration; remote transfer targets resolve independently.
+
+  CLI-only settings live in `config.options` beside the raw invocation flags:
+  `:cli_profile` (resolved profile name), `:cli_json` (legacy JSON output), and
+  `:credential_owner`, the owner process behind `credential_provider`.
+  """
+  alias ExStorageServiceCli.{Aliases, Config, Target}
+  alias ExStorageServiceSdk.Config, as: SdkConfig
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceCli.Credentials.{DirectorySession, Owner, Provider}
+  alias ExStorageServiceSdk.Credentials, as: Record
   alias ExStorageServiceCli.Credentials.Process, as: CredentialProcess
   alias ExStorageServiceCli.CLI.Runtime
-
-  @derive {Inspect,
-           except: [:access_key_id, :secret_access_key, :session_token, :credentials, :options]}
-  defstruct frontend: :native,
-            endpoint: "http://localhost:9000",
-            region: "us-east-1",
-            profile: "default",
-            access_key_id: nil,
-            secret_access_key: nil,
-            session_token: nil,
-            credentials: nil,
-            credential_owner: nil,
-            coordinator: nil,
-            directory_sessions: nil,
-            unsigned: false,
-            addressing: :path,
-            tls: [verify: :verify_peer],
-            timeout: 60_000,
-            connect_timeout: 60_000,
-            read_idle_timeout: nil,
-            write_idle_timeout: nil,
-            capabilities: %{},
-            json: false,
-            options: %{}
 
   @doc "Resolves one native target using one immutable configuration snapshot."
   def native(target, options, config, opts \\ []) do
@@ -42,23 +28,21 @@ defmodule ExStorageServiceCli.Context do
          :ok <- validate_endpoint(endpoint),
          {:ok, tls} <- tls(options, profile[:ca_bundle]) do
       {:ok,
-       with_credentials(
-         %__MODULE__{
+       SdkConfig.with_credentials(
+         %SdkConfig{
            endpoint: endpoint,
            region: options[:region] || alias_record["region"] || profile[:region] || "us-east-1",
-           profile: alias_record["profile"] || options[:profile] || "default",
            unsigned: unsigned,
-           credential_owner: profile[:credential_owner],
+           credential_provider: credential_provider(profile[:credential_owner]),
+           session_provider: session_provider(opts[:runtime]),
            coordinator: if(opts[:runtime], do: opts[:runtime].coordinator),
-           directory_sessions: if(opts[:runtime], do: opts[:runtime].directory_sessions),
            addressing: profile[:addressing] || :path,
            tls: tls,
            timeout: :infinity,
            read_idle_timeout: Map.get(options, :read_idle_timeout, 600_000),
            write_idle_timeout: Map.get(options, :write_idle_timeout, 600_000),
-           json: options[:json] || false,
            capabilities:
-             ExStorageServiceCli.S3.Capabilities.record(
+             ExStorageServiceSdk.S3.Capabilities.record(
                options[:service] || alias_record["service"] ||
                  if(alias_record["provider"] == "ess-profile", do: "ess", else: "unknown"),
                alias_record["service_version"],
@@ -67,6 +51,9 @@ defmodule ExStorageServiceCli.Context do
            options:
              options
              |> Map.put(:s3_settings, profile[:s3_settings] || %{})
+             |> Map.put(:cli_profile, alias_record["profile"] || options[:profile] || "default")
+             |> Map.put(:cli_json, options[:json] || false)
+             |> Map.put(:credential_owner, profile[:credential_owner])
              |> runtime_options(opts)
          },
          credentials
@@ -88,30 +75,31 @@ defmodule ExStorageServiceCli.Context do
          {:ok, read_timeout} <- timeout(options[:cli_read_timeout]),
          {:ok, connect_timeout} <- timeout(options[:cli_connect_timeout]) do
       {:ok,
-       with_credentials(
-         %__MODULE__{
+       SdkConfig.with_credentials(
+         %SdkConfig{
            frontend: :aws,
            endpoint: endpoint,
            region: region,
-           profile: settings.profile,
            unsigned: settings.unsigned,
-           credential_owner: opts[:credential_owner],
+           credential_provider: credential_provider(opts[:credential_owner]),
+           session_provider: session_provider(opts[:runtime]),
            coordinator: if(opts[:runtime], do: opts[:runtime].coordinator),
-           directory_sessions: if(opts[:runtime], do: opts[:runtime].directory_sessions),
            addressing: addressing,
            tls: tls,
            timeout: :infinity,
            read_idle_timeout: if(read_timeout == :infinity, do: nil, else: read_timeout),
            connect_timeout: connect_timeout,
-           json: options[:output] in [nil, "json"],
            capabilities:
-             ExStorageServiceCli.S3.Capabilities.record(
+             ExStorageServiceSdk.S3.Capabilities.record(
                if(settings.endpoint_url, do: "s3", else: "aws")
              ),
            options:
              options
              |> Map.put(:s3_settings, settings.s3)
              |> Map.put(:resolved_endpoint, settings.endpoint_url)
+             |> Map.put(:cli_profile, settings.profile)
+             |> Map.put(:cli_json, options[:output] in [nil, "json"])
+             |> Map.put(:credential_owner, opts[:credential_owner])
              |> runtime_options(opts)
          },
          credentials
@@ -120,17 +108,32 @@ defmodule ExStorageServiceCli.Context do
   end
 
   @doc "Refreshes one invocation's coherent credential record before request signing."
-  def refresh(%__MODULE__{unsigned: true} = context), do: {:ok, context}
+  defdelegate refresh(context), to: SdkConfig
 
-  def refresh(%__MODULE__{credential_owner: nil} = context) do
-    with :ok <- credential_expiry(context.credentials), do: {:ok, context}
+  @doc "The map passed to legacy command modules, with CLI presentation keys at top level."
+  def legacy_map(%SdkConfig{} = context) do
+    context
+    |> Map.from_struct()
+    |> Map.merge(%{
+      profile: context.options[:cli_profile] || "default",
+      json: context.options[:cli_json] || false
+    })
   end
 
-  def refresh(%__MODULE__{} = context) do
-    with {:ok, %Record{} = credentials, _settings} <- Owner.resolve(context.credential_owner) do
-      {:ok, with_credentials(context, credentials)}
+  # The owner process caches and rotates one invocation's credentials.
+  defp credential_provider(nil), do: nil
+
+  defp credential_provider(owner) do
+    fn ->
+      with {:ok, %Record{} = credentials, _settings} <- Owner.resolve(owner),
+           do: {:ok, credentials}
     end
   end
+
+  defp session_provider(%{directory_sessions: manager}) when is_pid(manager),
+    do: &DirectorySession.resolve(manager, &1, &2, &3, &4)
+
+  defp session_provider(_runtime), do: nil
 
   defp owner_options(options, opts) do
     cond do
@@ -165,34 +168,7 @@ defmodule ExStorageServiceCli.Context do
   defp credential_expiry(record), do: CredentialProcess.expiry(record, DateTime.utc_now())
 
   @doc false
-  def validate_endpoint(endpoint) when is_binary(endpoint) do
-    case URI.new(endpoint) do
-      {:ok,
-       %URI{scheme: scheme, host: host, port: port, userinfo: nil, fragment: nil, query: nil}}
-      when scheme in ["http", "https"] and is_binary(host) and host != "" and
-             is_integer(port) and port > 0 and port <= 65_535 ->
-        :ok
-
-      _ ->
-        invalid("Endpoint must be an HTTP(S) URL without credentials, query or fragment")
-    end
-  rescue
-    _ in ArgumentError -> invalid("Endpoint must be an HTTP(S) URL")
-  end
-
-  def validate_endpoint(_endpoint), do: invalid("Endpoint must be an HTTP(S) URL")
-
-  defp with_credentials(context, nil), do: context
-
-  defp with_credentials(context, credentials) do
-    %{
-      context
-      | credentials: credentials,
-        access_key_id: credentials.access_key_id,
-        secret_access_key: credentials.secret_access_key,
-        session_token: credentials.session_token
-    }
-  end
+  defdelegate validate_endpoint(endpoint), to: SdkConfig
 
   defp settings(%Target{alias: name}, _options, config) when is_binary(name),
     do: Aliases.from_config(config, name)

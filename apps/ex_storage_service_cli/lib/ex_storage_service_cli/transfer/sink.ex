@@ -8,7 +8,7 @@ defmodule ExStorageServiceCli.Transfer.Sink do
   the destination tree must be controlled by the invoking user, without another
   process concurrently renaming its parent directories.
   """
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
   defstruct [:path, :temporary, :file, :original, :temporary_identity, parents: []]
 
   @doc "Maps a relative object key without normalizing or silently renaming it."

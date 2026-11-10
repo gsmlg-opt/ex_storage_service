@@ -1,7 +1,10 @@
 defmodule ExStorageServiceCli.S3.UploadChecksumTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Transfer.Coordinator, Transfer.Source}
-  alias ExStorageServiceCli.S3.UploadChecksum
+  alias ExStorageServiceCli.Transfer.Source
+  alias ExStorageServiceSdk.Config
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.Transfer.Coordinator
+  alias ExStorageServiceSdk.S3.UploadChecksum
   @moduletag :tmp_dir
   @vectors __DIR__
            |> Path.join("../../fixtures/special_s3/checksum-vectors.json")
@@ -10,7 +13,7 @@ defmodule ExStorageServiceCli.S3.UploadChecksumTest do
            |> Map.fetch!("vectors")
 
   test "selection is serializable and preserves explicit and default types" do
-    assert {:ok, contract} = UploadChecksum.select(%Context{}, %{})
+    assert {:ok, contract} = UploadChecksum.select(%Config{}, %{})
     assert contract == %{"algorithm" => "CRC64NVME", "type" => "FULL_OBJECT", "expected" => nil}
     assert JSON.decode!(JSON.encode!(contract)) == contract
 
@@ -21,41 +24,41 @@ defmodule ExStorageServiceCli.S3.UploadChecksumTest do
            }
 
     assert {:ok, %{"type" => "COMPOSITE"}} =
-             UploadChecksum.select(%Context{}, %{"ChecksumAlgorithm" => "SHA256"})
+             UploadChecksum.select(%Config{}, %{"ChecksumAlgorithm" => "SHA256"})
 
     assert {:ok, %{"type" => "FULL_OBJECT"}} =
-             UploadChecksum.select(%Context{}, %{"ChecksumAlgorithm" => "SHA256"}, :object)
+             UploadChecksum.select(%Config{}, %{"ChecksumAlgorithm" => "SHA256"}, :object)
 
     assert {:ok, nil} =
              UploadChecksum.select(
-               %Context{options: %{request_checksum_calculation: "when_required"}},
+               %Config{options: %{request_checksum_calculation: "when_required"}},
                %{}
              )
 
     assert {:error, %Error{code: :upload_checksum_type}} =
-             UploadChecksum.select(%Context{}, %{
+             UploadChecksum.select(%Config{}, %{
                "ChecksumAlgorithm" => "CRC64NVME",
                "ChecksumType" => "COMPOSITE"
              })
 
     assert {:error, %Error{code: :upload_checksum_type}} =
-             UploadChecksum.select(%Context{}, %{
+             UploadChecksum.select(%Config{}, %{
                "ChecksumAlgorithm" => "SHA256",
                "ChecksumType" => "FULL_OBJECT"
              })
 
     assert {:error, %Error{code: :upload_checksum_algorithm}} =
-             UploadChecksum.select(%Context{}, %{
+             UploadChecksum.select(%Config{}, %{
                "ChecksumAlgorithm" => "SHA256",
                "ChecksumCRC32" => "AAAAAA=="
              })
   end
 
   test "server copy selects only explicit checksums and retains only the selected provider digest" do
-    assert {:ok, nil} = UploadChecksum.select(%Context{}, %{}, :copy)
+    assert {:ok, nil} = UploadChecksum.select(%Config{}, %{}, :copy)
 
     assert {:ok, contract} =
-             UploadChecksum.select(%Context{}, %{"ChecksumAlgorithm" => "SHA256"}, :copy)
+             UploadChecksum.select(%Config{}, %{"ChecksumAlgorithm" => "SHA256"}, :copy)
 
     assert contract["type"] == "COMPOSITE"
     digest = Base.encode64(:crypto.hash(:sha256, "part bytes"))
@@ -82,7 +85,7 @@ defmodule ExStorageServiceCli.S3.UploadChecksumTest do
       assert {:ok, source} = Source.file(path, chunk_size: 17)
 
       assert {:ok, contract} =
-               UploadChecksum.select(%Context{}, %{"ChecksumAlgorithm" => vector["algorithm"]})
+               UploadChecksum.select(%Config{}, %{"ChecksumAlgorithm" => vector["algorithm"]})
 
       left = div(byte_size(bytes), 2)
       assert {:ok, first} = Source.range(source, 0, left)
@@ -112,7 +115,7 @@ defmodule ExStorageServiceCli.S3.UploadChecksumTest do
 
         assert {:ok, full_contract} =
                  UploadChecksum.select(
-                   %Context{},
+                   %Config{},
                    %{"ChecksumAlgorithm" => vector["algorithm"]},
                    :object
                  )
@@ -143,7 +146,7 @@ defmodule ExStorageServiceCli.S3.UploadChecksumTest do
     path = Path.join(root, "source")
     File.write!(path, "123456789")
     {:ok, source} = Source.file(path)
-    {:ok, contract} = UploadChecksum.select(%Context{}, %{})
+    {:ok, contract} = UploadChecksum.select(%Config{}, %{})
 
     assert {:error, %Error{code: :upload_checksum_mismatch}} =
              UploadChecksum.part(contract, source, %{
@@ -151,7 +154,7 @@ defmodule ExStorageServiceCli.S3.UploadChecksumTest do
              })
 
     assert {:ok, requested} =
-             UploadChecksum.select(%Context{}, %{"ChecksumCRC32C" => "4waSgw=="}, :object)
+             UploadChecksum.select(%Config{}, %{"ChecksumCRC32C" => "4waSgw=="}, :object)
 
     assert {:ok, checksums} = UploadChecksum.object(requested, source, %{})
     assert checksums["CRC32C"] == "4waSgw=="
@@ -170,7 +173,7 @@ defmodule ExStorageServiceCli.S3.UploadChecksumTest do
   end
 
   test "completion rejects lost local digests, nonconsecutive parts and explicit mismatch" do
-    {:ok, contract} = UploadChecksum.select(%Context{}, %{})
+    {:ok, contract} = UploadChecksum.select(%Config{}, %{})
     part = %{"number" => 1, "length" => 1, "etag" => "a", "checksums" => %{}}
 
     assert {:error, %Error{code: :upload_checksum_parts}} =
@@ -207,7 +210,7 @@ defmodule ExStorageServiceCli.S3.UploadChecksumTest do
     path = Path.join(root, "source")
     File.write!(path, "old")
     {:ok, source} = Source.file(path)
-    {:ok, contract} = UploadChecksum.select(%Context{}, %{})
+    {:ok, contract} = UploadChecksum.select(%Config{}, %{})
     File.write!(path, "new")
     assert {:error, %Error{}} = UploadChecksum.part(contract, source)
     coordinator = start_supervised!({Coordinator, []})

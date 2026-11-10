@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.ResolverTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{CLI.Parser, CLI.Resolver, Config, Aliases, Context, Error, Target}
+  alias ExStorageServiceCli.{CLI.Parser, CLI.Resolver, Config, Aliases, Target}
+  alias ExStorageServiceSdk.Error
   @moduletag :tmp_dir
 
   test "each alias selects a coherent independent profile and endpoint", %{tmp_dir: directory} do
@@ -22,12 +23,12 @@ defmodule ExStorageServiceCli.CLI.ResolverTest do
     assert [%Target{key: "a//../b"}, %Target{key: "key"}] = resolved.targets
 
     assert [
-             %Context{
+             %ExStorageServiceSdk.Config{
                endpoint: "https://first.test",
                access_key_id: "a",
                secret_access_key: "sa"
              },
-             %Context{
+             %ExStorageServiceSdk.Config{
                endpoint: "https://second.test",
                access_key_id: "b",
                secret_access_key: "sb"
@@ -49,7 +50,15 @@ defmodule ExStorageServiceCli.CLI.ResolverTest do
     :ok = Aliases.set("prod", %{"endpoint" => "https://prod.test", "profile" => "prod"}, opts)
     {:ok, invocation} = Parser.parse(["rm", "prod/bucket/key"])
 
-    assert {:ok, %{contexts: [%Context{profile: "prod", access_key_id: "right"}]}} =
+    assert {:ok,
+            %{
+              contexts: [
+                %ExStorageServiceSdk.Config{
+                  options: %{cli_profile: "prod"},
+                  access_key_id: "right"
+                }
+              ]
+            }} =
              Resolver.resolve(invocation, opts)
   end
 
@@ -66,13 +75,17 @@ defmodule ExStorageServiceCli.CLI.ResolverTest do
     assert {:ok,
             %{
               legacy_args: ["/tmp/input", "s3://bucket/key"],
-              contexts: [nil, %Context{unsigned: true}]
+              contexts: [nil, %ExStorageServiceSdk.Config{unsigned: true}]
             }} =
              Resolver.resolve(upload, opts)
 
     {:ok, list} = Parser.parse(["ls", "ess://prod"])
 
-    assert {:ok, %{legacy_args: [], contexts: [%Context{endpoint: "https://prod.test"}]}} =
+    assert {:ok,
+            %{
+              legacy_args: [],
+              contexts: [%ExStorageServiceSdk.Config{endpoint: "https://prod.test"}]
+            }} =
              Resolver.resolve(list, opts)
 
     {:ok, invalid} = Parser.parse(["mb", "ess://prod"])

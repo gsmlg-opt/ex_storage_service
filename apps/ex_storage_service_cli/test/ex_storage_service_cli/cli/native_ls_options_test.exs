@@ -3,7 +3,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 defmodule ExStorageServiceCli.CLI.NativeLsOptionsTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureIO
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
 
   alias ExStorageServiceCli.CLI.{
     Invocation,
@@ -20,7 +21,10 @@ defmodule ExStorageServiceCli.CLI.NativeLsOptionsTest do
 
   defp listing(options, fetch) do
     capture_io(fn ->
-      assert :ok = NativeListing.run(invocation(options), target(), %Context{}, fetch: fetch)
+      assert :ok =
+               NativeListing.run(invocation(options), target(), %ExStorageServiceSdk.Config{},
+                 fetch: fetch
+               )
     end)
     |> JSON.decode!()
   end
@@ -99,7 +103,7 @@ defmodule ExStorageServiceCli.CLI.NativeLsOptionsTest do
                  summarize: true
                }),
                target(),
-               %Context{},
+               %ExStorageServiceSdk.Config{},
                fetch: fetch
              )
 
@@ -122,7 +126,7 @@ defmodule ExStorageServiceCli.CLI.NativeLsOptionsTest do
                  NativeListing.run(
                    invocation(%{incomplete: true, summarize: true, max_keys: 2}),
                    target(),
-                   %Context{endpoint: endpoint, unsigned: true}
+                   %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
                  )
       end)
       |> JSON.decode!()
@@ -175,7 +179,9 @@ defmodule ExStorageServiceCli.CLI.NativeLsOptionsTest do
 
     for options <- [%{incomplete: true, versions: true}, %{incomplete: true, rewind: "1d"}] do
       assert {:error, %Error{category: :syntax}} =
-               NativeListing.run(invocation(options), target(), %Context{}, fetch: no_call)
+               NativeListing.run(invocation(options), target(), %ExStorageServiceSdk.Config{},
+                 fetch: no_call
+               )
     end
 
     for options <- [
@@ -184,11 +190,18 @@ defmodule ExStorageServiceCli.CLI.NativeLsOptionsTest do
           %{rewind: "1d", summarize: true}
         ] do
       assert {:error, %Error{category: :syntax}} =
-               NativeInspection.ls(target(), %Context{}, options, fetch: no_call)
+               NativeInspection.ls(target(), %ExStorageServiceSdk.Config{}, options,
+                 fetch: no_call
+               )
     end
 
     assert {:error, %Error{category: :syntax}} =
-             NativeListing.run(invocation(%{incomplete: true}), nil, %Context{}, fetch: no_call)
+             NativeListing.run(
+               invocation(%{incomplete: true}),
+               nil,
+               %ExStorageServiceSdk.Config{},
+               fetch: no_call
+             )
   end
 
   test "invalid incomplete rows, later errors and repeated tokens cannot become successful summaries" do
@@ -216,7 +229,7 @@ defmodule ExStorageServiceCli.CLI.NativeLsOptionsTest do
                NativeListing.run(
                  invocation(%{incomplete: true, summarize: true}),
                  target(),
-                 %Context{},
+                 %ExStorageServiceSdk.Config{},
                  fetch: fetch
                )
     end
@@ -240,7 +253,9 @@ defmodule ExStorageServiceCli.CLI.NativeLsOptionsTest do
       capture_io(fn ->
         assert :ok =
                  NativeEvents.with_invocation(invocation, fn selected ->
-                   NativeListing.run(selected, target(), %Context{}, fetch: fetch)
+                   NativeListing.run(selected, target(), %ExStorageServiceSdk.Config{},
+                     fetch: fetch
+                   )
                  end)
       end)
       |> String.split("\n", trim: true)

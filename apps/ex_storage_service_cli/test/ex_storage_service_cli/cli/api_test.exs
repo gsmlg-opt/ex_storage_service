@@ -3,7 +3,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 defmodule ExStorageServiceCli.CLI.APITest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureIO
-  alias ExStorageServiceCli.{CLI.Parser, CLI.Runner, Error}
+  alias ExStorageServiceCli.{CLI.Parser, CLI.Runner}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Test.WireServer
   @moduletag :tmp_dir
 

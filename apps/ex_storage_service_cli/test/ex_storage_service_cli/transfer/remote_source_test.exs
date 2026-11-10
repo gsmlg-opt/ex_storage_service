@@ -2,7 +2,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.Transfer.RemoteSourceTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Transfer.{Copy, RemoteSource, Source}
   @moduletag :tmp_dir
   @head [{"ETag", "\"selected\""}, {"Content-Length", "3"}, {"x-amz-version-id", "v1"}]
@@ -19,7 +20,7 @@ defmodule ExStorageServiceCli.Transfer.RemoteSourceTest do
       {endpoint, _} =
         WireServer.fixture([{200, @head, ""}, {200, @head, ""}, {200, headers, "bad"}])
 
-      context = %Context{endpoint: endpoint, unsigned: true}
+      context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
       assert {:ok, source} =
                RemoteSource.capture(context, "bucket", "key",
@@ -58,9 +59,9 @@ defmodule ExStorageServiceCli.Transfer.RemoteSourceTest do
 
     assert {:error, %Error{code: :source_version_mismatch}} =
              Copy.remote(
-               %Context{endpoint: source, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: source, unsigned: true},
                %Target{kind: :remote, bucket: "source", key: "key"},
-               %Context{endpoint: destination, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: destination, unsigned: true},
                %Target{kind: :remote, bucket: "destination", key: "key"},
                copy_props: "none",
                state_root: root,
@@ -76,7 +77,11 @@ defmodule ExStorageServiceCli.Transfer.RemoteSourceTest do
     {endpoint, _} = WireServer.fixture([{200, @head, ""}, {200, @head, ""}, {200, @head, bytes}])
 
     assert {:ok, source} =
-             RemoteSource.capture(%Context{endpoint: endpoint, unsigned: true}, "bucket", "key")
+             RemoteSource.capture(
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
+               "bucket",
+               "key"
+             )
 
     assert {:ok, staged} = RemoteSource.range(source, 0, 3, state_root: root)
 

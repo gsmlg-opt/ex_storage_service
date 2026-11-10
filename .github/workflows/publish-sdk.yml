@@ -1,0 +1,115 @@
+name: Publish SDK to Hex.pm
+
+on:
+  workflow_call:
+    inputs:
+      git_ref:
+        description: "Canonical committed release tag"
+        required: true
+        type: string
+      version:
+        description: "Shared committed version"
+        required: true
+        type: string
+    secrets:
+      HEX_API_KEY:
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-sdk-${{ inputs.version }}
+  cancel-in-progress: false
+
+env:
+  PAGER: cat
+  RELEASE_VERSION: ${{ inputs.version }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate committed canonical release
+        env:
+          RELEASE_REF: ${{ inputs.git_ref }}
+        run: |
+          test "$RELEASE_REF" = "v$RELEASE_VERSION"
+          python3 scripts/release/release.py validate --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/sdk-source.json"
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.19.6"
+          otp-version: "28.5.0.8"
+      # The interoperability lane boots the ESS server, which builds Rust NIFs.
+      - uses: dtolnay/rust-toolchain@1.91.1
+      - name: Validate SDK implementation against a live ESS server
+        run: |
+          mix deps.get
+          mix compile --warnings-as-errors
+          bash e2e/run_daily_unit_tests.sh sdk
+        env:
+          MIX_ENV: test
+      - name: Build candidate SDK package
+        working-directory: apps/ex_storage_service_sdk
+        run: mix hex.build --output "$RUNNER_TEMP/sdk-candidate.tar"
+      - name: Validate exact source and fresh candidate consumer
+        env:
+          MIX_DEBUG: "1"
+        run: |
+          python3 scripts/release/core_package.py manifest --app ex_storage_service_sdk --package "$RUNNER_TEMP/sdk-candidate.tar" --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/sdk-manifest.json"
+          python3 scripts/release/core_package.py consumer --app ex_storage_service_sdk --package "$RUNNER_TEMP/sdk-candidate.tar" --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/sdk-candidate-consumer"
+      - name: Reuse identical immutable registry package
+        id: registry
+        run: |
+          python3 scripts/cli_compatibility/verify_published.py --package-name ex_storage_service_sdk \
+            --version "$RELEASE_VERSION" --manifest "$RUNNER_TEMP/sdk-manifest.json" \
+            --candidate-package "$RUNNER_TEMP/sdk-candidate.tar" --allow-missing \
+            --status-file "$RUNNER_TEMP/sdk-registry.json" --output "$RUNNER_TEMP/sdk-public.tar"
+          python3 - <<'PY'
+          import json, os, pathlib
+          status = json.loads((pathlib.Path(os.environ['RUNNER_TEMP']) / 'sdk-registry.json').read_text())['status']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'status={status}\n')
+          PY
+      - name: Publish missing SDK package and documentation
+        if: steps.registry.outputs.status == 'absent'
+        working-directory: apps/ex_storage_service_sdk
+        run: mix hex.publish --yes
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+      - name: Verify new public registry bytes
+        if: steps.registry.outputs.status == 'absent'
+        run: |
+          python3 scripts/cli_compatibility/verify_published.py --package-name ex_storage_service_sdk \
+            --version "$RELEASE_VERSION" --manifest "$RUNNER_TEMP/sdk-manifest.json" \
+            --candidate-package "$RUNNER_TEMP/sdk-candidate.tar" \
+            --status-file "$RUNNER_TEMP/sdk-registry.json" --output "$RUNNER_TEMP/sdk-public.tar"
+      - name: Validate fresh public SDK consumer
+        env:
+          MIX_DEBUG: "1"
+        run: |
+          python3 scripts/release/core_package.py consumer --app ex_storage_service_sdk --package "$RUNNER_TEMP/sdk-public.tar" --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/sdk-public-consumer"
+          mkdir -p "$RUNNER_TEMP/sdk-release"
+          cp "$RUNNER_TEMP/sdk-source.json" "$RUNNER_TEMP/sdk-manifest.json" "$RUNNER_TEMP/sdk-registry.json" "$RUNNER_TEMP/sdk-release/"
+          cp "$RUNNER_TEMP/sdk-public-consumer/manifest.json" "$RUNNER_TEMP/sdk-release/sdk-public-consumer.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdk-v${{ inputs.version }}-verification
+          path: ${{ runner.temp }}/sdk-release/*
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: sdk-publish-validation-logs
+          path: |
+            ${{ runner.temp }}/sdk-candidate-consumer/commands.json
+            ${{ runner.temp }}/sdk-candidate-consumer/consumer.log
+            ${{ runner.temp }}/sdk-public-consumer/commands.json
+            ${{ runner.temp }}/sdk-public-consumer/consumer.log
+          if-no-files-found: warn

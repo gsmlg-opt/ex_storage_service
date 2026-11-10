@@ -1,7 +1,7 @@
 defmodule ExStorageServiceCli.Credentials.SharedConfigTest do
   use ExUnit.Case, async: true
   alias ExStorageServiceCli.Credentials.SharedConfig
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
   @moduletag :tmp_dir
 
   test "profiles, quoted names and nested S3 service settings load without modifying files", %{

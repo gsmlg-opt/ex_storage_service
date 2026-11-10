@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.Transfer.Reducer do
   @moduledoc "Pure transfer lifecycle transitions and data effects; performs no IO."
-  alias ExStorageServiceCli.{Error, Transfer.Planner}
+  alias ExStorageServiceCli.Transfer.Planner
+  alias ExStorageServiceSdk.Error
 
   defstruct [
     :plan,

@@ -4,7 +4,8 @@ defmodule ExStorageServiceCli.Config do
   `ESS_CONFIG_DIR` overrides `XDG_CONFIG_HOME/ess` and `~/.config/ess`.
   Updates preserve unrelated TOML data; new callers use `read_profile/2` for errors.
   """
-  alias ExStorageServiceCli.{Config.Store, Error}
+  alias ExStorageServiceCli.Config.Store
+  alias ExStorageServiceSdk.Error
   @profile_fields [:endpoint, :access_key_id, :secret_access_key, :session_token, :region]
 
   @doc "Returns the path to the config directory."

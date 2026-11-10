@@ -2,12 +2,13 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.NativeStatOptionsTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{NativeInspection, Parser}
   @moduletag :tmp_dir
 
   defp target(key), do: %Target{kind: :remote, bucket: "bucket", key: key}
-  defp context(endpoint), do: %Context{endpoint: endpoint, unsigned: true}
+  defp context(endpoint), do: %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
   defp opts(root), do: [tmp_dir: root, max_attempts: 1]
 
   test "native stat parses no-list independently of list selection" do
@@ -64,7 +65,7 @@ defmodule ExStorageServiceCli.CLI.NativeStatOptionsTest do
     parent = self()
 
     assert {:ok, %{}} =
-             NativeInspection.stat(target(""), %Context{}, %{no_list: true},
+             NativeInspection.stat(target(""), %ExStorageServiceSdk.Config{}, %{no_list: true},
                call: fn operation, input ->
                  send(parent, {:bucket_call, operation, input})
                  {:ok, %{}}
@@ -81,7 +82,7 @@ defmodule ExStorageServiceCli.CLI.NativeStatOptionsTest do
     assert {:error, %Error{code: :stat_no_list}} =
              NativeInspection.stat(
                target(""),
-               %Context{},
+               %ExStorageServiceSdk.Config{},
                %{no_list: true, rewind: "2026-10-01T00:00:00Z"},
                opts(root)
              )
@@ -128,7 +129,12 @@ defmodule ExStorageServiceCli.CLI.NativeStatOptionsTest do
   test "no-list rejects conflicting inventory selections before provider access", %{tmp_dir: root} do
     for options <- [%{no_list: true, recursive: true}, %{no_list: true, versions: true}] do
       assert {:error, %Error{code: :stat_no_list}} =
-               NativeInspection.stat(target("key"), %Context{}, options, opts(root))
+               NativeInspection.stat(
+                 target("key"),
+                 %ExStorageServiceSdk.Config{},
+                 options,
+                 opts(root)
+               )
     end
 
     refute_receive {:wire_request, _}

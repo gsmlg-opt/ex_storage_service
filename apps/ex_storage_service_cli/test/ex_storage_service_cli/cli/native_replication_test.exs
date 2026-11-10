@@ -1,8 +1,9 @@
 defmodule ExStorageServiceCli.CLI.NativeReplicationTest do
   use ExUnit.Case, async: true
   alias ExStorageServiceCli.CLI.NativeReplication
-  alias ExStorageServiceCli.{Error, Target}
-  alias ExStorageServiceCli.S3.Encoder
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.Encoder
   @role "arn:aws:iam::123456789012:role/replication"
   @destination "arn:aws:s3:::destination"
 

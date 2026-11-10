@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.Completion do
   @moduledoc "Offline contextual bash, zsh and fish completions from the command registry."
-  alias ExStorageServiceCli.{Error, CLI.Registry}
+  alias ExStorageServiceCli.CLI.Registry
+  alias ExStorageServiceSdk.Error
 
   def generate(shell) when shell in ~w(bash zsh fish) do
     nodes = nodes()

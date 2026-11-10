@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.CLI.NativePolicyFlagsTest do
   use ExUnit.Case, async: true
 
-  alias ExStorageServiceCli.{Context, Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation, Parser}
 
   test "native mirror and diff reject AWS-only policy switches in the parser" do
@@ -18,7 +19,7 @@ defmodule ExStorageServiceCli.CLI.NativePolicyFlagsTest do
   test "direct invocations reject inert policy switches before inventory I/O" do
     source = %Target{kind: :remote, bucket: "source", key: "prefix/"}
     destination = %Target{kind: :remote, bucket: "destination", key: ""}
-    context = %Context{unsigned: true}
+    context = %ExStorageServiceSdk.Config{unsigned: true}
 
     for {command, keys, code} <- [
           {"mirror", [:size_only, :exact_timestamps, :delete], :mirror_option},

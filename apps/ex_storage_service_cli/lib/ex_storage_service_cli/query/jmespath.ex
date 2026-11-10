@@ -6,7 +6,7 @@ defmodule ExStorageServiceCli.Query do
   Materialized input and output are limited rather than silently truncated.
   """
 
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Query.{Evaluator, Parser}
 
   @defaults [

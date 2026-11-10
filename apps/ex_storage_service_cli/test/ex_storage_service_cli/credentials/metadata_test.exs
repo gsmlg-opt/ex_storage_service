@@ -3,8 +3,10 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 defmodule ExStorageServiceCli.Credentials.MetadataTest do
   # The real 150 ms socket deadlines must not compete with unrelated async cases.
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.Credentials.{Metadata, Provider, Record}
-  alias ExStorageServiceCli.{Error, Test.WireServer}
+  alias ExStorageServiceCli.Credentials.{Metadata, Provider}
+  alias ExStorageServiceSdk.Credentials, as: Record
+  alias ExStorageServiceCli.Test.WireServer
+  alias ExStorageServiceSdk.Error
   @moduletag :tmp_dir
   @now ~U[2026-10-15 00:00:00Z]
 

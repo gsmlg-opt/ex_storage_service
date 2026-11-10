@@ -1,8 +1,10 @@
 defmodule ExStorageServiceCli.CLI.NativeRestore do
   @moduledoc "Portable archive restore with complete bounded inventories and bounded status polling."
-  alias ExStorageServiceCli.{Error, Target}
-  alias ExStorageServiceCli.S3.{Capabilities, Input, Paginator}
-  alias ExStorageServiceCli.Transfer.{Coordinator, Manifest}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Capabilities, Input, Paginator}
+  alias ExStorageServiceCli.Transfer.Manifest
+  alias ExStorageServiceSdk.Transfer.Coordinator
 
   def commands do
     %{

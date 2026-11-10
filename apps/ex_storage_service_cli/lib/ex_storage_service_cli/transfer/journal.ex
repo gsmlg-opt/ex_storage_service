@@ -13,7 +13,8 @@ defmodule ExStorageServiceCli.Transfer.Journal do
   revisions and digests. File sync plus rename proves process-crash recovery;
   it does not claim filesystem-independent power-loss durability.
   """
-  alias ExStorageServiceCli.{Error, Transfer.Source}
+  alias ExStorageServiceCli.Transfer.Source
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Transfer.RemoteSource
 
   @phases ~w(planned initiating transferring completing verifying completed failed cancelled aborting abort_failed retained indeterminate)

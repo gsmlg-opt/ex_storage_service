@@ -1,6 +1,8 @@
 defmodule ExStorageServiceCli.Transfer.Inventory do
   @moduledoc "Complete paginated remote and bounded native directory inventories before effects."
-  alias ExStorageServiceCli.{Error, Target, S3.Client, S3.Paginator}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Client, Paginator}
   alias ExStorageServiceCli.CLI.Signals.Native
   alias ExStorageServiceCli.Transfer.{Manifest, Sink}
 

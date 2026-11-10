@@ -1,8 +1,9 @@
 defmodule ExStorageServiceCli.CLI.ManagementTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{Invocation, Management, Parser}
-  alias ExStorageServiceCli.S3.{Customizations, Encoder, OperationCatalog}
+  alias ExStorageServiceSdk.S3.{Customizations, Encoder, OperationCatalog}
   @moduletag :tmp_dir
 
   test "all native document families bind to catalog operations and preserve complete input" do
@@ -141,7 +142,9 @@ defmodule ExStorageServiceCli.CLI.ManagementTest do
     {:ok, target} = Target.parse("s3://bucket")
 
     assert {:ok, %{"DryRun" => true, "Input" => %{"Policy" => policy}}} =
-             Management.run(invocation, target, %Context{region: "cn-north-1"}, call: call)
+             Management.run(invocation, target, %ExStorageServiceSdk.Config{region: "cn-north-1"},
+               call: call
+             )
 
     assert policy =~ "arn:aws-cn:s3:::bucket/*"
     refute policy =~ "s3:PutObject"
@@ -383,6 +386,6 @@ defmodule ExStorageServiceCli.CLI.ManagementTest do
 
   defp run(invocation, target, call) do
     {:ok, target} = Target.parse(target)
-    Management.run(invocation, target, %Context{}, call: call)
+    Management.run(invocation, target, %ExStorageServiceSdk.Config{}, call: call)
   end
 end

@@ -2,7 +2,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.S3.SSECCustomizationsTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{CLI.HighLevelInput, Context, S3.Client, S3.Customizations}
+  alias ExStorageServiceCli.CLI.HighLevelInput
+  alias ExStorageServiceSdk.S3.{Client, Customizations}
   alias ExStorageServiceCli.Test.WireServer
   @moduletag :tmp_dir
   @fixture Path.expand("../../fixtures/differential/ssec-customizations-wire.json", __DIR__)
@@ -112,7 +113,7 @@ defmodule ExStorageServiceCli.S3.SSECCustomizationsTest do
 
     assert {:ok, %{}} =
              Client.call(
-               %Context{endpoint: endpoint, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                "HeadObject",
                %{"Bucket" => "bucket", "Key" => "key", "SSECustomerKey" => "raw"},
                max_attempts: 2,

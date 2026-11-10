@@ -2,7 +2,7 @@ defmodule ExStorageServiceCli.CLI.Signals do
   @moduledoc "Executable-only signal ownership; cancellation leaves cleanup to the transfer owner."
   use GenServer
   alias ExStorageServiceCli.CLI.Signals.Native
-  alias ExStorageServiceCli.Transfer.Coordinator
+  alias ExStorageServiceSdk.Transfer.Coordinator
 
   def start_link(opts), do: GenServer.start_link(__MODULE__, opts)
 

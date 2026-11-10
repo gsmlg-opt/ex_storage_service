@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.Transfer.VersionSelectionTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Transfer.{Manifest, VersionSelection}
   @moduletag :tmp_dir
   @now ~U[2026-10-15 00:00:00.000000Z]
@@ -183,7 +184,10 @@ defmodule ExStorageServiceCli.Transfer.VersionSelectionTest do
     target = %Target{kind: :remote, bucket: "bucket", key: "a"}
 
     assert {:ok, %{"key" => "a", "version_id" => "old", "etag" => "\"old\""}} =
-             VersionSelection.single(%Context{}, target, "2026-10-15T00:00:00Z",
+             VersionSelection.single(
+               %ExStorageServiceSdk.Config{},
+               target,
+               "2026-10-15T00:00:00Z",
                fetch: fetch,
                tmp_dir: root
              )
@@ -200,7 +204,10 @@ defmodule ExStorageServiceCli.Transfer.VersionSelectionTest do
     target = %Target{kind: :remote, bucket: "bucket", key: "a"}
 
     assert {:error, %Error{code: "AccessDenied"}} =
-             VersionSelection.single(%Context{}, target, "2026-10-15T00:00:00Z",
+             VersionSelection.single(
+               %ExStorageServiceSdk.Config{},
+               target,
+               "2026-10-15T00:00:00Z",
                fetch: fetch,
                tmp_dir: root
              )
@@ -213,7 +220,10 @@ defmodule ExStorageServiceCli.Transfer.VersionSelectionTest do
     target = %Target{kind: :remote, bucket: "bucket", key: "a"}
 
     assert {:error, %Error{code: :rewind_not_found}} =
-             VersionSelection.single(%Context{}, target, "2026-10-15T00:00:00Z",
+             VersionSelection.single(
+               %ExStorageServiceSdk.Config{},
+               target,
+               "2026-10-15T00:00:00Z",
                fetch: fetch,
                tmp_dir: root
              )

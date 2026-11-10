@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.Credentials.Owner do
   @moduledoc "Invocation-owned, bounded single-flight credential refresh with no persistent secrets."
   use GenServer
-  alias ExStorageServiceCli.Credentials.{Record, Remote}
+  alias ExStorageServiceCli.Credentials.Remote
+  alias ExStorageServiceSdk.Credentials, as: Record
 
   def start_link(loader, opts \\ []) when is_function(loader, 0),
     do: GenServer.start_link(__MODULE__, {self(), loader, opts})
@@ -101,7 +102,7 @@ defmodule ExStorageServiceCli.Credentials.Owner do
         {:ok, nil, %{unsigned: true}} ->
           result
 
-        {:error, %ExStorageServiceCli.Error{}} ->
+        {:error, %ExStorageServiceSdk.Error{}} ->
           result
 
         _ ->

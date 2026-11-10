@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.CLI.NativeShare.History do
   @moduledoc false
   import Bitwise, only: [band: 2]
-  alias ExStorageServiceCli.{Config, Error}
+  alias ExStorageServiceCli.Config
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Config.Store
   @max_entries 1000
 

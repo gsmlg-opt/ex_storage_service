@@ -46,12 +46,21 @@ defmodule ExStorageServiceCli.MixProject do
 
   defp deps do
     [
+      sdk_dep(),
       {:http_fetch, "~> 1.0.0-rc.10"},
       {:jason, "~> 1.4"},
       {:gsmlg_toml, "~> 1.0"},
       {:ex_doc, "~> 0.40", only: :dev, runtime: false}
     ]
   end
+
+  defp sdk_dep do
+    if in_umbrella?(),
+      do: {:ex_storage_service_sdk, in_umbrella: true},
+      else: {:ex_storage_service_sdk, "~> " <> @version}
+  end
+
+  defp in_umbrella?, do: Path.basename(Path.dirname(__DIR__)) == "apps"
 
   defp package do
     [

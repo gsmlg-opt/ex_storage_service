@@ -1,6 +1,6 @@
 defmodule ExStorageServiceCli.Transfer.Manifest do
   @moduledoc "Private disk-backed inventory with bounded runs and two-file external merges."
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
   defstruct [:root, :path, count: 0, bytes: 0]
   @max_record 1_048_576
 

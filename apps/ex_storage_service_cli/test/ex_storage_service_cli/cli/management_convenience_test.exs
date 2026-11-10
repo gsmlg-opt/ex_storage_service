@@ -1,8 +1,9 @@
 defmodule ExStorageServiceCli.CLI.ManagementConvenienceTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Context, Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{Invocation, Management, Parser}
-  alias ExStorageServiceCli.S3.Encoder
+  alias ExStorageServiceSdk.S3.Encoder
 
   test "lifecycle grammar accepts portable actions and rejects MinIO extensions" do
     for action <- ~w(add edit list remove export import) do
@@ -596,7 +597,7 @@ defmodule ExStorageServiceCli.CLI.ManagementConvenienceTest do
     Management.run(
       %Invocation{command: command, args: args, options: options},
       target,
-      %Context{},
+      %ExStorageServiceSdk.Config{},
       [call: call] ++ opts
     )
   end

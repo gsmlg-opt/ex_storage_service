@@ -69,6 +69,17 @@ class DailyWorkflowTest(unittest.TestCase):
         self.assertIn("run_daily_unit_tests.sh cli", cli)
         self.assertEqual(2, cli.count("--verification-profile daily"))
         self.assertIn("--package \"$RUNNER_TEMP/published-cli.tar\"", cli)
+        sdk = self.workflow("publish-sdk.yml")
+        self.assertIn("run_daily_unit_tests.sh sdk", sdk)
+        self.assertIn("sdk-public-consumer", sdk)
+        self.assertIn("--package-name ex_storage_service_sdk", sdk)
+
+    def test_cli_publication_waits_for_its_sdk_dependency(self):
+        text = self.workflow("release.yml")
+        cli_job = text.split("  publish-cli:\n", 1)[1].split("\n\n", 1)[0]
+        self.assertIn("publish-sdk", cli_job)
+        finalize = text.split("  finalize:\n", 1)[1]
+        self.assertIn("publish-sdk", finalize.split("runs-on", 1)[0])
 
     def test_large_topologies_and_resource_jobs_require_manual_selection(self):
         for name in ("cluster-e2e.yml", "cloud-cache-e2e.yml", "e2e-test.yml"):

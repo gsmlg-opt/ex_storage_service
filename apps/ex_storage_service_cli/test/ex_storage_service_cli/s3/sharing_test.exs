@@ -1,14 +1,15 @@
 defmodule ExStorageServiceCli.S3.SharingTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target}
-  alias ExStorageServiceCli.S3.{PostPolicy, Presign}
-  alias ExStorageServiceCli.Credentials.Record
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{PostPolicy, Presign}
+  alias ExStorageServiceSdk.Credentials, as: Record
   @now ~U[2025-01-01 00:00:00Z]
   @target %Target{kind: :remote, bucket: "bucket", key: "folder/a +%雪"}
   @oracle JSON.decode!(File.read!(Path.expand("../../fixtures/s3/post-policy.json", __DIR__)))
 
   defp context,
-    do: %Context{
+    do: %ExStorageServiceSdk.Config{
       frontend: :aws,
       endpoint: "https://s3.eu-west-1.amazonaws.com",
       region: "eu-west-1",

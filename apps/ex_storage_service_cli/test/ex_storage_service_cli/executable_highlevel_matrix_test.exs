@@ -2,7 +2,7 @@ Code.require_file("../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.ExecutableHighlevelMatrixTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.S3.XML
+  alias ExStorageServiceSdk.S3.XML
   alias ExStorageServiceCli.Test.WireServer
   @moduletag :tmp_dir
   @fixture Path.expand("../fixtures/differential/highlevel-wire.json", __DIR__)

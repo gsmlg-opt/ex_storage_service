@@ -3,7 +3,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 defmodule ExStorageServiceCli.CLI.NativePutOptionsTest do
   # Journal mutex ports share the host namespace with wire fixtures.
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation, Parser}
   alias ExStorageServiceCli.Transfer.{Journal, Planner}
   @moduletag :tmp_dir
@@ -42,7 +43,7 @@ defmodule ExStorageServiceCli.CLI.NativePutOptionsTest do
         [%Target{kind: :local, path: path}, remote()],
         [
           nil,
-          %Context{
+          %ExStorageServiceSdk.Config{
             endpoint: endpoint,
             unsigned: true,
             options: %{request_checksum_calculation: "when_required"}
@@ -268,7 +269,7 @@ defmodule ExStorageServiceCli.CLI.NativePutOptionsTest do
                HighLevel.run(
                  invocation(options),
                  [%Target{kind: :local, path: Path.join(root, "missing")}, remote()],
-                 [nil, %Context{endpoint: "http://127.0.0.1:1"}],
+                 [nil, %ExStorageServiceSdk.Config{endpoint: "http://127.0.0.1:1"}],
                  limits: @limits
                )
     end
@@ -278,14 +279,17 @@ defmodule ExStorageServiceCli.CLI.NativePutOptionsTest do
           [remote(), remote()]
         ] do
       assert {:error, %Error{category: :syntax, code: :native_put_option}} =
-               HighLevel.run(invocation(%{checksum: "SHA256"}), targets, [nil, %Context{}])
+               HighLevel.run(invocation(%{checksum: "SHA256"}), targets, [
+                 nil,
+                 %ExStorageServiceSdk.Config{}
+               ])
     end
 
     assert {:error, %Error{category: :syntax, code: :native_put_option}} =
              HighLevel.run(
                invocation(%{part_size: "7B"}, "cp"),
                [%Target{kind: :local, path: "missing"}, remote()],
-               [nil, %Context{}]
+               [nil, %ExStorageServiceSdk.Config{}]
              )
   end
 

@@ -71,7 +71,7 @@ assert f.read(1) == b'q'
         command = " ".join(shlex.quote(value) for value in [sys.executable, str(pager), str(ready)])
         expression = f'''
         alias ExStorageServiceCli.CLI.OutputSession
-        alias ExStorageServiceCli.Transfer.Coordinator
+        alias ExStorageServiceSdk.Transfer.Coordinator
         {{:ok, coordinator}} = Coordinator.start_link([])
         parent = self()
         IO.puts("BEFORE")

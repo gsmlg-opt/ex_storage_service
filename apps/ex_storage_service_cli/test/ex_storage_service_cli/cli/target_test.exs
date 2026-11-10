@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.TargetTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
 
   test "preserves key bytes, slash grammar and ARN resource boundaries" do
     key = "a//../%2F+ ?#雪/"

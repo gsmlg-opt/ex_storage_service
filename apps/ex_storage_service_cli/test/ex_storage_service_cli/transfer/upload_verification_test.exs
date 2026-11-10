@@ -3,7 +3,7 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 defmodule ExStorageServiceCli.Transfer.UploadVerificationTest do
   # Journal mutex ports share the host namespace with concurrent wire fixtures.
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Context, Error}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Transfer.{Engine, Journal, Multipart, Planner, Source}
   alias ExStorageServiceCli.Test.WireServer
   @moduletag :tmp_dir
@@ -28,7 +28,7 @@ defmodule ExStorageServiceCli.Transfer.UploadVerificationTest do
     {endpoint, _} =
       WireServer.fixture([{200, [{"ETag", "\"ok\""}, {"x-amz-checksum-crc64nvme", @crc}], ""}])
 
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert {:error, %Error{code: :upload_checksum_mismatch}} =
              Engine.upload_file(context, "bucket", "key", path,
@@ -55,7 +55,7 @@ defmodule ExStorageServiceCli.Transfer.UploadVerificationTest do
 
     assert {:error, %Error{code: :upload_checksum_mismatch}} =
              Engine.upload_file(
-               %Context{endpoint: endpoint, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                "bucket",
                "key",
                path
@@ -82,7 +82,7 @@ defmodule ExStorageServiceCli.Transfer.UploadVerificationTest do
 
     assert {:ok, %{journal_id: id}} =
              Multipart.upload(
-               %Context{endpoint: endpoint, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                "bucket",
                "key",
                source,
@@ -123,7 +123,7 @@ defmodule ExStorageServiceCli.Transfer.UploadVerificationTest do
 
     assert {:error, %Error{code: :upload_checksum_type, details: %{cleanup: "aborted"}}} =
              Multipart.upload(
-               %Context{endpoint: endpoint, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                "bucket",
                "key",
                source,
@@ -161,7 +161,7 @@ defmodule ExStorageServiceCli.Transfer.UploadVerificationTest do
 
     assert {:error, %Error{code: :upload_checksum_mismatch, details: %{journal_id: id}}} =
              Multipart.upload(
-               %Context{endpoint: endpoint, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                "bucket",
                "key",
                source,

@@ -1,8 +1,10 @@
 defmodule ExStorageServiceCli.CLI.SignalsTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Error, ExitStatus}
+  alias ExStorageServiceCli.ExitStatus
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.Runtime
-  alias ExStorageServiceCli.Transfer.{Coordinator, Source}
+  alias ExStorageServiceCli.Transfer.Source
+  alias ExStorageServiceSdk.Transfer.Coordinator
   @moduletag :tmp_dir
 
   test "runtime signal owner cancels work, permits abort, and reports its signal" do

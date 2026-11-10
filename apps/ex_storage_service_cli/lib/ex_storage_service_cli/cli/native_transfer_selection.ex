@@ -1,6 +1,6 @@
 defmodule ExStorageServiceCli.CLI.NativeTransferSelection do
   @moduledoc "Bounded native transfer predicates evaluated against one invocation clock."
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.Find
 
   def compile(%{frontend: :native, command: [command], options: options}, opts)

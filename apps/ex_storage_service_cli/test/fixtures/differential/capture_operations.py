@@ -265,7 +265,7 @@ def main():
     parser.add_argument("--extra-list-encoding", action="store_true")
     args = parser.parse_args()
     assert hashlib.sha256(Path(args.aws).read_bytes()).hexdigest() == AWS_SHA256, "Unpinned AWS executable"
-    model_path = ROOT / "priv/compatibility/aws/service-2.json"
+    model_path = ROOT.parent / "ex_storage_service_sdk" / "priv/compatibility/aws/service-2.json"
     model = json.loads(model_path.read_text())
     report = {"schema_version": 1, "aws_sha256": AWS_SHA256, "model_sha256": hashlib.sha256(model_path.read_bytes()).hexdigest(), "cases": [], "exclusions": []}
     if args.ess:

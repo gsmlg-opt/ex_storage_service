@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.Presenter do
   @moduledoc "Structured command data on stdout; diagnostics remain separate."
-  alias ExStorageServiceCli.{Error, Query, YAML}
+  alias ExStorageServiceCli.{Query, YAML}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.OutputSession
   alias ExStorageServiceCli.Presentation.{Text, Table}
   alias ExStorageServiceCli.Presentation.JSON, as: Json

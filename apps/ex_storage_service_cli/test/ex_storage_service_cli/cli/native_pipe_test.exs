@@ -2,7 +2,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.NativePipeTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation, Parser, Runner}
   @moduletag :tmp_dir
 
@@ -10,7 +11,7 @@ defmodule ExStorageServiceCli.CLI.NativePipeTest do
     do: %Invocation{frontend: :native, command: ["pipe"], options: options}
 
   defp target, do: %Target{kind: :remote, bucket: "bucket", key: "raw.gz"}
-  defp context(endpoint), do: %Context{endpoint: endpoint, unsigned: true}
+  defp context(endpoint), do: %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
   defp options(root, stdin),
     do: [

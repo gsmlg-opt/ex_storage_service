@@ -1,17 +1,10 @@
 defmodule ExStorageServiceCli.Credentials.Provider do
   @moduledoc "Pinned AWS credential precedence with coherent providers and invocation-owned refresh."
-  alias ExStorageServiceCli.Credentials.{
-    AssumeRole,
-    Legacy,
-    Metadata,
-    Owner,
-    Record,
-    SharedConfig,
-    SSO
-  }
+  alias ExStorageServiceCli.Credentials.{AssumeRole, Legacy, Metadata, Owner, SharedConfig, SSO}
+  alias ExStorageServiceSdk.Credentials, as: Record
 
   alias ExStorageServiceCli.Credentials.Process, as: CredentialProcess
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
 
   @doc "Performs explicit IAM Identity Center PKCE or device login for the selected profile."
   def login(options, opts \\ []) do

@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.QueryTest do
   use ExUnit.Case, async: false
 
-  alias ExStorageServiceCli.{Error, Query}
+  alias ExStorageServiceCli.Query
+  alias ExStorageServiceSdk.Error
 
   @fixtures Path.expand("../../fixtures/jmespath", __DIR__)
   @manifest JSON.decode!(File.read!(Path.join(@fixtures, "manifest.json")))

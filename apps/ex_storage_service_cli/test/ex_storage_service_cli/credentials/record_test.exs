@@ -1,7 +1,7 @@
 defmodule ExStorageServiceCli.Credentials.RecordTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.Credentials.Record
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Credentials, as: Record
+  alias ExStorageServiceSdk.Error
 
   test "one complete pair and optional token/expiry form a redacted record" do
     assert {:ok,

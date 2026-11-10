@@ -1,14 +1,15 @@
 defmodule ExStorageServiceCli.Credentials.DirectorySession do
   @moduledoc "Invocation-owned, bounded S3 Express session identities, separate from IAM credentials."
   use GenServer
-  alias ExStorageServiceCli.Context
-  alias ExStorageServiceCli.Credentials.{Owner, Record, Remote}
+  alias ExStorageServiceSdk.Config
+  alias ExStorageServiceCli.Credentials.{Owner, Remote}
+  alias ExStorageServiceSdk.Credentials, as: Record
   alias ExStorageServiceCli.Credentials.Process, as: CredentialProcess
-  alias ExStorageServiceCli.S3.Client
+  alias ExStorageServiceSdk.S3.Client
 
   def start_link(opts \\ []), do: GenServer.start_link(__MODULE__, {self(), opts})
 
-  def resolve(manager, %Context{} = iam, bucket, contract, mode \\ "ReadWrite") do
+  def resolve(manager, %Config{} = iam, bucket, contract, mode \\ "ReadWrite") do
     with :ok <- validate(iam, bucket, contract, mode),
          {:ok, owner} <-
            GenServer.call(
@@ -135,7 +136,7 @@ defmodule ExStorageServiceCli.Credentials.DirectorySession do
 
   defp key(iam, bucket, contract, mode) do
     identity =
-      iam.credential_owner ||
+      iam.options[:credential_owner] ||
         :crypto.hash(:sha256, [
           iam.access_key_id || "",
           <<0>>,

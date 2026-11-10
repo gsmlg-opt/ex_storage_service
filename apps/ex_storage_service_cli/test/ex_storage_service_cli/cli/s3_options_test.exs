@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.S3OptionsTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{CLI.Parser, CLI.Registry, CLI.S3Options, Error}
+  alias ExStorageServiceCli.{CLI.Parser, CLI.Registry, CLI.S3Options}
+  alias ExStorageServiceSdk.Error
 
   @fixtures JSON.decode!(
               File.read!(Path.expand("../../fixtures/s3-options/vectors.json", __DIR__))

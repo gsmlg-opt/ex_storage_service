@@ -1,10 +1,11 @@
 defmodule ExStorageServiceCli.CLI.S3PathResolver do
   @moduledoc "Bounded read-only AWS mv validation of underlying access-point buckets."
-  alias ExStorageServiceCli.{Context, Error, SigV4, Target}
+  alias ExStorageServiceCli.{Context, Target}
+  alias ExStorageServiceSdk.{Error, SigV4}
   alias ExStorageServiceCli.Credentials.SharedConfig
-  alias ExStorageServiceCli.S3.{Encoding, EndpointRules.Evaluator, Errors, Request, Retry, XML}
-  alias ExStorageServiceCli.Transfer.Coordinator
-  alias ExStorageServiceCli.Transport.HTTPFetch
+  alias ExStorageServiceSdk.S3.{Encoding, EndpointRules.Evaluator, Errors, Request, Retry, XML}
+  alias ExStorageServiceSdk.Transfer.Coordinator
+  alias ExStorageServiceSdk.Transport.HTTPFetch
 
   @control_path Path.expand(
                   "../../../priv/compatibility/aws/s3control-endpoint-rule-set-1.json",
@@ -303,7 +304,7 @@ defmodule ExStorageServiceCli.CLI.S3PathResolver do
 
   @doc false
   def endpoint(service, input, context, settings) do
-    profile = settings.stores.config[context.profile] || %{}
+    profile = settings.stores.config[context.options[:cli_profile]] || %{}
     env = settings.env
     name = if service == :sts, do: "sts", else: "s3_control"
 

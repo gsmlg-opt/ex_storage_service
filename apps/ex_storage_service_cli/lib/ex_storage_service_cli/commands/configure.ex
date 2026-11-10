@@ -7,7 +7,7 @@ defmodule ExStorageServiceCli.Commands.Configure do
 
   alias ExStorageServiceCli.Config
   alias ExStorageServiceCli.Output
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
 
   def run(_command, args, ctx) do
     {opts, _, _} =

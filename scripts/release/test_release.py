@@ -27,7 +27,7 @@ class ReleaseTests(unittest.TestCase):
         for name in release.VERSION_FILES:
             path = self.root / name
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text('@version "0.6.7"\n' if '_cli/' in name else 'version: "0.6.7"\n')
+            path.write_text('@version "0.6.7"\n' if '_cli/' in name or '_sdk/' in name else 'version: "0.6.7"\n')
         self.run_git('add', '.')
         self.run_git('commit', '-m', 'fixture')
         self.run_git('remote', 'add', 'origin', str(self.remote))

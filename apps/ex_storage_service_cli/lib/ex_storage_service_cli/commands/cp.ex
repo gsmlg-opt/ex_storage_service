@@ -40,7 +40,7 @@ defmodule ExStorageServiceCli.Commands.Cp do
     end
   rescue
     _error in File.Error ->
-      {:error, ExStorageServiceCli.Error.new(:client, "Local file operation failed")}
+      {:error, ExStorageServiceSdk.Error.new(:client, "Local file operation failed")}
   end
 
   def help(_command) do
@@ -422,7 +422,7 @@ defmodule ExStorageServiceCli.Commands.Cp do
 
           {:error, _} ->
             {:error,
-             ExStorageServiceCli.Error.new(:client, "Local source directory could not be read")}
+             ExStorageServiceSdk.Error.new(:client, "Local source directory could not be read")}
         end
 
       File.regular?(path) ->

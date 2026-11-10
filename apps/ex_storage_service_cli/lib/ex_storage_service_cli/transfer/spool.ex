@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.Transfer.Spool do
   @moduledoc "Private disk-backed stdin capture with bounded cancellable reads and deterministic cleanup."
-  alias ExStorageServiceCli.Error
-  alias ExStorageServiceCli.Transfer.{Coordinator, Manifest, Source}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceCli.Transfer.{Manifest, Source}
+  alias ExStorageServiceSdk.Transfer.Coordinator
 
   def with_source(context, opts, callback) do
     with {:ok, manifest} <- Manifest.build([], opts) do

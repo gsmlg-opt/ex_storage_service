@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.Credentials.SSO do
   @moduledoc "IAM Identity Center role credentials and bounded cached-session token refresh."
   alias ExStorageServiceCli.Context
-  alias ExStorageServiceCli.Credentials.{Browser, PKCE, Record, Remote}
+  alias ExStorageServiceCli.Credentials.{Browser, PKCE, Remote}
+  alias ExStorageServiceSdk.Credentials, as: Record
 
   @doc "Starts PKCE login by default, or explicit device login with use_device_code: true."
   def login(config, stores, env, opts \\ []) do

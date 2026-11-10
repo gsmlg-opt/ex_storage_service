@@ -1,6 +1,6 @@
 defmodule ExStorageServiceCli.Transfer.FilesystemAcceptanceTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Transfer.{Inventory, Manifest, Sink}
   @moduletag :tmp_dir
 

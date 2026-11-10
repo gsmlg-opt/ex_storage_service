@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.Credentials.ProviderTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.Credentials.{Provider, Record}
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceCli.Credentials.Provider
+  alias ExStorageServiceSdk.Credentials, as: Record
+  alias ExStorageServiceSdk.Error
   @moduletag :tmp_dir
 
   test "AWS_PROFILE keeps complete environment credentials while explicit profile disables them",

@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.NativeEvents do
   @moduledoc "Versioned native NDJSON item events and one invocation summary."
-  alias ExStorageServiceCli.{Error, Presenter}
+  alias ExStorageServiceCli.Presenter
+  alias ExStorageServiceSdk.Error
 
   def with_invocation(invocation, function) do
     state = :atomics.new(2, signed: false)

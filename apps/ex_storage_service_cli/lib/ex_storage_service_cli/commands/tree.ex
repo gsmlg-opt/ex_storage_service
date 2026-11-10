@@ -6,7 +6,7 @@ defmodule ExStorageServiceCli.Commands.Tree do
   alias ExStorageServiceCli.Output
   alias ExStorageServiceCli.Commands.Failure
   alias ExStorageServiceCli.S3Client
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
 
   def run(_command, args, ctx) do
     {opts, rest, _} =

@@ -3,7 +3,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 defmodule ExStorageServiceCli.CLI.NativeBucketAliasesTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureIO
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation, Management, Parser, Runner}
   @moduletag :tmp_dir
 
@@ -43,7 +44,7 @@ defmodule ExStorageServiceCli.CLI.NativeBucketAliasesTest do
                HighLevel.run(
                  invocation,
                  [target()],
-                 [%Context{endpoint: endpoint, unsigned: true}],
+                 [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}],
                  emit: fn _ -> :ok end
                )
 
@@ -112,7 +113,7 @@ defmodule ExStorageServiceCli.CLI.NativeBucketAliasesTest do
   test "declared ESS lock exclusion fails before transport" do
     invocation = %Invocation{command: ["mb"], options: %{with_lock: true}}
 
-    context = %Context{
+    context = %ExStorageServiceSdk.Config{
       endpoint: "http://127.0.0.1:1",
       unsigned: true,
       capabilities: %{provider: "ess"}
@@ -221,7 +222,11 @@ defmodule ExStorageServiceCli.CLI.NativeBucketAliasesTest do
     invocation = %Invocation{command: ["ilm", "import"], args: ["s3://bucket"]}
 
     try do
-      assert {:ok, _} = Management.run(invocation, target(), %Context{}, call: call, stdin: input)
+      assert {:ok, _} =
+               Management.run(invocation, target(), %ExStorageServiceSdk.Config{},
+                 call: call,
+                 stdin: input
+               )
     after
       StringIO.close(input)
     end
@@ -244,7 +249,7 @@ defmodule ExStorageServiceCli.CLI.NativeBucketAliasesTest do
     HighLevel.run(
       %Invocation{command: ["mb"], options: options},
       [target()],
-      [%Context{endpoint: endpoint, unsigned: true, region: region}],
+      [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true, region: region}],
       max_attempts: 1,
       emit: fn _ -> :ok end
     )
@@ -255,7 +260,7 @@ defmodule ExStorageServiceCli.CLI.NativeBucketAliasesTest do
       Management.run(
         %Invocation{command: command, args: ["s3://bucket"], options: options},
         target(),
-        %Context{},
+        %ExStorageServiceSdk.Config{},
         call: call
       )
 end

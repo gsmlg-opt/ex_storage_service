@@ -97,12 +97,13 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
 - Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
 
 ### File Organization
-The codebase is structured as an umbrella project with five apps:
+The codebase is structured as an umbrella project with six apps:
 - **`apps/ex_storage_service/`**: Core domain logic, storage engine, metadata via Concord/VSR KV, replication, background processes.
 - **`apps/ex_storage_service_cluster/`**: Private authenticated streaming blob transport; depends on core, never the reverse.
 - **`apps/ex_storage_service_s3/`**: S3 API server (Plug.Router served by Gaoxy on port 9000).
 - **`apps/ex_storage_service_web/`**: Admin portal web interface (Phoenix LiveView on port 4900).
-- **`apps/ex_storage_service_cli/`**: Standalone `ess` command-line client packaged as an escript.
+- **`apps/ex_storage_service_cli/`**: Standalone `ess` command-line client packaged as an escript; builds on the SDK.
+- **`apps/ex_storage_service_sdk/`**: Standalone S3 client SDK published to Hex as `ex_storage_service_sdk` (`ExStorageServiceSdk.*`): SigV4, the pinned S3 model in `priv/compatibility/aws`, transport, retries, pagination and multipart. Depends only on `http_fetch`; never on server apps or the CLI. CLI-only concerns enter through `ExStorageServiceSdk.Config` hooks (`credential_provider`, `session_provider`, `transport`, `options`) and the `ExStorageServiceSdk.ByteSource` protocol. Its live-server interoperability tests live in `apps/ex_storage_service_s3/test/ex_storage_service_s3/sdk_interop_test.exs`.
 
 The Phoenix web endpoint uses `Gaoxy.PhoenixAdapter` from `gaoxy_http` with
 `gaoxy_websock_adapter` selected as the `:websock_adapter` dependency for
@@ -200,6 +201,7 @@ enforces decoded object size.
   - S3 app tests: `mix test apps/ex_storage_service_s3/test`
   - Web app tests: `mix test apps/ex_storage_service_web/test`
   - CLI app tests: `mix test apps/ex_storage_service_cli/test`
+  - SDK app tests: `mix test apps/ex_storage_service_sdk/test`
 
 ### Documentation Rules
 - Keep documentation up-to-date.

@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.Transfer.DownloadChecksum do
   @moduledoc "Full-object and independently recomputed multipart checksums over the bytes delivered to the sink."
-  alias ExStorageServiceCli.{Error, S3.Checksum, S3.Client}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Checksum, Client}
 
   def composite?(response) do
     header(response.headers, "x-amz-checksum-type") == "COMPOSITE" or

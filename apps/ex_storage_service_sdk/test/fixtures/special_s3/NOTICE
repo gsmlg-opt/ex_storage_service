@@ -1,0 +1,5 @@
+AWS CLI / Botocore EventStream test fixtures
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0.
+Imported from AWS CLI 2.31.18 tests/unit/botocore/test_eventstream.py.
+Checksum vectors generated with awscrt 0.27.6 and Python hashlib.

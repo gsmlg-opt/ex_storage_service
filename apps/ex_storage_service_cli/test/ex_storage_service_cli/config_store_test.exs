@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.ConfigStoreTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Config, Error}
+  alias ExStorageServiceCli.Config
+  alias ExStorageServiceSdk.Error
   @moduletag :tmp_dir
 
   test "profile writes escape values and preserve unrelated TOML data", %{tmp_dir: dir} do

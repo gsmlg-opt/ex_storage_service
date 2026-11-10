@@ -1,8 +1,10 @@
 defmodule ExStorageServiceCli.Transfer.VersionSelection do
   @moduledoc "Bounded historical snapshots, pinned to immutable S3 version identifiers."
-  alias ExStorageServiceCli.{Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.Find
-  alias ExStorageServiceCli.Transfer.{Coordinator, Inventory, Manifest}
+  alias ExStorageServiceCli.Transfer.{Inventory, Manifest}
+  alias ExStorageServiceSdk.Transfer.Coordinator
 
   @doc "Resolves the native bounded UTC/duration grammar to a nanosecond cutoff."
   def cutoff(value, opts \\ []) do

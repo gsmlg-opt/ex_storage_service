@@ -1,8 +1,10 @@
 defmodule ExStorageServiceCli.CLI.NativeGovernance do
   @moduledoc "Portable object governance and tagging over complete, bounded, identity-checked inventories."
-  alias ExStorageServiceCli.{Error, Target}
-  alias ExStorageServiceCli.S3.{Capabilities, Input}
-  alias ExStorageServiceCli.Transfer.{Coordinator, Inventory, Manifest, VersionSelection}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Capabilities, Input}
+  alias ExStorageServiceCli.Transfer.{Inventory, Manifest, VersionSelection}
+  alias ExStorageServiceSdk.Transfer.Coordinator
 
   def commands do
     for family <- ~w(legalhold retention), action <- ~w(set clear info), into: %{} do

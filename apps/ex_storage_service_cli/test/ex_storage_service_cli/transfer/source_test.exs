@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.Transfer.SourceTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Error, Transfer.Source}
+  alias ExStorageServiceCli.Transfer.Source
+  alias ExStorageServiceSdk.Error
   @moduletag :tmp_dir
 
   test "bounded range is exact, replayable, hashed incrementally, and supports checksum folds", %{

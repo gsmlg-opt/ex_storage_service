@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.YAMLTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Error, YAML}
+  alias ExStorageServiceCli.YAML
+  alias ExStorageServiceSdk.Error
 
   @vectors Path.expand("../../fixtures/yaml/vectors.json", __DIR__)
            |> File.read!()
@@ -126,7 +127,7 @@ defmodule ExStorageServiceCli.YAMLTest do
     # Delay only a disposable VM's loader, keeping the test runner's code server
     # and all concurrent callers untouched. Scalar remains cold until decode.
     source = ~S"""
-    for module <- [ExStorageServiceCli.YAML, ExStorageServiceCli.Error, System, IO, Process, Regex, Date, DateTime] do
+    for module <- [ExStorageServiceCli.YAML, ExStorageServiceSdk.Error, System, IO, Process, Regex, Date, DateTime] do
       {:module, ^module} = :code.ensure_loaded(module)
     end
     for {name, _, _} <- :code.all_available(),
@@ -155,6 +156,7 @@ defmodule ExStorageServiceCli.YAMLTest do
     """
 
     ebin = YAML |> :code.which() |> Path.dirname()
+    sdk_ebin = ExStorageServiceSdk.Error |> :code.which() |> Path.dirname()
     executable = System.find_executable("elixir")
     assert executable
 
@@ -163,7 +165,7 @@ defmodule ExStorageServiceCli.YAMLTest do
         :binary,
         :exit_status,
         :stderr_to_stdout,
-        args: ["--erl", "+S 2:2", "-pa", ebin, "-e", source]
+        args: ["--erl", "+S 2:2", "-pa", ebin, "-pa", sdk_ebin, "-e", source]
       ])
 
     try do

@@ -1,8 +1,9 @@
 defmodule ExStorageServiceCli.CLI.Runtime do
   @moduledoc "A small invocation-owned supervisor; starts HTTP dependencies and no storage servers."
-  alias ExStorageServiceCli.{Context, Error}
+  alias ExStorageServiceCli.Context
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Credentials.{DirectorySession, Provider}
-  alias ExStorageServiceCli.Transfer.{Coordinator, RateLimiter}
+  alias ExStorageServiceSdk.Transfer.{Coordinator, RateLimiter}
   alias ExStorageServiceCli.CLI.Signals
 
   defstruct [
@@ -25,7 +26,7 @@ defmodule ExStorageServiceCli.CLI.Runtime do
                {DynamicSupervisor, strategy: :one_for_one},
                {Coordinator, Keyword.take(opts, [:max_requests, :memory_budget, :max_waiters])},
                {RateLimiter, [owner: self(), max_waiters: opts[:max_requests] || 8]},
-               {ExStorageServiceCli.S3.Retry.State, [owner: self()]},
+               {ExStorageServiceSdk.S3.Retry.State, [owner: self()]},
                {DirectorySession, Keyword.put(opts, :invocation_owner, self())}
              ],
              strategy: :one_for_one
@@ -41,7 +42,7 @@ defmodule ExStorageServiceCli.CLI.Runtime do
         credentials: children[DynamicSupervisor],
         coordinator: children[Coordinator],
         directory_sessions: children[DirectorySession],
-        retry_state: children[ExStorageServiceCli.S3.Retry.State],
+        retry_state: children[ExStorageServiceSdk.S3.Retry.State],
         rate_limiter: children[RateLimiter]
       }
 

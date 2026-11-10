@@ -2,7 +2,7 @@ defmodule ExStorageServiceCli.S3ClientTest do
   use ExUnit.Case, async: true
 
   alias ExStorageServiceCli.S3Client
-  alias ExStorageServiceCli.SigV4
+  alias ExStorageServiceSdk.SigV4
 
   test "signed uploads preserve binary payloads, encoded keys, and ETags" do
     body = <<0, 255, 1, 128>>

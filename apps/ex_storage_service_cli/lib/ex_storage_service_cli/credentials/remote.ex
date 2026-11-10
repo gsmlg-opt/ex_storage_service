@@ -1,6 +1,8 @@
 defmodule ExStorageServiceCli.Credentials.Remote do
   @moduledoc false
-  alias ExStorageServiceCli.{Error, S3.Request, Transport.HTTPFetch}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.Request
+  alias ExStorageServiceSdk.Transport.HTTPFetch
   @limit 65_536
 
   def request(url, method, headers, body, opts \\ []) do

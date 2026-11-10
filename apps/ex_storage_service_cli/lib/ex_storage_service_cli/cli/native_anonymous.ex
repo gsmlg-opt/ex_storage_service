@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.CLI.NativeAnonymous do
   @moduledoc "Complete policy JSON and conservative anonymous bucket-policy inspection."
-  alias ExStorageServiceCli.{Error, Target}
-  alias ExStorageServiceCli.S3.{Encoder, Endpoint, Input, Paginator}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Encoder, Endpoint, Input, Paginator}
   alias ExStorageServiceCli.Transfer.Manifest
   @max_policy 120 * 1024
 

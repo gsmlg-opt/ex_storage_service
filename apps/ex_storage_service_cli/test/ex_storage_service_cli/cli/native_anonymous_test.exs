@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.CLI.NativeAnonymousTest do
   use ExUnit.Case, async: true
   alias ExStorageServiceCli.CLI.NativeAnonymous
-  alias ExStorageServiceCli.{Context, Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
 
   test "commands expose literal file grammar and bounded link flags" do
     commands = NativeAnonymous.commands()
@@ -215,10 +216,16 @@ defmodule ExStorageServiceCli.CLI.NativeAnonymousTest do
     end
 
     assert {:error, _} =
-             NativeAnonymous.run("get-json", [], %Target{kind: :local}, %Context{}, %{}, fn _,
-                                                                                            _ ->
-               flunk("local")
-             end)
+             NativeAnonymous.run(
+               "get-json",
+               [],
+               %Target{kind: :local},
+               %ExStorageServiceSdk.Config{},
+               %{},
+               fn _, _ ->
+                 flunk("local")
+               end
+             )
   end
 
   defp run(action, key, options, call, args \\ [], opts \\ []) do
@@ -226,7 +233,7 @@ defmodule ExStorageServiceCli.CLI.NativeAnonymousTest do
       action,
       args,
       %Target{kind: :remote, bucket: "bucket", key: key},
-      %Context{endpoint: "http://localhost:9000/base", unsigned: true},
+      %ExStorageServiceSdk.Config{endpoint: "http://localhost:9000/base", unsigned: true},
       options,
       call,
       opts

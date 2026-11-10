@@ -2,7 +2,8 @@ defmodule ExStorageServiceCli.Transfer.JournalTest do
   # The deterministic mutex ports share the host namespace with wire-test peers.
   # Exercise ownership concurrency inside this suite, without concurrent HTTP fixtures.
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Error, Transfer.Journal, Transfer.Source}
+  alias ExStorageServiceCli.{Transfer.Journal, Transfer.Source}
+  alias ExStorageServiceSdk.Error
   @moduletag :tmp_dir
   @fixture_attempts 4
 

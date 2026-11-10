@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.CLI.RunnerTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureIO
-  alias ExStorageServiceCli.{CLI.Runner, Error}
+  alias ExStorageServiceCli.CLI.Runner
+  alias ExStorageServiceSdk.Error
 
   test "help and version do not resolve configuration or credentials" do
     for argv <- [

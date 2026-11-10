@@ -2,8 +2,10 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.Transfer.DownloadChecksumTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, S3.Checksum, S3.Response}
-  alias ExStorageServiceCli.Transfer.{Coordinator, DownloadChecksum, Engine}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Checksum, Response}
+  alias ExStorageServiceCli.Transfer.{DownloadChecksum, Engine}
+  alias ExStorageServiceSdk.Transfer.Coordinator
   alias ExStorageServiceCli.Test.WireServer
   @moduletag :tmp_dir
 
@@ -20,7 +22,10 @@ defmodule ExStorageServiceCli.Transfer.DownloadChecksumTest do
             {[{"Trailer", name}], [{name, expected}]}
           ] do
         response = %Response{headers: headers}
-        assert {:ok, state} = DownloadChecksum.start(%Context{}, %{}, response, [])
+
+        assert {:ok, state} =
+                 DownloadChecksum.start(%ExStorageServiceSdk.Config{}, %{}, response, [])
+
         assert {:ok, state} = DownloadChecksum.update(state, binary_part(bytes, 0, 2))
         assert {:ok, state} = DownloadChecksum.update(state, binary_part(bytes, 2, 4))
         assert {:ok, :verified} = DownloadChecksum.finish(state, headers, trailers)
@@ -33,12 +38,13 @@ defmodule ExStorageServiceCli.Transfer.DownloadChecksumTest do
 
   test "missing or unannounced checksum trailers fail" do
     response = %Response{headers: [{"Trailer", "x-amz-checksum-sha256"}]}
-    {:ok, state} = DownloadChecksum.start(%Context{}, %{}, response, [])
+    {:ok, state} = DownloadChecksum.start(%ExStorageServiceSdk.Config{}, %{}, response, [])
 
     assert {:error, %Error{code: :missing_checksum_trailer}} =
              DownloadChecksum.finish(state, response.headers, [])
 
-    {:ok, state} = DownloadChecksum.start(%Context{}, %{}, %Response{headers: []}, [])
+    {:ok, state} =
+      DownloadChecksum.start(%ExStorageServiceSdk.Config{}, %{}, %Response{headers: []}, [])
 
     assert {:error, %Error{code: :undeclared_checksum_trailer}} =
              DownloadChecksum.finish(state, [], [{"x-amz-checksum-sha256", "invalid"}])
@@ -54,7 +60,7 @@ defmodule ExStorageServiceCli.Transfer.DownloadChecksumTest do
 
     assert {:ok, %{checksum: :verified}} =
              Engine.download_file(
-               %Context{endpoint: endpoint, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                "bucket",
                "key",
                path
@@ -81,7 +87,12 @@ defmodule ExStorageServiceCli.Transfer.DownloadChecksumTest do
       ])
 
     {:ok, coordinator} = Coordinator.start_link(max_requests: 1)
-    context = %Context{endpoint: endpoint, unsigned: true, coordinator: coordinator}
+
+    context = %ExStorageServiceSdk.Config{
+      endpoint: endpoint,
+      unsigned: true,
+      coordinator: coordinator
+    }
 
     assert {:ok, %{checksum: :verified}} =
              Engine.download_file(context, "bucket", "key", Path.join(root, "download"))
@@ -108,7 +119,7 @@ defmodule ExStorageServiceCli.Transfer.DownloadChecksumTest do
 
       assert {:error, %Error{code: ^code}} =
                Engine.download_file(
-                 %Context{endpoint: endpoint, unsigned: true},
+                 %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                  "bucket",
                  "key",
                  path
@@ -131,7 +142,7 @@ defmodule ExStorageServiceCli.Transfer.DownloadChecksumTest do
 
       assert {:error, %Error{code: :invalid_checksum_parts}} =
                DownloadChecksum.start(
-                 %Context{endpoint: endpoint, unsigned: true},
+                 %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                  %{"Bucket" => "bucket", "Key" => "key"},
                  %Response{headers: headers},
                  []
@@ -140,7 +151,7 @@ defmodule ExStorageServiceCli.Transfer.DownloadChecksumTest do
   end
 
   test "invalid composite CRC64 and ranged composites fail before metadata networking" do
-    context = %Context{endpoint: "http://127.0.0.1:1", unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: "http://127.0.0.1:1", unsigned: true}
 
     assert {:error, %Error{code: :invalid_composite_algorithm}} =
              DownloadChecksum.start(

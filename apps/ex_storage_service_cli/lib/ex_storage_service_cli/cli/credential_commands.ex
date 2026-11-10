@@ -1,7 +1,7 @@
 defmodule ExStorageServiceCli.CLI.CredentialCommands do
   @moduledoc "Explicit-profile IAM Identity Center login and scoped local session logout."
   alias ExStorageServiceCli.Credentials.Provider
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
 
   def run(action, options, opts \\ []) do
     with profile when is_binary(profile) and profile != "" <- options[:profile] do

@@ -2,7 +2,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.DebugTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, CLI.Debug, S3.Client, S3.Request}
+  alias ExStorageServiceSdk.Debug
+  alias ExStorageServiceSdk.S3.{Client, Request}
   alias ExStorageServiceCli.Test.WireServer
 
   test "debug has an observable effect without disclosing input, authentication or signed queries" do
@@ -16,7 +17,7 @@ defmodule ExStorageServiceCli.CLI.DebugTest do
       headers: [{"Authorization", "secret-authorization"}, {"x-amz-security-token", "token"}]
     }
 
-    context = %Context{
+    context = %ExStorageServiceSdk.Config{
       options: %{debug: true},
       secret_access_key: "secret",
       session_token: "token"
@@ -57,7 +58,11 @@ defmodule ExStorageServiceCli.CLI.DebugTest do
 
     assert {:ok, _} =
              Client.call(
-               %Context{endpoint: endpoint, unsigned: true, options: %{debug: true}},
+               %ExStorageServiceSdk.Config{
+                 endpoint: endpoint,
+                 unsigned: true,
+                 options: %{debug: true}
+               },
                "ListBuckets",
                %{},
                debug_write: write

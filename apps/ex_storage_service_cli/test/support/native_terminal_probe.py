@@ -9,7 +9,7 @@ import time
 
 root, library = sys.argv[1:]
 prefix = f'''
-Code.require_file({root + "/lib/ex_storage_service_cli/error.ex"!r})
+Code.require_file({root + "/../ex_storage_service_sdk/lib/ex_storage_service_sdk/error.ex"!r})
 Code.require_file({root + "/lib/ex_storage_service_cli/cli/signals/native.ex"!r})
 alias ExStorageServiceCli.CLI.Signals.Native
 :ok = Native.load_path({library!r})

@@ -2,12 +2,18 @@ defmodule ExStorageServiceCli.CLI.ErrorOutputTest do
   # stderr capture replaces a VM-wide named IO device.
   use ExUnit.Case, async: false
   import ExUnit.CaptureIO
-  alias ExStorageServiceCli.{Context, Error, ExitStatus}
+  alias ExStorageServiceCli.ExitStatus
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.ErrorOutput
-  alias ExStorageServiceCli.S3.{Errors, Response, Retry}
+  alias ExStorageServiceSdk.S3.{Errors, Response, Retry}
 
   test "AWS HEAD denial uses the reference's plain fatal stderr and transfer status" do
-    error = Errors.from_response("HeadObject", %Response{status: 403, body: ""}, %Context{})
+    error =
+      Errors.from_response(
+        "HeadObject",
+        %Response{status: 403, body: ""},
+        %ExStorageServiceSdk.Config{}
+      )
 
     assert {:error, error} =
              Retry.run("HeadObject", [max_attempts: 1], fn _, _ -> {:error, error} end)
@@ -31,7 +37,7 @@ defmodule ExStorageServiceCli.CLI.ErrorOutputTest do
           status: 403,
           body: "<Error><Code>AccessDenied</Code><Message>denied secret</Message></Error>"
         },
-        %Context{secret_access_key: "secret"}
+        %ExStorageServiceSdk.Config{secret_access_key: "secret"}
       )
 
     assert ErrorOutput.message(error, :s3api) ==

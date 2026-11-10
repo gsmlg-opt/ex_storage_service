@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.Runner do
   @moduledoc "Owns invocation dispatch; handlers return and never terminate the BEAM."
-  alias ExStorageServiceCli.{Aliases, Config, Context, Error, Output, Presenter}
+  alias ExStorageServiceCli.{Aliases, Config, Context, Output, Presenter}
+  alias ExStorageServiceSdk.Error
 
   alias ExStorageServiceCli.CLI.{
     HighLevel,
@@ -195,14 +196,15 @@ defmodule ExStorageServiceCli.CLI.Runner do
     do: management(invocation)
 
   defp execute_invocation(%Invocation{frontend: :native, command: ["configure"]} = invocation) do
-    context = %Context{
-      profile: invocation.options[:profile] || "default",
-      json: invocation.options[:json] || false,
-      options: invocation.options
+    context = %ExStorageServiceSdk.Config{
+      options:
+        invocation.options
+        |> Map.put(:cli_profile, invocation.options[:profile] || "default")
+        |> Map.put(:cli_json, invocation.options[:json] || false)
     }
 
     with {:ok, args} <- legacy_arguments(invocation) do
-      Commands.Configure.run("configure", args, Map.from_struct(context)) |> normalize()
+      Commands.Configure.run("configure", args, Context.legacy_map(context)) |> normalize()
     end
   end
 
@@ -252,7 +254,7 @@ defmodule ExStorageServiceCli.CLI.Runner do
           case invocation.command do
             ["admin", "info"] ->
               if context.capabilities[:provider] == "ess",
-                do: Commands.Info.run("info", [], Map.from_struct(context)) |> normalize(),
+                do: Commands.Info.run("info", [], Context.legacy_map(context)) |> normalize(),
                 else:
                   {:error,
                    Error.new(:client, "Admin info requires a declared ESS server",
@@ -516,7 +518,7 @@ defmodule ExStorageServiceCli.CLI.Runner do
          {:ok, resolved} <- Resolver.resolve(invocation, runtime: runtime),
          {:ok, context} <- legacy_context(resolved),
          {:ok, args} <- legacy_arguments(%{invocation | args: resolved.legacy_args}) do
-      module.run(name, args, Map.from_struct(context)) |> normalize()
+      module.run(name, args, Context.legacy_map(context)) |> normalize()
     end
   end
 

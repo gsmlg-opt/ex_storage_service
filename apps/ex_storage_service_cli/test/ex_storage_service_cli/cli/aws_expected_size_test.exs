@@ -2,7 +2,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.AWSExpectedSizeTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation}
   @moduletag :tmp_dir
   @reference Path.expand("../../fixtures/aws_expected_size/reference.json", __DIR__)
@@ -38,7 +39,14 @@ defmodule ExStorageServiceCli.CLI.AWSExpectedSizeTest do
       hint = Integer.to_string(captured["expected_size"])
       {endpoint, _} = WireServer.fixture([{200, [{"ETag", "\"uploaded\""}], ""}])
       {:ok, input} = StringIO.open("abc")
-      assert :ok = run(%Context{endpoint: endpoint, unsigned: true}, hint, root, input)
+
+      assert :ok =
+               run(
+                 %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
+                 hint,
+                 root,
+                 input
+               )
 
       assert_receive {:wire_request,
                       %{method: "PUT", target: "/bucket/key", body: "abc", headers: headers}}
@@ -71,7 +79,7 @@ defmodule ExStorageServiceCli.CLI.AWSExpectedSizeTest do
 
     assert :ok =
              run(
-               %Context{
+               %ExStorageServiceSdk.Config{
                  frontend: :aws,
                  endpoint: endpoint,
                  unsigned: true,
@@ -110,7 +118,11 @@ defmodule ExStorageServiceCli.CLI.AWSExpectedSizeTest do
       max_object_bytes: 2
     }
 
-    context = %Context{unsigned: true, capabilities: %{transfer_limits: limits}}
+    context = %ExStorageServiceSdk.Config{
+      unsigned: true,
+      capabilities: %{transfer_limits: limits}
+    }
+
     assert {:error, %Error{code: :object_size_limit}} = run(context, "1", root, input)
     assert File.ls!(root) == []
   end
@@ -120,7 +132,10 @@ defmodule ExStorageServiceCli.CLI.AWSExpectedSizeTest do
   } do
     for hint <- ["-1", "1.5", "abc"] do
       {:ok, input} = StringIO.open("abc")
-      assert {:error, %Error{}} = run(%Context{unsigned: true}, hint, root, input)
+
+      assert {:error, %Error{}} =
+               run(%ExStorageServiceSdk.Config{unsigned: true}, hint, root, input)
+
       assert StringIO.contents(input) == {"abc", ""}
       assert File.ls!(root) == []
     end

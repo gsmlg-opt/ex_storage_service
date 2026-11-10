@@ -1,9 +1,12 @@
 defmodule ExStorageServiceCli.Credentials.AssumeRole do
   @moduledoc "STS role credentials from one coherent source or a bounded web-identity token."
-  alias ExStorageServiceCli.{Context, SigV4}
-  alias ExStorageServiceCli.Credentials.{Metadata, Provider, Record, Remote}
+  alias ExStorageServiceCli.Context
+  alias ExStorageServiceSdk.SigV4
+  alias ExStorageServiceCli.Credentials.{Metadata, Provider, Remote}
+  alias ExStorageServiceSdk.Credentials, as: Record
   alias ExStorageServiceCli.Credentials.Process, as: CredentialProcess
-  alias ExStorageServiceCli.S3.{EndpointRules.Evaluator, XML}
+  alias ExStorageServiceSdk.S3.EndpointRules.Evaluator
+  alias ExStorageServiceSdk.S3.XML
   alias ExStorageServiceCli.CLI.Signals.Native
   @sts_path Path.expand("../../../priv/compatibility/aws/sts-endpoint-rule-set-1.json", __DIR__)
   @external_resource @sts_path

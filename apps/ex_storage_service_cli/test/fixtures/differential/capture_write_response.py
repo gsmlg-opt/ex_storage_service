@@ -73,7 +73,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     assert hashlib.sha256(Path(args.aws).read_bytes()).hexdigest() == common.AWS_SHA256
-    model_path = common.ROOT / "priv/compatibility/aws/service-2.json"
+    model_path = common.ROOT.parent / "ex_storage_service_sdk" / "priv/compatibility/aws/service-2.json"
     report = {"aws_sha256": common.AWS_SHA256, "model_sha256": hashlib.sha256(model_path.read_bytes()).hexdigest(), "cases": []}
     with tempfile.TemporaryDirectory(prefix="ess-object-lambda-oracle-") as temporary:
         directory = Path(temporary)

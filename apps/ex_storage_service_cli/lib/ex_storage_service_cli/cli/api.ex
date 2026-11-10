@@ -4,17 +4,19 @@ defmodule ExStorageServiceCli.CLI.API do
     CLI.Runtime,
     CLI.Skeleton,
     CLI.OutputSession,
-    Context,
     Presenter,
-    S3.Client,
-    S3.OperationCatalog,
-    S3.Paginator,
-    S3.Select,
-    S3.Waiter,
-    S3.WriteResponse,
     Transfer.Engine,
     Transfer.Sink,
     Transfer.Source
+  }
+
+  alias ExStorageServiceSdk.S3.{
+    Client,
+    OperationCatalog,
+    Paginator,
+    Select,
+    Waiter,
+    WriteResponse
   }
 
   def run(invocation) do
@@ -221,7 +223,7 @@ defmodule ExStorageServiceCli.CLI.API do
   defp request_options(context),
     do: [timeout: context.timeout, connect_timeout: context.connect_timeout]
 
-  defp warning(%Context{tls: tls}) do
+  defp warning(%ExStorageServiceSdk.Config{tls: tls}) do
     if tls[:verify] == :verify_none,
       do: IO.puts(:stderr, "Warning: TLS certificate verification is disabled")
 

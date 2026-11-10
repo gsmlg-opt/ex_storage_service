@@ -3,7 +3,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 defmodule ExStorageServiceCli.Transfer.CopyTest do
   # Journal mutex ports share the host namespace with concurrent wire fixtures.
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Transfer.{Copy, Journal}
   @moduletag :tmp_dir
   @fixture_attempts 4
@@ -29,7 +30,7 @@ defmodule ExStorageServiceCli.Transfer.CopyTest do
         {204, [], ""}
       ])
 
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert {:ok, %{source_deleted: true, bytes: 10}} =
              Copy.move(
@@ -66,7 +67,7 @@ defmodule ExStorageServiceCli.Transfer.CopyTest do
         {200, @head, ""}
       ])
 
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert {:error,
             %Error{
@@ -79,7 +80,7 @@ defmodule ExStorageServiceCli.Transfer.CopyTest do
   end
 
   test "copy errors, destination mismatch and same-resource moves perform no source deletion" do
-    context = %Context{endpoint: "http://unused.test", unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: "http://unused.test", unsigned: true}
 
     assert {:error, %Error{code: :same_resource}} =
              Copy.move(context, target("bucket", "key"), context, target("bucket", "key"))
@@ -95,7 +96,7 @@ defmodule ExStorageServiceCli.Transfer.CopyTest do
           {200, [{"ETag", "\"wrong\""}, {"Content-Length", "10"}], ""}
         ])
 
-      context = %Context{endpoint: endpoint, unsigned: true}
+      context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
       assert {:error, %Error{}} =
                Copy.move(context, target("source", "key"), context, target("destination", "key"))
@@ -130,9 +131,9 @@ defmodule ExStorageServiceCli.Transfer.CopyTest do
 
     assert {:ok, %{mode: :bridge, bytes: bytes}} =
              Copy.remote(
-               %Context{endpoint: source, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: source, unsigned: true},
                target("source", "key"),
-               %Context{endpoint: destination, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: destination, unsigned: true},
                target("destination", "key"),
                copy_props: "none",
                input: %{"ContentEncoding" => "gzip"},
@@ -344,7 +345,12 @@ defmodule ExStorageServiceCli.Transfer.CopyTest do
         {200, @head, ""}
       ])
 
-    context = %Context{endpoint: endpoint, unsigned: true, options: %{debug: true}}
+    context = %ExStorageServiceSdk.Config{
+      endpoint: endpoint,
+      unsigned: true,
+      options: %{debug: true}
+    }
+
     owner = self()
 
     invocation = %ExStorageServiceCli.CLI.Invocation{
@@ -488,7 +494,7 @@ defmodule ExStorageServiceCli.Transfer.CopyTest do
       end)
 
     assert_receive {:copy_fixture_listener, ^server, listener}
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
     root = Path.join(base, "journal-attempt-#{attempt}")
 
     result =

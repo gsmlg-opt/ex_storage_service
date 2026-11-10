@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.Credentials.Metadata do
   @moduledoc "Bounded container credentials, IMDSv2, and policy-controlled IMDSv1 fallback."
   alias ExStorageServiceCli.Context
-  alias ExStorageServiceCli.Credentials.{Record, Remote}
+  alias ExStorageServiceCli.Credentials.Remote
+  alias ExStorageServiceSdk.Credentials, as: Record
   alias ExStorageServiceCli.Credentials.Process, as: CredentialProcess
   @container_hosts ~w(localhost 127.0.0.1 ::1 169.254.170.2 169.254.170.23 fd00:ec2::23)
   @metadata_hosts ~w(169.254.169.254 fd00:ec2::254)
@@ -107,7 +108,7 @@ defmodule ExStorageServiceCli.Credentials.Metadata do
       {:ok, _status, _} ->
         fallback_v1(disabled)
 
-      {:error, %ExStorageServiceCli.Error{category: :transport, retryable: true}} ->
+      {:error, %ExStorageServiceSdk.Error{category: :transport, retryable: true}} ->
         fallback_v1(disabled)
 
       {:error, _} ->

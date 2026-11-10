@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.CLI.NativeEventsTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureIO
-  alias ExStorageServiceCli.{Context, Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{Invocation, NativeEvents, NativeListing, Parser, Runner}
 
   test "native NDJSON emits a versioned item and final summary; AWS parser rejects it" do
@@ -38,7 +39,9 @@ defmodule ExStorageServiceCli.CLI.NativeEventsTest do
       capture_io(fn ->
         assert :ok =
                  NativeEvents.with_invocation(invocation, fn invocation ->
-                   NativeListing.run(invocation, target, %Context{}, fetch: fetch)
+                   NativeListing.run(invocation, target, %ExStorageServiceSdk.Config{},
+                     fetch: fetch
+                   )
                  end)
       end)
 
@@ -67,7 +70,7 @@ defmodule ExStorageServiceCli.CLI.NativeEventsTest do
                    NativeListing.run(
                      invocation,
                      %Target{kind: :remote, bucket: "bucket", key: ""},
-                     %Context{},
+                     %ExStorageServiceSdk.Config{},
                      fetch: fetch
                    )
                  end)

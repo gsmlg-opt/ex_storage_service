@@ -1,6 +1,8 @@
 defmodule ExStorageServiceCli.CLI.AWSInput do
   @moduledoc "Offline modeled AWS s3api input parsing with bounded JSON, YAML and shorthand inputs."
-  alias ExStorageServiceCli.{Error, CLI.Shorthand, S3.Input, S3.OperationCatalog}
+  alias ExStorageServiceCli.CLI.Shorthand
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Input, OperationCatalog}
   alias ExStorageServiceCli.{CLI.AutoPrompt, Credentials.SharedConfig}
   @max_input 8_388_608
   @globals %{

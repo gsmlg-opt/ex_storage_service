@@ -5,13 +5,13 @@ defmodule ExStorageServiceCli.Transfer.MultipartTest do
   use ExUnit.Case, async: false
 
   alias ExStorageServiceCli.{
-    Context,
-    Error,
     Transfer.Journal,
     Transfer.Multipart,
     Transfer.Planner,
     Transfer.Source
   }
+
+  alias ExStorageServiceSdk.Error
 
   alias ExStorageServiceCli.Test.WireServer
   @moduletag :tmp_dir
@@ -45,7 +45,11 @@ defmodule ExStorageServiceCli.Transfer.MultipartTest do
         {200, [{"ETag", "\"done-2\""}, {"Content-Length", "10"}], ""}
       ])
 
-    context = %Context{endpoint: endpoint, access_key_id: "access", secret_access_key: "secret"}
+    context = %ExStorageServiceSdk.Config{
+      endpoint: endpoint,
+      access_key_id: "access",
+      secret_access_key: "secret"
+    }
 
     assert {:ok, %{bytes: 10, etag: "done-2", journal_id: id}} =
              Multipart.upload(context, "bucket", "key", data.source, data.plan,
@@ -73,7 +77,7 @@ defmodule ExStorageServiceCli.Transfer.MultipartTest do
 
     assert {:error, %Error{details: %{journal_id: id, cleanup: "aborted"}}} =
              Multipart.upload(
-               %Context{endpoint: endpoint, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                "bucket",
                "key",
                data.source,
@@ -91,7 +95,7 @@ defmodule ExStorageServiceCli.Transfer.MultipartTest do
 
   test "keep-incomplete retains upload and resume rejects changed input options", data do
     {endpoint, _} = WireServer.fixture([{200, [], @create}, {403, [], @denied}])
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
     {id, opts} = retained(context, data)
 
     assert {:error, %Error{code: :resume_conflict}} =
@@ -121,7 +125,7 @@ defmodule ExStorageServiceCli.Transfer.MultipartTest do
 
     try do
       {endpoint, _} = WireServer.fixture([{200, [], @create}, {403, [], @denied}])
-      context = %Context{endpoint: endpoint, unsigned: true}
+      context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
       {id, opts} = retained(context, %{data | journal_root: journal_root})
 
       assert opts[:state_root] != blocked_root
@@ -183,7 +187,7 @@ defmodule ExStorageServiceCli.Transfer.MultipartTest do
 
     assert {:error, %Error{code: :completion_indeterminate, details: %{journal_id: id}}} =
              Multipart.upload(
-               %Context{endpoint: endpoint, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                "bucket",
                "key",
                data.source,
@@ -208,7 +212,7 @@ defmodule ExStorageServiceCli.Transfer.MultipartTest do
         {200, [{"ETag", "\"done-2\""}, {"Content-Length", "10"}], ""}
       ])
 
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
     opts = [state_root: data.journal_root, keep_incomplete: true]
 
     assert {:error, %Error{details: %{journal_id: id}}} =

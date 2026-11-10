@@ -2,10 +2,13 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.NativePutParallelTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation, Parser}
-  alias ExStorageServiceCli.Transfer.{Coordinator, Journal}
-  alias ExStorageServiceCli.{S3.Request, Transport.HTTPFetch}
+  alias ExStorageServiceCli.Transfer.Journal
+  alias ExStorageServiceSdk.Transfer.Coordinator
+  alias ExStorageServiceSdk.S3.Request
+  alias ExStorageServiceSdk.Transport.HTTPFetch
   @moduletag :tmp_dir
   @fixture_attempts 4
   @limits %{
@@ -34,7 +37,7 @@ defmodule ExStorageServiceCli.CLI.NativePutParallelTest do
     state_root = Path.join(root, "journals-#{attempt}")
     File.write!(Path.join(root, "selected-journal-root"), state_root)
 
-    context = %Context{
+    context = %ExStorageServiceSdk.Config{
       endpoint: endpoint,
       unsigned: true,
       coordinator: coordinator,
@@ -209,7 +212,7 @@ defmodule ExStorageServiceCli.CLI.NativePutParallelTest do
                    %Target{kind: :local, path: Path.join(root, "missing")},
                    %Target{kind: :remote, bucket: "bucket", key: "key"}
                  ],
-                 [nil, %Context{}],
+                 [nil, %ExStorageServiceSdk.Config{}],
                  limits: @limits
                )
     end
@@ -221,7 +224,7 @@ defmodule ExStorageServiceCli.CLI.NativePutParallelTest do
                  %Target{kind: :local, path: "missing"},
                  %Target{kind: :remote, bucket: "bucket", key: "key"}
                ],
-               [nil, %Context{}],
+               [nil, %ExStorageServiceSdk.Config{}],
                limits: @limits
              )
   end

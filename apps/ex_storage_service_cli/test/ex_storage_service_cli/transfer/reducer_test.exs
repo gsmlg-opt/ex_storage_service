@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.Transfer.ReducerTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Error, Transfer.Planner, Transfer.Reducer}
+  alias ExStorageServiceCli.{Transfer.Planner, Transfer.Reducer}
+  alias ExStorageServiceSdk.Error
 
   @multipart %Planner{
     mode: :multipart,

@@ -1,13 +1,9 @@
 defmodule ExStorageServiceCli.CLI.AWSInputTest do
   use ExUnit.Case, async: true
 
-  alias ExStorageServiceCli.{
-    Error,
-    CLI.AWSInput,
-    CLI.Skeleton,
-    CLI.Shorthand,
-    S3.OperationCatalog
-  }
+  alias ExStorageServiceCli.{CLI.AWSInput, CLI.Skeleton, CLI.Shorthand}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.OperationCatalog
 
   @fixtures __DIR__
             |> Path.join("../../fixtures/aws_input/vectors.json")

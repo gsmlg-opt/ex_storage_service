@@ -1,6 +1,6 @@
 defmodule ExStorageServiceCli.Credentials.SharedConfig do
   @moduledoc "Read-only AWS INI profiles and indented service settings with binary keys."
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
   @limit 1_048_576
 
   def load(opts \\ []) do

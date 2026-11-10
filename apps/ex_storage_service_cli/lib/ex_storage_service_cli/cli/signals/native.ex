@@ -1,6 +1,6 @@
 defmodule ExStorageServiceCli.CLI.Signals.Native do
   @moduledoc "Invocation-owned POSIX SIGINT/SIGTERM notifications through a nonblocking self-pipe."
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
   @loaded {__MODULE__, :loaded}
 
   @doc "Starts the resource owned by the calling process; select messages go to that owner."

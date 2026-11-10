@@ -1,6 +1,8 @@
 defmodule ExStorageServiceCli.Transport.TLSTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Config, Context, Error, S3.Client}
+  alias ExStorageServiceCli.{Config, Context}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.Client
   @moduletag :tmp_dir
   @body "<ListAllMyBucketsResult><Buckets/></ListAllMyBucketsResult>"
 

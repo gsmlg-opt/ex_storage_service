@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.ContextTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target}
-  alias ExStorageServiceCli.Credentials.Record
+  alias ExStorageServiceCli.{Context, Target}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.Credentials, as: Record
   @moduletag :tmp_dir
 
   test "AWS defaults use regional endpoints and a coherent temporary credential record", %{
@@ -15,7 +16,7 @@ defmodule ExStorageServiceCli.ContextTest do
       )
 
     assert {:ok,
-            %Context{
+            %ExStorageServiceSdk.Config{
               frontend: :aws,
               endpoint: "https://s3.eu-west-1.amazonaws.com",
               region: "eu-west-1",
@@ -25,10 +26,11 @@ defmodule ExStorageServiceCli.ContextTest do
               tls: [verify: :verify_peer]
             }} = Context.aws(%{}, opts)
 
-    assert {:ok, %Context{endpoint: "http://localhost:9100/base", addressing: :path}} =
+    assert {:ok,
+            %ExStorageServiceSdk.Config{endpoint: "http://localhost:9100/base", addressing: :path}} =
              Context.aws(%{endpoint_url: "http://localhost:9100/base"}, opts)
 
-    assert {:ok, %Context{endpoint: "https://s3.cn-north-1.amazonaws.com.cn"}} =
+    assert {:ok, %ExStorageServiceSdk.Config{endpoint: "https://s3.cn-north-1.amazonaws.com.cn"}} =
              Context.aws(%{region: "cn-north-1"}, opts)
   end
 
@@ -44,7 +46,7 @@ defmodule ExStorageServiceCli.ContextTest do
       )
 
     assert {:ok,
-            %Context{
+            %ExStorageServiceSdk.Config{
               addressing: :virtual,
               timeout: :infinity,
               connect_timeout: 3000,
@@ -61,7 +63,7 @@ defmodule ExStorageServiceCli.ContextTest do
 
     assert path == String.to_charlist(ca)
 
-    assert {:ok, %Context{tls: [verify: :verify_none]}} =
+    assert {:ok, %ExStorageServiceSdk.Config{tls: [verify: :verify_none]}} =
              Context.aws(%{no_verify_ssl: true}, opts)
 
     assert {:error, %Error{category: :configuration}} = Context.aws(%{cli_read_timeout: -1}, opts)
@@ -82,7 +84,7 @@ defmodule ExStorageServiceCli.ContextTest do
       })
 
     assert {:ok,
-            %Context{
+            %ExStorageServiceSdk.Config{
               unsigned: true,
               credentials: nil,
               endpoint: "https://public.test",
@@ -107,14 +109,14 @@ defmodule ExStorageServiceCli.ContextTest do
     }
 
     assert {:ok,
-            %Context{
+            %ExStorageServiceSdk.Config{
               access_key_id: "explicit-a",
               secret_access_key: "explicit-s",
               session_token: nil
             }} =
              Context.native(nil, %{access_key: "explicit-a", secret_key: "explicit-s"}, config)
 
-    assert {:ok, %Context{session_token: "explicit-t"}} =
+    assert {:ok, %ExStorageServiceSdk.Config{session_token: "explicit-t"}} =
              Context.native(
                nil,
                %{access_key: "explicit-a", secret_key: "explicit-s", session_token: "explicit-t"},
@@ -127,7 +129,8 @@ defmodule ExStorageServiceCli.ContextTest do
     assert {:error, %Error{category: :configuration}} =
              Context.native(nil, %{session_token: "orphan"}, config)
 
-    assert {:ok, %Context{unsigned: true, credentials: nil, access_key_id: nil}} =
+    assert {:ok,
+            %ExStorageServiceSdk.Config{unsigned: true, credentials: nil, access_key_id: nil}} =
              Context.native(nil, %{no_sign_request: true}, config)
   end
 
@@ -142,7 +145,7 @@ defmodule ExStorageServiceCli.ContextTest do
     assert {:error, %Error{code: :invalid_credentials}} =
              Context.native(target, %{}, config, env: %{"AWS_ACCESS_KEY_ID" => "a"})
 
-    assert {:ok, %Context{access_key_id: "a", session_token: "t"}} =
+    assert {:ok, %ExStorageServiceSdk.Config{access_key_id: "a", session_token: "t"}} =
              Context.native(target, %{}, config,
                env: %{
                  "AWS_ACCESS_KEY_ID" => "a",
@@ -173,10 +176,10 @@ defmodule ExStorageServiceCli.ContextTest do
     }
 
     assert {:ok,
-            %Context{
+            %ExStorageServiceSdk.Config{
               endpoint: "https://alias.test",
               region: "ap-south-1",
-              profile: "team",
+              options: %{cli_profile: "team"},
               access_key_id: "aws-a",
               session_token: "aws-t"
             }} = Context.native(%Target{alias: "aws"}, %{}, config, opts)
@@ -196,7 +199,7 @@ defmodule ExStorageServiceCli.ContextTest do
   end
 
   test "Context inspection excludes credentials and secret-bearing options" do
-    context = %Context{
+    context = %ExStorageServiceSdk.Config{
       access_key_id: "access-marker",
       secret_access_key: "secret-marker",
       session_token: "token-marker",

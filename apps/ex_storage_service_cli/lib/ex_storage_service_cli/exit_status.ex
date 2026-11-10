@@ -1,6 +1,6 @@
 defmodule ExStorageServiceCli.ExitStatus do
   @moduledoc "Maps structured failures to the command frontend's exit contract."
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
 
   def code(:ok, _frontend), do: 0
   def code(%Error{category: :interrupted}, _frontend), do: 130

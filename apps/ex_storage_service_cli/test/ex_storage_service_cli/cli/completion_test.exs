@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.CompletionTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Error, CLI.Completion}
+  alias ExStorageServiceCli.CLI.Completion
+  alias ExStorageServiceSdk.Error
   @moduletag :tmp_dir
 
   setup %{tmp_dir: root} do

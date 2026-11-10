@@ -7,21 +7,23 @@ defmodule ExStorageServiceCli.S3Client do
   transfers use Transfer.Engine's bounded streams and atomic downloads.
   """
 
-  alias ExStorageServiceCli.{Context, Error, XmlParser, Transport.HTTPFetch}
-  alias ExStorageServiceCli.S3.{Auth, Encoder, Encoding, Errors, Request, Response, XML}
-  alias ExStorageServiceCli.{CLI.Debug, Transfer.Coordinator}
+  alias ExStorageServiceCli.Context
+  alias ExStorageServiceSdk.{Error, XmlParser}
+  alias ExStorageServiceSdk.Transport.HTTPFetch
+  alias ExStorageServiceSdk.S3.{Auth, Encoder, Encoding, Errors, Request, Response, XML}
+  alias ExStorageServiceSdk.Debug
+  alias ExStorageServiceSdk.Transfer.Coordinator
 
   @context_fields [
     :endpoint,
     :region,
-    :profile,
     :access_key_id,
     :secret_access_key,
     :session_token,
     :credentials,
-    :credential_owner,
+    :credential_provider,
+    :session_provider,
     :coordinator,
-    :directory_sessions,
     :unsigned,
     :tls,
     :addressing,
@@ -386,7 +388,7 @@ defmodule ExStorageServiceCli.S3Client do
     Errors.from_response(
       "LegacyRequest",
       struct(Response, Map.take(response, [:status, :headers, :body, :request_id])),
-      Map.get(response, :legacy_context, %Context{})
+      Map.get(response, :legacy_context, %ExStorageServiceSdk.Config{})
     ).message
   end
 
@@ -399,7 +401,7 @@ defmodule ExStorageServiceCli.S3Client do
   end
 
   @doc false
-  def context(client), do: struct(Context, Map.take(client, @context_fields))
+  def context(client), do: struct(ExStorageServiceSdk.Config, Map.take(client, @context_fields))
 
   defp decode_health(<<0x1F, 0x8B, _::binary>> = body) do
     zlib = :zlib.open()

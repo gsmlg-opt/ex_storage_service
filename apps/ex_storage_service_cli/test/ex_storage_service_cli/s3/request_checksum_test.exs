@@ -2,8 +2,9 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.S3.RequestChecksumTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, S3.Client, S3.RequestChecksum}
-  alias ExStorageServiceCli.S3.{Encoder, Request}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Client, RequestChecksum}
+  alias ExStorageServiceSdk.S3.{Encoder, Request}
   alias ExStorageServiceCli.Test.WireServer
   alias ExStorageServiceCli.Transfer.Engine
   @moduletag :tmp_dir
@@ -20,7 +21,10 @@ defmodule ExStorageServiceCli.S3.RequestChecksumTest do
         ] do
       {:ok, request} = Encoder.encode(operation, input)
       assert Base.encode16(:crypto.hash(:sha256, request.body), case: :lower) == hash
-      assert {:ok, checksummed} = RequestChecksum.prepare(request, input, %Context{}, [])
+
+      assert {:ok, checksummed} =
+               RequestChecksum.prepare(request, input, %ExStorageServiceSdk.Config{}, [])
+
       fields = Map.new(checksummed.headers)
       assert fields["x-amz-checksum-crc64nvme"] == expected
       assert fields["x-amz-sdk-checksum-algorithm"] == "CRC64NVME"
@@ -30,7 +34,11 @@ defmodule ExStorageServiceCli.S3.RequestChecksumTest do
   test "required requests remain checksummed in when_required mode and supplied values are preserved" do
     input = %{"Bucket" => "bucket", "Delete" => %{"Objects" => [%{"Key" => "x"}]}}
     {:ok, request} = Encoder.encode("DeleteObjects", input)
-    context = %Context{options: %{request_checksum_calculation: "when_required"}}
+
+    context = %ExStorageServiceSdk.Config{
+      options: %{request_checksum_calculation: "when_required"}
+    }
+
     assert {:ok, required} = RequestChecksum.prepare(request, input, context, [])
     assert Map.new(required.headers)["x-amz-checksum-crc64nvme"] != nil
 
@@ -41,7 +49,9 @@ defmodule ExStorageServiceCli.S3.RequestChecksumTest do
 
     assert {:ok, ^optional} = RequestChecksum.prepare(optional, %{}, context, [])
     explicit = %{request | headers: request.headers ++ [{"content-md5", "caller-value"}]}
-    assert {:ok, ^explicit} = RequestChecksum.prepare(explicit, input, %Context{}, [])
+
+    assert {:ok, ^explicit} =
+             RequestChecksum.prepare(explicit, input, %ExStorageServiceSdk.Config{}, [])
   end
 
   test "streamed uploads calculate selected algorithms from the captured raw source", %{
@@ -53,7 +63,7 @@ defmodule ExStorageServiceCli.S3.RequestChecksumTest do
 
     assert {:ok, _} =
              Engine.upload_file(
-               %Context{endpoint: endpoint, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                "bucket",
                "key",
                path,
@@ -70,11 +80,13 @@ defmodule ExStorageServiceCli.S3.RequestChecksumTest do
     input = %{"Bucket" => "bucket", "Key" => "key"}
 
     assert {:ok, %{"ChecksumMode" => "ENABLED"}} =
-             RequestChecksum.input(%Context{}, "GetObject", input)
+             RequestChecksum.input(%ExStorageServiceSdk.Config{}, "GetObject", input)
 
     assert {:ok, ^input} =
              RequestChecksum.input(
-               %Context{options: %{response_checksum_validation: "when_required"}},
+               %ExStorageServiceSdk.Config{
+                 options: %{response_checksum_validation: "when_required"}
+               },
                "GetObject",
                input
              )
@@ -85,7 +97,9 @@ defmodule ExStorageServiceCli.S3.RequestChecksumTest do
     source = Stream.repeatedly(fn -> flunk("nonreplayable source was consumed") end)
 
     assert {:error, %Error{code: :checksum_source_required}} =
-             RequestChecksum.prepare(request, %{}, %Context{}, body_source: source)
+             RequestChecksum.prepare(request, %{}, %ExStorageServiceSdk.Config{},
+               body_source: source
+             )
   end
 
   test "required checksum reaches the wire before request signing" do
@@ -94,7 +108,7 @@ defmodule ExStorageServiceCli.S3.RequestChecksumTest do
 
     assert {:ok, %{}} =
              Client.call(
-               %Context{
+               %ExStorageServiceSdk.Config{
                  endpoint: endpoint,
                  access_key_id: "fixture",
                  secret_access_key: "fixture"

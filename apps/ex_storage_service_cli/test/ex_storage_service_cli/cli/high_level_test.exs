@@ -2,7 +2,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.HighLevelTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, HighLevelInput, Invocation}
   @moduletag :tmp_dir
   @listing "<ListBucketResult><IsTruncated>false</IsTruncated></ListBucketResult>"
@@ -39,7 +40,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
              HighLevel.run(
                invocation("cp", %{dryrun: true}),
                [local(path), remote("bucket", "a.txt")],
-               [nil, %Context{unsigned: true}],
+               [nil, %ExStorageServiceSdk.Config{unsigned: true}],
                Keyword.put(opts(), :emit, &send(owner, {:line, &1}))
              )
 
@@ -57,7 +58,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
              HighLevel.run(
                invocation("cp"),
                [remote("bucket", "key"), local(Path.join(root, "destination"))],
-               [%Context{endpoint: endpoint, unsigned: true}, nil],
+               [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}, nil],
                opts()
              )
 
@@ -125,7 +126,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
              HighLevel.run(
                invocation,
                [remote("bucket")],
-               [%Context{endpoint: endpoint, unsigned: true}],
+               [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}],
                opts()
              )
 
@@ -136,7 +137,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
 
   test "mb region and website fields reach the shared wire encoder" do
     {endpoint, _} = WireServer.fixture([{200, [], ""}, {200, [], ""}])
-    context = %Context{endpoint: endpoint, region: "eu-west-1", unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, region: "eu-west-1", unsigned: true}
     assert :ok = HighLevel.run(invocation("mb"), [remote("bucket")], [context], opts())
     assert_receive {:wire_request, %{method: "PUT", target: "/bucket", body: body}}
     assert body =~ "<LocationConstraint>eu-west-1</LocationConstraint>"
@@ -157,7 +158,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
   test "presign retains key bytes and produces a timed session signature" do
     owner = self()
 
-    context = %Context{
+    context = %ExStorageServiceSdk.Config{
       endpoint: "https://example.test/base",
       access_key_id: "AKID",
       secret_access_key: "secret",
@@ -184,7 +185,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
     path = Path.join(root, "a.json")
     File.write!(path, "{raw}")
     {endpoint, _} = WireServer.fixture([{200, [{"ETag", "\"e\""}], ""}])
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert :ok =
              HighLevel.run(
@@ -215,7 +216,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
         {200, [{"ETag", "\"e\""}, {"Last-Modified", "Thu, 01 Jan 2026 00:00:00 GMT"}], "raw"}
       ])
 
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
     path = Path.join(root, "object")
 
     assert :ok =
@@ -246,7 +247,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
         {500, [], "<Error><Code>InternalError</Code></Error>"}
       ])
 
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert {:error, %Error{}} =
              HighLevel.run(
@@ -272,7 +273,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
       ])
 
     invocation = %{invocation("get", %{version_id: version}) | frontend: :native}
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
     path = Path.join(root, "version")
 
     assert :ok =
@@ -300,7 +301,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
     tmp_dir: root
   } do
     File.write!(Path.join(root, "source"), "raw")
-    context = %Context{endpoint: "http://unused.invalid", unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: "http://unused.invalid", unsigned: true}
     invocation = %{invocation("cp", %{version_id: "selected"}) | frontend: :native}
 
     assert {:error, %Error{code: :version_selection}} =
@@ -336,7 +337,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
              HighLevel.run(
                invocation,
                [remote("bucket", "key"), local(path)],
-               [%Context{endpoint: endpoint, unsigned: true}, nil],
+               [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}, nil],
                opts()
              )
 
@@ -354,7 +355,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
         {403, [], "<Error><Code>AccessDenied</Code></Error>"}
       ])
 
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert {:error, %Error{}} =
              HighLevel.run(
@@ -372,7 +373,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
 
   test "excluded destination entries are protected from deletion", %{tmp_dir: root} do
     {endpoint, _} = WireServer.fixture([{200, [], listing(item("dest/keep.txt"))}])
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert :ok =
              HighLevel.run(
@@ -389,7 +390,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
   test "dryrun reads full inventory and makes no changes", %{tmp_dir: root} do
     File.write!(Path.join(root, "new"), "x")
     {endpoint, _} = WireServer.fixture([{200, [], listing(item("dest/old"))}])
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert :ok =
              HighLevel.run(
@@ -405,7 +406,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
   end
 
   test "same and overlapping remote prefixes fail before any request" do
-    context = %Context{}
+    context = %ExStorageServiceSdk.Config{}
 
     assert {:error, %Error{code: :overlapping_targets}} =
              HighLevel.run(
@@ -418,7 +419,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
 
   test "unsafe remote-to-local names fail before mutation", %{tmp_dir: root} do
     {endpoint, _} = WireServer.fixture([{200, [], listing(item("source/../escape"))}])
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert {:error, %Error{code: :unsafe_destination}} =
              HighLevel.run(
@@ -436,7 +437,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
   test "ls pagination renders summaries and does not buffer listings" do
     owner = self()
     {endpoint, _} = WireServer.fixture([{200, [], listing(item("prefix/a"))}])
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert :ok =
              HighLevel.run(
@@ -456,7 +457,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelTest do
 
   test "empty force rb removes bucket after completed current-object listing" do
     {endpoint, _} = WireServer.fixture([{200, [], @listing}, {204, [], ""}])
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert :ok =
              HighLevel.run(

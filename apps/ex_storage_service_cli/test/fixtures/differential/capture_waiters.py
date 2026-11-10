@@ -27,7 +27,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     assert hashlib.sha256(Path(args.aws).read_bytes()).hexdigest() == AWS_SHA256
-    waiter_path = ROOT / "priv/compatibility/aws/waiters-2.json"
+    waiter_path = ROOT.parent / "ex_storage_service_sdk" / "priv/compatibility/aws/waiters-2.json"
     waiters = json.loads(waiter_path.read_text())["waiters"]
     report = {"aws_sha256": AWS_SHA256, "waiters_sha256": hashlib.sha256(waiter_path.read_bytes()).hexdigest(), "cases": []}
     with tempfile.TemporaryDirectory(prefix="ess-waiter-oracle-") as temporary:

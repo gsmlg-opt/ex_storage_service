@@ -3,7 +3,7 @@ Code.require_file("../support/wire_server.exs", __DIR__)
 defmodule ExStorageServiceCli.ExecutableOptionalMemberMatrixTest do
   use ExUnit.Case, async: false
   import Bitwise
-  alias ExStorageServiceCli.S3.XML
+  alias ExStorageServiceSdk.S3.XML
   alias ExStorageServiceCli.Test.WireServer
   @moduletag :tmp_dir
   @fixture Path.expand("../fixtures/differential/optional-members-wire.json", __DIR__)
@@ -48,7 +48,11 @@ defmodule ExStorageServiceCli.ExecutableOptionalMemberMatrixTest do
     assert @oracle["scope"] =~ "not exhaustive"
     assert Enum.count(@oracle["cases"], &(&1["scenario"] == "access-denied-metadata")) == 6
 
-    model = File.read!(Path.expand("../../priv/compatibility/aws/service-2.json", __DIR__))
+    model =
+      File.read!(
+        Application.app_dir(:ex_storage_service_sdk, "priv/compatibility/aws/service-2.json")
+      )
+
     assert Base.encode16(:crypto.hash(:sha256, model), case: :lower) == @oracle["model_sha256"]
 
     for golden <- @oracle["cases"] do
@@ -79,8 +83,8 @@ defmodule ExStorageServiceCli.ExecutableOptionalMemberMatrixTest do
       ])
 
     assert {:ok, _result, metadata} =
-             ExStorageServiceCli.S3.Client.call(
-               %ExStorageServiceCli.Context{endpoint: endpoint, unsigned: true},
+             ExStorageServiceSdk.S3.Client.call(
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                golden["operation"],
                golden["input"],
                return_response: true,
@@ -105,8 +109,8 @@ defmodule ExStorageServiceCli.ExecutableOptionalMemberMatrixTest do
         ])
 
       assert {:error, error} =
-               ExStorageServiceCli.S3.Client.call(
-                 %ExStorageServiceCli.Context{endpoint: endpoint, unsigned: true},
+               ExStorageServiceSdk.S3.Client.call(
+                 %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                  golden["operation"],
                  golden["input"],
                  max_attempts: 1
@@ -148,8 +152,8 @@ defmodule ExStorageServiceCli.ExecutableOptionalMemberMatrixTest do
           ])
 
         assert {:ok, result, metadata} =
-                 ExStorageServiceCli.S3.Client.call(
-                   %ExStorageServiceCli.Context{endpoint: endpoint, unsigned: true},
+                 ExStorageServiceSdk.S3.Client.call(
+                   %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                    operation,
                    golden["input"],
                    return_response: true,
@@ -178,9 +182,9 @@ defmodule ExStorageServiceCli.ExecutableOptionalMemberMatrixTest do
          Base.decode64!(response["body_base64"])}
       ])
 
-    assert {:error, %ExStorageServiceCli.Error{code: :upload_checksum_mismatch}} =
-             ExStorageServiceCli.S3.Client.call(
-               %ExStorageServiceCli.Context{endpoint: endpoint, unsigned: true},
+    assert {:error, %ExStorageServiceSdk.Error{code: :upload_checksum_mismatch}} =
+             ExStorageServiceSdk.S3.Client.call(
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                golden["operation"],
                Map.put(golden["input"], "Body", <<"fixture", 0, 255>>),
                allow_streaming: true,

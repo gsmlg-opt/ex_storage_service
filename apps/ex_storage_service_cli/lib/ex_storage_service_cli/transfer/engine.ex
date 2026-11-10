@@ -1,18 +1,20 @@
 defmodule ExStorageServiceCli.Transfer.Engine do
   @moduledoc "Shared bounded upload and verified download effects."
-  alias ExStorageServiceCli.{Error, S3.Client, S3.Decoder, Transport.HTTPFetch}
-  alias ExStorageServiceCli.S3.UploadChecksum
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Client, Decoder}
+  alias ExStorageServiceSdk.Transport.HTTPFetch
+  alias ExStorageServiceSdk.S3.UploadChecksum
 
   alias ExStorageServiceCli.Transfer.{
-    Coordinator,
     DownloadChecksum,
-    Limits,
     Multipart,
     Planner,
     RemoteSource,
     Sink,
     Source
   }
+
+  alias ExStorageServiceSdk.Transfer.{Coordinator, Limits}
 
   def upload_file(context, bucket, key, path, opts \\ []) do
     with {:ok, source} <- Source.file(path, Keyword.put(opts, :coordinator, context.coordinator)),
@@ -244,8 +246,8 @@ defmodule ExStorageServiceCli.Transfer.Engine do
     keys =
       ["etag", "content-length", "x-amz-version-id", "x-amz-checksum-type"] ++
         Enum.map(
-          ExStorageServiceCli.S3.Checksum.algorithms(),
-          &ExStorageServiceCli.S3.Checksum.header/1
+          ExStorageServiceSdk.S3.Checksum.algorithms(),
+          &ExStorageServiceSdk.S3.Checksum.header/1
         )
 
     if next.status == first.status and

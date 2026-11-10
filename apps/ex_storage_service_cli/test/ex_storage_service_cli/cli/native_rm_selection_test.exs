@@ -2,7 +2,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.NativeRmSelectionTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation, Parser}
   @moduletag :tmp_dir
   @now ~U[2026-01-03 00:00:00Z]
@@ -15,7 +16,7 @@ defmodule ExStorageServiceCli.CLI.NativeRmSelectionTest do
   defp opts(root), do: [now: @now, tmp_dir: root, max_attempts: 1, emit: fn _ -> :ok end]
 
   defp context(endpoint, conditional \\ true),
-    do: %Context{
+    do: %ExStorageServiceSdk.Config{
       endpoint: endpoint,
       unsigned: true,
       capabilities: %{conditional_delete: conditional}
@@ -103,7 +104,7 @@ defmodule ExStorageServiceCli.CLI.NativeRmSelectionTest do
              Parser.parse(["rm", "s3://bucket/key", "--versions", "--version-id", "v1"])
 
     assert {:error, %Error{code: :version_selection}} =
-             HighLevel.run(parsed, [target()], [%Context{}], opts(root))
+             HighLevel.run(parsed, [target()], [%ExStorageServiceSdk.Config{}], opts(root))
   end
 
   test "single older-than signs a condition against the selected current object", %{
@@ -333,12 +334,12 @@ defmodule ExStorageServiceCli.CLI.NativeRmSelectionTest do
              HighLevel.run(
                invocation(%{older_than: "invalid"}),
                [target()],
-               [%Context{}],
+               [%ExStorageServiceSdk.Config{}],
                opts(root)
              )
 
     excluded = %{invocation(%{older_than: "1d"}) | filters: [exclude: "*"]}
-    assert :ok = HighLevel.run(excluded, [target()], [%Context{}], opts(root))
+    assert :ok = HighLevel.run(excluded, [target()], [%ExStorageServiceSdk.Config{}], opts(root))
     refute_receive {:wire_request, _}
   end
 end

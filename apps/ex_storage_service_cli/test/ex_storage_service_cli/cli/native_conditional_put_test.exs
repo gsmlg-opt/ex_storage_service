@@ -2,7 +2,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.NativeConditionalPutTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation, Parser}
   alias ExStorageServiceCli.Transfer.{Journal, Multipart, Planner, Source}
   @moduletag :tmp_dir
@@ -28,7 +29,7 @@ defmodule ExStorageServiceCli.CLI.NativeConditionalPutTest do
   defp remote, do: %Target{kind: :remote, bucket: "bucket", key: "key"}
 
   defp context(endpoint),
-    do: %Context{
+    do: %ExStorageServiceSdk.Config{
       endpoint: endpoint,
       access_key_id: "fixture-access",
       secret_access_key: "fixture-secret"

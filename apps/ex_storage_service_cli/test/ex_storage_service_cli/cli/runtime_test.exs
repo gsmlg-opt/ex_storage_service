@@ -22,12 +22,12 @@ defmodule ExStorageServiceCli.CLI.RuntimeTest do
                           home: root
                         )
 
-               assert is_pid(context.credential_owner)
+               assert is_pid(context.options[:credential_owner])
 
                send(
                  parent,
                  {:owned, runtime.supervisor, runtime.tasks, runtime.credentials,
-                  context.credential_owner}
+                  context.options[:credential_owner]}
                )
 
                :done
@@ -61,7 +61,7 @@ defmodule ExStorageServiceCli.CLI.RuntimeTest do
       {:ok, context} = Runtime.aws_context(runtime, %{},
         env: %{"AWS_ACCESS_KEY_ID" => "a", "AWS_SECRET_ACCESS_KEY" => "s"},
         home: #{inspect(root)})
-      true = is_pid(context.credential_owner)
+      true = is_pid(context.options[:credential_owner])
       assert_no_servers.()
       :ok
     end)
@@ -100,19 +100,22 @@ defmodule ExStorageServiceCli.CLI.RuntimeTest do
     assert :ok =
              Runtime.with_invocation(fn runtime ->
                assert {:ok,
-                       %Context{access_key_id: "first", session_token: "first-token"} = context} =
+                       %ExStorageServiceSdk.Config{
+                         access_key_id: "first",
+                         session_token: "first-token"
+                       } = context} =
                         Runtime.aws_context(runtime, %{}, opts)
 
                Agent.update(clock, fn _ -> ~U[2026-10-15 00:56:00Z] end)
 
                assert {:ok,
-                       %Context{
+                       %ExStorageServiceSdk.Config{
                          access_key_id: "second",
                          session_token: "second-token",
-                         credential_owner: owner
+                         options: %{credential_owner: owner}
                        }} = Context.refresh(context)
 
-               assert owner == context.credential_owner
+               assert owner == context.options[:credential_owner]
                assert_receive {:wire_request, _}
                assert_receive {:wire_request, _}
                :ok
@@ -159,7 +162,7 @@ defmodule ExStorageServiceCli.CLI.RuntimeTest do
 
       assert {:ok, first} = Context.native(%Target{alias: "first"}, %{}, config, opts)
       assert {:ok, second} = Context.native(%Target{alias: "second"}, %{}, config, opts)
-      assert first.credential_owner != second.credential_owner
+      assert first.options[:credential_owner] != second.options[:credential_owner]
       assert first.access_key_id == "first-a"
       assert second.access_key_id == "second-a"
       assert first.endpoint == "https://first.test"
@@ -172,7 +175,12 @@ defmodule ExStorageServiceCli.CLI.RuntimeTest do
     File.write!(Path.join(root, "credentials"), "malformed")
 
     Runtime.with_invocation(fn runtime ->
-      assert {:ok, %Context{unsigned: true, credential_owner: nil}} =
+      assert {:ok,
+              %ExStorageServiceSdk.Config{
+                unsigned: true,
+                credential_provider: nil,
+                options: %{credential_owner: nil}
+              }} =
                Runtime.aws_context(runtime, %{no_sign_request: true},
                  env: %{},
                  home: root,

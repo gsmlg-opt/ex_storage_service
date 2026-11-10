@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.CLI.NativeReplication do
   @moduledoc "Portable replication rule edits over complete modeled S3 configuration documents."
-  alias ExStorageServiceCli.{Error, Target}
-  alias ExStorageServiceCli.S3.Input
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.Input
   @write %{"dry-run" => {:dry_run, :boolean}}
   @fields %{
     "id" => {:id, :string},

@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.S3PathResolverTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.S3PathResolver
   @invocation %{frontend: :s3, command: ["mv"]}
   @account %{"AccountId" => "123456789012"}
@@ -12,7 +13,7 @@ defmodule ExStorageServiceCli.CLI.S3PathResolverTest do
     do: %{env: env, stores: %{config: %{"default" => profile}, sections: %{}}}
 
   test "control and STS endpoint rules resolve regional, FIPS and dualstack endpoints" do
-    context = %Context{region: "us-west-2"}
+    context = %ExStorageServiceSdk.Config{region: "us-west-2"}
 
     for {env, host} <- [
           {%{}, "123456789012.s3-control.us-west-2.amazonaws.com"},
@@ -30,7 +31,7 @@ defmodule ExStorageServiceCli.CLI.S3PathResolverTest do
   end
 
   test "control endpoint is independent of data endpoint and custom endpoints suppress FIPS" do
-    context = %Context{endpoint: "http://data.invalid", region: "us-east-1"}
+    context = %ExStorageServiceSdk.Config{endpoint: "http://data.invalid", region: "us-east-1"}
 
     env = %{
       "AWS_ENDPOINT_URL_S3_CONTROL" => "http://control.invalid/base",
@@ -56,13 +57,13 @@ defmodule ExStorageServiceCli.CLI.S3PathResolverTest do
       )
 
     assert {:error, %Error{category: :client}} =
-             S3PathResolver.endpoint(:control, input, %Context{}, settings())
+             S3PathResolver.endpoint(:control, input, %ExStorageServiceSdk.Config{}, settings())
 
     assert {:ok, endpoint} =
              S3PathResolver.endpoint(
                :control,
                input,
-               %Context{},
+               %ExStorageServiceSdk.Config{},
                settings(%{"AWS_S3_USE_ARN_REGION" => "true"})
              )
 
@@ -82,7 +83,7 @@ defmodule ExStorageServiceCli.CLI.S3PathResolverTest do
              S3PathResolver.validate(
                @invocation,
                [target("bucket"), target("example-ap-s3alias", "different")],
-               [%Context{}, %Context{}],
+               [%ExStorageServiceSdk.Config{}, %ExStorageServiceSdk.Config{}],
                %{validate_same_s3_paths: true}
              )
 
@@ -90,7 +91,7 @@ defmodule ExStorageServiceCli.CLI.S3PathResolverTest do
              S3PathResolver.validate(
                @invocation,
                [target("bucket"), target("bucket")],
-               [%Context{}, %Context{}],
+               [%ExStorageServiceSdk.Config{}, %ExStorageServiceSdk.Config{}],
                %{validate_same_s3_paths: true}
              )
   end
@@ -107,7 +108,7 @@ defmodule ExStorageServiceCli.CLI.S3PathResolverTest do
              S3PathResolver.validate(
                @invocation,
                [target("bucket", "dir/key"), target("example-ap-s3alias", "dir/")],
-               [%Context{}, %Context{}],
+               [%ExStorageServiceSdk.Config{}, %ExStorageServiceSdk.Config{}],
                %{},
                opts
              )

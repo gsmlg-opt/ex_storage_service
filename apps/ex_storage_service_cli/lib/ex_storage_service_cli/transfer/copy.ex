@@ -1,7 +1,10 @@
 defmodule ExStorageServiceCli.Transfer.Copy do
   @moduledoc "Same-service copy or bounded staged bridge, followed by destination identity verification."
-  alias ExStorageServiceCli.{Error, S3.Client, Target}
-  alias ExStorageServiceCli.Transfer.{Engine, Limits, Multipart, Planner, RemoteSource}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.Client
+  alias ExStorageServiceCli.Transfer.{Engine, Multipart, Planner, RemoteSource}
+  alias ExStorageServiceSdk.Transfer.Limits
 
   @metadata_fields ~w(CacheControl ContentDisposition ContentEncoding ContentLanguage ContentType Expires Metadata)
 
@@ -159,7 +162,7 @@ defmodule ExStorageServiceCli.Transfer.Copy do
 
       with {:ok, tags} <- Client.call(source.context, "GetObjectTagging", tagging_input, opts) do
         pairs = Enum.map(tags["TagSet"] || [], &{&1["Key"], &1["Value"]})
-        {:ok, Map.put(input, "Tagging", ExStorageServiceCli.S3.Encoding.query(pairs))}
+        {:ok, Map.put(input, "Tagging", ExStorageServiceSdk.S3.Encoding.query(pairs))}
       end
     end
   end

@@ -2,7 +2,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.Transfer.EngineTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Transfer.Engine, Transfer.Sink}
+  alias ExStorageServiceCli.{Transfer.Engine, Transfer.Sink}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Test.WireServer
   @moduletag :tmp_dir
 
@@ -11,7 +12,12 @@ defmodule ExStorageServiceCli.Transfer.EngineTest do
     path = Path.join(root, "source.gz")
     File.write!(path, bytes)
     {endpoint, _} = WireServer.fixture([{200, [{"ETag", "\"uploaded\""}], ""}])
-    context = %Context{endpoint: endpoint, access_key_id: "access", secret_access_key: "secret"}
+
+    context = %ExStorageServiceSdk.Config{
+      endpoint: endpoint,
+      access_key_id: "access",
+      secret_access_key: "secret"
+    }
 
     assert {:ok, %{bytes: size, etag: "uploaded"}} =
              Engine.upload_file(context, "bucket", "a% +", path,
@@ -46,7 +52,7 @@ defmodule ExStorageServiceCli.Transfer.EngineTest do
 
     assert {:ok, %{bytes: size}} =
              Engine.download_file(
-               %Context{endpoint: endpoint, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                "bucket",
                "key",
                path
@@ -66,7 +72,7 @@ defmodule ExStorageServiceCli.Transfer.EngineTest do
 
     assert {:error, %Error{code: :checksum_mismatch}} =
              Engine.download_file(
-               %Context{endpoint: endpoint, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                "bucket",
                "key",
                path
@@ -95,7 +101,7 @@ defmodule ExStorageServiceCli.Transfer.EngineTest do
 
     assert {:error, %Error{}} =
              Engine.download_file(
-               %Context{endpoint: endpoint, unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
                "bucket",
                "key",
                path
@@ -125,7 +131,7 @@ defmodule ExStorageServiceCli.Transfer.EngineTest do
 
     assert {:error, %Error{code: :unsafe_destination}} =
              Engine.download_file(
-               %Context{endpoint: "http://127.0.0.1:1", unsigned: true},
+               %ExStorageServiceSdk.Config{endpoint: "http://127.0.0.1:1", unsigned: true},
                "bucket",
                "key",
                Path.join(root, "link/file")

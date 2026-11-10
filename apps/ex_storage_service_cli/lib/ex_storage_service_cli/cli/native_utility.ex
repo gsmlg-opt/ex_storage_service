@@ -1,6 +1,6 @@
 defmodule ExStorageServiceCli.CLI.NativeUtility do
   @moduledoc "Portable diagnostics, sharing and Select adapters with explicit provider boundaries."
-  alias ExStorageServiceCli.S3.{Capabilities, Client, Presign}
+  alias ExStorageServiceSdk.S3.{Capabilities, Client, Presign}
   alias ExStorageServiceCli.CLI.{NativeShare, NativeSQL}
 
   def commands do

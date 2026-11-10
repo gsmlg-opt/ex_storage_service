@@ -4,7 +4,8 @@ defmodule ExStorageServiceCli.Commands.HandlerReturnTest do
   # stderr capture replaces a VM-wide named IO device.
   use ExUnit.Case, async: false
   import ExUnit.CaptureIO
-  alias ExStorageServiceCli.{Commands, Error}
+  alias ExStorageServiceCli.Commands
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Test.WireServer
   @moduletag :tmp_dir
   @context %{
@@ -35,7 +36,7 @@ defmodule ExStorageServiceCli.Commands.HandlerReturnTest do
       )
 
     assert status == 0, output
-    assert output =~ "HANDLER_RETURNED: {:error, %ExStorageServiceCli.Error{"
+    assert output =~ "HANDLER_RETURNED: {:error, %ExStorageServiceSdk.Error{"
   end
 
   test "invalid arguments short circuit with typed errors without networking", %{tmp_dir: dir} do

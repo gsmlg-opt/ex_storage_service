@@ -2,7 +2,7 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.NativeDiffTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation}
   @moduletag :tmp_dir
   @earlier 1_767_225_600
@@ -122,7 +122,7 @@ defmodule ExStorageServiceCli.CLI.NativeDiffTest do
                HighLevel.run(
                  invocation(),
                  [source, local(destination)],
-                 [%Context{endpoint: endpoint, unsigned: true}, nil],
+                 [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}, nil],
                  opts(root)
                )
 

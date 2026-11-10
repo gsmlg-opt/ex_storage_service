@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.NativeDeadlineDurationTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{CLI.Parser, Error}
+  alias ExStorageServiceCli.CLI.Parser
+  alias ExStorageServiceSdk.Error
   @fixture Path.join(__DIR__, "fixtures/native-deadline-duration-go.json")
 
   test "both native deadline flags follow retained Go grammar within exact transport precision" do

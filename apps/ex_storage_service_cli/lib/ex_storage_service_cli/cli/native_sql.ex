@@ -1,8 +1,9 @@
 defmodule ExStorageServiceCli.CLI.NativeSQL do
   @moduledoc "Bounded native S3 Select serialization and raw Records output."
-  alias ExStorageServiceCli.{Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.RawOutput
-  alias ExStorageServiceCli.S3.{Capabilities, Input, Select}
+  alias ExStorageServiceSdk.S3.{Capabilities, Input, Select}
   alias ExStorageServiceCli.Transfer.{Inventory, Manifest, Sink}
 
   @csv_input %{

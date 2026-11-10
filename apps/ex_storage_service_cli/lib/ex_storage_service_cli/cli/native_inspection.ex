@@ -1,8 +1,10 @@
 defmodule ExStorageServiceCli.CLI.NativeInspection do
   @moduledoc "Bounded portable native projections, version metadata and selected raw reads."
-  alias ExStorageServiceCli.{Error, Target}
-  alias ExStorageServiceCli.S3.{Client, Paginator}
-  alias ExStorageServiceCli.Transfer.{Coordinator, Engine, Inventory, Manifest, VersionSelection}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Client, Paginator}
+  alias ExStorageServiceCli.Transfer.{Engine, Inventory, Manifest, VersionSelection}
+  alias ExStorageServiceSdk.Transfer.Coordinator
 
   def cat(target, context, options, opts) do
     with :ok <- raw_options(options),

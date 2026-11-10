@@ -4,7 +4,9 @@ defmodule ExStorageServiceCli.CLI.NativeGlobalsTest do
   # stderr capture replaces a VM-wide named IO device.
   use ExUnit.Case, async: false
   import ExUnit.CaptureIO
-  alias ExStorageServiceCli.{Aliases, Config, Context, Error, S3.Client}
+  alias ExStorageServiceCli.{Aliases, Config}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.Client
   alias ExStorageServiceCli.CLI.{NativeGlobals, Parser, Resolver, Runner}
   alias ExStorageServiceCli.Test.WireServer
   @moduletag :tmp_dir
@@ -83,7 +85,12 @@ defmodule ExStorageServiceCli.CLI.NativeGlobalsTest do
 
     assert {:ok, invocation} = Parser.parse(["ls", "selected/bucket", "-C", directory])
 
-    assert {:ok, %{contexts: [%Context{endpoint: "https://selected.test", unsigned: true}]}} =
+    assert {:ok,
+            %{
+              contexts: [
+                %ExStorageServiceSdk.Config{endpoint: "https://selected.test", unsigned: true}
+              ]
+            }} =
              Resolver.resolve(invocation, path: Path.join(directory, "wrong.toml"))
 
     assert {:ok, _} = Config.read(path: Path.join(directory, "config.toml"))
@@ -157,7 +164,7 @@ defmodule ExStorageServiceCli.CLI.NativeGlobalsTest do
         :gen_tcp.close(socket)
       end)
 
-    context = %Context{
+    context = %ExStorageServiceSdk.Config{
       endpoint: endpoint,
       access_key_id: "fixture-access",
       secret_access_key: "fixture-secret",

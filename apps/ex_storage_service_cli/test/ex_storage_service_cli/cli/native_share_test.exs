@@ -1,10 +1,11 @@
 defmodule ExStorageServiceCli.CLI.NativeShareTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureIO
-  alias ExStorageServiceCli.{Context, Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{Invocation, NativeShare, Parser, Runner}
   alias ExStorageServiceCli.CLI.NativeShare.History
-  alias ExStorageServiceCli.S3.{PostPolicy, Presign}
+  alias ExStorageServiceSdk.S3.{PostPolicy, Presign}
   @moduletag :tmp_dir
   @now ~U[2026-10-15 00:00:00Z]
   @reference JSON.decode!(
@@ -12,7 +13,7 @@ defmodule ExStorageServiceCli.CLI.NativeShareTest do
              )
 
   defp context do
-    %Context{
+    %ExStorageServiceSdk.Config{
       frontend: :native,
       endpoint: "https://s3.us-east-1.amazonaws.com",
       region: "us-east-1",

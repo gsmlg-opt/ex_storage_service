@@ -1,6 +1,6 @@
 defmodule ExStorageServiceCli.CLI.RawOutput do
   @moduledoc "Scopes byte-preserving stdout mode to one exclusively owned raw transfer."
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
 
   def with_stdout(function) do
     with options when is_list(options) <- :io.getopts(:standard_io),

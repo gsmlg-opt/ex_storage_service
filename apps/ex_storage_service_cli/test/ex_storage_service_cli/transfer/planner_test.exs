@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.Transfer.PlannerTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Error, Transfer.Planner}
+  alias ExStorageServiceCli.Transfer.Planner
+  alias ExStorageServiceSdk.Error
   @limits_file Path.expand("../../../../../docs/cli/compatibility/provider-limits.json", __DIR__)
   @providers @limits_file |> File.read!() |> JSON.decode!() |> Map.fetch!("providers")
   @aws Enum.find(@providers, &(&1["id"] == "aws-s3-general-purpose"))

@@ -1,8 +1,8 @@
 defmodule ExStorageServiceCli.CLI.NativeShare do
   @moduledoc "Portable signed shares with private local history and bounded recursive downloads."
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.NativeShare.History
-  alias ExStorageServiceCli.S3.{PostPolicy, Presign}
+  alias ExStorageServiceSdk.S3.{PostPolicy, Presign}
   alias ExStorageServiceCli.Transfer.{Inventory, Manifest}
 
   def commands do

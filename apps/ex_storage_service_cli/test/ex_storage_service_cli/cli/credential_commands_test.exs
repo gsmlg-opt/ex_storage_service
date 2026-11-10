@@ -4,7 +4,8 @@ defmodule ExStorageServiceCli.CLI.CredentialCommandsTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureIO
   alias ExStorageServiceCli.CLI.CredentialCommands
-  alias ExStorageServiceCli.{Error, Test.WireServer}
+  alias ExStorageServiceCli.Test.WireServer
+  alias ExStorageServiceSdk.Error
   @moduletag :tmp_dir
 
   setup_all do

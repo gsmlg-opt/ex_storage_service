@@ -2,9 +2,9 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.Transfer.ResourceAcceptanceTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.Context
   alias ExStorageServiceCli.Test.WireServer
-  alias ExStorageServiceCli.Transfer.{Coordinator, Engine}
+  alias ExStorageServiceCli.Transfer.Engine
+  alias ExStorageServiceSdk.Transfer.Coordinator
   @moduletag :tmp_dir
   @moduletag :resource
   @moduletag timeout: 600_000
@@ -58,7 +58,7 @@ defmodule ExStorageServiceCli.Transfer.ResourceAcceptanceTest do
 
     {endpoint, _peer} = streaming_peer(size)
 
-    context = %Context{
+    context = %ExStorageServiceSdk.Config{
       endpoint: endpoint,
       unsigned: true,
       coordinator: coordinator,

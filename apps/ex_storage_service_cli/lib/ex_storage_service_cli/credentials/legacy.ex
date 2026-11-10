@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.Credentials.Legacy do
   @moduledoc "Pinned legacy EC2 credential-file and Boto provider precedence."
-  alias ExStorageServiceCli.Credentials.{Record, Remote, SharedConfig}
+  alias ExStorageServiceCli.Credentials.{Remote, SharedConfig}
+  alias ExStorageServiceSdk.Credentials, as: Record
 
   def resolve(env, opts \\ []) do
     with {:ok, record} <- ec2(env, opts) do

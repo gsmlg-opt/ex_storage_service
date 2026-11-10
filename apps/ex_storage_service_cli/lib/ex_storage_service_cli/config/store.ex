@@ -1,6 +1,6 @@
 defmodule ExStorageServiceCli.Config.Store do
   @moduledoc false
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
   @max_bytes 1_048_576
 
   def read(path) do

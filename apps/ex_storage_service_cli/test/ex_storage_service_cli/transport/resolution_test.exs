@@ -2,11 +2,12 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.Transport.ResolutionTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, S3Client}
+  alias ExStorageServiceCli.S3Client
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{NativeGlobals, Parser}
-  alias ExStorageServiceCli.S3.Client
+  alias ExStorageServiceSdk.S3.Client
   alias ExStorageServiceCli.Test.WireServer
-  alias ExStorageServiceCli.Transport.Resolution
+  alias ExStorageServiceSdk.Transport.Resolution
 
   @buckets "<ListAllMyBucketsResult><Buckets/></ListAllMyBucketsResult>"
 
@@ -144,7 +145,7 @@ defmodule ExStorageServiceCli.Transport.ResolutionTest do
   defp context(endpoint, entries) do
     assert {:ok, options} = NativeGlobals.prepare(%{resolve: entries})
 
-    %Context{
+    %ExStorageServiceSdk.Config{
       endpoint: endpoint,
       access_key_id: "fixture-access",
       secret_access_key: "fixture-secret",

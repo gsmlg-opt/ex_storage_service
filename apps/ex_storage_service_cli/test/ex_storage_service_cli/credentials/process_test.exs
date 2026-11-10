@@ -1,8 +1,8 @@
 defmodule ExStorageServiceCli.Credentials.ProcessTest do
   use ExUnit.Case, async: true
   alias ExStorageServiceCli.Credentials.Process, as: CredentialProcess
-  alias ExStorageServiceCli.Credentials.Record
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Credentials, as: Record
+  alias ExStorageServiceSdk.Error
   @moduletag :tmp_dir
   @response ~s({"Version":1,"AccessKeyId":"process-access","SecretAccessKey":"process-secret","SessionToken":"process-token","Expiration":"2030-01-01T00:00:00Z"})
 

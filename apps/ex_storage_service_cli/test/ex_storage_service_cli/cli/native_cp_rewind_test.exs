@@ -2,7 +2,7 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.NativeCpRewindTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation, Parser}
   @moduletag :tmp_dir
   @cutoff "2026-01-03T00:00:00Z"
@@ -200,7 +200,10 @@ defmodule ExStorageServiceCli.CLI.NativeCpRewindTest do
       filters: filters
     }
 
-    context = %Context{endpoint: endpoint || "http://127.0.0.1:1", unsigned: true}
+    context = %ExStorageServiceSdk.Config{
+      endpoint: endpoint || "http://127.0.0.1:1",
+      unsigned: true
+    }
 
     contexts =
       Enum.map([source, destination], fn target -> if target.kind == :remote, do: context end)

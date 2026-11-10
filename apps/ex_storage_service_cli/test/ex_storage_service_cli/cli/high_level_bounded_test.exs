@@ -2,7 +2,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.HighLevelBoundedTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation}
   @moduletag :tmp_dir
   defp target(key \\ "key"), do: %Target{kind: :remote, bucket: "bucket", key: key}
@@ -39,7 +40,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelBoundedTest do
       end)
 
     owner = self()
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert :ok =
              HighLevel.run(
@@ -67,7 +68,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelBoundedTest do
       ])
 
     owner = self()
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert :ok =
              HighLevel.run(
@@ -88,18 +89,29 @@ defmodule ExStorageServiceCli.CLI.HighLevelBoundedTest do
   end
 
   test "head zero and invalid result limits make no network request" do
-    assert :ok = HighLevel.run(invocation("head", %{lines: 0}), [target()], [%Context{}], opts())
+    assert :ok =
+             HighLevel.run(
+               invocation("head", %{lines: 0}),
+               [target()],
+               [%ExStorageServiceSdk.Config{}],
+               opts()
+             )
 
     assert {:error, %Error{code: :head_limit}} =
              HighLevel.run(
                invocation("head", %{lines: 1, bytes: 1}),
                [target()],
-               [%Context{}],
+               [%ExStorageServiceSdk.Config{}],
                opts()
              )
 
     assert {:error, %Error{code: :result_limit}} =
-             HighLevel.run(invocation("find", %{limit: 10001}), [target()], [%Context{}], opts())
+             HighLevel.run(
+               invocation("find", %{limit: 10001}),
+               [target()],
+               [%ExStorageServiceSdk.Config{}],
+               opts()
+             )
   end
 
   test "find and du limit results and explicitly mark partial filtered inventories", %{
@@ -133,7 +145,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelBoundedTest do
              HighLevel.run(
                invocation("cp", %{follow_symlinks: false}),
                [%Target{kind: :local, path: path}, target()],
-               [nil, %Context{}],
+               [nil, %ExStorageServiceSdk.Config{}],
                opts()
              )
   end
@@ -145,7 +157,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelBoundedTest do
         {200, [{"ETag", "\"e\""}], "x"}
       ])
 
-    context = %Context{
+    context = %ExStorageServiceSdk.Config{
       endpoint: endpoint,
       access_key_id: "AKID",
       secret_access_key: "secret",
@@ -177,7 +189,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelBoundedTest do
          ""}
       ])
 
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert {:error, %Error{category: :skipped, code: :glacier_object}} =
              HighLevel.run(
@@ -221,7 +233,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelBoundedTest do
              HighLevel.run(
                invocation("rm", %{version_id: "delete marker+ %"}),
                [target()],
-               [%Context{endpoint: endpoint, unsigned: true}],
+               [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}],
                opts()
              )
 
@@ -239,7 +251,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelBoundedTest do
              HighLevel.run(
                invocation("rm", %{all_versions: true}),
                [target()],
-               [%Context{endpoint: endpoint, unsigned: true}],
+               [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}],
                opts()
              )
 
@@ -262,7 +274,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelBoundedTest do
              HighLevel.run(
                invocation("rm", %{all_versions: true}),
                [target()],
-               [%Context{endpoint: endpoint, unsigned: true}],
+               [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}],
                opts()
              )
   end
@@ -282,7 +294,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelBoundedTest do
         {200, [], response}
       ])
 
-    context = %Context{
+    context = %ExStorageServiceSdk.Config{
       endpoint: endpoint,
       unsigned: true,
       capabilities: %{conditional_delete: true}
@@ -321,7 +333,7 @@ defmodule ExStorageServiceCli.CLI.HighLevelBoundedTest do
              HighLevel.run(
                invocation("rm", %{all_versions: true}),
                [target()],
-               [%Context{endpoint: endpoint, unsigned: true}],
+               [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}],
                opts()
              )
 

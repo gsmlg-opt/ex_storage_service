@@ -3,7 +3,7 @@ defmodule ExStorageServiceCli.Commands.Presign do
   Generate presigned URLs for S3 objects.
   """
 
-  alias ExStorageServiceCli.SigV4
+  alias ExStorageServiceSdk.SigV4
   alias ExStorageServiceCli.Output
   alias ExStorageServiceCli.Commands.Failure
 

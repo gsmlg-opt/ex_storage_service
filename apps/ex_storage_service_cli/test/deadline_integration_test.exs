@@ -3,10 +3,13 @@ Code.require_file("support/wire_server.exs", __DIR__)
 defmodule ExStorageServiceCli.DeadlineIntegrationTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureIO
-  alias ExStorageServiceCli.{Context, Error, S3.Client, S3.Request, Transport.HTTPFetch}
+  alias ExStorageServiceCli.Context
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Client, Request}
+  alias ExStorageServiceSdk.Transport.HTTPFetch
   alias ExStorageServiceCli.CLI.{Parser, Runner}
   alias ExStorageServiceCli.Test.WireServer
-  alias ExStorageServiceCli.Transfer.{Coordinator, RateLimiter}
+  alias ExStorageServiceSdk.Transfer.{Coordinator, RateLimiter}
   @moduletag :tmp_dir
 
   test "AWS zero read and connect timeouts reach the real adapter without a substitute", %{
@@ -30,7 +33,8 @@ defmodule ExStorageServiceCli.DeadlineIntegrationTest do
                "0"
              ])
 
-    assert {:ok, %Context{timeout: :infinity, connect_timeout: :infinity} = context} =
+    assert {:ok,
+            %ExStorageServiceSdk.Config{timeout: :infinity, connect_timeout: :infinity} = context} =
              Context.aws(invocation.options,
                env: %{},
                config_file: root <> "/missing-config",
@@ -359,7 +363,7 @@ defmodule ExStorageServiceCli.DeadlineIntegrationTest do
   end
 
   test "idle timeout retries retain replay safety and uncertain write outcomes" do
-    alias ExStorageServiceCli.S3.Retry
+    alias ExStorageServiceSdk.S3.Retry
 
     for code <- [:read_idle_timeout, :write_idle_timeout] do
       error = Error.new(:transport, "fixture", code: code)

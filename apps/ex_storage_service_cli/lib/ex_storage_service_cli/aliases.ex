@@ -13,7 +13,8 @@ defmodule ExStorageServiceCli.Aliases do
   Import replaces existing aliases only with `overwrite: true`; `preview_import/2`
   validates and reports proposed actions without writing. All updates are atomic.
   """
-  alias ExStorageServiceCli.{Config, Error}
+  alias ExStorageServiceCli.Config
+  alias ExStorageServiceSdk.Error
 
   @fields ~w(endpoint profile provider region access_key_id secret_access_key session_token service service_version bucket_type)
   @secrets ~w(secret_access_key session_token)

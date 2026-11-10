@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.CLI.AutoPromptTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureIO
-  alias ExStorageServiceCli.{Error, CLI.AutoPrompt, CLI.AWSInput}
+  alias ExStorageServiceCli.{CLI.AutoPrompt, CLI.AWSInput}
+  alias ExStorageServiceSdk.Error
 
   defp reader(answers) do
     owner = self()

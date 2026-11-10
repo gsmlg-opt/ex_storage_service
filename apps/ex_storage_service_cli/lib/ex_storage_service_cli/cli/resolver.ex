@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.Resolver do
   @moduledoc "Resolves native targets before execution, preserving independent endpoint contexts."
-  alias ExStorageServiceCli.{Aliases, Config, Context, Error, Target}
+  alias ExStorageServiceCli.{Aliases, Config, Context, Target}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.Invocation
   defstruct [:invocation, targets: [], contexts: [], legacy_args: []]
 

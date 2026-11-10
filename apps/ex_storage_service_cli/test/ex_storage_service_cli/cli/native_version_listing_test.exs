@@ -3,7 +3,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 defmodule ExStorageServiceCli.CLI.NativeVersionListingTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureIO
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
 
   alias ExStorageServiceCli.CLI.{
     Invocation,
@@ -28,7 +29,9 @@ defmodule ExStorageServiceCli.CLI.NativeVersionListingTest do
     end
 
     assert {:ok, %{"Entries" => [object, folder], "Returned" => 2, "Partial" => false}} =
-             NativeListing.versions(invocation(), target("photos"), %Context{}, fetch: fetch)
+             NativeListing.versions(invocation(), target("photos"), %ExStorageServiceSdk.Config{},
+               fetch: fetch
+             )
 
     assert object["key"] == "photos.txt"
     assert object["version_id"] == "one"
@@ -60,7 +63,7 @@ defmodule ExStorageServiceCli.CLI.NativeVersionListingTest do
              NativeListing.versions(
                invocation(%{prefix: "override:", delimiter: ":", max_keys: 2}),
                target("ignored/"),
-               %Context{},
+               %ExStorageServiceSdk.Config{},
                fetch: fetch
              )
 
@@ -80,7 +83,7 @@ defmodule ExStorageServiceCli.CLI.NativeVersionListingTest do
              NativeListing.versions(
                invocation(%{recursive: true, prefix: "", delimiter: ":", max_keys: 1}),
                target("ignored/"),
-               %Context{},
+               %ExStorageServiceSdk.Config{},
                fetch: fetch
              )
   end
@@ -89,7 +92,10 @@ defmodule ExStorageServiceCli.CLI.NativeVersionListingTest do
     fetch = fn "ListObjectVersions", %{"Delimiter" => ""} -> {:ok, page()} end
 
     assert {:ok, %{"Returned" => 0, "Partial" => false}} =
-             NativeListing.versions(invocation(%{delimiter: ""}), target(), %Context{},
+             NativeListing.versions(
+               invocation(%{delimiter: ""}),
+               target(),
+               %ExStorageServiceSdk.Config{},
                fetch: fetch
              )
   end
@@ -100,10 +106,20 @@ defmodule ExStorageServiceCli.CLI.NativeVersionListingTest do
     end
 
     assert {:ok, %{"Returned" => 1, "Partial" => true, "Entries" => [_]}} =
-             NativeListing.versions(invocation(%{limit: 1}), target(), %Context{}, fetch: fetch)
+             NativeListing.versions(
+               invocation(%{limit: 1}),
+               target(),
+               %ExStorageServiceSdk.Config{},
+               fetch: fetch
+             )
 
     assert {:ok, %{"Returned" => 0, "Partial" => true, "Entries" => []}} =
-             NativeListing.versions(invocation(%{limit: 0}), target(), %Context{}, fetch: fetch)
+             NativeListing.versions(
+               invocation(%{limit: 0}),
+               target(),
+               %ExStorageServiceSdk.Config{},
+               fetch: fetch
+             )
   end
 
   test "later page errors and repeated tokens cannot become successful listings" do
@@ -123,7 +139,9 @@ defmodule ExStorageServiceCli.CLI.NativeVersionListingTest do
       end
 
       assert {:error, %Error{}} =
-               NativeListing.versions(invocation(), target(), %Context{}, fetch: fetch)
+               NativeListing.versions(invocation(), target(), %ExStorageServiceSdk.Config{},
+                 fetch: fetch
+               )
     end
   end
 
@@ -132,7 +150,9 @@ defmodule ExStorageServiceCli.CLI.NativeVersionListingTest do
 
     for bad_target <- [nil, %Target{kind: :local, path: "."}, %Target{kind: :remote}] do
       assert {:error, %Error{category: :syntax}} =
-               NativeListing.versions(invocation(), bad_target, %Context{}, fetch: no_call)
+               NativeListing.versions(invocation(), bad_target, %ExStorageServiceSdk.Config{},
+                 fetch: no_call
+               )
     end
 
     for options <- [
@@ -143,7 +163,12 @@ defmodule ExStorageServiceCli.CLI.NativeVersionListingTest do
           %{rewind: "2026-10-15"}
         ] do
       assert {:error, %Error{category: :syntax}} =
-               NativeListing.versions(invocation(options), target(), %Context{}, fetch: no_call)
+               NativeListing.versions(
+                 invocation(options),
+                 target(),
+                 %ExStorageServiceSdk.Config{},
+                 fetch: no_call
+               )
     end
   end
 
@@ -154,7 +179,10 @@ defmodule ExStorageServiceCli.CLI.NativeVersionListingTest do
           page([], [], [%{"Prefix" => "outside/"}])
         ] do
       assert {:error, %Error{category: :protocol}} =
-               NativeListing.versions(invocation(), target("selected/"), %Context{},
+               NativeListing.versions(
+                 invocation(),
+                 target("selected/"),
+                 %ExStorageServiceSdk.Config{},
                  fetch: fn _, _ -> {:ok, response} end
                )
     end
@@ -166,7 +194,7 @@ defmodule ExStorageServiceCli.CLI.NativeVersionListingTest do
     fetch = fn _, _ -> {:ok, page([], [version("a", "one"), version("b", "two")])} end
 
     assert :ok =
-             NativeListing.versions(invocation, target(), %Context{},
+             NativeListing.versions(invocation, target(), %ExStorageServiceSdk.Config{},
                fetch: fetch,
                emit: fn row -> send(parent, {:row, row}) end,
                stderr: fn row -> send(parent, {:warning, row}) end
@@ -184,7 +212,9 @@ defmodule ExStorageServiceCli.CLI.NativeVersionListingTest do
       capture_io(fn ->
         assert :ok =
                  NativeEvents.with_invocation(invocation, fn invocation ->
-                   NativeListing.versions(invocation, target(), %Context{}, fetch: fetch)
+                   NativeListing.versions(invocation, target(), %ExStorageServiceSdk.Config{},
+                     fetch: fetch
+                   )
                  end)
       end)
 
@@ -223,7 +253,7 @@ defmodule ExStorageServiceCli.CLI.NativeVersionListingTest do
     assert {:ok, %{"Returned" => 2, "Partial" => false, "Entries" => entries}} =
              NativeInspection.ls(
                target("ignored/"),
-               %Context{},
+               %ExStorageServiceSdk.Config{},
                %{
                  rewind: "2026-10-15",
                  prefix: "selected/",
@@ -241,7 +271,10 @@ defmodule ExStorageServiceCli.CLI.NativeVersionListingTest do
 
   test "historical delimiter selection fails before listing" do
     assert {:error, %Error{category: :syntax, code: :historical_listing_delimiter}} =
-             NativeInspection.ls(target(), %Context{}, %{rewind: "2026-10-15", delimiter: "/"},
+             NativeInspection.ls(
+               target(),
+               %ExStorageServiceSdk.Config{},
+               %{rewind: "2026-10-15", delimiter: "/"},
                fetch: fn _, _ -> flunk("unsupported historical selection made a request") end
              )
   end

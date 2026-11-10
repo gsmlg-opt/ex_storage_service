@@ -1,12 +1,8 @@
 defmodule ExStorageServiceCli.CLI.AutoPrompt do
   @moduledoc "Opt-in bounded model/registry questions on stderr, with terminal-safe sensitive input."
-  alias ExStorageServiceCli.{
-    Error,
-    CLI.AWSInput,
-    CLI.Registry,
-    CLI.Signals.Native,
-    S3.OperationCatalog
-  }
+  alias ExStorageServiceCli.{CLI.AWSInput, CLI.Registry, CLI.Signals.Native}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.OperationCatalog
 
   def mode(options) do
     cond do

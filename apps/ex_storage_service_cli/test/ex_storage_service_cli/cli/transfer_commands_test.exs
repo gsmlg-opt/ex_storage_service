@@ -3,7 +3,7 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 defmodule ExStorageServiceCli.CLI.TransferCommandsTest do
   # Journal mutex ports share the host namespace with concurrent wire fixtures.
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Context, Error}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{Runtime, TransferCommands}
   alias ExStorageServiceCli.Transfer.{Journal, Multipart, Planner, Source}
   alias ExStorageServiceCli.Test.WireServer
@@ -29,7 +29,7 @@ defmodule ExStorageServiceCli.CLI.TransferCommandsTest do
       state_root = Path.join(root, "journals-#{attempt}")
 
       case Multipart.upload(
-             %Context{endpoint: endpoint, unsigned: true},
+             %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
              "bucket",
              "key",
              source,

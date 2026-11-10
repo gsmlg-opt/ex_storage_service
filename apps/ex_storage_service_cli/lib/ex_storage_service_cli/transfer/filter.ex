@@ -1,6 +1,6 @@
 defmodule ExStorageServiceCli.Transfer.Filter do
   @moduledoc "Ordered AWS glob filters with bounded, non-backtracking matching."
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
 
   def compile(rules) when length(rules) <= 128 do
     if Enum.all?(rules, fn {action, pattern} ->

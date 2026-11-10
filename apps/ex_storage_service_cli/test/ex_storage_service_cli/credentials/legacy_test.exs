@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.Credentials.LegacyTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.Credentials.{Provider, Record}
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceCli.Credentials.Provider
+  alias ExStorageServiceSdk.Credentials, as: Record
+  alias ExStorageServiceSdk.Error
   @moduletag :tmp_dir
 
   test "legacy EC2 credentials precede Boto and container without token mixing", %{tmp_dir: root} do

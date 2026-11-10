@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.AliasesTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Aliases, Config, Error}
+  alias ExStorageServiceCli.{Aliases, Config}
+  alias ExStorageServiceSdk.Error
   @moduletag :tmp_dir
 
   test "aliases reference profiles and coexist with unrelated profiles", %{tmp_dir: dir} do

@@ -69,7 +69,7 @@ def main():
     args = parser.parse_args()
     assert hashlib.sha256(args.aws.read_bytes()).hexdigest() == AWS_SHA256
     report = {"schema_version": 1, "aws_sha256": AWS_SHA256,
-              "model_sha256": hashlib.sha256((ROOT / "priv/compatibility/aws/service-2.json").read_bytes()).hexdigest(),
+              "model_sha256": hashlib.sha256((ROOT.parent / "ex_storage_service_sdk" / "priv/compatibility/aws/service-2.json").read_bytes()).hexdigest(),
               "scope": "Eight pinned SSE-C operation hooks, explicit MD5 bypass, text/binary file input and three ASCII metadata hooks", "cases": []}
     with tempfile.TemporaryDirectory(prefix="ess-ssec-oracle-") as temporary:
         directory = Path(temporary)

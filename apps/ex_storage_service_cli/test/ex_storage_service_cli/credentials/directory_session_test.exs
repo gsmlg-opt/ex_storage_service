@@ -2,8 +2,10 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.Credentials.DirectorySessionTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Test.WireServer}
-  alias ExStorageServiceCli.Credentials.{DirectorySession, Record}
+  alias ExStorageServiceCli.Test.WireServer
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceCli.Credentials.DirectorySession
+  alias ExStorageServiceSdk.Credentials, as: Record
   @now ~U[2026-10-15 00:00:00Z]
 
   setup_all do
@@ -153,7 +155,7 @@ defmodule ExStorageServiceCli.Credentials.DirectorySessionTest do
   end
 
   defp context(endpoint),
-    do: %Context{
+    do: %ExStorageServiceSdk.Config{
       endpoint: endpoint,
       region: "us-west-2",
       access_key_id: "iam-a",

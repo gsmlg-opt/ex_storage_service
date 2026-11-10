@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.Transfer.Source do
   @moduledoc "Replayable bounded file ranges with identity and incremental content validation."
-  alias ExStorageServiceCli.Error
-  alias ExStorageServiceCli.Transfer.{Coordinator, RemoteSource}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceCli.Transfer.RemoteSource
+  alias ExStorageServiceSdk.Transfer.Coordinator
   @max_chunk 65_536
   @identity_keys [:major_device, :minor_device, :inode, :size, :mtime, :ctime, :type]
   defstruct [
@@ -221,4 +222,17 @@ defmodule ExStorageServiceCli.Transfer.Source do
 
   defp changed, do: failure(:source_changed, "Transfer source changed after it was captured")
   defp failure(code, message), do: {:error, Error.new(:client, message, code: code)}
+end
+
+defimpl ExStorageServiceSdk.ByteSource, for: ExStorageServiceCli.Transfer.Source do
+  # A request-scoped coordinator, when given, replaces the captured one so request
+  # cancellation also stops checksum reads.
+  def reduce(source, acc, reducer, opts) do
+    source =
+      if Keyword.has_key?(opts, :coordinator),
+        do: %{source | coordinator: opts[:coordinator]},
+        else: source
+
+    ExStorageServiceCli.Transfer.Source.reduce(source, acc, reducer)
+  end
 end

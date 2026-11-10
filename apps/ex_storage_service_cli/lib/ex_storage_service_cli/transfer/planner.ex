@@ -1,6 +1,6 @@
 defmodule ExStorageServiceCli.Transfer.Planner do
   @moduledoc "Pure transfer sizing using explicitly selected provider byte limits."
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
   defstruct [:mode, :size, :part_size, :part_count, parts: []]
   @required ~w(max_single_put_bytes min_nonfinal_part_bytes max_part_bytes max_parts)a
 

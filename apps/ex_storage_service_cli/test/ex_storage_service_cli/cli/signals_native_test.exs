@@ -187,7 +187,7 @@ defmodule ExStorageServiceCli.CLI.SignalsNativeTest do
 
   defp child(context, script) do
     source = """
-    Code.require_file(#{inspect(Path.join(@root, "lib/ex_storage_service_cli/error.ex"))})
+    Code.require_file(#{inspect(Path.join(@root, "../ex_storage_service_sdk/lib/ex_storage_service_sdk/error.ex"))})
     Code.require_file(#{inspect(Path.join(@root, "lib/ex_storage_service_cli/cli/signals/native.ex"))})
     alias ExStorageServiceCli.CLI.Signals.Native
     :ok = Native.load_path(#{inspect(context.library)})

@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.Parser do
   @moduledoc "Strict, pure argument parsing. Help never loads configuration or credentials."
-  alias ExStorageServiceCli.{Error, CLI.Invocation, CLI.Registry}
+  alias ExStorageServiceCli.{CLI.Invocation, CLI.Registry}
+  alias ExStorageServiceSdk.Error
 
   def parse(argv) do
     if frontend_hint(argv) == :s3api, do: parse_api(argv), else: parse_common(argv)
@@ -63,7 +64,8 @@ defmodule ExStorageServiceCli.CLI.Parser do
   defp prepare(invocation), do: {:ok, invocation}
 
   defp parse_api(argv) do
-    alias ExStorageServiceCli.{CLI.AWSInput, S3.OperationCatalog}
+    alias ExStorageServiceCli.CLI.AWSInput
+    alias ExStorageServiceSdk.S3.OperationCatalog
     {prefix, remaining} = split_api(argv, [])
     prefix = Enum.map(prefix, fn value -> if value == "help", do: "--help", else: value end)
 

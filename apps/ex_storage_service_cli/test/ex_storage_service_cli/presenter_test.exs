@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.PresenterTest do
   use ExUnit.Case, async: false
   import ExUnit.CaptureIO
-  alias ExStorageServiceCli.{Error, Presenter, YAML}
+  alias ExStorageServiceCli.{Presenter, YAML}
+  alias ExStorageServiceSdk.Error
 
   @fixtures JSON.decode!(
               File.read!(Path.expand("../fixtures/presentation/vectors.json", __DIR__))

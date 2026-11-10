@@ -1,8 +1,9 @@
 defmodule ExStorageServiceCli.CLI.LifecycleAliasesTest do
   use ExUnit.Case, async: true
   alias ExStorageServiceCli.CLI.{Management, Parser}
-  alias ExStorageServiceCli.{Context, Error, Target}
-  alias ExStorageServiceCli.S3.Encoder
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.Encoder
 
   test "hidden expiry and delete-marker aliases have the same modeled effects" do
     for flags <- [["--expire-days", "12"], ["--expiry-days", "12"]] do
@@ -307,7 +308,7 @@ defmodule ExStorageServiceCli.CLI.LifecycleAliasesTest do
   defp run(action, flags, call) do
     with {:ok, invocation} <- Parser.parse(["ilm", "rule", action, "s3://bucket" | flags]),
          {:ok, target} <- Target.parse("s3://bucket") do
-      Management.run(invocation, target, %Context{}, call: call)
+      Management.run(invocation, target, %ExStorageServiceSdk.Config{}, call: call)
     end
   end
 

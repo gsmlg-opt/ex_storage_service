@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.NativeGlobals do
   @moduledoc "Invocation-scoped native configuration and validated pre-sign request headers."
-  alias ExStorageServiceCli.{CLI.Invocation, Error}
+  alias ExStorageServiceCli.CLI.Invocation
+  alias ExStorageServiceSdk.Error
 
   @reserved ~w(authorization proxy-authorization host content-length transfer-encoding
     connection trailer te upgrade expect content-md5 content-encoding
@@ -14,7 +15,7 @@ defmodule ExStorageServiceCli.CLI.NativeGlobals do
          {:ok, headers} <- headers(options[:custom_headers] || []),
          {:ok, options} <- rates(options),
          {:ok, options} <- deadlines(options),
-         {:ok, pins} <- ExStorageServiceCli.Transport.Resolution.parse(options[:resolve] || []) do
+         {:ok, pins} <- ExStorageServiceSdk.Transport.Resolution.parse(options[:resolve] || []) do
       options = if pins == %{}, do: options, else: Map.put(options, :resolve_entries, pins)
       {:ok, if(headers == [], do: options, else: Map.put(options, :request_headers, headers))}
     end
@@ -72,7 +73,7 @@ defmodule ExStorageServiceCli.CLI.NativeGlobals do
           {:cont, {:ok, result}}
 
         {:ok, value} ->
-          case ExStorageServiceCli.Transfer.RateLimiter.parse_rate(value) do
+          case ExStorageServiceSdk.Transfer.RateLimiter.parse_rate(value) do
             {:ok, rate} -> {:cont, {:ok, Map.put(result, key, rate)}}
             error -> {:halt, error}
           end

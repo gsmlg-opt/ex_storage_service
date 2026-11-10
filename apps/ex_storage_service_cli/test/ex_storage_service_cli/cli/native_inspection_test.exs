@@ -2,9 +2,10 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation, NativeInspection, Parser, Runner}
-  alias ExStorageServiceCli.Transfer.Coordinator
+  alias ExStorageServiceSdk.Transfer.Coordinator
   @moduletag :tmp_dir
   @files [{"top.txt", 5}, {"a/one.txt", 7}, {"a/two.bin", 11}, {"a/b/deep.txt", 13}]
 
@@ -150,7 +151,7 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
   end
 
   test "invalid byte selections and unconfirmed part metadata refuse further I/O" do
-    context = %Context{unsigned: true, endpoint: "http://unused.invalid"}
+    context = %ExStorageServiceSdk.Config{unsigned: true, endpoint: "http://unused.invalid"}
 
     for options <- [
           %{offset: -1},
@@ -179,7 +180,7 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
              HighLevel.run(
                invocation,
                [target("key")],
-               [%Context{unsigned: true, endpoint: endpoint}],
+               [%ExStorageServiceSdk.Config{unsigned: true, endpoint: endpoint}],
                write: fn bytes ->
                  send(parent, {:raw, bytes})
                  :ok
@@ -191,11 +192,19 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
 
   test "tree projection obeys directory-only files and depth semantics", %{tmp_dir: root} do
     opts = inventory_opts(root)
-    assert {:ok, dirs} = NativeInspection.tree(target(), %Context{}, %{depth: 1}, opts)
+
+    assert {:ok, dirs} =
+             NativeInspection.tree(target(), %ExStorageServiceSdk.Config{}, %{depth: 1}, opts)
+
     assert Enum.map(dirs["Entries"], & &1["Path"]) == ["a/", "a/b/"]
 
     assert {:ok, files} =
-             NativeInspection.tree(target(), %Context{}, %{depth: 1, files: true}, opts)
+             NativeInspection.tree(
+               target(),
+               %ExStorageServiceSdk.Config{},
+               %{depth: 1, files: true},
+               opts
+             )
 
     assert Enum.map(files["Entries"], & &1["Path"]) == [
              "a/",
@@ -206,7 +215,10 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
            ]
 
     refute files["Partial"]
-    assert {:ok, all} = NativeInspection.tree(target(), %Context{}, %{files: true}, opts)
+
+    assert {:ok, all} =
+             NativeInspection.tree(target(), %ExStorageServiceSdk.Config{}, %{files: true}, opts)
+
     assert Enum.any?(all["Entries"], &(&1["Path"] == "a/b/deep.txt"))
     assert File.ls!(root) == []
   end
@@ -269,7 +281,7 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     assert {:ok, data} =
              NativeInspection.tree(
                target(),
-               %Context{},
+               %ExStorageServiceSdk.Config{},
                %{files: true, limit: 1},
                inventory_opts(root)
              )
@@ -279,7 +291,7 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     assert data["Partial"]
 
     assert {:error, %Error{code: :tree_depth}} =
-             NativeInspection.tree(target(), %Context{}, %{depth: 0}, [])
+             NativeInspection.tree(target(), %ExStorageServiceSdk.Config{}, %{depth: 0}, [])
 
     assert File.ls!(root) == []
   end
@@ -288,7 +300,12 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     tmp_dir: root
   } do
     assert {:ok, data} =
-             NativeInspection.du(target(), %Context{}, %{recursive: true}, inventory_opts(root))
+             NativeInspection.du(
+               target(),
+               %ExStorageServiceSdk.Config{},
+               %{recursive: true},
+               inventory_opts(root)
+             )
 
     assert {data["Objects"], data["Bytes"]} == {4, 36}
 
@@ -301,7 +318,7 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     assert {:ok, capped} =
              NativeInspection.du(
                target(),
-               %Context{},
+               %ExStorageServiceSdk.Config{},
                %{recursive: true, limit: 1},
                inventory_opts(root)
              )
@@ -316,7 +333,7 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     assert {:ok, data} =
              NativeInspection.du(
                target(),
-               %Context{},
+               %ExStorageServiceSdk.Config{},
                %{recursive: true, depth: 1},
                inventory_opts(root)
              )
@@ -324,7 +341,12 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     assert length(data["Entries"]) == 1
 
     assert {:ok, versions} =
-             NativeInspection.du(target(), %Context{}, %{versions: true}, inventory_opts(root))
+             NativeInspection.du(
+               target(),
+               %ExStorageServiceSdk.Config{},
+               %{versions: true},
+               inventory_opts(root)
+             )
 
     assert versions["Objects"] == 8
     assert versions["Bytes"] == 72
@@ -354,7 +376,10 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     end
 
     assert {:ok, data} =
-             NativeInspection.stat(target("a/"), %Context{}, %{}, tmp_dir: root, call: fetch)
+             NativeInspection.stat(target("a/"), %ExStorageServiceSdk.Config{}, %{},
+               tmp_dir: root,
+               call: fetch
+             )
 
     assert_receive {:list, %{"Prefix" => "a/", "Delimiter" => "/"}}
     assert_receive {:head, %{"Key" => "a/one.txt"}}
@@ -378,7 +403,10 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     end
 
     assert {:ok, data} =
-             NativeInspection.stat(target(), %Context{}, %{recursive: true, limit: 1},
+             NativeInspection.stat(
+               target(),
+               %ExStorageServiceSdk.Config{},
+               %{recursive: true, limit: 1},
                tmp_dir: root,
                call: fetch
              )
@@ -413,7 +441,10 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     end
 
     assert {:ok, data} =
-             NativeInspection.stat(target("top.txt"), %Context{}, %{versions: true},
+             NativeInspection.stat(
+               target("top.txt"),
+               %ExStorageServiceSdk.Config{},
+               %{versions: true},
                tmp_dir: root,
                call: fetch
              )
@@ -442,7 +473,7 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     end
 
     assert {:error, ^error} =
-             NativeInspection.stat(target(), %Context{}, %{recursive: true},
+             NativeInspection.stat(target(), %ExStorageServiceSdk.Config{}, %{recursive: true},
                tmp_dir: root,
                call: fetch
              )
@@ -453,14 +484,17 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
 
   test "explicit selected versions reject ignored responses and conflicting inventory modes" do
     assert {:error, %Error{code: :source_version_mismatch}} =
-             NativeInspection.stat(target("key"), %Context{}, %{version_id: "selected"},
+             NativeInspection.stat(
+               target("key"),
+               %ExStorageServiceSdk.Config{},
+               %{version_id: "selected"},
                input: %{"VersionId" => "selected"},
                call: fn "HeadObject", _ -> {:ok, %{"VersionId" => "current"}} end
              )
 
     for options <- [%{version_id: "v", versions: true}, %{version_id: "v", recursive: true}] do
       assert {:error, %Error{code: :version_selection}} =
-               NativeInspection.stat(target("key"), %Context{}, options, [])
+               NativeInspection.stat(target("key"), %ExStorageServiceSdk.Config{}, options, [])
     end
   end
 
@@ -469,7 +503,10 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     Coordinator.cancel(coordinator)
 
     assert {:error, %Error{category: :interrupted}} =
-             NativeInspection.tree(target(), %Context{coordinator: coordinator}, %{files: true},
+             NativeInspection.tree(
+               target(),
+               %ExStorageServiceSdk.Config{coordinator: coordinator},
+               %{files: true},
                tmp_dir: root,
                call: fn _, _ -> flunk("Cancelled inspection issued a request") end
              )
@@ -479,14 +516,19 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
 
   test "explicit depth implies descendant summaries without recursive flag", %{tmp_dir: root} do
     assert {:ok, data} =
-             NativeInspection.du(target(), %Context{}, %{depth: 2}, inventory_opts(root))
+             NativeInspection.du(
+               target(),
+               %ExStorageServiceSdk.Config{},
+               %{depth: 2},
+               inventory_opts(root)
+             )
 
     assert Enum.map(data["Entries"], & &1["Prefix"]) == ["", "a"]
   end
 
   test "version summary data count excludes tombstones", %{tmp_dir: root} do
     assert {:ok, data} =
-             NativeInspection.du(target(), %Context{}, %{versions: true},
+             NativeInspection.du(target(), %ExStorageServiceSdk.Config{}, %{versions: true},
                tmp_dir: root,
                call: history_fetch()
              )
@@ -511,7 +553,12 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     opts = [tmp_dir: root, call: history_fetch()]
 
     assert {:ok, snapshot} =
-             NativeInspection.ls(target(), %Context{}, %{rewind: "2026-10-15T00:00:00Z"}, opts)
+             NativeInspection.ls(
+               target(),
+               %ExStorageServiceSdk.Config{},
+               %{rewind: "2026-10-15T00:00:00Z"},
+               opts
+             )
 
     assert snapshot["MatchedObjects"] == 3
     assert Enum.find(snapshot["Entries"], &(&1["key"] == "top.txt"))["version_id"] == "older"
@@ -520,7 +567,7 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     assert {:ok, all} =
              NativeInspection.ls(
                target(),
-               %Context{},
+               %ExStorageServiceSdk.Config{},
                %{rewind: "2026-10-15T00:00:00Z", versions: true},
                opts
              )
@@ -528,14 +575,19 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     assert all["MatchedObjects"] == 4
 
     assert {:ok, data} =
-             NativeInspection.du(target(), %Context{}, %{rewind: "2026-10-15T00:00:00Z"}, opts)
+             NativeInspection.du(
+               target(),
+               %ExStorageServiceSdk.Config{},
+               %{rewind: "2026-10-15T00:00:00Z"},
+               opts
+             )
 
     assert {data["Objects"], data["Bytes"]} == {3, 18}
 
     assert {:ok, tree} =
              NativeInspection.tree(
                target(),
-               %Context{},
+               %ExStorageServiceSdk.Config{},
                %{rewind: "2026-10-15T00:00:00Z", files: true},
                opts
              )
@@ -557,7 +609,10 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
       end
 
       assert {:error, %Error{code: :rewind_inventory}} =
-               NativeInspection.du(target(), %Context{}, %{rewind: "2026-10-15"},
+               NativeInspection.du(
+                 target(),
+                 %ExStorageServiceSdk.Config{},
+                 %{rewind: "2026-10-15"},
                  tmp_dir: root,
                  call: fetch
                )
@@ -629,7 +684,10 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
 
     for {key, time} <- [{"top.txt", "2026-10-14T00:00:00Z"}, {"gone", "2026-10-15T00:00:00Z"}] do
       assert {:error, %Error{code: :rewind_not_found}} =
-               NativeInspection.source(target(key), %Context{}, %{rewind: time},
+               NativeInspection.source(
+                 target(key),
+                 %ExStorageServiceSdk.Config{},
+                 %{rewind: time},
                  tmp_dir: root,
                  call: fetch
                )
@@ -638,7 +696,7 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     assert {:error, %Error{code: :version_selection}} =
              NativeInspection.source(
                target("top.txt"),
-               %Context{},
+               %ExStorageServiceSdk.Config{},
                %{rewind: "1d", version_id: "v1"},
                []
              )
@@ -673,7 +731,10 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
       end
 
       assert {:error, %Error{code: :source_version_mismatch}} =
-               NativeInspection.source(target("top.txt"), %Context{}, %{rewind: "2026-10-15"},
+               NativeInspection.source(
+                 target("top.txt"),
+                 %ExStorageServiceSdk.Config{},
+                 %{rewind: "2026-10-15"},
                  tmp_dir: root,
                  call: fetch
                )
@@ -775,7 +836,10 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
     end
 
     assert {:ok, data} =
-             NativeInspection.stat(target(), %Context{}, %{rewind: "2026-10-15", recursive: true},
+             NativeInspection.stat(
+               target(),
+               %ExStorageServiceSdk.Config{},
+               %{rewind: "2026-10-15", recursive: true},
                tmp_dir: root,
                call: fetch
              )
@@ -836,7 +900,7 @@ defmodule ExStorageServiceCli.CLI.NativeInspectionTest do
       HighLevel.run(
         %Invocation{frontend: :native, command: [command], options: options},
         [target],
-        [struct(Context, Map.merge(%{unsigned: true}, fields))],
+        [struct(ExStorageServiceSdk.Config, Map.merge(%{unsigned: true}, fields))],
         opts
       )
 

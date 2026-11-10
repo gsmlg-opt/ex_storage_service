@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.Transfer.InventoryPolicyTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
 
   alias ExStorageServiceCli.Transfer.{
     Filter,
@@ -138,7 +139,7 @@ defmodule ExStorageServiceCli.Transfer.InventoryPolicyTest do
     tmp_dir: root
   } do
     {:ok, input} = StringIO.open(String.duplicate("abc", 50_000))
-    context = %ExStorageServiceCli.Context{}
+    context = %ExStorageServiceSdk.Config{}
 
     assert {:ok, 150_000} =
              Spool.with_source(

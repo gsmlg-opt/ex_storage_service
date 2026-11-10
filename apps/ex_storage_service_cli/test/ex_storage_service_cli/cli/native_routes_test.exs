@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.NativeRoutesTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation, NativeUtility, Parser, Runner}
   import ExUnit.CaptureIO
   @moduletag :tmp_dir
@@ -73,7 +74,7 @@ defmodule ExStorageServiceCli.CLI.NativeRoutesTest do
               "Partial" => true,
               "Entries" => [%{"key" => "a", "version_id" => "one"}]
             }} =
-             HighLevel.run(invocation, [target], [%Context{unsigned: true}],
+             HighLevel.run(invocation, [target], [%ExStorageServiceSdk.Config{unsigned: true}],
                fetch: fetch,
                tmp_dir: root
              )
@@ -81,7 +82,7 @@ defmodule ExStorageServiceCli.CLI.NativeRoutesTest do
 
   test "diagnostics select S3 metadata and never invent an ESS health route" do
     target = %Target{kind: :remote, bucket: "bucket", key: ""}
-    context = %Context{unsigned: true, capabilities: %{provider: "s3"}}
+    context = %ExStorageServiceSdk.Config{unsigned: true, capabilities: %{provider: "s3"}}
     call = fn "HeadBucket", %{"Bucket" => "bucket"} -> {:ok, %{}} end
 
     assert {:ok, %{"Ready" => true, "Operation" => "HeadBucket"}} =

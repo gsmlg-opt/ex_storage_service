@@ -2,9 +2,10 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.NativeGovernanceTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{Invocation, Management, Parser, Runner}
-  alias ExStorageServiceCli.Transfer.Coordinator
+  alias ExStorageServiceSdk.Transfer.Coordinator
   @moduletag :tmp_dir
   @time ~U[2026-10-14 00:00:00Z]
   @now ~U[2026-10-15 00:00:00Z]
@@ -295,8 +296,8 @@ defmodule ExStorageServiceCli.CLI.NativeGovernanceTest do
 
   test "declared ESS and directory buckets refuse governance before I/O", %{tmp_dir: root} do
     for context <- [
-          %Context{capabilities: %{provider: "ess"}},
-          %Context{capabilities: %{bucket_type: "directory"}}
+          %ExStorageServiceSdk.Config{capabilities: %{provider: "ess"}},
+          %ExStorageServiceSdk.Config{capabilities: %{bucket_type: "directory"}}
         ] do
       assert {:error, %Error{code: :provider_unsupported}} =
                run(
@@ -575,7 +576,7 @@ defmodule ExStorageServiceCli.CLI.NativeGovernanceTest do
                %{},
                fn _, _ -> flunk("Cancelled I/O") end,
                root,
-               context: %Context{coordinator: coordinator}
+               context: %ExStorageServiceSdk.Config{coordinator: coordinator}
              )
   end
 
@@ -607,7 +608,7 @@ defmodule ExStorageServiceCli.CLI.NativeGovernanceTest do
                Management.run(
                  invocation,
                  target("key"),
-                 %Context{unsigned: true, endpoint: endpoint},
+                 %ExStorageServiceSdk.Config{unsigned: true, endpoint: endpoint},
                  tmp_dir: root
                )
 
@@ -732,7 +733,7 @@ defmodule ExStorageServiceCli.CLI.NativeGovernanceTest do
     Management.run(
       invocation,
       target(key),
-      opts[:context] || %Context{},
+      opts[:context] || %ExStorageServiceSdk.Config{},
       Keyword.merge([call: call, tmp_dir: root, now: @now], opts)
     )
   end

@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.Skeleton do
   @moduledoc "Pure model skeletons matching the pinned AWS argument generator."
-  alias ExStorageServiceCli.{Error, S3.OperationCatalog}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.OperationCatalog
 
   def generate(operation, kind \\ :input)
 

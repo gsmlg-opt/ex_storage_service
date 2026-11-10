@@ -1,21 +1,24 @@
 defmodule ExStorageServiceCli.Transfer.Multipart do
   @moduledoc "Owned, checkpointed multipart uploads with conservative completion recovery."
-  alias ExStorageServiceCli.{Context, Error, S3.Client, S3.OperationCatalog, S3.Paginator}
-  alias ExStorageServiceCli.S3.UploadChecksum
+  alias ExStorageServiceSdk.Config
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Client, OperationCatalog, Paginator}
+  alias ExStorageServiceSdk.S3.UploadChecksum
 
   alias ExStorageServiceCli.Transfer.{
     Engine,
     Journal,
     Planner,
-    PartGroup,
     Reducer,
     RemoteSource,
     Source,
     State
   }
 
+  alias ExStorageServiceSdk.Transfer.PartGroup
+
   def upload(
-        %Context{} = context,
+        %Config{} = context,
         bucket,
         key,
         source,
@@ -42,7 +45,7 @@ defmodule ExStorageServiceCli.Transfer.Multipart do
     end
   end
 
-  def resume(%Context{} = context, id, opts \\ []) do
+  def resume(%Config{} = context, id, opts \\ []) do
     root = root(opts)
 
     Journal.with_claim(root, id, fn claim ->
@@ -68,7 +71,7 @@ defmodule ExStorageServiceCli.Transfer.Multipart do
   end
 
   @doc "Aborts only the upload selected from a matching owned journal."
-  def abort(%Context{} = context, id, opts \\ []) do
+  def abort(%Config{} = context, id, opts \\ []) do
     Journal.with_claim(root(opts), id, fn claim ->
       with {:ok, record} <- Journal.get(root(opts), id),
            true <-
@@ -617,7 +620,8 @@ defmodule ExStorageServiceCli.Transfer.Multipart do
       "name" => :crypto.hash(:sha256, key) |> Base.encode16(case: :lower)
     }
 
-  defp provider(context), do: %{"kind" => "profile", "name" => context.profile || "default"}
+  defp provider(context),
+    do: %{"kind" => "profile", "name" => context.options[:cli_profile] || "default"}
 
   defp plan(record) do
     parts =

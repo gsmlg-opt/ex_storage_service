@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.TransferCommands do
   @moduledoc "Explicit bounded journal inspection and selected multipart recovery."
-  alias ExStorageServiceCli.{Config, Context, Error, Target}
+  alias ExStorageServiceCli.{Config, Context, Target}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Transfer.{Journal, Multipart, State}
 
   def run(action, args, options, runtime, opts \\ [])

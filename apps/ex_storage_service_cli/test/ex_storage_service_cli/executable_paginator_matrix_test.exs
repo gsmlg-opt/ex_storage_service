@@ -40,12 +40,16 @@ defmodule ExStorageServiceCli.ExecutablePaginatorMatrixTest do
           {"service-2.json", "model_sha256"},
           {"paginators-1.json", "paginators_sha256"}
         ] do
-      source = File.read!(Path.expand("../../priv/compatibility/aws/#{filename}", __DIR__))
+      source =
+        File.read!(
+          Application.app_dir(:ex_storage_service_sdk, "priv/compatibility/aws/#{filename}")
+        )
+
       assert digest(source) == @oracle[field]
     end
 
     paginators =
-      Path.expand("../../priv/compatibility/aws/paginators-1.json", __DIR__)
+      Application.app_dir(:ex_storage_service_sdk, "priv/compatibility/aws/paginators-1.json")
       |> File.read!()
       |> JSON.decode!()
       |> Map.fetch!("pagination")

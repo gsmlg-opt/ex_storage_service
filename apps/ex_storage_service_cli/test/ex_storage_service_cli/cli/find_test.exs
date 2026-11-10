@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.CLI.FindTest do
   use ExUnit.Case, async: true
   alias ExStorageServiceCli.CLI.{Find, HighLevel, Invocation}
-  alias ExStorageServiceCli.{Context, Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Transfer.Filter
   @moduletag :tmp_dir
   @now ~U[2026-10-15 00:00:00Z]
@@ -259,12 +260,22 @@ defmodule ExStorageServiceCli.CLI.FindTest do
     invocation = %Invocation{frontend: :native, command: ["find"], options: %{path: "*.txt"}}
 
     assert {:ok, %{"Entries" => ["a.txt"]}} =
-             HighLevel.run(invocation, [remote()], [%Context{unsigned: true}], opts)
+             HighLevel.run(
+               invocation,
+               [remote()],
+               [%ExStorageServiceSdk.Config{unsigned: true}],
+               opts
+             )
 
     invocation = %Invocation{frontend: :native, command: ["du"], options: %{limit: 1}}
 
     assert {:ok, %{"Objects" => 1, "Bytes" => 2, "Partial" => true, "MatchedObjects" => 2}} =
-             HighLevel.run(invocation, [remote()], [%Context{unsigned: true}], opts)
+             HighLevel.run(
+               invocation,
+               [remote()],
+               [%ExStorageServiceSdk.Config{unsigned: true}],
+               opts
+             )
   end
 
   defp find(root, records, options) do

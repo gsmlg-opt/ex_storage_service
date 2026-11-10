@@ -308,7 +308,8 @@ defmodule ExStorageServiceCli.CLI.Registry do
   end
 
   def commands(:s3api) do
-    alias ExStorageServiceCli.{CLI.AWSInput, S3.OperationCatalog}
+    alias ExStorageServiceCli.CLI.AWSInput
+    alias ExStorageServiceSdk.S3.OperationCatalog
 
     operations =
       Map.new(OperationCatalog.operations(), fn {name, _} ->

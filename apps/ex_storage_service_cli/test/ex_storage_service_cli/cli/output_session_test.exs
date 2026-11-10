@@ -1,6 +1,8 @@
 defmodule ExStorageServiceCli.CLI.OutputSessionTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Error, CLI.OutputSession, Transfer.Coordinator}
+  alias ExStorageServiceCli.CLI.OutputSession
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.Transfer.Coordinator
   @moduletag :tmp_dir
 
   test "pager precedence retains explicit empty environment values and non-TTY bypass" do

@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.ErrorOutput do
   @moduledoc "Frontend-specific stderr rendering of already-redacted failures."
-  alias ExStorageServiceCli.{Error, Output}
+  alias ExStorageServiceCli.Output
+  alias ExStorageServiceSdk.Error
 
   def write(%Error{} = error, :native), do: Output.error(error.message)
   def write(%Error{} = error, frontend), do: IO.puts(:stderr, message(error, frontend))

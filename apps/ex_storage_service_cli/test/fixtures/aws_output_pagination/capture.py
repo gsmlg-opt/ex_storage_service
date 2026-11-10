@@ -46,7 +46,7 @@ def main():
         return responses[1 if token else 0]
 
     report = {"schema_version": 1, "aws_cli_version": "2.31.18", "aws_sha256": AWS_SHA256,
-              "model_sha256": hashlib.sha256((ROOT / "priv/compatibility/aws/service-2.json").read_bytes()).hexdigest(),
+              "model_sha256": hashlib.sha256((ROOT.parent / "ex_storage_service_sdk" / "priv/compatibility/aws/service-2.json").read_bytes()).hexdigest(),
               "cases": []}
     command = ["s3api", "list-objects-v2", "--bucket", "bucket", "--page-size", "2"]
     with tempfile.TemporaryDirectory(prefix="ess-output-pagination-") as temporary:

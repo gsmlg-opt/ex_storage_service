@@ -221,8 +221,18 @@ jobs:
     secrets:
       HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
 
-  publish-cli:
+  publish-sdk:
     needs: validate-and-tag
+    uses: ./.github/workflows/publish-sdk.yml
+    with:
+      git_ref: v${{ inputs.version }}
+      version: ${{ inputs.version }}
+    secrets:
+      HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+
+  # The CLI package requires the SDK from Hex, so its fresh consumers need the SDK first.
+  publish-cli:
+    needs: [validate-and-tag, publish-sdk]
     uses: ./.github/workflows/publish-cli.yml
     with:
       git_ref: v${{ inputs.version }}
@@ -231,8 +241,8 @@ jobs:
       HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
 
   finalize:
-    name: Finalize canonical release after both public consumers pass
-    needs: [validate-and-tag, publish-core, publish-cli]
+    name: Finalize canonical release after all public consumers pass
+    needs: [validate-and-tag, publish-core, publish-sdk, publish-cli]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -245,6 +255,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: core-v${{ inputs.version }}-verification
+          path: release-assets
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdk-v${{ inputs.version }}-verification
           path: release-assets
       - uses: actions/download-artifact@v4
         with:
@@ -282,11 +296,11 @@ jobs:
                   checksums.append(f'{digest}  {asset.name}\n')
           (assets / 'SHA256SUMS').write_text(''.join(checksums))
           pathlib.Path('release-body.md').write_text(
-              f"All umbrella components and the standalone ess CLI share version {version}.\n\n"
+              f"All umbrella components, the ex_storage_service_sdk package and the standalone ess CLI share version {version}.\n\n"
               f"Source: `{os.environ['SOURCE_SHA']}`\n\n"
               f"Canonical tag commit: `{os.environ['RELEASE_SHA']}`\n\n"
               f"Validated image: `{os.environ['IMAGE_NAME']}@{os.environ['IMAGE_DIGEST']}`\n\n"
-              "Core and CLI registry bytes and fresh public consumers passed verification.\n")
+              "Core, SDK and CLI registry bytes and fresh public consumers passed verification.\n")
           PY
       - uses: softprops/action-gh-release@v2
         with:

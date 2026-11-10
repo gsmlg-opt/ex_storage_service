@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.CLI.Management do
   @moduledoc "Native management adapters over the complete, shared S3 operation catalog."
-  alias ExStorageServiceCli.{Error, Target}
-  alias ExStorageServiceCli.S3.{Client, Customizations, Input, Paginator}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Client, Customizations, Input, Paginator}
 
   # Documents are complete API structures, never reconstructed from a presenter.
   @families %{

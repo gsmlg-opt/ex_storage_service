@@ -36,7 +36,8 @@ defmodule ExStorageServiceCli do
 
   @version Mix.Project.config()[:version]
 
-  alias ExStorageServiceCli.{CLI.ErrorOutput, CLI.Parser, CLI.Runner, Error, ExitStatus}
+  alias ExStorageServiceCli.{CLI.ErrorOutput, CLI.Parser, CLI.Runner, ExitStatus}
+  alias ExStorageServiceSdk.Error
 
   def main(args) do
     Process.put(:ess_handle_signals, true)

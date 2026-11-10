@@ -3,7 +3,7 @@ defmodule ExStorageServiceCli.Target do
   Parses targets without treating S3 keys as filesystem paths or decoding their bytes.
   Alias/local collisions require an explicit `ess://` or local path.
   """
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
   defstruct [:kind, :original, :alias, :bucket, :key, :path, :arn, trailing_slash: false]
 
   def parse(value, opts \\ []) when is_binary(value) do

@@ -1,7 +1,7 @@
 defmodule ExStorageServiceCli.Credentials.Process do
   @moduledoc "Bounded credential_process execution with literal argv, discarded stderr, and owned POSIX cleanup."
-  alias ExStorageServiceCli.Credentials.Record
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Credentials, as: Record
+  alias ExStorageServiceSdk.Error
 
   def run(command, opts \\ []) do
     env = Keyword.get(opts, :env, System.get_env())
@@ -242,10 +242,7 @@ defmodule ExStorageServiceCli.Credentials.Process do
   end
 
   @doc false
-  def expiry(%Record{expires_at: nil}, _now), do: :ok
-
-  def expiry(%Record{expires_at: expires}, now),
-    do: if(DateTime.compare(expires, now) == :gt, do: :ok, else: failure(:expired_credentials))
+  defdelegate expiry(record, now), to: ExStorageServiceSdk.Credentials
 
   defp failure(code),
     do:

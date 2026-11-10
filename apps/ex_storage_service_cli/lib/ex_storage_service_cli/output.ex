@@ -175,7 +175,7 @@ defmodule ExStorageServiceCli.Output do
 
   Handles exceptions, strings, atoms, and arbitrary terms.
   """
-  def format_error(%ExStorageServiceCli.Error{message: message}), do: message
+  def format_error(%ExStorageServiceSdk.Error{message: message}), do: message
   def format_error(reason) when is_exception(reason), do: Exception.message(reason)
   def format_error(reason) when is_binary(reason), do: reason
   def format_error(reason) when is_atom(reason), do: to_string(reason)

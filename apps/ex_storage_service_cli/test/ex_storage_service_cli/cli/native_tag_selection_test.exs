@@ -4,7 +4,8 @@ defmodule ExStorageServiceCli.CLI.NativeTagSelectionTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureIO
 
-  alias ExStorageServiceCli.{Context, Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{Invocation, Management, Parser, Runner}
   alias ExStorageServiceCli.Test.WireServer
   @moduletag :tmp_dir
@@ -51,7 +52,7 @@ defmodule ExStorageServiceCli.CLI.NativeTagSelectionTest do
         end
 
         result =
-          Management.run(invocation, target, %Context{unsigned: true},
+          Management.run(invocation, target, %ExStorageServiceSdk.Config{unsigned: true},
             call: call,
             tmp_dir: root
           )
@@ -144,7 +145,7 @@ defmodule ExStorageServiceCli.CLI.NativeTagSelectionTest do
                    options: options
                  },
                  %Target{kind: :remote, bucket: "bucket", key: ""},
-                 %Context{unsigned: true},
+                 %ExStorageServiceSdk.Config{unsigned: true},
                  call: call,
                  tmp_dir: root,
                  now: @now
@@ -386,7 +387,7 @@ defmodule ExStorageServiceCli.CLI.NativeTagSelectionTest do
     Management.run(
       %Invocation{command: ["tag", action], args: args, options: options},
       %Target{kind: :remote, bucket: "bucket", key: "p/"},
-      %Context{unsigned: true},
+      %ExStorageServiceSdk.Config{unsigned: true},
       call: call,
       state_root: root,
       now: @now

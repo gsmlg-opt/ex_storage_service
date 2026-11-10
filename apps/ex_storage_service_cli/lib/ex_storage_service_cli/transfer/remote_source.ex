@@ -1,12 +1,8 @@
 defmodule ExStorageServiceCli.Transfer.RemoteSource do
   @moduledoc "Identity-fenced remote ranges. Bridges stage one planned part on disk before uploading it."
-  alias ExStorageServiceCli.{
-    Context,
-    Error,
-    Presenter,
-    S3.Client,
-    S3.OperationCatalog
-  }
+  alias ExStorageServiceCli.{Context, Presenter}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Client, OperationCatalog}
 
   alias ExStorageServiceCli.Transfer.{Engine, Source, State}
 
@@ -222,7 +218,7 @@ defmodule ExStorageServiceCli.Transfer.RemoteSource do
   def provider(context),
     do: %{
       "kind" => "profile",
-      "name" => context.profile || "default",
+      "name" => context.options[:cli_profile] || "default",
       "identity" => digest(context.access_key_id || "")
     }
 

@@ -8,7 +8,7 @@ defmodule ExStorageServiceCli.YAML do
   packaged or loaded. Source provenance is retained in `yaml/NOTICE.txt`.
   """
 
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.YAML.Encode
 
   @defaults [

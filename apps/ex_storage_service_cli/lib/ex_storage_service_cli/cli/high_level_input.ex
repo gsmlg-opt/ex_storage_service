@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.HighLevelInput do
   @moduledoc "High-level S3 flags mapped through the shared modeled input decoder."
-  alias ExStorageServiceCli.{CLI.AWSInput, Error}
+  alias ExStorageServiceCli.CLI.AWSInput
+  alias ExStorageServiceSdk.Error
 
   @fields [
     acl: "acl",

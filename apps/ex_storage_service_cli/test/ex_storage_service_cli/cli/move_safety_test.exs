@@ -2,7 +2,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.MoveSafetyTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation}
   @moduletag :tmp_dir
 
@@ -55,7 +56,7 @@ defmodule ExStorageServiceCli.CLI.MoveSafetyTest do
                  invocation(command, %{version_id: "v1"}),
                  [remote("key"), local(path)],
                  [
-                   %Context{
+                   %ExStorageServiceSdk.Config{
                      endpoint: endpoint,
                      unsigned: true,
                      capabilities: %{conditional_delete: true}
@@ -78,7 +79,7 @@ defmodule ExStorageServiceCli.CLI.MoveSafetyTest do
              HighLevel.run(
                invocation("get", %{version_id: "v1"}),
                [remote("key"), %Target{kind: :stdio}],
-               [%Context{endpoint: endpoint, unsigned: true}, nil],
+               [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}, nil],
                Keyword.put(opts(root), :write, fn bytes ->
                  send(owner, {:object_bytes, bytes})
                  :ok
@@ -106,7 +107,7 @@ defmodule ExStorageServiceCli.CLI.MoveSafetyTest do
                HighLevel.run(
                  invocation,
                  [local(source), remote("dest/")],
-                 [nil, %Context{endpoint: endpoint, unsigned: true}],
+                 [nil, %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}],
                  opts(root)
                )
 
@@ -130,7 +131,7 @@ defmodule ExStorageServiceCli.CLI.MoveSafetyTest do
                invocation("mv", %{recursive: true}),
                [remote("src/"), local(Path.join(root, "dest"))],
                [
-                 %Context{
+                 %ExStorageServiceSdk.Config{
                    endpoint: endpoint,
                    unsigned: true,
                    capabilities: %{conditional_delete: true}
@@ -160,7 +161,7 @@ defmodule ExStorageServiceCli.CLI.MoveSafetyTest do
         {403, [], "<Error><Code>AccessDenied</Code></Error>"}
       ])
 
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     assert {:error, %Error{}} =
              HighLevel.run(
@@ -210,7 +211,7 @@ defmodule ExStorageServiceCli.CLI.MoveSafetyTest do
              HighLevel.run(
                invocation("mv", %{recursive: true}),
                [local(source), remote("dest/")],
-               [nil, %Context{endpoint: endpoint, unsigned: true}],
+               [nil, %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}],
                opts(root)
              )
 
@@ -238,7 +239,7 @@ defmodule ExStorageServiceCli.CLI.MoveSafetyTest do
              HighLevel.run(
                invocation("mv", %{recursive: true}),
                [local(source), remote("dest/")],
-               [nil, %Context{endpoint: endpoint, unsigned: true}],
+               [nil, %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}],
                opts(root)
              )
 
@@ -269,7 +270,7 @@ defmodule ExStorageServiceCli.CLI.MoveSafetyTest do
              HighLevel.run(
                invocation("mv", %{recursive: true}),
                [local(source), remote("dest/")],
-               [nil, %Context{endpoint: endpoint, unsigned: true}],
+               [nil, %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}],
                opts
              )
 
@@ -294,7 +295,7 @@ defmodule ExStorageServiceCli.CLI.MoveSafetyTest do
                invocation("mv", %{}),
                [remote("key"), local(path)],
                [
-                 %Context{
+                 %ExStorageServiceSdk.Config{
                    endpoint: endpoint,
                    unsigned: true,
                    capabilities: %{conditional_delete: true}
@@ -329,7 +330,7 @@ defmodule ExStorageServiceCli.CLI.MoveSafetyTest do
              HighLevel.run(
                invocation("mv", %{recursive: true}),
                [remote("src/"), local(Path.join(root, "dest"))],
-               [%Context{endpoint: endpoint, unsigned: true}, nil],
+               [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}, nil],
                opts(root)
              )
 
@@ -366,7 +367,10 @@ defmodule ExStorageServiceCli.CLI.MoveSafetyTest do
              HighLevel.run(
                invocation("mv", %{recursive: true, dryrun: true}),
                [local(source), remote("dest/")],
-               [nil, %Context{endpoint: "http://unused.invalid", unsigned: true}],
+               [
+                 nil,
+                 %ExStorageServiceSdk.Config{endpoint: "http://unused.invalid", unsigned: true}
+               ],
                opts(root)
              )
 
@@ -388,7 +392,7 @@ defmodule ExStorageServiceCli.CLI.MoveSafetyTest do
              HighLevel.run(
                invocation("mv", %{recursive: true, ignore_glacier_warnings: true}),
                [remote("src/"), local(Path.join(root, "dest"))],
-               [%Context{endpoint: endpoint, unsigned: true}, nil],
+               [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}, nil],
                opts(root)
              )
 

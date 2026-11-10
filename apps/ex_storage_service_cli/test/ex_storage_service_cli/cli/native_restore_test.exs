@@ -3,10 +3,11 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 defmodule ExStorageServiceCli.CLI.NativeRestoreTest do
   use ExUnit.Case, async: true
   alias ExStorageServiceCli.CLI.{Management, NativeRestore, Parser}
-  alias ExStorageServiceCli.{Context, Error, Target}
-  alias ExStorageServiceCli.S3.{Capabilities, Client}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Capabilities, Client}
   alias ExStorageServiceCli.Test.WireServer
-  alias ExStorageServiceCli.Transfer.Coordinator
+  alias ExStorageServiceSdk.Transfer.Coordinator
 
   test "selected vid grammar reaches RestoreObject and HEAD with the same immutable identity" do
     assert {:ok, invocation} =
@@ -379,7 +380,9 @@ defmodule ExStorageServiceCli.CLI.NativeRestoreTest do
   end
 
   defp target(key), do: %Target{kind: :remote, alias: "fixture", bucket: "bucket", key: key}
-  defp context, do: %Context{unsigned: true, capabilities: Capabilities.record("s3")}
+
+  defp context,
+    do: %ExStorageServiceSdk.Config{unsigned: true, capabilities: Capabilities.record("s3")}
 
   defp complete,
     do: %{"Restore" => "ongoing-request=\"false\", expiry-date=\"Fri, 16 Oct 2026 00:00:00 GMT\""}

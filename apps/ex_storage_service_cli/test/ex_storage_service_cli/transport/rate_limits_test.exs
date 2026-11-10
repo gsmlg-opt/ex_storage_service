@@ -3,17 +3,13 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 defmodule ExStorageServiceCli.Transport.RateLimitsTest do
   use ExUnit.Case, async: true
 
-  alias ExStorageServiceCli.{
-    Error,
-    S3.Client,
-    S3.Request,
-    S3.Response,
-    Transport.HTTPFetch
-  }
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.{Client, Request, Response}
+  alias ExStorageServiceSdk.Transport.HTTPFetch
 
   alias ExStorageServiceCli.CLI.Runtime
   alias ExStorageServiceCli.Test.WireServer
-  alias ExStorageServiceCli.Transfer.RateLimiter
+  alias ExStorageServiceSdk.Transfer.RateLimiter
   @moduletag :tmp_dir
 
   test "finite signed uploads keep exact bytes, explicit framing and invocation ownership", %{

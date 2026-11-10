@@ -4,15 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ExStorageService is an S3-compatible object storage server built with Elixir/Phoenix, structured as an **umbrella project** with five apps:
+ExStorageService is an S3-compatible object storage server built with Elixir/Phoenix, structured as an **umbrella project** with six apps:
 
 - **`ex_storage_service`** (core) — Storage engine, metadata (Concord/Raft KV), IAM, replication, lifecycle, cloud cache, webhook notifications, background processes. No Phoenix dependency.
 - **`ex_storage_service_cluster`** (internal transport) — Private Gaoxy HTTP/1 listener with HMAC authentication and optional TLS, enabled only on cluster data nodes.
 - **`ex_storage_service_s3`** (S3 API) — Plug.Router served by Gaoxy on port 9000. S3-compatible REST API with SigV4 auth.
 - **`ex_storage_service_web`** (admin portal) — Phoenix LiveView on port 4900. Dashboard, bucket/user/policy management, audit log, `/metrics`.
-- **`ex_storage_service_cli`** (client) — Standalone `ess` escript, published to Hex as `ex_storage_service_cli`. Not part of the server release; depends only on `http_fetch`/`jason`/`gsmlg_toml`, not the other umbrella apps.
+- **`ex_storage_service_sdk`** (S3 client library) — `ExStorageServiceSdk.*`, published to Hex as `ex_storage_service_sdk`. SigV4/SigV4a signing, the pinned S3 service model (`priv/compatibility/aws`), transport, retries, pagination and multipart. Depends only on `http_fetch`; never on server apps or the CLI.
+- **`ex_storage_service_cli`** (client) — Standalone `ess` escript, published to Hex as `ex_storage_service_cli`. Not part of the server release; depends on `ex_storage_service_sdk`/`http_fetch`/`jason`/`gsmlg_toml`, not the server apps.
 
-The `ess` release includes only the four server apps. The CLI's version in `apps/ex_storage_service_cli/mix.exs` is kept in sync with the umbrella version in root `mix.exs`.
+The `ess` release includes only the four server apps. The SDK and CLI versions (`@version` in their `mix.exs`) are kept in sync with the umbrella version in root `mix.exs`; `scripts/release/release.py` bumps all of them together. The SDK is published before the CLI, which requires it from Hex.
 
 `docs/` holds deployment notes (`deploy.md`) and PRDs (`docs/prd/`). `AGENTS.md` holds equivalent instructions for other coding agents — keep it consistent when changing project conventions.
 
@@ -25,6 +26,7 @@ mix test apps/ex_storage_service/test      # Run core app tests only
 mix test apps/ex_storage_service_s3/test   # Run S3 app tests only
 mix test apps/ex_storage_service_web/test  # Run web app tests only
 mix test apps/ex_storage_service_cli/test  # Run CLI tests only
+mix test apps/ex_storage_service_sdk/test  # Run SDK tests only
 mix test path/to/test.exs          # Run one test file
 mix test path/to/test.exs:42       # Run one test
 mix format                         # Format code
@@ -43,6 +45,7 @@ Commit messages follow conventional commits with an app scope, e.g. `fix(s3): ..
 - **No Ecto/database.** All metadata lives in Concord (Raft KV). There are no migrations, no Repo, no schemas.
 - **S3 router is not Phoenix.** The S3 API (`apps/ex_storage_service_s3/lib/ex_storage_service_s3/router.ex`) is a standalone `Plug.Router`, not a Phoenix router. Don't use Phoenix helpers there.
 - **S3 modules use `ExStorageServiceS3.*` naming** (not `ExStorageService.S3.*`).
+- **The S3 client protocol lives in the SDK.** `ExStorageServiceSdk.Config` replaced the CLI's `Context` struct; `ExStorageServiceCli.Context` only builds configs from CLI settings. CLI-only data rides in `config.options` (`:cli_profile`, `:cli_json`, `:credential_owner`) — don't add CLI fields to the SDK struct.
 - **Assets use Duskmoon Bundler, not Bun/Tailwind CLI.** The `duskmoon_bundler` hex dep builds JS + Tailwind v4 from Elixir tooling; `duskmoon_npm` provides `mix npm.install` - no Node, npm CLI, or Bun binary is required. Duskmoon Bundler config lives in `config/config.exs`; the dev watcher is `Mix.Tasks.DuskmoonBundler.Dev`. Assets live in `apps/ex_storage_service_web/assets/`, output goes to `apps/ex_storage_service_web/priv/static/assets/`.
 - **Elixir >= 1.18.0, OTP 28.** CI uses these versions. The built-in `JSON` module is available (Elixir 1.18+).
 - **S3 auth is off by default in dev** (`ESS_S3_AUTH_ENABLED=false`), so local S3 requests accept dummy credentials. Dev startup seeds a fixed full-access key: `AKIA-DEV-ACCESS-KEY` / `DEV-SECRET-ACCESS-KEY-DO-NOT-USE`.
@@ -57,7 +60,8 @@ apps/
 ├── ex_storage_service_cluster/ # Private cluster transport (Gaoxy + HMAC + optional TLS)
 ├── ex_storage_service_s3/     # S3 API (Plug.Router + Gaoxy)
 ├── ex_storage_service_web/    # Admin portal (Phoenix LiveView)
-└── ex_storage_service_cli/    # `ess` escript client (Hex package, standalone)
+├── ex_storage_service_sdk/    # S3 client SDK (Hex package, standalone)
+└── ex_storage_service_cli/    # `ess` escript client (Hex package, built on the SDK)
 ```
 
 ### Supervision Trees (4 server apps)

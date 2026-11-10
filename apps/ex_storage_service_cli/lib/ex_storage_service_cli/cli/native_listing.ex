@@ -1,9 +1,10 @@
 defmodule ExStorageServiceCli.CLI.NativeListing do
   @moduledoc "Bounded native inspection with explicit partial-result metadata and streamed NDJSON."
-  alias ExStorageServiceCli.{Error, Presenter}
+  alias ExStorageServiceCli.Presenter
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.NativeEvents
   alias ExStorageServiceCli.Presentation.Scalar
-  alias ExStorageServiceCli.S3.{Client, Paginator}
+  alias ExStorageServiceSdk.S3.{Client, Paginator}
 
   def run(invocation, target, context, opts \\ []) do
     limit = invocation.options[:limit] || 1000

@@ -2,7 +2,7 @@ Code.require_file("../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.ExecutableOperationMatrixTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.S3.XML
+  alias ExStorageServiceSdk.S3.XML
   alias ExStorageServiceCli.Test.WireServer
   @moduletag :tmp_dir
   @fixture Path.expand("../fixtures/differential/operation-wire.json", __DIR__)
@@ -46,7 +46,7 @@ defmodule ExStorageServiceCli.ExecutableOperationMatrixTest do
     assert length(captured) == 107
 
     model =
-      Path.expand("../../priv/compatibility/aws/service-2.json", __DIR__)
+      Application.app_dir(:ex_storage_service_sdk, "priv/compatibility/aws/service-2.json")
       |> File.read!()
 
     assert Base.encode16(:crypto.hash(:sha256, model), case: :lower) == @oracle["model_sha256"]

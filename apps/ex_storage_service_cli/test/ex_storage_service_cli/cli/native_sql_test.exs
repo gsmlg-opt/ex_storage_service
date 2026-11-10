@@ -2,13 +2,14 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.NativeSQLTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{Invocation, NativeUtility, Parser, Runner}
   import ExUnit.CaptureIO
   @moduletag :tmp_dir
 
   defp target(key \\ "data.csv"), do: %Target{kind: :remote, bucket: "bucket", key: key}
-  defp context(endpoint), do: %Context{endpoint: endpoint, unsigned: true}
+  defp context(endpoint), do: %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
   defp invocation(args \\ ["s3://bucket/data.csv"], options \\ %{}),
     do: %Invocation{frontend: :native, command: ["sql"], args: args, options: options}
@@ -400,19 +401,24 @@ defmodule ExStorageServiceCli.CLI.NativeSQLTest do
                NativeUtility.run(
                  invocation(["s3://bucket/data.csv"], options),
                  target(),
-                 %Context{},
+                 %ExStorageServiceSdk.Config{},
                  opts(root)
                )
     end
 
     assert {:error, %Error{code: :sql_options}} =
-             NativeUtility.run(invocation(["one", "two"]), target(), %Context{}, opts(root))
+             NativeUtility.run(
+               invocation(["one", "two"]),
+               target(),
+               %ExStorageServiceSdk.Config{},
+               opts(root)
+             )
 
     assert {:error, %Error{code: :sql_options}} =
              NativeUtility.run(
                invocation(["one", "two", "three"], %{sql_query: "select 1"}),
                target(),
-               %Context{},
+               %ExStorageServiceSdk.Config{},
                opts(root)
              )
 
@@ -425,7 +431,7 @@ defmodule ExStorageServiceCli.CLI.NativeSQLTest do
              NativeUtility.run(
                invocation(["s3://bucket/"], %{recursive: true}),
                target(""),
-               %Context{capabilities: %{provider: "ess"}},
+               %ExStorageServiceSdk.Config{capabilities: %{provider: "ess"}},
                opts(root)
              )
 

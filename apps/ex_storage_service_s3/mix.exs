@@ -41,7 +41,14 @@ defmodule ExStorageServiceS3.MixProject do
       {:gaoxy_http, "~> 0.15.2"},
       {:plug, "~> 1.16"},
       {:req, "~> 0.6", only: :test}
-    ]
+    ] ++ sdk_test_dep()
+  end
+
+  # SDK interoperability tests run against this server inside the umbrella only.
+  defp sdk_test_dep do
+    if in_umbrella?(),
+      do: [{:ex_storage_service_sdk, in_umbrella: true, only: :test}],
+      else: []
   end
 
   defp ex_storage_service_dep do

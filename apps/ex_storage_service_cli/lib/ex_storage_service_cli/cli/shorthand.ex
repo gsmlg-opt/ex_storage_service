@@ -1,6 +1,6 @@
 defmodule ExStorageServiceCli.CLI.Shorthand do
   @moduledoc "Bounded AWS shorthand syntax with nested lists/maps, quoting and escaped commas."
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceSdk.Error
   @key ~r/\A\s*([a-zA-Z0-9_.#\/:\-]+)\s*(@?)=\s*/
 
   def parse(value, opts \\ []) when is_binary(value) do

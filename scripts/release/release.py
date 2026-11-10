@@ -18,7 +18,7 @@ import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
 APPS = ("ex_storage_service", "ex_storage_service_cluster", "ex_storage_service_cli",
-        "ex_storage_service_s3", "ex_storage_service_web")
+        "ex_storage_service_s3", "ex_storage_service_sdk", "ex_storage_service_web")
 VERSION_FILES = ("mix.exs",) + tuple(f"apps/{app}/mix.exs" for app in APPS)
 
 
@@ -27,7 +27,8 @@ def git(*args):
 
 
 def version_pattern(path):
-    return r'(@version\s+")([^"\n]+)(")' if "_cli/" in path else r'(version:\s*")([^"\n]+)(")'
+    return (r'(@version\s+")([^"\n]+)(")' if "_cli/" in path or "_sdk/" in path
+            else r'(version:\s*")([^"\n]+)(")')
 
 
 def versions(root):

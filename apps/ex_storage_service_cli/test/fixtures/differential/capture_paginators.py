@@ -71,9 +71,9 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     assert hashlib.sha256(Path(args.aws).read_bytes()).hexdigest() == AWS_SHA256
-    model_path = ROOT / "priv/compatibility/aws/service-2.json"
+    model_path = ROOT.parent / "ex_storage_service_sdk" / "priv/compatibility/aws/service-2.json"
     model = json.loads(model_path.read_text())
-    paginator_path = ROOT / "priv/compatibility/aws/paginators-1.json"
+    paginator_path = ROOT.parent / "ex_storage_service_sdk" / "priv/compatibility/aws/paginators-1.json"
     paginators = json.loads(paginator_path.read_text())["pagination"]
     report = {"aws_sha256": AWS_SHA256, "model_sha256": hashlib.sha256(model_path.read_bytes()).hexdigest(),
               "paginators_sha256": hashlib.sha256(paginator_path.read_bytes()).hexdigest(), "cases": []}

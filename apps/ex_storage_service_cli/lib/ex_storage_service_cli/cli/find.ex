@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.Find do
   @moduledoc "Bounded native object discovery with explicit portable predicates and version identities."
-  alias ExStorageServiceCli.{Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.Transfer.{Filter, Inventory, Manifest}
 
   @doc false

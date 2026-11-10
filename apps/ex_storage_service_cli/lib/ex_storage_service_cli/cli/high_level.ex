@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.HighLevel do
   @moduledoc "Shared bounded high-level S3 operations and fail-closed synchronization."
-  alias ExStorageServiceCli.{Context, Error, Target}
+  alias ExStorageServiceCli.{Context, Target}
+  alias ExStorageServiceSdk.Error
 
   alias ExStorageServiceCli.CLI.{
     HighLevelInput,
@@ -9,14 +10,13 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
     S3PathResolver
   }
 
-  alias ExStorageServiceCli.S3.{Client, Encoder, Endpoint, OperationCatalog, Paginator}
+  alias ExStorageServiceSdk.S3.{Client, Encoder, Endpoint, OperationCatalog, Paginator}
 
   alias ExStorageServiceCli.Transfer.{
     Copy,
     Engine,
     Filter,
     Inventory,
-    Limits,
     Manifest,
     Mime,
     Progress,
@@ -26,6 +26,8 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
     SyncPolicy,
     VersionSelection
   }
+
+  alias ExStorageServiceSdk.Transfer.Limits
 
   def run(invocation, targets, contexts, opts \\ []) do
     [command] = invocation.command
@@ -457,7 +459,7 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
 
         true ->
           with {:ok, result} <-
-                 ExStorageServiceCli.S3.Presign.url(
+                 ExStorageServiceSdk.S3.Presign.url(
                    context,
                    target,
                    "GET",
@@ -2155,7 +2157,7 @@ defmodule ExStorageServiceCli.CLI.HighLevel do
       |> String.replace(~r/\A\./, "0.")
       |> String.replace(~r/\.(?=\s*[a-z]*\z)/i, ".0")
 
-    with {:ok, size} <- ExStorageServiceCli.Transfer.RateLimiter.parse_rate(value),
+    with {:ok, size} <- ExStorageServiceSdk.Transfer.RateLimiter.parse_rate(value),
          size = if(size == 0, do: 16_777_216, else: size),
          minimum = Map.get(limits, :min_nonfinal_part_bytes, limits["min_nonfinal_part_bytes"]),
          maximum = Map.get(limits, :max_part_bytes, limits["max_part_bytes"]),

@@ -1,7 +1,9 @@
 defmodule ExStorageServiceCli.CLI.Watch do
   @moduledoc "Explicit polling of bounded disk inventories; snapshots do not provide event delivery guarantees."
-  alias ExStorageServiceCli.{Error, Target}
-  alias ExStorageServiceCli.Transfer.{Coordinator, Inventory, Manifest}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceCli.Transfer.{Inventory, Manifest}
+  alias ExStorageServiceSdk.Transfer.Coordinator
 
   @doc "Capture a baseline before reconciliation, then compare complete polling snapshots."
   def run(invocation, target, context, opts \\ []) do

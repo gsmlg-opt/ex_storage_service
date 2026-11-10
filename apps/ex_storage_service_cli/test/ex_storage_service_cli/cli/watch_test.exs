@@ -1,8 +1,10 @@
 defmodule ExStorageServiceCli.CLI.WatchTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target}
+  alias ExStorageServiceCli.Target
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{Invocation, Parser, Watch}
-  alias ExStorageServiceCli.Transfer.{Coordinator, Manifest}
+  alias ExStorageServiceCli.Transfer.Manifest
+  alias ExStorageServiceSdk.Transfer.Coordinator
 
   @moduletag :tmp_dir
 
@@ -443,7 +445,7 @@ defmodule ExStorageServiceCli.CLI.WatchTest do
              Watch.run(
                invocation(),
                %Target{kind: :remote, bucket: "bucket", key: "prefix"},
-               %Context{},
+               %ExStorageServiceSdk.Config{},
                tmp_dir: root,
                sleep: fn _ -> :ok end,
                fetch: fn "ListObjectsV2", input ->

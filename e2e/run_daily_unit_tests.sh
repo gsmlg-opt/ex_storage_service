@@ -15,15 +15,20 @@ cli=(
   apps/ex_storage_service_cli/test/ex_storage_service_cli/output_test.exs
 )
 s3=(apps/ex_storage_service_s3/test/ex_storage_service_s3/health_test.exs)
+sdk=(
+  apps/ex_storage_service_sdk/test/ex_storage_service_sdk_test.exs
+  apps/ex_storage_service_s3/test/ex_storage_service_s3/sdk_interop_test.exs
+)
 web=(
   apps/ex_storage_service_web/test/ex_storage_service_web/application_test.exs
   apps/ex_storage_service_web/test/ex_storage_service_web/layouts_test.exs
   apps/ex_storage_service_web/test/ex_storage_service_web/session_controller_test.exs
 )
 case "$scope" in
-  all) tests=("${core[@]}" "${cli[@]}" "${s3[@]}" "${web[@]}") ;;
+  all) tests=("${core[@]}" "${cli[@]}" "${s3[@]}" "${sdk[@]}" "${web[@]}") ;;
   core) tests=("${core[@]}") ;;
   cli) tests=("${cli[@]}") ;;
-  *) echo "Expected all, core or cli" >&2; exit 64 ;;
+  sdk) tests=("${sdk[@]}") ;;
+  *) echo "Expected all, core, cli or sdk" >&2; exit 64 ;;
 esac
 exec mix test --max-cases 1 "${tests[@]}"

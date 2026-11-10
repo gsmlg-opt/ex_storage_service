@@ -2,7 +2,10 @@ Code.require_file("support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.AWSReadDeadlineTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, S3.Client, Transport.HTTPFetch, Test.WireServer}
+  alias ExStorageServiceCli.{Context, Test.WireServer}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.S3.Client
+  alias ExStorageServiceSdk.Transport.HTTPFetch
   alias ExStorageServiceCli.CLI.Parser
 
   test "AWS socket read and connection limits are independent of the overall request" do

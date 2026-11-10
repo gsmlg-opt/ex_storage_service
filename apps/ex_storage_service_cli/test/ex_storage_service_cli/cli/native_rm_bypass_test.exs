@@ -2,7 +2,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.NativeRmBypassTest do
   use ExUnit.Case, async: false
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation, Parser}
   @moduletag :tmp_dir
   @header "x-amz-bypass-governance-retention"
@@ -12,7 +13,7 @@ defmodule ExStorageServiceCli.CLI.NativeRmBypassTest do
   defp opts(root), do: [tmp_dir: root, max_attempts: 1, emit: fn _ -> :ok end]
 
   defp context(endpoint, conditional \\ true),
-    do: %Context{
+    do: %ExStorageServiceSdk.Config{
       endpoint: endpoint,
       access_key_id: "fixture-access",
       secret_access_key: "fixture-secret",
@@ -252,7 +253,7 @@ defmodule ExStorageServiceCli.CLI.NativeRmBypassTest do
              HighLevel.run(
                invocation(%{dry_run: true, bypass_governance_retention: true}),
                [target()],
-               [%Context{}],
+               [%ExStorageServiceSdk.Config{}],
                opts(root)
              )
 
@@ -264,7 +265,7 @@ defmodule ExStorageServiceCli.CLI.NativeRmBypassTest do
                  bypass_governance_retention: true
                }),
                [target()],
-               [%Context{}],
+               [%ExStorageServiceSdk.Config{}],
                opts(root)
              )
 

@@ -1,6 +1,7 @@
 defmodule ExStorageServiceCli.CLI.ParserTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{CLI.Parser, Error}
+  alias ExStorageServiceCli.CLI.Parser
+  alias ExStorageServiceSdk.Error
 
   test "global options work before and after the native command" do
     assert {:ok, invocation} =

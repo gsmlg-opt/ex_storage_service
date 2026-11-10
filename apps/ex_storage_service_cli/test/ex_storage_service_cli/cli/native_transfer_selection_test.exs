@@ -2,7 +2,8 @@ Code.require_file("../../support/wire_server.exs", __DIR__)
 
 defmodule ExStorageServiceCli.CLI.NativeTransferSelectionTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.{Context, Error, Target, Test.WireServer}
+  alias ExStorageServiceCli.{Target, Test.WireServer}
+  alias ExStorageServiceSdk.Error
   alias ExStorageServiceCli.CLI.{HighLevel, Invocation, NativeTransferSelection, Parser}
   @moduletag :tmp_dir
   @now ~U[2026-01-03 00:00:00Z]
@@ -141,7 +142,7 @@ defmodule ExStorageServiceCli.CLI.NativeTransferSelectionTest do
     {endpoint, _} =
       WireServer.fixture([{200, [{"ETag", "\"e\""}], ""}, {200, [{"ETag", "\"e\""}], ""}])
 
-    context = %Context{endpoint: endpoint, unsigned: true}
+    context = %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
 
     for options <- [
           %{older_than: "1d"},
@@ -182,7 +183,7 @@ defmodule ExStorageServiceCli.CLI.NativeTransferSelectionTest do
              HighLevel.run(
                invocation("cp", %{older_than: "1d", dryrun: true}),
                [remote("bucket", "key"), local(Path.join(root, "destination"))],
-               [%Context{endpoint: endpoint, unsigned: true}, nil],
+               [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}, nil],
                Keyword.put(opts(root), :emit, &send(owner, {:line, &1}))
              )
 
@@ -224,7 +225,7 @@ defmodule ExStorageServiceCli.CLI.NativeTransferSelectionTest do
              HighLevel.run(
                invocation("cp", %{older_than: "1d"}),
                [%Target{kind: :stdio, path: "-"}, remote("bucket", "key")],
-               [nil, %Context{}],
+               [nil, %ExStorageServiceSdk.Config{}],
                Keyword.put(opts(root), :read, fn _ ->
                  send(owner, :stdin_read)
                  :eof
@@ -257,7 +258,7 @@ defmodule ExStorageServiceCli.CLI.NativeTransferSelectionTest do
              HighLevel.run(
                invocation("mv", %{recursive: true, older_than: "1d"}),
                [local(source), remote("bucket", "dest/")],
-               [nil, %Context{endpoint: endpoint, unsigned: true}],
+               [nil, %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}],
                opts(root)
              )
 
@@ -309,7 +310,7 @@ defmodule ExStorageServiceCli.CLI.NativeTransferSelectionTest do
              HighLevel.run(
                invocation,
                [remote("bucket", "src/"), local(destination)],
-               [%Context{endpoint: endpoint, unsigned: true}, nil],
+               [%ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}, nil],
                opts(root)
              )
 
@@ -338,7 +339,7 @@ defmodule ExStorageServiceCli.CLI.NativeTransferSelectionTest do
         {204, [], ""}
       ])
 
-    context = %Context{
+    context = %ExStorageServiceSdk.Config{
       endpoint: endpoint,
       unsigned: true,
       capabilities: %{conditional_delete: true}
@@ -385,7 +386,7 @@ defmodule ExStorageServiceCli.CLI.NativeTransferSelectionTest do
              HighLevel.run(
                invocation("cp", %{recursive: true, older_than: "1d", dryrun: true}),
                [local(source), remote("bucket", "dest/")],
-               [nil, %Context{endpoint: "http://unused.invalid"}],
+               [nil, %ExStorageServiceSdk.Config{endpoint: "http://unused.invalid"}],
                Keyword.put(opts(root), :emit, &send(owner, {:line, &1}))
              )
 
@@ -412,7 +413,7 @@ defmodule ExStorageServiceCli.CLI.NativeTransferSelectionTest do
                HighLevel.run(
                  invocation("cp", %{older_than: value}),
                  [local(Path.join(root, "missing")), remote("bucket", "key")],
-                 [nil, %Context{}],
+                 [nil, %ExStorageServiceSdk.Config{}],
                  opts(root)
                )
     end
@@ -430,8 +431,8 @@ defmodule ExStorageServiceCli.CLI.NativeTransferSelectionTest do
                invocation("mirror", %{older_than: "1d", remove: true}),
                [remote("bucket", "src/"), remote("bucket", "dest/")],
                [
-                 %Context{endpoint: endpoint, unsigned: true},
-                 %Context{endpoint: endpoint, unsigned: true}
+                 %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true},
+                 %ExStorageServiceSdk.Config{endpoint: endpoint, unsigned: true}
                ],
                opts(root)
              )

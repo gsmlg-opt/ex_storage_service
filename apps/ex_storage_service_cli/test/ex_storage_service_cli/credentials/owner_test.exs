@@ -1,7 +1,8 @@
 defmodule ExStorageServiceCli.Credentials.OwnerTest do
   use ExUnit.Case, async: true
-  alias ExStorageServiceCli.Credentials.{Owner, Record}
-  alias ExStorageServiceCli.Error
+  alias ExStorageServiceCli.Credentials.Owner
+  alias ExStorageServiceSdk.Credentials, as: Record
+  alias ExStorageServiceSdk.Error
 
   test "concurrent waiters share one refresh and subsequent calls reuse unexpired credentials" do
     parent = self()

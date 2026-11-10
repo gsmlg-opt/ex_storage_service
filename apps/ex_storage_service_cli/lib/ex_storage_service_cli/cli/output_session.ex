@@ -1,7 +1,9 @@
 defmodule ExStorageServiceCli.CLI.OutputSession do
   @moduledoc "Owned structured-output session with bounded private pager spool and literal process arguments."
   use GenServer
-  alias ExStorageServiceCli.{Error, Credentials.Process, Transfer.Coordinator, CLI.Signals.Native}
+  alias ExStorageServiceCli.{Credentials.Process, CLI.Signals.Native}
+  alias ExStorageServiceSdk.Error
+  alias ExStorageServiceSdk.Transfer.Coordinator
 
   def open(options, opts \\ []) do
     GenServer.start(__MODULE__, {options, Keyword.put_new(opts, :owner, self())})
