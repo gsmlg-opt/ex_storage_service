@@ -133,7 +133,6 @@ class EscriptApplicationBoundaryTest(unittest.TestCase):
         payload = io.BytesIO()
         with zipfile.ZipFile(payload, "w") as archive:
             for suffix in (
-                "priv/compatibility/aws/service-2.json",
                 "priv/compatibility/NOTICE-YAML.txt",
                 "priv/compatibility/NOTICE-QUERY.txt",
                 "priv/compatibility/LICENSE-ESS.txt",
@@ -146,6 +145,10 @@ class EscriptApplicationBoundaryTest(unittest.TestCase):
                     contents = license_bytes if suffix.endswith("LICENSE-ESS.txt") else b"fixture"
                     archive.writestr("ex_storage_service_cli/" + suffix, contents)
             archive.writestr("http_fetch/ebin/http_fetch.app", b"client transport")
+            # The SDK client library is an allowed escript application.
+            if "sdk-catalog" not in exclude:
+                archive.writestr("ex_storage_service_sdk/ebin/Elixir.ExStorageServiceSdk.S3.OperationCatalog.beam",
+                                 b"sdk catalog")
             for name in extra:
                 archive.writestr(name, b"injected server application")
         payload.seek(0)
@@ -166,6 +169,10 @@ class EscriptApplicationBoundaryTest(unittest.TestCase):
         for suffix in ("priv/native/ess_pager", "priv/native/ess_pager.json"):
             with self.subTest(asset=suffix), self.assertRaisesRegex(RuntimeError, "Missing escript asset"):
                 inspect_escript(self.archive([], exclude=[suffix]))
+
+    def test_missing_sdk_operation_catalog_fails_before_runtime(self):
+        with self.assertRaisesRegex(RuntimeError, "OperationCatalog"):
+            inspect_escript(self.archive([], exclude=["sdk-catalog"]))
 
     def test_actual_mix_unversioned_roots_reject_server_and_framework_leaks(self):
         for name in (

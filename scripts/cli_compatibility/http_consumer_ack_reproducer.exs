@@ -9,7 +9,7 @@
 defmodule HTTPConsumerAckReproducer do
   alias ExStorageServiceCli.{Context, Error, S3.Client, Transport.HTTPFetch}
   alias ExStorageServiceCli.CLI.Parser
-  alias ExStorageServiceCli.Transfer.RateLimiter
+  alias ExStorageServiceSdk.Transfer.RateLimiter
 
   @payload :binary.copy(<<0, 255, 43, 37>>, 128)
   @rate 8

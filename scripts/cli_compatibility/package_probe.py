@@ -29,12 +29,17 @@ from hex_package import PACKAGE_LIMIT, read_package
 
 ROOT = Path(__file__).resolve().parents[2]
 CLI = ROOT / "apps/ex_storage_service_cli"
+SDK = ROOT / "apps/ex_storage_service_sdk"
 ESS_LICENSE = (CLI / "LICENSE").read_bytes()
 REQUIRED = (
     "mix.exs", "mix/compile.ess_signals.exs", "c_src/ess_signal.c", "c_src/ess_pager.c", "LICENSE",
     "priv/compatibility/NOTICE.txt", "priv/compatibility/NOTICE-YAML.txt",
     "priv/compatibility/NOTICE-QUERY.txt",
     "priv/compatibility/LICENSE-ESS.txt",
+)
+# The pinned S3 model ships with the SDK package the CLI depends on.
+SDK_REQUIRED = (
+    "mix.exs", "LICENSE",
     "priv/compatibility/aws/service-2.json",
     "priv/compatibility/aws/endpoint-rule-set-1.json",
     "priv/compatibility/aws/paginators-1.json",
@@ -181,7 +186,7 @@ def check_installed_credential_process(installed, cwd, env, logs, verification_p
     return evidence
 
 
-def extract_package(archive, destination):
+def extract_package(archive, destination, sdk=False):
     checksum, contents = read_package(archive)
     total = 0
     with tarfile.open(fileobj=io.BytesIO(contents), mode="r:gz") as inner:
@@ -201,16 +206,24 @@ def extract_package(archive, destination):
                     shutil.copyfileobj(source, output)
             else:
                 raise RuntimeError("Unexpected Hex source archive entry")
-    for name in REQUIRED:
+    for name in (SDK_REQUIRED if sdk else REQUIRED):
         if not (destination / name).is_file():
             raise RuntimeError(f"Missing packaged asset: {name}")
     source_license = (destination / "LICENSE").read_bytes()
-    if source_license != ESS_LICENSE or (destination / "priv/compatibility/LICENSE-ESS.txt").read_bytes() != source_license:
+    if sdk:
+        check_catalog(destination)
+    elif source_license != ESS_LICENSE or (destination / "priv/compatibility/LICENSE-ESS.txt").read_bytes() != source_license:
         raise RuntimeError("Packaged ESS license notice differs from the source license")
-    catalog = json.loads((destination / "priv/compatibility/aws/service-2.json").read_text())
+    return checksum
+
+
+def check_catalog(sdk):
+    for name in SDK_REQUIRED:
+        if not (sdk / name).is_file():
+            raise RuntimeError(f"Missing SDK asset: {name}")
+    catalog = json.loads((sdk / "priv/compatibility/aws/service-2.json").read_text())
     if len(catalog["operations"]) != 108:
         raise RuntimeError("Packaged operation catalog does not match the pinned reference")
-    return checksum
 
 
 def inspect_escript(path):
@@ -220,7 +233,9 @@ def inspect_escript(path):
         if len(licenses) != 1 or archive.read(licenses[0]) != ESS_LICENSE:
             raise RuntimeError("Missing or incorrect ESS license notice in escript")
         for suffix in (
-            "/priv/compatibility/aws/service-2.json", "/priv/compatibility/NOTICE-YAML.txt",
+            # The SDK compiles the pinned S3 model into its catalog module.
+            "/ebin/Elixir.ExStorageServiceSdk.S3.OperationCatalog.beam",
+            "/priv/compatibility/NOTICE-YAML.txt",
             "/priv/compatibility/NOTICE-QUERY.txt", "/priv/native/ess_signals.so",
             "/priv/native/ess_signals.json",
             "/priv/native/ess_pager", "/priv/native/ess_pager.json",
@@ -300,7 +315,16 @@ def main():
         elif args.package:
             shutil.copyfile(args.package, archive)
         else:
-            run(["mix", "hex.build", "--output", str(archive)], CLI, env, logs)
+            # Package the CLI with its Hex SDK requirement, and verify it against the
+            # SDK package built from the same source, which may not be on Hex yet.
+            package_env = dict(env, EX_STORAGE_SERVICE_SDK="hex")
+            run(["mix", "hex.build", "--output", str(archive)], CLI, package_env, logs)
+            sdk_archive = output / "ex_storage_service_sdk.tar"
+            run(["mix", "hex.build", "--output", str(sdk_archive)], SDK, package_env, logs)
+            sdk_package = output / "extracted/sdk"
+            sdk_package.mkdir(parents=True)
+            extract_package(sdk_archive, sdk_package, sdk=True)
+            env["EX_STORAGE_SERVICE_SDK"] = str(sdk_package)
 
         package = output / "extracted/package"
         package.mkdir(parents=True)
@@ -311,6 +335,9 @@ def main():
         env.update(MIX_BUILD_PATH=str(output / "consumer-build"),
                    MIX_DEPS_PATH=str(output / "consumer-deps"))
         run(["mix", "deps.get", "--only", "prod"], package, env, logs)
+        # The consumer resolved the SDK either from Hex or from the local package.
+        check_catalog(Path(env.get("EX_STORAGE_SERVICE_SDK") or
+                           output / "consumer-deps/ex_storage_service_sdk"))
         run(["mix", "compile", "--warnings-as-errors"], package, env, logs)
         run(["mix", "escript.build"], package, env, logs)
         binary = output / "ess"

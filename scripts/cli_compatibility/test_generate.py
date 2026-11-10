@@ -10,6 +10,7 @@ import generate
 ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / 'docs/cli/compatibility'
 ASSETS = ROOT / 'apps/ex_storage_service_cli/priv/compatibility'
+SDK_ASSETS = ROOT / 'apps/ex_storage_service_sdk/priv/compatibility'
 
 
 class InventoryTest(unittest.TestCase):
@@ -105,7 +106,7 @@ class InventoryTest(unittest.TestCase):
                 generate.apply_evidence(inventory(), {'schema_version': 1, 'requirements': requirements})
 
     def test_all_service_operations_and_nested_members_are_present(self):
-        model = self.read(ASSETS / 'aws/service-2.json')
+        model = self.read(SDK_ASSETS / 'aws/service-2.json')
         inventory = self.read(DOCS / 'aws-s3api-operations.json')
         self.assertEqual(108, len(model['operations']))
         self.assertEqual(set(model['operations']), {item['operation'] for item in inventory['operations']})

@@ -69,7 +69,7 @@ class PreparedReleaseGateTest(unittest.TestCase):
         for name in release_tools.VERSION_FILES:
             path = self.root / name
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text('@version "1.0.0"\n' if "_cli/" in name else 'version: "1.0.0"\n')
+            path.write_text('@version "1.0.0"\n' if "_cli/" in name or "_sdk/" in name else 'version: "1.0.0"\n')
         self.git("add", ".")
         self.git("commit", "-m", "tested source")
         self.source = self.git("rev-parse", "HEAD")

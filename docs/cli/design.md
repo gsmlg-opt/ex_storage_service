@@ -64,7 +64,7 @@ Source paths:
 - [S3 client](../../apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3_client.ex)
 - [Copy command](../../apps/ex_storage_service_cli/lib/ex_storage_service_cli/commands/cp.ex)
 - [Configuration](../../apps/ex_storage_service_cli/lib/ex_storage_service_cli/config.ex)
-- [Signer](../../apps/ex_storage_service_cli/lib/ex_storage_service_cli/sigv4.ex)
+- [Signer](../../apps/ex_storage_service_sdk/lib/ex_storage_service_sdk/sigv4.ex)
 - [Transport regression tests](../../apps/ex_storage_service_cli/test/ex_storage_service_cli/s3_client_test.exs)
 - [Package definition](../../apps/ex_storage_service_cli/mix.exs)
 - [CLI publishing workflow](../../.github/workflows/publish-cli.yml)

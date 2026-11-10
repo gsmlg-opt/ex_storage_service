@@ -2085,7 +2085,7 @@
             "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/high_level_input.ex",
             "apps/ex_storage_service_cli/lib/ex_storage_service_cli/transfer/spool.ex",
             "apps/ex_storage_service_cli/lib/ex_storage_service_cli/transfer/engine.ex",
-            "apps/ex_storage_service_cli/lib/ex_storage_service_cli/transfer/limits.ex"
+            "apps/ex_storage_service_sdk/lib/ex_storage_service_sdk/transfer/limits.ex"
           ],
           "default": null,
           "default_origin": "matching source ARG_TABLE; argparse boolean default when omitted",
@@ -7894,9 +7894,9 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/aws_input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/runtime.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/context.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/client.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/retry.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/transport/http_fetch.ex"
+        "apps/ex_storage_service_sdk/lib/ex_storage_service_sdk/s3/client.ex",
+        "apps/ex_storage_service_sdk/lib/ex_storage_service_sdk/s3/retry.ex",
+        "apps/ex_storage_service_sdk/lib/ex_storage_service_sdk/transport/http_fetch.ex"
       ],
       "default": null,
       "default_origin": "cli.json when provided; AWS config/environment otherwise",
@@ -7926,7 +7926,7 @@
         "apps/ex_storage_service_cli/test/aws_read_deadline_test.exs",
         "apps/ex_storage_service_cli/test/deadline_integration_test.exs",
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport/rate_limits_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport/response_ack_policy_test.exs"
+        "apps/ex_storage_service_sdk/test/ex_storage_service_sdk/transport/response_ack_policy_test.exs"
       ]
     },
     {
@@ -7935,9 +7935,9 @@
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/aws_input.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/cli/runtime.ex",
         "apps/ex_storage_service_cli/lib/ex_storage_service_cli/context.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/client.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/s3/retry.ex",
-        "apps/ex_storage_service_cli/lib/ex_storage_service_cli/transport/http_fetch.ex"
+        "apps/ex_storage_service_sdk/lib/ex_storage_service_sdk/s3/client.ex",
+        "apps/ex_storage_service_sdk/lib/ex_storage_service_sdk/s3/retry.ex",
+        "apps/ex_storage_service_sdk/lib/ex_storage_service_sdk/transport/http_fetch.ex"
       ],
       "default": null,
       "default_origin": "cli.json when provided; AWS config/environment otherwise",
@@ -7967,7 +7967,7 @@
         "apps/ex_storage_service_cli/test/aws_read_deadline_test.exs",
         "apps/ex_storage_service_cli/test/deadline_integration_test.exs",
         "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport/rate_limits_test.exs",
-        "apps/ex_storage_service_cli/test/ex_storage_service_cli/transport/response_ack_policy_test.exs"
+        "apps/ex_storage_service_sdk/test/ex_storage_service_sdk/transport/response_ack_policy_test.exs"
       ]
     },
     {

@@ -105,6 +105,8 @@ jobs:
           mix hex.publish --yes
         env:
           MIX_ENV: dev
+          # Publish the Hex SDK requirement, not the umbrella sibling.
+          EX_STORAGE_SERVICE_SDK: hex
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
       - name: Verify newly published registry bytes
         if: steps.registry.outputs.status == 'absent'

@@ -54,10 +54,23 @@ defmodule ExStorageServiceCli.MixProject do
     ]
   end
 
+  # Inside the umbrella the CLI builds against the sibling SDK. Hex packages can
+  # only depend on Hex packages, so `mix hex.build`/`hex.publish` run with
+  # EX_STORAGE_SERVICE_SDK=hex. Package verification before the SDK is on Hex
+  # points EX_STORAGE_SERVICE_SDK at an extracted SDK package directory.
   defp sdk_dep do
-    if in_umbrella?(),
-      do: {:ex_storage_service_sdk, in_umbrella: true},
-      else: {:ex_storage_service_sdk, "~> " <> @version}
+    case System.get_env("EX_STORAGE_SERVICE_SDK") do
+      nil ->
+        if in_umbrella?(),
+          do: {:ex_storage_service_sdk, in_umbrella: true},
+          else: {:ex_storage_service_sdk, "~> " <> @version}
+
+      "hex" ->
+        {:ex_storage_service_sdk, "~> " <> @version}
+
+      path ->
+        {:ex_storage_service_sdk, path: path}
+    end
   end
 
   defp in_umbrella?, do: Path.basename(Path.dirname(__DIR__)) == "apps"

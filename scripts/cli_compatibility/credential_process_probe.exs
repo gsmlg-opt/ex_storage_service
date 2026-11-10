@@ -6,9 +6,9 @@ true = options in [[], ["daily"]]
 
 # Load only these actual installed artifact modules, without source/build paths.
 for module <- [
-      ExStorageServiceCli.Error,
-      ExStorageServiceCli.Credentials.Record,
-      Inspect.ExStorageServiceCli.Credentials.Record,
+      ExStorageServiceSdk.Error,
+      ExStorageServiceSdk.Credentials,
+      Inspect.ExStorageServiceSdk.Credentials,
       ExStorageServiceCli.Credentials.Process
     ] do
   false = :code.is_loaded(module)
@@ -46,7 +46,7 @@ if options == ["daily"] do
     quote_arg = fn value -> "'" <> String.replace(value, "'", "'\\''") <> "'" end
     command = Enum.map_join([helper, arguments_file | arguments], " ", quote_arg)
 
-    {:ok, %{__struct__: ExStorageServiceCli.Credentials.Record} = record} =
+    {:ok, %{__struct__: ExStorageServiceSdk.Credentials} = record} =
       ExStorageServiceCli.Credentials.Process.run(command, now: ~U[2026-10-15 00:00:00Z])
 
     %{

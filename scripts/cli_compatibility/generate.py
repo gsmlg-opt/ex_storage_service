@@ -10,6 +10,8 @@ import re
 
 ROOT = Path(__file__).resolve().parents[2]
 ASSETS = ROOT / 'apps/ex_storage_service_cli/priv/compatibility'
+# The S3 service model ships with the SDK package the CLI builds on.
+SDK_ASSETS = ROOT / 'apps/ex_storage_service_sdk/priv/compatibility'
 DOCS = ROOT / 'docs/cli/compatibility'
 
 
@@ -189,13 +191,13 @@ def op_milestone(name):
 
 
 def aws_api_inventory():
-    model = load(ASSETS / 'aws/service-2.json')
-    merge(model, load(ASSETS / 'aws/service-2.sdk-extras.json')['merge'])
+    model = load(SDK_ASSETS / 'aws/service-2.json')
+    merge(model, load(SDK_ASSETS / 'aws/service-2.sdk-extras.json')['merge'])
     shapes = model['shapes']
-    paginators = load(ASSETS / 'aws/paginators-1.json')
-    merge(paginators, load(ASSETS / 'aws/paginators-1.sdk-extras.json')['merge'])
+    paginators = load(SDK_ASSETS / 'aws/paginators-1.json')
+    merge(paginators, load(SDK_ASSETS / 'aws/paginators-1.sdk-extras.json')['merge'])
     paginators = paginators['pagination']
-    waiters = load(ASSETS / 'aws/waiters-2.json')['waiters']
+    waiters = load(SDK_ASSETS / 'aws/waiters-2.json')['waiters']
     operations = []
     def members(shape_name, parent, seen, milestone, reference):
         shape = shapes[shape_name]
@@ -229,8 +231,8 @@ def aws_api_inventory():
         else:
             existing = {item['name'] for item in cli_arguments}
             cli_arguments.extend(item for item in generic_cli_arguments(identifier, reference) if item['name'] not in existing)
-        operations.append(row(identifier, milestone, reference, operation=name, command=kebab(name), protocol_traits=traits(definition), input_shape=input_shape, output_shape=output_shape, input_members=members(input_shape, identifier + ':input', set(), milestone, reference) if input_shape else [], output_members=members(output_shape, identifier + ':output', set(), milestone, reference) if output_shape else [], paginator=row(identifier + ':paginator', 'M5', 'apps/ex_storage_service_cli/priv/compatibility/aws/paginators-1.json', definition=paginators[name]) if name in paginators else None, cli_arguments=cli_arguments, customization_references=customizations, special_handler_required=milestone == 'M7'))
-    rules = load(ASSETS / 'aws/endpoint-rule-set-1.json')
+        operations.append(row(identifier, milestone, reference, operation=name, command=kebab(name), protocol_traits=traits(definition), input_shape=input_shape, output_shape=output_shape, input_members=members(input_shape, identifier + ':input', set(), milestone, reference) if input_shape else [], output_members=members(output_shape, identifier + ':output', set(), milestone, reference) if output_shape else [], paginator=row(identifier + ':paginator', 'M5', 'apps/ex_storage_service_sdk/priv/compatibility/aws/paginators-1.json', definition=paginators[name]) if name in paginators else None, cli_arguments=cli_arguments, customization_references=customizations, special_handler_required=milestone == 'M7'))
+    rules = load(SDK_ASSETS / 'aws/endpoint-rule-set-1.json')
     schemes = {}
     def scan(value):
         if isinstance(value, dict):
@@ -242,7 +244,7 @@ def aws_api_inventory():
             for child in value:
                 scan(child)
     scan(rules)
-    return {'schema_version': 1, 'reference': 'aws-cli/2.31.18; bundled S3 2006-03-01; sdk-extras merged', 'operations': operations, 'shapes': {name: row('AWS:shape:' + name, 'M5', 'apps/ex_storage_service_cli/priv/compatibility/aws/service-2.json', definition=shape) for name, shape in sorted(shapes.items())}, 'waiters': [row('AWS:s3api:wait:' + kebab(name), 'M5', 'apps/ex_storage_service_cli/priv/compatibility/aws/waiters-2.json', command=kebab(name), definition=definition, cli_arguments=generic_cli_arguments('AWS:s3api:wait:' + kebab(name), 'apps/ex_storage_service_cli/priv/compatibility/aws/help/s3api__wait__' + kebab(name) + '.roff')) for name, definition in sorted(waiters.items())], 'endpoint_parameters': [row('AWS:endpoint:' + name, 'M7', 'apps/ex_storage_service_cli/priv/compatibility/aws/endpoint-rule-set-1.json', name=name, definition=definition) for name, definition in sorted(rules['parameters'].items())], 'endpoint_auth_variants': [row('AWS:auth:' + str(index), 'M7' if scheme['name'] != 'sigv4' else 'M2', 'apps/ex_storage_service_cli/priv/compatibility/aws/endpoint-rule-set-1.json', definition=scheme) for index, (_, scheme) in enumerate(sorted(schemes.items()))]}
+    return {'schema_version': 1, 'reference': 'aws-cli/2.31.18; bundled S3 2006-03-01; sdk-extras merged', 'operations': operations, 'shapes': {name: row('AWS:shape:' + name, 'M5', 'apps/ex_storage_service_sdk/priv/compatibility/aws/service-2.json', definition=shape) for name, shape in sorted(shapes.items())}, 'waiters': [row('AWS:s3api:wait:' + kebab(name), 'M5', 'apps/ex_storage_service_sdk/priv/compatibility/aws/waiters-2.json', command=kebab(name), definition=definition, cli_arguments=generic_cli_arguments('AWS:s3api:wait:' + kebab(name), 'apps/ex_storage_service_cli/priv/compatibility/aws/help/s3api__wait__' + kebab(name) + '.roff')) for name, definition in sorted(waiters.items())], 'endpoint_parameters': [row('AWS:endpoint:' + name, 'M7', 'apps/ex_storage_service_sdk/priv/compatibility/aws/endpoint-rule-set-1.json', name=name, definition=definition) for name, definition in sorted(rules['parameters'].items())], 'endpoint_auth_variants': [row('AWS:auth:' + str(index), 'M7' if scheme['name'] != 'sigv4' else 'M2', 'apps/ex_storage_service_sdk/priv/compatibility/aws/endpoint-rule-set-1.json', definition=scheme) for index, (_, scheme) in enumerate(sorted(schemes.items()))]}
 
 
 def all_rows(value):
