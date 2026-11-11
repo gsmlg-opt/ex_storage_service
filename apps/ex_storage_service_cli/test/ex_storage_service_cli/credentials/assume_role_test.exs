@@ -263,6 +263,9 @@ defmodule ExStorageServiceCli.Credentials.AssumeRoleTest do
         )
         |> Keyword.put(:provider_ca_bundle, ca)
         |> Keyword.put(:metadata_transport_errors, true)
+        # Verifies TLS and the STS protocol, not latency: a loaded CI runner can
+        # take over a second for the in-process fixture to accept and handshake.
+        |> Keyword.put(:provider_connect_timeout, 5_000)
 
       result = Provider.resolve(%{profile: "role", endpoint_url: "https://data.invalid"}, opts)
       stages = tls_stages()

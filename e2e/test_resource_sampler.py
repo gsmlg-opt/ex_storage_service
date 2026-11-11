@@ -134,7 +134,10 @@ receive do :never -> :ok after 5_000 -> :ok end
             try:
                 beam_pid = int(process.stdout.readline())
                 identity = json.loads(next(root.glob("observer-*.json")).read_text())
-                rows = [json.loads(line) for line in (root / "samples.jsonl").read_text().splitlines()]
+                # The observer is still appending; only newline-terminated rows are complete.
+                complete = (root / "samples.jsonl").read_text().split("\n")[:-1]
+                rows = [json.loads(line) for line in complete]
+                self.assertTrue(rows)
                 self.assertEqual(beam_pid, identity["beam"]["pid"])
                 self.assertNotEqual(beam_pid, identity["observer"]["pid"])
                 self.assertLess(abs(rows[-1]["rss"] - rss(beam_pid)), 16 * 1024 * 1024)
