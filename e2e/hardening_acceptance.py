@@ -3,6 +3,11 @@
 
 Lane success is execution evidence, not an automatic scenario pass. The checked-in
 scenario ledger must independently audit every assertion in each matrix row.
+
+Functional lanes run in GitHub CI and gate releases (`verify --scope functional`).
+Performance lanes (scale, resource envelopes and their cadence) run only in a
+confirmed local environment, where `verify --scope full` additionally audits the
+performance lanes and the 38-row ledger.
 """
 import argparse
 import datetime
@@ -19,7 +24,12 @@ import time
 from functools import lru_cache
 
 REPO = Path(__file__).resolve().parents[1]
-PROFILES = ("correctness", "standalone", "gateway", "cluster", "index", "resources", "faults", "crashes", "resilience", "restore", "release")
+FUNCTIONAL_PROFILES = ("correctness", "standalone", "gateway", "cluster", "index_cluster", "faults",
+                       "crashes", "resilience", "restore", "release")
+# Hosted CI runners cannot hold the fixed 100 ms resource coverage or scale bounds.
+PERFORMANCE_PROFILES = ("index", "resources")
+PROFILES = FUNCTIONAL_PROFILES + PERFORMANCE_PROFILES
+PROFILE_GROUPS = {"all": PROFILES, "functional": FUNCTIONAL_PROFILES, "performance": PERFORMANCE_PROFILES}
 
 
 def sha():
@@ -132,8 +142,10 @@ def commands(profile, args, label):
         return [("prod", ["bash", "e2e/run_hardening_resilience.sh", python, label]),
                 ("prod", ["bash", "e2e/run_hardening_replication_backlog.sh", python, label + "-backlog"])]
     if profile == "index":
-        return [("prod", ["bash", "e2e/run_hardening_index.sh", python, label]),
-                ("prod", ["bash", "e2e/run_hardening_index_cluster.sh", python, label + "-cluster"])]
+        return [("prod", ["bash", "e2e/run_hardening_index.sh", python, label])]
+    if profile == "index_cluster":
+        # A29 interrupted rebuild/rejoin is functional; the A28 scale run is not.
+        return [("prod", ["bash", "e2e/run_hardening_index_cluster.sh", python, label])]
     if profile == "faults":
         return [("prod", ["bash", f"e2e/run_hardening_{profile}.sh", python, label])]
     if profile == "restore":
@@ -202,10 +214,14 @@ def run_profile(profile, args):
     return record["status"] == "passed"
 
 
-def audit(ledger, lane_directory):
+def audit(ledger, lane_directory, scope="full"):
     errors = []
     current_sha = sha()
     current_source = source_fingerprint()
+    profiles = FUNCTIONAL_PROFILES if scope == "functional" else PROFILES
+    errors += audit_lanes(lane_directory, profiles, current_sha, current_source)
+    if scope == "functional":
+        return errors
     value = json.loads(ledger.read_text())
     rows = value.get("scenarios", [])
     expected = {f"A{number:02}" for number in range(1, 39)}
@@ -253,7 +269,12 @@ def audit(ledger, lane_directory):
             errors.append(f"{name}: verification belongs to different source contents")
         if verification.get("exit_status") != 0:
             errors.append(f"{name}: verification did not exit zero")
-    for profile in PROFILES:
+    return errors
+
+
+def audit_lanes(lane_directory, profiles, current_sha, current_source):
+    errors = []
+    for profile in profiles:
         path = lane_directory / f"{profile}.json"
         if not path.is_file():
             errors.append(f"{profile}: pending; no lane execution record")
@@ -278,7 +299,9 @@ def audit(ledger, lane_directory):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("run", "verify"))
-    parser.add_argument("--profile", choices=(*PROFILES, "all"), default="all")
+    parser.add_argument("--profile", choices=(*PROFILES, *PROFILE_GROUPS), default="all")
+    parser.add_argument("--scope", choices=("functional", "full"), default="full",
+                        help="functional: CI release gate; full: local acceptance incl. performance and ledger")
     parser.add_argument("--python", default=sys.executable)
     parser.add_argument("--mc")
     parser.add_argument("--label", default=datetime.datetime.now(datetime.timezone.utc).strftime("acceptance-%Y%m%dT%H%M%SZ"))
@@ -293,12 +316,12 @@ def main():
         parser.error("output must be under docs/reports/s3-hardening")
     args.output.mkdir(parents=True, exist_ok=True)
     if args.action == "run":
-        selected = PROFILES if args.profile == "all" else (args.profile,)
+        selected = PROFILE_GROUPS.get(args.profile, (args.profile,))
         results = [run_profile(profile, args) for profile in selected]
         if args.profile != "all":
             return 0 if all(results) else 1
-    errors = audit(args.ledger, args.output)
-    write_json(args.output / "aggregate.json", {"goal": "ESS-S3-HARDENING-001",
+    errors = audit(args.ledger, args.output, args.scope)
+    write_json(args.output / "aggregate.json", {"goal": "ESS-S3-HARDENING-001", "scope": args.scope,
                "status": "passed" if not errors else "blocked", "errors": errors})
     for error in errors:
         print(error, file=sys.stderr)

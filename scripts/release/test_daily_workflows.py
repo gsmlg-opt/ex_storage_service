@@ -81,6 +81,16 @@ class DailyWorkflowTest(unittest.TestCase):
         finalize = text.split("  finalize:\n", 1)[1]
         self.assertIn("publish-sdk", finalize.split("runs-on", 1)[0])
 
+    def test_hosted_ci_runs_no_performance_lanes(self):
+        hardening = self.workflow("s3-hardening.yml")
+        matrix = hardening.split("profile: [", 1)[1].split("]", 1)[0]
+        self.assertNotIn("resources", matrix)
+        self.assertNotIn(" index,", " " + matrix + ",")
+        self.assertIn("index_cluster", matrix)
+        self.assertIn("verify --scope functional", hardening)
+        self.assertNotIn("  resources:", self.workflow("cli-compatibility.yml"))
+        self.assertFalse((ROOT / ".github/workflows/resource-cadence-diagnostic.yml").exists())
+
     def test_large_topologies_and_resource_jobs_require_manual_selection(self):
         for name in ("cluster-e2e.yml", "cloud-cache-e2e.yml", "e2e-test.yml"):
             text = self.workflow(name)
@@ -88,7 +98,7 @@ class DailyWorkflowTest(unittest.TestCase):
             self.assertNotIn("  push:", text)
             self.assertNotIn("  pull_request:", text)
         cli = self.workflow("cli-compatibility.yml")
-        for job in ("unit-wire-executable", "resources", "providers"):
+        for job in ("unit-wire-executable", "providers"):
             self.assertIn(f"  {job}:\n    if: github.event_name == 'workflow_dispatch' && inputs.extended", cli)
         self.assertIn("default: false", cli)
         self.assertIn("run_correctness_tests.py", self.workflow("test.yml"))

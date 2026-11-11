@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       extended:
-        description: 'Also run the extended scale, resource, fault, recovery, and release audit'
+        description: 'Also run the extended functional fault, recovery, and release audit (performance lanes run locally only)'
         type: boolean
         required: false
         default: false
@@ -84,7 +84,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        profile: [correctness, standalone, gateway, cluster, index, resources, faults, crashes, resilience, restore, release]
+        # Functional lanes only. Scale/resource performance lanes (index, resources)
+        # run in a confirmed local environment: hardening_acceptance.py --scope full.
+        profile: [correctness, standalone, gateway, cluster, index_cluster, faults, crashes, resilience, restore, release]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -139,7 +141,7 @@ jobs:
           retention-days: 14
 
   full-acceptance:
-    name: Extended audit of all 38 scenarios and every lane
+    name: Extended functional audit of every CI lane
     if: always() && github.event_name == 'workflow_dispatch' && inputs.extended
     needs: extended-lane
     runs-on: ubuntu-latest
@@ -157,7 +159,7 @@ jobs:
           LANE_RESULT: ${{ needs.extended-lane.result }}
         run: |
           test "$LANE_RESULT" = success
-          python3 e2e/hardening_acceptance.py verify \
+          python3 e2e/hardening_acceptance.py verify --scope functional \
             --output 'docs/reports/s3-hardening/ci-${{ github.run_id }}-${{ github.run_attempt }}'
       - name: Retain aggregate report
         if: always()

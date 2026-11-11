@@ -180,4 +180,5 @@ If you encounter missing features, bugs, or need functionality not yet available
 - Rate limiting is disabled in test env
 - Core app's `test_helper.exs` cleans Ra/Concord data directories before each run to avoid stale state
 - Tests cover: S3 API operations, SigV4 auth, IAM policies, XML parsing, multipart uploads, replication, CLI commands
+- **GitHub CI runs functional tests only; performance tests run only in a confirmed local environment.** The CI hardening lanes and the release gate use `e2e/hardening_acceptance.py verify --scope functional`. The `index` (scale) and `resources` (resource envelopes, 100 ms cadence, 2 GiB transport, CLI resource acceptance) lanes and the 38-row ledger `docs/plans/s3-hardening-results.json` are local acceptance records (`--profile performance`, `verify --scope full`). Don't move them back into hosted CI or relax their bounds.
 - `e2e/` holds out-of-process integration checks (`s3_compat.py`, `cloud_cache_e2e.sh`) run by the E2E GitHub Actions workflows — not part of `mix test`

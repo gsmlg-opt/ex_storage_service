@@ -25,7 +25,7 @@ class ReleaseGateTest(unittest.TestCase):
         self.run = dict(head_sha="candidate", event="workflow_dispatch", status="completed",
                         conclusion="success", path=".github/workflows/s3-hardening.yml",
                         head_repository={"full_name": "gsmlg-opt/ex_storage_service"})
-        self.jobs = [dict(name="Extended audit of all 38 scenarios and every lane", conclusion="success")]
+        self.jobs = [dict(name="Extended functional audit of every CI lane", conclusion="success")]
 
     def check(self):
         gate.validate_run(self.run, self.jobs, "candidate", "gsmlg-opt/ex_storage_service")
@@ -181,7 +181,7 @@ class PreparedReleaseGateTest(unittest.TestCase):
         run = dict(head_sha=self.source, event="workflow_dispatch", status="completed", conclusion="success",
                    path=".github/workflows/s3-hardening.yml", run_attempt=2,
                    head_repository={"full_name": "gsmlg-opt/ex_storage_service"})
-        jobs = [{"jobs": [dict(name="Extended audit of all 38 scenarios and every lane", conclusion="success")]}]
+        jobs = [{"jobs": [dict(name="Extended functional audit of every CI lane", conclusion="success")]}]
 
         def output(argv, **kwargs):
             if argv[:2] == ["gh", "api"]:

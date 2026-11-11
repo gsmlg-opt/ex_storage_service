@@ -227,12 +227,38 @@ class AggregateTest(unittest.TestCase):
             ("prod", ["bash", "e2e/run_hardening_retained_standalone.sh", python, "isolated-retained"]),
         ], acceptance.commands("standalone", SimpleNamespace(python="/usr/bin/python3"), "isolated"))
 
-    def test_index_requires_native_scale_and_actual_cluster_rebuild_lanes(self):
+    def test_index_scale_and_functional_cluster_rebuild_are_separate_lanes(self):
         python = str(Path("/usr/bin/python3").absolute())
-        self.assertEqual([
-            ("prod", ["bash", "e2e/run_hardening_index.sh", python, "isolated"]),
-            ("prod", ["bash", "e2e/run_hardening_index_cluster.sh", python, "isolated-cluster"]),
-        ], acceptance.commands("index", SimpleNamespace(python="/usr/bin/python3"), "isolated"))
+        self.assertEqual([("prod", ["bash", "e2e/run_hardening_index.sh", python, "isolated"])],
+                         acceptance.commands("index", SimpleNamespace(python="/usr/bin/python3"), "isolated"))
+        self.assertEqual([("prod", ["bash", "e2e/run_hardening_index_cluster.sh", python, "isolated"])],
+                         acceptance.commands("index_cluster", SimpleNamespace(python="/usr/bin/python3"), "isolated"))
+        self.assertIn("index_cluster", acceptance.FUNCTIONAL_PROFILES)
+        self.assertEqual(("index", "resources"), acceptance.PERFORMANCE_PROFILES)
+
+    def test_functional_scope_requires_only_functional_lanes_and_no_ledger(self):
+        for profile in acceptance.PERFORMANCE_PROFILES:
+            (self.root / f"{profile}.json").unlink()
+        self.rows[0]["status"] = "blocked"
+        self.ledger.write_text(json.dumps({"schema": 2, "scenarios": self.rows}))
+        with patch.object(acceptance, "REPO", self.root), \
+                patch.object(acceptance, "sha", return_value="source"), \
+                patch.object(acceptance, "source_fingerprint", return_value="fingerprint"), \
+                contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual([], acceptance.audit(self.ledger, self.root, "functional"))
+            full = acceptance.audit(self.ledger, self.root, "full")
+        self.assertTrue(any("index: pending" in error for error in full))
+        self.assertTrue(any("resources: pending" in error for error in full))
+        self.assertTrue(any(error.startswith("A01: blocked") for error in full))
+
+    def test_functional_scope_still_rejects_a_failed_functional_lane(self):
+        (self.root / "index_cluster.json").unlink()
+        with patch.object(acceptance, "REPO", self.root), \
+                patch.object(acceptance, "sha", return_value="source"), \
+                patch.object(acceptance, "source_fingerprint", return_value="fingerprint"), \
+                contextlib.redirect_stdout(io.StringIO()):
+            errors = acceptance.audit(self.ledger, self.root, "functional")
+        self.assertTrue(any("index_cluster: pending" in error for error in errors))
 
     def test_cluster_preserves_finite_tagged_deadline_and_independent_s3_lane(self):
         python = str(Path("/usr/bin/python3").absolute())

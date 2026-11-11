@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
     inputs:
       extended:
-        description: 'Also run full CLI suites, resource and provider acceptance'
+        description: 'Also run full CLI suites and provider acceptance (resource acceptance runs locally only)'
         type: boolean
         required: false
         default: false
@@ -79,36 +79,6 @@ jobs:
         env:
           MIX_DEBUG: "1"
       - run: mix test --exclude resource
-
-  resources:
-    if: github.event_name == 'workflow_dispatch' && inputs.extended
-    name: CLI throttled 2 GiB resource acceptance
-    runs-on: ubuntu-latest
-    env:
-      # This isolated job runs Mix sequentially; avoid elixir-lang/elixir#15761.
-      MIX_OS_CONCURRENCY_LOCK: '0'
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - name: Reserve explicit journal mutex ports on the test runner
-        working-directory: .
-        run: python3 scripts/release/reserve_journal_ports.py
-      - uses: erlef/setup-beam@v1
-        with:
-          elixir-version: "1.19"
-          otp-version: "28"
-      - run: mix deps.get
-      - name: Measure completed upload and download under a 1 MiB budget
-        run: mix test test/ex_storage_service_cli/transfer/resource_acceptance_test.exs 2>&1 | tee "$RUNNER_TEMP/cli-resource.log"
-        env:
-          MIX_DEBUG: "1"
-          ESS_RESOURCE_LARGE_BYTES: "2147483648"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: cli-resource-evidence
-          path: ${{ runner.temp }}/cli-resource.log
-          if-no-files-found: error
 
   standalone-package:
     name: CLI package / ${{ matrix.os }} / Elixir ${{ matrix.elixir }} / OTP ${{ matrix.otp }}

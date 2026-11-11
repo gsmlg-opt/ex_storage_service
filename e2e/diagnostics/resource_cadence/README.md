@@ -87,6 +87,15 @@ Pure fixtures (no BEAM, service, observer, tracer or workload launch):
 PAGER=cat python3 -B e2e/diagnostics/resource_cadence/test_diagnostic.py
 ```
 
-Dispatch `.github/workflows/resource-cadence-diagnostic.yml` once for a specific
-source revision. Retain the artifact, original failed resource receipts and
-source identity together; a non-reproduction adds diagnostic evidence only.
+Performance diagnostics run only on a confirmed local performance host, never on
+hosted CI. Run one bounded diagnostic for a specific source revision (mode is
+`probe-only`, `filesystem-trace` or `syscall-trace`):
+
+```sh
+MIX_ENV=prod ESS_DIAGNOSTIC_MODE=filesystem-trace \
+  "$PINNED_PYTHON" -B e2e/diagnostics/resource_cadence/run.py \
+  --label "cadence-diagnostic-$(date -u +%Y%m%dT%H%M%SZ)" --python "$PINNED_PYTHON"
+```
+
+Retain the output, original failed resource receipts and source identity
+together; a non-reproduction adds diagnostic evidence only.

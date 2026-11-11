@@ -121,10 +121,23 @@ enforces decoded object size.
 - Reference issues or PRs if appropriate.
 
 ### Testing & Validation Requirements
-- ESS-S3-HARDENING-CLOSEOUT-002 (2026-10-21) supersedes the earlier
-  delivery-specific daily-only restriction. Complete all A01–A38 clauses and
+- **GitHub CI runs functional tests only; performance tests run only in a
+  confirmed local environment.** Hosted runners cannot hold the fixed 100 ms
+  resource coverage or scale bounds, so their results are not meaningful there.
+  - Functional lanes (`hardening_acceptance.FUNCTIONAL_PROFILES`: correctness,
+    standalone, gateway, cluster, index_cluster, faults, crashes, resilience,
+    restore, release) run in the extended `s3-hardening.yml` dispatch and are
+    verified with `verify --scope functional`. Releases are gated on that run
+    alone (`scripts/release/verify_hardening.py`).
+  - Performance lanes (`PERFORMANCE_PROFILES`: `index` A28 scale, `resources`
+    envelopes/cadence incl. the 2 GiB transport and CLI resource acceptance)
+    and the 38-row ledger (`docs/plans/s3-hardening-results.json`) are local
+    acceptance records: `python3 e2e/hardening_acceptance.py run --profile
+    performance ...` then `verify --scope full`. Never add them back to hosted
+    CI or the release gate, and never relax their bounds to make them pass.
+- ESS-S3-HARDENING-CLOSEOUT-002 (2026-10-21) defines the A01–A38 clauses and
   isolated scale, resource, concurrency, faults, cluster, restore and release
-  lanes before publication. Run heavy workloads serially on a shared runner.
+  lanes. Run heavy workloads serially on a shared runner.
   Preserve v0.6.10's daily receipts as valid evidence for their narrower scope.
 - Retain lightweight daily interoperability with
   `PAGER=cat bash e2e/run_hardening_daily.sh /absolute/venv/bin/python unique-run`.
@@ -169,8 +182,9 @@ enforces decoded object size.
   windows. Keep the original 100 ms coverage and resource envelopes; verify the
   observer's OS identity has stopped before fixture cleanup. These variables
   configure test instrumentation only.
-- The manual `resource-cadence-diagnostic.yml` workflow instruments both data
-  observers for the incomplete cluster-resource prefix through group 16. It
+- The local-only cadence diagnostic (`e2e/diagnostics/resource_cadence/run.py`;
+  see its README) instruments both data observers for the cluster-resource
+  prefix through group 16; there is no hosted workflow for it. It
   retains the original sampling, coverage, quorum and resource limits; its artifacts cannot satisfy
   acceptance or publication gates. Private instrumentation uses
   `ESS_DIAGNOSTIC_PINNED_PYTHON` for the absolute pinned interpreter,
@@ -183,9 +197,8 @@ enforces decoded object size.
   read/write and futex tracing without decoding paths or payloads. All modes
   require complete delivery, original export verification and stopped identities;
   both traced modes require natural trace completion. None certifies acceptance.
-  These do not configure production behavior. Workflow-local `DIAGNOSTIC_LABEL`
-  selects evidence paths; `ENABLE_SCHEDULER_ACCOUNTING` optionally enables
-  scheduler accounting on the disposable hosted VM and retains readback.
+  These do not configure production behavior. `--label` selects evidence
+  paths; scheduler accounting must be enabled on the local host beforehand.
 - The manual `completion-stage-diagnostic.yml` workflow runs original Phase 1
   and IAM checks on a disposable cluster. Only its second, 32-request completion
   race receives a runtime trace capped at 20 seconds and 4,096 events per node.

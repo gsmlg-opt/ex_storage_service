@@ -20,7 +20,8 @@ def validate_run(run, jobs, expected_sha, expected_repo):
             or run.get("path") != ".github/workflows/s3-hardening.yml"
             or run.get("head_repository", {}).get("full_name") != expected_repo):
         raise ValueError("Full hardening run must be successful and belong to this exact source/repository")
-    aggregate = [job for job in jobs if job.get("name") == "Extended audit of all 38 scenarios and every lane"]
+    # Releases are gated on functional CI; performance acceptance is local-only.
+    aggregate = [job for job in jobs if job.get("name") == "Extended functional audit of every CI lane"]
     if len(aggregate) != 1 or aggregate[0].get("conclusion") != "success":
         raise ValueError("Missing, skipped, cancelled or failed full acceptance job")
 
@@ -89,7 +90,8 @@ def main():
                     "--name", "s3-hardening-verification", "--dir", "docs/reports/s3-hardening"],
                    cwd=ROOT, check=True)
     output = f"docs/reports/s3-hardening/ci-{args.run_id}-{run['run_attempt']}"
-    audit_source(source, release, [sys.executable, "e2e/hardening_acceptance.py", "verify", "--output", output])
+    audit_source(source, release, [sys.executable, "e2e/hardening_acceptance.py", "verify",
+                                   "--scope", "functional", "--output", output])
 
 
 if __name__ == "__main__":

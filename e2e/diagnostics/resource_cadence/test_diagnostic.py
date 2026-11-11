@@ -416,13 +416,9 @@ class DiagnosticFixtures(unittest.TestCase):
                     self.assertTrue(all(row["stopped"] for row in receipt["owned_identities"]))
                     self.assertFalse(receipt["publication_eligible"])
 
-    def test_workflow_exposes_all_modes_and_installs_trace_prerequisite(self):
-        workflow = (REPO / ".github/workflows/resource-cadence-diagnostic.yml").read_text()
-        self.assertIn("default: probe-only", workflow)
-        for mode in common.MODES:
-            self.assertIn("- " + mode, workflow)
-        self.assertIn('"$ESS_DIAGNOSTIC_MODE" == syscall-trace || "$ESS_DIAGNOSTIC_MODE" == filesystem-trace', workflow)
-        self.assertIn("sudo -n apt-get install --yes strace", workflow)
+    def test_monitor_bounds_every_trace_output(self):
+        # Performance diagnostics run locally only; no hosted workflow exists.
+        self.assertFalse((REPO / ".github/workflows/resource-cadence-diagnostic.yml").exists())
         monitor = (HERE / "monitor.py").read_text()
         self.assertIn('if traces_syscalls(mode):', monitor)
         self.assertIn('"syscalls": 1024 * 1024 * 1024', monitor)
