@@ -17,6 +17,15 @@ class ProviderPolicyTest(unittest.TestCase):
         self.assertEqual("known-provider-limitations", result["status"])
         self.assertEqual(4, result["provider_failures_retained"])
 
+    def test_containerd_manifest_digest_identifies_the_pinned_image(self):
+        for row in self.report["providers"]:
+            with self.subTest(provider=row["provider"]):
+                report = copy.deepcopy(self.report)
+                target = next(p for p in report["providers"] if p["provider"] == row["provider"])
+                target["image_id"] = self.expected["providers"][row["provider"]]["image_digest"]
+                self.assertEqual("known-provider-limitations",
+                                 validate(report, self.expected, self.reference, self.artifact)["status"])
+
     def test_unexpected_or_missing_evidence_and_cleanup_are_fatal(self):
         mutations = [
             lambda r: r.update(independent_aws=False),
@@ -28,6 +37,7 @@ class ProviderPolicyTest(unittest.TestCase):
             lambda r: r["providers"][0]["content_encoding"]["gzip"].update(raw_bytes_verified=False),
             lambda r: r["providers"][1]["key_boundary"].update(ess_status=0),
             lambda r: r["providers"].pop(),
+            lambda r: r["providers"][0].update(image_id="sha256:" + "0" * 64),
         ]
         for mutation in mutations:
             with self.subTest(mutation=mutation):

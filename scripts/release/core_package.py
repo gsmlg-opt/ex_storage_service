@@ -152,7 +152,7 @@ def consumer(package, version, output, app="ex_storage_service"):
                         result["output"] = "".join(chunks)
                         save_results()
                 if result["status"]:
-                    raise RuntimeError(f"Fresh {app} consumer failed")
+                    raise RuntimeError("Fresh core consumer failed" if app == "ex_storage_service" else "Fresh SDK consumer failed")
         finally:
             save_results()
     (output / "manifest.json").write_text(json.dumps(

@@ -30,7 +30,11 @@ def validate(report, expected, reference, artifact_sha256):
     for row in providers:
         name = row["provider"]
         policy = expected["providers"][name]
-        require(row["image_id"].removeprefix("sha256:") == policy["image_id"],
+        # Docker's classic store reports the image config ID; the containerd image
+        # store (default on ubuntu-26.04 runners) reports the content-addressed
+        # manifest digest instead. Both name exactly the pinned immutable image.
+        accepted = {policy["image_id"], policy["image_digest"].removeprefix("sha256:")}
+        require(row["image_id"].removeprefix("sha256:") in accepted,
                 name + ": unexpected image config")
         require(any(value.split("@")[-1] == policy["image_digest"]
                     for value in row["image_digests"]), name + ": unexpected image digest")
