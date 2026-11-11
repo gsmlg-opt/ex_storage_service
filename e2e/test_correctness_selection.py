@@ -1,6 +1,6 @@
 """Fail closed if complete correctness suites disappear from captured output."""
 import unittest
-from e2e.run_correctness_tests import MINIMUM_TESTS, counts, validate
+from e2e.run_correctness_tests import CLIENT_MINIMUM_TESTS, MINIMUM_TESTS, counts, validate
 
 
 class SelectionTest(unittest.TestCase):
@@ -10,6 +10,13 @@ class SelectionTest(unittest.TestCase):
         self.assertEqual([], validate(counts(log)))
         self.assertTrue(validate(counts(log.replace("357 tests", "1 test"))))
         self.assertTrue(validate(counts(log.replace("==> ex_storage_service_s3", "==> wrong"))))
+
+    def test_extended_client_floors_require_both_sdk_and_cli_suites(self):
+        floors = dict(MINIMUM_TESTS, **CLIENT_MINIMUM_TESTS)
+        log = "\n".join(f"==> {app}\n{minimum} tests, 0 failures" for app, minimum in floors.items())
+        self.assertEqual([], validate(counts(log), floors))
+        self.assertTrue(validate(counts(log.replace("==> ex_storage_service_sdk", "==> wrong")), floors))
+        self.assertTrue(validate(counts(log.replace("878 tests", "10 tests")), floors))
 
     def test_skipped_failed_and_missing_summaries_fail(self):
         self.assertTrue(validate(counts("")))

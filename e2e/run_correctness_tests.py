@@ -18,6 +18,8 @@ SERVER_APPS = ("ex_storage_service", "ex_storage_service_cluster",
                "ex_storage_service_s3", "ex_storage_service_web")
 # Floors detect accidental health-only/empty selections; they do not select tests.
 MINIMUM_TESTS = dict(zip(SERVER_APPS, (587, 40, 357, 21)))
+# The S3 protocol layer and its tests moved from the CLI (formerly 3491) to the SDK.
+CLIENT_MINIMUM_TESTS = {"ex_storage_service_sdk": 878, "ex_storage_service_cli": 2631}
 SUMMARY = re.compile(
     r"(\d+) tests?, (\d+) failures?(?:, (\d+) excluded)?(?:, (\d+) skipped)?"
     r"(?: \((\d+) excluded\))?")
@@ -79,11 +81,12 @@ def run(argv, environment, log_path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--extended", action="store_true", help="also run the complete CLI suite")
+    parser.add_argument("--extended", action="store_true",
+                        help="also run the complete SDK and CLI suites")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
-    selected = SERVER_APPS + (("ex_storage_service_cli",) if args.extended else ())
-    minimum_tests = dict(MINIMUM_TESTS, **({"ex_storage_service_cli": 3491} if args.extended else {}))
+    selected = SERVER_APPS + (tuple(CLIENT_MINIMUM_TESTS) if args.extended else ())
+    minimum_tests = dict(MINIMUM_TESTS, **(CLIENT_MINIMUM_TESTS if args.extended else {}))
     inventory = {app: sorted(str(path.relative_to(REPO)) for path in
                             (REPO / "apps" / app / "test").rglob("*_test.exs"))
                  for app in selected}
