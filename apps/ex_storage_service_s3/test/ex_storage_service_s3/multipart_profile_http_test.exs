@@ -378,6 +378,9 @@ defmodule ExStorageServiceS3.MultipartProfileHTTPTest do
     assert {:error, :object_not_found} = ObjectService.head(bucket, "key")
   end
 
+  # TODO(upstream): gsmlg-dev/gaoxy#26 - per-chunk synchronous body admission
+  # accounting (~2,400 GenServer round trips per 5 MiB) can time this replacement
+  # PUT out on loaded hosted runners. Do not raise the timeout to mask it.
   defp observe_replacement(request) do
     request.()
   rescue
