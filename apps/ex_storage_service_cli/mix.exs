@@ -32,7 +32,7 @@ defmodule ExStorageServiceCli.MixProject do
 
   def application do
     [
-      extra_applications: [:logger, :crypto, :xmerl]
+      extra_applications: [:logger, :crypto, :public_key, :ssl, :xmerl]
     ]
   end
 

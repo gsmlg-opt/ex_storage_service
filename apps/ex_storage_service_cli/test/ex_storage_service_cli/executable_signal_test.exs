@@ -45,11 +45,13 @@ defmodule ExStorageServiceCli.ExecutableSignalTest do
           "compatibility/NOTICE.txt",
           "compatibility/NOTICE-QUERY.txt",
           "compatibility/NOTICE-YAML.txt",
-          "compatibility/aws/service-2.json",
           "compatibility/aws/cli.json"
         ] do
       assert ("ex_storage_service_cli/priv/" <> name) in names
     end
+
+    # The S3 service model ships with the SDK, compiled into its catalog module.
+    assert "ex_storage_service_sdk/ebin/Elixir.ExStorageServiceSdk.S3.OperationCatalog.beam" in names
   end
 
   for {signal, status} <- [{"INT", 130}, {"TERM", 143}] do
