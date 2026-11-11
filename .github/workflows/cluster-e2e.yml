@@ -21,14 +21,14 @@ jobs:
     env:
       MIX_ENV: test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: ${{ env.ELIXIR_VERSION }}
           otp-version: ${{ env.OTP_VERSION }}
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             deps
@@ -48,7 +48,7 @@ jobs:
 
       - name: Upload tagged cluster log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: tagged-cluster-log
           path: /tmp/ex_storage_service/cluster-logs/tagged-cluster.log
@@ -65,14 +65,14 @@ jobs:
       ESS_CLUSTER_E2E_COOKIE: ess_cluster_e2e_cookie
       ESS_CLUSTER_E2E_MASTER_KEY: cluster-e2e-master-key
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: ${{ env.ELIXIR_VERSION }}
           otp-version: ${{ env.OTP_VERSION }}
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             deps
@@ -160,7 +160,7 @@ jobs:
 
       - name: Upload metadata voter log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: active-active-cluster-meta-log
           path: /tmp/ex_storage_service/cluster-e2e/logs/meta.log
@@ -168,7 +168,7 @@ jobs:
 
       - name: Upload data A log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: active-active-cluster-data-a-log
           path: /tmp/ex_storage_service/cluster-e2e/logs/data-a.log
@@ -176,7 +176,7 @@ jobs:
 
       - name: Upload data B log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: active-active-cluster-data-b-log
           path: /tmp/ex_storage_service/cluster-e2e/logs/data-b.log
@@ -184,7 +184,7 @@ jobs:
 
       - name: Upload consensus primary lifecycle evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: active-active-primary-lifecycle
           path: /tmp/ex_storage_service/cluster-e2e/primary-loss.json

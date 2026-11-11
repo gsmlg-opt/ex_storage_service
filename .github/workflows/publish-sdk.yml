@@ -30,10 +30,10 @@ jobs:
   publish:
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.git_ref }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Validate committed canonical release
@@ -98,12 +98,12 @@ jobs:
           mkdir -p "$RUNNER_TEMP/sdk-release"
           cp "$RUNNER_TEMP/sdk-source.json" "$RUNNER_TEMP/sdk-manifest.json" "$RUNNER_TEMP/sdk-registry.json" "$RUNNER_TEMP/sdk-release/"
           cp "$RUNNER_TEMP/sdk-public-consumer/manifest.json" "$RUNNER_TEMP/sdk-release/sdk-public-consumer.json"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: sdk-v${{ inputs.version }}-verification
           path: ${{ runner.temp }}/sdk-release/*
           if-no-files-found: error
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: sdk-publish-validation-logs

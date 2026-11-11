@@ -40,10 +40,10 @@ jobs:
       # This isolated job runs Mix sequentially; avoid elixir-lang/elixir#15761.
       MIX_OS_CONCURRENCY_LOCK: '0'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.git_ref }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Reserve explicit journal mutex ports on the test runner
@@ -150,12 +150,12 @@ jobs:
               lines.append(f'{digest}  {path.name}\n')
           (root / 'SHA256SUMS').write_text(''.join(lines))
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ess-v${{ inputs.version }}-linux-x86_64-otp28
           path: ${{ runner.temp }}/cli-release/*
           if-no-files-found: error
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: cli-publish-validation-logs

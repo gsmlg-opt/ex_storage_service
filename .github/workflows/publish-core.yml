@@ -30,10 +30,10 @@ jobs:
   publish:
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.git_ref }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Validate committed canonical release
@@ -97,12 +97,12 @@ jobs:
           mkdir -p "$RUNNER_TEMP/core-release"
           cp "$RUNNER_TEMP/core-source.json" "$RUNNER_TEMP/core-manifest.json" "$RUNNER_TEMP/core-registry.json" "$RUNNER_TEMP/core-release/"
           cp "$RUNNER_TEMP/core-public-consumer/manifest.json" "$RUNNER_TEMP/core-release/core-public-consumer.json"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: core-v${{ inputs.version }}-verification
           path: ${{ runner.temp }}/core-release/*
           if-no-files-found: error
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: core-publish-validation-logs

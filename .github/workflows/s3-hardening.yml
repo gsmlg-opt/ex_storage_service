@@ -36,7 +36,7 @@ jobs:
     env:
       MIX_ENV: prod
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: erlef/setup-beam@v1
@@ -46,10 +46,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: '1.91.1'
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             deps
@@ -66,7 +66,7 @@ jobs:
             'ci-${{ github.run_id }}-${{ github.run_attempt }}'
       - name: Retain daily receipt and server logs on success or failure
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: s3-hardening-daily
           path: docs/reports/s3-hardening/daily-ci-${{ github.run_id }}-${{ github.run_attempt }}/
@@ -88,7 +88,7 @@ jobs:
         # run in a confirmed local environment: hardening_acceptance.py --scope full.
         profile: [correctness, standalone, gateway, cluster, index_cluster, faults, crashes, resilience, restore, release]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: erlef/setup-beam@v1
@@ -98,13 +98,13 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: '1.91.1'
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             deps
@@ -133,7 +133,7 @@ jobs:
             --output 'docs/reports/s3-hardening/ci-${{ github.run_id }}-${{ github.run_attempt }}'
       - name: Retain lane evidence on success or failure
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: s3-hardening-extended-${{ matrix.profile }}
           path: docs/reports/s3-hardening/ci-${{ github.run_id }}-${{ github.run_attempt }}*
@@ -144,12 +144,12 @@ jobs:
     name: Extended functional audit of every CI lane
     if: always() && github.event_name == 'workflow_dispatch' && inputs.extended
     needs: extended-lane
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: s3-hardening-extended-*
           path: docs/reports/s3-hardening
@@ -163,14 +163,14 @@ jobs:
             --output 'docs/reports/s3-hardening/ci-${{ github.run_id }}-${{ github.run_attempt }}'
       - name: Retain aggregate report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: s3-hardening-aggregate
           path: docs/reports/s3-hardening/ci-${{ github.run_id }}-${{ github.run_attempt }}/aggregate.json
           if-no-files-found: error
       - name: Retain complete evidence for candidate-specific publication validation
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: s3-hardening-verification
           path: docs/reports/s3-hardening/ci-${{ github.run_id }}-${{ github.run_attempt }}*

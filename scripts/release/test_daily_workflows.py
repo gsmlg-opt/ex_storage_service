@@ -28,12 +28,12 @@ class DailyWorkflowTest(unittest.TestCase):
 
     def test_required_hosted_namespace_setup_retains_each_lane_diagnostics(self):
         correctness = self.workflow("test.yml")
-        self.assertIn("runs-on: ubuntu-24.04", correctness)
+        self.assertIn("runs-on: ubuntu-26.04", correctness)
         self.assertLess(correctness.index("ci_isolation.py --output"),
                         correctness.index("python3 -m unittest discover"))
         self.assertIn("name: correctness-isolation-prerequisite", correctness)
         extended = self.workflow("s3-hardening.yml").split("  extended-lane:\n", 1)[1]
-        self.assertIn("runs-on: ubuntu-24.04", extended)
+        self.assertIn("runs-on: ubuntu-26.04", extended)
         self.assertIn("${{ matrix.profile }}-isolation'", extended)
         self.assertLess(extended.index("ci_isolation.py --output"),
                         extended.index("--profile '${{ matrix.profile }}'"))

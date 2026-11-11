@@ -47,17 +47,17 @@ jobs:
   unit-wire-executable:
     if: github.event_name == 'workflow_dispatch' && inputs.extended
     name: CLI unit, wire and executable contracts
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     env:
       # This isolated job runs Mix sequentially; avoid elixir-lang/elixir#15761.
       MIX_OS_CONCURRENCY_LOCK: '0'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: "1.19"
           otp-version: "28"
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Reserve explicit journal mutex ports on the test runner
@@ -86,14 +86,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJSON((github.event_name == 'workflow_dispatch' && inputs.extended) && '[{"os":"ubuntu-latest","elixir":"1.18.0","otp":"27"},{"os":"ubuntu-latest","elixir":"1.18.5","otp":"28"},{"os":"ubuntu-latest","elixir":"1.19","otp":"28"},{"os":"macos-26","elixir":"1.19","otp":"28"},{"os":"macos-26-intel","elixir":"1.19","otp":"28"}]' || '[{"os":"ubuntu-latest","elixir":"1.19","otp":"28"}]') }}
+        include: ${{ fromJSON((github.event_name == 'workflow_dispatch' && inputs.extended) && '[{"os":"ubuntu-26.04","elixir":"1.18.0","otp":"27"},{"os":"ubuntu-26.04","elixir":"1.18.5","otp":"28"},{"os":"ubuntu-26.04","elixir":"1.19","otp":"28"},{"os":"ubuntu-26.04-arm","elixir":"1.19","otp":"28"},{"os":"macos-26","elixir":"1.19","otp":"28"},{"os":"macos-26-intel","elixir":"1.19","otp":"28"}]' || '[{"os":"ubuntu-26.04","elixir":"1.19","otp":"28"}]') }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: ${{ matrix.elixir }}
           otp-version: ${{ matrix.otp }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: mix local.hex --force
@@ -101,7 +101,7 @@ jobs:
       - name: Build actual source tar and run an isolated installed consumer
         working-directory: .
         run: python3 scripts/cli_compatibility/package_probe.py --verification-profile '${{ (github.event_name == 'workflow_dispatch' && inputs.extended) && 'extended' || 'daily' }}' --output-dir "$RUNNER_TEMP/cli-package"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: cli-package-${{ matrix.os }}-elixir-${{ matrix.elixir }}-otp${{ matrix.otp }}
@@ -115,7 +115,7 @@ jobs:
   providers:
     if: github.event_name == 'workflow_dispatch' && inputs.extended
     name: CLI independent ESS and RustFS contracts with recorded provider limitations
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     env:
       ESS_CONTAINER: ess-cli-ci-server-${{ github.run_id }}-${{ github.run_attempt }}
@@ -123,12 +123,12 @@ jobs:
       ESS_IMAGE: ghcr.io/gsmlg-dev/ess@sha256:59c6b85d2bc60a18660b1304c62b41479138c55aebb4078682f6b307fc85fb02
       RUSTFS_IMAGE: rustfs/rustfs@sha256:1803faef57627e2d9c2e7d89d655d712ddded5389040054987163043fecb6a3c
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: erlef/setup-beam@v1
         with:
           elixir-version: "1.19"
           otp-version: "28"
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Build the CLI artifact
@@ -234,7 +234,7 @@ jobs:
               fi
             fi
           done
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: cli-independent-provider-evidence

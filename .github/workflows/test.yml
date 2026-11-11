@@ -28,8 +28,8 @@ jobs:
       MIX_OS_CONCURRENCY_LOCK: '0'
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Install pinned independent client for harness contract imports
@@ -46,7 +46,7 @@ jobs:
           elixir-version: ${{ env.ELIXIR_VERSION }}
           otp-version: ${{ env.OTP_VERSION }}
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             deps
@@ -63,14 +63,14 @@ jobs:
         run: python3 -m unittest discover -s e2e -p 'test_*.py'
       - name: Retain correctness evidence even on failure
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: correctness-selection-and-results
           path: docs/reports/s3-hardening/correctness-ci-${{ github.run_id }}-${{ github.run_attempt }}/
           if-no-files-found: error
       - name: Retain namespace prerequisite diagnostics even on failure
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: correctness-isolation-prerequisite
           path: docs/reports/s3-hardening/isolation-ci-${{ github.run_id }}-${{ github.run_attempt }}/
