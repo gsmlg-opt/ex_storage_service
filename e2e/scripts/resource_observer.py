@@ -182,6 +182,17 @@ def validate_reply(reply, generation, sequence):
     return reply
 
 
+def next_deadline(deadline, now):
+    """Keep the fixed cadence, but resample at once after an overrun.
+
+    Waiting for the next grid slot after a slow collection added up to one more
+    idle interval to the measured observation gap. Skipped slots are never
+    replayed as a burst; at most one collection follows an overrun immediately.
+    """
+    scheduled = deadline + INTERVAL_NS
+    return scheduled if scheduled > now else now
+
+
 def wait_slot(fd, deadline):
     remaining = (deadline - time.monotonic_ns()) / 1_000_000_000
     if remaining > 0 and select.select([fd], [], [], remaining)[0]:
@@ -335,8 +346,7 @@ def sample(args):
                    "probes": {**reply["probes"], "rss": rss_window, "temporary": tmp_window}}
             writer.submit(row)
             sequence += 1
-            now = time.monotonic_ns()
-            deadline += max(1, (now - deadline) // INTERVAL_NS + 1) * INTERVAL_NS
+            deadline = next_deadline(deadline, time.monotonic_ns())
     except (OwnerClosed, BrokenPipeError):
         pass  # A real owner shutdown still requires the complete bounded drain.
     finally:

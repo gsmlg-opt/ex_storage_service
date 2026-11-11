@@ -482,6 +482,16 @@ o.temporary_bytes = slow
                 process.communicate(timeout=3)
             self.assertTrue(all(item["stopped"] for item in observer.verify_stopped(root)))
 
+    def test_overrun_resamples_immediately_without_replaying_skipped_slots(self):
+        interval = observer.INTERVAL_NS
+        # On time: the next fixed slot.
+        self.assertEqual(1_000 + interval, observer.next_deadline(1_000, 1_000 + interval // 2))
+        # Overrun by several slots: one immediate collection, not the next grid
+        # slot (which added idle time to the observation gap) and not a backlog.
+        now = 1_000 + 3 * interval + interval // 3
+        self.assertEqual(now, observer.next_deadline(1_000, now))
+        self.assertEqual(now + interval, observer.next_deadline(now, now + 1))
+
     def test_invalid_protocol_never_exports_a_sample(self):
         for mode in ("stale", "malformed", "oversized"):
             with self.subTest(mode=mode):
