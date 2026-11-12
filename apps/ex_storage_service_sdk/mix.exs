@@ -1,7 +1,7 @@
 defmodule ExStorageServiceSdk.MixProject do
   use Mix.Project
 
-  @version "0.6.10"
+  @version "0.7.0"
   @source_url "https://github.com/gsmlg-opt/ex_storage_service"
 
   def project do
