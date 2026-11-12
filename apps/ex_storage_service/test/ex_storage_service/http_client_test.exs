@@ -238,8 +238,8 @@ defmodule ExStorageService.HTTPClientTest do
       :gen_tcp.close(listener)
     end)
 
-    assert {:error, :request_timeout} =
-             HTTPClient.request("http://127.0.0.1:#{port}", timeout: 50)
+    # http_fetch 1.0.0-rc.11+ reports request-deadline expiry as :timeout.
+    assert {:error, :timeout} = HTTPClient.request("http://127.0.0.1:#{port}", timeout: 50)
 
     assert_receive {:timeout_connection, {:error, :closed}}, 1_000
   end

@@ -22,7 +22,8 @@ defmodule ExStorageService.HTTPClient do
         error
     end
   rescue
-    exception in RuntimeError -> {:error, exception}
+    # http_fetch 1.0.0-rc.11+ raises HTTP.ResponseError for a failed streamed body.
+    exception in [HTTP.ResponseError, RuntimeError] -> {:error, exception}
   end
 
   @doc "Returns the response without consuming its body. The caller owns consumption."

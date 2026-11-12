@@ -32,8 +32,8 @@ defmodule ExStorageServiceWeb.MixProject do
     [
       {:ex_storage_service, in_umbrella: true},
       {:ex_storage_service_s3, in_umbrella: true},
-      {:gaoxy_http, "~> 0.15.2"},
-      {:websock_adapter, "~> 0.15.2", hex: :gaoxy_websock_adapter, override: true},
+      {:gaoxy_http, "~> 0.16.1"},
+      {:websock_adapter, "~> 0.16.1", hex: :gaoxy_websock_adapter, override: true},
       {:phoenix, "~> 1.8"},
       {:phoenix_live_view, "~> 1.0"},
       {:phoenix_html, "~> 4.4"},

@@ -192,7 +192,8 @@ defmodule ExStorageServiceSdk.TransportSpikeTest do
     send(stream, {:read_chunk, self(), :ack})
     assert_receive {:stream_chunk, ^stream, "one", reference}
     send(stream, {:stream_chunk_ack, reference})
-    assert_receive {:stream_error, ^stream, :request_timeout}, 2_000
+    # http_fetch 1.0.0-rc.11+ reports request-deadline expiry as :timeout.
+    assert_receive {:stream_error, ^stream, :timeout}, 2_000
     assert_receive {:peer_closed, {:error, :closed}}, 2_000
     assert_receive {:DOWN, ^monitor, :process, ^stream, :normal}, 2_000
   end

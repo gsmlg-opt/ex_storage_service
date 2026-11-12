@@ -355,7 +355,8 @@ defmodule ExStorageServiceCluster.Transport.HTTP do
       {:ok, Response.with_buffered_body(response, "")}
     end
   rescue
-    exception in RuntimeError -> {:error, exception}
+    # http_fetch 1.0.0-rc.11+ raises HTTP.ResponseError for a failed streamed body.
+    exception in [HTTP.ResponseError, RuntimeError] -> {:error, exception}
   end
 
   defp request_options(opts) do
