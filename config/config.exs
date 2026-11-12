@@ -42,7 +42,11 @@ config :ex_storage_service, :json_library, Jason
 config :ex_storage_service, :s3_region, "us-east-1"
 
 # Always expose download bodies as streams; callers decide whether to buffer them.
-config :http_fetch, streaming_threshold: 0
+# http_fetch 1.0.0-rc.11+ derives its Content-Encoding decode cap as 10 x the
+# streaming threshold, which a threshold of 0 would turn into a 0-byte cap (every
+# gzip body, e.g. npm metadata during asset builds, fails with
+# :decoded_body_too_large). Keep http_fetch's normal 50 MB bound explicitly.
+config :http_fetch, streaming_threshold: 0, max_decoded_body_size: 50_000_000
 
 config :duskmoon_bundler,
   entry: Path.expand("../apps/ex_storage_service_web/assets/js/app.js", __DIR__),
