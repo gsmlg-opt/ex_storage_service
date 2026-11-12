@@ -85,7 +85,14 @@ ENV LANG=C.UTF-8
 
 WORKDIR /app
 
-RUN useradd -d /app appuser && \
+# Keep appuser at UID/GID 1000 so existing data volumes stay writable.
+# ubuntu images ship an `ubuntu` user at 1000; remove it before creating
+# appuser, and fail the build if the identity ever drifts again.
+RUN if id -u ubuntu >/dev/null 2>&1; then userdel --remove ubuntu; fi && \
+    if getent group ubuntu >/dev/null; then groupdel ubuntu; fi && \
+    groupadd --gid 1000 appuser && \
+    useradd --uid 1000 --gid 1000 -d /app appuser && \
+    test "$(id -u appuser):$(id -g appuser)" = "1000:1000" && \
     mkdir -p /data /var/lib/ess && \
     chown -R appuser:appuser /data /var/lib/ess
 USER appuser
