@@ -297,9 +297,9 @@ defmodule ExStorageServiceSdk.S3.Client do
               {:error, Errors.from_response(operation, response, context)}
 
             {:ok, result} ->
-              result = Customizations.output(operation, result, opts[:customizations])
-
-              with {:ok, result} <- validate_success(operation, result),
+              with {:ok, result} <-
+                     Customizations.output(operation, result, opts[:customizations]),
+                   {:ok, result} <- validate_success(operation, result),
                    :ok <- validate_checksums(request, result) do
                 if opts[:return_response],
                   do: {:ok, result, Map.take(response, [:status, :headers, :request_id])},

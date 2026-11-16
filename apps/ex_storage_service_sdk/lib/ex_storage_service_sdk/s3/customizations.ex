@@ -91,25 +91,60 @@ defmodule ExStorageServiceSdk.S3.Customizations do
            [{"Versions", "Key"}, {"DeleteMarkers", "Key"}, {"CommonPrefixes", "Prefix"}]}
       end
 
-    result = Enum.reduce(fields, result, &decode_field(&2, &1))
-
-    Enum.reduce(collections, result, fn {collection, field}, result ->
-      case Map.fetch(result, collection) do
-        {:ok, values} -> Map.put(result, collection, Enum.map(values, &decode_field(&1, field)))
-        :error -> result
-      end
-    end)
+    with {:ok, result} <- decode_fields(result, fields),
+         {:ok, result} <- decode_collections(result, collections) do
+      {:ok, result}
+    else
+      {:error, error} -> {:error, %{error | operation: operation}}
+    end
   end
 
-  def output(_operation, result, _state), do: result
+  def output(_operation, result, _state), do: {:ok, result}
+
+  defp decode_fields(map, []), do: {:ok, map}
+
+  defp decode_fields(map, [field | rest]) do
+    with {:ok, map} <- decode_field(map, field), do: decode_fields(map, rest)
+  end
+
+  defp decode_collections(map, []), do: {:ok, map}
+
+  defp decode_collections(map, [{collection, field} | rest]) do
+    case Map.fetch(map, collection) do
+      {:ok, values} ->
+        with {:ok, values} <- decode_values(values, field, []),
+             do: decode_collections(Map.put(map, collection, values), rest)
+
+      :error ->
+        decode_collections(map, rest)
+    end
+  end
+
+  defp decode_values([], _field, values), do: {:ok, Enum.reverse(values)}
+
+  defp decode_values([value | rest], field, values) do
+    with {:ok, value} <- decode_field(value, field),
+         do: decode_values(rest, field, [value | values])
+  end
 
   # S3 url encoding is form-style: AWS and MinIO emit "+" for a space and "%2B" for
   # a literal plus. Botocore decodes with unquote_plus; strict servers such as ESS
   # never emit a bare "+", so this is exact for both.
   defp decode_field(map, field) do
     case Map.fetch(map, field) do
-      {:ok, value} -> Map.put(map, field, URI.decode_www_form(value))
-      :error -> map
+      {:ok, value} ->
+        decoded = URI.decode_www_form(value)
+
+        if String.valid?(decoded),
+          do: {:ok, Map.put(map, field, decoded)},
+          else:
+            {:error,
+             Error.new(:protocol, "S3 listing field decodes to invalid UTF-8",
+               code: :invalid_utf8
+             )}
+
+      :error ->
+        {:ok, map}
     end
   end
 

@@ -32,7 +32,7 @@ defmodule ExStorageServiceSdk.MixProject do
 
   defp deps do
     [
-      {:http_fetch, "~> 1.0.0-rc.10"},
+      {:http_fetch, "~> 1.0.0-rc.18"},
       {:ex_doc, "~> 0.40", only: :dev, runtime: false}
     ]
   end

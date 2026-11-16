@@ -16,13 +16,13 @@ on the AWS SDK.
 ```elixir
 def deps do
   [
-    {:ex_storage_service_sdk, "~> 0.7.0"}
+    {:ex_storage_service_sdk, "~> 0.7.2"}
   ]
 end
 ```
 
 Requires Elixir 1.18+ and OTP 27+. HTTP goes through
-[`http_fetch`](https://hex.pm/packages/http_fetch) `~> 1.0.0-rc.10`.
+[`http_fetch`](https://hex.pm/packages/http_fetch) `~> 1.0.0-rc.18`.
 
 ## Usage
 
@@ -52,6 +52,10 @@ keys =
 ```
 
 Keys round-trip exactly, including Unicode, spaces, `+`, `%` and repeated `/`.
+Automatically decoded URL-encoded listing fields must contain valid UTF-8;
+otherwise the call or page returns a protocol error with `code: :invalid_utf8`.
+Malformed percent escapes remain literal. Explicitly selecting `EncodingType`
+leaves the server's encoded fields unchanged.
 
 ### Any operation
 
@@ -111,7 +115,7 @@ Every call returns `{:ok, ...}` or `{:error, %ExStorageServiceSdk.Error{}}`:
 | `category`   | Meaning                                    | Useful fields                                              |
 |--------------|--------------------------------------------|------------------------------------------------------------|
 | `:service`   | The server answered with an error          | `http_status` (404, 412, 416, ...), `code` (`"NoSuchKey"`) |
-| `:transport` | Connection, TLS or timeout failure         | `code` (`:econnrefused`, `:timeout`, ...)                  |
+| `:transport` | Connection, TLS or timeout failure         | `code` (`:econnrefused`, `:request_timeout`, ...)          |
 | `:protocol`  | Response is not valid S3                   | includes HTTP 200 responses carrying an S3 `<Error>`       |
 
 A HEAD request has no error body, so a missing object is

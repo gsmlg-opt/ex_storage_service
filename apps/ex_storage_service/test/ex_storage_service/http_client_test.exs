@@ -153,6 +153,40 @@ defmodule ExStorageService.HTTPClientTest do
     assert {:error, _reason} = HTTPClient.request(interrupted)
   end
 
+  test "buffered requests return HTTP.ResponseError when a streamed body stalls" do
+    {:ok, listener} = :gen_tcp.listen(0, [:binary, active: false, ip: {127, 0, 0, 1}])
+    {:ok, {_, port}} = :inet.sockname(listener)
+    owner = self()
+
+    server =
+      spawn_link(fn ->
+        {:ok, socket} = :gen_tcp.accept(listener, 5_000)
+        {_head, ""} = read_head(socket, "")
+
+        :ok =
+          :gen_tcp.send(
+            socket,
+            "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n1\r\nx\r\n"
+          )
+
+        send(owner, {:body_timeout_connection, :gen_tcp.recv(socket, 0, 2_500)})
+        :gen_tcp.close(socket)
+      end)
+
+    on_exit(fn ->
+      Process.exit(server, :kill)
+      :gen_tcp.close(listener)
+    end)
+
+    assert {:error, %HTTP.ResponseError{reason: :read_idle_timeout}} =
+             HTTPClient.request("http://127.0.0.1:#{port}/body-idle",
+               timeout: 1_000,
+               read_idle_timeout: 50
+             )
+
+    assert_receive {:body_timeout_connection, {:error, :closed}}, 1_000
+  end
+
   test "buffered requests preserve gzip and deflate entity bytes and headers" do
     for {encoding, compress} <- [{"gzip", &:zlib.gzip/1}, {"deflate", &:zlib.compress/1}] do
       stored = compress.(<<0, 255, 128, 1>>)
@@ -238,7 +272,7 @@ defmodule ExStorageService.HTTPClientTest do
       :gen_tcp.close(listener)
     end)
 
-    # http_fetch 1.0.0-rc.11+ reports request-deadline expiry as :timeout.
+    # http_fetch 1.0.0-rc.14+ reports request-deadline expiry as :timeout.
     assert {:error, :timeout} = HTTPClient.request("http://127.0.0.1:#{port}", timeout: 50)
 
     assert_receive {:timeout_connection, {:error, :closed}}, 1_000

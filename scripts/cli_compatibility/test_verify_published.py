@@ -114,6 +114,14 @@ class PublishedPackageVerificationTest(unittest.TestCase):
         self.assertEqual(["/ex_storage_service-0.6.8.tar"], RegistryFixture.requests)
         self.assertEqual(self.payload, self.output.read_bytes())
 
+    def test_sdk_publication_verifies_the_sdk_registry_payload(self):
+        result, _sleep = self.verify("--package-name", "ex_storage_service_sdk")
+        self.assertEqual("verified", result["status"])
+        self.assertEqual(self.checksum, result["hex_inner_checksum"])
+        self.assertEqual(["/ex_storage_service_sdk-0.6.8.tar"], RegistryFixture.requests)
+        self.assertEqual(self.payload, self.output.read_bytes())
+        self.assertEqual(result, json.loads(self.status.read_text()))
+
     def test_only_missing_package_is_absent_and_has_no_retained_tar(self):
         RegistryFixture.responses = [(404, b"missing")]
         result, sleep = self.verify("--allow-missing")

@@ -18,7 +18,8 @@ def main(argv=None):
     parser.add_argument("--version", required=True)
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--package-name", choices=("ex_storage_service_cli", "ex_storage_service"),
+    parser.add_argument("--package-name",
+                        choices=("ex_storage_service_cli", "ex_storage_service", "ex_storage_service_sdk"),
                         default="ex_storage_service_cli")
     parser.add_argument("--candidate-package", type=Path)
     parser.add_argument("--allow-missing", action="store_true")

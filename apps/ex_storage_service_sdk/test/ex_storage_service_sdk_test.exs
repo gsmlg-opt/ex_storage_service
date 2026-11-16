@@ -258,6 +258,39 @@ defmodule ExStorageServiceSdkTest do
       assert {:ok, %{"Contents" => [%{"Key" => "a b+c%"}]}} =
                ExStorageServiceSdk.list_objects_v2(client(endpoint), "bucket", %{"Prefix" => "a"})
     end
+
+    test "pages returns a protocol error and stops before exposing invalid decoded UTF-8" do
+      first =
+        xml("""
+        <ListBucketResult><EncodingType>url</EncodingType><IsTruncated>true</IsTruncated>
+        <NextContinuationToken>second</NextContinuationToken>
+        <Contents><Key>valid</Key></Contents></ListBucketResult>
+        """)
+
+      second =
+        xml("""
+        <ListBucketResult><EncodingType>url</EncodingType><IsTruncated>true</IsTruncated>
+        <NextContinuationToken>never-followed</NextContinuationToken>
+        <Contents><Key>bad%FF</Key></Contents></ListBucketResult>
+        """)
+
+      {endpoint, _} = WireServer.fixture([{200, [], first}, {200, [], second}])
+
+      assert [
+               {:ok, %{"Contents" => [%{"Key" => "valid"}]}},
+               {:error,
+                %Error{category: :protocol, code: :invalid_utf8, operation: "ListObjectsV2"}}
+             ] =
+               client(endpoint)
+               |> ExStorageServiceSdk.pages("ListObjectsV2", %{"Bucket" => "bucket"})
+               |> Enum.to_list()
+
+      assert_receive {:wire_request, %{target: first_target}}
+      refute first_target =~ "continuation-token"
+      assert_receive {:wire_request, %{target: second_target}}
+      assert second_target =~ "continuation-token=second"
+      refute_receive {:wire_request, _}
+    end
   end
 
   describe "multipart" do

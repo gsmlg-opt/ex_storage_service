@@ -371,7 +371,7 @@ defmodule ExStorageServiceSdk.Transport.HTTPFetch do
     end
   end
 
-  # http_fetch 1.0.0-rc.11+ reports request-deadline expiry (`timeout:`) as
+  # http_fetch 1.0.0-rc.14+ reports request-deadline expiry (`timeout:`) as
   # `:timeout`. Every other http_fetch timer this transport uses has its own
   # reason (connect, read/write idle) or is disabled (response stream idle/ack),
   # so keep the SDK's stable public code for an expired request deadline.

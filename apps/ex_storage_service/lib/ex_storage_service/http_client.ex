@@ -22,7 +22,7 @@ defmodule ExStorageService.HTTPClient do
         error
     end
   rescue
-    # http_fetch 1.0.0-rc.11+ raises HTTP.ResponseError for a failed streamed body.
+    # http_fetch 1.0.0-rc.14+ raises HTTP.ResponseError for a failed streamed body.
     exception in [HTTP.ResponseError, RuntimeError] -> {:error, exception}
   end
 

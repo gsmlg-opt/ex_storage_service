@@ -81,19 +81,21 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
 - All outbound clients use `http_fetch`, including cluster transport and
   cross-cluster replication. Keep upload/download streams bounded, preserve
   explicit Content-Length, and disable redirects on signed requests. Require
-  `http_fetch ~> 1.0.0-rc.10` and set `decode_body: false` on storage requests
+  `http_fetch ~> 1.0.0-rc.18` and set `decode_body: false` on storage requests
   to preserve Content-Encoding object bytes. Do not buffer blobs, rewrite
   headers, or re-compress objects to replace bounded raw-byte transfers.
-  Core and CLI use the coordinated HTTP 1.0.0-rc.10 client/engine family for
+  Core, SDK and CLI use the coordinated HTTP 1.0.0-rc.18 client/engine family for
   true infinity, socket inactivity, request-scoped response-stream policies
   and completed fixed-length upload finalization. HTTPS clients use ExSSL;
   retain certificate verification, custom CA, hostname/SNI and mTLS behavior
   through `ssl:` options. Do not select the removed client `tls_backend: :ssl`.
-  Bundler 10.1.5 retains the duskmoon-dev/duskmoon-bundler#17 repair without HTTP
+  Bundler 10.1.8 retains the duskmoon-dev/duskmoon-bundler#17 repair without HTTP
   overrides. Its published GNU native libraries require glibc 2.43; umbrella
   Docker builds/runtimes and native CI jobs use Ubuntu 26.04. Do not force
-  native source builds to support an older GNU baseline. Gaoxy 0.15.2 admits
-  the coordinated RC10 Abyss/Hell and client packages without HTTP overrides.
+  native source builds to support an older GNU baseline. Gaoxy 0.16.5 admits
+  the coordinated RC18 Abyss/Hell and client packages without HTTP overrides.
+  Preserve the SDK's public `:request_timeout` code for request-deadline expiry
+  and handle `HTTP.ResponseError` when consuming failed response bodies.
 - Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
 
 ### File Organization
@@ -437,10 +439,10 @@ enforces decoded object size.
   combinations are unverified.
   Interactive pager runtime is Linux-only until real platform acceptance passes.
 - All components share one version and canonical `v<version>` tag. Publish only
-  through the manually dispatched GitHub `release.yml` workflow; `publish-cli.yml`
-  and `publish-core.yml` are reusable children, with no independent dispatch or
-  tag/release creation. The root workflow publishes the server image and both Hex
-  packages, then attaches CLI assets to the same GitHub release. Existing immutable
+  through the manually dispatched GitHub `release.yml` workflow; `publish-cli.yml`,
+  `publish-core.yml` and `publish-sdk.yml` are reusable children, with no independent
+  dispatch or tag/release creation. The root workflow publishes the server image
+  and all three Hex packages, then attaches CLI assets to the same GitHub release. Existing immutable
   Hex versions may be reused only after exact payload verification. Retain the
   historical `cli-v0.6.8` download links; never create new CLI-prefixed tags.
   Automatic image builds use `edge`; only releases update version tags and `latest`.
