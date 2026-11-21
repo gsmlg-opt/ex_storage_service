@@ -60,6 +60,8 @@ jobs:
         with:
           elixir-version: ${{ env.ELIXIR_VERSION }}
           otp-version: ${{ env.OTP_VERSION }}
+      # The umbrella validation below builds the server's Rust NIFs.
+      - uses: dtolnay/rust-toolchain@1.91.1
       - name: Install the shell used by CLI completion contract tests
         run: |
           sudo apt-get update

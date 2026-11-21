@@ -81,6 +81,13 @@ class DailyWorkflowTest(unittest.TestCase):
         finalize = text.split("  finalize:\n", 1)[1]
         self.assertIn("publish-sdk", finalize.split("runs-on", 1)[0])
 
+    def test_cli_publication_compiles_with_the_release_rust_toolchain(self):
+        toolchain = re.search(r"uses: dtolnay/rust-toolchain@\S+", self.workflow("release.yml"))
+        self.assertIsNotNone(toolchain)
+        cli = self.workflow("publish-cli.yml")
+        self.assertIn(toolchain[0], cli)
+        self.assertLess(cli.index(toolchain[0]), cli.index("mix compile --warnings-as-errors"))
+
     def test_hosted_ci_runs_no_performance_lanes(self):
         hardening = self.workflow("s3-hardening.yml")
         matrix = hardening.split("profile: [", 1)[1].split("]", 1)[0]
