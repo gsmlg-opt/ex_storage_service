@@ -6,7 +6,7 @@ defmodule ExStorageService.MixProject do
   def project do
     [
       app: :ex_storage_service,
-      version: "0.7.2",
+      version: "0.8.0",
       elixir: ">= 1.18.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
