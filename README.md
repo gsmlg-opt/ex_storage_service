@@ -801,8 +801,8 @@ The admin UI uses Duskmoon Bundler and DuskMoon:
 
 - `duskmoon_bundler` builds JavaScript and Tailwind CSS from Elixir tooling.
 - `duskmoon_npm` provides `mix npm.install` for packages such as `@duskmoon-dev/core`; it auto-discovers npm or Bun.
-- `phoenix_duskmoon` provides the Phoenix LiveView UI components.
-- Root `package.json` is an npm/Bun workspace and lists `@duskmoon-dev/core`, `@duskmoon-dev/css-art`, `@duskmoon-dev/art-elements`, and `@duskmoon-dev/elements`.
+- The admin UI pins `duskmoon_phoenix` on Hex and npm and `@duskmoon-dev/core` on npm to the same version from [Duskmoon Web](https://github.com/duskmoon-dev/duskmoon-web).
+- The root npm workspace lockfile supplies the Docker and CI asset builds.
 - Assets live in `apps/ex_storage_service_web/assets/`.
 - Static output is written to `apps/ex_storage_service_web/priv/static/assets/`.
 

@@ -149,30 +149,21 @@ Production startup (`config/runtime.exs`) refuses insecure defaults: `ESS_S3_AUT
 
 - Core config: `config :ex_storage_service, ...` — includes `s3_port`, `admin_port`, `data_root`, GC intervals, size limits (see `config/runtime.exs`)
 - Web endpoint config: `config :ex_storage_service_web, ExStorageServiceWeb.Endpoint, ...`
-- Duskmoon Bundler asset pipeline config: `config :duskmoon_bundler, ...` in `config/config.exs` (entry, outdir, tailwind sources include `deps/phoenix_duskmoon`)
+- Duskmoon Bundler asset pipeline config: `config :duskmoon_bundler, ...` in `config/config.exs` (entry, outdir, tailwind sources include `deps/duskmoon_phoenix`)
 
 ## UI Library
 
 This project uses the DuskMoon UI system:
 
-- **`phoenix_duskmoon`** — Phoenix LiveView UI component library (primary web UI)
+- **`duskmoon_phoenix`** — Phoenix LiveView UI component library (primary web UI)
 - **`@duskmoon-dev/core`** — Core Tailwind CSS plugin and utilities
-- **`@duskmoon-dev/css-art`** — CSS art utilities
-- **`@duskmoon-dev/elements`** — Base web components
-- **`@duskmoon-dev/art-elements`** — Art/decorative web components
 
-Do NOT use DaisyUI or other CSS component libraries. Do NOT use `core_components.ex` — use `phoenix_duskmoon` components instead.
+Do NOT use DaisyUI or other CSS component libraries. Do NOT use `core_components.ex` — use `duskmoon_phoenix` components instead.
 Use `@duskmoon-dev/core/plugin` as the Tailwind CSS plugin.
 
 ### Reporting issues or feature requests
 
-If you encounter missing features, bugs, or need functionality not yet available in any DuskMoon package, open a GitHub issue in the appropriate repository with the label `internal request`:
-
-- **`phoenix_duskmoon`** — https://github.com/gsmlg-dev/phoenix_duskmoon/issues
-- **`@duskmoon-dev/core`** — https://github.com/gsmlg-dev/duskmoon-dev/issues
-- **`@duskmoon-dev/css-art`** — https://github.com/gsmlg-dev/duskmoon-dev/issues
-- **`@duskmoon-dev/elements`** — https://github.com/gsmlg-dev/duskmoon-dev/issues
-- **`@duskmoon-dev/art-elements`** — https://github.com/gsmlg-dev/duskmoon-dev/issues
+Route Duskmoon Web package issues through the upstream dependency policy in AGENTS.md. [Duskmoon Web issues](https://github.com/duskmoon-dev/duskmoon-web/issues)
 
 ## Testing Notes
 

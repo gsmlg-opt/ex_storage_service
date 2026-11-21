@@ -3,9 +3,6 @@ _build/
 .git/
 .gitignore
 
-# Only exclude non-prod Elixir deps (keep deps/ for phoenix_duskmoon local ref)
-# deps/ -- do NOT exclude; phoenix_duskmoon is a local file dep
-
 # Dev/test configs
 config/dev.exs
 config/test.exs

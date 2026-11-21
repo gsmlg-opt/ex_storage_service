@@ -65,7 +65,7 @@ config :duskmoon_bundler,
         base: Path.expand("../apps/ex_storage_service_web/assets/", __DIR__),
         pattern: "**/*.{js,ts,jsx,tsx}"
       },
-      %{base: Path.expand("../deps/phoenix_duskmoon/", __DIR__), pattern: "**/*.{ex,heex}"}
+      %{base: Path.expand("../deps/duskmoon_phoenix/", __DIR__), pattern: "**/*.{ex,heex}"}
     ]
   ]
 

@@ -58,7 +58,7 @@ ENV ESS_BUILD_GIT_REF=$ESS_BUILD_GIT_REF \
     ESS_BUILD_GIT_SHA=$ESS_BUILD_GIT_SHA \
     ESS_BUILD_TIME=$ESS_BUILD_TIME
 
-# Build assets (duskmoon.bundle + duskmoon_bundler.build)
+# Build and digest assets with Duskmoon Bundler
 # Dummy env vars satisfy runtime.exs prod guards during the build step only.
 # Real values must be provided at container runtime by the operator.
 RUN ESS_MASTER_KEY=$(openssl rand -base64 32) \

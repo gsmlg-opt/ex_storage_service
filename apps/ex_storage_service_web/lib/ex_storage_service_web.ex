@@ -63,7 +63,7 @@ defmodule ExStorageServiceWeb do
 
   defp html_helpers do
     quote do
-      use PhoenixDuskmoon.Component
+      use DuskmoonPhoenix.Component
       import Phoenix.HTML.Form
       import ExStorageServiceWeb.AppComponents
 

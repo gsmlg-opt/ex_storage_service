@@ -1,6 +1,6 @@
 defmodule ExStorageServiceWeb.AppComponents do
   @moduledoc """
-  Application-specific UI components that complement phoenix_duskmoon.
+  Application-specific UI components that complement duskmoon_phoenix.
   """
   use Phoenix.Component
 

@@ -1,11 +1,6 @@
 @import "tailwindcss";
+@import "duskmoon_phoenix/css";
 @plugin "@duskmoon-dev/core/plugin";
-/* WORKAROUND(upstream): duskmoon-dev/phoenix-duskmoon-ui#30 */
-/* Use direct CSS imports until phoenix_duskmoon/components is exported. */
-@import "@duskmoon-dev/core/themes/sunshine";
-@import "@duskmoon-dev/core/themes/moonlight";
-@import "@duskmoon-dev/core/components";
-@import "../../../../deps/phoenix_duskmoon/assets/css/element-theme-bridge.css";
 @source "../../lib/ex_storage_service_web.ex";
 @source "../../lib/ex_storage_service_web/**/*.ex";
 @source "../../lib/ex_storage_service_web/**/*.heex";

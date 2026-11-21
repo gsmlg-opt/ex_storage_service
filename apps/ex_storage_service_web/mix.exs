@@ -43,16 +43,16 @@ defmodule ExStorageServiceWeb.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       # This published toolchain cohort supports the coordinated HTTP 1.0 RC clients.
       {:duskmoon_bundler, "~> 10.1.5"},
-      {:phoenix_duskmoon, "~> 10.0"}
+      {:duskmoon_phoenix, "2.0.0-rc.2"}
     ]
   end
 
   defp aliases do
     [
       setup: ["deps.get", "assets.setup", "assets.build"],
-      "assets.setup": ["npm.install", "duskmoon.bundle"],
+      "assets.setup": ["npm.install"],
       "assets.build": ["duskmoon_bundler.build"],
-      "assets.deploy": ["duskmoon.bundle", "duskmoon_bundler.build", "phx.digest"]
+      "assets.deploy": ["duskmoon_bundler.build", "phx.digest"]
     ]
   end
 end

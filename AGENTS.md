@@ -36,7 +36,7 @@ The agent should prioritize reading files in the following order:
   - Automatically runs `mix format` on any modified Elixir files.
 - **Restrictions & Safety Rules**:
   - **NEVER** introduce Ecto, database schemas, or migrations.
-  - **NEVER** use standard Phoenix `core_components.ex` or DaisyUI; only use `phoenix_duskmoon` components and `@duskmoon-dev/core` styling.
+  - **NEVER** use standard Phoenix `core_components.ex` or DaisyUI; only use `duskmoon_phoenix` components and `@duskmoon-dev/core` styling.
   - **NEVER** call `cd` inside commands. Run all commands from the repository root with appropriate flags/working directories.
   - **NEVER** delete existing tests or silence warnings to make CI pass. Fix the root cause instead.
 - **Preferred Workflow**:
@@ -64,7 +64,7 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
 
 ### 3. The DuskMoon UI Designer
 - **Objective**: Build or refine Admin Portal views.
-- **Behavior**: Ensures layout changes conform strictly to `phoenix_duskmoon` components and DuskMoon styles. Follows premium UI principles (vibrant palettes, modern typography, responsive design).
+- **Behavior**: Ensures layout changes conform strictly to `duskmoon_phoenix` components and DuskMoon styles. Follows premium UI principles (vibrant palettes, modern typography, responsive design).
 - **Focus**: Aesthetics, responsiveness, and consistent component usage.
 
 ---
@@ -500,12 +500,12 @@ graph TD
   - [Storage Engine](file:///Users/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service/lib/ex_storage_service/storage/engine.ex)
 - **DuskMoon Layout & Views**:
   - [Root Layout](file:///Users/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/lib/ex_storage_service_web/components/layouts/root.html.heex)
-  - [DuskMoon Hooks](file:///Users/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/assets/js/duskmoon_hooks.js)
+  - [DuskMoon Hooks](file:///Users/gao/Workspace/gsmlg-opt/ex_storage_service/apps/ex_storage_service_web/assets/js/app.js)
 
 ### Common Mix Tasks
 | Command | Purpose |
 |---|---|
-| `mix setup` | Install dependencies + run npm installations + pre-bundle assets |
+| `mix setup` | Install dependencies and build assets |
 | `mix compile --warnings-as-errors` | Validate compilation strictly (used in CI) |
 | `mix phx.server` | Start S3 API (port 9000) and Web App (port 4900) concurrently |
 | `mix test` | Execute the entire test suite |
@@ -536,7 +536,7 @@ graph TD
 1. **Research**: Find `UserLive.Index` and verify user actions.
 2. **Implementation Plan**:
    - Open `apps/ex_storage_service_web/lib/ex_storage_service_web/live/user_live/index.ex`.
-   - Add button using `<.button>` component from `phoenix_duskmoon`.
+   - Add button using the `<.dm_btn>` component from `duskmoon_phoenix`.
    - Implement `handle_event("suspend", %{"id" => id}, socket)` to invoke `IAM.suspend_user(id)`.
 3. **Execution**: Perform the precise replacement.
 4. **Validation**: Test the interaction using LiveView test assertions.
