@@ -84,16 +84,16 @@ When executing complex tasks, the main Pi agent can emulate or spawn virtual sub
   `http_fetch ~> 1.0.0-rc.18` and set `decode_body: false` on storage requests
   to preserve Content-Encoding object bytes. Do not buffer blobs, rewrite
   headers, or re-compress objects to replace bounded raw-byte transfers.
-  Core, SDK and CLI use the coordinated HTTP 1.0.0-rc.18 client/engine family for
+  Core, SDK and CLI use the coordinated HTTP 1.0.0-rc.21 client/engine family for
   true infinity, socket inactivity, request-scoped response-stream policies
   and completed fixed-length upload finalization. HTTPS clients use ExSSL;
   retain certificate verification, custom CA, hostname/SNI and mTLS behavior
   through `ssl:` options. Do not select the removed client `tls_backend: :ssl`.
-  Bundler 10.1.8 retains the duskmoon-dev/duskmoon-bundler#17 repair without HTTP
+  Bundler 10.1.13 retains the duskmoon-dev/duskmoon-bundler#17 repair without HTTP
   overrides. Its published GNU native libraries require glibc 2.43; umbrella
   Docker builds/runtimes and native CI jobs use Ubuntu 26.04. Do not force
-  native source builds to support an older GNU baseline. Gaoxy 0.16.5 admits
-  the coordinated RC18 Abyss/Hell and client packages without HTTP overrides.
+  native source builds to support an older GNU baseline. Gaoxy 0.16.6 admits
+  the coordinated RC21 Abyss/Hell and client packages without HTTP overrides.
   Preserve the SDK's public `:request_timeout` code for request-deadline expiry
   and handle `HTTP.ResponseError` when consuming failed response bodies.
 - Keep functions short, single-purpose, and use pattern matching in function headers rather than deeply nested `if` or `case` blocks.
@@ -109,7 +109,7 @@ The codebase is structured as an umbrella project with six apps:
 
 The Phoenix web endpoint uses `Gaoxy.PhoenixAdapter` from `gaoxy_http` with
 `gaoxy_websock_adapter` selected as the `:websock_adapter` dependency for
-LiveView upgrades. All listeners require `gaoxy_http ~> 0.15.2`, which
+LiveView upgrades. All listeners require `gaoxy_http ~> 0.16.1`, which
 preserves HEAD representation lengths and supports `request_timeout: :infinity`
 for progressing storage transfers. Retain finite header/read/write inactivity
 limits, bounded Plug windows, and aggregate byte budgets (S3/Web 256 MiB,
@@ -304,7 +304,7 @@ enforces decoded object size.
   `ESS_DATA_ROOT` remains the compatibility fallback for split roots.
   `ESS_RA_ROOT` is retained as a legacy embedding compatibility value but is
   not used by Concord 3. Require Concord `~> 3.1.17` with matching VSR/ExTurso
-  packages; the umbrella lock selects 3.1.17, including owned normal multi-voter
+  packages; the umbrella lock selects 3.1.18, including owned normal multi-voter
   write/apply and singleton-heartbeat transitions (Concord #105), plus normal
   multi-voter reads/barriers and late acknowledgements (Concord #112).
   Recovery, state-transfer and different-view paths retain exhaustive validation.
@@ -344,7 +344,9 @@ enforces decoded object size.
   derived statistics are rebuilt without changing v4 snapshots. Version 3.1.17
   retains this fix and adds byte-ordered Turso indexes plus optional node-local
   32 MiB CAS admission. ESS retains the replicated 16 MiB admission bound,
-  file-backed VSR, existing APIs and command versions 0/1.
+  file-backed VSR, existing APIs and command versions 0/1. Version 3.1.18
+  updates embedded Turso to 0.9.0-pre.2 for FTS source-build compatibility
+  with Rust 1.100.
   Full current-source acceptance remains
   a publication prerequisite. New backup checksums use
   the declared deterministic ETF scheme;

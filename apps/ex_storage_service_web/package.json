@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@duskmoon-dev/core": "2.0.0-rc.2",
-    "duskmoon_phoenix": "2.0.0-rc.2"
+    "@duskmoon-dev/core": "2.1.0",
+    "duskmoon_phoenix": "2.1.0"
   }
 }

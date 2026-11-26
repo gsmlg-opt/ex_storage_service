@@ -43,7 +43,7 @@ defmodule ExStorageServiceWeb.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       # This published toolchain cohort supports the coordinated HTTP 1.0 RC clients.
       {:duskmoon_bundler, "~> 10.1.5"},
-      {:duskmoon_phoenix, "2.0.0-rc.2"}
+      {:duskmoon_phoenix, "2.1.0"}
     ]
   end
 

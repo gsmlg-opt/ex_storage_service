@@ -10,17 +10,18 @@ import sys
 
 
 PACKAGES = ("concord", "viewstamped_replication", "ex_turso")
+VERIFIED_VERSION = "3.1.18"
 # Hex inner/package checksums for the independently verified published cohort.
 VERIFIED_CHECKSUMS = {
     "concord": (
-        "938d7df72316ba3a6313aa8a3aad184167d36943fbe801a9de8da09fbc36d9e1",
-        "48ed837ad82145c5183b6ff1f77b4bbca88dfce69f4c00656453520b19922699"),
+        "bcc859f69f78c4cdeb2280abb967cc4a2a7731c814698f72ac91b240bba49fff",
+        "37864a9d51934def33130119e686b8a3cc8404f3c0e47d64be7ef500e7943a50"),
     "viewstamped_replication": (
-        "93ab2b3efa6daa86dbad0c21c37b48ddca7a938647ee1b2ca5b54969c475080c",
-        "4ec2fa45ba26a74419344680130f3a5531682b61a5d68d72b4fc9489193ae8b1"),
+        "e84a6c4d5d17d31448c00761670589bde92fcf43b70205774d865461fcd5d3c7",
+        "a973e3c746c55b8b7fc95ad6348079a14ffd75e8659d9b29065486e494e0e48f"),
     "ex_turso": (
-        "27396f1adf4df9b8abef8adea2ea176b47690d5b90c71d7fb888270f3abd035e",
-        "814f55bd124623feb40455f5aa3abc902f85ec41e4fd4bea23caaa8626f84dd8"),
+        "ba6e1c83c1ccb06ee5d62b0f024e25f3a6b98e9d775eb32f0220b31db30bc67d",
+        "5947875dd099e8f6222966f77b84434ab75e270a12f5f8ae6d31f3d6ed72d035"),
 }
 VERIFIED_SOURCES = {
     "viewstamped_replication/lib/viewstamped_replication/replica.ex":
@@ -108,14 +109,14 @@ def blocker(lock, dependencies_root=pathlib.Path("deps")):
     if set(versions.values()) == {"3.1.15"}:
         return ("BLOCKED A28: gsmlg-dev/concord#119 (periodic VSR statistics traverse the store); "
                 "coordinated 3.1.15 is not admissible.")
-    if set(versions.values()) != {"3.1.17"}:
+    if set(versions.values()) != {VERIFIED_VERSION}:
         return (f"Unvalidated index dependency versions {versions}; require released upstream fixes "
                 "for gsmlg-dev/concord#101/#102/#104/#105/#106/#112/#119, source/API review and both diagnostic probes "
                 "before updating this gate. Refusing expensive acceptance workload.")
 
     for package in PACKAGES:
         if checksums[package] != VERIFIED_CHECKSUMS[package]:
-            return f"Unverified {package} 3.1.17 Hex checksums; refusing index workload."
+            return f"Unverified {package} {VERIFIED_VERSION} Hex checksums; refusing index workload."
     for relative, expected in VERIFIED_SOURCES.items():
         try:
             actual = hashlib.sha256((pathlib.Path(dependencies_root) / relative).read_bytes()).hexdigest()
@@ -134,7 +135,7 @@ def main():
     if reason:
         print(reason, file=sys.stderr)
         return 1
-    print("Verified Concord/VSR/ExTurso 3.1.17; entering the unchanged A28 workload, not acceptance.")
+    print(f"Verified Concord/VSR/ExTurso {VERIFIED_VERSION}; entering the unchanged A28 workload, not acceptance.")
     return 0
 
 

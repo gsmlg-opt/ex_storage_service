@@ -282,7 +282,7 @@ Runtime services:
 | Admin portal | 4900 | Phoenix + LiveView + Gaoxy | Web dashboard and management |
 | Internal cluster transport | 9100 | Gaoxy + HMAC + optional TLS | Private data-plane between cluster data nodes (never expose publicly) |
 
-The umbrella locks all listeners to `gaoxy_http` 0.16.5. Phoenix uses
+The umbrella locks all listeners to `gaoxy_http` 0.16.6. Phoenix uses
 `Gaoxy.PhoenixAdapter` and `gaoxy_websock_adapter` for LiveView upgrades.
 Phoenix and S3 retain HTTP/1 and cleartext HTTP/2 prior-knowledge support;
 the private cluster transport uses HTTP/1.
@@ -294,7 +294,7 @@ budget for HTTP/2. Object and blob sizes remain separately bounded.
 The S3 wire-body ceiling also accounts for AWS chunk framing and trailers.
 
 Outbound HTTP clients use [`http_fetch`](https://github.com/gsmlg-dev/http_fetch)
-1.0.0-rc.18 for the SDK, CLI, cloud cache, remote inventory synchronization, webhooks,
+1.0.0-rc.21 for the SDK, CLI, cloud cache, remote inventory synchronization, webhooks,
 internal cluster transport, and cross-cluster replication. Signed requests do
 not follow redirects. Cluster and replication uploads use bounded streams with
 an explicit Content-Length and upload chunks of at most 64 KiB. Cluster downloads
@@ -303,8 +303,8 @@ forwarding bytes with acknowledged backpressure.
 Webhook retries remain controlled by the notification worker.
 
 The core, SDK and CLI packages require `http_fetch ~> 1.0.0-rc.18`. The coordinated
-client/engine family, including Abyss and Hell, uses RC18 without HTTP dependency
-overrides. Gaoxy 0.16.5 admits this cohort through its published requirements.
+client/engine family, including Abyss and Hell, uses RC21 without HTTP dependency
+overrides. Gaoxy 0.16.6 admits this cohort through its published requirements.
 The SDK retains `:request_timeout` for request-deadline expiry. Buffered core
 requests return failed streamed bodies as error tuples, including
 `HTTP.ResponseError`.
@@ -313,7 +313,7 @@ verification enabled, retaining custom CA, hostname/SNI and client-certificate
 support through the existing `ssl:` options. Legacy `tls_backend: :ssl` is no
 longer supported by the upstream client.
 
-Bundler 10.1.8 retains the HTTP constraint repair tracked in
+Bundler 10.1.13 retains the HTTP constraint repair tracked in
 [DuskMoon Bundler #17](https://github.com/duskmoon-dev/duskmoon-bundler/issues/17).
 Its published GNU native libraries require glibc 2.43. GNU umbrella development
 and CI therefore require Ubuntu 26.04 or a compatible newer environment; Docker
@@ -665,7 +665,7 @@ explicit export/restore boundary; starting the new binary creates or recovers
 only the VSR state under `ESS_METADATA_ROOT`.
 
 The core requires Concord `~> 3.1.17`; the lockfile selects matching Concord,
-Viewstamped Replication and ExTurso 3.1.17 packages. They retain the 3.1.2 fixes for
+Viewstamped Replication and ExTurso 3.1.18 packages. They retain the 3.1.2 fixes for
 committed-prefix transition validation, primary-discovery read deadlines, native
 range pagination and new-backup checksum portability. Version 3.1.4 makes supported
 direct put/delete compatibility-view and observer updates incremental and bounds
@@ -732,8 +732,9 @@ validation. Derived statistics are rebuilt on recovery and do not change the v4
 snapshot format. Version 3.1.17 retains this repair and adds byte-ordered Turso
 indexes and optional node-local 32 MiB CAS admission. ESS keeps file-backed VSR,
 its existing 16 MiB replicated admission and command formats 0/1. It does not
-enable the optional Turso APIs. Full current-source acceptance remains required
-before publication.
+enable the optional Turso APIs. Version 3.1.18 updates embedded Turso to
+0.9.0-pre.2 for FTS source-build compatibility with Rust 1.100.
+Full current-source acceptance remains required before publication.
 
 Version-one command admission still checks
 representations. New backups declare deterministic ETF checksums;
