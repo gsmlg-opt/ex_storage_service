@@ -65,20 +65,48 @@ curl http://localhost:4900/metrics
 ExStorageService is distributed as a lightweight Docker image at
 `ghcr.io/gsmlg-dev/ess:latest`.
 
-### Running with Docker
+### First-time Docker configuration
 
-To start a quick instance with S3 auth disabled and a persistent data volume:
+For a new data volume, run this Bash block once. Choose the password you will
+use to sign in as `admin`. Back up the resulting private file alongside your
+volume backups. Reuse it on every restart and upgrade so stored credentials
+remain decryptable.
+
+```bash
+(
+  set -euo pipefail
+  set -o noclobber
+  umask 077
+  config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/ess"
+  mkdir -p "$config_dir"
+  read -rsp 'Choose an admin password: ' password
+  printf '\n'
+  [[ -n "$password" && "$password" != admin ]] || { echo 'Choose a non-default password.' >&2; exit 1; }
+  password_hash=$(printf '%s' "$password" | openssl dgst -sha256 -r | cut -d' ' -f1)
+  master_key=$(openssl rand -base64 32)
+  session_key=$(openssl rand -hex 64)
+  printf '%s\n' ESS_S3_AUTH_ENABLED=true ESS_ADMIN_USER=admin \
+    "ESS_ADMIN_PASSWORD_HASH=$password_hash" "ESS_MASTER_KEY=$master_key" \
+    "SECRET_KEY_BASE=$session_key" > "$config_dir/server.env"
+)
+```
+
+### Running with Docker
 
 ```bash
 docker run -d \
   --name ess \
   --restart unless-stopped \
-  -p 9000:9000 \
-  -p 4900:4900 \
+  -p 127.0.0.1:9000:9000 \
+  -p 127.0.0.1:4900:4900 \
   -v ess-data:/data \
   -e ESS_DATA_ROOT=/data \
+  --env-file "${XDG_CONFIG_HOME:-$HOME/.config}/ess/server.env" \
   ghcr.io/gsmlg-dev/ess:latest
 ```
+
+Check readiness at <http://localhost:9000/health/ready>, then sign in at
+<http://localhost:4900> to create an IAM user and S3 access key.
 
 The image also exposes port `9100` for the private cluster data-plane transport
 (HMAC-signed, optional TLS). **Never publish that port on a public network**;
@@ -94,8 +122,8 @@ services:
     image: ghcr.io/gsmlg-dev/ess:latest
     restart: unless-stopped
     ports:
-      - "9000:9000"   # S3 API
-      - "4900:4900"   # Admin portal
+      - "127.0.0.1:9000:9000"   # S3 API
+      - "127.0.0.1:4900:4900"   # Admin portal
     volumes:
       - ess-data:/data
     environment:
@@ -104,31 +132,19 @@ services:
       ESS_ADMIN_PORT: "4900"
       ESS_S3_AUTH_ENABLED: "true"
       ESS_ADMIN_USER: admin
-      ESS_ADMIN_PASSWORD_HASH: "${ESS_ADMIN_PASSWORD_HASH}"
-      ESS_MASTER_KEY: "${ESS_MASTER_KEY}"
-      SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
+      ESS_ADMIN_PASSWORD_HASH: "${ESS_ADMIN_PASSWORD_HASH:?required}"
+      ESS_MASTER_KEY: "${ESS_MASTER_KEY:?required}"
+      SECRET_KEY_BASE: "${SECRET_KEY_BASE:?required}"
       PHX_HOST: "${PHX_HOST:-localhost}"
 
 volumes:
   ess-data:
 ```
 
-Create a `.env` file in the same directory:
+Start the service with the same private configuration file:
 
 ```bash
-# Generate with: mix phx.gen.secret 32
-ESS_MASTER_KEY=<your-master-key>
-# Generate with: mix phx.gen.secret
-SECRET_KEY_BASE=<your-secret-key-base>
-# Generate with: echo -n "your-password" | sha256sum | awk '{print $1}'
-ESS_ADMIN_PASSWORD_HASH=<your-password-sha256-hash>
-PHX_HOST=localhost
-```
-
-Then start the service:
-
-```bash
-docker compose up -d
+docker compose --env-file "${XDG_CONFIG_HOME:-$HOME/.config}/ess/server.env" up -d
 ```
 
 For production-oriented deployment notes, see [docs/deploy.md](docs/deploy.md).
