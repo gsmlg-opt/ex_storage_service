@@ -37,18 +37,27 @@ defmodule ExStorageService.Umbrella.MixProject do
     [
       setup: ["deps.get", "do --app ex_storage_service_web cmd mix setup"],
       "assets.deploy": ["do --app ex_storage_service_web cmd mix assets.deploy"],
-      test: [&clean_test_data/1, "test"]
+      test: [&isolate_test_data/1, "test"]
     ]
   end
 
-  # Wipe test state (storage + Concord/VSR live under the test data root)
-  # BEFORE the apps boot. Cleaning inside a test_helper.exs is too late: mix
-  # starts the apps first, so stale VSR state from a previous run of another
-  # umbrella app breaks Concord recovery for the current one.
-  defp clean_test_data(_args) do
+  # Mix starts the apps before test_helper.exs. Own the root before startup,
+  # and let child processes that select a different data root derive their own paths.
+  defp isolate_test_data(_args) do
     if Mix.env() == :test do
-      data_root = System.get_env("ESS_DATA_ROOT", "/tmp/ex_storage_service/test_data")
-      File.rm_rf!(data_root)
+      id = Base.url_encode64(:crypto.strong_rand_bytes(16), padding: false)
+      root = Path.join(System.tmp_dir!(), "ess-mix-test-" <> id)
+      File.mkdir!(root)
+      System.at_exit(fn _ -> File.rm_rf!(root) end)
+      File.chmod!(root, 0o700)
+      System.put_env("ESS_DATA_ROOT", root)
+
+      Enum.each(
+        ~w(ESS_BLOB_ROOT ESS_TMP_ROOT ESS_RA_ROOT ESS_METADATA_ROOT),
+        &System.delete_env/1
+      )
+
+      Mix.Tasks.Loadconfig.load_runtime(Path.join(__DIR__, "config/runtime.exs"))
     end
   end
 end

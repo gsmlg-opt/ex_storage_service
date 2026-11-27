@@ -167,7 +167,7 @@ Route Duskmoon Web package issues through the upstream dependency policy in AGEN
 
 ## Testing Notes
 
-- Tests use S3 port `9001`, admin port `4002`, and an isolated data root `/tmp/ex_storage_service/test_data` (see `config/test.exs` and `config/runtime.exs`)
+- Umbrella `mix test` uses S3 port `9001`, admin port `4002`, and a fresh temporary storage root per invocation. The test alias cleans up its own root on exit.
 - Rate limiting is disabled in test env
 - Core app's `test_helper.exs` cleans Ra/Concord data directories before each run to avoid stale state
 - Tests cover: S3 API operations, SigV4 auth, IAM policies, XML parsing, multipart uploads, replication, CLI commands

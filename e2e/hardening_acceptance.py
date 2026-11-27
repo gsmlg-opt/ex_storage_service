@@ -167,7 +167,7 @@ def run_profile(profile, args):
     environment = dict(os.environ, PAGER="cat", ESS_HARDENING_PHASE2="true", ESS_HARDENING_FAILURES="true")
     if args.mc:
         environment["ESS_HARDENING_MC"] = args.mc
-    # Every test invocation uses a disposable root; mix's test alias removes it.
+    # Non-test commands get a lane-specific fallback. Umbrella tests create their own roots.
     environment["ESS_DATA_ROOT"] = f"/tmp/ess-s3-hardening-{label}-tests"
     try:
         steps = commands(profile, args, label)
