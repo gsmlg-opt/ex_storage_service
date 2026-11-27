@@ -53,9 +53,26 @@ def output(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n")
     if os.environ.get("GITHUB_OUTPUT"):
         with open(os.environ["GITHUB_OUTPUT"], "a") as stream:
-            for key in ("source_sha", "release_sha", "reused"):
+            for key in ("source_sha", "release_sha", "reused", "promote"):
                 if key in value:
                     stream.write(f"{key}={str(value[key]).lower()}\n")
+
+
+def promote_latest(version):
+    if "-" in version:
+        return False
+    # Canonical tags precede image and release publication. Include tags from
+    # partially published releases when an earlier workflow is retried.
+    refs = git("ls-remote", "--refs", "--tags", "origin", "refs/tags/v*")
+    stable_versions = {}
+    for ref in refs.splitlines():
+        _, tag_ref = ref.split("\t")
+        candidate = tag_ref.removeprefix("refs/tags/v")
+        if re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", candidate):
+            stable_versions[candidate] = tuple(int(part) for part in candidate.split("."))
+    if version not in stable_versions:
+        raise RuntimeError(f"Missing canonical tag v{version} during promotion")
+    return stable_versions[version] == max(stable_versions.values())
 
 
 def prepare(version, path):
@@ -238,7 +255,7 @@ def smoke(image, version, source, path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("prepare", "commit", "validate", "image-status", "smoke"))
+    parser.add_argument("command", choices=("prepare", "commit", "validate", "image-status", "smoke", "promote-latest"))
     parser.add_argument("--version", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--prepared", type=Path)
@@ -255,6 +272,8 @@ def main():
         validate(args.version, args.output)
     elif args.command == "image-status":
         image_status(args.image, args.version, args.output)
+    elif args.command == "promote-latest":
+        output(args.output, {"promote": promote_latest(args.version)})
     else:
         smoke(args.image, args.version, args.source, args.output)
 

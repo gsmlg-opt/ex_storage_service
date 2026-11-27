@@ -247,7 +247,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: v${{ inputs.version }}
+          # Retries may target tags that predate the promotion guard.
+          ref: ${{ github.workflow_sha }}
+      - name: Check the highest canonical stable tag
+        id: latest
+        run: python3 scripts/release/release.py promote-latest --version "$RELEASE_VERSION" --output "$RUNNER_TEMP/promotion.json"
       - uses: actions/download-artifact@v8
         with:
           name: ess-v${{ inputs.version }}-linux-x86_64-otp28
@@ -271,7 +275,7 @@ jobs:
           password: ${{ secrets.GHCR_TOKEN }}
       - uses: docker/setup-buildx-action@v4
       - name: Promote the verified stable image
-        if: ${{ !contains(inputs.version, '-') }}
+        if: steps.latest.outputs.promote == 'true'
         env:
           IMAGE_DIGEST: ${{ needs.validate-and-tag.outputs.image_digest }}
         run: |
@@ -309,6 +313,6 @@ jobs:
           body_path: release-body.md
           generate_release_notes: true
           prerelease: ${{ contains(inputs.version, '-') }}
-          make_latest: ${{ !contains(inputs.version, '-') }}
+          make_latest: ${{ steps.latest.outputs.promote }}
           fail_on_unmatched_files: true
           files: release-assets/*

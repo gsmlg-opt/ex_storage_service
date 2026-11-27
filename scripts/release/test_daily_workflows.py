@@ -11,6 +11,13 @@ class DailyWorkflowTest(unittest.TestCase):
     def workflow(self, name):
         return (ROOT / ".github/workflows" / name).read_text()
 
+    def test_latest_image_and_github_release_share_the_workflow_revisions_decision(self):
+        finalize = self.workflow("release.yml").split("  finalize:\n", 1)[1]
+        self.assertIn("ref: ${{ github.workflow_sha }}", finalize)
+        self.assertIn("promote-latest", finalize)
+        self.assertIn("if: steps.latest.outputs.promote == 'true'", finalize)
+        self.assertIn("make_latest: ${{ steps.latest.outputs.promote }}", finalize)
+
     def test_cached_jobs_recompile_candidate_identity_before_running_child_mix(self):
         for name, job, consumer in (
                 ("ci.yml", "compile", None),

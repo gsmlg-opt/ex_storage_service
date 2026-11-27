@@ -908,8 +908,10 @@ full current `main` source SHA), and `acceptance_run_id` (a successful extended
 acceptance evidence after preparing the local version-only commit and before
 pushing it or publishing artifacts. The workflow aligns all application versions,
 validates the release, and publishes the GHCR image, all three Hex packages and CLI
-assets under `v<version>`. Only this workflow updates the image's version and `latest`
-tags. Existing Hex versions are reused only when their verified payload exactly
+assets under `v<version>`. It promotes the highest canonical stable version to
+both the image's `latest` tag and GitHub's latest release. Older retries can
+finish their versioned artifacts even after a newer stable tag exists.
+Existing Hex versions are reused only when their verified payload exactly
 matches the candidate. The earlier `cli-v0.6.8` release remains available for
 historical download links; future releases use only `v<version>`.
 [Verified v0.6.10](https://github.com/gsmlg-opt/ex_storage_service/releases/tag/v0.6.10)

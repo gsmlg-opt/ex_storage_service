@@ -57,6 +57,25 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual(self.run_git('ls-remote', 'origin', 'refs/heads/main').split()[0], state['release_sha'])
         self.assertEqual(self.run_git('ls-remote', 'origin', 'refs/tags/v0.6.8').split()[0], state['release_sha'])
 
+    def test_only_the_highest_canonical_stable_tag_can_promote_latest(self):
+        def publish(tag):
+            self.run_git('tag', tag)
+            self.run_git('push', 'origin', 'refs/tags/' + tag)
+
+        publish('cli-v99.0.0')
+        publish('v2.0.0-rc.1')
+        publish('v0.9.11')
+        self.assertTrue(release.promote_latest('0.9.11'))
+        self.assertFalse(release.promote_latest('2.0.0-rc.1'))
+        publish('v0.10.0')
+        self.assertFalse(release.promote_latest('0.9.11'))
+        self.assertTrue(release.promote_latest('0.10.0'))
+        with self.assertRaisesRegex(RuntimeError, 'canonical tag'):
+            release.promote_latest('1.0.0')
+        self.run_git('remote', 'remove', 'origin')
+        with self.assertRaises(subprocess.CalledProcessError):
+            release.promote_latest('0.10.0')
+
     def test_retry_accepts_verified_original_source_and_reuses_commit(self):
         release.prepare('0.6.8', self.prepared)
         release.commit('0.6.8', self.prepared, self.output)
