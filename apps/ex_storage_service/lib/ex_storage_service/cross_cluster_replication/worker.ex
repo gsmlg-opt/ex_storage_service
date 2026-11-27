@@ -63,7 +63,7 @@ defmodule ExStorageService.CrossClusterReplication.Worker do
          remote_bucket = get_field(replica, :bucket) || bucket,
          url = build_url(get_field(replica, :endpoint), remote_bucket, key),
          headers = auth_headers(replica),
-         false <- destination_has_content?(url, headers, etag, size, opts),
+         false <- destination_has_content?(url, headers, etag, size, content_type, opts),
          {:ok, source} <- open_source(bucket, object_info, opts),
          :ok <- validate_source_size(source, size) do
       push_object(bucket, key, url, headers, source, size, content_type, replica, opts)
@@ -175,11 +175,11 @@ defmodule ExStorageService.CrossClusterReplication.Worker do
     end
   end
 
-  defp destination_has_content?(_url, _headers, etag, _size, _opts)
+  defp destination_has_content?(_url, _headers, etag, _size, _content_type, _opts)
        when not is_binary(etag),
        do: false
 
-  defp destination_has_content?(url, headers, etag, size, opts) do
+  defp destination_has_content?(url, headers, etag, size, content_type, opts) do
     case request([method: :head, url: url, headers: headers], opts) do
       {:ok, %{status: 200} = response} ->
         remote_etag =
@@ -194,7 +194,9 @@ defmodule ExStorageService.CrossClusterReplication.Worker do
           |> List.first()
           |> parse_integer()
 
-        remote_etag == etag and remote_size == size
+        remote_content_type = response |> response_header("content-type") |> List.first()
+
+        remote_etag == etag and remote_size == size and remote_content_type == content_type
 
       _ ->
         false

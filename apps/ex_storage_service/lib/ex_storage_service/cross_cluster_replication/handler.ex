@@ -2,11 +2,23 @@ defmodule ExStorageService.CrossClusterReplication.Handler do
   @moduledoc """
   Idempotent handlers for eventual external-replication jobs.
 
-  Before applying a job, the handler compares its pinned object with the
-  current local head. Superseded PUTs are acknowledged without changing the
-  destination. A DELETE job reconciles the destination to the current head,
-  which prevents delayed work from deleting newer data and also handles an
-  explicit version deletion that reveals an older current version.
+  Every attempt reconciles an active destination to the current local head,
+  including recovered and superseded jobs. Removed destinations are retired
+  without receiving later source content. After the transfer, the head is read again.
+  A changed or unavailable head retains durable reconciliation work without
+  exhausting the ordinary endpoint-failure retry budget.
+
+  Directly enqueued jobs without a Hooks operation identity retain their
+  explicit one-time authorization for an exactly matching pinned PUT or an
+  already-absent key DELETE. This preserves resource and restore tooling while
+  requiring an active rule before an old job can forward later source content.
+
+  Work is bounded to one transfer and two head reads per attempt. The existing
+  leased job remains the recovery record if the process dies before its final
+  check. Replica requests have no receiver-side fencing. An unacknowledged
+  request that times out or outlives its worker can commit remotely after
+  recovery acknowledged a newer transfer. Such a late commit can still require
+  independent operator reconciliation.
   """
 
   alias ExStorageService.CrossClusterReplication.Worker
@@ -15,46 +27,41 @@ defmodule ExStorageService.CrossClusterReplication.Handler do
   @spec perform(map(), Context.t(), keyword()) :: :ok | {:error, term()}
   def perform(job, context, opts \\ [])
 
-  def perform(%{kind: :cross_cluster_put, payload: payload}, context, opts) do
+  def perform(%{kind: kind, payload: payload}, context, opts)
+      when kind in [:cross_cluster_put, :cross_cluster_delete] do
     bucket = field(payload, :bucket)
     key = field(payload, :key)
-    object = field(payload, :object)
-    replica = field(payload, :replica)
+    target = field(payload, :replica)
 
-    case current_head(bucket, key, context, opts) do
-      {:ok, %{delete_marker: false, metadata: current}} ->
-        if same_object?(current, object),
-          do: replicate_put(bucket, key, replica, object, context, opts),
-          else: :ok
+    with {:ok, before} <- current_state(bucket, key, context, opts),
+         {:ok, replica} <- authorized_replica(kind, payload, before, bucket, target, opts) do
+      result = transfer(before, bucket, key, replica, context, opts)
 
-      {:ok, %{delete_marker: true}} ->
+      case current_state(bucket, key, context, opts) do
+        {:ok, after_transfer} ->
+          if identity(before) == identity(after_transfer),
+            do: result,
+            else: reconciliation_required(:head_changed)
+
+        {:error, reason} ->
+          reconciliation_required({:head_unavailable, reason})
+      end
+    else
+      :removed ->
         :ok
 
-      {:error, :object_not_found} ->
-        :ok
+      {:error, reason}
+      when reason in [
+             :timeout,
+             :unknown,
+             :cluster_not_ready,
+             :no_leader,
+             :compare_retry_exhausted
+           ] ->
+        reconciliation_required({:head_unavailable, reason})
 
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
-
-  def perform(%{kind: :cross_cluster_delete, payload: payload}, context, opts) do
-    bucket = field(payload, :bucket)
-    key = field(payload, :key)
-    replica = field(payload, :replica)
-
-    case current_head(bucket, key, context, opts) do
-      {:ok, %{delete_marker: false, metadata: current}} ->
-        replicate_put(bucket, key, replica, current, context, opts)
-
-      {:ok, %{delete_marker: true}} ->
-        replicate_delete(bucket, key, replica, opts)
-
-      {:error, :object_not_found} ->
-        replicate_delete(bucket, key, replica, opts)
-
-      {:error, reason} ->
-        {:error, reason}
+      error ->
+        error
     end
   end
 
@@ -66,6 +73,57 @@ defmodule ExStorageService.CrossClusterReplication.Handler do
       nil -> ObjectService.head(bucket, key, nil, context: context)
     end
   end
+
+  defp current_state(bucket, key, context, opts) do
+    case current_head(bucket, key, context, opts) do
+      {:ok, %{delete_marker: false, metadata: current}} -> {:ok, {:present, current}}
+      {:ok, %{delete_marker: true}} -> {:ok, :absent}
+      {:error, :object_not_found} -> {:ok, :absent}
+      error -> error
+    end
+  end
+
+  defp active_replica(bucket, target, opts) do
+    config = Keyword.get(opts, :config, ExStorageService.CrossClusterReplication.Config)
+
+    case config.get_bucket_replicas(bucket) do
+      {:ok, replicas} ->
+        case Enum.find(replicas, &(destination(&1, bucket) == destination(target, bucket))) do
+          nil -> :removed
+          replica -> {:ok, replica}
+        end
+
+      {:error, reason} ->
+        reconciliation_required({:configuration_unavailable, reason})
+    end
+  end
+
+  defp authorized_replica(kind, payload, current, bucket, target, opts) do
+    if field(payload, :operation_id) == nil and explicit_snapshot?(kind, payload, current),
+      do: {:ok, target},
+      else: active_replica(bucket, target, opts)
+  end
+
+  defp explicit_snapshot?(:cross_cluster_put, payload, {:present, current}) do
+    case field(payload, :object) do
+      pinned when is_map(pinned) -> identity({:present, pinned}) == identity({:present, current})
+      _missing -> false
+    end
+  end
+
+  defp explicit_snapshot?(:cross_cluster_delete, _payload, :absent), do: true
+  defp explicit_snapshot?(_kind, _payload, _current), do: false
+
+  defp destination(replica, source_bucket) do
+    {String.trim_trailing(field(replica, :endpoint), "/"),
+     field(replica, :bucket) || source_bucket}
+  end
+
+  defp transfer({:present, current}, bucket, key, replica, context, opts),
+    do: replicate_put(bucket, key, replica, current, context, opts)
+
+  defp transfer(:absent, bucket, key, replica, _context, opts),
+    do: replicate_delete(bucket, key, replica, opts)
 
   defp replicate_put(bucket, key, replica, object, context, opts) do
     worker_opts =
@@ -87,13 +145,13 @@ defmodule ExStorageService.CrossClusterReplication.Handler do
     end
   end
 
-  defp same_object?(current, pinned) do
-    field(current, :content_hash) == field(pinned, :content_hash) and
-      same_version?(field(current, :version_id), field(pinned, :version_id))
-  end
+  defp identity(:absent), do: :absent
 
-  defp same_version?(_current, nil), do: true
-  defp same_version?(current, pinned), do: current == pinned
+  defp identity({:present, object}),
+    do: Enum.map([:version_id, :content_hash, :etag, :size, :content_type], &field(object, &1))
+
+  defp reconciliation_required(reason),
+    do: {:error, {:replication_reconciliation_required, reason}}
 
   defp field(map, key) when is_map(map), do: Map.get(map, key) || Map.get(map, to_string(key))
 end

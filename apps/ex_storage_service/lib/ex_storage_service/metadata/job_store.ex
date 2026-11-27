@@ -223,12 +223,29 @@ defmodule ExStorageService.Metadata.JobStore do
         last_error: inspect(reason)
     }
 
-    if job.attempts >= job.max_attempts do
-      %{base | state: :failed, next_attempt_at_ms: now_ms}
-    else
-      %{base | state: :pending, next_attempt_at_ms: now_ms + retry_delay_ms(job, opts)}
+    cond do
+      replication_reconciliation?(job, reason) ->
+        # Source changes and uncertain head reads retain an obligation to
+        # reconcile current state independently of endpoint failure attempts.
+        %{
+          base
+          | state: :pending,
+            attempts: 0,
+            next_attempt_at_ms: now_ms + retry_delay_ms(job, opts)
+        }
+
+      job.attempts >= job.max_attempts ->
+        %{base | state: :failed, next_attempt_at_ms: now_ms}
+
+      true ->
+        %{base | state: :pending, next_attempt_at_ms: now_ms + retry_delay_ms(job, opts)}
     end
   end
+
+  defp replication_reconciliation?(job, {:replication_reconciliation_required, _reason}),
+    do: job.kind in [:cross_cluster_put, :cross_cluster_delete]
+
+  defp replication_reconciliation?(_job, _reason), do: false
 
   defp retry_delay_ms(job, opts) do
     base = Keyword.get(opts, :retry_base_ms, 1_000)

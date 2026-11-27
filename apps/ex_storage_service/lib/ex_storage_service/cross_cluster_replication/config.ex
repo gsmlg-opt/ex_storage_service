@@ -19,7 +19,7 @@ defmodule ExStorageService.CrossClusterReplication.Config do
 
   @spec get_bucket_replicas(String.t()) :: {:ok, [Replica.t()]} | {:error, term()}
   def get_bucket_replicas(bucket) do
-    case Concord.get("replication:#{bucket}") do
+    case Concord.get("replication:#{bucket}", consistency: :linearizable) do
       {:ok, nil} -> {:ok, []}
       {:error, :not_found} -> {:ok, []}
       {:ok, replicas} when is_list(replicas) -> {:ok, Enum.map(replicas, &to_struct/1)}
@@ -29,7 +29,7 @@ defmodule ExStorageService.CrossClusterReplication.Config do
   end
 
   @spec set_bucket_replicas(String.t(), [Replica.t() | map()]) :: :ok | {:error, term()}
-  def set_bucket_replicas(bucket, replicas) when is_list(replicas) do
+  def set_bucket_replicas(bucket, replicas, opts \\ []) when is_list(replicas) do
     serializable =
       Enum.map(replicas, fn replica ->
         %{
@@ -40,12 +40,12 @@ defmodule ExStorageService.CrossClusterReplication.Config do
         }
       end)
 
-    normalize_write(Concord.put("replication:#{bucket}", serializable))
+    ExStorageService.Metadata.BucketConfig.put(bucket, "replication", serializable, opts)
   end
 
   @spec remove_bucket_replicas(String.t()) :: :ok | {:error, term()}
-  def remove_bucket_replicas(bucket),
-    do: normalize_write(Concord.delete("replication:#{bucket}"))
+  def remove_bucket_replicas(bucket, opts \\ []),
+    do: ExStorageService.Metadata.BucketConfig.delete(bucket, "replication", opts)
 
   defp to_struct(%Replica{} = replica), do: replica
 
@@ -59,8 +59,4 @@ defmodule ExStorageService.CrossClusterReplication.Config do
   end
 
   defp field(map, key), do: Map.get(map, key) || Map.get(map, to_string(key))
-
-  defp normalize_write(:ok), do: :ok
-  defp normalize_write({:ok, _result}), do: :ok
-  defp normalize_write({:error, reason}), do: {:error, reason}
 end

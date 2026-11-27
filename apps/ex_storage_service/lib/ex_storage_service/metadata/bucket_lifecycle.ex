@@ -46,7 +46,8 @@ defmodule ExStorageService.Metadata.BucketLifecycle do
            success: [
              {:put, "bucket:#{name}", meta, %{}},
              {:put, ListIndex.root_key(name, meta.generation), ListIndex.empty(meta.generation),
-              %{}}
+              %{}},
+             {:delete, {:key, "replication:#{name}"}, %{}}
            ],
            failure: []
          }) do
@@ -96,7 +97,7 @@ defmodule ExStorageService.Metadata.BucketLifecycle do
 
   defp config_deletes(name) do
     for prefix <-
-          ~w(bucket_versioning lifecycle notification bucket_cors bucket_tagging cloud_cache cloud_cache_index) do
+          ~w(bucket_versioning lifecycle notification bucket_cors bucket_tagging cloud_cache cloud_cache_index replication) do
       {:delete, {:key, "#{prefix}:#{name}"}, %{}}
     end
   end

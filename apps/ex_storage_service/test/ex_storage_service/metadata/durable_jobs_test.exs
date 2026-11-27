@@ -4,6 +4,10 @@ defmodule ExStorageService.Metadata.DurableJobsTest do
   alias ExStorageService.Metadata.{JobStore, Keys, Outbox}
   alias ExStorageService.Metadata.Models.Job
 
+  defmodule ReplicaConfig do
+    def get_bucket_replicas("bucket"), do: {:ok, [%{endpoint: "https://dr.example"}]}
+  end
+
   defmodule Barrier do
     use GenServer
 
@@ -433,6 +437,161 @@ defmodule ExStorageService.Metadata.DurableJobsTest do
 
     assert {:ok, %{jobs: [%Job{job_id: "c"}], next_cursor: nil}} =
              JobStore.list_page(cursor, 2, backend: Backend, engine: backend)
+  end
+
+  test "replication convergence survives the ordinary retry limit and resolves uncertain requeues" do
+    {:ok, backend} = Backend.start_link()
+
+    {:ok, job} =
+      Job.new("replication-operation", event("convergence", :cross_cluster_put), 0,
+        max_attempts: 1
+      )
+
+    Backend.seed(backend, Keys.job(job.job_id), Job.to_map(job))
+    opts = [backend: Backend, engine: backend, retry_base_ms: 1]
+
+    assert {:ok, original} = JobStore.claim(job.job_id, "worker-a", 0, 100, opts)
+    Backend.timeout_next(backend)
+
+    assert {:ok, pending} =
+             JobStore.fail(
+               job.job_id,
+               "worker-a",
+               original.fencing_token,
+               {:replication_reconciliation_required, :head_changed},
+               1,
+               opts
+             )
+
+    assert pending.state == :pending
+    assert pending.attempts == 0
+    assert pending.next_attempt_at_ms == 2
+    assert pending.owner_node == nil
+
+    assert {:ok, recovered} = JobStore.claim(job.job_id, "worker-b", 2, 100, opts)
+
+    assert {:error, {:stale_lease, _}} =
+             JobStore.complete(job.job_id, "worker-a", original.fencing_token, 3, opts)
+
+    assert {:ok, still_pending} =
+             JobStore.fail(
+               job.job_id,
+               "worker-b",
+               recovered.fencing_token,
+               {:replication_reconciliation_required, {:head_unavailable, :timeout}},
+               3,
+               opts
+             )
+
+    assert still_pending.state == :pending
+    assert still_pending.attempts == 0
+
+    assert {:ok, final} = JobStore.claim(job.job_id, "worker-c", 4, 100, opts)
+
+    assert {:ok, failed} =
+             JobStore.fail(
+               job.job_id,
+               "worker-c",
+               final.fencing_token,
+               {:http_error, 403},
+               5,
+               opts
+             )
+
+    assert failed.state == :failed
+    assert failed.attempts == 1
+  end
+
+  test "maintenance failures retain their terminal limit for replication-shaped reasons" do
+    {:ok, backend} = Backend.start_link()
+    seed_job(backend, "maintenance", 0, max_attempts: 1)
+    opts = [backend: Backend, engine: backend]
+    assert {:ok, claimed} = JobStore.claim("maintenance", "worker", 0, 100, opts)
+
+    assert {:ok, failed} =
+             JobStore.fail(
+               claimed.job_id,
+               "worker",
+               claimed.fencing_token,
+               {:replication_reconciliation_required, :head_changed},
+               1,
+               opts
+             )
+
+    assert failed.state == :failed
+  end
+
+  test "a reclaimed replication job repairs current bytes after a transfer process crash" do
+    alias ExStorageService.CrossClusterReplication.Handler
+    alias ExStorageService.{Context, InstanceConfig}
+
+    {:ok, backend} = Backend.start_link()
+    old = %{content_hash: "old-hash", version_id: "old"}
+    latest = %{content_hash: "new-hash", version_id: "new"}
+    {:ok, replica} = Agent.start_link(fn -> %{head: old, remote: nil} end)
+
+    {:ok, job} =
+      Job.new(
+        "crashed-operation",
+        %{
+          id: "crashed-replication",
+          kind: :cross_cluster_put,
+          payload: %{
+            bucket: "bucket",
+            key: "key",
+            object: old,
+            replica: %{endpoint: "https://dr.example"}
+          }
+        },
+        0,
+        max_attempts: 1
+      )
+
+    Backend.seed(backend, Keys.job(job.job_id), Job.to_map(job))
+    metadata_opts = [backend: Backend, engine: backend]
+    {:ok, config} = InstanceConfig.new(auto_start: false)
+    context = Context.new(config)
+
+    head = fn _, _, _ ->
+      {:ok, %{delete_marker: false, metadata: Agent.get(replica, & &1.head)}}
+    end
+
+    assert {:ok, claimed} = JobStore.claim(job.job_id, "original-node", 0, 10, metadata_opts)
+
+    {_pid, monitor} =
+      spawn_monitor(fn ->
+        Handler.perform(claimed, context,
+          head: head,
+          config: ReplicaConfig,
+          put: fn _, _, _, current, _ ->
+            Agent.update(replica, &Map.put(&1, :remote, current))
+            exit(:kill)
+          end
+        )
+      end)
+
+    assert_receive {:DOWN, ^monitor, :process, _, :kill}
+    assert Agent.get(replica, & &1.remote) == old
+    Agent.update(replica, &Map.put(&1, :head, latest))
+
+    assert {:ok, recovered} = JobStore.claim(job.job_id, "recovery-node", 11, 100, metadata_opts)
+    assert recovered.attempts > recovered.max_attempts
+
+    put = fn _, _, _, current, _ -> Agent.update(replica, &Map.put(&1, :remote, current)) end
+
+    assert :ok = Handler.perform(recovered, context, head: head, put: put, config: ReplicaConfig)
+    assert Agent.get(replica, & &1.remote) == latest
+
+    assert {:ok, completed} =
+             JobStore.complete(
+               recovered.job_id,
+               "recovery-node",
+               recovered.fencing_token,
+               12,
+               metadata_opts
+             )
+
+    assert completed.state == :completed
   end
 
   test "job keys encode arbitrary identifiers" do
