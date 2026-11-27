@@ -23,6 +23,8 @@ defmodule ExStorageService.Storage.Lifecycle do
   require Logger
 
   alias ExStorageService.Metadata
+  alias ExStorageService.Metadata.{BucketLifecycle, ObjectCommit}
+  alias ExStorageService.Metadata.Backend.Concord, as: Backend
   alias ExStorageService.Storage.Pack
 
   @default_interval :timer.hours(1)
@@ -89,15 +91,21 @@ defmodule ExStorageService.Storage.Lifecycle do
   @doc """
   Evaluate rules for a specific bucket. Can be called directly without GenServer.
   """
-  @spec evaluate_bucket(String.t()) :: {:ok, non_neg_integer()}
+  @spec evaluate_bucket(String.t()) :: {:ok, non_neg_integer()} | {:error, term()}
   def evaluate_bucket(bucket) do
-    case get_rules(bucket) do
-      {:ok, rules} ->
-        deleted_count = do_evaluate_bucket(bucket, rules)
-        {:ok, deleted_count}
+    with {:ok, bucket_meta} <- Metadata.get_bucket(bucket),
+         {:ok, rules} <- get_rules(bucket) do
+      case Enum.filter(rules, &(&1.status == "Enabled")) do
+        [] ->
+          {:ok, 0}
 
-      {:error, :not_found} ->
-        {:ok, 0}
+        enabled ->
+          opts = [bucket_generation: BucketLifecycle.generation(bucket_meta)]
+          evaluate_pages(bucket, enabled, DateTime.utc_now(), opts, 0)
+      end
+    else
+      {:error, :not_found} -> {:ok, 0}
+      error -> error
     end
   end
 
@@ -134,21 +142,8 @@ defmodule ExStorageService.Storage.Lifecycle do
   ## Private
 
   defp evaluate_all_buckets do
-    case Concord.get_all() do
-      {:ok, all} ->
-        buckets =
-          all
-          |> Enum.filter(fn {k, _v} -> String.starts_with?(k, "lifecycle:") end)
-          |> Enum.map(fn {k, v} ->
-            bucket = String.replace_prefix(k, "lifecycle:", "")
-            {bucket, v}
-          end)
-
-        total =
-          Enum.reduce(buckets, 0, fn {bucket, rules}, acc ->
-            acc + do_evaluate_bucket(bucket, rules)
-          end)
-
+    case evaluate_rule_pages(nil, 0) do
+      {:ok, total} ->
         Logger.info("Lifecycle evaluation complete: #{total} objects changed")
         {:ok, total}
 
@@ -158,22 +153,43 @@ defmodule ExStorageService.Storage.Lifecycle do
     end
   end
 
-  defp do_evaluate_bucket(bucket, rules) do
-    enabled_rules = Enum.filter(rules, &(&1.status == "Enabled" || &1[:status] == "Enabled"))
+  defp evaluate_rule_pages(cursor, total) do
+    with {:ok, page} <- Backend.list_page("lifecycle:", cursor, 100, consistency: :linearizable) do
+      total =
+        Enum.reduce(page.entries, total, fn %{key: "lifecycle:" <> bucket}, acc ->
+          case evaluate_bucket(bucket) do
+            {:ok, count} ->
+              acc + count
 
-    if enabled_rules == [] do
-      0
-    else
-      case Metadata.list_objects(bucket) do
-        {:ok, %{keys: objects}} ->
-          now = DateTime.utc_now()
+            {:error, reason} ->
+              Logger.warning("Lifecycle evaluation failed for #{bucket}: #{inspect(reason)}")
+              acc
+          end
+        end)
 
-          Enum.reduce(objects, 0, fn {key, meta}, acc ->
-            acc + apply_lifecycle_action(bucket, key, meta, enabled_rules, now)
-          end)
+      if page.next_cursor, do: evaluate_rule_pages(page.next_cursor, total), else: {:ok, total}
+    end
+  end
 
-        _ ->
-          0
+  defp evaluate_pages(bucket, rules, now, opts, total) do
+    with {:ok, page} <- Metadata.list_objects(bucket, opts),
+         {:ok, count} <-
+           Enum.reduce_while(page.keys, {:ok, total}, fn {key, meta}, {:ok, acc} ->
+             case apply_lifecycle_action(bucket, key, meta, rules, now, opts) do
+               {:ok, changed} -> {:cont, {:ok, acc + changed}}
+               error -> {:halt, error}
+             end
+           end) do
+      if page.is_truncated do
+        evaluate_pages(
+          bucket,
+          rules,
+          now,
+          Keyword.put(opts, :continuation_token, page.next_continuation_token),
+          count
+        )
+      else
+        {:ok, count}
       end
     end
   end
@@ -217,24 +233,26 @@ defmodule ExStorageService.Storage.Lifecycle do
     end)
   end
 
-  defp apply_lifecycle_action(bucket, key, meta, rules, now) do
+  defp apply_lifecycle_action(bucket, key, meta, rules, now, opts) do
     cond do
       should_expire?(key, meta, rules, now) ->
-        Metadata.delete_object_meta(bucket, key)
-
-        # NOTE: We deliberately do NOT call Engine.delete_content here.
-        # Content storage is content-addressed: multiple object keys may
-        # share the same content hash. Directly deleting the file would
-        # corrupt any other key that references the same hash.
-        # ContentGC will remove the file in its next pass once no
-        # metadata references remain.
-        1
+        # ContentGC owns shared blob reclamation after metadata expiration.
+        case ObjectCommit.delete_current_if(
+               bucket,
+               key,
+               &should_expire?(key, &1, rules, now),
+               opts
+             ) do
+          {:ok, :skipped} -> {:ok, 0}
+          {:ok, _commit} -> {:ok, 1}
+          error -> error
+        end
 
       should_transition?(key, meta, rules, now) ->
-        transition_to_pack(meta)
+        {:ok, transition_to_pack(meta)}
 
       true ->
-        0
+        {:ok, 0}
     end
   end
 

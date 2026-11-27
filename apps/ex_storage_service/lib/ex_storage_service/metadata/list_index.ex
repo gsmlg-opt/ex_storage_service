@@ -398,6 +398,7 @@ defmodule ExStorageService.Metadata.ListIndex do
   defp coherent_page(backend, bucket, kind, bound, opts, attempts) do
     with {:ok, bucket_record} <- bucket_record(backend, bucket, opts),
          generation = BucketLifecycle.generation(bucket_record.value),
+         :ok <- check_page_generation(generation, opts),
          key = root_key(bucket, generation),
          {:ok, initial} <- backend.get(key, read_opts(opts)),
          :ok <- ready(initial, generation) do
@@ -434,6 +435,12 @@ defmodule ExStorageService.Metadata.ListIndex do
         end
       end
     end
+  end
+
+  defp check_page_generation(generation, opts) do
+    if Keyword.get(opts, :bucket_generation, generation) == generation,
+      do: :ok,
+      else: {:error, :bucket_generation_changed}
   end
 
   defp collect(tree, bound, exclusive, opts, entries, stats) do

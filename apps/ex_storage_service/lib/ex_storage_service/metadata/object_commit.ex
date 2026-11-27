@@ -120,6 +120,29 @@ defmodule ExStorageService.Metadata.ObjectCommit do
     end
   end
 
+  @doc "Deletes the current object only if the selected head still satisfies the predicate."
+  @spec delete_current_if(String.t(), String.t(), (map() -> boolean()), keyword()) ::
+          {:ok, :skipped | commit_result()} | {:error, term()}
+  def delete_current_if(bucket, key, predicate, opts \\ []) do
+    with {:ok, selected} <- latest_record(backend(opts), bucket, key, opts) do
+      if selected.record && not Map.get(selected.record.value, :delete_marker, false) &&
+           predicate.(version_to_public(selected.record.value)) do
+        delete_opts =
+          Keyword.merge(opts,
+            bucket_versioning: true,
+            if_head_revision: selected.head.mod_revision
+          )
+
+        case delete_marker(bucket, key, delete_opts) do
+          {:error, :precondition_failed} -> {:ok, :skipped}
+          result -> result
+        end
+      else
+        {:ok, :skipped}
+      end
+    end
+  end
+
   # Independent linearizable reads do not form a snapshot. Bracket the selected
   # record with the head revision, including for the replaceable null version.
   # Pin the bucket generation across retries, but not its revision: unrelated
@@ -458,6 +481,7 @@ defmodule ExStorageService.Metadata.ObjectCommit do
          version_key = Keys.object_version(bucket, key, version_id),
          {:ok, previous_version} <- backend.get(version_key, read_opts(opts)),
          {:ok, observed_head} <- backend.get(head_key, read_opts(opts)),
+         :ok <- check_head_revision(observed_head, opts[:if_head_revision]),
          :ok <- check_preconditions(backend, bucket, key, observed_head, opts),
          {:ok, parent_version_id} <-
            observed_parent_version_id(backend, bucket, key, observed_head, opts),
@@ -1309,6 +1333,10 @@ defmodule ExStorageService.Metadata.ObjectCommit do
 
   defp versioning_state(_record), do: {:error, :invalid_versioning_state}
 
+  defp check_head_revision(_head, nil), do: :ok
+  defp check_head_revision(%{mod_revision: revision}, revision), do: :ok
+  defp check_head_revision(_head, _revision), do: {:error, :precondition_failed}
+
   # Preconditions are evaluated against the same revision compared by commit.
   # A failed compare retries this evaluation, so two create-only writers cannot
   # both succeed and a stale ETag cannot overwrite a concurrent replacement.
@@ -1503,7 +1531,7 @@ defmodule ExStorageService.Metadata.ObjectCommit do
 
     fingerprint(
       {bucket, key, kind, stable_metadata, durability_fingerprint(opts[:durability]),
-       Keyword.take(opts, [:if_match, :if_none_match, :bucket_versioning])}
+       Keyword.take(opts, [:if_match, :if_none_match, :if_head_revision, :bucket_versioning])}
     )
   end
 
