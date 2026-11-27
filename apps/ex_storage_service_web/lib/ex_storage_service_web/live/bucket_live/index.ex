@@ -84,13 +84,17 @@ defmodule ExStorageServiceWeb.BucketLive.Index do
   end
 
   def handle_event("delete_bucket", %{"name" => name}, socket) do
-    case Metadata.list_objects(name, max_keys: 1) do
-      {:ok, %{keys: []}} ->
-        Metadata.delete_bucket(name)
+    case Metadata.delete_bucket(name) do
+      :ok ->
         {:noreply, socket |> put_flash(:info, "Bucket \"#{name}\" deleted") |> load_buckets()}
 
-      {:ok, _} ->
-        {:noreply, put_flash(socket, :error, "Bucket \"#{name}\" is not empty")}
+      {:error, :bucket_not_empty} ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           "Bucket \"#{name}\" is not empty (objects, versions or multipart uploads remain)"
+         )}
 
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, "Failed: #{inspect(reason)}")}

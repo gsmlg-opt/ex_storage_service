@@ -13,6 +13,7 @@ defmodule ExStorageService.ObjectService do
   alias ExStorageService.Context
   alias ExStorageService.Metadata
   alias ExStorageService.Metadata.OperationIntents
+  alias ExStorageService.ObjectService.DefaultSideEffects
   alias ExStorageService.Storage.{StagingRecovery, Versioning}
 
   @type result :: %{
@@ -872,9 +873,12 @@ defmodule ExStorageService.ObjectService do
   end
 
   defp run_side_effect_module(effects, action, bucket, key) do
-    effect = effect_name(action)
-    if function_exported?(effects, effect, 2), do: apply(effects, effect, [bucket, key])
-    if function_exported?(effects, :broadcast, 3), do: effects.broadcast(bucket, action, key)
+    if Code.ensure_loaded?(effects) do
+      effect = effect_name(action)
+      if function_exported?(effects, effect, 2), do: apply(effects, effect, [bucket, key])
+      if function_exported?(effects, :broadcast, 3), do: effects.broadcast(bucket, action, key)
+    end
+
     :ok
   end
 

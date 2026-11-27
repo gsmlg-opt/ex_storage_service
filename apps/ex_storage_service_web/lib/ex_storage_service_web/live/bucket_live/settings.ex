@@ -344,21 +344,22 @@ defmodule ExStorageServiceWeb.BucketLive.Settings do
   def handle_event("confirm_delete_bucket", _params, socket) do
     name = socket.assigns.bucket_name
 
-    case Metadata.list_objects(name, max_keys: 1) do
-      {:ok, %{keys: []}} ->
-        Metadata.delete_bucket(name)
-
+    case Metadata.delete_bucket(name) do
+      :ok ->
         {:noreply,
          socket
          |> assign(show_confirm_modal: false)
          |> put_flash(:info, "Bucket \"#{name}\" deleted")
          |> push_navigate(to: ~p"/buckets")}
 
-      {:ok, _} ->
+      {:error, :bucket_not_empty} ->
         {:noreply,
          socket
          |> assign(show_confirm_modal: false)
-         |> put_flash(:error, "Cannot delete: bucket \"#{name}\" is not empty")}
+         |> put_flash(
+           :error,
+           "Cannot delete: bucket \"#{name}\" is not empty (objects, versions or multipart uploads remain)"
+         )}
 
       {:error, reason} ->
         {:noreply,

@@ -2,9 +2,11 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
   use ExStorageServiceWeb, :live_view
 
   alias ExStorageService.Metadata
-  alias ExStorageService.Storage.Versioning
+  alias ExStorageService.ObjectService
   alias ExStorageService.CloudCache.Config, as: CloudConfig
   alias ExStorageService.CloudCache.Client, as: CloudClient
+
+  @page_size 100
 
   @impl true
   def mount(%{"name" => name}, _session, socket) do
@@ -29,7 +31,8 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
            prefix: "",
            objects: [],
            folders: [],
-           total_count: 0
+           continuation_token: nil,
+           next_continuation_token: nil
          )
          |> assign(cloud_cache: cloud_cache, cloud_loading: false, cloud_error: nil)
          |> assign(
@@ -48,7 +51,16 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
   @impl true
   def handle_params(params, _url, socket) do
     prefix = Map.get(params, "prefix", "")
-    {:noreply, socket |> assign(:prefix, prefix) |> load_objects()}
+    continuation_token = Map.get(params, "continuation_token")
+
+    {:noreply,
+     socket
+     |> assign(
+       prefix: prefix,
+       continuation_token: continuation_token,
+       show_confirm_modal: false
+     )
+     |> load_objects()}
   end
 
   @impl true
@@ -70,6 +82,10 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
     {:noreply, push_patch(socket, to: path)}
   end
 
+  def handle_event("refresh_files", _params, socket) do
+    {:noreply, load_objects(socket)}
+  end
+
   def handle_event("open_confirm_modal", %{"key" => key, "name" => name}, socket) do
     {:noreply,
      assign(socket,
@@ -85,24 +101,30 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
     {:noreply, assign(socket, show_confirm_modal: false)}
   end
 
+  def handle_event("confirm_delete_object", _params, %{assigns: %{cloud_cache: config}} = socket)
+      when not is_nil(config) do
+    {:noreply,
+     socket
+     |> assign(show_confirm_modal: false)
+     |> put_flash(:error, "Cloud-cache objects must be deleted through the S3 API")}
+  end
+
   def handle_event("confirm_delete_object", %{"key" => key}, socket) do
     bucket = socket.assigns.bucket_name
 
-    case Metadata.get_object_meta(bucket, key) do
-      {:ok, _meta} ->
-        Versioning.delete_version(bucket, key)
-
+    case ObjectService.delete(bucket, key, nil) do
+      {:ok, _result} ->
         {:noreply,
          socket
          |> assign(show_confirm_modal: false)
          |> put_flash(:info, "Deleted \"#{key}\"")
          |> load_objects()}
 
-      {:error, :not_found} ->
+      {:error, reason} ->
         {:noreply,
          socket
          |> assign(show_confirm_modal: false)
-         |> put_flash(:error, "Object not found")}
+         |> put_flash(:error, "Failed to delete \"#{key}\": #{inspect(reason)}")}
     end
   end
 
@@ -352,7 +374,7 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
             <% end %>
           </tbody>
         </table>
-        <%= if @folders == [] and @objects == [] do %>
+        <%= if @folders == [] and @objects == [] and is_nil(@cloud_error) do %>
           <div class="flex flex-col items-center gap-2 px-6 py-16 text-on-surface-variant">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -365,15 +387,42 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
               <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
             </svg>
             <p class="text-sm">
-              <%= if @prefix == "" do %>
-                No objects in this bucket.
-              <% else %>
-                This folder is empty.
+              <%= cond do %>
+                <% @continuation_token -> %>
+                  No entries on this page.
+                <% @prefix == "" -> %>
+                  No objects in this bucket.
+                <% true -> %>
+                  This folder is empty.
               <% end %>
             </p>
           </div>
         <% end %>
       </div>
+
+      <nav aria-label="File pages" class="flex items-center justify-end gap-2 mt-4">
+        <.dm_link
+          :if={@continuation_token}
+          id="first-file-page"
+          patch={~p"/buckets/#{@bucket_name}/files?#{%{prefix: @prefix}}"}
+          class="btn btn-ghost btn-sm"
+        >
+          First page
+        </.dm_link>
+        <.dm_btn id="refresh-files" type="button" phx-click="refresh_files" class="btn-sm">
+          Refresh
+        </.dm_btn>
+        <.dm_link
+          :if={@next_continuation_token}
+          id="next-file-page"
+          patch={
+            ~p"/buckets/#{@bucket_name}/files?#{%{prefix: @prefix, continuation_token: @next_continuation_token}}"
+          }
+          class="btn btn-primary btn-sm"
+        >
+          Next page
+        </.dm_link>
+      </nav>
 
       <.confirm_modal
         show={@show_confirm_modal}
@@ -390,43 +439,51 @@ defmodule ExStorageServiceWeb.BucketLive.Files do
   defp load_objects(socket) do
     bucket = socket.assigns.bucket_name
     prefix = socket.assigns.prefix
+    continuation_token = socket.assigns.continuation_token
 
-    case socket.assigns.cloud_cache do
-      nil ->
-        # Local storage: read from Concord metadata
-        case Metadata.list_objects(bucket, prefix: prefix, delimiter: "/") do
-          {:ok, %{keys: keys, common_prefixes: common_prefixes}} ->
-            objects = Enum.map(keys, fn {key, meta} -> Map.put(meta, :key, key) end)
+    opts = [
+      prefix: prefix,
+      delimiter: "/",
+      max_keys: @page_size,
+      continuation_token: continuation_token
+    ]
 
-            socket
-            |> assign(:objects, objects)
-            |> assign(:folders, common_prefixes)
-            |> assign(:cloud_error, nil)
+    result =
+      case socket.assigns.cloud_cache do
+        nil -> Metadata.list_objects(bucket, opts)
+        config -> CloudClient.list_objects(config, opts)
+      end
 
-          _ ->
-            socket
-            |> assign(:objects, [])
-            |> assign(:folders, [])
-            |> assign(:cloud_error, nil)
-        end
+    case result do
+      {:ok, page} ->
+        truncated = Map.get(page, :is_truncated, Map.get(page, :truncated, false))
 
-      cloud_config ->
-        # Cloud cache: list from the remote S3/R2/MinIO bucket
-        case CloudClient.list_objects(cloud_config, prefix: prefix, delimiter: "/") do
-          {:ok, %{keys: keys, common_prefixes: common_prefixes}} ->
-            objects = Enum.map(keys, fn {key, meta} -> Map.put(meta, :key, key) end)
+        {next_token, error} =
+          case {truncated, page.next_continuation_token} do
+            {false, _token} ->
+              {nil, nil}
 
-            socket
-            |> assign(:objects, objects)
-            |> assign(:folders, common_prefixes)
-            |> assign(:cloud_error, nil)
+            {true, token} when is_binary(token) and token != "" and token != continuation_token ->
+              {token, nil}
 
-          {:error, reason} ->
-            socket
-            |> assign(:objects, [])
-            |> assign(:folders, [])
-            |> assign(:cloud_error, "Failed to list remote objects: #{inspect(reason)}")
-        end
+            _ ->
+              {nil, "The listing is truncated but returned no advancing continuation token"}
+          end
+
+        assign(socket,
+          objects: Enum.map(page.keys, fn {key, meta} -> Map.put(meta, :key, key) end),
+          folders: page.common_prefixes,
+          next_continuation_token: next_token,
+          cloud_error: error
+        )
+
+      {:error, reason} ->
+        assign(socket,
+          objects: [],
+          folders: [],
+          next_continuation_token: nil,
+          cloud_error: "Failed to list objects: #{inspect(reason)}"
+        )
     end
   end
 
