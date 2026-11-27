@@ -54,7 +54,8 @@ defmodule ExStorageService.CloudCache.WriteThrough do
       case client.put_file(config, key, staged.path, attributes.content_type, metadata,
              size: staged.size,
              sha256: staged.hash,
-             headers: Map.get(attributes, :headers, [])
+             headers:
+               Map.get(attributes, :headers, []) ++ Keyword.get(opts, :precondition_headers, [])
            ) do
         :ok ->
           finish(record, config, opts)

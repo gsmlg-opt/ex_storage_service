@@ -536,10 +536,9 @@ defmodule ExStorageServiceS3.Handlers.Object do
         |> put_resp_header("content-type", content_type)
         |> put_resp_header("etag", quoted_etag)
         |> put_resp_header("last-modified", last_modified)
-        |> put_resp_header("content-length", to_string(size))
         |> put_resp_header("accept-ranges", "bytes")
         |> put_custom_metadata_headers(metadata)
-        |> send_resp(200, "")
+        |> send_head_response(size)
     end
   end
 

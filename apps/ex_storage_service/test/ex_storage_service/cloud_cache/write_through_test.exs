@@ -70,6 +70,7 @@ defmodule ExStorageService.CloudCache.WriteThroughTest do
   defmodule Client do
     def put_file(_config, _key, path, _type, metadata, opts) do
       Process.put(:upstream_calls, Process.get(:upstream_calls, 0) + 1)
+      Process.put(:upstream_headers, opts[:headers])
       Process.put(:upstream_identity, %{metadata: metadata, content_length: opts[:size]})
       assert_valid_stage(path, opts)
       before_result = Process.get(:before_upstream_result, fn -> :ok end)
@@ -603,6 +604,35 @@ defmodule ExStorageService.CloudCache.WriteThroughTest do
     refute File.exists?(context.staged.path)
     refute Process.get(:local_metadata)
     assert {:ok, %{results: []}} = WriteThrough.reconcile_page(nil, 10, context.opts)
+  end
+
+  test "upstream precondition failure preserves metadata and cache without reconciliation",
+       context do
+    old = converted_version(context, "existing", true)
+    capture_uncertainty()
+    Process.put(:upstream_result, {:error, {:http_error, 412}})
+
+    context = %{
+      context
+      | config: %{context.config | cache_enabled: true},
+        opts:
+          context.opts
+          |> Keyword.put(:cache, BusyCache)
+          |> Keyword.put(:precondition_headers, [{"if-match", "\"old\""}])
+    }
+
+    assert {:error, {:http_error, 412}} = put(context)
+    assert Process.get(:upstream_headers) == [{"if-match", "\"old\""}]
+
+    assert {:ok, %{value: ^old}} =
+             Backend.get(Keys.object_version("local", "key", "existing"), [])
+
+    refute Process.get(:local_metadata)
+    refute_received {:cache_generation, _}
+    refute_received {:operation_uncertainty, _}
+    refute File.exists?(context.staged.path)
+    assert {:ok, %{results: []}} = WriteThrough.reconcile_page(nil, 10, context.opts)
+    assert Process.get(:upstream_calls) == 1
   end
 
   test "reconciliation cannot publish into a deleted and recreated bucket", context do

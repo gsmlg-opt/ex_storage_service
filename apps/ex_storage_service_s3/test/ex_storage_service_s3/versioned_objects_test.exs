@@ -82,6 +82,48 @@ defmodule ExStorageServiceS3.VersionedObjectsTest do
     assert Req.Response.get_header(resp, "x-amz-version-id") == []
   end
 
+  test "explicit-version HEAD applies ranges and HTTP-second date conditions" do
+    bucket = create_versioned_bucket()
+    url = "#{@base_url}/#{bucket}/head-range"
+
+    {:ok, publication} =
+      ExStorageService.ObjectService.put(bucket, "head-range", "0123456789", "text/plain", %{},
+        timestamp: "2026-11-27T08:00:00.123456Z"
+      )
+
+    version = publication.version_id
+    assert Req.put!(url, body: "replacement", retry: false).status == 200
+    version_url = url <> "?versionId=" <> URI.encode_www_form(version)
+    head = Req.head!(version_url, retry: false)
+    [modified] = Req.Response.get_header(head, "last-modified")
+
+    for method <- [:get, :head] do
+      assert Req.request!(
+               method: method,
+               url: version_url,
+               retry: false,
+               headers: [{"if-modified-since", modified}]
+             ).status == 304
+
+      assert Req.request!(
+               method: method,
+               url: version_url,
+               retry: false,
+               headers: [{"if-unmodified-since", modified}]
+             ).status == 200
+    end
+
+    range = Req.head!(version_url, retry: false, headers: [{"range", "bytes=2-4"}])
+    assert range.status == 200
+    assert Req.Response.get_header(range, "content-length") == ["3"]
+    assert Req.Response.get_header(range, "x-amz-version-id") == [version]
+    assert range.body == ""
+
+    invalid = Req.head!(version_url, retry: false, headers: [{"range", "bytes=20-30"}])
+    assert invalid.status == 416
+    assert Req.Response.get_header(invalid, "content-range") == ["bytes */10"]
+  end
+
   test "multipart writes distinguish never-enabled and suspended null versions" do
     bucket = unique_bucket()
     assert {:ok, %{status: 201}} = Req.put("#{@base_url}/#{bucket}", body: "")

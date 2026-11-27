@@ -107,7 +107,7 @@ defmodule ExStorageServiceS3.Handlers.Object.CloudBackend do
               storage_error_response(conn, :precondition_failed, "/#{bucket}/#{key}", request_id)
 
             :ok when head? ->
-              send_resp(conn, 200, "")
+              send_head_response(conn, meta.content_length)
 
             :ok ->
               serve_remote(conn, bucket, key, config, meta, request_id)
@@ -422,7 +422,11 @@ defmodule ExStorageServiceS3.Handlers.Object.CloudBackend do
                attributes,
                request_id,
                bucket_generation: generation,
-               blob_store_opts: stage_opts
+               blob_store_opts: stage_opts,
+               precondition_headers:
+                 Enum.filter(conn.req_headers, fn {name, _value} ->
+                   name in ["if-match", "if-none-match"]
+                 end)
              ) do
           {:ok, %{etag: etag}} ->
             Hooks.after_put(bucket, key)

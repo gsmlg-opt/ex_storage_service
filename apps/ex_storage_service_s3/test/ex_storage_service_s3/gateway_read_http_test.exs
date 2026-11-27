@@ -139,6 +139,22 @@ defmodule ExStorageServiceS3.GatewayReadHTTPTest do
     assert head.headers["content-length"] == ["11"]
   end
 
+  test "HEAD ranges select lengths without downloading the upstream body", context do
+    for {range, length} <- [{"bytes=2-4", "3"}, {"bytes=-4", "4"}, {"bytes=7-", "3"}] do
+      response = Req.head!(context.url, retry: false, headers: [{"range", range}])
+      assert response.status == 200
+      assert response.body == ""
+      assert Req.Response.get_header(response, "content-length") == [length]
+      assert Req.Response.get_header(response, "etag") == ["\"first\""]
+    end
+
+    invalid = Req.head!(context.url, retry: false, headers: [{"range", "bytes=20-30"}])
+    assert invalid.status == 416
+    assert Req.Response.get_header(invalid, "content-range") == ["bytes */10"]
+    assert Req.Response.get_header(invalid, "x-amz-checksum-crc32") == []
+    assert Enum.all?(Agent.get(context.agent, & &1.requests), &(elem(&1, 0) == "HEAD"))
+  end
+
   test "gateway cache and real upstream errors expose finite operational outcomes", context do
     :ok = ExStorageService.Metrics.setup()
     :ok = ExStorageService.Metrics.reset()

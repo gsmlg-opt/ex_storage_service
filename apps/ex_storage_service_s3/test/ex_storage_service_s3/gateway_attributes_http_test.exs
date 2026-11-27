@@ -14,12 +14,24 @@ defmodule ExStorageServiceS3.GatewayAttributesHTTPTest do
         "PUT" ->
           {:ok, body, conn} = read_body(conn)
 
-          Agent.update(
-            agent,
-            &Map.put(&1, conn.request_path, %{body: body, headers: conn.req_headers})
-          )
+          status =
+            Agent.get_and_update(agent, fn state ->
+              current = Map.get(state, conn.request_path)
+              match = get_req_header(conn, "if-match")
+              none_match = get_req_header(conn, "if-none-match")
 
-          send_resp(conn, 200, "")
+              state =
+                Map.update(state, :put_requests, [conn.req_headers], &[conn.req_headers | &1])
+
+              if (none_match == ["*"] and current != nil) or
+                   (match != [] and (current == nil or match != [etag(current)])) do
+                {412, state}
+              else
+                {200, Map.put(state, conn.request_path, %{body: body, headers: conn.req_headers})}
+              end
+            end)
+
+          send_resp(conn, status, "")
 
         method when method in ["HEAD", "GET"] ->
           Agent.update(
@@ -45,15 +57,15 @@ defmodule ExStorageServiceS3.GatewayAttributesHTTPTest do
                 end)
 
               conn
-              |> put_resp_header(
-                "etag",
-                "\"" <> Base.encode16(:crypto.hash(:md5, object.body), case: :lower) <> "\""
-              )
+              |> put_resp_header("etag", etag(object))
               |> put_resp_header("content-length", to_string(byte_size(object.body)))
               |> send_resp(200, if(method == "HEAD", do: "", else: object.body))
           end
       end
     end
+
+    defp etag(object),
+      do: "\"" <> Base.encode16(:crypto.hash(:md5, object.body), case: :lower) <> "\""
   end
 
   setup do
@@ -123,6 +135,46 @@ defmodule ExStorageServiceS3.GatewayAttributesHTTPTest do
     assert Req.Response.get_header(head, "content-encoding") == ["gzip"]
     assert Req.Response.get_header(head, "x-amz-meta-owner") == ["initial"]
     assert Agent.get(context.agent, & &1.checksum_mode) == ["ENABLED"]
+  end
+
+  test "gateway PUT enforces upstream preconditions without changing rejected local state",
+       context do
+    alias ExStorageService.CloudCache.LocalStore
+
+    url = @base <> "/#{context.bucket}/conditional"
+    first = Req.put!(url, body: "first", retry: false, headers: [{"if-none-match", "*"}])
+    assert first.status == 200
+    [etag] = Req.Response.get_header(first, "etag")
+    assert {:ok, original} = Metadata.get_object_meta(context.bucket, "conditional")
+    assert {:ok, cached} = LocalStore.get(context.bucket, "conditional")
+    assert File.read!(cached) == "first"
+
+    Agent.update(context.agent, fn state ->
+      Map.update!(state, "/remote/conditional", &%{&1 | body: "external"})
+    end)
+
+    for headers <- [[{"if-none-match", "*"}], [{"if-match", etag}]] do
+      rejected = Req.put!(url, body: "rejected", retry: false, headers: headers)
+      assert rejected.status == 412
+      assert rejected.body =~ "<Code>PreconditionFailed</Code>"
+      assert {:ok, ^original} = Metadata.get_object_meta(context.bucket, "conditional")
+      assert File.read!(cached) == "first"
+      assert Agent.get(context.agent, &Map.fetch!(&1, "/remote/conditional")).body == "external"
+    end
+
+    requests = Agent.get(context.agent, & &1.put_requests)
+    assert Enum.any?(requests, &({"if-none-match", "*"} in &1))
+    assert Enum.any?(requests, &({"if-match", etag} in &1))
+
+    external_etag = "\"" <> Base.encode16(:crypto.hash(:md5, "external"), case: :lower) <> "\""
+
+    accepted =
+      Req.put!(url, body: "updated", retry: false, headers: [{"if-match", external_etag}])
+
+    assert accepted.status == 200
+    assert Agent.get(context.agent, &Map.fetch!(&1, "/remote/conditional")).body == "updated"
+    assert {:ok, updated} = Metadata.get_object_meta(context.bucket, "conditional")
+    refute updated.etag == original.etag
   end
 
   test "copy to gateway recomputes a source composite checksum and preserves system headers",

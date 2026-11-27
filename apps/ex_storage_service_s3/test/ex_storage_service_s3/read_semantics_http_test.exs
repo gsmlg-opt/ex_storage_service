@@ -15,7 +15,11 @@ defmodule ExStorageServiceS3.ReadSemanticsHTTPTest do
     :ok = Policy.attach_policy(user.id, policy.id)
     bucket = "read-http-#{suffix}"
     :ok = Metadata.create_bucket(bucket)
-    {:ok, object} = ObjectService.put(bucket, "key", "object bytes", "text/plain", %{})
+
+    {:ok, object} =
+      ObjectService.put(bucket, "key", "object bytes", "text/plain", %{},
+        timestamp: "2026-11-27T08:00:00.123456Z"
+      )
 
     on_exit(fn ->
       Application.put_env(:ex_storage_service, :s3_auth_enabled, previous)
@@ -125,6 +129,35 @@ defmodule ExStorageServiceS3.ReadSemanticsHTTPTest do
     assert head.body == ""
     assert head.headers["content-length"] == [Integer.to_string(byte_size(get.body))]
     assert head.headers["etag"] == get.headers["etag"]
+  end
+
+  test "date conditions accept the unchanged Last-Modified value at HTTP precision", ctx do
+    response = signed(ctx.key, :get, @base <> ctx.path)
+    [modified] = response.headers["last-modified"]
+
+    for method <- [:get, :head] do
+      assert signed(ctx.key, method, @base <> ctx.path, [
+               {"if-modified-since", modified}
+             ]).status == 304
+
+      assert signed(ctx.key, method, @base <> ctx.path, [
+               {"if-unmodified-since", modified}
+             ]).status == 200
+    end
+  end
+
+  test "HEAD ranges report their selected length and reject unsatisfiable ranges", ctx do
+    for {range, length} <- [{"bytes=1-3", "3"}, {"bytes=-4", "4"}, {"bytes=7-", "5"}] do
+      response = signed(ctx.key, :head, @base <> ctx.path, [{"range", range}])
+      assert response.status == 200
+      assert response.body == ""
+      assert response.headers["content-length"] == [length]
+    end
+
+    response = signed(ctx.key, :head, @base <> ctx.path, [{"range", "bytes=20-30"}])
+    assert response.status == 416
+    assert response.body == ""
+    assert response.headers["content-range"] == ["bytes */12"]
   end
 
   defp signed(key, method, url, headers \\ []) do

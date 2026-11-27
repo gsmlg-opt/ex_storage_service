@@ -245,6 +245,9 @@ defmodule ExStorageServiceS3.Handlers.Shared do
   defp integrity_error({:http_error, 404}),
     do: {"NoSuchKey", "The specified upstream key does not exist."}
 
+  defp integrity_error({:http_error, 412}),
+    do: {"PreconditionFailed", "At least one precondition failed."}
+
   defp integrity_error({:http_error, status}) when status >= 500,
     do: {"ServiceUnavailable", "The upstream storage service is unavailable."}
 
@@ -832,6 +835,29 @@ defmodule ExStorageServiceS3.Handlers.Shared do
   end
 
   @doc false
+  def send_head_response(conn, size) do
+    range =
+      case get_req_header(conn, "range") do
+        [] -> {:ok, 0, size}
+        [value] -> parse_range(value, size)
+        _ -> {:error, :invalid_range}
+      end
+
+    case range do
+      {:ok, _offset, length} ->
+        conn
+        |> put_resp_header("content-length", Integer.to_string(length))
+        |> send_resp(200, "")
+
+      {:error, :invalid_range} ->
+        conn
+        |> omit_object_payload_headers()
+        |> put_resp_header("content-range", "bytes */#{size}")
+        |> send_resp(416, "")
+    end
+  end
+
+  @doc false
   def parse_range(range_header, total_size) do
     case Regex.run(~r/^bytes=(\d*)-(\d*)$/, range_header) do
       [_, start_str, ""] when start_str != "" ->
@@ -892,7 +918,7 @@ defmodule ExStorageServiceS3.Handlers.Shared do
       [ims_str | _] ->
         with {:ok, ims_dt} <- parse_http_date(ims_str),
              {:ok, obj_dt} <- parse_object_datetime(last_modified_raw) do
-          DateTime.compare(obj_dt, ims_dt) != :gt
+          DateTime.compare(DateTime.truncate(obj_dt, :second), ims_dt) != :gt
         else
           _ -> false
         end

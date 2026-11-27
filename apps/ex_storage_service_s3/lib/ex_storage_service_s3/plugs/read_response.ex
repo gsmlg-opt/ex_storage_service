@@ -88,7 +88,7 @@ defmodule ExStorageServiceS3.Plugs.ReadResponse do
     with [value | _] <- get_req_header(conn, "if-unmodified-since"),
          {:ok, limit} <- Shared.parse_http_date(value),
          {:ok, actual} <- Shared.parse_object_datetime(modified) do
-      DateTime.compare(actual, limit) == :gt
+      DateTime.compare(DateTime.truncate(actual, :second), limit) == :gt
     else
       _ -> false
     end
